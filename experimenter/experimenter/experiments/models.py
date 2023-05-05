@@ -209,6 +209,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     prevent_pref_conflicts = models.BooleanField(blank=True, null=True, default=False)
     proposed_release_date = models.DateField(blank=True, null=True)
 
+    is_localized = models.BooleanField(default=False)
+    localizations = models.TextField(blank=True, null=True)
+
     objects = NimbusExperimentManager()
 
     class Meta:
