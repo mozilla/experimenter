@@ -1314,9 +1314,9 @@ class TestNimbusExperiment(TestCase):
 
     def test_review_url_should_return_simple_review_url(self):
         with override_settings(
-            KINTO_ADMIN_URL="https://settings-writer.stage.mozaws.net/v1/admin/",
+            KINTO_ADMIN_URL="https://remote-settings.allizom.org/v1/admin/",
         ):
-            expected = "https://settings-writer.stage.mozaws.net/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
+            expected = "https://remote-settings.allizom.org/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
                 application=NimbusExperiment.Application.DESKTOP,

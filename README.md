@@ -14,7 +14,7 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 | Nimbus Home     | [/nimbus][nimbus_home_prod]                           | [/nimbus][nimbus_home_stage]                                       | [/nimbus][nimbus_home_local]                  |
 | Nimbus REST API | [/api/v6/experiments/][nimbus_rest_api_prod]          | [/api/v6/experiments/][nimbus_rest_api_stage]                      | [/api/v6/experiments/][nimbus_rest_api_local] |
 | GQL Playground  | [/api/v5/nimbus-api-graphql][gql_prod]                | [/api/v5/nimbus-api-graphql][gql_stage]                            | [/api/v5/nimbus-api-graphql][gql_local]       |
-| Remote Settings | [settings-writer.prod.mozaws.net/v1/admin][rs_prod]   | [settings-writer.stage.mozaws.net/v1/admin][rs_stage]              | http://localhost:8888/v1/admin                |
+| Remote Settings | [remote-settings.mozilla.org/v1/admin][rs_prod]       | [remote-settings.allizom.org/v1/admin][rs_stage]                   | http://localhost:8888/v1/admin                |
 
 [legacy_home_prod]: https://experimenter.services.mozilla.com/
 [legacy_home_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/
@@ -27,8 +27,8 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 [gql_prod]: https://experimenter.services.mozilla.com/api/v5/nimbus-api-graphql/
 [gql_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/api/v5/nimbus-api-graphql/
 [gql_local]: https://localhost/api/v5/nimbus-api-graphql/
-[rs_prod]: https://settings-writer.prod.mozaws.net/v1/admin/
-[rs_stage]: https://settings-writer.stage.mozaws.net/v1/admin/
+[rs_prod]: https://remote-settings.mozilla.org/v1/admin/
+[rs_stage]: https://remote-settings.allizom.org/v1/admin/
 
 ## Installation
 
