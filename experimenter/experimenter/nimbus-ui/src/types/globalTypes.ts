@@ -231,11 +231,13 @@ export interface ExperimentInput {
   isArchived?: boolean | null;
   isEnrollmentPaused?: boolean | null;
   isFirstRun?: boolean | null;
+  isLocalized?: boolean | null;
   isRollout?: boolean | null;
   isRolloutDirty?: boolean | null;
   isSticky?: boolean | null;
   languages?: (string | null)[] | null;
   locales?: (string | null)[] | null;
+  localizations?: string | null;
   name?: string | null;
   populationPercent?: string | null;
   preventPrefConflicts?: boolean | null;
