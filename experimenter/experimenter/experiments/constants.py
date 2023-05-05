@@ -367,6 +367,10 @@ class NimbusConstants(object):
         Application.FOCUS_IOS: Version.FIREFOX_105,
     }
 
+    LOCALIZATION_SUPPORTED_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_113,
+    }
+
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
     # limit the size of our slugs to the smallest limit, which is 80
@@ -421,6 +425,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_DESKTOP_ROLLOUT_VERSION = "WARNING: Decreasing the population size while the \
         rollout is live is not supported for Desktop versions under 114. You will still \
         be able to increase the population size."
+
+    ERROR_DESKTOP_LOCALIZATION_VERSION = (
+        "Firefox version must be at least 113 for localized experiments."
+    )
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra

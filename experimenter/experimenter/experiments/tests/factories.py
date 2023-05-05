@@ -59,8 +59,8 @@ FAKER_JSON_SCHEMA = """\
 TEST_LOCALIZATIONS = """\
 {
     "en-US": {
-        "bar": "en-US text",
-        "foo": "More en-US text"
+        "foo": "More en-US text",
+        "bar": "en-US text"
     },
     "en-CA": {
         "foo": "en-CA text",
