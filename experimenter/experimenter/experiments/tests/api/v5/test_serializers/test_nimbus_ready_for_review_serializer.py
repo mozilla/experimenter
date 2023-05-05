@@ -1,12 +1,19 @@
+import json
 from itertools import chain
 
 from django.test import TestCase
 from parameterized import parameterized
 
-from experimenter.base.tests.factories import CountryFactory, LanguageFactory
+from experimenter.base.tests.factories import (
+    CountryFactory,
+    LanguageFactory,
+    LocaleFactory,
+)
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
+    TEST_LOCALIZATIONS,
     NimbusBranchFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -1638,6 +1645,474 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.warnings, {})
 
+    def test_substitute_localizations(self):
+        value = {
+            "foo": {"$l10n": {"id": "foo", "text": "foo text", "comment": "foo comment"}},
+            "bar": [
+                {
+                    "$l10n": {
+                        "id": "bar",
+                        "text": "bar text",
+                        "comment": "bar comment",
+                    },
+                },
+                "baz",
+            ],
+            "qux": {
+                "quux": {
+                    "$l10n": {
+                        "id": "quux",
+                        "text": "quux text",
+                        "comment": "quux comment",
+                    }
+                },
+                "corge": "corge",
+            },
+            "grault": "grault",
+            "garply": None,
+        }
+
+        substitutions = {
+            "foo": "localized foo",
+            "bar": "localized bar",
+            "quux": "localized quux",
+        }
+
+        result = NimbusReviewSerializer._substitute_localizations(
+            value, substitutions, "en-US"
+        )
+
+        self.assertDictEqual(
+            result,
+            {
+                "foo": "localized foo",
+                "bar": ["localized bar", "baz"],
+                "qux": {
+                    "quux": "localized quux",
+                    "corge": "corge",
+                },
+                "grault": "grault",
+                "garply": None,
+            },
+        )
+
+    def test_localized_valid(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        locale_en_ca = LocaleFactory.create(code="en-CA")
+        locale_fr = LocaleFactory.create(code="fr")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us, locale_en_ca, locale_fr],
+            is_localized=True,
+            localizations=TEST_LOCALIZATIONS,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps(
+            {
+                "foo": {
+                    "$l10n": {"id": "foo", "text": "foo text", "comment": "foo comment"}
+                },
+                "bar": {
+                    "$l10n": {
+                        "id": "bar",
+                        "text": "bar text",
+                        "comment": "bar comment",
+                    }
+                },
+            }
+        )
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_localized_with_invalid_json(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us],
+            is_localized=True,
+            localizations="""{"en-US": {"error": "missing quote}}""",
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+        self.assertFalse(serializer.is_valid())
+
+        self.assertEqual(list(serializer.errors.keys()), ["localizations"])
+        self.assertEqual(len(serializer.errors["localizations"]), 1)
+        self.assertTrue(
+            serializer.errors["localizations"][0].startswith("Invalid JSON: ")
+        )
+
+    def test_localized_with_invalid_localization_locales(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        locale_en_ca = LocaleFactory.create(code="en-CA")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us, locale_en_ca],
+            is_sticky=True,
+            is_localized=True,
+            localizations="""{"en-US": {}}""",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            partial=True,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {"localizations": ["Experiment locale en-CA not present in localizations."]},
+        )
+
+    def test_localized_with_invalid_targeting_locales(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us],
+            is_sticky=True,
+            is_localized=True,
+            localizations="""{"en-US": {}, "en-CA": {}}""",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            partial=True,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "localizations": [
+                    "Localization locale en-CA does not exist in experiment locales.",
+                ]
+            },
+        )
+
+    def test_localized_with_invalid_localization_payload(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us],
+            is_sticky=True,
+            is_localized=True,
+            localizations="""{"en-US": []}""",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            partial=True,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(list(serializer.errors.keys()), ["localizations"])
+        self.assertEqual(len(serializer.errors["localizations"]), 1)
+        self.assertTrue(
+            serializer.errors["localizations"][0].startswith(
+                "Localization schema validation error: "
+            )
+        )
+
+    def test_localized_experiment_with_empty_locales(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[],
+            is_sticky=True,
+            is_localized=True,
+            localizations="""{"en-US": {}}""",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            partial=True,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {"locales": ["Locales must not be empty for a localized experiment."]},
+        )
+
+    def test_localized_with_invalid_min_version(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        locale_en_ca = LocaleFactory.create(code="en-CA")
+        locale_fr = LocaleFactory.create(code="fr")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us, locale_en_ca, locale_fr],
+            is_localized=True,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_112,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "firefox_min_version": [
+                    NimbusConstants.ERROR_DESKTOP_LOCALIZATION_VERSION,
+                ]
+            },
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.DESKTOP, True),
+            (NimbusExperiment.Application.FENIX, False),
+            (NimbusExperiment.Application.IOS, False),
+            (NimbusExperiment.Application.FOCUS_ANDROID, False),
+            (NimbusExperiment.Application.FOCUS_IOS, False),
+            (NimbusExperiment.Application.KLAR_ANDROID, False),
+            (NimbusExperiment.Application.KLAR_IOS, False),
+        ]
+    )
+    def test_localized_with_application(self, application, valid):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        locale_en_ca = LocaleFactory.create(code="en-CA")
+        locale_fr = LocaleFactory.create(code="fr")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            locales=[locale_en_us, locale_en_ca, locale_fr],
+            is_localized=True,
+            localizations=TEST_LOCALIZATIONS,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+        self.assertEqual(serializer.is_valid(), valid, serializer.errors)
+        if not valid:
+            self.assertEqual(
+                serializer.errors,
+                {
+                    "application": [
+                        "Localized experiments are only supported for Firefox Desktop."
+                    ]
+                },
+            )
+
+    def test_localized_with_missing_substitutions(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+            is_sticky=True,
+            is_localized=True,
+            localizations=json.dumps({"en-US": {}}),
+        )
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps(
+            {
+                "foo": {
+                    "$l10n": {"id": "foo", "text": "foo text", "comment": "foo comment"}
+                },
+                "bar": {
+                    "$l10n": {
+                        "id": "bar",
+                        "text": "bar text",
+                        "comment": "bar comment",
+                    }
+                },
+            }
+        )
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "localizations": [
+                    "Locale en-US is missing substitutions for IDs: bar, foo"
+                ]
+            },
+        )
+
+    def test_localized_with_invalid_substitutions(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+            is_sticky=True,
+            is_localized=True,
+            localizations=json.dumps(
+                {
+                    "en-US": {
+                        "foo": "foo text",
+                    }
+                }
+            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=BASIC_JSON_SCHEMA,
+                    application=NimbusExperiment.Application.DESKTOP,
+                ),
+            ],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps(
+            {
+                "directMigrateSingleProfile": {
+                    "$l10n": {"id": "foo", "text": "foo text", "comment": "foo comment"}
+                }
+            }
+        )
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_value": [
+                        (
+                            "Schema validation errors occured during locale "
+                            "substitution for locale en-US"
+                        ),
+                        "'foo text' is not of type 'boolean'",
+                    ]
+                }
+            },
+        )
+
+    @parameterized.expand(
+        [
+            (
+                {},
+                "$l10n object is missing 'id'",
+            ),
+            (
+                {"id": "foo"},
+                "$l10n object with id 'foo' is missing 'text'",
+            ),
+            (
+                {"id": "foo", "text": "foo text"},
+                "$l10n object with id 'foo' is missing 'comment'",
+            ),
+        ]
+    )
+    def test_localized_value_missing_keys(self, l10n_obj, error_msg):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+            is_sticky=True,
+            is_localized=True,
+            localizations=json.dumps(
+                {
+                    "en-US": {
+                        "foo": "foo text",
+                    }
+                }
+            ),
+        )
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps(
+            {
+                "foo": {
+                    "$l10n": l10n_obj,
+                },
+            }
+        )
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {"reference_branch": {"feature_value": [error_msg]}},
+        )
+
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
     def setUp(self):
@@ -2078,3 +2553,71 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertNotIn("reference_branch", serializer.warnings)
         self.assertNotIn("treatment_branch", serializer.warnings)
+
+    def test_localized_valid(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        locale_en_ca = LocaleFactory.create(code="en-CA")
+        locale_fr = LocaleFactory.create(code="fr")
+
+        feature_a = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature_b = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us, locale_en_ca, locale_fr],
+            is_localized=True,
+            localizations=TEST_LOCALIZATIONS,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+            feature_configs=[feature_a, feature_b],
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_a_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_a
+        )
+        feature_a_value.value = json.dumps(
+            {
+                "foo": {
+                    "$l10n": {
+                        "id": "foo",
+                        "text": "foo text",
+                        "comment": "foo comment",
+                    }
+                },
+            }
+        )
+        feature_a_value.save()
+
+        feature_b_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_b
+        )
+        feature_b_value.value = json.dumps(
+            {
+                "bar": {
+                    "$l10n": {
+                        "id": "bar",
+                        "text": "bar text",
+                        "comment": "bar comment",
+                    }
+                },
+            }
+        )
+        feature_b_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)

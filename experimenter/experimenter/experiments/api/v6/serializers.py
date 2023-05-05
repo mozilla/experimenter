@@ -127,6 +127,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     featureValidationOptOut = serializers.ReadOnlyField(
         source="is_client_schema_disabled"
     )
+    localizations = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -156,6 +157,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "proposedEnrollment",
             "referenceBranch",
             "featureValidationOptOut",
+            "localizations",
         )
 
     def get_application(self, obj):
@@ -198,3 +200,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     def get_referenceBranch(self, obj):
         if obj.reference_branch:
             return obj.reference_branch.slug
+
+    def get_localizations(self, obj):
+        if obj.is_localized:
+            return json.loads(obj.localizations)
