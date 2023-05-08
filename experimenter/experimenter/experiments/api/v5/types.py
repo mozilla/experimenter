@@ -452,11 +452,13 @@ class NimbusExperimentType(DjangoObjectType):
     is_rollout_dirty = graphene.Boolean()
     is_enrollment_pause_pending = graphene.Boolean()
     is_enrollment_paused = graphene.Boolean()
+    is_localized = graphene.Boolean()
     is_rollout = graphene.Boolean()
     is_sticky = graphene.Boolean()
     jexl_targeting_expression = graphene.String()
     languages = graphene.List(graphene.NonNull(NimbusLanguageType), required=True)
     locales = graphene.List(graphene.NonNull(NimbusLocaleType), required=True)
+    localizations = graphene.String()
     monitoring_dashboard_url = graphene.String()
     name = graphene.String(required=True)
     owner = graphene.Field(graphene.NonNull(NimbusUserType))
@@ -519,11 +521,13 @@ class NimbusExperimentType(DjangoObjectType):
             "is_enrollment_pause_pending",
             "is_enrollment_paused",
             "is_first_run",
+            "is_localized",
             "is_rollout",
             "is_sticky",
             "jexl_targeting_expression",
             "languages",
             "locales",
+            "localizations",
             "monitoring_dashboard_url",
             "name",
             "owner",

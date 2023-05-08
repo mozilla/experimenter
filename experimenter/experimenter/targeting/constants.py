@@ -54,6 +54,17 @@ ATTRIBUTION_MEDIUM_EMAIL = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+ATTRIBUTION_MEDIUM_PAIDSEARCH = NimbusTargetingConfig(
+    name="Attribution Medium Paidsearch",
+    slug="attribution_medium_paidsearch",
+    description="Firefox installed with paidsearch attribution",
+    targeting="attributionData.medium == 'paidsearch'",
+    desktop_telemetry="environment.settings.attribution.medium = 'paidsearch'",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEW_PROFILE_CREATED = NimbusTargetingConfig(
     name="New profile created",
     slug="new_profile_created",
@@ -74,6 +85,31 @@ FIRST_RUN = NimbusTargetingConfig(
         not_see_aw="!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)",
     ),
     desktop_telemetry=("payload.info.profile_subsession_counter = 1"),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FIRST_RUN_NEW_PROFILE = NimbusTargetingConfig(
+    name="First start-up new users",
+    slug="first_run_new_profile",
+    description="First start-up users (e.g. for about:welcome) with a new profile",
+    targeting=f"{FIRST_RUN.targeting} && {NEW_PROFILE_CREATED.targeting}",
+    desktop_telemetry=f"{FIRST_RUN.desktop_telemetry} AND "
+    f"{NEW_PROFILE_CREATED.desktop_telemetry}",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FIRST_RUN_NEW_PROFILE_ATTRIBUTION_MEDIUM_PAIDSEARCH = NimbusTargetingConfig(
+    name="First start-up new users with paidsearch attribution",
+    slug="first_run_new_profile_attribution_medium_paidsearch",
+    description="First start-up new users installed with paidsearch attribution",
+    targeting=f"{FIRST_RUN_NEW_PROFILE.targeting} && "
+    f"{ATTRIBUTION_MEDIUM_PAIDSEARCH.targeting}",
+    desktop_telemetry=f"{FIRST_RUN_NEW_PROFILE.desktop_telemetry} AND "
+    f"{ATTRIBUTION_MEDIUM_PAIDSEARCH.desktop_telemetry}",
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
@@ -1152,6 +1188,36 @@ TRR_MODE_ZERO = NimbusTargetingConfig(
     targeting="'network.trr.mode'|preferenceValue == 0",
     desktop_telemetry="",
     sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NOT_IMPORT_INFREQUENT_ROLLOUT = NimbusTargetingConfig(
+    name="Not in Import Infrequent Rollouts",
+    slug="not_import_infrequent_rollout",
+    description="Exclude users in the import infrequent rollouts",
+    targeting=(
+        "(activeRollouts intersect ["
+        "   'import-infrequent-rollout-make-yourself-at-home',"
+        "   'updated-import-infrequent-rollout-make-yourself-at-home-copy'"
+        "])|length == 0"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SET_DEFAULT_PDF_EXPERIMENT_ENROLLEES = NimbusTargetingConfig(
+    name="Set Default PDF Experiment enrollees",
+    slug="set_default_pdf_experiment_enrollees",
+    description="Users who are enrolled in the set default pdf experiment",
+    targeting=(
+        "'existing-users-set-default-pdf-handler' in activeExperiments"
+        " || 'existing-users-set-default-pdf-handler' in activeRollouts"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )

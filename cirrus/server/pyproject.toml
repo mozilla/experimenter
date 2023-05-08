@@ -20,6 +20,7 @@ typeCheckingMode = "strict"
 include = ["cirrus"]
 exclude = [
     "**/__pycache__",
+    "cirrus/generate_docs.py",
 ]
 reportUnnecessaryTypeIgnoreComment = "warning"
 pythonVersion = "3.10"
@@ -38,6 +39,7 @@ ignore = [
     "N806",
     "N812",
     "N815",
+    "N817",
     "RET503",
     "RET504",
     "RET505",

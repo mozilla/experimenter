@@ -815,6 +815,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         id
                         name
                     }
+
+                    isLocalized
+                    localizations
                 }
             }
             """,
@@ -886,11 +889,13 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "isEnrollmentPausePending": experiment.is_enrollment_pause_pending,
                 "isEnrollmentPaused": experiment.is_paused_published,
                 "isFirstRun": experiment.is_first_run,
+                "isLocalized": experiment.is_localized,
                 "isRollout": experiment.is_rollout,
                 "isSticky": experiment.is_sticky,
                 "jexlTargetingExpression": experiment.targeting,
                 "languages": [{"id": str(language.id), "name": language.name}],
                 "locales": [{"id": str(locale.id), "name": locale.name}],
+                "localizations": experiment.localizations,
                 "monitoringDashboardUrl": experiment.monitoring_dashboard_url,
                 "name": experiment.name,
                 "owner": {"email": experiment.owner.email},
@@ -1903,6 +1908,36 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(experiment_data["preventPrefConflicts"], True)
+
+    def test_query_localizations(self):
+        user_email = "user@example.com"
+        en_us_locale = LocaleFactory.create(code="en-US")
+        en_ca_locale = LocaleFactory.create(code="en-CA")
+        fr_locale = LocaleFactory.create(code="fr")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_localized=True,
+            locales=[en_us_locale, en_ca_locale, fr_locale],
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    isLocalized
+                    localizations
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["isLocalized"], True)
 
     def test_get_changelogs(self):
         user_email = "user@example.com"
