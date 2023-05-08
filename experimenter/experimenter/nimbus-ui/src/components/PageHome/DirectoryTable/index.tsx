@@ -110,12 +110,15 @@ export const DirectoryColumnFirefoxMaxVersion: ColumnComponent = (
   );
 };
 
-export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
+export const DirectoryColumnFeature: ColumnComponent = ({ featureConfigs }) => (
   <td data-testid="directory-table-cell">
-    {featureConfig ? (
+    {featureConfigs?.length ? (
       <>
         <span data-testid="directory-feature-config-name">
-          {featureConfig.name}
+          {featureConfigs
+            .map((fc) => fc?.name)
+            .sort()
+            .join(", ")}
         </span>
       </>
     ) : (
