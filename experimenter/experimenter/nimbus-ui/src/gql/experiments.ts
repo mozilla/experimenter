@@ -66,7 +66,12 @@ export const GET_EXPERIMENT_QUERY = gql`
         slug
         description
         ratio
-        featureValue
+        featureValues {
+          featureConfig {
+            id
+          }
+          value
+        }
         screenshots {
           id
           description
@@ -80,7 +85,12 @@ export const GET_EXPERIMENT_QUERY = gql`
         slug
         description
         ratio
-        featureValue
+        featureValues {
+          featureConfig {
+            id
+          }
+          value
+        }
         screenshots {
           id
           description
@@ -251,10 +261,6 @@ export const GET_EXPERIMENTS_QUERY = gql`
       resultsExpectedDate
       resultsReady
       showResultsUrl
-      featureConfig {
-        slug
-        name
-      }
       channel
       populationPercent
       projects {

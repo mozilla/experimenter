@@ -45,11 +45,13 @@ describe("FormBranch", () => {
       <SubjectBranch
         branch={{
           ...MOCK_ANNOTATED_BRANCH,
-          featureValue: "this is a default value",
+          featureValues: [{ value: "this is a default value" }],
         }}
       />,
     );
-    expect(screen.queryByTestId("feature-value-edit")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("referenceBranch.featureValues[0].value"),
+    ).toBeInTheDocument();
   });
 
   it("calls onRemove when the branch remove button is clicked", async () => {
