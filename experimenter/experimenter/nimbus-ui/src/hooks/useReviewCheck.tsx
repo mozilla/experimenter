@@ -16,6 +16,7 @@ const fieldPageMap: { [page: string]: string[] } = {
     "risk_brand",
     "risk_revenue",
     "risk_partner_related",
+    "localizations",
   ],
   branches: [
     "reference_branch",
@@ -27,6 +28,7 @@ const fieldPageMap: { [page: string]: string[] } = {
     "channel",
     "firefox_min_version",
     "languages",
+    "locales",
     "countries",
     "targeting_config_slug",
     "proposed_enrollment",
