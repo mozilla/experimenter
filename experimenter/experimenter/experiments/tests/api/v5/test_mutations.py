@@ -390,57 +390,6 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertTrue(experiment.warn_feature_schema)
 
-    def test_update_experiment_is_rollout_dirty(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
-            application=NimbusExperiment.Application.FENIX,
-            is_rollout=True,
-            is_rollout_dirty=False,
-        )
-        experiment_id = experiment.id
-        response = self.query(
-            UPDATE_EXPERIMENT_MUTATION,
-            variables={
-                "input": {
-                    "id": experiment.id,
-                    "isRolloutDirty": True,
-                    "changelogMessage": "test changelog message",
-                }
-            },
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-
-        experiment = NimbusExperiment.objects.get(id=experiment_id)
-        self.assertTrue(experiment.is_rollout)
-        self.assertTrue(experiment.is_rollout_dirty)
-
-    def test_update_experiment_add_is_rollout_dirty(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
-            application=NimbusExperiment.Application.FENIX,
-            is_rollout=True,
-        )
-        experiment_id = experiment.id
-        response = self.query(
-            UPDATE_EXPERIMENT_MUTATION,
-            variables={
-                "input": {
-                    "id": experiment.id,
-                    "isRolloutDirty": True,
-                    "changelogMessage": "test changelog message",
-                }
-            },
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-
-        experiment = NimbusExperiment.objects.get(id=experiment_id)
-        self.assertTrue(experiment.is_rollout)
-        self.assertTrue(experiment.is_rollout_dirty)
-
     def test_update_draft_experiment_to_rollout(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1277,7 +1226,8 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
 
         self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
         self.assertEqual(
-            experiment.reference_branch.description, reference_branch_data["description"]
+            experiment.reference_branch.description,
+            reference_branch_data["description"],
         )
         for feature_config in (feature1, feature2):
             feature_value = experiment.reference_branch.feature_values.get(
@@ -1338,7 +1288,8 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
 
         self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
         self.assertEqual(
-            experiment.reference_branch.description, reference_branch_data["description"]
+            experiment.reference_branch.description,
+            reference_branch_data["description"],
         )
         self.assertEqual(experiment.reference_branch.feature_values.count(), 0)
 
