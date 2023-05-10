@@ -19,7 +19,7 @@ fml = FML()
 
 
 remote_setting_refresh_rate_in_seconds: int = int(
-    config("REMOTE_SETTING_REFRESH_RATE_IN_SECONDS")  # type: ignore
+    config("REMOTE_SETTING_REFRESH_RATE_IN_SECONDS", default=10)  # type: ignore
 )
 
 
