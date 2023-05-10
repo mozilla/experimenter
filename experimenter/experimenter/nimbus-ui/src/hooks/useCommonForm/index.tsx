@@ -27,6 +27,7 @@ export function useCommonForm<FieldNames extends string>(
     errors,
     control,
     formState: { isSubmitted, isDirty, touched, isValid: isClientValid },
+    watch,
   } = formMethods;
 
   const isDirtyUnsaved = IsDirtyUnsaved(isDirty, isClientValid, isSubmitted);
@@ -59,5 +60,6 @@ export function useCommonForm<FieldNames extends string>(
     isSubmitted,
     formMethods,
     control,
+    watch,
   };
 }

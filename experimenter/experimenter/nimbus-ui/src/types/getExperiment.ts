@@ -190,6 +190,8 @@ export interface getExperiment_experimentBySlug {
   riskRevenue: boolean | null;
   riskBrand: boolean | null;
   riskPartnerRelated: boolean | null;
+  isLocalized: boolean | null;
+  localizations: string | null;
   signoffRecommendations: getExperiment_experimentBySlug_signoffRecommendations | null;
   documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
   isEnrollmentPausePending: boolean | null;

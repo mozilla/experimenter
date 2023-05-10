@@ -101,7 +101,11 @@ describe("hooks/useCommonForm", () => {
         for (const name of overviewFieldNames) {
           // TODO EXP-805 test errors form saving once
           // documentationLinks uses useCommonForm
-          if (!["application", "documentationLinks"].includes(name)) {
+          if (
+            !["application", "documentationLinks", "localizations"].includes(
+              name,
+            )
+          ) {
             await screen.findByTestId(`${name}-form-errors`);
             // Some inputs, such as radios, will have identical test-ids
             // so just make sure there's at least one in the DOM
@@ -125,6 +129,8 @@ describe("hooks/useCommonForm", () => {
               "riskRevenue",
               "riskPartnerRelated",
               "projects",
+              "isLocalized",
+              "localizations",
             ].includes(name)
           ) {
             expect(
