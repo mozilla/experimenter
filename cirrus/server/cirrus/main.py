@@ -34,8 +34,8 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/enrollment_status", status_code=status.HTTP_200_OK)
-async def compute_enrollment_status():
+@app.get("/v1/features/", status_code=status.HTTP_200_OK)
+async def compute_features():
     recipes = remote_setting.get_recipes()
     # will recieve as part of incoming request
     targeting_context = {"client_id": "testid"}
