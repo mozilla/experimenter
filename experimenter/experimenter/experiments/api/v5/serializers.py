@@ -4,6 +4,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 import jsonschema
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.text import slugify
@@ -860,9 +861,11 @@ class NimbusExperimentSerializer(
             "is_rollout_dirty",
             "is_enrollment_paused",
             "is_first_run",
+            "is_localized",
             "is_rollout",
             "is_sticky",
             "languages",
+            "localizations",
             "locales",
             "name",
             "population_percent",
@@ -1274,6 +1277,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         allow_null=False,
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
     )
+    is_localized = serializers.BooleanField(required=False)
+    localizations = serializers.CharField(
+        required=False, allow_blank=True, allow_null=True
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -1319,17 +1326,62 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Hypothesis cannot be the default value.")
         return value
 
-    def _validate_feature_value_against_schema(self, feature_config, value):
+    def validate_localizations(self, value):
+        if value is not None:
+            try:
+                localizations = json.loads(value)
+            except Exception as e:
+                raise serializers.ValidationError(f"Invalid JSON: {e}")
+
+            schema = settings.EXPERIMENT_SCHEMA["definitions"]["NimbusExperiment"][
+                "properties"
+            ]["localizations"]
+
+            try:
+                jsonschema.validate(localizations, schema)
+            except Exception as e:
+                raise serializers.ValidationError(
+                    f"Localization schema validation error: {e}"
+                )
+
+        return value
+
+    def _validate_feature_value_against_schema(
+        self, feature_config, value, localizations
+    ):
         if feature_config.schema:
             schema = json.loads(feature_config.schema)
 
             json_value = json.loads(value)
-            try:
-                jsonschema.validate(
-                    json_value, schema, resolver=NestedRefResolver(schema)
-                )
-            except jsonschema.ValidationError as exc:
-                return [exc.message]
+
+            if localizations:
+                for locale_code, substitutions in localizations.items():
+                    try:
+                        substituted_value = self._substitute_localizations(
+                            json_value, substitutions, locale_code
+                        )
+                    except LocalizationError as e:
+                        return [str(e)]
+
+                    if schema_errors := self._validate_schema(substituted_value, schema):
+                        return [
+                            (
+                                f"Schema validation errors occured during locale "
+                                f"substitution for locale {locale_code}"
+                            ),
+                            *schema_errors,
+                        ]
+
+            else:
+                return self._validate_schema(json_value, schema)
+
+        return None
+
+    def _validate_schema(self, obj, schema):
+        try:
+            jsonschema.validate(obj, schema, resolver=NestedRefResolver(schema))
+        except jsonschema.ValidationError as e:
+            return [e.message]
 
     def _validate_feature_configs(self, data):
         errors = {}
@@ -1348,12 +1400,19 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     f"{self.instance.application}."
                 ]
 
+        if data.get("is_localized"):
+            localizations = json.loads(data.get("localizations"))
+        else:
+            localizations = None
+
         reference_branch_errors = []
         for feature_value_data in data.get("reference_branch", {}).get(
             "feature_values", []
         ):
             if schema_errors := self._validate_feature_value_against_schema(
-                feature_value_data["feature_config"], feature_value_data["value"]
+                feature_value_data["feature_config"],
+                feature_value_data["value"],
+                localizations,
             ):
                 reference_branch_errors.append({"value": schema_errors})
                 continue
@@ -1370,7 +1429,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
             for feature_value_data in treatment_branch_data["feature_values"]:
                 if schema_errors := self._validate_feature_value_against_schema(
-                    feature_value_data["feature_config"], feature_value_data["value"]
+                    feature_value_data["feature_config"],
+                    feature_value_data["value"],
+                    localizations,
                 ):
                     treatment_branch_errors.append({"value": schema_errors})
                     treatment_branches_errors_found = True
@@ -1410,8 +1471,12 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 f"not match experiment application {self.instance.application}."
             ]
 
+        localizations = None
+        if data.get("is_localized"):
+            localizations = json.loads(data.get("localizations"))
+
         if schema_errors := self._validate_feature_value_against_schema(
-            feature_config, data["reference_branch"]["feature_value"]
+            feature_config, data["reference_branch"]["feature_value"], localizations
         ):
             errors["reference_branch"] = {"feature_value": schema_errors}
 
@@ -1420,7 +1485,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             branch_error = {}
 
             if schema_errors := self._validate_feature_value_against_schema(
-                feature_config, branch_data["feature_value"]
+                feature_config, branch_data["feature_value"], localizations
             ):
                 branch_error = {"feature_value": schema_errors}
 
@@ -1566,6 +1631,125 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_localizations(self, data):
+        is_localized = data.get("is_localized")
+        application = data.get("application")
+
+        if not is_localized:
+            return data
+
+        if application != NimbusExperiment.Application.DESKTOP:
+            raise serializers.ValidationError(
+                {
+                    "application": [
+                        "Localized experiments are only supported for Firefox Desktop."
+                    ]
+                }
+            )
+
+        min_version = data.get("firefox_min_version", "")
+        supported_version = NimbusExperiment.Version.parse(
+            NimbusConstants.LOCALIZATION_SUPPORTED_VERSION[application]
+        )
+        if min_version == "" or (
+            NimbusExperiment.Version.parse(min_version) < supported_version
+        ):
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": [
+                        NimbusConstants.ERROR_DESKTOP_LOCALIZATION_VERSION,
+                    ],
+                }
+            )
+
+        localizations_json = data.get("localizations")
+        experiment_locales = data.get("locales")
+
+        if not experiment_locales:
+            raise serializers.ValidationError(
+                {"locales": ["Locales must not be empty for a localized experiment."]}
+            )
+
+        experiment_locale_codes = [locale.code for locale in experiment_locales]
+        localizations = json.loads(localizations_json)
+
+        if is_localized:
+            for locale_code in experiment_locale_codes:
+                if locale_code not in localizations:
+                    raise serializers.ValidationError(
+                        {
+                            "localizations": [
+                                f"Experiment locale {locale_code} not present "
+                                f"in localizations."
+                            ]
+                        }
+                    )
+
+            for localization in localizations:
+                if localization not in experiment_locale_codes:
+                    raise serializers.ValidationError(
+                        {
+                            "localizations": [
+                                f"Localization locale {localization} "
+                                f"does not exist in experiment locales."
+                            ]
+                        }
+                    )
+
+        return data
+
+    @staticmethod
+    def _substitute_localizations(feature_value, substitutions, locale_code):
+        missing_ids = set()
+
+        def substitute(value):
+            if isinstance(value, list):
+                return [substitute(item) for item in value]
+
+            if isinstance(value, dict):
+                if "$l10n" in value and isinstance(value["$l10n"], dict):
+                    l10n = value["$l10n"]
+
+                    if not isinstance(l10n.get("id"), str):
+                        raise LocalizationError("$l10n object is missing 'id'")
+
+                    sub_id = value["$l10n"]["id"]
+
+                    if not isinstance(l10n.get("text"), str):
+                        raise LocalizationError(
+                            f"$l10n object with id '{sub_id}' is missing 'text'"
+                        )
+
+                    if not isinstance(l10n.get("comment"), str):
+                        raise LocalizationError(
+                            f"$l10n object with id '{sub_id}' is missing 'comment'"
+                        )
+
+                    if sub_id not in substitutions:
+                        missing_ids.add(sub_id)
+                        return None
+
+                    return substitutions[sub_id]
+                else:
+                    return {k: substitute(v) for k, v in value.items()}
+
+            return value
+
+        subbed = substitute(feature_value)
+
+        if missing_ids:
+            missing_ids_str = ", ".join(sorted(missing_ids))
+            raise serializers.ValidationError(
+                {
+                    "localizations": [
+                        f"Locale {locale_code} is missing substitutions for IDs: "
+                        f"{missing_ids_str}"
+                    ]
+                }
+            )
+
+        return subbed
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1574,6 +1758,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 {"channel": "Channel is required for this application."}
             )
         data = super().validate(data)
+        data = self._validate_localizations(data)
         data = self._validate_feature_config(data)
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
@@ -1624,3 +1809,7 @@ class NimbusExperimentCloneSerializer(
             self.context["user"],
             self.validated_data.get("rollout_branch_slug", None),
         )
+
+
+class LocalizationError(Exception):
+    """An error that occurs during localization substitution."""
