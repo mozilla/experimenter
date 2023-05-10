@@ -281,18 +281,6 @@ describe("DirectoryColumnUnpublishedUpdates", () => {
     );
     expect(screen.getByTestId("directory-table-cell")).toHaveTextContent("");
   });
-
-  it("renders blank unpublished updates when dirty is null", () => {
-    render(
-      <TestTable>
-        <DirectoryColumnUnpublishedUpdates
-          {...experiment}
-          isRolloutDirty={null}
-        />
-      </TestTable>,
-    );
-    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent("");
-  });
 });
 
 function expectTableCells(testId: string, cellTexts: string[]) {

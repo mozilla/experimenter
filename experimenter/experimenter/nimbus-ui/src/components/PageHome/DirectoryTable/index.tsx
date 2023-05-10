@@ -155,7 +155,7 @@ export const DirectoryColumnUnpublishedUpdates: ColumnComponent = ({
           }
           data-testid="directory-unpublished-updates"
         >
-          {d === true ? "YES" : ""}
+          {d ? "YES" : ""}
         </Badge>
       </>
     ) : (
