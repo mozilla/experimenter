@@ -29,5 +29,4 @@ class RemoteSettings:
                     logger.warning("No recipes found in the response")
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to fetch recipes: {e}")
-            print(f"Failed to fetch recipes: {e}")
             raise e
