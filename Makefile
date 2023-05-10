@@ -78,6 +78,14 @@ feature_manifests:
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
+	cat experimenter/experimenter/features/manifests/firefox-desktop.yaml | grep path: | \
+	awk -F'"' '{print "https://hg.mozilla.org/mozilla-central/raw-file/tip/" $$2}' | sort -u | \
+	while read -r url; do \
+		file=$$(echo $$url | sed 's|https://hg.mozilla.org/mozilla-central/raw-file/tip/||'); \
+		file="experimenter/experimenter/features/manifests/schemas/$$file"; \
+		mkdir -p $$(dirname $$file); \
+		curl $$url -o $$file; \
+	done
 
 fetch_external_resources: jetstream_config feature_manifests
 	echo "External Resources Fetched"
