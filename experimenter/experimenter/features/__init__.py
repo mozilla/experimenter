@@ -2,17 +2,13 @@ import json
 import os
 from enum import Enum
 from typing import Literal, Optional, Union
-from urllib.parse import urljoin
 
-import requests
 import yaml
 from django.conf import settings
 from django.core.checks import Error, register
 from pydantic import BaseModel, Field
 
 from experimenter.experiments.constants import NimbusConstants
-
-MC_ROOT = "https://hg.mozilla.org/mozilla-central/raw-file/tip/"
 
 
 class FeatureVariableType(Enum):
@@ -59,13 +55,17 @@ class Feature(BaseModel):
 
     def load_remote_jsonschema(self):
         if self.schema_paths:
-            schema_url = urljoin(MC_ROOT, self.schema_paths.path)
-            schema_data = requests.get(schema_url).content
+            schema_path = os.path.join(
+                settings.FEATURE_SCHEMAS_PATH,
+                self.schema_paths.path,
+            )
 
-            try:
-                return json.dumps(json.loads(schema_data), indent=2)
-            except json.JSONDecodeError:
-                return None
+            with open(schema_path) as schema_file:
+                schema_data = schema_file.read()
+                try:
+                    return json.dumps(json.loads(schema_data), indent=2)
+                except json.JSONDecodeError:
+                    return None
 
     def generate_jsonschema(self):
         schema = {

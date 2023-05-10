@@ -1,7 +1,5 @@
 import json
 
-import mock
-import requests
 from django.core.checks import Error
 from django.test import TestCase
 
@@ -15,6 +13,7 @@ from experimenter.features import (
 )
 from experimenter.features.tests import (
     mock_invalid_features,
+    mock_invalid_remote_schema_features,
     mock_remote_schema_features,
     mock_valid_features,
 )
@@ -145,65 +144,18 @@ class TestFeatures(TestCase):
         )
 
 
-@mock_remote_schema_features
 class TestRemoteSchemaFeatures(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUp(self):
         Features.clear_cache()
 
-    def setup_valid_remote_schema(self):
-        self.remote_schema = json.dumps({"schema": True})
-
-        mock_requests_get_patcher = mock.patch("experimenter.features.requests.get")
-        self.mock_requests_get = mock_requests_get_patcher.start()
-        self.addCleanup(mock_requests_get_patcher.stop)
-        mock_response = mock.MagicMock()
-        mock_response.content = self.remote_schema
-        self.mock_requests_get.return_value = mock_response
-
-    def setup_request_error(self):
-        self.remote_schema = json.dumps({"schema": True})
-
-        mock_requests_get_patcher = mock.patch("experimenter.features.requests.get")
-        self.mock_requests_get = mock_requests_get_patcher.start()
-        self.addCleanup(mock_requests_get_patcher.stop)
-        self.mock_requests_get.side_effect = requests.ConnectionError()
-
-    def setup_json_error(self):
-        self.remote_schema = "{invalid json"
-
-        mock_requests_get_patcher = mock.patch("experimenter.features.requests.get")
-        self.mock_requests_get = mock_requests_get_patcher.start()
-        self.addCleanup(mock_requests_get_patcher.stop)
-        mock_response = mock.MagicMock()
-        mock_response.content = self.remote_schema
-        self.mock_requests_get.return_value = mock_response
-
+    @mock_remote_schema_features
     def test_loads_remote_schema(self):
-        self.setup_valid_remote_schema()
-
         desktop_feature = Features.by_application(NimbusExperiment.Application.DESKTOP)[0]
         remote_schema = desktop_feature.get_jsonschema()
-
-        self.mock_requests_get.assert_called_once_with(
-            "https://hg.mozilla.org/mozilla-central/raw-file/tip/path/to/schema.json"
-        )
-
         self.assertEqual(json.loads(remote_schema), {"schema": True})
 
-    def test_raises_request_error(self):
-        self.setup_request_error()
-
-        with self.assertRaises(requests.ConnectionError):
-            desktop_feature = Features.by_application(
-                NimbusExperiment.Application.DESKTOP
-            )[0]
-            desktop_feature.get_jsonschema()
-
+    @mock_invalid_remote_schema_features
     def test_returns_none_for_invalid_json(self):
-        self.setup_json_error()
-
         desktop_feature = Features.by_application(NimbusExperiment.Application.DESKTOP)[0]
         self.assertIsNone(desktop_feature.get_jsonschema())
 

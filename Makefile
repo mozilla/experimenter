@@ -45,7 +45,8 @@ PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
-FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/nimbus/FeatureManifest.yaml
+MOZILLA_CENTRAL_ROOT = https://hg.mozilla.org/mozilla-central/raw-file/tip
+FEATURE_MANIFEST_DESKTOP_URL = ${MOZILLA_CENTRAL_ROOT}/toolkit/components/nimbus/FeatureManifest.yaml
 FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/fenix/app/.experimenter.yaml
 FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
 FEATURE_MANIFEST_FOCUS_ANDROID = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/focus-android/app/.experimenter.yaml
@@ -78,6 +79,15 @@ feature_manifests:
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
+	cat experimenter/experimenter/features/manifests/firefox-desktop.yaml | grep path: | \
+	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
+	while read -r url; do \
+		file=$$(echo $$url | sed 's|$(MOZILLA_CENTRAL_ROOT)/||'); \
+		file="experimenter/experimenter/features/manifests/schemas/$$file"; \
+		mkdir -p $$(dirname $$file); \
+		curl $$url -o $$file; \
+	done
+
 
 fetch_external_resources: jetstream_config feature_manifests
 	echo "External Resources Fetched"
