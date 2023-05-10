@@ -203,4 +203,5 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
 
     def get_localizations(self, obj):
         if obj.is_localized:
-            return json.loads(obj.localizations)
+            with contextlib.suppress(json.JSONDecodeError):
+                return json.loads(obj.localizations)
