@@ -3,6 +3,7 @@ import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from decouple import config  # type: ignore
 from fastapi import FastAPI, status
+from .settings import remote_setting_refresh_rate_in_seconds
 
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
@@ -16,11 +17,6 @@ remote_setting = RemoteSettings()
 sdk = SDK()
 manifest_loader = ManifestLoader()
 fml = FML()
-
-
-remote_setting_refresh_rate_in_seconds: int = int(
-    config("REMOTE_SETTING_REFRESH_RATE_IN_SECONDS", default=10)  # type: ignore
-)
 
 
 # Set up scheduler with ThreadPoolExecutor and configure job options
@@ -67,7 +63,7 @@ async def fetch_schedule_recipes() -> None:
         scheduler.add_job(  # type: ignore
             fetch_schedule_recipes,
             "interval",
-            seconds=remote_setting_refresh_rate_in_seconds,
+            seconds=30,
             max_instances=1,
             max_retries=3,
         )

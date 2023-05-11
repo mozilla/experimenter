@@ -1,5 +1,6 @@
 import logging
 from typing import Any, Dict, List, cast
+from .settings import remote_setting_url
 
 import requests
 from decouple import config  # type: ignore
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class RemoteSettings:
     recipes: List[Dict[str, Any]] = []
-    url: str = cast(str, config("REMOTE_SETTING_URL", default=""))
+    url: str = remote_setting_url
 
     def get_recipes(self) -> List[Dict[str, Any]]:
         return self.recipes
@@ -20,13 +21,12 @@ class RemoteSettings:
     def fetch_recipes(self):
         try:
             response = requests.get(self.url)
-            if response.status_code == 200:
-                data = response.json().get("data", [])
-                if data:
-                    self.update_recipes(data)
-                    logger.info("Fetched resources")
-                else:
-                    logger.warning("No recipes found in the response")
+            response.raise_for_status()  # raises an HTTPError for bad status codes
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to fetch recipes: {e}")
             raise e
+        if data := response.json().get("data", []):
+            self.update_recipes(data)
+            logger.info("Fetched resources")
+        else:
+            logger.warning("No recipes found in the response")

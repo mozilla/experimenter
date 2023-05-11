@@ -20,7 +20,7 @@ class TestFetchRecipes(unittest.TestCase):
         rs.update_recipes(new_recipes)
         assert rs.get_recipes() == new_recipes
 
-    @patch("requests.get")
+    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
     def test_empty_data_key(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -31,7 +31,7 @@ class TestFetchRecipes(unittest.TestCase):
         rs.fetch_recipes()
         self.assertEqual(rs.get_recipes(), [])
 
-    @patch("requests.get")
+    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
     def test_non_empty_data_key(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -46,7 +46,7 @@ class TestFetchRecipes(unittest.TestCase):
             rs.get_recipes(), [{"experiment1": True}, {"experiment2": False}]
         )
 
-    @patch("requests.get")
+    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
     def test_successful_response(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -57,24 +57,19 @@ class TestFetchRecipes(unittest.TestCase):
         rs.fetch_recipes()
         mock_get.assert_called_once_with(rs.url)
 
-    @patch("requests.get")
+    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
     def test_failed_request(self, mock_get):
         mock_get.side_effect = requests.exceptions.RequestException("Failed request")
 
-        rs = RemoteSettings()
-        try:
-            rs.fetch_recipes()
-        except requests.exceptions.RequestException as e:
-            # Assert that the exception is the expected exception
-            self.assertEqual(str(e), "Failed request")
-        else:
-            # If no exception was raised, fail the test case
-            self.fail("Expected RequestException but no exception was raised")
+        rs = self.get_remote_settings()
 
-        # Assert that the recipes are empty
+        with self.assertRaises(requests.exceptions.RequestException) as context:
+            rs.fetch_recipes()
+
+        self.assertEqual(str(context.exception), "Failed request")
         self.assertEqual(rs.get_recipes(), [])
 
-    @patch("requests.get")
+    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
     def test_empty_data_key_with_non_empty_recipes(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
