@@ -432,3 +432,25 @@ class TestNimbusExperimentSerializer(TestCase):
             serializer.data["localizations"], json.loads(TEST_LOCALIZATIONS)
         )
         check_schema("experiments/NimbusExperiment", serializer.data)
+
+    @parameterized.expand(
+        [
+            ("invalid json", None),
+            (json.dumps({}), {}),
+        ]
+    )
+    def test_localized_localizations_json(self, l10n_json, expected):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_localized=True,
+            localizations=l10n_json,
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+
+        self.assertIn("localizations", serializer.data)
+        if expected is None:
+            self.assertIsNone(serializer.data["localizations"])
+        else:
+            self.assertEqual(serializer.data["localizations"], expected)
