@@ -202,7 +202,7 @@ CIRRUS_BLACK_CHECK = black -l 90 --check --diff cirrus/server
 CIRRUS_BLACK_FIX = black -l 90 cirrus/server
 CIRRUS_RUFF_CHECK = ruff cirrus/server
 CIRRUS_RUFF_FIX = ruff --fix cirrus/server
-CIRRUS_PYTEST = pytest cirrus/server --cov=cirrus
+CIRRUS_PYTEST = pytest cirrus/server --cov-config=cirrus/server/.coveragerc --cov=cirrus/server/cirrus
 CIRRUS_PYTHON_TYPECHECK = pyright -p cirrus/server
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p cirrus/server --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/server/cirrus/generate_docs.py
