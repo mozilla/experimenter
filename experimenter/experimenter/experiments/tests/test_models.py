@@ -1919,6 +1919,7 @@ class TestNimbusExperiment(TestCase):
         self.assertFalse(child.risk_revenue)
         self.assertFalse(child.risk_brand)
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
+        self.assertFalse(child.is_rollout_dirty)
         self.assertEqual(child.locales.all().count(), 0)
         self.assertEqual(child.countries.all().count(), 0)
         self.assertEqual(child.languages.all().count(), 0)
@@ -1927,7 +1928,6 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
         self.assertIsNone(child.takeaways_summary)
-        self.assertIsNone(child.is_rollout_dirty)
 
     def test_clone_completed_experiment(self):
         parent = NimbusExperimentFactory.create_with_lifecycle(
@@ -1970,7 +1970,7 @@ class TestNimbusExperiment(TestCase):
             parent,
             rollout_branch.slug,
         )
-        self.assertIsNone(child.is_rollout_dirty)
+        self.assertFalse(child.is_rollout_dirty)
 
     def _clone_experiment_and_assert_common_expectations(
         self, parent, rollout_branch_slug=None
@@ -1985,7 +1985,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.parent, parent)
         self.assertEqual(child.is_archived, False)
         self.assertEqual(child.is_paused, False)
-        self.assertEqual(child.is_rollout_dirty, None)
+        self.assertEqual(child.is_rollout_dirty, False)
         self.assertEqual(child.published_dto, None)
         self.assertEqual(child.results_data, None)
         self.assertEqual(child.takeaways_summary, None)

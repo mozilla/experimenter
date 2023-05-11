@@ -60,7 +60,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "is_first_run": experiment.is_first_run,
                 "is_localized": experiment.is_localized,
                 "is_paused": False,
-                "is_rollout_dirty": None,
+                "is_rollout_dirty": False,
                 "is_rollout": experiment.is_rollout,
                 "is_sticky": False,
                 "languages": [],

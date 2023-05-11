@@ -57,7 +57,7 @@ export interface getAllExperiments_experiments {
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum | null;
   startDate: DateTime | null;
-  isRolloutDirty: boolean | null;
+  isRolloutDirty: boolean;
   isEnrollmentPausePending: boolean | null;
   isEnrollmentPaused: boolean | null;
   proposedDuration: number;
