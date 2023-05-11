@@ -1,14 +1,13 @@
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
-from decouple import config  # type: ignore
 from fastapi import FastAPI, status
-from .settings import remote_setting_refresh_rate_in_seconds
 
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
 from .manifest_loader import ManifestLoader
 from .sdk import SDK
+from .settings import remote_setting_refresh_rate_in_seconds
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/v1/features/", status_code=status.HTTP_200_OK)
+@app.post("/v1/features/", status_code=status.HTTP_200_OK)
 async def compute_features():
     recipes = remote_setting.get_recipes()
     # will recieve as part of incoming request

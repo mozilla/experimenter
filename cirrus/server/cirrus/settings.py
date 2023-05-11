@@ -1,4 +1,5 @@
 from typing import cast
+
 from decouple import config  # type: ignore
 
 remote_setting_refresh_rate_in_seconds: int = int(

@@ -1,9 +1,9 @@
 import logging
-from typing import Any, Dict, List, cast
-from .settings import remote_setting_url
+from typing import Any, Dict, List
 
 import requests
-from decouple import config  # type: ignore
+
+from .settings import remote_setting_url
 
 logger = logging.getLogger(__name__)
 

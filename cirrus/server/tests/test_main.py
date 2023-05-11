@@ -1,6 +1,6 @@
 import pytest
 
-from ..cirrus.main import fetch_schedule_recipes, remote_setting_refresh_rate_in_seconds
+from ..cirrus.main import fetch_schedule_recipes
 
 
 def test_read_root(client):
@@ -10,7 +10,7 @@ def test_read_root(client):
 
 
 def test_get_features(client):
-    response = client.get("/v1/features/")
+    response = client.post("/v1/features/")
     assert response.status_code == 200
     assert response.json() == {"feature": "test"}
 
