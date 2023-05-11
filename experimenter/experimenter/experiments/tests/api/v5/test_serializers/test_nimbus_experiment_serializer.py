@@ -1261,7 +1261,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.assertIsNone(experiment.is_rollout_dirty)
+        self.assertFalse(experiment.is_rollout_dirty)
 
     def test_targeting_config_for_correct_application(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

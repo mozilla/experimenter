@@ -133,7 +133,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     public_description = models.TextField(default="")
     risk_mitigation_link = models.URLField(max_length=255, blank=True)
     is_paused = models.BooleanField(default=False)
-    is_rollout_dirty = models.BooleanField(blank=True, null=True)
+    is_rollout_dirty = models.BooleanField(blank=False, null=False, default=False)
     proposed_duration = models.PositiveIntegerField(
         default=NimbusConstants.DEFAULT_PROPOSED_DURATION,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
@@ -741,7 +741,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.parent = self
         cloned.is_archived = False
         cloned.is_paused = False
-        cloned.is_rollout_dirty = None
+        cloned.is_rollout_dirty = False
         cloned.reference_branch = None
         cloned.published_dto = None
         cloned.results_data = None
