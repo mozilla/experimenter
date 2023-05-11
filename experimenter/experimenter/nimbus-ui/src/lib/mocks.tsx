@@ -620,6 +620,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   languages: [{ name: "English", id: "1" }],
   projects: [{ name: "Pocket", id: "1" }],
   isLocalized: false,
+  localizations: null,
 };
 
 export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
