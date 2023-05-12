@@ -1,0 +1,3 @@
+[run]
+omit =
+    cirrus/server/cirrus/generate_docs.py
