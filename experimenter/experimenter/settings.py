@@ -180,6 +180,8 @@ OPENIDC_AUTH_WHITELIST = (
     "nimbus-experiment-rest-list",
     "nimbus-experiment-rest-detail",
     "nimbus-experiment-rest-first-run-list",
+    "nimbus-experiment-draft-rest-list",
+    "nimbus-experiment-draft-rest-detail",
 )
 
 # Internationalization
@@ -243,7 +245,11 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
-        "django.request": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "django.request": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
     },
     "root": {"handlers": ["console"], "level": "DEBUG"},
 }
@@ -419,7 +425,8 @@ NORMANDY_DEVTOOLS_RECIPE_IMPORT_URL = "{root}{import_url}".format(
 
 # Jira URL
 JIRA_URL = config(
-    "JIRA_URL", default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9"
+    "JIRA_URL",
+    default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9",
 )
 
 
