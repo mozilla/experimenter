@@ -60,7 +60,7 @@ describe("getStatus", () => {
     experiment.publishStatus = NimbusExperimentPublishStatusEnum.WAITING;
     expect(getStatus(experiment).waiting).toBeTruthy();
 
-    experiment.publishStatus = NimbusExperimentPublishStatusEnum.DIRTY;
+    experiment.publishStatus = NimbusExperimentPublishStatusEnum.IDLE;
     experiment.isRolloutDirty = true;
     expect(getStatus(experiment).dirty).toBeTruthy();
 

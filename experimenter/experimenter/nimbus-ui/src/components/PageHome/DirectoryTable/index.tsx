@@ -28,7 +28,6 @@ import {
   unpublishedUpdatesSortSelector,
 } from "src/lib/experiment";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
-import { NimbusExperimentPublishStatusEnum } from "src/types/globalTypes";
 
 // These are all render functions for column types in the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;
@@ -145,10 +144,10 @@ export const DirectoryColumnEndDate: ColumnComponent = ({
 );
 
 export const DirectoryColumnUnpublishedUpdates: ColumnComponent = ({
-  publishStatus: p,
+  isRolloutDirty: d,
 }) => (
   <td data-testid="directory-table-cell">
-    {p ? (
+    {d ? (
       <>
         <Badge
           className={
@@ -156,7 +155,7 @@ export const DirectoryColumnUnpublishedUpdates: ColumnComponent = ({
           }
           data-testid="directory-unpublished-updates"
         >
-          {p === NimbusExperimentPublishStatusEnum.DIRTY ? "YES" : ""}
+          {d ? "YES" : ""}
         </Badge>
       </>
     ) : (

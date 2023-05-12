@@ -132,10 +132,9 @@ def handle_rejection(applications, kinto_client):
             )
             and experiment.is_paused is False
         ):
-            experiment.publish_status = NimbusExperiment.PublishStatus.DIRTY
             experiment.is_rollout_dirty = True
-        else:
-            experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         experiment.status_next = None
         experiment.is_paused = False
         experiment.save()
