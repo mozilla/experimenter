@@ -87,7 +87,7 @@ describe("Summary", () => {
       <Subject
         props={{
           status: NimbusExperimentStatusEnum.LIVE,
-          publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+          publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
           isRolloutDirty: true,
         }}
       />,
@@ -100,7 +100,7 @@ describe("Summary", () => {
       <Subject
         props={{
           status: NimbusExperimentStatusEnum.LIVE,
-          publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+          publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
           isEnrollmentPaused: false,
           isRolloutDirty: true,
         }}
@@ -195,7 +195,6 @@ describe("Summary", () => {
       await screen.findByTestId("cancel-review-start");
       fireEvent.click(screen.getByTestId("cancel-review-start"));
       await waitFor(() => {
-        expect(refetch).toHaveBeenCalled();
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
       });
     });
@@ -364,7 +363,7 @@ describe("Summary", () => {
   it("handles dirty Live to Review as expected", async () => {
     const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
-      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
       statusNext: null,
       isEnrollmentPaused: false,
       isRolloutDirty: true,
@@ -372,12 +371,13 @@ describe("Summary", () => {
 
     const mutationMock = createMutationMock(
       rollout.id!,
-      NimbusExperimentPublishStatusEnum.DIRTY,
+      NimbusExperimentPublishStatusEnum.IDLE,
       {
         changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
         statusNext: null,
-        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
         status: NimbusExperimentStatusEnum.LIVE,
+        isRolloutDirty: true,
       },
     );
     render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
@@ -397,7 +397,7 @@ describe("Summary", () => {
   it("shows update and end experiment button for live dirty rollout", async () => {
     const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
-      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
       statusNext: null,
       isEnrollmentPaused: false,
       isRolloutDirty: true,
@@ -405,12 +405,13 @@ describe("Summary", () => {
 
     const mutationMock = createMutationMock(
       rollout.id!,
-      NimbusExperimentPublishStatusEnum.DIRTY,
+      NimbusExperimentPublishStatusEnum.IDLE,
       {
         changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
         statusNext: null,
-        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
         status: NimbusExperimentStatusEnum.LIVE,
+        isRolloutDirty: true,
       },
     );
     render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
@@ -429,7 +430,7 @@ describe("Summary", () => {
   it("do not show end enrollment button for live dirty rollout", async () => {
     const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
-      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
       statusNext: null,
       isEnrollmentPaused: false,
       isRolloutDirty: true,
@@ -437,12 +438,13 @@ describe("Summary", () => {
 
     const mutationMock = createMutationMock(
       rollout.id!,
-      NimbusExperimentPublishStatusEnum.DIRTY,
+      NimbusExperimentPublishStatusEnum.IDLE,
       {
         changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
         statusNext: null,
-        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
         status: NimbusExperimentStatusEnum.LIVE,
+        isRolloutDirty: true,
       },
     );
     render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
