@@ -7,11 +7,11 @@ from experimenter.experiments.models import NimbusExperiment as Experiment
 class TestMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0225_nimbusexperiment__updated_date_time",
+        "0234_alter_nimbusexperiment_is_rollout_dirty",
     )
     migrate_to = (
         "experiments",
-        "0226_remove_viz_api_v1",
+        "0235_auto_20230512_1934",
     )
 
     def prepare(self):
@@ -29,53 +29,8 @@ class TestMigration(MigratorTestCase):
             slug="test-experiment",
             application=Experiment.Application.DESKTOP,
             status=NimbusConstants.Status.DRAFT,
-            results_data={
-                "v1": {
-                    "daily": {"all": {"control": [], "treatment": []}},
-                    "weekly": {"all": {"control": {}, "treatment": {}}},
-                    "overall": {"all": {"control": {}, "treatment": {}}},
-                    "other_metrics": {},
-                    "metadata": {},
-                    "show_analysis": True,
-                    "errors": [],
-                },
-                "v2": {
-                    "daily": {"enrollments": {"all": {"control": [], "treatment": []}}},
-                    "weekly": {"enrollments": {"all": {"control": {}, "treatment": {}}}},
-                    "overall": {"enrollments": {"all": {"control": {}, "treatment": {}}}},
-                    "other_metrics": {},
-                    "metadata": {},
-                    "show_analysis": True,
-                    "errors": [],
-                },
-            },
-        )
-
-        # create experiment without results_data
-        NimbusExperiment.objects.create(
-            owner=user,
-            name="empty experiment",
-            slug="empty-experiment",
-            application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-        )
-
-        # create experiment with empty results_data
-        NimbusExperiment.objects.create(
-            owner=user,
-            name="empty results experiment",
-            slug="empty-results-experiment",
-            application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-            results_data={
-                "v2": {
-                    "daily": None,
-                    "weekly": None,
-                    "overall": None,
-                    "metadata": None,
-                    "show_analysis": True,
-                },
-            },
+            publish_status="Dirty",
+            is_rollout_dirty=False,
         )
 
     def test_migration(self):
@@ -84,17 +39,6 @@ class TestMigration(MigratorTestCase):
             "experiments", "NimbusExperiment"
         )
 
-        changed_data = NimbusExperiment.objects.get(slug="test-experiment").results_data
-        self.assertFalse("v1" in changed_data)
-        self.assertTrue("v2" in changed_data)
-
-        empty_data = NimbusExperiment.objects.get(slug="empty-experiment").results_data
-
-        self.assertIsNone(empty_data)
-
-        empty_results_data = NimbusExperiment.objects.get(
-            slug="empty-results-experiment"
-        ).results_data
-
-        self.assertFalse("v1" in empty_results_data)
-        self.assertTrue("v2" in empty_results_data)
+        experiment = NimbusExperiment.objects.get(slug="test-experiment")
+        self.assertEquals(experiment.publish_status, "Idle")
+        self.assertTrue(experiment.is_rollout_dirty)
