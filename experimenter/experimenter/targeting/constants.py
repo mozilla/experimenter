@@ -1071,9 +1071,7 @@ HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     name="Has Google as current default search engine",
     slug="has_google_as_current_default_search_engine",
     description="Users with Google as current default engine",
-    targeting=(
-        "'google' in searchEngines.current"
-    ),
+    targeting=("'google' in searchEngines.current"),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
