@@ -1,6 +1,6 @@
 import unittest
 
-from ..cirrus.feature_manifest import FeatureManifestLanguage
+from cirrus.feature_manifest import FeatureManifestLanguage
 
 
 class FeatureManifestLanguageTestCase(unittest.TestCase):

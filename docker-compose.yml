@@ -104,14 +104,14 @@ services:
 
   cirrus:
     build:
-      context: .
-      dockerfile: cirrus/server/Dockerfile
+      context: cirrus/server/
+      dockerfile: Dockerfile
     volumes:
-      - ./cirrus:/cirrus
+      - ./cirrus/server:/cirrus
     working_dir: /cirrus
     ports:
       - "8001:8001"
-    command: uvicorn server.cirrus.main:app --reload --host 0.0.0.0 --port 8001
+    command: uvicorn cirrus.main:app --reload --host 0.0.0.0 --port 8001
 
 volumes:
   db_volume:
