@@ -435,7 +435,7 @@ describe("PageSummary", () => {
       rollout.id!,
       NimbusExperimentStatusEnum.LIVE,
       null,
-      NimbusExperimentPublishStatusEnum.DIRTY,
+      NimbusExperimentPublishStatusEnum.IDLE,
       expectedReason,
     );
     render(<Subject mocks={[mockRollout, mutationMock]} />);
@@ -665,13 +665,13 @@ describe("PageSummary", () => {
     [
       NimbusExperimentStatusEnum.LIVE,
       null,
-      NimbusExperimentPublishStatusEnum.DIRTY,
-      NimbusExperimentPublishStatusEnum.DIRTY,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      NimbusExperimentPublishStatusEnum.IDLE,
     ],
     [
       NimbusExperimentStatusEnum.LIVE,
       NimbusExperimentStatusEnum.LIVE,
-      NimbusExperimentPublishStatusEnum.DIRTY,
+      NimbusExperimentPublishStatusEnum.IDLE,
       NimbusExperimentPublishStatusEnum.REVIEW,
     ],
   ])(

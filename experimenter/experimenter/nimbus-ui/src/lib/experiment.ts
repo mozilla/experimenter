@@ -40,9 +40,7 @@ export function getStatus(
     approved: publishStatus === NimbusExperimentPublishStatusEnum.APPROVED,
     review: publishStatus === NimbusExperimentPublishStatusEnum.REVIEW,
     waiting: publishStatus === NimbusExperimentPublishStatusEnum.WAITING,
-    dirty:
-      publishStatus === NimbusExperimentPublishStatusEnum.DIRTY &&
-      isRolloutDirty === true,
+    dirty: isRolloutDirty === true,
     // TODO: EXP-1325 Need to check something else here for end enrollment in particular?
     pauseRequested:
       status === NimbusExperimentStatusEnum.LIVE &&
@@ -52,20 +50,20 @@ export function getStatus(
       status === NimbusExperimentStatusEnum.LIVE &&
       statusNext === NimbusExperimentStatusEnum.COMPLETE,
     updateRequested:
-      isRollout === true &&
-      isRolloutDirty === true &&
+      isRollout &&
+      isRolloutDirty &&
       status === NimbusExperimentStatusEnum.LIVE &&
       publishStatus === NimbusExperimentPublishStatusEnum.REVIEW &&
       statusNext === NimbusExperimentStatusEnum.LIVE,
     updateRequestedApproved:
-      isRollout === true &&
-      isRolloutDirty === true &&
+      isRollout &&
+      isRolloutDirty &&
       status === NimbusExperimentStatusEnum.LIVE &&
       publishStatus === NimbusExperimentPublishStatusEnum.APPROVED &&
       statusNext === NimbusExperimentStatusEnum.LIVE,
     updateRequestedWaiting:
-      isRollout === true &&
-      isRolloutDirty === true &&
+      isRollout &&
+      isRolloutDirty &&
       status === NimbusExperimentStatusEnum.LIVE &&
       publishStatus === NimbusExperimentPublishStatusEnum.WAITING &&
       statusNext === NimbusExperimentStatusEnum.LIVE,
@@ -163,10 +161,7 @@ export const resultsReadySortSelector: ExperimentSortSelector = (experiment) =>
 
 export const unpublishedUpdatesSortSelector: ExperimentSortSelector = (
   experiment,
-) =>
-  experiment.publishStatus === NimbusExperimentPublishStatusEnum.DIRTY
-    ? "1"
-    : "0";
+) => (experiment.isRolloutDirty ? "1" : "0");
 
 export const selectFromExperiment = (
   experiment: getAllExperiments_experiments,

@@ -60,14 +60,11 @@ class TransitionConstants:
     # full list of publish_status transitions.
     VALID_PUBLISH_STATUS_TRANSITIONS = {
         NimbusExperiment.PublishStatus.IDLE: (
-            NimbusExperiment.PublishStatus.DIRTY,
             NimbusExperiment.PublishStatus.REVIEW,
             NimbusExperiment.PublishStatus.APPROVED,
         ),
-        NimbusExperiment.PublishStatus.DIRTY: (NimbusExperiment.PublishStatus.REVIEW,),
         NimbusExperiment.PublishStatus.REVIEW: (
             NimbusExperiment.PublishStatus.IDLE,
-            NimbusExperiment.PublishStatus.DIRTY,
             NimbusExperiment.PublishStatus.APPROVED,
         ),
     }
@@ -87,9 +84,7 @@ class TransitionConstants:
             NimbusExperiment.PublishStatus.IDLE,
         ],
         "experiments": [],
-        "rollouts": [
-            NimbusExperiment.PublishStatus.DIRTY,
-        ],
+        "rollouts": [],
     }
 
     STATUS_UPDATE_EXEMPT_FIELDS = {
@@ -931,11 +926,7 @@ class NimbusExperimentSerializer(
         """Validates using `VALID_PUBLISH_STATUS_TRANSITIONS`"""
 
         if publish_status == NimbusExperiment.PublishStatus.APPROVED and (
-            self.instance.publish_status
-            not in (
-                NimbusExperiment.PublishStatus.IDLE,
-                NimbusExperiment.PublishStatus.DIRTY,
-            )
+            self.instance.publish_status is not NimbusExperiment.PublishStatus.IDLE
             and not self.instance.can_review(self.context["user"])
         ):
             raise serializers.ValidationError(
@@ -1073,7 +1064,6 @@ class NimbusExperimentSerializer(
             ):
                 # can be Live Update (Dirty), End Enrollment, or End Experiment
                 # (including rejections) if we don't check validated_data
-                validated_data["publish_status"] = NimbusConstants.PublishStatus.DIRTY
                 validated_data["is_rollout_dirty"] = True
 
         self.changelog_message = validated_data.pop("changelog_message")
