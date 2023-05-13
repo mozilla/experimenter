@@ -21,6 +21,15 @@ class NimbusExperimentViewSet(
     filterset_fields = ["is_first_run"]
 
 
+class NimbusExperimentDraftViewSet(NimbusExperimentViewSet):
+    queryset = (
+        NimbusExperiment.objects.with_related()
+        .filter(status=NimbusExperiment.Status.DRAFT)
+        .order_by("slug")
+    )
+    filterset_fields = ["is_localized"]
+
+
 class NimbusExperimentFirstRunViewSet(NimbusExperimentViewSet):
     queryset = (
         NimbusExperiment.objects.with_related()
