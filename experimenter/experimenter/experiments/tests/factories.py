@@ -130,13 +130,20 @@ class LifecycleStates(Enum):
     LIVE_DIRTY = {
         "status": NimbusExperiment.Status.LIVE,
         "status_next": None,
-        "publish_status": NimbusExperiment.PublishStatus.DIRTY,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
         "is_rollout_dirty": True,
     }
     LIVE_DIRTY_REJECT = {
         "status": NimbusExperiment.Status.LIVE,
         "status_next": None,
-        "publish_status": NimbusExperiment.PublishStatus.DIRTY,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "is_rollout_dirty": True,
+    }
+    LIVE_DIRTY_APPROVE_APPROVE = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "is_rollout_dirty": False,
     }
     LIVE_REVIEW = {
         "status": NimbusExperiment.Status.LIVE,
@@ -225,6 +232,12 @@ class LifecycleStates(Enum):
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
+    LIVE_DIRTY_COMPLETE_IDLE = {
+        "status": NimbusExperiment.Status.COMPLETE,
+        "status_next": None,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "is_rollout_dirty": False,
+    }
 
 
 class Lifecycles(Enum):
@@ -248,7 +261,9 @@ class Lifecycles(Enum):
     LIVE_REJECT = LIVE_REVIEW_REQUESTED + (LifecycleStates.LIVE_DIRTY,)
     LIVE_APPROVE = LIVE_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED,)
     LIVE_APPROVE_WAITING = LIVE_APPROVE + (LifecycleStates.LIVE_APPROVED_WAITING,)
-    LIVE_APPROVE_APPROVE = LIVE_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
+    LIVE_APPROVE_APPROVE = LIVE_APPROVE_WAITING + (
+        LifecycleStates.LIVE_DIRTY_APPROVE_APPROVE,
+    )
     LIVE_APPROVE_REJECT = LIVE_APPROVE_WAITING + (LifecycleStates.LIVE_DIRTY,)
     LIVE_APPROVE_TIMEOUT = LIVE_APPROVE_WAITING + (LifecycleStates.LIVE_DIRTY,)
     LIVE_REJECT_MANUAL_ROLLBACK = LIVE_APPROVE_REJECT + (LifecycleStates.LIVE_DIRTY,)
@@ -264,6 +279,9 @@ class Lifecycles(Enum):
     )
     LIVE_DIRTY_ENDING_APPROVE_WAITING = LIVE_DIRTY_ENDING_APPROVE + (
         LifecycleStates.LIVE_WAITING_ENDING,
+    )
+    LIVE_DIRTY_ENDING_APPROVE_APPROVE = LIVE_DIRTY_ENDING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_DIRTY_COMPLETE_IDLE,
     )
     LIVE_DIRTY_ENDING_APPROVE_REJECT = LIVE_DIRTY_ENDING_APPROVE + (
         LifecycleStates.LIVE_DIRTY_REJECT,

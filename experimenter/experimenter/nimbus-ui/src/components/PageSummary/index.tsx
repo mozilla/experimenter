@@ -96,9 +96,7 @@ const PageSummary = (props: RouteComponentProps) => {
     {
       status: NimbusExperimentStatusEnum.LIVE,
       statusNext: null,
-      publishStatus: experiment.isRolloutDirty
-        ? NimbusExperimentPublishStatusEnum.DIRTY
-        : NimbusExperimentPublishStatusEnum.IDLE,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     },
     {
       status: NimbusExperimentStatusEnum.LIVE,
@@ -122,7 +120,7 @@ const PageSummary = (props: RouteComponentProps) => {
     {
       status: NimbusExperimentStatusEnum.LIVE,
       statusNext: null,
-      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
       changelogMessage: CHANGELOG_MESSAGES.RETURNED_TO_LIVE,
     },
   );
