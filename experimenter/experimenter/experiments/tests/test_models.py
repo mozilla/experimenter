@@ -1695,31 +1695,49 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (True, NimbusExperimentFactory.Lifecycles.CREATED),
-            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
-            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_DIRTY),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_TIMEOUT),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_REJECT_MANUAL_ROLLBACK),
-            (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
-            (False, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
-            (False, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING),
-            (False, NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_TIMEOUT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_REJECT_MANUAL_ROLLBACK,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE_REJECT,),
         ]
     )
-    def test_rollout_can_edit(self, expected_can_edit, lifecycle):
+    def test_rollout_can_edit(self, lifecycle):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, is_rollout=True
         )
-        self.assertEqual(experiment.can_edit, expected_can_edit)
+        self.assertTrue(experiment.can_edit)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE_TIMEOUT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE_WAITING,),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_REJECT_MANUAL_ROLLBACK,
+            ),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,),
+        ]
+    )
+    def test_rollout_cannot_edit(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=True
+        )
+        self.assertFalse(experiment.can_edit)
 
     @parameterized.expand(
         [
@@ -1919,6 +1937,7 @@ class TestNimbusExperiment(TestCase):
         self.assertFalse(child.risk_revenue)
         self.assertFalse(child.risk_brand)
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
+        self.assertFalse(child.is_rollout_dirty)
         self.assertEqual(child.locales.all().count(), 0)
         self.assertEqual(child.countries.all().count(), 0)
         self.assertEqual(child.languages.all().count(), 0)
@@ -1927,7 +1946,6 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
         self.assertIsNone(child.takeaways_summary)
-        self.assertIsNone(child.is_rollout_dirty)
 
     def test_clone_completed_experiment(self):
         parent = NimbusExperimentFactory.create_with_lifecycle(
@@ -1970,7 +1988,7 @@ class TestNimbusExperiment(TestCase):
             parent,
             rollout_branch.slug,
         )
-        self.assertIsNone(child.is_rollout_dirty)
+        self.assertFalse(child.is_rollout_dirty)
 
     def _clone_experiment_and_assert_common_expectations(
         self, parent, rollout_branch_slug=None
@@ -1985,7 +2003,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.parent, parent)
         self.assertEqual(child.is_archived, False)
         self.assertEqual(child.is_paused, False)
-        self.assertEqual(child.is_rollout_dirty, None)
+        self.assertEqual(child.is_rollout_dirty, False)
         self.assertEqual(child.published_dto, None)
         self.assertEqual(child.results_data, None)
         self.assertEqual(child.takeaways_summary, None)
@@ -2320,7 +2338,7 @@ class TestNimbusChangeLogManager(TestCase):
         changes = []
         for publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
-            NimbusExperiment.PublishStatus.DIRTY,
+            NimbusExperiment.PublishStatus.IDLE,
         ):
             experiment.publish_status = publish_status
             experiment.save()

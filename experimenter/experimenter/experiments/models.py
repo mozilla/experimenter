@@ -133,7 +133,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     public_description = models.TextField(default="")
     risk_mitigation_link = models.URLField(max_length=255, blank=True)
     is_paused = models.BooleanField(default=False)
-    is_rollout_dirty = models.BooleanField(blank=True, null=True)
+    is_rollout_dirty = models.BooleanField(blank=False, null=False, default=False)
     proposed_duration = models.PositiveIntegerField(
         default=NimbusConstants.DEFAULT_PROPOSED_DURATION,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
@@ -635,9 +635,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 self.status == self.Status.DRAFT
                 and self.publish_status == self.PublishStatus.IDLE
             )
-            or self.is_rollout
-            and self.status == self.Status.LIVE
-            and self.publish_status in [self.PublishStatus.DIRTY, self.PublishStatus.IDLE]
+            or (
+                self.is_rollout
+                and self.status == self.Status.LIVE
+                and self.publish_status == self.PublishStatus.IDLE
+            )
             and not self.is_archived
         )
 
@@ -741,7 +743,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.parent = self
         cloned.is_archived = False
         cloned.is_paused = False
-        cloned.is_rollout_dirty = None
+        cloned.is_rollout_dirty = False
         cloned.reference_branch = None
         cloned.published_dto = None
         cloned.results_data = None
@@ -1134,8 +1136,9 @@ class NimbusChangeLog(FilterMixin, models.Model):
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
         )
         IS_UPDATE_REVIEW_REQUEST = Q(
-            old_publish_status=NimbusExperiment.PublishStatus.DIRTY,
+            old_publish_status=NimbusExperiment.PublishStatus.IDLE,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            experiment_data__is_rollout_dirty=True,
         )
         IS_REJECTION = Q(
             Q(old_status=F("new_status")),
@@ -1156,8 +1159,9 @@ class NimbusChangeLog(FilterMixin, models.Model):
                 NimbusExperiment.PublishStatus.REVIEW,
                 NimbusExperiment.PublishStatus.WAITING,
             ),
-            new_publish_status__in=(NimbusExperiment.PublishStatus.DIRTY,),
+            new_publish_status__in=(NimbusExperiment.PublishStatus.IDLE,),
             published_dto_changed=False,
+            experiment_data__is_rollout_dirty=True,
         )
         IS_TIMEOUT = Q(
             Q(old_status=F("new_status")),

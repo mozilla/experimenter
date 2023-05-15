@@ -58,7 +58,6 @@ class ExperimentInput(graphene.InputObjectType):
     is_first_run = graphene.Boolean()
     is_localized = graphene.Boolean()
     is_rollout = graphene.Boolean()
-    is_rollout_dirty = graphene.Boolean()
     is_sticky = graphene.Boolean()
     languages = graphene.List(graphene.String)
     locales = graphene.List(graphene.String)

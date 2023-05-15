@@ -45,7 +45,8 @@ PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
-FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/nimbus/FeatureManifest.yaml
+MOZILLA_CENTRAL_ROOT = https://hg.mozilla.org/mozilla-central/raw-file/tip
+FEATURE_MANIFEST_DESKTOP_URL = ${MOZILLA_CENTRAL_ROOT}/toolkit/components/nimbus/FeatureManifest.yaml
 FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/fenix/app/.experimenter.yaml
 FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
 FEATURE_MANIFEST_FOCUS_ANDROID = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/focus-android/app/.experimenter.yaml
@@ -78,6 +79,15 @@ feature_manifests:
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
+	cat experimenter/experimenter/features/manifests/firefox-desktop.yaml | grep path: | \
+	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
+	while read -r url; do \
+		file=$$(echo $$url | sed 's|$(MOZILLA_CENTRAL_ROOT)/||'); \
+		file="experimenter/experimenter/features/manifests/schemas/$$file"; \
+		mkdir -p $$(dirname $$file); \
+		curl $$url -o $$file; \
+	done
+
 
 fetch_external_resources: jetstream_config feature_manifests
 	echo "External Resources Fetched"
@@ -198,34 +208,39 @@ integration_test_nimbus_rust: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod -R a+rwx /code/experimenter/tests/integration/;sudo mkdir -m a+rwx /code/experimenter/tests/integration/test-reports;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
 
 # cirrus
-CIRRUS_BLACK_CHECK = black -l 90 --check --diff cirrus/server
-CIRRUS_BLACK_FIX = black -l 90 cirrus/server
-CIRRUS_RUFF_CHECK = ruff cirrus/server
-CIRRUS_RUFF_FIX = ruff --fix cirrus/server
-CIRRUS_PYTEST = pytest cirrus/server --cov=cirrus
-CIRRUS_PYTHON_TYPECHECK = pyright -p cirrus/server
-CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p cirrus/server --createstub cirrus
-CIRRUS_GENERATE_DOCS = python cirrus/server/cirrus/generate_docs.py
+CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
+CIRRUS_BLACK_FIX = black -l 90 .
+CIRRUS_RUFF_CHECK = ruff .
+CIRRUS_RUFF_FIX = ruff --fix .
+CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus
+CIRRUS_PYTHON_TYPECHECK = pyright -p .
+CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
+CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
-cirrus_up:
+cirrus_build:
+	$(COMPOSE) build cirrus
+
+cirrus_build_test:
+	$(COMPOSE_TEST) build cirrus
+
+cirrus_up: cirrus_build
 	$(COMPOSE) up cirrus
 
-cirrus_down:
+cirrus_down: cirrus_build
 	$(COMPOSE) down cirrus
 
-cirrus_test:
-	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_PYTEST)'
+cirrus_test: cirrus_build_test
+	$(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
 
-cirrus_check:
-	$(COMPOSE_TEST) build cirrus_test
-	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_BLACK_CHECK) && $(CIRRUS_RUFF_CHECK)&& $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
+cirrus_check: cirrus_build_test
+	$(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
-cirrus_code_format:
-	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_BLACK_FIX) && $(CIRRUS_RUFF_FIX)'
+cirrus_code_format: cirrus_build
+	$(COMPOSE) run cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
 
-cirrus_typecheck_createstub:
-	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
+cirrus_typecheck_createstub: cirrus_build
+	$(COMPOSE) run cirrus sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
 
-cirrus_generate_docs:
-	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_GENERATE_DOCS)'
+cirrus_generate_docs: cirrus_build
+	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 

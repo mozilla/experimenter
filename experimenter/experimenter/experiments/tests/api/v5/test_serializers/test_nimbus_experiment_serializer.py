@@ -805,8 +805,6 @@ class TestNimbusExperimentSerializer(TestCase):
         [
             [True, NimbusExperiment.PublishStatus.IDLE],
             [False, NimbusExperiment.PublishStatus.IDLE],
-            [True, NimbusExperiment.PublishStatus.DIRTY],
-            [False, NimbusExperiment.PublishStatus.DIRTY],
             [True, NimbusExperiment.PublishStatus.REVIEW],
             [False, NimbusExperiment.PublishStatus.REVIEW],
         ]
@@ -837,13 +835,54 @@ class TestNimbusExperimentSerializer(TestCase):
 
     @parameterized.expand(
         [
+            [True, True, NimbusExperiment.PublishStatus.IDLE],
+            [True, True, NimbusExperiment.PublishStatus.REVIEW],
+            [True, False, NimbusExperiment.PublishStatus.IDLE],
+            [True, False, NimbusExperiment.PublishStatus.REVIEW],
+            [False, True, NimbusExperiment.PublishStatus.IDLE],
+            [False, True, NimbusExperiment.PublishStatus.REVIEW],
+            [False, False, NimbusExperiment.PublishStatus.IDLE],
+            [False, False, NimbusExperiment.PublishStatus.REVIEW],
+        ]
+    )
+    def test_update_is_dirty_doesnt_invoke_push_task(
+        self,
+        is_rollout,
+        is_dirty,
+        publish_status,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=is_rollout,
+            population_percent=50,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": publish_status,
+                "is_rollout_dirty": is_dirty,
+                "population_percent": 50.0,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.publish_status, publish_status)
+        self.assertEqual(experiment.is_rollout_dirty, is_dirty)
+        self.mock_preview_task.apply_async.assert_not_called()
+
+    @parameterized.expand(
+        [
             [True, True],
             [True, False],
             [False, True],
             [False, False],
         ]
     )
-    def test_update_dirty_flag_doesnt_invoke_push_task(
+    def test_draft_is_dirty_flag_doesnt_invoke_push_task(
         self,
         is_rollout,
         is_rollout_dirty,
@@ -1094,7 +1133,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             data={
                 "status": NimbusExperiment.Status.LIVE,
-                "publish_status": NimbusExperiment.PublishStatus.DIRTY,
+                "publish_status": NimbusExperiment.PublishStatus.IDLE,
                 "status_next": NimbusExperiment.Status.LIVE,
                 "is_rollout_dirty": True,
                 "changelog_message": "test changelog message",
@@ -1239,7 +1278,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
-        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.DIRTY)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
         self.assertTrue(experiment.is_rollout_dirty)
 
     def test_no_change_to_population_percent_doesnt_update_live_rollout(self):
@@ -1261,7 +1300,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.assertIsNone(experiment.is_rollout_dirty)
+        self.assertFalse(experiment.is_rollout_dirty)
 
     def test_targeting_config_for_correct_application(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

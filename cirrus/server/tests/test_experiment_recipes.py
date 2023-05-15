@@ -3,7 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import requests
 
-from ..cirrus.experiment_recipes import RemoteSettings
+from cirrus.experiment_recipes import RemoteSettings
+
 
 
 class TestFetchRecipes(unittest.TestCase):

@@ -19,12 +19,8 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
 
-
-  cirrus_test:
+  cirrus:
     build:
-      context: .
-      dockerfile: cirrus/server/Dockerfile
-    volumes:
-      - .:/app/cirrus
-
-
+      context: cirrus/server/
+      dockerfile: Dockerfile
+    working_dir: /cirrus

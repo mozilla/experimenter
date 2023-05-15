@@ -3,7 +3,7 @@ from unittest import mock
 from fastapi.testclient import TestClient
 from pytest import fixture
 
-from ..cirrus.main import app
+from cirrus.main import app
 
 
 @fixture(scope="module")

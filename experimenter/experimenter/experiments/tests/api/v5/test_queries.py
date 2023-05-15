@@ -1939,6 +1939,39 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(experiment_data["isLocalized"], True)
 
+    @parameterized.expand(
+        [
+            ("invalid json", None),
+            (json.dumps({}), {}),
+        ]
+    )
+    def test_query_localizations_recipe_json(self, l10n_json, expected):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_localized=True,
+            localizations=l10n_json,
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    recipeJson
+                }
+
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        recipe_json = json.loads(content["data"]["experimentBySlug"]["recipeJson"])
+
+        self.assertEqual(recipe_json["localizations"], expected)
+
     def test_get_changelogs(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(

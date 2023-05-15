@@ -414,7 +414,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         rejected_experiment = NimbusExperiment.objects.get(id=rejected_experiment.id)
         self.assertEqual(rejected_experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(
-            rejected_experiment.publish_status, NimbusExperiment.PublishStatus.DIRTY
+            rejected_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
         self.assertTrue(rejected_experiment.is_rollout_dirty)
         self.assertIsNone(rejected_experiment.status_next)
@@ -426,7 +426,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
                 old_status=NimbusExperiment.Status.LIVE,
                 old_publish_status=NimbusExperiment.PublishStatus.WAITING,
                 new_status=NimbusExperiment.Status.LIVE,
-                new_publish_status=NimbusExperiment.PublishStatus.DIRTY,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
 
@@ -553,9 +553,10 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         rejected_rollout = NimbusExperiment.objects.get(id=rejected_rollout.id)
         self.assertEqual(rejected_rollout.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(
-            rejected_rollout.publish_status, NimbusExperiment.PublishStatus.DIRTY
+            rejected_rollout.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
         self.assertEqual(rejected_rollout.status_next, None)
+        self.assertTrue(rejected_rollout.is_rollout_dirty)
 
         self.assertTrue(
             rejected_rollout.changes.filter(
@@ -563,7 +564,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
                 old_status=NimbusExperiment.Status.LIVE,
                 old_publish_status=NimbusExperiment.PublishStatus.WAITING,
                 new_status=NimbusExperiment.Status.LIVE,
-                new_publish_status=NimbusExperiment.PublishStatus.DIRTY,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
 
