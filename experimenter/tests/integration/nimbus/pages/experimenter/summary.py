@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 
+from nimbus.pages.base import Base
 from nimbus.pages.experimenter.base import ExperimenterBase
 
 
@@ -108,7 +109,6 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_rejected_alert(self):
-        self.wait.until(EC.presence_of_element_located(self._rejected_text_alert_locator))
         self.wait_with_refresh(
             self._rejected_text_alert_locator,
             "Summary Page: Unable to find rejected alert",
@@ -210,19 +210,20 @@ class SummaryPage(ExperimenterBase):
     def timeout_text(self):
         return self.selenium.wait_for_and_find_element(*self._timeout_alert_locator)
 
-    class RequestReview(Region):
+    class RequestReview(Region, Base):
+        PAGE_TITLE = "Review Region"
         _root_locator = (By.CSS_SELECTOR, "#request-launch-alert")
         _checkbox0_locator = (By.CSS_SELECTOR, "#checkbox-0")
         _checkbox1_locator = (By.CSS_SELECTOR, "#checkbox-1")
         _request_launch_locator = (By.CSS_SELECTOR, "#request-launch-button")
 
         def click_launch_checkboxes(self):
-            self.find_element(*self._checkbox0_locator).click()
-            self.find_element(*self._checkbox1_locator).click()
+            self.wait_for_and_find_element(*self._checkbox0_locator).click()
+            self.wait_for_and_find_element(*self._checkbox1_locator).click()
 
         @property
         def request_launch_button(self):
-            return self.find_element(*self._request_launch_locator)
+            return self.wait_for_and_find_element(*self._request_launch_locator)
 
     def archive(self):
         self.wait_for_and_find_element(*self._archive_button_locator).click()
@@ -301,6 +302,12 @@ class SummaryPage(ExperimenterBase):
     @property
     def takeaways_summary_text(self):
         return self.wait_for_and_find_element(*self._takeaways_summary_text).text
+
+    def set_takeaways(self, takeaways, recommendation):
+        self.takeaways_edit_button.click()
+        self.takeaways_summary_field = takeaways
+        self.takeaways_recommendation_radio_button(recommendation).click()
+        self.takeaways_save_button.click()
 
     @property
     def branch_screenshot_description(self):
