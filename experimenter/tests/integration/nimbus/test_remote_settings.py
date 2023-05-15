@@ -12,12 +12,17 @@ def test_create_new_experiment_approve_remote_settings(
     experiment_url,
     create_experiment,
     kinto_client,
+    base_url,
+    experiment_name,
 ):
     create_experiment(selenium, is_rollout=False).launch_and_approve()
 
     kinto_client.approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
+
+    home = HomePage(selenium, base_url).open()
+    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
 
 @pytest.mark.remote_settings
@@ -26,12 +31,17 @@ def test_create_new_rollout_approve_remote_settings(
     experiment_url,
     create_experiment,
     kinto_client,
+    base_url,
+    experiment_name,
 ):
     create_experiment(selenium, is_rollout=True).launch_and_approve()
 
     kinto_client.approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
+
+    home = HomePage(selenium, base_url).open()
+    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
 
 @pytest.mark.remote_settings
@@ -63,7 +73,7 @@ def test_create_new_rollout_reject_remote_settings(
 
 
 @pytest.mark.remote_settings
-def test_end_experiment_and_approve_end(
+def test_end_experiment_and_approve_end_set_takeaways(
     selenium,
     experiment_url,
     create_experiment,
@@ -79,11 +89,18 @@ def test_end_experiment_and_approve_end(
 
     kinto_client.approve()
 
-    SummaryPage(selenium, experiment_url).open().wait_for_complete_status()
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.wait_for_complete_status()
+
+    takeaways = "Example takeaways summary text"
+    summary.set_takeaways(takeaways, "CHANGE_COURSE")
+
+    assert summary.takeaways_summary_text == takeaways
+    assert summary.takeaways_recommendation_badge_text == "Change course"
 
 
 @pytest.mark.remote_settings
-def test_end_rollout_and_approve_end(
+def test_end_rollout_and_approve_end_set_takeaways(
     selenium,
     experiment_url,
     create_experiment,
@@ -99,7 +116,14 @@ def test_end_rollout_and_approve_end(
 
     kinto_client.approve()
 
-    SummaryPage(selenium, experiment_url).open().wait_for_complete_status()
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.wait_for_complete_status()
+
+    takeaways = "Example takeaways summary text"
+    summary.set_takeaways(takeaways, "CHANGE_COURSE")
+
+    assert summary.takeaways_summary_text == takeaways
+    assert summary.takeaways_recommendation_badge_text == "Change course"
 
 
 @pytest.mark.remote_settings
@@ -140,68 +164,6 @@ def test_end_rollout_and_reject_end(
     kinto_client.reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
-
-
-@pytest.mark.remote_settings
-@pytest.mark.xdist_group(name="group2")
-def test_takeaways(
-    selenium,
-    experiment_url,
-    create_experiment,
-    kinto_client,
-):
-    create_experiment(selenium).launch_and_approve()
-
-    kinto_client.approve()
-
-    summary = SummaryPage(selenium, experiment_url).open()
-    summary.wait_for_live_status()
-    summary.end_and_approve()
-
-    kinto_client.approve()
-
-    summary = SummaryPage(selenium, experiment_url).open()
-    summary.wait_for_complete_status()
-
-    expected_summary = "Example takeaways summary text"
-    summary.takeaways_edit_button.click()
-    summary.takeaways_summary_field = expected_summary
-    summary.takeaways_recommendation_radio_button("CHANGE_COURSE").click()
-    summary.takeaways_save_button.click()
-
-    assert summary.takeaways_summary_text == expected_summary
-    assert summary.takeaways_recommendation_badge_text == "Change course"
-
-
-@pytest.mark.remote_settings
-@pytest.mark.xdist_group(name="group2")
-def test_experiment_live_status_on_home_page(
-    selenium, base_url, create_experiment, kinto_client, experiment_name, slugify
-):
-    experiment_slug = str(slugify(experiment_name))
-
-    summary = create_experiment(selenium)
-    summary.launch_and_approve()
-    kinto_client.approve()
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
-    summary.wait_for_live_status()
-    home = HomePage(selenium, base_url).open()
-    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
-
-
-@pytest.mark.remote_settings
-@pytest.mark.xdist_group(name="group2")
-def test_rollout_live_status_on_home_page(
-    selenium, base_url, create_experiment, kinto_client, experiment_name, slugify
-):
-    experiment_slug = str(slugify(experiment_name))
-
-    create_experiment(selenium, is_rollout=True).launch_and_approve()
-    kinto_client.approve()
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
-    summary.wait_for_live_status()
-    home = HomePage(selenium, base_url).open()
-    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
 
 @pytest.mark.remote_settings
@@ -260,31 +222,6 @@ def test_rollout_live_update_approve_and_reject(
     kinto_client.reject()
 
     summary_page.wait_for_rejection_notice_visible()
-
-
-@pytest.mark.remote_settings
-def test_rollout_create_and_update(
-    selenium,
-    base_url,
-    create_experiment,
-    kinto_client,
-    experiment_name,
-    slugify,
-):
-    experiment_slug = str(slugify(experiment_name))
-    create_experiment(selenium, is_rollout=True).launch_and_approve()
-
-    kinto_client.approve()
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
-
-    summary.wait_for_live_status()
-    audience = summary.navigate_to_audience()
-
-    audience.percentage = "60"
-    audience.save_and_continue()
-
-    summary_page = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
-    summary_page.wait_for_update_request_visible()
 
 
 @pytest.mark.remote_settings
