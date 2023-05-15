@@ -1,6 +1,6 @@
 import unittest
 
-from ..cirrus.sdk import SDK
+from cirrus.sdk import SDK
 
 
 class SDKTestCase(unittest.TestCase):

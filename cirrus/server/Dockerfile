@@ -16,7 +16,8 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH "/root/.local/bin:$PATH"
 
 # Copy only the pyproject.toml file and poetry.lock file to install dependencies ignoring dev dependencies
-COPY cirrus/server/pyproject.toml cirrus/server/poetry.lock ./
+COPY pyproject.toml /cirrus/pyproject.toml
+COPY poetry.lock /cirrus/poetry.lock
 
 # Configure poetry and install dependencies
 RUN poetry config virtualenvs.create false && \

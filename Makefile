@@ -208,34 +208,39 @@ integration_test_nimbus_rust: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod -R a+rwx /code/experimenter/tests/integration/;sudo mkdir -m a+rwx /code/experimenter/tests/integration/test-reports;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
 
 # cirrus
-CIRRUS_BLACK_CHECK = black -l 90 --check --diff cirrus/server
-CIRRUS_BLACK_FIX = black -l 90 cirrus/server
-CIRRUS_RUFF_CHECK = ruff cirrus/server
-CIRRUS_RUFF_FIX = ruff --fix cirrus/server
-CIRRUS_PYTEST = pytest cirrus/server --cov-config=cirrus/server/.coveragerc --cov=cirrus/server/cirrus
-CIRRUS_PYTHON_TYPECHECK = pyright -p cirrus/server
-CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p cirrus/server --createstub cirrus
-CIRRUS_GENERATE_DOCS = python cirrus/server/cirrus/generate_docs.py
+CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
+CIRRUS_BLACK_FIX = black -l 90 .
+CIRRUS_RUFF_CHECK = ruff .
+CIRRUS_RUFF_FIX = ruff --fix .
+CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus
+CIRRUS_PYTHON_TYPECHECK = pyright -p .
+CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
+CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
-cirrus_up:
+cirrus_build:
+	$(COMPOSE) build cirrus
+
+cirrus_build_test:
+	$(COMPOSE_TEST) build cirrus
+
+cirrus_up: cirrus_build
 	$(COMPOSE) up cirrus
 
-cirrus_down:
+cirrus_down: cirrus_build
 	$(COMPOSE) down cirrus
 
-cirrus_test:
-	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_PYTEST)'
+cirrus_test: cirrus_build_test
+	$(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
 
-cirrus_check:
-	$(COMPOSE_TEST) build cirrus_test
-	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_BLACK_CHECK) && $(CIRRUS_RUFF_CHECK)&& $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
+cirrus_check: cirrus_build_test
+	$(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
-cirrus_code_format:
-	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_BLACK_FIX) && $(CIRRUS_RUFF_FIX)'
+cirrus_code_format: cirrus_build
+	$(COMPOSE) run cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
 
-cirrus_typecheck_createstub:
-	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
+cirrus_typecheck_createstub: cirrus_build
+	$(COMPOSE) run cirrus sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
 
-cirrus_generate_docs:
-	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_GENERATE_DOCS)'
+cirrus_generate_docs: cirrus_build
+	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
