@@ -1,3 +1,6 @@
+Create `.env` file inside directory `cirrus/server` and copy
+`cp .env.example .env`
+
 # Cirrus Server to get Feature configuration API structure
 
 This Cirrus API allows clients to obtain a set of features based on their provided `client_id` and context information.
