@@ -14,13 +14,13 @@ def client():
 
 @fixture
 def scheduler_mock():
-    with mock.patch("cirrus.server.cirrus.main.scheduler") as scheduler_mock:
+    with mock.patch("cirrus.main.scheduler") as scheduler_mock:
         yield scheduler_mock
 
 
 @fixture
 def remote_setting_mock():
-    with mock.patch("cirrus.server.cirrus.main.remote_setting") as remote_setting_mock:
+    with mock.patch("cirrus.main.remote_setting") as remote_setting_mock:
         yield remote_setting_mock
 
 

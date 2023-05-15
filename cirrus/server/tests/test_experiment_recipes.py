@@ -6,7 +6,6 @@ import requests
 from cirrus.experiment_recipes import RemoteSettings
 
 
-
 class TestFetchRecipes(unittest.TestCase):
     def get_remote_settings(self):
         return RemoteSettings()
@@ -21,7 +20,7 @@ class TestFetchRecipes(unittest.TestCase):
         rs.update_recipes(new_recipes)
         assert rs.get_recipes() == new_recipes
 
-    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
+    @patch("cirrus.experiment_recipes.requests.get")
     def test_empty_data_key(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -32,7 +31,7 @@ class TestFetchRecipes(unittest.TestCase):
         rs.fetch_recipes()
         self.assertEqual(rs.get_recipes(), [])
 
-    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
+    @patch("cirrus.experiment_recipes.requests.get")
     def test_non_empty_data_key(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -47,7 +46,7 @@ class TestFetchRecipes(unittest.TestCase):
             rs.get_recipes(), [{"experiment1": True}, {"experiment2": False}]
         )
 
-    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
+    @patch("cirrus.experiment_recipes.requests.get")
     def test_successful_response(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -58,7 +57,7 @@ class TestFetchRecipes(unittest.TestCase):
         rs.fetch_recipes()
         mock_get.assert_called_once_with(rs.url)
 
-    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
+    @patch("cirrus.experiment_recipes.requests.get")
     def test_failed_request(self, mock_get):
         mock_get.side_effect = requests.exceptions.RequestException("Failed request")
 
@@ -70,7 +69,7 @@ class TestFetchRecipes(unittest.TestCase):
         self.assertEqual(str(context.exception), "Failed request")
         self.assertEqual(rs.get_recipes(), [])
 
-    @patch("cirrus.server.cirrus.experiment_recipes.requests.get")
+    @patch("cirrus.experiment_recipes.requests.get")
     def test_empty_data_key_with_non_empty_recipes(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200

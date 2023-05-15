@@ -1,6 +1,6 @@
 import pytest
 
-from ..cirrus.main import fetch_schedule_recipes
+from cirrus.main import fetch_schedule_recipes
 
 
 def test_read_root(client):
