@@ -14,8 +14,7 @@ from fastapi.openapi.utils import get_openapi
 
 from cirrus.main import app
 
-DOCS_DIR = "cirrus/server/cirrus/docs"
-OPENAPI_PATH = os.path.join(DOCS_DIR, "openapi.json")
+OPENAPI_PATH = os.path.join("cirrus", "docs", "openapi.json")
 
 
 def generate_or_check_openapi(check_docs: bool) -> None:
