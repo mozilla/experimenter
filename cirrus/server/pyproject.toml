@@ -48,9 +48,3 @@ ignore = [
 
 # Same as Black.
 line-length = 90
-
-
-[tool.black]
-exclude = [
-    "typings",
-]

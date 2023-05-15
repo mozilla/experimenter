@@ -1,0 +1,13 @@
+**/__pycache__
+**/.cache
+**/.coverage
+**/.DS_Store
+**/.mypy
+**/.pycache
+**/.pytest_cache
+**/.ruff_cache
+**/.vscode
+**/.vscode/
+**/coverage/
+**/node_modules
+**/yarn-error.log

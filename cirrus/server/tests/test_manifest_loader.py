@@ -1,4 +1,4 @@
-from ..cirrus.manifest_loader import ManifestLoader
+from cirrus.manifest_loader import ManifestLoader
 
 
 def test_get_latest_feature_manifest_is_empty():
