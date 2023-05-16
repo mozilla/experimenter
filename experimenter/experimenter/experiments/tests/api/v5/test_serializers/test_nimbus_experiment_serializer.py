@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 
 import mock
@@ -152,6 +153,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "population_percent": "0.0",
             "proposed_duration": 0,
             "proposed_enrollment": 0,
+            "proposed_release_date": None,
             "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
             "total_enrolled_clients": 0,
             "changelog_message": "test changelog message",
@@ -185,6 +187,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.population_percent, 0.0)
         self.assertEqual(experiment.proposed_duration, 0)
         self.assertEqual(experiment.proposed_enrollment, 0)
+        self.assertEqual(experiment.proposed_release_date, None)
         self.assertEqual(
             experiment.targeting_config_slug,
             NimbusExperiment.TargetingConfig.NO_TARGETING,
@@ -457,6 +460,7 @@ class TestNimbusExperimentSerializer(TestCase):
             population_percent=0.0,
             proposed_duration=0,
             proposed_enrollment=0,
+            proposed_release_date=None,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
             is_sticky=False,
@@ -469,6 +473,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "population_percent": 10,
                 "proposed_duration": 120,
                 "proposed_enrollment": 42,
+                "proposed_release_date": "2023-12-12",
                 "targeting_config_slug": (TargetingConstants.TargetingConfig.FIRST_RUN),
                 "total_enrolled_clients": 100,
                 "changelog_message": "test changelog message",
@@ -491,6 +496,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.population_percent, 10)
         self.assertEqual(experiment.proposed_duration, 120)
         self.assertEqual(experiment.proposed_enrollment, 42)
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 12, 12))
         self.assertEqual(
             experiment.targeting_config_slug,
             TargetingConstants.TargetingConfig.FIRST_RUN,

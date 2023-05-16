@@ -62,7 +62,7 @@ export interface getAllExperiments_experiments {
   isEnrollmentPaused: boolean | null;
   proposedDuration: number;
   proposedEnrollment: number;
-  proposedReleaseDate: DateTime | null;
+  proposedReleaseDate: string | null;
   computedEndDate: DateTime | null;
   computedEnrollmentEndDate: DateTime | null;
   status: NimbusExperimentStatusEnum | null;
