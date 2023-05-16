@@ -537,11 +537,13 @@ workflows:
   build:
     jobs:
       - check_branch:
+          name: Check Experimenter (Branch)
           filters:
             branches:
               ignore:
                 - main
       - check_main:
+          name: Check Experimenter (Main)
           filters:
             branches:
               only: main
@@ -550,7 +552,7 @@ workflows:
             branches:
               only: main
           requires:
-            - check_main
+            - Check Experimenter (Main)
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
