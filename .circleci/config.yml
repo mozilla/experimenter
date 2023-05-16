@@ -548,6 +548,7 @@ workflows:
             branches:
               only: main
       - deploy:
+          name: Deploy Experimenter
           filters:
             branches:
               only: main
