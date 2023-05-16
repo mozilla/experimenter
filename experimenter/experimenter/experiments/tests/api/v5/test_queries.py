@@ -740,6 +740,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     totalEnrolledClients
                     proposedEnrollment
                     proposedDuration
+                    proposedReleaseDate
 
                     readyForReview {
                         ready
@@ -909,6 +910,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "projects": [{"id": str(project.id), "name": project.name}],
                 "proposedDuration": experiment.proposed_duration,
                 "proposedEnrollment": experiment.proposed_enrollment,
+                "proposedReleaseDate": experiment.proposed_release_date,
                 "publicDescription": experiment.public_description,
                 "publishStatus": NimbusExperiment.PublishStatus(
                     experiment.publish_status
