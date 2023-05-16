@@ -823,15 +823,31 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertIsNone(experiment.start_date)
 
+    def test_proposed_release_date_returns_None_for_not_started_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        self.assertIsNone(experiment.proposed_release_date)
+
     def test_end_date_returns_None_for_not_ended_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
         )
         self.assertIsNone(experiment.end_date)
 
-    def test_launch_month_returns_month_for_started_experiment(self):
+    def test_launch_month_returns_release_date_month_for_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            proposed_release_date=datetime.date.today() + datetime.timedelta(days=1),
+        )
+
+        assert experiment.proposed_release_date
+        self.assertEqual(experiment.launch_month, experiment.proposed_release_date.strftime("%B"))
+
+    def test_launch_month_returns_start_date_month_for_started_experiment_with_no_release_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            proposed_release_date=None,
             start_date=datetime.date.today() + datetime.timedelta(days=1),
         )
 
@@ -917,6 +933,21 @@ class TestNimbusExperiment(TestCase):
     def test_enrollment_duration_for_ended_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            proposed_release_date=datetime.date.today() + datetime.timedelta(days=1),
+        )
+
+        assert experiment.proposed_release_date
+        assert experiment.computed_end_date
+        expected_enrollment_duration = "{start} to {end}".format(
+            start=experiment.proposed_release_date.strftime("%Y-%m-%d"),
+            end=experiment.computed_end_date.strftime("%Y-%m-%d"),
+        )
+        self.assertEqual(experiment.enrollment_duration, expected_enrollment_duration)
+
+    def test_enrollment_duration_for_ended_experiment_with_no_release_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            proposed_release_date=None,
             start_date=datetime.date.today() + datetime.timedelta(days=1),
         )
 
@@ -981,7 +1012,16 @@ class TestNimbusExperiment(TestCase):
     def test_should_end_returns_True_after_proposed_end_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_release_date=datetime.date.today() - datetime.timedelta(days=10),
+            proposed_duration=10,
+        )
+        self.assertTrue(experiment.should_end)
+
+    def test_should_end_returns_True_after_proposed_end_date_no_release_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
+            proposed_release_date=None,
             proposed_duration=10,
         )
         self.assertTrue(experiment.should_end)
@@ -996,10 +1036,19 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertFalse(experiment.should_end_enrollment)
 
-    def test_should_end_enrollment_returns_True_after_proposed_enrollment_end_date(self):
+    def test_end_enrollment_returns_True_after_proposed_enrollment_end_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_release_date=datetime.date.today() - datetime.timedelta(days=10),
+            proposed_enrollment=10,
+        )
+        self.assertTrue(experiment.should_end_enrollment)
+
+    def test_end_enrollment_returns_True_after_proposed_enrollment_end_date_no_release_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
+            proposed_release_date=None,
             proposed_enrollment=10,
         )
         self.assertTrue(experiment.should_end_enrollment)
@@ -1020,12 +1069,26 @@ class TestNimbusExperiment(TestCase):
             expected_days,
         )
 
-    def test_computed_enrollment_days_uses_end_date_without_pause(self):
+    def test_computed_enrollment_days_uses_end_date_without_pause_with_start_date(self):
         expected_days = 5
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE_WITHOUT_PAUSE,
             proposed_enrollment=99,
             start_date=datetime.date.today() - datetime.timedelta(days=expected_days),
+            end_date=datetime.date.today(),
+        )
+
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            expected_days,
+        )
+
+    def test_computed_enrollment_days_uses_end_date_without_pause_with_release_date(self):
+        expected_days = 5
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE_WITHOUT_PAUSE,
+            proposed_enrollment=99,
+            proposed_release_date=datetime.date.today() - datetime.timedelta(days=expected_days),
             end_date=datetime.date.today(),
         )
 
@@ -1046,19 +1109,47 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,),
-            (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,),
-            (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,
+                datetime.date.today() - datetime.timedelta(days=5),
+                None,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+                datetime.date.today() - datetime.timedelta(days=5),
+                None,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+                datetime.date.today() - datetime.timedelta(days=5),
+                None,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,
+                datetime.date.today() - datetime.timedelta(days=5),
+                datetime.date.today() - datetime.timedelta(days=5),
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+                datetime.date.today(),
+                datetime.date.today() - datetime.timedelta(days=5),
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+                datetime.date.today(),
+                datetime.date.today() - datetime.timedelta(days=5),
+            ),
         ]
     )
     def test_computed_enrollment_days_returns_fallback_while_pause_pending_approval(
-        self, lifecycle
+        self, lifecycle, start_date, release_date
     ):
         expected_days = 99
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            # Set the span to 5 days, but that shouldn't apply while pending approval
-            start_date=datetime.date.today() - datetime.timedelta(days=5),
+            # Setting the span shouldn't apply while pending approval
+            start_date=start_date,
+            proposed_release_date=release_date,
             proposed_enrollment=expected_days,
         )
 
@@ -1098,12 +1189,31 @@ class TestNimbusExperiment(TestCase):
             expected_days,
         )
 
+    def test_computed_enrollment_end_date_returns_release_date_plus_enrollment_days(self):
+        release_date = datetime.date(2022, 1, 1)
+        enrollment_end_date = release_date + datetime.timedelta(days=3)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE,
+            proposed_release_date=release_date,
+            proposed_enrollment=7,
+        )
+
+        experiment.changes.filter(experiment_data__is_paused=True).update(
+            changed_on=enrollment_end_date
+        )
+
+        self.assertEqual(
+            experiment.computed_enrollment_end_date,
+            enrollment_end_date,
+        )
+
     def test_computed_enrollment_end_date_returns_start_date_plus_enrollment_days(self):
         start_date = datetime.date(2022, 1, 1)
         enrollment_end_date = start_date + datetime.timedelta(days=3)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE,
             start_date=start_date,
+            proposed_release_date=None,
             proposed_enrollment=7,
         )
 
@@ -1128,6 +1238,20 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             proposed_duration=10,
             start_date=datetime.date.today() - datetime.timedelta(days=7),
+            proposed_release_date=None,
+            end_date=datetime.date.today(),
+        )
+
+        self.assertEqual(
+            experiment.computed_duration_days,
+            7,
+        )
+
+    def test_computed_duration_days_returns_computed_end_date_minus_release_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            proposed_duration=10,
+            proposed_release_date=datetime.date.today() - datetime.timedelta(days=7),
             end_date=datetime.date.today(),
         )
 
