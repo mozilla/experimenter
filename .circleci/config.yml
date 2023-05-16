@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   gh: circleci/github-cli@2.0
 jobs:
-  check:
+  check_branch:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
       docker_layer_caching: true
@@ -28,6 +28,27 @@ jobs:
                 echo "No changes in /experimenter directory. Skipping tests and linting."
                 circleci-agent step halt
             fi
+
+  check_main:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: large
+    working_directory: ~/experimenter
+    steps:
+      - run:
+          name: Docker info
+          command: docker -v
+      - run:
+          name: Docker compose info
+          command: docker-compose -v
+      - checkout
+      - run:
+          name: Run tests and linting
+          command: |
+            cp .env.sample .env
+            make check
+
 
   integration_nimbus_desktop_release_targeting:
     machine:
@@ -515,8 +536,24 @@ workflows:
 
   build:
     jobs:
-      - check:
-          name: check
+      - check_branch:
+          name: Check Experimenter (Branch)
+          filters:
+            branches:
+              ignore:
+                - main
+      - check_main:
+          name: Check Experimenter (Main)
+          filters:
+            branches:
+              only: main
+      - deploy:
+          name: Deploy Experimenter
+          filters:
+            branches:
+              only: main
+          requires:
+            - Check Experimenter (Main)
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
@@ -589,11 +626,5 @@ workflows:
             branches:
               ignore:
                 - main
-      - deploy:
-          filters:
-            branches:
-              only: main
-          requires:
-            - check
       - cirrus_check:
-          name: Cirrus Check
+          name: Check Cirrus
