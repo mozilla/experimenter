@@ -1316,26 +1316,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Hypothesis cannot be the default value.")
         return value
 
-    def validate_localizations(self, value):
-        if value is not None:
-            try:
-                localizations = json.loads(value)
-            except Exception as e:
-                raise serializers.ValidationError(f"Invalid JSON: {e}")
-
-            schema = settings.EXPERIMENT_SCHEMA["definitions"]["NimbusExperiment"][
-                "properties"
-            ]["localizations"]
-
-            try:
-                jsonschema.validate(localizations, schema)
-            except Exception as e:
-                raise serializers.ValidationError(
-                    f"Localization schema validation error: {e}"
-                )
-
-        return value
-
     def _validate_feature_value_against_schema(
         self, feature_config, value, localizations
     ):
@@ -1623,11 +1603,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
     def _validate_localizations(self, data):
         is_localized = data.get("is_localized")
-        application = data.get("application")
-
         if not is_localized:
             return data
 
+        application = data.get("application")
         if application != NimbusExperiment.Application.DESKTOP:
             raise serializers.ValidationError(
                 {
@@ -1652,39 +1631,53 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 }
             )
 
-        localizations_json = data.get("localizations")
         experiment_locales = data.get("locales")
-
         if not experiment_locales:
             raise serializers.ValidationError(
                 {"locales": ["Locales must not be empty for a localized experiment."]}
             )
 
+        localizations_json = data.get("localizations")
+        try:
+            localizations = json.loads(localizations_json)
+        except json.decoder.JSONDecodeError as e:
+            raise serializers.ValidationError(
+                {"localizations": [f"Invalid JSON: {e}"]}
+            ) from e
+
+        schema = settings.EXPERIMENT_SCHEMA["definitions"]["NimbusExperiment"][
+            "properties"
+        ]["localizations"]
+
+        try:
+            jsonschema.validate(localizations, schema)
+        except Exception as e:
+            raise serializers.ValidationError(
+                {"localizations": [f"Localization schema validation error: {e}"]}
+            )
+
         experiment_locale_codes = [locale.code for locale in experiment_locales]
-        localizations = json.loads(localizations_json)
+        for locale_code in experiment_locale_codes:
+            if locale_code not in localizations:
+                raise serializers.ValidationError(
+                    {
+                        "localizations": [
+                            f"Experiment locale {locale_code} not present in "
+                            f"localizations."
+                        ]
+                    }
+                )
 
-        if is_localized:
-            for locale_code in experiment_locale_codes:
-                if locale_code not in localizations:
-                    raise serializers.ValidationError(
-                        {
-                            "localizations": [
-                                f"Experiment locale {locale_code} not present "
-                                f"in localizations."
-                            ]
-                        }
-                    )
-
-            for localization in localizations:
-                if localization not in experiment_locale_codes:
-                    raise serializers.ValidationError(
-                        {
-                            "localizations": [
-                                f"Localization locale {localization} "
-                                f"does not exist in experiment locales."
-                            ]
-                        }
-                    )
+        for localization in localizations:
+            if localization not in experiment_locale_codes:
+                raise serializers.ValidationError(
+                    {
+                        "localizations": [
+                            f"Localization locale {localization} does not exist in "
+                            f"experiment locales."
+                        ]
+                    }
+                )
 
         return data
 
