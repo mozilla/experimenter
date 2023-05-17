@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import mock
@@ -773,6 +774,7 @@ class TestUpdateExperimentMutationSingleFeature(
             population_percent=0.0,
             proposed_duration=0,
             proposed_enrollment=0,
+            proposed_release_date=None,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
             is_sticky=False,
@@ -788,6 +790,7 @@ class TestUpdateExperimentMutationSingleFeature(
                     "populationPercent": "10",
                     "proposedDuration": "120",
                     "proposedEnrollment": "42",
+                    "proposedReleaseDate": "2023-12-12",
                     "targetingConfigSlug": (TargetingConstants.TargetingConfig.FIRST_RUN),
                     "totalEnrolledClients": 100,
                     "changelogMessage": "test changelog message",
@@ -815,6 +818,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.population_percent, 10.0)
         self.assertEqual(experiment.proposed_duration, 120)
         self.assertEqual(experiment.proposed_enrollment, 42)
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 12, 12))
         self.assertEqual(
             experiment.targeting_config_slug,
             TargetingConstants.TargetingConfig.FIRST_RUN,
@@ -1096,6 +1100,32 @@ class TestUpdateExperimentMutationSingleFeature(
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertTrue(experiment.is_archived)
+
+    def test_update_proposed_release_date(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "proposedReleaseDate": "2023-12-12",
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEquals(experiment.proposed_release_date, datetime.date(2023, 12, 12))
 
     def test_update_conclusion_recommendation_null(self):
         user_email = "user@example.com"
