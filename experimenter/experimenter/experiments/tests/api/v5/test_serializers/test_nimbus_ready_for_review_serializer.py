@@ -341,7 +341,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_valid_experiments_supporting_languages_versions(
         self, application, firefox_version
     ):
-
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
@@ -487,7 +486,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_valid_experiments_supporting_countries_versions_default_as_all_countries(
         self, application, firefox_version
     ):
-
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
@@ -2112,6 +2110,27 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             serializer.errors,
             {"reference_branch": {"feature_value": [error_msg]}},
         )
+
+    def test_not_localized_with_localizations(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_sticky=True,
+            is_localized=False,
+            localizations="",
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user", self.user},
+            partial=True,
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
