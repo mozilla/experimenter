@@ -441,7 +441,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def launch_month(self):
-        if self.proposed_release_date:
+        if self.is_first_run and self.proposed_release_date:
             return self.proposed_release_date.strftime("%B")
         elif self.start_date:
             return self.start_date.strftime("%B")
@@ -465,7 +465,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def proposed_enrollment_end_date(self):
         if self.proposed_enrollment is not None:
-            if self.proposed_release_date:
+            if self.is_first_run and self.proposed_release_date:
                 return self.proposed_release_date + datetime.timedelta(
                     days=self.proposed_enrollment
                 )
@@ -475,7 +475,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def proposed_end_date(self):
         if self.proposed_duration is not None:
-            if self.proposed_release_date:
+            if self.is_first_run and self.proposed_release_date:
                 return self.proposed_release_date + datetime.timedelta(
                     days=self.proposed_duration
                 )
@@ -484,7 +484,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_enrollment_days(self):
-        if self.proposed_release_date is not None:
+        begin_date = None
+        if self.is_first_run and self.proposed_release_date:
             begin_date = self.proposed_release_date
         elif self.start_date is not None:
             begin_date = self.start_date
@@ -511,8 +512,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 self.save()
                 if begin_date:
                     return (paused_change.changed_on.date() - begin_date).days
-                else:
-                    return (paused_change.changed_on.date() - self.start_date).days
 
         if self.end_date:
             return self.computed_duration_days
@@ -525,7 +524,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         release_date = self.proposed_release_date
         computed_enrollment_days = self.computed_enrollment_days
         if computed_enrollment_days is not None:
-            if release_date is not None:
+            if self.is_first_run and release_date is not None:
                 return release_date + datetime.timedelta(days=computed_enrollment_days)
             elif start_date is not None:
                 return start_date + datetime.timedelta(days=computed_enrollment_days)
@@ -537,7 +536,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def enrollment_duration(self):
         if self.computed_end_date:
-            if self.proposed_release_date:
+            if self.is_first_run and self.proposed_release_date:
                 return (
                     self.proposed_release_date.strftime("%Y-%m-%d")
                     + " to "
@@ -555,7 +554,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def computed_duration_days(self):
         if self.computed_end_date:
-            if self.proposed_release_date:
+            if self.is_first_run and self.proposed_release_date:
                 return (self.computed_end_date - self.proposed_release_date).days
             if self.start_date:
                 return (self.computed_end_date - self.start_date).days
@@ -777,6 +776,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.is_paused = False
         cloned.is_rollout_dirty = False
         cloned.reference_branch = None
+        cloned.proposed_release_date = None
         cloned.published_dto = None
         cloned.results_data = None
         cloned.takeaways_summary = None
