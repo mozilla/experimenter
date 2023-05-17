@@ -17,6 +17,7 @@ import {
   POSITIVE_NUMBER_FIELD,
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
   TOOLTIP_DURATION,
+  TOOLTIP_RELEASE_DATE,
 } from "src/lib/constants";
 import { getStatus } from "src/lib/experiment";
 import {
@@ -50,6 +51,7 @@ export const audienceFieldNames = [
   "totalEnrolledClients",
   "proposedEnrollment",
   "proposedDuration",
+  "proposedReleaseDate",
   "countries",
   "locales",
   "languages",
@@ -232,6 +234,31 @@ export const FormAudience = ({
             </Form.Control>
             <FormErrors name="channel" />
           </Form.Group>
+          <Form.Row>
+        </Form.Row>
+        <Form.Row>
+        <Form.Group as={Col} controlId="proposedReleaseDate">
+            <Form.Label className="d-flex align-items-center">
+              Release Date
+              <Info
+                  data-tip={TOOLTIP_RELEASE_DATE}
+                  data-testid="tooltip-proposed-release-date"
+                  width="20"
+                  height="20"
+                  className="ml-1"
+                  onClick={() => window.open(EXTERNAL_URLS.WHAT_TRAIN_IS_IT)}
+              />
+              </Form.Label>
+            <Form.Control
+              {...formControlAttrs("proposedReleaseDate")}
+              type="date"
+            >
+            </Form.Control>
+
+            <FormErrors name="proposedReleaseDate" />
+          </Form.Group>
+        </Form.Row>
+
           <Form.Group as={Col} controlId="minVersion">
             <Form.Label className="d-flex align-items-center">
               Min Version
