@@ -1,4 +1,5 @@
 import json
+import re
 import typing
 from collections import defaultdict
 from dataclasses import dataclass
@@ -1683,6 +1684,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def _substitute_localizations(feature_value, substitutions, locale_code):
+        ID_RE = re.compile(r"^[A-Za-z0-9\-]+$")
         missing_ids = set()
 
         def substitute(value):
@@ -1697,6 +1699,18 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         raise LocalizationError("$l10n object is missing 'id'")
 
                     sub_id = value["$l10n"]["id"]
+
+                    if len(sub_id) < NimbusConstants.L10N_MIN_STRING_ID_LEN:
+                        raise LocalizationError(
+                            f"$l10n id '{sub_id}' must be at least "
+                            f"{NimbusConstants.L10N_MIN_STRING_ID_LEN} characters long"
+                        )
+
+                    if ID_RE.match(sub_id) is None:
+                        raise LocalizationError(
+                            f"$l10n id '{sub_id}' contains invalid characters; only "
+                            f"alphanumeric characters and dashes are permitted"
+                        )
 
                     if not isinstance(l10n.get("text"), str):
                         raise LocalizationError(

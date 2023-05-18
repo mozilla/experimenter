@@ -442,3 +442,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     DEFAULT_REFERENCE_BRANCH_NAME = "Control"
     DEFAULT_TREATMENT_BRANCH_NAME = "Treatment A"
+
+    L10N_MIN_STRING_ID_LEN = 9
