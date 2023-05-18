@@ -21,6 +21,8 @@ export function formBranchesActionReducer(
       return addBranch(state);
     case "removeBranch":
       return removeBranch(state, action);
+    case "setIsLocalized":
+      return setIsLocalized(state, action);
     case "setIsRollout":
       return setIsRollout(state, action);
     case "setFeatureConfigs":
@@ -29,6 +31,8 @@ export function formBranchesActionReducer(
       return setwarnFeatureSchema(state, action);
     case "setEqualRatio":
       return setEqualRatio(state, action);
+    case "setLocalizations":
+      return setLocalizations(state, action);
     case "setSubmitErrors":
       return setSubmitErrors(state, action);
     case "clearSubmitErrors":
@@ -52,7 +56,9 @@ export type FormBranchesAction =
   | SetEqualRatioAction
   | SetFeatureConfigsAction
   | SetwarnFeatureSchemaAction
+  | SetIsLocalizedAction
   | SetIsRolloutAction
+  | SetLocalizationsAction
   | SetSubmitErrorsAction
   | SetPreventPrefConflictsAction
   | ClearSubmitErrorsAction
@@ -128,6 +134,22 @@ type SetwarnFeatureSchemaAction = {
   value: FormBranchesState["warnFeatureSchema"];
 };
 
+type SetIsLocalizedAction = {
+  type: "setIsLocalized";
+  value: FormBranchesState["isLocalized"];
+};
+
+function setIsLocalized(
+  state: FormBranchesState,
+  { value: isLocalized }: SetIsLocalizedAction,
+) {
+  return {
+    ...state,
+    isLocalized,
+    localizations: isLocalized ? state.localizations ?? "" : null,
+  };
+}
+
 type SetIsRolloutAction = {
   type: "setIsRollout";
   value: FormBranchesState["isRollout"];
@@ -187,6 +209,21 @@ function setEqualRatio(
     equalRatio,
     referenceBranch,
     treatmentBranches,
+  };
+}
+
+type SetLocalizationsAction = {
+  type: "setLocalizations";
+  value: FormBranchesState["localizations"];
+};
+
+function setLocalizations(
+  state: FormBranchesState,
+  { value: localizations }: SetLocalizationsAction,
+) {
+  return {
+    ...state,
+    localizations,
   };
 }
 

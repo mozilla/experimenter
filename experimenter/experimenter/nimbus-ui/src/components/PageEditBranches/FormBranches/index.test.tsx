@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 import {
   MOCK_BRANCH,
@@ -14,7 +15,7 @@ import {
 } from "src/components/PageEditBranches/FormBranches/mocks";
 import { extractUpdateBranch } from "src/components/PageEditBranches/FormBranches/reducer/update";
 import { SERVER_ERRORS } from "src/lib/constants";
-import { MOCK_CONFIG } from "src/lib/mocks";
+import { mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
 import { assertSerializerMessages } from "src/lib/test-utils";
 import {
   NimbusExperimentApplicationEnum,
@@ -68,6 +69,8 @@ describe("FormBranches", () => {
       isRollout: false,
       preventPrefConflicts: false,
       warnFeatureSchema: false,
+      isLocalized: false,
+      localizations: null,
     });
     expect(typeof onSaveArgs[1]).toEqual("function");
     expect(typeof onSaveArgs[2]).toEqual("function");
@@ -683,6 +686,100 @@ describe("FormBranches", () => {
         expect(checkbox.checked).toEqual(false);
       }
     });
+  });
+
+  it("renders localization checkbox", async () => {
+    const { experiment } = mockExperimentQuery("boo");
+
+    render(<SubjectBranches {...{ experiment }} />);
+    const checkbox = screen.getByTestId("isLocalized");
+
+    expect(checkbox).toBeInTheDocument();
+  });
+
+  it("renders localized content text field when localization checkbox is checked", async () => {
+    const { experiment } = mockExperimentQuery("boo");
+    render(<SubjectBranches {...{ experiment }} />);
+
+    const checkbox = screen.getByTestId("isLocalized");
+    fireEvent.click(checkbox);
+    const textField = screen.getByTestId("localizations");
+
+    expect(textField).toBeInTheDocument();
+  });
+
+  it("renders localized content from experiment", async () => {
+    const { experiment } = mockExperimentQuery("boo", {
+      isLocalized: true,
+      localizations: "This is localized content",
+    });
+
+    render(<SubjectBranches {...{ experiment }} />);
+    const checkbox = screen.getByTestId("isLocalized") as HTMLInputElement;
+    const textField = screen.getByTestId("localizations");
+
+    expect(checkbox.checked).toEqual(true);
+    expect(textField).toHaveValue(experiment.localizations);
+  });
+
+  it("does not render localized content for non-desktop applications", async () => {
+    const { experiment } = mockExperimentQuery("boo", {
+      application: NimbusExperimentApplicationEnum.IOS,
+    });
+
+    render(<SubjectBranches {...{ experiment }} />);
+
+    expect(screen.queryByTestId("isLocalized")).toBeNull();
+    expect(screen.queryByTestId("localizations")).toBeNull();
+  });
+
+  it("unchecking isLocalized clears localizations form data", async () => {
+    const onSave = jest.fn();
+    const { experiment } = mockExperimentQuery("boo", {
+      isLocalized: true,
+      localizations: "This is localized content",
+    });
+
+    render(<SubjectBranches {...{ experiment, onSave }} />);
+
+    const checkbox = screen.getByTestId("isLocalized") as HTMLInputElement;
+
+    await userEvent.click(checkbox);
+
+    expect(screen.queryByTestId("localizations")).toBeNull();
+
+    await clickAndWaitForSave(onSave);
+
+    expect(onSave.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        isLocalized: false,
+        localizations: null,
+      }),
+    );
+  });
+
+  it("changing localizations field updates on save", async () => {
+    const onSave = jest.fn();
+    const { experiment } = mockExperimentQuery("boo", {
+      isLocalized: true,
+      localizations: "This is localized content",
+    });
+
+    render(<SubjectBranches {...{ experiment, onSave }} />);
+
+    await userEvent.type(
+      screen.getByTestId("localizations"),
+      "{selectall}{backspace}updated localizations",
+    );
+
+    await clickAndWaitForSave(onSave);
+
+    expect(onSave.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        isLocalized: true,
+        localizations: "updated localizations",
+      }),
+    );
   });
 });
 

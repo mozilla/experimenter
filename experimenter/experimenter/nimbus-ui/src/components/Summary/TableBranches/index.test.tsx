@@ -15,6 +15,7 @@ import {
   MOCK_EXPERIMENT,
   Subject,
 } from "src/components/Summary/TableBranches/mocks";
+import { mockExperimentQuery } from "src/lib/mocks";
 import { getExperiment_experimentBySlug_treatmentBranches_screenshots } from "src/types/getExperiment";
 
 describe("TableBranches", () => {
@@ -329,5 +330,40 @@ describe("TableBranches", () => {
       const notSet = cell!.querySelector("[data-testid='not-set']");
       expect(notSet).toBeInTheDocument();
     }
+  });
+});
+
+describe("renders localization row as expected", () => {
+  it("when set", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      isLocalized: true,
+      localizations: "test",
+    });
+    render(<Subject {...{ experiment }} />);
+    expect(screen.getByTestId("experiment-localizations")).toHaveTextContent(
+      "test",
+    );
+  });
+
+  it("when isLocalized is not checked and localized content is set", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      isLocalized: false,
+      localizations: "test",
+    });
+    render(<Subject {...{ experiment }} />);
+    expect(screen.queryByTestId("experiment-localizations")).toBeNull();
+  });
+
+  it("renders show button for localized content", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      isLocalized: true,
+      localizations: "test",
+    });
+    render(<Subject {...{ experiment }} />);
+    const localizations = screen.getByTestId("experiment-localizations");
+    expect(localizations).toHaveTextContent("test");
+    const showMore = screen.getByTestId("experiment-localizations-show-more");
+    fireEvent.click(showMore);
+    screen.getByTestId("experiment-localizations-hide");
   });
 });
