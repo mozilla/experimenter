@@ -41,7 +41,7 @@ describe("hooks/useReviewCheck", () => {
     risk_brand: "overview",
     risk_revenue: "overview",
     risk_partner_related: "overview",
-    localizations: "overview",
+    localizations: "branches",
   };
 
   beforeAll(() => {

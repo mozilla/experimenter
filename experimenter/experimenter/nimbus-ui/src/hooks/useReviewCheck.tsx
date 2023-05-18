@@ -16,13 +16,13 @@ const fieldPageMap: { [page: string]: string[] } = {
     "risk_brand",
     "risk_revenue",
     "risk_partner_related",
-    "localizations",
   ],
   branches: [
     "reference_branch",
     "treatment_branches",
     "feature_config",
     "is_rollout",
+    "localizations",
   ],
   audience: [
     "channel",
