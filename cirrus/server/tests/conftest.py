@@ -20,7 +20,7 @@ def scheduler_mock():
 
 @fixture
 def remote_setting_mock():
-    with mock.patch("cirrus.main.remote_setting") as remote_setting_mock:
+    with mock.patch("cirrus.experiment_recipes.remote_setting") as remote_setting_mock:
         yield remote_setting_mock
 
 

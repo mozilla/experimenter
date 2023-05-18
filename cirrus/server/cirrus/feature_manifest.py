@@ -8,3 +8,6 @@ class FeatureManifestLanguage:
         feature_configurations: List[Dict[str, Any]],
     ) -> Dict[str, str]:
         return {"feature": "test"}
+
+
+fml = FeatureManifestLanguage()
