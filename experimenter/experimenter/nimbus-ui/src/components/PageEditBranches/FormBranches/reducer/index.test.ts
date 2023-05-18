@@ -280,7 +280,7 @@ describe("formBranchesReducer", () => {
         type: "setFeatureConfigs",
         value: [8, 6, 7, 5],
       });
-      expect(featureConfigIds).toEqual([8, 6, 7, 5]);
+      expect(featureConfigIds).toEqual([5, 6, 7, 8]);
     });
   });
 

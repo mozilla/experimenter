@@ -137,16 +137,16 @@ describe("TableOverview", () => {
 
   describe("renders 'Feature config' row as expected", () => {
     it("when set", () => {
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        featureConfigs: [MOCK_CONFIG.allFeatureConfigs![1]],
-      });
+      const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-feature-config")).toHaveTextContent(
-        "Mauris odio erat",
+        "Picture-in-Picture",
       );
     });
     it("when not set", () => {
-      const { experiment } = mockExperimentQuery("demo-slug");
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        featureConfigs: [],
+      });
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-feature-config")).toHaveTextContent(
         "Not set",

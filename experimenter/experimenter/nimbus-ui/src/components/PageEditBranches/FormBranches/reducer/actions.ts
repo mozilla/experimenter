@@ -137,13 +137,14 @@ function setFeatureConfigs(
         ?.value ?? ""
     );
   }
+  featureConfigIds?.sort((a, b) => a! - b!);
   return {
     ...state,
     featureConfigIds: featureConfigIds || null,
     referenceBranch: {
       ...state.referenceBranch,
       featureValues: featureConfigIds?.map((featureConfigId) => ({
-        featureConfig: featureConfigId,
+        featureConfig: featureConfigId?.toString(),
         value: extractFeatureValue(
           featureConfigId!.toString(),
           state.referenceBranch,
@@ -153,7 +154,7 @@ function setFeatureConfigs(
     treatmentBranches: state.treatmentBranches?.map((treatmentBranch) => ({
       ...treatmentBranch,
       featureValues: featureConfigIds?.map((featureConfigId) => ({
-        featureConfig: featureConfigId,
+        featureConfig: featureConfigId?.toString(),
         value: extractFeatureValue(
           featureConfigId!.toString(),
           treatmentBranch,

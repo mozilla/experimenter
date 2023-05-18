@@ -1,5 +1,4 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.select import Select
 
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.metrics import MetricsPage
@@ -28,11 +27,17 @@ class BranchesPage(ExperimenterBase):
         "#treatmentBranches\\[0\\]\\.featureValues\\[0\\]-value",
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
-    _feature_select_locator = (By.CSS_SELECTOR, '[data-testid="feature-config-select"]')
+    _feature_select_locator = (By.CSS_SELECTOR, '[aria-label="Features"]')
     _add_screenshot_buttons_locator = (By.CSS_SELECTOR, '[data-testid="add-screenshot"]')
     _rollout_checkbox_locator = (By.CSS_SELECTOR, '[data-testid="is-rollout-checkbox"]')
     NEXT_PAGE = MetricsPage
     PAGE_TITLE = "Edit Branches Page"
+
+    def _feature_config_id_locator(self, feature_config_id: int):
+        return (
+            By.CSS_SELECTOR,
+            f'.react-select__option[data-feature-config-id="{feature_config_id}"]',
+        )
 
     @property
     def reference_branch_name(self):
@@ -114,16 +119,21 @@ class BranchesPage(ExperimenterBase):
     @property
     def feature_config(self):
         return self.wait_for_and_find_element(
-            *self._feature_select_locator, "feature config"
+            *self._feature_select_locator, "feature configs"
         ).text
 
     @feature_config.setter
     def feature_config(self, feature_config_id):
         el = self.wait_for_and_find_element(
-            *self._feature_select_locator, "feature_config"
+            *self._feature_select_locator, "feature configs"
         )
-        select = Select(el)
-        select.select_by_value(feature_config_id)
+
+        el.click()  # Open the drop-down
+
+        self.wait_for_and_find_element(
+            *self._feature_config_id_locator(feature_config_id),
+            f"feature config {feature_config_id}",
+        ).click()
 
     @property
     def is_rollout(self):
