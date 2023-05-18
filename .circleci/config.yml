@@ -58,7 +58,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
@@ -88,7 +88,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-beta
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
@@ -118,7 +118,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1
       UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
@@ -148,7 +148,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings --reruns 1
     steps:
       - checkout
       - run:
@@ -167,7 +167,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FENIX -m remote_settings
+      PYTEST_ARGS: -k FENIX -m remote_settings --reruns 1
     steps:
       - checkout
       - run:
@@ -186,7 +186,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k 'not (FOCUS_IOS or DESKTOP or FENIX or FOCUS_ANDROID)' -m remote_settings
+      PYTEST_ARGS: -k 'not (FOCUS_IOS or DESKTOP or FENIX or FOCUS_ANDROID)' -m remote_settings --reruns 1
     steps:
       - checkout
       - run:
@@ -205,7 +205,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FOCUS_ANDROID -m remote_settings
+      PYTEST_ARGS: -k FOCUS_ANDROID -m remote_settings --reruns 1
     steps:
       - checkout
       - run:
@@ -224,7 +224,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FOCUS_IOS -m remote_settings
+      PYTEST_ARGS: -k FOCUS_IOS -m remote_settings --reruns 1
     steps:
       - checkout
       - run:
@@ -243,7 +243,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1
       UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
@@ -264,7 +264,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m nimbus_ui -n 2
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m nimbus_ui -n 2 --reruns 1
     steps:
       - checkout
       - run:
