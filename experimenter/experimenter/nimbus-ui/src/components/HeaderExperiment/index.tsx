@@ -69,7 +69,7 @@ const HeaderExperiment = ({
         >
           {slug}
         </p>
-        <CopyToClipboardButton className="pt-0 pr-0 pb-0 pl-1" text={slug} />
+        <CopyToClipboardButton text={slug} />
       </div>
       {parent && (
         <p
