@@ -4,7 +4,7 @@
 
 import classNames from "classnames";
 import React from "react";
-import ClipboardButton from "src/components/CopyToClipboardButton";
+import CopyToClipboardButton from "src/components/CopyToClipboardButton";
 import "src/components/HeaderExperiment/index.scss";
 import { BASE_PATH } from "src/lib/constants";
 import { humanDate } from "src/lib/dateUtils";
