@@ -1072,7 +1072,6 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
-            proposed_release_date=None,
             proposed_enrollment=10,
         )
         self.assertTrue(experiment.should_end_enrollment)
@@ -1122,6 +1121,40 @@ class TestNimbusExperiment(TestCase):
             experiment.computed_enrollment_days,
             expected_days,
         )
+
+    def test_has_valid_release_date_for_first_run_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_first_run=True,
+            proposed_release_date=datetime.date.today(),
+        )
+
+        self.assertTrue(experiment.has_valid_release_date())
+
+    def test_has_empty_release_date_for_first_run_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_first_run=True,
+        )
+
+        self.assertFalse(experiment.has_valid_release_date())
+
+    def test_not_valid_release_date_for_non_first_run_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_first_run=False,
+            proposed_release_date=datetime.date.today(),
+        )
+
+        self.assertFalse(experiment.has_valid_release_date())
+
+    def test_not_valid_release_date_for_empty_release_date_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_first_run=False,
+        )
+
+        self.assertFalse(experiment.has_valid_release_date())
 
     def test_computed_enrollment_days_returns_fallback(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

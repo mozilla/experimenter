@@ -439,9 +439,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 self.save()
                 return self._start_date
 
+    def has_valid_release_date(self):
+        if self.proposed_release_date is not None and self.is_first_run:
+            return True
+        return False
+
     @property
     def launch_month(self):
-        if self.is_first_run and self.proposed_release_date:
+        if self.has_valid_release_date():
+            assert self.proposed_release_date
             return self.proposed_release_date.strftime("%B")
         elif self.start_date:
             return self.start_date.strftime("%B")
@@ -465,7 +471,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def proposed_enrollment_end_date(self):
         if self.proposed_enrollment is not None:
-            if self.is_first_run and self.proposed_release_date:
+            if self.has_valid_release_date():
+                assert self.proposed_release_date
                 return self.proposed_release_date + datetime.timedelta(
                     days=self.proposed_enrollment
                 )
@@ -475,7 +482,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def proposed_end_date(self):
         if self.proposed_duration is not None:
-            if self.is_first_run and self.proposed_release_date:
+            if self.has_valid_release_date():
+                assert self.proposed_release_date
                 return self.proposed_release_date + datetime.timedelta(
                     days=self.proposed_duration
                 )
@@ -485,7 +493,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def computed_enrollment_days(self):
         begin_date = None
-        if self.is_first_run and self.proposed_release_date:
+        if self.has_valid_release_date():
+            assert self.proposed_release_date
             begin_date = self.proposed_release_date
         elif self.start_date is not None:
             begin_date = self.start_date
@@ -521,11 +530,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def computed_enrollment_end_date(self):
         start_date = self.start_date
-        release_date = self.proposed_release_date
         computed_enrollment_days = self.computed_enrollment_days
         if computed_enrollment_days is not None:
-            if self.is_first_run and release_date is not None:
-                return release_date + datetime.timedelta(days=computed_enrollment_days)
+            if self.has_valid_release_date():
+                assert self.proposed_release_date
+                return self.proposed_release_date + datetime.timedelta(
+                    days=computed_enrollment_days
+                )
             elif start_date is not None:
                 return start_date + datetime.timedelta(days=computed_enrollment_days)
 
@@ -536,7 +547,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def enrollment_duration(self):
         if self.computed_end_date:
-            if self.is_first_run and self.proposed_release_date:
+            if self.has_valid_release_date():
+                assert self.proposed_release_date
                 return (
                     self.proposed_release_date.strftime("%Y-%m-%d")
                     + " to "
@@ -548,18 +560,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     + " to "
                     + self.computed_end_date.strftime("%Y-%m-%d")
                 )
-        else:
-            return self.proposed_duration
+        return self.proposed_duration
 
     @property
     def computed_duration_days(self):
         if self.computed_end_date:
-            if self.is_first_run and self.proposed_release_date:
+            if self.has_valid_release_date():
                 return (self.computed_end_date - self.proposed_release_date).days
-            if self.start_date:
+            elif self.start_date:
                 return (self.computed_end_date - self.start_date).days
-        else:
-            return self.proposed_duration
+        return self.proposed_duration
 
     @property
     def should_end(self):
