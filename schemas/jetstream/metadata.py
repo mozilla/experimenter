@@ -1,5 +1,6 @@
 import datetime as dt
 from pydantic import BaseModel
+from typing import Optional
 
 from .statistics import AnalysisBasis
 
@@ -7,8 +8,8 @@ from .statistics import AnalysisBasis
 class Metric(BaseModel):
     analysis_bases: list(AnalysisBasis)
     bigger_is_better: bool
-    description: str
-    friendly_name: str
+    description: Optional[str] = None
+    friendly_name: Optional[str] = None
 
 
 class Outcome(BaseModel):
@@ -21,17 +22,17 @@ class Outcome(BaseModel):
 
 
 class ExternalConfig(BaseModel):
-    reference_branch: str = None
-    end_date: dt.date = None
-    start_date: dt.date = None
-    enrollment_period: int = None
-    skip: bool = None
+    reference_branch: Optional[str] = None
+    end_date: Optional[dt.date] = None
+    start_date: Optional[dt.date] = None
+    enrollment_period: Optional[int] = None
+    skip: Optional[bool] = None
     url: str
 
 
 class Metadata(BaseModel):
-    analysis_start_time: dt.datetime
-    external_config: str
+    analysis_start_time: Optional[dt.datetime] = None
+    external_config: Optional[ExternalConfig] = None
     metrics: dict[str, Metric]
-    outcomes: dict[str, Outcome]
+    outcomes: dict[str, Outcome] = {}
     schema_version: int
