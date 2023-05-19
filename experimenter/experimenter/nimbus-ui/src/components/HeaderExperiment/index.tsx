@@ -4,7 +4,7 @@
 
 import classNames from "classnames";
 import React from "react";
-import CopyToClipboardButton from "src/components/CopyToClipboardButton";
+import ClipboardButton from "src/components/CopyToClipboardButton";
 import "src/components/HeaderExperiment/index.scss";
 import { BASE_PATH } from "src/lib/constants";
 import { humanDate } from "src/lib/dateUtils";
@@ -69,7 +69,7 @@ const HeaderExperiment = ({
         >
           {slug}
         </p>
-        <CopyToClipboardButton text={slug} />
+        <CopyToClipboardButton className="pt-0 pr-0 pb-0 pl-1" text={slug} />
       </div>
       {parent && (
         <p
