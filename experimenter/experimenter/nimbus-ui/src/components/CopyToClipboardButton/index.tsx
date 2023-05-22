@@ -37,7 +37,7 @@ const CopyToClipboardButton = ({ text }: Props) => {
       <Button
         data-testid="copy-button"
         variant="outlined"
-        className="rounded-circle border-0 mb-2 shadow-none"
+        className="rounded-circle border-0 mb-2 shadow-none pt-0 pr-0 pb-0 pl-1"
         onClick={handleCopy}
       >
         <Copy
