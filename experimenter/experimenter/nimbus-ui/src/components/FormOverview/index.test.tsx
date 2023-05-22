@@ -11,10 +11,7 @@ import { mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
 import { assertSerializerMessages } from "src/lib/test-utils";
 import { optionalBoolString } from "src/lib/utils";
 import { getExperiment_experimentBySlug_documentationLinks } from "src/types/getExperiment";
-import {
-  NimbusExperimentApplicationEnum,
-  NimbusExperimentDocumentationLinkEnum,
-} from "src/types/globalTypes";
+import { NimbusExperimentDocumentationLinkEnum } from "src/types/globalTypes";
 
 describe("FormOverview", () => {
   it("renders as expected", async () => {
@@ -183,7 +180,6 @@ describe("FormOverview", () => {
       riskRevenue: optionalBoolString(experiment.riskRevenue),
       riskPartnerRelated: optionalBoolString(experiment.riskPartnerRelated),
       projects: experiment.projects!.map((v) => "" + v!.id),
-      isLocalized: experiment.isLocalized,
     };
 
     const { container } = render(<Subject {...{ onSubmit, experiment }} />);
@@ -509,50 +505,5 @@ describe("FormOverview", () => {
         },
       ],
     });
-  });
-
-  it("renders localization checkbox", async () => {
-    const { experiment } = mockExperimentQuery("boo");
-
-    render(<Subject {...{ experiment }} />);
-    const checkbox = screen.getByTestId("isLocalized");
-
-    expect(checkbox).toBeInTheDocument();
-  });
-
-  it("renders localized content text field when localization checkbox is checked", async () => {
-    const { experiment } = mockExperimentQuery("boo");
-    render(<Subject {...{ experiment }} />);
-
-    const checkbox = screen.getByTestId("isLocalized");
-    fireEvent.click(checkbox);
-    const textField = screen.getByTestId("localizations");
-
-    expect(textField).toBeInTheDocument();
-  });
-
-  it("renders localized content from experiment", async () => {
-    const { experiment } = mockExperimentQuery("boo", {
-      isLocalized: true,
-      localizations: "This is localized content",
-    });
-
-    render(<Subject {...{ experiment }} />);
-    const checkbox = screen.getByTestId("isLocalized") as HTMLInputElement;
-    const textField = screen.getByTestId("localizations");
-
-    expect(checkbox.checked).toEqual(true);
-    expect(textField).toHaveValue(experiment.localizations);
-  });
-
-  it("does not render localized content for non-desktop applications", async () => {
-    const { experiment } = mockExperimentQuery("boo", {
-      application: NimbusExperimentApplicationEnum.IOS,
-    });
-
-    render(<Subject {...{ experiment }} />);
-
-    expect(screen.queryByTestId("isLocalized")).toBeNull();
-    expect(screen.queryByTestId("localizations")).toBeNull();
   });
 });

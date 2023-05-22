@@ -30,7 +30,6 @@ import {
 import { optionalBoolString } from "src/lib/utils";
 import { getConfig_nimbusConfig_projects } from "src/types/getConfig";
 import { getExperiment } from "src/types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 type FormOverviewProps = {
   isLoading: boolean;
@@ -55,8 +54,6 @@ export const overviewFieldNames = [
   "riskRevenue",
   "riskPartnerRelated",
   "projects",
-  "isLocalized",
-  "localizations",
 ] as const;
 
 const selectOptions = (items: SelectIdItems) =>
@@ -91,8 +88,6 @@ const FormOverview = ({
     riskRevenue: optionalBoolString(experiment?.riskRevenue),
     riskPartnerRelated: optionalBoolString(experiment?.riskPartnerRelated),
     projects: selectOptions(experiment?.projects as SelectIdItems),
-    isLocalized: experiment?.isLocalized,
-    localizations: experiment?.localizations,
   };
   const {
     FormErrors,
@@ -119,8 +114,6 @@ const FormOverview = ({
 
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
-
-  const isLocalized = watch("isLocalized");
 
   const { documentationLinks, addDocumentationLink, removeDocumentationLink } =
     useDocumentationLinks(experiment, control, setValue);
@@ -281,35 +274,6 @@ const FormOverview = ({
               </Form.Text>
               <FormErrors name="publicDescription" />
             </Form.Group>
-
-            {experiment.application ===
-              NimbusExperimentApplicationEnum.DESKTOP && (
-              <Form.Group id="localizaton">
-                <Form.Group controlId="isLocalized">
-                  <Form.Label className="d-flex align-items-center">
-                    Localization
-                  </Form.Label>
-                  <Form.Check
-                    label="Does this experiment require localization?"
-                    type="checkbox"
-                    {...formControlAttrs("isLocalized", {}, false)}
-                  />
-                  <FormErrors name="isLocalized" />
-                </Form.Group>
-                {isLocalized && (
-                  <Form.Group controlId="localizations" className="mt-2">
-                    <Form.Label>Localized Content</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={5}
-                      placeholder="Localization JSON object"
-                      {...formControlAttrs("localizations")}
-                    />
-                    <FormErrors name="localizations" />
-                  </Form.Group>
-                )}
-              </Form.Group>
-            )}
 
             <InputRadios
               name="riskRevenue"

@@ -606,4 +606,37 @@ describe("formBranchesReducer", () => {
 
     expect(newState.preventPrefConflicts).toEqual(true);
   });
+
+  it("setIsLocalized sets isLocalized", () => {
+    const oldState = { ...MOCK_STATE, isLocalized: false, localizations: null };
+    const newState = formBranchesActionReducer(oldState, {
+      type: "setIsLocalized",
+      value: true,
+    });
+
+    expect(newState.isLocalized).toEqual(true);
+    expect(newState.localizations).toEqual("");
+  });
+
+  it("setIsLocalized false clears localizations", () => {
+    const oldState = { ...MOCK_STATE, isLocalized: true, localizations: "{}" };
+    const newState = formBranchesActionReducer(oldState, {
+      type: "setIsLocalized",
+      value: false,
+    });
+
+    expect(newState.isLocalized).toEqual(false);
+    expect(newState.localizations).toEqual(null);
+  });
+
+  it("setLocalizations sets localizations", () => {
+    const oldState = { ...MOCK_STATE, isLocalized: true, localizations: "{}" };
+    const newState = formBranchesActionReducer(oldState, {
+      type: "setLocalizations",
+      value: `{ "en-US": {} }`,
+    });
+
+    expect(newState.isLocalized).toEqual(true);
+    expect(newState.localizations).toEqual(`{ "en-US": {} }`);
+  });
 });
