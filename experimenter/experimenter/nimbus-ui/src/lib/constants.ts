@@ -68,8 +68,7 @@ export const EXTERNAL_URLS = {
     "https://experimenter.info/faq/Rollouts-and-experiments#question-2",
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/custom-audiences",
-  WHAT_TRAIN_IS_IT:
-    "https://whattrainisitnow.com",
+  WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
 };
 
 export const RISK_QUESTIONS = {

@@ -1449,7 +1449,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             is_first_run=True,
-            proposed_release_date=release_date,
         )
         serializer = NimbusExperimentSerializer(
             experiment,
