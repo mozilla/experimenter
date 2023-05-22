@@ -1974,6 +1974,7 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             conclusion_recommendation="RERUN",
             takeaways_summary="takeaway",
+            proposed_release_date="2023-12-12",
         )
         child = self._clone_experiment_and_assert_common_expectations(parent)
 
@@ -2056,6 +2057,16 @@ class TestNimbusExperiment(TestCase):
             rollout_branch.slug,
         )
         self.assertFalse(child.is_rollout_dirty)
+
+    def test_clone_with_proposed_release_date(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_release_date="2023-12-12",
+        )
+        child = self._clone_experiment_and_assert_common_expectations(
+            parent,
+        )
+        self.assertIsNone(child.proposed_release_date)
 
     def _clone_experiment_and_assert_common_expectations(
         self, parent, rollout_branch_slug=None

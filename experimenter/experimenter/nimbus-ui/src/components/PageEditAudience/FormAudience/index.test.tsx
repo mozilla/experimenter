@@ -892,6 +892,7 @@ describe("FormAudience", () => {
       totalEnrolledClients: MOCK_EXPERIMENT.totalEnrolledClients,
       proposedEnrollment: "" + MOCK_EXPERIMENT.proposedEnrollment,
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
+      proposedReleaseDate: MOCK_EXPERIMENT.proposedReleaseDate,
       countries: MOCK_EXPERIMENT.countries.map((v) => "" + v.id),
       locales: MOCK_EXPERIMENT.locales.map((v) => "" + v.id),
       languages: MOCK_EXPERIMENT.languages.map((v) => "" + v.id),
@@ -959,6 +960,44 @@ describe("FormAudience", () => {
         container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
       ).toHaveTextContent(FIELD_MESSAGES.POSITIVE_NUMBER);
     }
+  });
+
+  it("changing proposed release date sets form value", async () => {
+    const enteredDate = "2023-05-12";
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    const field = screen.getByTestId("proposedReleaseDate") as HTMLInputElement;
+    fireEvent.change(field, { target: { value: enteredDate } });
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].proposedReleaseDate).toEqual(enteredDate);
+  });
+
+  it("changing proposed release date to empty sets form value", async () => {
+    const expectedDate = "";
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].proposedReleaseDate).toEqual(expectedDate);
   });
 
   it("using the population percent text box sets form value", async () => {
@@ -1678,6 +1717,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         populationPercent: "0",
         proposedDuration: 0,
         proposedEnrollment: 0,
+        proposedReleaseDate: "",
         targetingConfigSlug: "",
         countries: [],
         locales: [],

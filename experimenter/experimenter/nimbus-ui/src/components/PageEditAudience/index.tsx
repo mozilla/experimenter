@@ -52,6 +52,8 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
       try {
         // issue #3954: Need to parse string IDs into numbers
         const nimbusExperimentId = experiment.id;
+        const releaseDate =
+          proposedReleaseDate !== "" ? proposedReleaseDate : null;
         const result = await updateExperimentAudience({
           variables: {
             input: {
@@ -65,7 +67,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
               totalEnrolledClients,
               proposedEnrollment,
               proposedDuration,
-              proposedReleaseDate,
+              proposedReleaseDate: releaseDate,
               countries,
               locales,
               languages,
