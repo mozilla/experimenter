@@ -35,7 +35,7 @@ FROM python:3.11.2-slim-buster
 # cirrus
 COPY --from=builder /application-services/components/nimbus/src/cirrus.py /application-services/cirrus_sdk.py
 # megazord
-COPY --from=builder /application-services/target/release/libcirrus.so /application-services/libuniffi_cirrus.so
+COPY --from=builder /application-services/target/release/libcirrus.so /application-services/libcirrus.so
 ENV PYTHONPATH=$PYTHONPATH:/application-services
 
 # Set working directory for the container

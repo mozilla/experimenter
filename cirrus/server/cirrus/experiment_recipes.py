@@ -11,8 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class RemoteSettings:
-    recipes: Dict[str, List[Any]] = {"data": []}
-    url: str = remote_setting_url
+    def __init__(self):
+        self.recipes: Dict[str, List[Any]] = {"data": []}
+        self.url: str = remote_setting_url
 
     def get_recipes(self) -> Dict[str, List[Any]]:
         return self.recipes
@@ -28,7 +29,9 @@ class RemoteSettings:
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to fetch recipes: {e}")
             raise e
-        if data := response.json().get("data", {"data": []}):
+
+        data = response.json().get("data", [])
+        if data:
             self.update_recipes({"data": data})
             logger.info("Fetched resources")
         else:
