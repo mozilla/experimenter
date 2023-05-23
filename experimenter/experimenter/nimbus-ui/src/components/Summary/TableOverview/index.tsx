@@ -2,15 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from "react";
-import { Accordion, Button, Card, Table } from "react-bootstrap";
-import { Code } from "src/components/Code";
+import React from "react";
+import { Card, Table } from "react-bootstrap";
 import NotSet from "src/components/NotSet";
 import RichText from "src/components/RichText";
 import { displayConfigLabelOrNotSet } from "src/components/Summary";
 import { useConfig, useOutcomes } from "src/hooks";
-import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
-import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type TableOverviewProps = {
@@ -26,7 +23,6 @@ interface DocSlugs {
 const TableOverview = ({ experiment }: TableOverviewProps) => {
   const { applications } = useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
-  const [expand, setExpand] = useState(false);
 
   const docSlugs: DocSlugs = {
     DESKTOP: "firefox_desktop",
@@ -77,11 +73,6 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
           {acc}, {curr}
         </>
       ));
-
-  const truncatedLocalizations =
-    experiment.localizations && experiment.localizations.length > 30
-      ? `${experiment.localizations.substring(0, 30)}\n    ...`
-      : experiment.localizations ?? "";
 
   return (
     <Card className="my-4 border-left-0 border-right-0 border-bottom-0">
@@ -186,56 +177,6 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
                 )}
               </td>
             </tr>
-
-            {experiment.isLocalized && experiment.localizations && (
-              <tr id="localization">
-                <th>
-                  Localized Content <a href={`#localized-content`}>#</a>
-                </th>
-                <td colSpan={3} data-testid="experiment-localized-content">
-                  <Accordion>
-                    <Accordion.Toggle
-                      as={Accordion}
-                      eventKey="0"
-                      onClick={() => setExpand(!expand)}
-                    >
-                      {expand ? (
-                        <>
-                          <div className="float-right">
-                            <Button
-                              size="sm"
-                              variant="outline-primary"
-                              data-testid="experiment-localized-content-hide"
-                            >
-                              <CollapseMinus />
-                              Hide
-                            </Button>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="float-right">
-                            <Button
-                              size="sm"
-                              variant="outline-primary"
-                              data-testid="experiment-localized-content-show-more"
-                            >
-                              <ExpandPlus />
-                              Show More
-                            </Button>
-                          </div>
-                          <Code codeString={truncatedLocalizations} />
-                        </>
-                      )}
-                    </Accordion.Toggle>
-
-                    <Accordion.Collapse eventKey="0">
-                      <Code codeString={experiment.localizations} />
-                    </Accordion.Collapse>
-                  </Accordion>
-                </td>
-              </tr>
-            )}
           </tbody>
         </Table>
       </Card.Body>

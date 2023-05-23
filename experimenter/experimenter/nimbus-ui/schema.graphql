@@ -50,7 +50,7 @@ type NimbusExperimentType {
   takeawaysSummary: String
   isFirstRun: Boolean!
   preventPrefConflicts: Boolean
-  proposedReleaseDate: DateTime
+  proposedReleaseDate: String
   isLocalized: Boolean
   localizations: String
   documentationLinks: [NimbusDocumentationLinkType!]
@@ -225,6 +225,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_111_0_1
   FIREFOX_112
   FIREFOX_113
+  FIREFOX_113_0_1
   FIREFOX_114
   FIREFOX_115
   FIREFOX_116
@@ -323,13 +324,6 @@ enum NimbusExperimentConclusionRecommendationEnum {
   FOLLOWUP
 }
 
-"""
-The `DateTime` scalar type represents a DateTime
-value as specified by
-[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-"""
-scalar DateTime
-
 type NimbusDocumentationLinkType {
   title: NimbusExperimentDocumentationLinkEnum
   link: String!
@@ -351,6 +345,13 @@ type NimbusChangeLogType {
   message: String
   experimentData: JSONString
 }
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
 
 """
 Allows use of a JSON String for input / output from the GraphQL schema.
@@ -481,7 +482,7 @@ input ExperimentInput {
   projects: [String]
   proposedDuration: String
   proposedEnrollment: String
-  proposedReleaseDate: DateTime
+  proposedReleaseDate: String
   publicDescription: String
   publishStatus: NimbusExperimentPublishStatusEnum
   referenceBranch: BranchInput = null

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { Card } from "react-bootstrap";
+import React, { useState } from "react";
+import { Accordion, Card } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Figure from "react-bootstrap/Figure";
@@ -12,6 +12,8 @@ import Table from "react-bootstrap/Table";
 import CloneDialog, { useCloneDialog } from "src/components/CloneDialog";
 import { Code } from "src/components/Code";
 import NotSet from "src/components/NotSet";
+import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
+import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
@@ -49,6 +51,13 @@ const TableBranches = ({
   const branchCount = savedBranches.length;
   const hasOneBranchNameSet = Boolean(savedBranches);
 
+  const [expandL10n, setExpandL10n] = useState(false);
+
+  const truncatedLocalizations =
+    experiment.localizations && experiment.localizations.length > 30
+      ? `${experiment.localizations.substring(0, 30)}\n    ...`
+      : experiment.localizations ?? "";
+
   return (
     <Card className="mt-4 border-left-0 border-right-0 border-bottom-0">
       <TableTitle {...{ branchCount, hasOneBranchNameSet }} />
@@ -71,6 +80,61 @@ const TableBranches = ({
                 />
               </>
             ))}
+
+            {experiment.isLocalized && (
+              <Table data-testid="table-localizations" className="table-fixed">
+                <tbody>
+                  <tr id="localizations">
+                    <th>
+                      Localization Substitutions{" "}
+                      <a href={`#localizations`}>#</a>
+                    </th>
+                    <td colSpan={3} data-testid="experiment-localizations">
+                      <Accordion>
+                        <Accordion.Toggle
+                          as={Accordion}
+                          eventKey="0"
+                          onClick={() => setExpandL10n(!expandL10n)}
+                        >
+                          {expandL10n ? (
+                            <>
+                              <div className="float-right">
+                                <Button
+                                  size="sm"
+                                  variant="outline-primary"
+                                  data-testid="experiment-localizations-hide"
+                                >
+                                  <CollapseMinus />
+                                  Hide
+                                </Button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="float-right">
+                                <Button
+                                  size="sm"
+                                  variant="outline-primary"
+                                  data-testid="experiment-localizations-show-more"
+                                >
+                                  <ExpandPlus />
+                                  Show More
+                                </Button>
+                              </div>
+                              <Code codeString={truncatedLocalizations} />
+                            </>
+                          )}
+                        </Accordion.Toggle>
+
+                        <Accordion.Collapse eventKey="0">
+                          <Code codeString={experiment.localizations ?? ""} />
+                        </Accordion.Collapse>
+                      </Accordion>
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
+            )}
           </Card.Body>
         </>
       )}

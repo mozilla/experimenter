@@ -107,6 +107,7 @@ services:
     build:
       context: cirrus/server/
       dockerfile: Dockerfile
+    env_file: .env
     volumes:
       - ./cirrus/server/:/cirrus
     working_dir: /cirrus

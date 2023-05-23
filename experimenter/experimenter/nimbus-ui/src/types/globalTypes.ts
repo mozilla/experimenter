@@ -65,6 +65,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_111_0_1 = "FIREFOX_111_0_1",
   FIREFOX_112 = "FIREFOX_112",
   FIREFOX_113 = "FIREFOX_113",
+  FIREFOX_113_0_1 = "FIREFOX_113_0_1",
   FIREFOX_114 = "FIREFOX_114",
   FIREFOX_115 = "FIREFOX_115",
   FIREFOX_116 = "FIREFOX_116",
@@ -243,7 +244,7 @@ export interface ExperimentInput {
   projects?: (string | null)[] | null;
   proposedDuration?: string | null;
   proposedEnrollment?: string | null;
-  proposedReleaseDate?: DateTime | null;
+  proposedReleaseDate?: string | null;
   publicDescription?: string | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
   referenceBranch?: BranchInput | null;
