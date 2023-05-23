@@ -103,7 +103,6 @@ services:
       - "8000:8000"
 
   cirrus:
-    env_file: .env
     build:
       context: cirrus/server/
       dockerfile: Dockerfile
