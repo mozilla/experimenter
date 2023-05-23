@@ -17,6 +17,8 @@ export type FormBranchesSaveState = Pick<
   | "referenceBranch"
   | "treatmentBranches"
   | "preventPrefConflicts"
+  | "isLocalized"
+  | "localizations"
 >;
 
 export class UpdateStateError extends Error {}
@@ -37,6 +39,8 @@ export function extractUpdateState(
     referenceBranch,
     treatmentBranches,
     preventPrefConflicts,
+    isLocalized,
+    localizations,
   } = state;
 
   if (!referenceBranch) {
@@ -47,6 +51,8 @@ export function extractUpdateState(
     featureConfigIds,
     warnFeatureSchema,
     isRollout,
+    isLocalized,
+    localizations,
     referenceBranch: extractUpdateBranch(
       referenceBranch,
       formData.referenceBranch,

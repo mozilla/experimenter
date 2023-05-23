@@ -341,7 +341,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_valid_experiments_supporting_languages_versions(
         self, application, firefox_version
     ):
-
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
@@ -487,7 +486,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_valid_experiments_supporting_countries_versions_default_as_all_countries(
         self, application, firefox_version
     ):
-
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
@@ -1647,11 +1645,17 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_substitute_localizations(self):
         value = {
-            "foo": {"$l10n": {"id": "foo", "text": "foo text", "comment": "foo comment"}},
+            "foo": {
+                "$l10n": {
+                    "id": "foo-string",
+                    "text": "foo text",
+                    "comment": "foo comment",
+                }
+            },
             "bar": [
                 {
                     "$l10n": {
-                        "id": "bar",
+                        "id": "bar-string",
                         "text": "bar text",
                         "comment": "bar comment",
                     },
@@ -1661,7 +1665,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             "qux": {
                 "quux": {
                     "$l10n": {
-                        "id": "quux",
+                        "id": "quux-string",
                         "text": "quux text",
                         "comment": "quux comment",
                     }
@@ -1673,9 +1677,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         }
 
         substitutions = {
-            "foo": "localized foo",
-            "bar": "localized bar",
-            "quux": "localized quux",
+            "foo-string": "localized foo",
+            "bar-string": "localized bar",
+            "quux-string": "localized quux",
         }
 
         result = NimbusReviewSerializer._substitute_localizations(
@@ -1717,11 +1721,15 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         feature_value.value = json.dumps(
             {
                 "foo": {
-                    "$l10n": {"id": "foo", "text": "foo text", "comment": "foo comment"}
+                    "$l10n": {
+                        "id": "foo-string",
+                        "text": "foo text",
+                        "comment": "foo comment",
+                    }
                 },
                 "bar": {
                     "$l10n": {
-                        "id": "bar",
+                        "id": "bar-string",
                         "text": "bar text",
                         "comment": "bar comment",
                     }
@@ -1958,11 +1966,15 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         feature_value.value = json.dumps(
             {
                 "foo": {
-                    "$l10n": {"id": "foo", "text": "foo text", "comment": "foo comment"}
+                    "$l10n": {
+                        "id": "foo-string",
+                        "text": "foo text",
+                        "comment": "foo comment",
+                    }
                 },
                 "bar": {
                     "$l10n": {
-                        "id": "bar",
+                        "id": "bar-string",
                         "text": "bar text",
                         "comment": "bar comment",
                     }
@@ -1986,7 +1998,8 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             serializer.errors,
             {
                 "localizations": [
-                    "Locale en-US is missing substitutions for IDs: bar, foo"
+                    "Locale en-US is missing substitutions for IDs: bar-string, "
+                    "foo-string"
                 ]
             },
         )
@@ -2003,7 +2016,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             localizations=json.dumps(
                 {
                     "en-US": {
-                        "foo": "foo text",
+                        "foo-string": "foo text",
                     }
                 }
             ),
@@ -2022,7 +2035,11 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         feature_value.value = json.dumps(
             {
                 "directMigrateSingleProfile": {
-                    "$l10n": {"id": "foo", "text": "foo text", "comment": "foo comment"}
+                    "$l10n": {
+                        "id": "foo-string",
+                        "text": "foo text",
+                        "comment": "foo comment",
+                    }
                 }
             }
         )
@@ -2062,11 +2079,20 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
             (
                 {"id": "foo"},
-                "$l10n object with id 'foo' is missing 'text'",
+                "$l10n id 'foo' must be at least 9 characters long",
             ),
             (
-                {"id": "foo", "text": "foo text"},
-                "$l10n object with id 'foo' is missing 'comment'",
+                {"id": "&&&&&&&&&"},
+                "$l10n id '&&&&&&&&&' contains invalid characters; only alphanumeric "
+                "characters and dashes are permitted",
+            ),
+            (
+                {"id": "foo-string"},
+                "$l10n object with id 'foo-string' is missing 'text'",
+            ),
+            (
+                {"id": "foo-string", "text": "foo text"},
+                "$l10n object with id 'foo-string' is missing 'comment'",
             ),
         ]
     )
@@ -2111,7 +2137,29 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {"reference_branch": {"feature_value": [error_msg]}},
+            serializer.errors,
         )
+
+    def test_not_localized_with_localizations(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_sticky=True,
+            is_localized=False,
+            localizations="",
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user", self.user},
+            partial=True,
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
@@ -2586,7 +2634,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             {
                 "foo": {
                     "$l10n": {
-                        "id": "foo",
+                        "id": "foo-string",
                         "text": "foo text",
                         "comment": "foo comment",
                     }
@@ -2602,7 +2650,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             {
                 "bar": {
                     "$l10n": {
-                        "id": "bar",
+                        "id": "bar-string",
                         "text": "bar text",
                         "comment": "bar comment",
                     }

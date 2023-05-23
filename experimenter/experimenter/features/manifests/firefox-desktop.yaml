@@ -55,9 +55,67 @@ nimbus-qa-2:
       setPref: nimbus.qa.pref-2
       description: The value to set for the pref.
 
+# `search` is for search engine experimentation features which do not require
+# isEarlyStartup to be set.
 search:
-  description: The Search Services
+  description: Search engine experimentation support and testing features.
   owner: search-and-suggest-program@mozilla.com
+  hasExposure: false
+  variables:
+    extraParams:
+      type: json
+      description: >-
+        This allows extra parameters to be set for search engines, where the
+        search engine configuration defines those parameters.
+
+        The use of this field should be coordinated with the Search team.
+
+        The field value is an array of objects with key/value fields. For example:
+
+        [
+          {"key": "google_channel_row", "value": "foo"}
+        ]
+
+        This is matched to a section in the search configuration:
+
+        "extraParams": [
+          {
+            "name": "channel",
+            "pref": "google_channel_row",
+            "condition": "pref"
+          }
+        ],
+
+        In this case, the resulting URL for the appropriate search engine would have
+        `&channel=foo` added to the URL when doing searches.
+
+        If the key is not referenced in the search configuration, then no parameter
+        will be added. Only the search team can update the configuration.
+    cbhStudyUs:
+      type: string
+      setPref: browser.search.param.google_channel_us
+      description: >-
+        NOTE: Please use `extraParams` rather than this field.
+        A string pref set by Nimbus tests for US search cohort
+    cbhStudyRow:
+      type: string
+      setPref: browser.search.param.google_channel_row
+      description: >-
+        NOTE: Please use `extraParams` rather than this field.
+        A string pref set by Nimbus tests for Rest of World (ROW) search cohort
+    serpEventTelemetryEnabled:
+      type: boolean
+      setPref: browser.search.serpEventTelemetry.enabled
+      description: Whether the Glean SERP event telemetry is enabled.
+
+# `searchConfiguration` is for search experiment features for items that require
+# isEarlyStartup to be true. These items may require a reload of the search
+# engine configuration, and an additional reload may happen during the startup
+# process.
+searchConfiguration:
+  description: Search experimentation support for the engine configuration
+  owner: search-and-suggest-program@mozilla.com
+  isEarlyStartup: true
   hasExposure: false
   variables:
     experiment:
@@ -66,27 +124,12 @@ search:
       description: >-
         Used to activate only matching configurations that contain the value in
         `experiment`
-    extraParams:
-      type: json
-      description: Query parameters values for search engine configurations.
     seperatePrivateDefaultUIEnabled:
       type: boolean
       description: Whether the UI for the separate private default feature is enabled.
     seperatePrivateDefaultUrlbarResultEnabled:
       type: boolean
       description: Whether the urlbar result for the separate private default is shown.
-    cbhStudyUs:
-      type: string
-      setPref: browser.search.param.google_channel_us
-      description: A string pref set by Nimbus tests for US search cohort
-    cbhStudyRow:
-      type: string
-      setPref: browser.search.param.google_channel_row
-      description: A string pref set by Nimbus tests for Rest of World search cohort
-    serpEventTelemetryEnabled:
-      type: boolean
-      setPref: browser.search.serpEventTelemetry.enabled
-      description: Whether the Glean SERP event telemetry is enabled.
 
 urlbar:
   description: The Address Bar
@@ -97,6 +140,32 @@ urlbar:
     the event is recorded once per app session when the user first encounters
     the UI of the experiment in which they're enrolled.
   variables:
+    addonsFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.addons.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of the addons suggestion
+        feature are exposed to the user. See also `addonsKeywordsMinimumLength`
+        and `addonsKeywordsMinimumLengthCap`.
+    addonsKeywordsMinimumLength:
+      type: int
+      description: >-
+        If defined and non-zero, the addons suggestion will be triggered only by
+        the query that has number of chars more than this variable.
+        However, if there is a value in browser.urlbar.addons.minKeywordLength,
+        it will take priority.
+    addonsKeywordsMinimumLengthCap:
+      type: int
+      description: >-
+        If defined and non-zero, the user will not be able to increment the
+        minimum keyword length beyond this value. e.g., if this value is 6, the
+        current minimum length is 5, and the user clicks "Show less frequently",
+        then the minimum length will be incremented to 6, the "Show less
+        frequently" command will be hidden, and the user can continue to trigger
+        the weather suggestion by typing 6 characters, but they will not be able
+        to increment the minimum length any further.
+        If not defines a cap, no cap will be used, and the user will be able to
+        increment the minimum length without any limit.
     autoFillAdaptiveHistoryEnabled:
       type: boolean
       fallbackPref: browser.urlbar.autoFill.adaptiveHistory.enabled
@@ -1195,17 +1264,6 @@ etpLevel2PBMPref:
       type: boolean
       setPref: "privacy.annotate_channels.strict_list.pbmode.enabled"
 
-accessibilityCache:
-  description: Caches all accessibility information from all documents in the Firefox main process.
-  owner: jteh@mozilla.com
-  hasExposure: false
-  isEarlyStartup: true
-  variables:
-    enabled:
-      description: Whether to enable the accessibility cache.
-      type: boolean
-      setPref: accessibility.cache.enabled
-
 fxaButtonVisibility:
   description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.
   owner: mconley@mozilla.com
@@ -1390,7 +1448,7 @@ jitHintsCache:
       description: True to enable the hints cache.
       type: boolean
       setPref: "javascript.options.jithints"
-    
+
 raceCacheWithNetwork:
   description: Prefs to toggle the race cache with network.
   owner: dpalmeiro@mozilla.com, acreskey@mozilla.com

@@ -53,6 +53,8 @@ export const FormBranches = ({
       equalRatio,
       preventPrefConflicts,
       globalErrors,
+      isLocalized,
+      localizations,
     },
     extractSaveState,
     dispatch,
@@ -196,6 +198,22 @@ export const FormBranches = ({
         screenshotIdx,
       });
     };
+
+  const handleLocalizedChanged = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    commitFormData();
+    dispatch({
+      type: "setIsLocalized",
+      value: ev.target.checked,
+    });
+  };
+
+  const handleLocalizationsChanged = (ev: React.ChangeEvent) => {
+    commitFormData();
+    dispatch({
+      type: "setLocalizations",
+      value: (ev.target as HTMLTextAreaElement).value,
+    });
+  };
 
   type DefaultValues = typeof defaultValues;
   const [handleSave, handleSaveNext] = [false, true].map((next) =>
@@ -439,6 +457,68 @@ export const FormBranches = ({
           >
             + Add branch
           </Button>
+        )}
+        {experiment.application === NimbusExperimentApplicationEnum.DESKTOP && (
+          <Form.Group id="localizaton" className="mt-3">
+            <h2>Localization</h2>
+            <Form.Group controlId="isLocalized">
+              <Form.Check
+                label="Is this a localized experiment?"
+                type="checkbox"
+                name="isLocalized"
+                data-testid="isLocalized"
+                checked={!!isLocalized}
+                onChange={handleLocalizedChanged}
+              />
+            </Form.Group>
+            {isLocalized && (
+              <Form.Group controlId="localizations" className="mt-2">
+                <Form.Label>Localization Substitutions</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={5}
+                  placeholder="Localization substitutions object"
+                  name="localizations"
+                  onChange={handleLocalizationsChanged}
+                  value={localizations ?? ""}
+                  isValid={
+                    checkValid &&
+                    typeof fieldMessages.localizations === "undefined"
+                  }
+                  data-testid="localizations"
+                  className={classNames({
+                    "is-warning":
+                      (fieldMessages.localizations?.length ?? false) ||
+                      (fieldWarnings.localizations?.length ?? false),
+                  })}
+                />
+                {fieldMessages.localizations?.length && (
+                  <Form.Control.Feedback
+                    // @ts-ignore This component doesn't technically support type="warning", but
+                    // all it's doing is using the string in a class, so we can safely override.
+                    type="warning"
+                    data-for="localizations"
+                  >
+                    {(fieldMessages.localizations as SerializerMessage).join(
+                      ", ",
+                    )}
+                  </Form.Control.Feedback>
+                )}
+                {fieldWarnings.localizations?.length && (
+                  <Form.Control.Feedback
+                    // @ts-ignore This component doesn't technically support type="warning", but
+                    // all it's doing is using the string in a class, so we can safely override.
+                    type="warning"
+                    data-for="localizations"
+                  >
+                    {(fieldWarnings.localizations as SerializerMessage).join(
+                      ", ",
+                    )}
+                  </Form.Control.Feedback>
+                )}
+              </Form.Group>
+            )}
+          </Form.Group>
         )}
         <div className="d-flex flex-row-reverse bd-highlight">
           <div className="p-2">
