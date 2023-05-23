@@ -15,7 +15,7 @@ pytest-cov = "^4.0.0"
 black = "^23.1.0"
 pyright = "^1.1.300"
 apscheduler = "^3.9.1"
-requests = "^2.29.0"
+requests = "^2.31.0"
 pytest-asyncio = "^0.21.0"
 python-decouple = "^3.8"
 
