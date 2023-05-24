@@ -6,9 +6,6 @@
     "experimenter/legacy/legacy-ui/*",
     "experimenter/nimbus-ui"
   ],
-  "dependencies": {
-    "react-select": "^4.3.0"
-  },
   "devDependencies": {},
   "resolutions": {
     "ansi-regex": "^5.0.1",
