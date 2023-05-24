@@ -20,7 +20,6 @@ class SDK:
             )
             return json.loads(res)
         except NimbusError as e:
-            # Log the error
             logger.error(f"An error occurred during compute_enrollments: {e}")
             return {}
 
@@ -28,7 +27,6 @@ class SDK:
         try:
             self.client.set_experiments(recipes)  # type: ignore
         except NimbusError as e:
-            # Log the error
             logger.error(f"An error occurred during set_experiments: {e}")
 
 
