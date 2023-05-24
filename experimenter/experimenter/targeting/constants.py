@@ -468,14 +468,14 @@ NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_WINDOWS_USER_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
-    name="Existing users, with no enterprise or past VPN use, on Windows 10+",
-    slug="existing_windows_user_no_enterprise_or_past_vpn",
+EXISTING_USER_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
+    name="Existing users, no enterprise or past VPN use, on Mac, Linux, or Windows 10+",
+    slug="existing_user_no_enterprise_or_past_vpn",
     description="Exclude users who have used Mozilla VPN or who are enterprise users",
     targeting=(
         f"{NO_ENTERPRISE.targeting} && "
         f"{PROFILE28DAYS} && "
-        "os.windowsBuildNumber >= 18362 && "
+        "(!os.isWindows || os.windowsBuildNumber >= 18362) && "
         "userMonthlyActivity|length >= 1 && "
         "!('e6eb0d1e856335fc' in attachedFxAOAuthClients|mapToProperty('id'))"
     ),
