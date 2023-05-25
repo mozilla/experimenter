@@ -14,14 +14,14 @@ RUN apt-get update -qqy \
     tclsh \
     python3-venv
 
-RUN git clone https://github.com/mozilla/application-services.git
-RUN if [[ -z "${as_version}" ]] ; then \
-    echo "No application-services version supplied, using lastest commit." \
-    ; else \
-    cd application-services && git fetch \
-    ; fi
-
 WORKDIR /application-services
+
+RUN git clone https://github.com/mozilla/application-services.git .
+RUN if [[ -z "${as_version}" ]] ; then \
+    echo "No application-services version supplied, using latest commit." ; \
+    else \
+    git fetch ; \
+    fi
 
 RUN git submodule init
 RUN git submodule update --recursive
@@ -32,14 +32,15 @@ RUN cargo uniffi-bindgen generate components/nimbus/src/cirrus.udl --language py
 # Use official Python runtime as a parent image
 FROM python:3.11.2-slim-buster
 
+# Set working directory for the container
+WORKDIR /cirrus
+
 # cirrus
 COPY --from=builder /application-services/components/nimbus/src/cirrus.py /application-services/cirrus_sdk.py
 # megazord
 COPY --from=builder /application-services/target/release/libcirrus.so /application-services/libcirrus.so
-ENV PYTHONPATH=$PYTHONPATH:/application-services
 
-# Set working directory for the container
-WORKDIR /cirrus
+ENV PYTHONPATH=$PYTHONPATH:/application-services
 
 # Install curl and bash utilities
 RUN apt-get update && \
@@ -53,8 +54,8 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH "/root/.local/bin:$PATH"
 
 # Copy only the pyproject.toml file and poetry.lock file to install dependencies ignoring dev dependencies
-COPY pyproject.toml /cirrus/pyproject.toml
-COPY poetry.lock /cirrus/poetry.lock
+COPY pyproject.toml /cirrus/
+COPY poetry.lock /cirrus/
 
 # Configure poetry and install dependencies
 RUN poetry config virtualenvs.create false && \

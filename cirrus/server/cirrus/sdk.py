@@ -19,7 +19,7 @@ class SDK:
                 json.dumps(targeting_context)
             )
             return json.loads(res)
-        except NimbusError as e:
+        except (NimbusError, Exception) as e:
             logger.error(f"An error occurred during compute_enrollments: {e}")
             return {}
 
