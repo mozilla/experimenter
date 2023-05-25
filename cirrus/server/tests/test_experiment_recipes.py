@@ -12,11 +12,11 @@ class TestFetchRecipes(unittest.TestCase):
 
     def test_get_recipes_is_empty(self):
         rs = self.get_remote_settings()
-        assert rs.get_recipes() == []
+        assert rs.get_recipes() == {"data": []}
 
     def test_update_recipes(self):
         rs = self.get_remote_settings()
-        new_recipes = [{"experiment1": True}, {"experiment2": False}]
+        new_recipes = {"data": [{"experiment1": True}, {"experiment2": False}]}
         rs.update_recipes(new_recipes)
         assert rs.get_recipes() == new_recipes
 
@@ -29,7 +29,7 @@ class TestFetchRecipes(unittest.TestCase):
 
         rs = self.get_remote_settings()
         rs.fetch_recipes()
-        self.assertEqual(rs.get_recipes(), [])
+        self.assertEqual(rs.get_recipes(), {"data": []})
 
     @patch("cirrus.experiment_recipes.requests.get")
     def test_non_empty_data_key(self, mock_get):
@@ -43,7 +43,7 @@ class TestFetchRecipes(unittest.TestCase):
         rs = self.get_remote_settings()
         rs.fetch_recipes()
         self.assertEqual(
-            rs.get_recipes(), [{"experiment1": True}, {"experiment2": False}]
+            rs.get_recipes(), {"data": [{"experiment1": True}, {"experiment2": False}]}
         )
 
     @patch("cirrus.experiment_recipes.requests.get")
@@ -67,7 +67,7 @@ class TestFetchRecipes(unittest.TestCase):
             rs.fetch_recipes()
 
         self.assertEqual(str(context.exception), "Failed request")
-        self.assertEqual(rs.get_recipes(), [])
+        self.assertEqual(rs.get_recipes(), {"data": []})
 
     @patch("cirrus.experiment_recipes.requests.get")
     def test_empty_data_key_with_non_empty_recipes(self, mock_get):
@@ -77,6 +77,6 @@ class TestFetchRecipes(unittest.TestCase):
         mock_get.return_value = mock_response
 
         rs = self.get_remote_settings()
-        rs.update_recipes([{"experiment1": True}])
+        rs.update_recipes({"data": [{"experiment1": True}]})
         rs.fetch_recipes()
-        self.assertEqual(rs.get_recipes(), [{"experiment1": True}])
+        self.assertEqual(rs.get_recipes(), {"data": [{"experiment1": True}]})
