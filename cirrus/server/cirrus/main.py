@@ -31,9 +31,9 @@ async def compute_features():
     # # will recieve as part of incoming request
     targeting_context: Dict[str, Any] = {"clientId": "test", "requestContext": {}}
     enrolled_partial_configuration = sdk.compute_enrollments(targeting_context)
-    feature_configurations = manifest_loader.get_latest_feature_manifest()
+
     client_feature_configuration = fml.compute_feature_configurations(
-        enrolled_partial_configuration, feature_configurations
+        enrolled_partial_configuration
     )
     return client_feature_configuration
 
