@@ -13,3 +13,6 @@ class ManifestLoader:
         cls, updated_feature_manifest: List[Dict[str, Any]]
     ) -> None:
         cls.feature_manifest = updated_feature_manifest
+
+
+manifest_loader = ManifestLoader()
