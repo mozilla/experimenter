@@ -173,19 +173,19 @@ describe("Summary", () => {
       });
     });
 
-    it("can cancel review when the experiment is in review state", async () => {
+    it("can cancel ending experiment when the experiment is in review state", async () => {
       const refetch = jest.fn();
       const { experiment } = mockExperimentQuery("demo-slug", {
         status: NimbusExperimentStatusEnum.LIVE,
         publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+        isEnrollmentPaused: true,
       });
       const mutationMock = createMutationMock(
         experiment.id!,
         NimbusExperimentPublishStatusEnum.IDLE,
         {
-          statusNext: NimbusExperimentStatusEnum.LIVE,
+          statusNext: NimbusExperimentStatusEnum.COMPLETE,
           changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
-          isEnrollmentPaused: false,
         },
       );
       render(
@@ -196,6 +196,36 @@ describe("Summary", () => {
       fireEvent.click(screen.getByTestId("cancel-review-start"));
       await waitFor(() => {
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+        expect(experiment.isEnrollmentPaused).toBeTruthy();
+      });
+    });
+
+    it("can cancel end enrollment when the experiment is in review state", async () => {
+      const refetch = jest.fn();
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+        isEnrollmentPaused: false,
+      });
+      const mutationMock = createMutationMock(
+        experiment.id!,
+        NimbusExperimentPublishStatusEnum.IDLE,
+        {
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          isEnrollmentPaused: true,
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
+        },
+      );
+      render(
+        <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
+      );
+
+      await screen.findByTestId("cancel-review-start");
+      fireEvent.click(screen.getByTestId("cancel-review-start"));
+      await waitFor(() => {
+        expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+        expect(experiment.isEnrollmentPaused).toBeFalsy();
+        expect(experiment.isEnrollmentPausePending).toBeFalsy();
       });
     });
 
@@ -231,6 +261,49 @@ describe("Summary", () => {
       fireEvent.click(screen.getByTestId("cancel-review-start"));
 
       screen.queryByTestId("request-update-button");
+      await waitFor(() => {
+        expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+        expect(rollout.isEnrollmentPaused).toBeFalsy();
+        expect(rollout.isEnrollmentPausePending).toBeFalsy();
+      });
+    });
+
+    it("can cancel review for live rollout with paused enrollment", async () => {
+      const refetch = jest.fn();
+      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+        statusNext: null,
+        isEnrollmentPaused: true,
+        isRolloutDirty: true,
+      });
+
+      const mutationMock = createMutationMock(
+        rollout.id!,
+        NimbusExperimentPublishStatusEnum.REVIEW,
+        {
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+          isEnrollmentPaused: false,
+        },
+      );
+
+      render(
+        <Subject
+          props={rollout}
+          mocks={[mockRollout, mutationMock]}
+          {...{ refetch }}
+        />,
+      );
+
+      await screen.findByTestId("cancel-review-start");
+      fireEvent.click(screen.getByTestId("cancel-review-start"));
+
+      screen.queryByTestId("request-update-button");
+      await waitFor(() => {
+        expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+        expect(rollout.isEnrollmentPaused).toBeTruthy();
+      });
     });
 
     it("handles submission with server API error", async () => {
