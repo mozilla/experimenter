@@ -244,3 +244,14 @@ cirrus_typecheck_createstub: cirrus_build
 cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
+schemas_black_check:
+	(cd schemas && poetry run black --check --diff .)
+
+schemas_ruff_check:
+	(cd schemas && poetry run ruff .)
+
+schemas_check: schemas_black_check schemas_ruff_check
+	(cd schemas && poetry run pytest)
+
+schemas_code_format:
+	(cd schemas && poetry run black . && poetry run ruff --fix .)

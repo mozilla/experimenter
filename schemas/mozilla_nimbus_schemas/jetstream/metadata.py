@@ -1,15 +1,26 @@
 import datetime as dt
-from pydantic import BaseModel
+import json
 from typing import Optional
+
+from pydantic import BaseModel, HttpUrl
 
 from .statistics import AnalysisBasis
 
 
+def nonstrict_json_loads(*args, **kwargs):
+    kwargs.update({"strict": False})
+    return json.loads(*args, **kwargs)
+
+
 class Metric(BaseModel):
-    analysis_bases: list(AnalysisBasis)
+    analysis_bases: list[AnalysisBasis]
     bigger_is_better: bool
     description: Optional[str] = None
     friendly_name: Optional[str] = None
+
+    class Config:
+        # override json_loads because `description` field may contain \n
+        json_loads = nonstrict_json_loads
 
 
 class Outcome(BaseModel):
@@ -27,7 +38,7 @@ class ExternalConfig(BaseModel):
     start_date: Optional[dt.date] = None
     enrollment_period: Optional[int] = None
     skip: Optional[bool] = None
-    url: str
+    url: HttpUrl
 
 
 class Metadata(BaseModel):
@@ -36,3 +47,7 @@ class Metadata(BaseModel):
     metrics: dict[str, Metric]
     outcomes: dict[str, Outcome] = {}
     schema_version: int
+
+    class Config:
+        # override json_loads because `description` field in Metric may contain \n
+        json_loads = nonstrict_json_loads
