@@ -17,7 +17,9 @@ def test_get_features(client):
 
 @pytest.mark.asyncio
 async def test_fetch_schedule_recipes_success(scheduler_mock, remote_setting_mock):
-    remote_setting_mock.fetch_recipes.return_value = ["recipe1", "recipe2"]
+    remote_setting_mock.fetch_recipes.return_value = {
+        "data": [{"experiment1": True}, {"experiment2": False}]
+    }
 
     await fetch_schedule_recipes()
     remote_setting_mock.fetch_recipes.assert_called_once()
