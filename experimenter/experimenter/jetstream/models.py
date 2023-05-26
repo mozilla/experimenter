@@ -1,4 +1,5 @@
-from typing import Any, Dict, List
+from enum import Enum
+from typing import Any, Dict, List, Literal
 
 from pydantic import BaseModel, create_model
 
@@ -333,3 +334,30 @@ def create_results_object_model(data):
     # Create ResultsObjectModel model which is dependent on
     # branches available for a given experiment
     return create_model("ResultsObjectModel", **branches, __base__=ResultsObjectModelBase)
+
+
+class SizingMetricName(str, Enum):
+    ACTIVE_HOURS = "active_hours"
+    SEARCH_COUNT = "search_count"
+    DAYS_OF_USE = "days_of_use"
+
+
+class SizingMetric(BaseModel):
+    number_of_clients_targets: int
+    sample_size_per_branch: float
+    population_percent_per_branch: float
+
+
+class SizingParameters(BaseModel):
+    power: float
+    effect_size: float
+
+
+class SizingDetails(BaseModel):
+    metrics: dict[SizingMetricName, SizingMetric]
+    parameters: SizingParameters
+
+
+class SizingTarget(BaseModel):
+    target_recipe: dict[Literal["app_id", "target_recipe"], str]
+    sample_sizes: dict[str, SizingDetails]
