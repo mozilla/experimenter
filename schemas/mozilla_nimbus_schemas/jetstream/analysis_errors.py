@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from .statistics import AnalysisBasis
+from mozilla_nimbus_schemas.jetstream.statistics import AnalysisBasis
 
 
 class AnalysisError(BaseModel):

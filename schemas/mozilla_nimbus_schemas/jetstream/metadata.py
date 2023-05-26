@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, HttpUrl
 
-from .statistics import AnalysisBasis
+from mozilla_nimbus_schemas.jetstream.statistics import AnalysisBasis
 
 
 def nonstrict_json_loads(*args, **kwargs):
