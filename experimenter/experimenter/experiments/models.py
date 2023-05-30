@@ -440,9 +440,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 return self._start_date
 
     @property
+    def release_date(self):
+        if self.is_first_run:
+            return self.proposed_release_date
+
+    @property
+    def enrollment_start_date(self):
+        return self.release_date or self.start_date
+
+    @property
     def launch_month(self):
-        if self.start_date:
-            return self.start_date.strftime("%B")
+        if self.enrollment_start_date is not None:
+            return self.enrollment_start_date.strftime("%B")
 
     @property
     def end_date(self):
@@ -462,18 +471,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def proposed_enrollment_end_date(self):
-        if self.start_date and self.proposed_enrollment is not None:
-            return self.start_date + datetime.timedelta(days=self.proposed_enrollment)
+        if (
+            self.proposed_enrollment is not None
+            and self.enrollment_start_date is not None
+        ):
+            return self.enrollment_start_date + datetime.timedelta(
+                days=self.proposed_enrollment
+            )
 
     @property
     def proposed_end_date(self):
-        if self.start_date and self.proposed_duration is not None:
-            return self.start_date + datetime.timedelta(days=self.proposed_duration)
+        if self.proposed_duration is not None and self.enrollment_start_date is not None:
+            return self.enrollment_start_date + datetime.timedelta(
+                days=self.proposed_duration
+            )
 
     @property
     def computed_enrollment_days(self):
-        if None not in (self._start_date, self._enrollment_end_date):
-            return (self._enrollment_end_date - self._start_date).days
+        enrollment_start = self.enrollment_start_date
+        if self._enrollment_end_date is not None and enrollment_start is not None:
+            return (self._enrollment_end_date - enrollment_start).days
 
         if self.is_paused:
             if paused_changelogs := [
@@ -491,7 +508,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 paused_change = sorted(paused_changelogs, key=lambda c: c.changed_on)[-1]
                 self._enrollment_end_date = paused_change.changed_on.date()
                 self.save()
-                return (paused_change.changed_on.date() - self.start_date).days
+                return (paused_change.changed_on.date() - enrollment_start).days
 
         if self.end_date:
             return self.computed_duration_days
@@ -500,12 +517,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_enrollment_end_date(self):
-        start_date = self.start_date
-
-        if start_date is not None:
-            computed_enrollment_days = self.computed_enrollment_days
-            if computed_enrollment_days is not None:
-                return start_date + datetime.timedelta(days=computed_enrollment_days)
+        if (
+            self.computed_enrollment_days is not None
+            and self.enrollment_start_date is not None
+        ):
+            return self.enrollment_start_date + datetime.timedelta(
+                days=self.computed_enrollment_days
+            )
 
     @property
     def computed_end_date(self):
@@ -513,21 +531,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def enrollment_duration(self):
-        if self.start_date and self.computed_end_date:
+        if self.computed_end_date and self.enrollment_start_date is not None:
             return (
-                self.start_date.strftime("%Y-%m-%d")
+                self.enrollment_start_date.strftime("%Y-%m-%d")
                 + " to "
                 + self.computed_end_date.strftime("%Y-%m-%d")
             )
-        else:
-            return self.proposed_duration
+        return self.proposed_duration
 
     @property
     def computed_duration_days(self):
-        if self.start_date and self.computed_end_date:
-            return (self.computed_end_date - self.start_date).days
-        else:
-            return self.proposed_duration
+        if self.computed_end_date and self.enrollment_start_date is not None:
+            return (self.computed_end_date - self.enrollment_start_date).days
+        return self.proposed_duration
 
     @property
     def should_end(self):
@@ -552,7 +568,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         start_date = (self.start_date or datetime.date.today()) - datetime.timedelta(
             days=1
         )
-
         if self.end_date:
             end_date = self.end_date + datetime.timedelta(days=2)
         else:
@@ -745,6 +760,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.is_paused = False
         cloned.is_rollout_dirty = False
         cloned.reference_branch = None
+        cloned.proposed_release_date = None
         cloned.published_dto = None
         cloned.results_data = None
         cloned.takeaways_summary = None

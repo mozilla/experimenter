@@ -583,6 +583,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   totalEnrolledClients: 68000,
   proposedEnrollment: 1,
   proposedDuration: 28,
+  proposedReleaseDate: "",
   readyForReview: {
     ready: true,
     message: {},
@@ -594,7 +595,6 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
     legalSignoff: false,
   },
   startDate: new Date().toISOString(),
-  proposedReleaseDate: new Date().toISOString(),
   computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
   computedDurationDays: 14,
   computedEnrollmentDays: 1,
@@ -668,6 +668,7 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   totalEnrolledClients: 68000,
   proposedEnrollment: 1,
   proposedDuration: 28,
+  proposedReleaseDate: "",
   readyForReview: {
     ready: true,
     message: {},
@@ -679,7 +680,6 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
     legalSignoff: false,
   },
   startDate: new Date().toISOString(),
-  proposedReleaseDate: new Date(Date.now()).toISOString(),
   computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
   computedDurationDays: 14,
   computedEnrollmentDays: 1,
