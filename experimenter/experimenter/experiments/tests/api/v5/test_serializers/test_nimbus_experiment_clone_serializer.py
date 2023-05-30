@@ -119,3 +119,22 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         self.assertTrue(serializer.is_valid())
         child = serializer.save()
         self.assertEqual(list(child.locales.all()), [])
+
+    def test_release_date_not_clone_for_mobile_application(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.FENIX,
+            proposed_release_date="2023-12-12",
+        )
+        serializer = NimbusExperimentCloneSerializer(
+            data={
+                "parent_slug": parent.slug,
+                "name": "New Name",
+            },
+            context={"user": parent.owner},
+        )
+        self.assertTrue(serializer.is_valid())
+        child = serializer.save()
+        self.assertIsNone(child.proposed_release_date)
+        self.assertIsNone(child.release_date)
+        self.assertIsNone(child.enrollment_start_date)
