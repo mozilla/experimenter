@@ -1747,6 +1747,19 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return subbed
 
+    def _validate_proposed_release_date(self, data):
+        release_date = data.get("proposed_release_date")
+        first_run = data.get("is_first_run")
+
+        if not self.instance or not release_date:
+            return data
+
+        if not first_run and release_date is not None:
+            self.warnings["proposed_release_date"] = [
+                NimbusExperiment.ERROR_FIRST_RUN_RELEASE_DATE
+            ]
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1762,6 +1775,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_sticky_enrollment(data)
         data = self._validate_rollout_version_support(data)
         data = self._validate_bucket_duplicates(data)
+        data = self._validate_proposed_release_date(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)

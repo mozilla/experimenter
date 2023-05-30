@@ -1,3 +1,4 @@
+import datetime
 import json
 from itertools import chain
 
@@ -2160,6 +2161,53 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_return_warning_for_proposed_release_date_when_not_first_run(self):
+        release_date = datetime.date.today()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.RELEASE,
+            is_sticky=True,
+            is_first_run=False,
+            proposed_release_date=release_date,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertEquals(
+            serializer.warnings,
+            {
+                "proposed_release_date": [NimbusExperiment.ERROR_FIRST_RUN_RELEASE_DATE],
+            },
+        )
+
+    def test_return_valid_for_proposed_release_date_when_first_run(self):
+        release_date = datetime.date.today()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.RELEASE,
+            is_sticky=True,
+            is_first_run=True,
+            proposed_release_date=release_date,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertEquals(serializer.warnings, {})
 
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
