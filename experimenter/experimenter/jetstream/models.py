@@ -358,6 +358,14 @@ class SizingDetails(BaseModel):
     parameters: SizingParameters
 
 
+class SizingRecipe(BaseModel):
+    minimum_version: str
+    locale: list[str]
+    release_channel: Literal["release", "beta", "nightly"]
+    country: str
+    user_type: Literal["existing", "new"]
+
+
 class SizingTarget(BaseModel):
-    target_recipe: dict[Literal["app_id", "target_recipe"], str]
+    target_recipe: dict[Literal["app_id", "target_recipe"], SizingRecipe]
     sample_sizes: dict[str, SizingDetails]
