@@ -33,6 +33,18 @@ import {
 } from "src/types/globalTypes";
 
 describe("FormAudience", () => {
+  const origWindowOpen = global.window.open;
+  let mockWindowOpen: any;
+
+  beforeEach(() => {
+    mockWindowOpen = jest.fn();
+    global.window.open = mockWindowOpen;
+  });
+
+  afterEach(() => {
+    global.window.open = origWindowOpen;
+  });
+
   it("renders without error", async () => {
     render(
       <Subject
@@ -998,6 +1010,20 @@ describe("FormAudience", () => {
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onSubmit.mock.calls[0][0].proposedReleaseDate).toEqual(expectedDate);
+  });
+
+  it("clicking proposed release date title takes you to whattrainisit", async () => {
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    const tooltipInfo = screen.getByTestId("tooltip-proposed-release-date");
+    await act(async () => {
+      fireEvent.click(tooltipInfo);
+    });
+    expect(mockWindowOpen).toBeCalledWith(EXTERNAL_URLS.WHAT_TRAIN_IS_IT);
   });
 
   it("using the population percent text box sets form value", async () => {

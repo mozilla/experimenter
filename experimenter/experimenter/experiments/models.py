@@ -440,6 +440,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 return self._start_date
 
     @property
+    def release_date(self):
+        if self.is_first_run:
+            return self.proposed_release_date
+
+    @property
+    def enrollment_start_date(self):
+        return self.release_date or self.start_date
+
+    @property
     def launch_month(self):
         if self.enrollment_start_date is not None:
             return self.enrollment_start_date.strftime("%B")
