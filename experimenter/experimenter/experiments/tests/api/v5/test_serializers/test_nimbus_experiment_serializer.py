@@ -1425,3 +1425,40 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
         self.assertFalse(experiment.is_archived)
+
+    def test_can_set_proposed_release_date(self):
+        release_date = datetime.date.today()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_first_run=True,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {
+                "proposed_release_date": release_date,
+                "changelog_message": "Test changelog",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+        self.assertEquals(experiment.proposed_release_date, release_date)
+
+    def test_can_set_empty_proposed_release_date(self):
+        release_date = datetime.date.today()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_first_run=True,
+            proposed_release_date=release_date,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {
+                "proposed_release_date": None,
+                "changelog_message": "Test changelog",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+        self.assertEquals(experiment.proposed_release_date, None)
