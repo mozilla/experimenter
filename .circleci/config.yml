@@ -515,11 +515,11 @@ jobs:
     resource_class: large
     steps:
       - run:
-        name: Install pipx
-        command: |
-          python3 -m pip install --user pipx
-          python3 -m pipx ensurepath
-          pipx install poetry==1.2.2
+          name: Install pipx
+          command: |
+            python3 -m pip install --user pipx
+            python3 -m pipx ensurepath
+            pipx install poetry==1.2.2
       - checkout
       - run:
           name: Run Schemas tests and linting
