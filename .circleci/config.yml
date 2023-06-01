@@ -509,16 +509,14 @@ jobs:
                 circleci-agent step halt
             fi
   schemas_check:
-    machine:
+    docker:
       image: cimg/python:3.10
-      docker_layer_caching: true
-    resource_class: large
     steps:
       - run:
           name: Install pipx
           command: |
-            python3 -m pip install --user pipx
-            python3 -m pipx ensurepath
+            python -m pip install --user pipx
+            python -m pipx ensurepath
             pipx install poetry==1.2.2
       - checkout
       - run:
