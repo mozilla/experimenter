@@ -510,14 +510,8 @@ jobs:
             fi
   schemas_check:
     docker:
-      image: cimg/python:3.10
+      - image: cimg/python:3.10.8 # poetry 1.2.2
     steps:
-      - run:
-          name: Install pipx
-          command: |
-            python -m pip install --user pipx
-            python -m pipx ensurepath
-            pipx install poetry==1.2.2
       - checkout
       - run:
           name: Run Schemas tests and linting
