@@ -148,6 +148,31 @@ FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_NEW_PROFILE_WINDOWS_1903_NEWER = NimbusTargetingConfig(
+    name=(
+        "First start-up users with a new profile, "
+        "on Windows 10 1903 (build 18362) or newer"
+    ),
+    slug="first_run_new_profile_win1903",
+    description=(
+        "First start-up users (e.g. for about:welcome), with a "
+        "new profile, on Windows 1903+"
+    ),
+    targeting=(
+        "{first_run} && os.windowsBuildNumber >= 18362 && {new_profile}".format(
+            first_run=FIRST_RUN.targeting,
+            new_profile=NEW_PROFILE,
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND environment.system.os.windows_build_number >= 18362 "
+        "AND {new_profile}"
+    ).format(first_run=FIRST_RUN.desktop_telemetry, new_profile=NEW_PROFILE),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
     name=(
         "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
