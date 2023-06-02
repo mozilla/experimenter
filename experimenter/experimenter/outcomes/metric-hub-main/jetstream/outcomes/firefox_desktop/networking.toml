@@ -51,3 +51,19 @@ log_space = true
 pre_treatments = ["remove_nulls"]
 log_space = true
 
+
+[metrics.time_to_response_start_ms]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.time_to_response_start_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.time_to_response_start_ms.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.time_to_response_start_ms.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.time_to_response_start_ms.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
