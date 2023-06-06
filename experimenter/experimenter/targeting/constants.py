@@ -1256,6 +1256,39 @@ EARLY_DAY_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EARLY_DAY_USER_NEED_DEFAULT = NimbusTargetingConfig(
+    name="Early day user (28 days or less) needs default",
+    slug="early_day_user_need_default",
+    description="Less than 28 day old profile age and has not set default",
+    targeting=f"{EARLY_DAY_USER.targeting} && {NEED_DEFAULT}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER_NEED_PIN = NimbusTargetingConfig(
+    name="Early day user (28 days or less) needs pin",
+    slug="early_day_user_need_pin",
+    description="Less than 28 day old profile age and has not pinned",
+    targeting=f"{EARLY_DAY_USER.targeting} && doesAppNeedPin",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+    name="Early day user (28 days or less) has default needs pin",
+    slug="early_day_user_has_default_need_pin",
+    description="Less than 28 day old profile age has set default and has not pinned",
+    targeting=f"{EARLY_DAY_USER_NEED_PIN.targeting} && isDefaultBrowser",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TRR_MODE_ZERO = NimbusTargetingConfig(
     name="network.trr.mode = 0",
     slug="network_trr_mode_0",
