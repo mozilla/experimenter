@@ -76,6 +76,17 @@ NEW_PROFILE_CREATED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NOT_NEW_PROFILE_CREATED = NimbusTargetingConfig(
+    name="Not new profile created",
+    slug="not_new_profile_created",
+    description="Profile with creation date over 24 hours",
+    targeting=f"!({NEW_PROFILE_CREATED.targeting})",
+    desktop_telemetry=f"NOT ({NEW_PROFILE_CREATED.desktop_telemetry})",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users",
     slug="first_run",
@@ -143,6 +154,31 @@ FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     desktop_telemetry=(
         "{first_run} AND environment.system.os.windows_build_number >= 18362"
     ).format(first_run=FIRST_RUN.desktop_telemetry),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FIRST_RUN_NEW_PROFILE_WINDOWS_1903_NEWER = NimbusTargetingConfig(
+    name=(
+        "First start-up users with a new profile, "
+        "on Windows 10 1903 (build 18362) or newer"
+    ),
+    slug="first_run_new_profile_win1903",
+    description=(
+        "First start-up users (e.g. for about:welcome), with a "
+        "new profile, on Windows 1903+"
+    ),
+    targeting=(
+        "{first_run} && os.windowsBuildNumber >= 18362 && {new_profile}".format(
+            first_run=FIRST_RUN.targeting,
+            new_profile=NEW_PROFILE,
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND environment.system.os.windows_build_number >= 18362 "
+        "AND {new_profile}"
+    ).format(first_run=FIRST_RUN.desktop_telemetry, new_profile=NEW_PROFILE),
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
@@ -1012,6 +1048,17 @@ EXISTING_USER_UNSUPPORTED_WINDOWS_VERSION = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+POST_FIRST_RUN_USER_UNSUPPORTED_WINDOWS_VERSION = NimbusTargetingConfig(
+    name="Post first run Windows <10 version user",
+    slug="post_first_run_user_unsupported_windows_version",
+    description="Users on Windows <10 not on their first run of the application",
+    targeting="!isFirstStartup && os.isWindows && os.windowsVersion < 10",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TEST_STICKY_TARGETING = NimbusTargetingConfig(
     name="Test targeting",
     slug="test_targeting",
@@ -1203,6 +1250,39 @@ EARLY_DAY_USER = NimbusTargetingConfig(
     slug="early_day_user",
     description="Users with profiles that are 28 days old or less",
     targeting="(currentDate|date - profileAgeCreated|date) / 86400000 <= 28",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER_NEED_DEFAULT = NimbusTargetingConfig(
+    name="Early day user (28 days or less) needs default",
+    slug="early_day_user_need_default",
+    description="Less than 28 day old profile age and has not set default",
+    targeting=f"{EARLY_DAY_USER.targeting} && {NEED_DEFAULT}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER_NEED_PIN = NimbusTargetingConfig(
+    name="Early day user (28 days or less) needs pin",
+    slug="early_day_user_need_pin",
+    description="Less than 28 day old profile age and has not pinned",
+    targeting=f"{EARLY_DAY_USER.targeting} && doesAppNeedPin",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+    name="Early day user (28 days or less) has default needs pin",
+    slug="early_day_user_has_default_need_pin",
+    description="Less than 28 day old profile age has set default and has not pinned",
+    targeting=f"{EARLY_DAY_USER_NEED_PIN.targeting} && isDefaultBrowser",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
