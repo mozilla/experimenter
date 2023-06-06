@@ -6,7 +6,6 @@ from fastapi import FastAPI, status
 
 from .experiment_recipes import remote_setting
 from .feature_manifest import fml
-from .manifest_loader import manifest_loader
 from .sdk import sdk
 from .settings import remote_setting_refresh_rate_in_seconds
 
@@ -30,9 +29,11 @@ def read_root():
 async def compute_features():
     # # will recieve as part of incoming request
     targeting_context: Dict[str, Any] = {"clientId": "test", "requestContext": {}}
-    enrolled_partial_configuration = sdk.compute_enrollments(targeting_context)
+    enrolled_partial_configuration: Dict[str, Any] = sdk.compute_enrollments(
+        targeting_context
+    )
 
-    client_feature_configuration = fml.compute_feature_configurations(
+    client_feature_configuration: Dict[str, Any] = fml.compute_feature_configurations(
         enrolled_partial_configuration
     )
     return client_feature_configuration

@@ -7,17 +7,14 @@ class FeatureManifestLanguageTestCase(unittest.TestCase):
     def test_compute_feature_configurations(self):
         fml = FeatureManifestLanguage()
 
-        enrolled_partial_configuration = [
-            {"id": 1, "name": "test1", "value": "true"},
-            {"id": 2, "name": "test2", "value": "false"},
-        ]
-        feature_configurations = [
-            {"id": 1, "name": "feature1", "value": "true"},
-            {"id": 2, "name": "feature2", "value": "false"},
-        ]
+        enrolled_partial_configuration = {
+            "enrolledFeatureConfigMap": {},
+            "enrollments": [],
+            "events": [],
+        }
 
-        result = fml.compute_feature_configurations(
-            enrolled_partial_configuration, feature_configurations
+        result = fml.compute_feature_configurations(enrolled_partial_configuration)
+
+        self.assertEqual(
+            result, {"example-feature": {"enabled": False, "something": "wicked"}}
         )
-
-        self.assertEqual(result, {"feature": "test"})

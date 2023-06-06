@@ -1,7 +1,9 @@
 import json
-from typing import Any, Dict, List
-from fml_sdk import FmlClient
-from .settings import fml_path, channel
+from typing import Any, Dict
+
+from fml_sdk import FmlClient  # type: ignore
+
+from .settings import channel, fml_path
 
 
 class FeatureManifestLanguage:
@@ -11,14 +13,16 @@ class FeatureManifestLanguage:
     def compute_feature_configurations(
         self,
         enrolled_partial_configuration: Dict[str, Any],
-    ) -> Dict[str, str]:
+    ) -> Dict[str, Any]:
         feature_configs = {
             key: value["feature"]["value"]
             for key, value in enrolled_partial_configuration[
                 "enrolledFeatureConfigMap"  # slug, featureid, value,
             ].items()
         }
-        merged_res = self.fml_client.merge(feature_configs)
+        merged_res: Dict[str, Any] = self.fml_client.merge(  # type: ignore
+            feature_configs
+        )
         if len(merged_res.errors) > 0:
             print(merged_res.errors)
 
