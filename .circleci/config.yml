@@ -4,7 +4,7 @@ orbs:
 jobs:
   check_branch:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -31,7 +31,7 @@ jobs:
 
   check_main:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -52,7 +52,7 @@ jobs:
 
   integration_nimbus_desktop_release_targeting:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -82,7 +82,7 @@ jobs:
 
   integration_nimbus_desktop_beta_targeting:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -112,7 +112,7 @@ jobs:
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -142,7 +142,7 @@ jobs:
 
   integration_nimbus_desktop_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -161,7 +161,7 @@ jobs:
 
   integration_nimbus_fenix_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -180,7 +180,7 @@ jobs:
 
   integration_nimbus_ios_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -199,7 +199,7 @@ jobs:
 
   integration_nimbus_focus_android_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -218,7 +218,7 @@ jobs:
 
   integration_nimbus_focus_ios_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -237,7 +237,7 @@ jobs:
 
   integration_nimbus_desktop_enrollment:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
@@ -258,7 +258,7 @@ jobs:
 
   integration_nimbus_desktop_ui:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -277,7 +277,7 @@ jobs:
 
   integration_nimbus_sdk_targeting:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -303,7 +303,7 @@ jobs:
 
   integration_legacy:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -328,7 +328,7 @@ jobs:
   deploy:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     steps:
       - checkout
@@ -351,7 +351,7 @@ jobs:
   update_external_configs:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     steps:
       - add_ssh_keys:
@@ -391,7 +391,7 @@ jobs:
   build_firefox_versions:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     steps:
       - checkout
@@ -449,7 +449,7 @@ jobs:
   build_rust_image:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     steps:
       - checkout
@@ -485,7 +485,7 @@ jobs:
             docker push ${DOCKERHUB_REPO}:nimbus-rust-image
   cirrus_check:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/cirrus
