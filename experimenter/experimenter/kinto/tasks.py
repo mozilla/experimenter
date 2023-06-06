@@ -417,6 +417,7 @@ def nimbus_send_emails():
     for experiment in experiments:
         if (
             experiment.should_end_enrollment
+            and not experiment.is_rollout
             and not experiment.emails.filter(
                 type=NimbusExperiment.EmailType.ENROLLMENT_END
             ).exists()
