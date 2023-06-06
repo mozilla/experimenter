@@ -1048,6 +1048,17 @@ EXISTING_USER_UNSUPPORTED_WINDOWS_VERSION = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+POST_FIRST_RUN_USER_UNSUPPORTED_WINDOWS_VERSION = NimbusTargetingConfig(
+    name="Post first run Windows <10 version user",
+    slug="post_first_run_user_unsupported_windows_version",
+    description="Users on Windows <10 not on their first run of the application",
+    targeting="!isFirstStartup && os.isWindows && os.windowsVersion < 10",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TEST_STICKY_TARGETING = NimbusTargetingConfig(
     name="Test targeting",
     slug="test_targeting",
