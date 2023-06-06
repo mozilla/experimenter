@@ -41,7 +41,6 @@ def test_basic_analysis_error():
     assert ae.metric == "test-metric"
     assert ae.analysis_basis == "enrollments"
     ae_json = ae.json()
-    print(ae_json)
     test_json_str = """{
         "analysis_basis": "enrollments",
         "exception": "(<class 'errors.TestException'>, TestException('err')",
