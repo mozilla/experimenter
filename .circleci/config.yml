@@ -519,6 +519,7 @@ jobs:
             if git diff --name-only main HEAD | grep -E 'schemas/'
               then
                 echo "Changes detected in /schemas directory. Running Schemas tests and linting."
+                env
                 make schemas_check
               else
                 echo "No changes in /schemas directory. Skipping tests and linting."
