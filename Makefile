@@ -247,8 +247,16 @@ cirrus_generate_docs: cirrus_build
 schemas_install:
 	(cd schemas && poetry install)
 
-schemas_check: schemas_install
-	(cd schemas && tox)
+schemas_black:
+	(cd schemas && poetry run black --check --diff .)
+
+schemas_ruff:
+	(cd schemas && poetry run ruff .)
+
+schemas_test:
+	(cd schemas && poetry run pytest)
+
+schemas_check: schemas_install schemas_black schemas_ruff schemas_test
 
 schemas_code_format:
 	(cd schemas && poetry run black . && poetry run ruff --fix .)
