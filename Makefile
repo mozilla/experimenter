@@ -248,7 +248,7 @@ schemas_install:
 	(cd schemas && poetry install)
 
 schemas_check: schemas_install
-	(cd schemas && poetry run -vvv tox)
+	(cd schemas && tox)
 
 schemas_code_format:
 	(cd schemas && poetry run black . && poetry run ruff --fix .)
