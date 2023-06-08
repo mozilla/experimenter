@@ -1,0 +1,11 @@
+{% extends "changelog-base.html" %}
+
+{% block content %}
+    <h1>This is a test template</h1>
+    <p>Experiment Slug: {{ slug }}</p>
+    {% for changelog in changelogs %}
+    <h2>{{ changelog.changed_on }}</h2>
+    <p>{{ changelog.changed_by }}</p>
+    <!-- Access other fields of the changelog as needed -->
+  {% endfor %}
+{% endblock %}
