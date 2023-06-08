@@ -137,6 +137,32 @@ describe("PageEditAudience", () => {
       ),
     );
   });
+
+  it("handles form submission with empty proposed release date", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.DRAFT,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      isFirstRun: true,
+      proposedReleaseDate: "",
+    });
+    render(<Subject mocks={[mock, mutationMock]} />);
+    const submitButton = await screen.findByTestId("submit");
+    fireEvent.click(submitButton);
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalled());
+  });
+
+  it("handles form submission with valid proposed release date", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.DRAFT,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      isFirstRun: true,
+      proposedReleaseDate: "2023-12-12",
+    });
+    render(<Subject mocks={[mock, mutationMock]} />);
+    const submitButton = await screen.findByTestId("submit");
+    fireEvent.click(submitButton);
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalled());
+  });
 });
 
 const MOCK_FORM_DATA = {
