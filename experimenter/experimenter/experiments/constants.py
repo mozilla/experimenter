@@ -430,8 +430,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Firefox version must be at least 113 for localized experiments."
     )
 
-    ERROR_FIRST_RUN_RELEASE_DATE = "This field is for first run experiments only. \
-        Are you missing your first run targeting?"
+    ERROR_FIRST_RUN_RELEASE_DATE = (
+        "This field is for first run experiments only. "
+        "Are you missing your first run targeting?"
+    )
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
