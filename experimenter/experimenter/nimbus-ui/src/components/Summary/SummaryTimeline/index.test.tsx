@@ -28,6 +28,7 @@ describe("SummaryTimeline", () => {
 
       expect(screen.queryByTestId("label-not-launched")).toBeInTheDocument();
       expect(screen.queryByTestId("label-start-date")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("label-release-date")).not.toBeInTheDocument();
       expect(
         screen.queryByTestId("label-enrollment-end-date"),
       ).not.toBeInTheDocument();
@@ -46,6 +47,7 @@ describe("SummaryTimeline", () => {
     expect(innerBar().classList).toContain("progress-bar-striped");
 
     expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("label-release-date")).not.toBeInTheDocument();
     expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
     expect(
       screen.queryByTestId("label-enrollment-end-date"),
@@ -68,6 +70,34 @@ describe("SummaryTimeline", () => {
 
     expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
     expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("label-enrollment-end-date"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("label-end-date")).toBeInTheDocument();
+    expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("label-enrollment-days"),
+    ).not.toBeInTheDocument();
+    expect(
+      await screen.findByTestId("tooltip-duration-summary"),
+    ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
+  });
+
+  it("renders with a live first run experiment", async () => {
+    render(
+      <Subject
+        status={NimbusExperimentStatusEnum.LIVE}
+        isFirstRun={true} 
+        proposedReleaseDate="2023-12-12"
+      />,
+    );
+
+    expect(innerBar().classList).toContain("progress-bar-animated");
+    expect(innerBar().classList).toContain("progress-bar-striped");
+
+    expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
+    expect(screen.queryByTestId("label-release-date")).toBeInTheDocument();
     expect(
       screen.queryByTestId("label-enrollment-end-date"),
     ).not.toBeInTheDocument();
