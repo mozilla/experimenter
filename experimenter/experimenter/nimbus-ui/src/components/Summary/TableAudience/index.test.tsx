@@ -33,6 +33,27 @@ describe("TableAudience", () => {
       );
     });
   });
+
+  describe("renders 'First Run Release Date' row as expected", () => {
+    it("with proposed release date", () => {
+      const expectedDate = "2023-12-12";
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        proposedReleaseDate: expectedDate,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-release-date")).toHaveTextContent(
+        expectedDate,
+      );
+    });
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-release-date")).toHaveTextContent(
+        "Not set",
+      );
+    });
+  });
+
   describe("renders 'Minimum version' row as expected", () => {
     it("when set", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
