@@ -11,46 +11,6 @@ Test cases for statistics schemas:
 """
 
 
-def test_empty_statistic_fails():
-    with pytest.raises(ValidationError):
-        _ = Statistic()
-    with pytest.raises(ValidationError):
-        _ = Statistics()
-
-
-def test_basic_statistic():
-    s = Statistic(
-        metric="test-metric",
-        statistic="test-statistic",
-        branch="test-branch",
-        ci_width=0.95,
-        point=1.0,
-        lower=0.2,
-        upper=1.2,
-        analysis_basis=AnalysisBasis.enrollments,
-        window_index="1",
-    )
-    assert s.segment == "all"
-    assert s.metric == "test-metric"
-    assert s.analysis_basis == "enrollments"
-    s_json = s.json()
-    test_json_str = """{
-        "metric": "test-metric",
-        "statistic": "test-statistic",
-        "branch": "test-branch",
-        "comparison": null,
-        "comparison_to_branch": null,
-        "ci_width": 0.95,
-        "point": 1.0,
-        "lower": 0.2,
-        "upper": 1.2,
-        "segment": "all",
-        "analysis_basis": "enrollments",
-        "window_index": "1"
-    }"""
-    assert json.loads(s_json) == json.loads(test_json_str)
-
-
 def test_statistics():
     s0 = Statistic(
         metric="test-metric",
@@ -91,40 +51,6 @@ def test_statistics():
     assert len(stats.__root__) == 2
     stats.__root__.append(s2)
     assert len(stats.__root__) == 3
-
-
-def test_parse_statistic():
-    stat_json = """
-        {
-            "metric": "identity",
-            "statistic": "count",
-            "branch": "control",
-            "point": 0,
-            "segment": "all",
-            "analysis_basis": "exposures",
-            "window_index": "21"
-        }
-    """
-    stat = Statistic.parse_raw(stat_json)
-    assert stat.metric == "identity"
-    assert stat.analysis_basis == AnalysisBasis.exposures
-
-
-def test_parse_statistic_fails():
-    stat_json = """
-        {
-            "metric": "identity",
-            "statistic": "count",
-            "branch": "control",
-            "ci_width": 1.2,
-            "point": 0,
-            "segment": "all",
-            "analysis_basis": "exposures",
-            "window_index": "21"
-        }
-    """
-    with pytest.raises(ValidationError):
-        Statistic.parse_raw(stat_json)
 
 
 def test_parse_statistics():

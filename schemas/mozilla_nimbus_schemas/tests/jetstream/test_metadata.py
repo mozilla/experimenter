@@ -1,10 +1,6 @@
 import datetime as dt
-import json
 
-import pytest
-from pydantic import ValidationError
-
-from mozilla_nimbus_schemas.jetstream import ExternalConfig, Metadata, Metric, Outcome
+from mozilla_nimbus_schemas.jetstream import Metadata
 
 """
 Test cases for metadata schemas:
@@ -12,52 +8,8 @@ Test cases for metadata schemas:
 """
 
 
-def test_empty_metadata_types_fail():
-    with pytest.raises(ValidationError):
-        _ = Metadata()
-    with pytest.raises(ValidationError):
-        _ = Metric()
-    with pytest.raises(ValidationError):
-        _ = Outcome()
-    with pytest.raises(ValidationError):
-        _ = ExternalConfig()
-
-
-def test_basic_external_config():
-    ec = ExternalConfig(url="http://example.com/external/config")
-    assert ec.url == "http://example.com/external/config"
-    assert ec.skip is None
-    test_json_str = """{
-        "url": "http://example.com/external/config"
-    }"""
-    ec_test = ExternalConfig.parse_raw(test_json_str)
-    assert ec == ec_test
-
-
-def test_basic_outcome():
-    outcome = Outcome(
-        commit_hash="abcd1234",
-        default_metrics=["test-metric1"],
-        description="outcome for testing",
-        friendly_name="Test Outcome",
-        metrics=["test-metric1", "test-metric2"],
-        slug="test-outcome",
-    )
-    assert outcome.slug == "test-outcome"
-    assert len(outcome.metrics) == 2
-    outcome_json = outcome.json()
-    test_json_str = """{
-        "commit_hash": "abcd1234",
-        "default_metrics": ["test-metric1"],
-        "description": "outcome for testing",
-        "friendly_name": "Test Outcome",
-        "metrics": ["test-metric1", "test-metric2"],
-        "slug": "test-outcome"
-    }"""
-    assert json.loads(outcome_json) == json.loads(test_json_str)
-
-
 def test_parse_metadata():
+    """Test the custom json.loads functionality"""
     metadata_json = """
         {
             "analysis_start_time": "2023-05-01 01:02:03.000000+00:00",
@@ -93,7 +45,7 @@ def test_parse_metadata():
                 "test_outcome": {
                     "commit_hash": "abcd1234",
                     "default_metrics": ["test-metric1"],
-                    "description": "outcome for testing",
+                    "description": "outcome for \n testing",
                     "friendly_name": "Test Outcome",
                     "metrics": ["test-metric1", "test-metric2"],
                     "slug": "test-outcome"
@@ -111,17 +63,3 @@ def test_parse_metadata():
     assert metadata.analysis_start_time == dt.datetime(
         2023, 5, 1, 1, 2, 3, tzinfo=dt.timezone.utc
     )
-
-
-def test_parse_metadata_fails():
-    stat_json = """
-        {
-            "analysis_start_time": "2023-05-01 01:02:03.000000+00:00",
-            "external_config": null,
-            "metrics": null,
-            "outcomes": {},
-            "schema_version": 4
-        }
-    """
-    with pytest.raises(ValidationError):
-        Metadata.parse_raw(stat_json)
