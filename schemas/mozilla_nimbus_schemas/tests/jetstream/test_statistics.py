@@ -1,8 +1,3 @@
-import json
-
-import pytest
-from pydantic import ValidationError
-
 from mozilla_nimbus_schemas.jetstream import AnalysisBasis, Statistic, Statistics
 
 """
