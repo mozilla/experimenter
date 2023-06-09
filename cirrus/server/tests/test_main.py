@@ -12,7 +12,9 @@ def test_read_root(client):
 def test_get_features(client):
     response = client.post("/v1/features/")
     assert response.status_code == 200
-    assert response.json() == {"feature": "test"}
+    assert response.json() == {
+        "example-feature": {"enabled": False, "something": "wicked"}
+    }
 
 
 @pytest.mark.asyncio
