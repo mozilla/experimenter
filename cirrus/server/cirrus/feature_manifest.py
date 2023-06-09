@@ -33,8 +33,7 @@ class FeatureManifestLanguage:
                 f"An error occurred during enrolled partial config and FML: {self.merge_errors}"
             )
 
-        merged_res_json = json.loads(merged_res.json)
-        return merged_res_json
+        return json.loads(merged_res.json)
 
 
 fml = FeatureManifestLanguage()
