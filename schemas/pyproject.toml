@@ -15,7 +15,6 @@ pydantic = "^1.10.7"
 ruff = "^0.0.269"
 black = "^23.3.0"
 pytest = "^7.3.1"
-tox = "^4.3.5"
 
 [build-system]
 requires = ["poetry-core"]
