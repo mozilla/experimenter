@@ -24,4 +24,6 @@ services:
     build:
       context: cirrus/server/
       dockerfile: Dockerfile
+    volumes:
+      - ./cirrus/server/tests/feature_manifest/sample.yml:/sample.yml
     working_dir: /cirrus
