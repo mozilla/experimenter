@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "widget_tweaks",
     # Experimenter
     "experimenter.base",
+    "experimenter.changelog",
     "experimenter.experiments",
     "experimenter.features",
     "experimenter.jetstream",

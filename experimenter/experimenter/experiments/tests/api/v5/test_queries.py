@@ -89,6 +89,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     isEnrollmentPaused
                     proposedDuration
                     proposedEnrollment
+                    proposedReleaseDate
                     computedEndDate
                     computedEnrollmentEndDate
                     status
@@ -169,6 +170,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 "populationPercent": str(experiment.population_percent),
                 "proposedDuration": experiment.proposed_duration,
                 "proposedEnrollment": experiment.proposed_enrollment,
+                "proposedReleaseDate": experiment.proposed_release_date,
                 "publishStatus": NimbusExperiment.PublishStatus(
                     experiment.publish_status
                 ).name,

@@ -37,18 +37,17 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               <td data-testid="experiment-channel" className="border-top-0">
                 {displayConfigLabelOrNotSet(experiment.channel, channels)}
               </td>
-
-              {experiment.targetingConfigSlug && (
-                <>
-                  <th className="border-top-0">Advanced Targeting</th>
-                  <td data-testid="experiment-target" className="border-top-0">
-                    {displayConfigLabelOrNotSet(
-                      experiment.targetingConfigSlug,
-                      targetingConfigs,
-                    )}
-                  </td>
-                </>
-              )}
+              <th className="border-top-0">First Run Release Date</th>
+              <td
+                data-testid="experiment-release-date"
+                className="border-top-0"
+              >
+                {experiment.proposedReleaseDate ? (
+                  experiment.proposedReleaseDate
+                ) : (
+                  <NotSet />
+                )}
+              </td>
             </tr>
             <tr>
               <th>Minimum version</th>
@@ -141,6 +140,21 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               <td data-testid="experiment-is-first-run">
                 {experiment.isFirstRun ? "True" : "False"}
               </td>
+            </tr>
+            <tr>
+              {experiment.targetingConfigSlug && (
+                <>
+                  <th>Advanced Targeting</th>
+                  <td data-testid="experiment-target">
+                    {displayConfigLabelOrNotSet(
+                      experiment.targetingConfigSlug,
+                      targetingConfigs,
+                    )}
+                  </td>
+                </>
+              )}
+              <th></th>
+              <td></td>
             </tr>
             {experiment.jexlTargetingExpression &&
             experiment.jexlTargetingExpression !== "" ? (
