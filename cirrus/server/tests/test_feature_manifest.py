@@ -1,10 +1,11 @@
 import json
 import unittest
+
+from fml_sdk import FmlError
 from parameterized import parameterized
 
 from cirrus.feature_manifest import FeatureManifestLanguage
 from cirrus.sdk import SDK
-from fml_sdk import FmlError
 
 
 class FeatureManifestLanguageTestCase(unittest.TestCase):
