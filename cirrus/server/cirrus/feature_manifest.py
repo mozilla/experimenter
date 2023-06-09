@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any, Dict, List
 
-from fml_sdk import FmlClient, FmlError  # type: ignore
+from fml_sdk import FmlClient, FmlError, MergedJsonWithErrors  # type: ignore
 
 from .settings import channel, fml_path
 
@@ -24,7 +24,7 @@ class FeatureManifestLanguage:
                 "enrolledFeatureConfigMap"  # slug, featureid, value,
             ].items()
         }
-        merged_res: Dict[str, Any] = self.fml_client.merge(  # type: ignore
+        merged_res: MergedJsonWithErrors = self.fml_client.merge(  # type: ignore
             feature_configs
         )
         self.merge_errors = merged_res.errors  # type: ignore
