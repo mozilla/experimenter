@@ -508,6 +508,23 @@ jobs:
                 echo "No changes in /cirrus directory. Skipping tests and linting."
                 circleci-agent step halt
             fi
+  schemas_check:
+    docker:
+      - image: cimg/python:3.10.8 # poetry 1.2.2
+    steps:
+      - checkout
+      - run:
+          name: Run Schemas tests and linting
+          command: |
+            if git diff --name-only main HEAD | grep -E 'schemas/'
+              then
+                echo "Changes detected in /schemas directory. Running Schemas tests and linting."
+                env
+                make schemas_check
+              else
+                echo "No changes in /schemas directory. Skipping tests and linting."
+                circleci-agent step halt
+            fi
 
 workflows:
   version: 2
@@ -628,3 +645,9 @@ workflows:
                 - main
       - cirrus_check:
           name: Check Cirrus
+      - schemas_check:
+          name: Check Schemas
+          filters:
+            branches:
+              ignore:
+                - main
