@@ -23,8 +23,7 @@ class NimbusChangeLogsView(ListView):
         context = super().get_context_data(**kwargs)
         experiment = self.object
 
-        # Retrieve the changelogs for the experiment
-        changelogs = experiment.changes.all()
+        changelogs = list(experiment.changes.all())
 
         context["slug"] = slug
         context["changelogs"] = changelogs
