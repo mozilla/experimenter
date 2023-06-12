@@ -153,8 +153,6 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                   </td>
                 </>
               )}
-              <th></th>
-              <td></td>
             </tr>
             {experiment.jexlTargetingExpression &&
             experiment.jexlTargetingExpression !== "" ? (
