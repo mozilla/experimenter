@@ -6,12 +6,8 @@ from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 
 class NimbusChangeLogsView(ListView):
     model = NimbusChangeLog
-    template_name = "changelog/test.html"
+    template_name = "changelog/changelogs_overview.html"
     context_object_name = "experiment"
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         slug = self.kwargs.get("slug")
@@ -21,10 +17,11 @@ class NimbusChangeLogsView(ListView):
     def get_context_data(self, **kwargs):
         slug = self.kwargs.get("slug")
         context = super().get_context_data(**kwargs)
-        experiment = self.object
+        experiment = self.get_object()
 
         changelogs = list(experiment.changes.all())
 
         context["slug"] = slug
         context["changelogs"] = changelogs
+        context["experiment"] = experiment
         return context

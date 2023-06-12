@@ -4,6 +4,6 @@ from experimenter.changelog.views import NimbusChangeLogsView
 
 urlpatterns = [
     re_path(
-        r"^(?P<slug>[\w-]+)/changelogs/$", NimbusChangeLogsView.as_view(), name="index"
+        r"^(?P<slug>[\w-]+)/$", NimbusChangeLogsView.as_view(), name="changelogs-by-slug"
     ),
 ]
