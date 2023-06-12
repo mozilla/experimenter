@@ -89,12 +89,17 @@ export function annotateExperimentBranch(
     isDirty: false,
     errors: {},
     reviewMessages: {},
+    featureValues: branch.featureValues?.map((fv) => ({
+      featureConfig: fv?.featureConfig?.id?.toString(),
+      value: fv?.value,
+    })),
   };
 }
 
 export function createAnnotatedBranch(
   lastId: number,
   name: string,
+  featureConfigIds: FormBranchesState["featureConfigIds"],
 ): AnnotatedBranch {
   return {
     key: `branch-${lastId}`,
@@ -104,6 +109,9 @@ export function createAnnotatedBranch(
     name,
     description: "",
     ratio: 1,
-    featureValue: null,
+    featureValues: featureConfigIds?.map((featureConfigId) => ({
+      featureConfig: featureConfigId?.toString(),
+      value: "",
+    })),
   };
 }

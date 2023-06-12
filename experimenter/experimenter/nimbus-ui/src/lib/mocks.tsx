@@ -554,7 +554,12 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
     slug: "control",
     description: "Behind almost radio result personal none future current.",
     ratio: 1,
-    featureValue: '{"environmental-fact": "really-citizen"}',
+    featureValues: [
+      {
+        featureConfig: { id: 1 },
+        value: '{"environmental-fact": "really-citizen"}',
+      },
+    ],
     screenshots: [],
   },
   featureConfigs: [],
@@ -568,7 +573,12 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
       slug: "treatment",
       description: "Next ask then he in degree order.",
       ratio: 1,
-      featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
+      featureValues: [
+        {
+          featureConfig: { id: 1 },
+          value: '{"effect-effect-whole": "close-teach-exactly"}',
+        },
+      ],
       screenshots: [],
     },
   ],
@@ -650,13 +660,34 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
     description:
       "Policy success score. Education clear write. Where same create matter natural.",
     ratio: 1,
-    featureValue: '{"environmental-fact": "bingo-bongo"}',
+    featureValues: [
+      {
+        featureConfig: { id: 1 },
+        value: '{"environmental-fact": "bingo-bongo"}',
+      },
+    ],
     screenshots: [],
   },
   featureConfigs: [],
   targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
   isSticky: false,
   isFirstRun: false,
+  treatmentBranches: [
+    {
+      id: 456,
+      name: "Managed zero baby projection",
+      slug: "treatment",
+      description: "Next ask then he in degree order.",
+      ratio: 1,
+      featureValues: [
+        {
+          featureConfig: { id: 1 },
+          value: '{"effect-effect-whole": "close-teach-exactly"}',
+        },
+      ],
+      screenshots: [],
+    },
+  ],
   primaryOutcomes: ["picture_in_picture", "feature_c", "feature_nodata"],
   secondaryOutcomes: ["feature_b", "feature_d"],
   channel: NimbusExperimentChannelEnum.NIGHTLY,
@@ -876,7 +907,6 @@ export function mockSingleDirectoryExperiment(
     populationPercent: "100",
     channel: NimbusExperimentChannelEnum.NIGHTLY,
     publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
-    featureConfig: MOCK_CONFIG.allFeatureConfigs![0],
     featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
     targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
     isEnrollmentPaused: false,

@@ -45,11 +45,13 @@ describe("FormBranch", () => {
       <SubjectBranch
         branch={{
           ...MOCK_ANNOTATED_BRANCH,
-          featureValue: "this is a default value",
+          featureValues: [{ value: "this is a default value" }],
         }}
       />,
     );
-    expect(screen.queryByTestId("feature-value-edit")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("referenceBranch.featureValues[0].value"),
+    ).toBeInTheDocument();
   });
 
   it("calls onRemove when the branch remove button is clicked", async () => {
@@ -104,6 +106,19 @@ describe("FormBranch", () => {
     };
     const { container } = render(<SubjectBranch branch={branch} />);
     await assertInvalidField(container, "referenceBranch.description");
+  });
+
+  it("does not render FormFeatureValue when no values features are selected", () => {
+    const branch = {
+      ...MOCK_ANNOTATED_BRANCH,
+      featureValues: [],
+    };
+
+    render(<SubjectBranch branch={branch} />);
+
+    expect(
+      screen.queryByTestId("referenceBranch.featureValues[0].value"),
+    ).toBeNull();
   });
 
   const assertInvalidField = async (container: HTMLElement, testId: string) => {

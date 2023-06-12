@@ -7,7 +7,11 @@ import {
   FormBranchesState,
 } from "src/components/PageEditBranches/FormBranches/reducer/state";
 import { CONTROL_BRANCH_REQUIRED_ERROR } from "src/lib/constants";
-import { BranchScreenshotInput, ExperimentInput } from "src/types/globalTypes";
+import {
+  BranchFeatureValueInput,
+  BranchScreenshotInput,
+  ExperimentInput,
+} from "src/types/globalTypes";
 
 export type FormBranchesSaveState = Pick<
   ExperimentInput,
@@ -47,7 +51,7 @@ export function extractUpdateState(
     throw new UpdateStateError(CONTROL_BRANCH_REQUIRED_ERROR);
   }
 
-  return {
+  const extractedState = {
     featureConfigIds,
     warnFeatureSchema,
     isRollout,
@@ -66,6 +70,7 @@ export function extractUpdateState(
           ),
     preventPrefConflicts,
   };
+  return extractedState;
 }
 
 export function extractUpdateBranch(
@@ -76,14 +81,30 @@ export function extractUpdateBranch(
   const screenshots = branch.screenshots?.map((branchScreenshot, idx) =>
     extractUpdateScreenshot(branchScreenshot!, formBranch!.screenshots![idx]!),
   );
+  const featureValues = branch.featureValues?.map((branchFeatureValue, idx) =>
+    extractUpdateFeatureValue(
+      branchFeatureValue!,
+      formBranch?.featureValues?.[idx] ?? {},
+    ),
+  );
   return {
     // Branch ID should be read-only with respect to the form data
     id: branch.id,
     name: merged.name,
     description: merged.description,
     ratio: merged.ratio,
-    featureValue: merged.featureValue,
+    featureValues,
     screenshots,
+  };
+}
+
+export function extractUpdateFeatureValue(
+  branchFeatureValue: BranchFeatureValueInput,
+  { featureConfig, value }: BranchFeatureValueInput,
+): BranchFeatureValueInput {
+  return {
+    featureConfig,
+    value,
   };
 }
 

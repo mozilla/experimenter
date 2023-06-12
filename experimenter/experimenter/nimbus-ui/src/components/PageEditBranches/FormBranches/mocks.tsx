@@ -24,7 +24,12 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
     slug: "control",
     description: "Behind almost radio result personal none future current.",
     ratio: 1,
-    featureValue: '{"environmental-fact": "really-citizen"}',
+    featureValues: [
+      {
+        featureConfig: { id: 1 },
+        value: '{"environmental-fact": "really-citizen"}',
+      },
+    ],
     screenshots: [],
   },
   treatmentBranches: [
@@ -34,7 +39,12 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       slug: "managed-zero-tolerance-projection",
       description: "Next ask then he in degree order.",
       ratio: 1,
-      featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
+      featureValues: [
+        {
+          featureConfig: { id: 1 },
+          value: '{"effect-effect-whole": "close-teach-exactly"}',
+        },
+      ],
       screenshots: [],
     },
     {
@@ -43,7 +53,12 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       slug: "salt-way-link",
       description: "Flame the dark true.",
       ratio: 2,
-      featureValue: '{"frosted-wake": "simple-hesitation"}',
+      featureValues: [
+        {
+          featureConfig: { id: 1 },
+          value: '{"frosted-wake": "simple-hesitation"}',
+        },
+      ],
       screenshots: [],
     },
   ],
@@ -64,6 +79,12 @@ const MOCK_STATE: FormBranchesState = {
     errors: {},
     isValid: true,
     isDirty: false,
+    featureValues: MOCK_EXPERIMENT.referenceBranch?.featureValues?.map(
+      (fv) => ({
+        featureConfig: fv?.featureConfig?.id?.toString(),
+        value: fv?.value,
+      }),
+    ),
   },
   treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map((branch, idx) => ({
     ...branch!,
@@ -72,6 +93,10 @@ const MOCK_STATE: FormBranchesState = {
     errors: {},
     isValid: true,
     isDirty: false,
+    featureValues: branch?.featureValues?.map((fv) => ({
+      featureConfig: fv?.featureConfig?.id?.toString(),
+      value: fv?.value,
+    })),
   })),
 };
 
@@ -174,6 +199,10 @@ export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
   errors: {},
   ...MOCK_BRANCH,
   screenshots: [],
+  featureValues: MOCK_BRANCH.featureValues?.map((fv) => ({
+    featureConfig: fv?.featureConfig?.id?.toString(),
+    value: fv?.value,
+  })),
 };
 export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.allFeatureConfigs![0]!;
 export const MOCK_FEATURE_CONFIG_WITH_SCHEMA =
