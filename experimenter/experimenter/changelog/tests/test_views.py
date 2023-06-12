@@ -24,7 +24,7 @@ class NimbusChangeLogsViewTest(TestCase):
 
     def test_render_to_response(self):
         request = self.factory.get(
-            reverse("index", kwargs={"slug": self.experiment.slug})
+            reverse("changelogs-by-slug", kwargs={"slug": self.experiment.slug})
         )
         request.user = self.user
         response = self.view(request, slug=self.experiment.slug)
@@ -32,12 +32,13 @@ class NimbusChangeLogsViewTest(TestCase):
 
     def test_get_context_data(self):
         request = self.factory.get(
-            reverse("index", kwargs={"slug": self.experiment.slug})
+            reverse("changelogs-by-slug", kwargs={"slug": self.experiment.slug})
         )
         request.user = self.user
         response = self.view(request, slug=self.experiment.slug)
         context = response.context_data
         self.assertEqual(context["slug"], self.experiment.slug)
+        self.assertEqual(context["experiment"], self.experiment)
         self.assertQuerysetEqual(
             context["changelogs"],
             [repr(self.changelog1), repr(self.changelog2)],

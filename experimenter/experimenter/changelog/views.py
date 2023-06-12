@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView
+from django.views.generic import DetailView
 
-from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment
 
 
-class NimbusChangeLogsView(ListView):
-    model = NimbusChangeLog
+class NimbusChangeLogsView(DetailView):
+    model = NimbusExperiment
     template_name = "changelog/changelogs_overview.html"
     context_object_name = "experiment"
 
