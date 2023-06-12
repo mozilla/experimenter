@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mozilla-nimbus-schemas"
-version = "0.1.1"
+version = "2023.6.1"
 description = "Schemas used by Mozilla Nimbus and related projects."
 authors = ["mikewilli"]
 license = "MPL 2.0"
