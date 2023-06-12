@@ -35,11 +35,6 @@ export interface getAllExperiments_experiments_targetingConfig {
   isFirstRunRequired: boolean | null;
 }
 
-export interface getAllExperiments_experiments_featureConfig {
-  slug: string;
-  name: string;
-}
-
 export interface getAllExperiments_experiments_projects {
   id: string | null;
   name: string | null;
@@ -73,7 +68,6 @@ export interface getAllExperiments_experiments {
   resultsExpectedDate: DateTime | null;
   resultsReady: boolean | null;
   showResultsUrl: boolean | null;
-  featureConfig: getAllExperiments_experiments_featureConfig | null;
   channel: NimbusExperimentChannelEnum | null;
   populationPercent: string | null;
   projects: (getAllExperiments_experiments_projects | null)[] | null;

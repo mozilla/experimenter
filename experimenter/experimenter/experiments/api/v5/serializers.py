@@ -1086,8 +1086,6 @@ class NimbusExperimentSerializer(
         return super().create(validated_data)
 
     def save(self):
-        feature_config_provided = "feature_config" in self.validated_data
-        feature_config = self.validated_data.pop("feature_config", None)
         feature_configs_provided = "feature_configs" in self.validated_data
         feature_configs = self.validated_data.pop("feature_configs", None)
 
@@ -1096,12 +1094,6 @@ class NimbusExperimentSerializer(
             # the feature_config is available when the branches save their
             # feature_values
             if self.instance:
-                if feature_config_provided:
-                    self.instance.feature_configs.clear()
-
-                if feature_config:
-                    self.instance.feature_configs.add(feature_config)
-
                 if feature_configs_provided:
                     self.instance.feature_configs.clear()
 
@@ -1131,9 +1123,7 @@ class NimbusExperimentSerializer(
 
 class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
     experiment_name = serializers.CharField(source="name")
-
     product_area = serializers.CharField(source="application")
-
     rollout = serializers.BooleanField(source="is_rollout")
     owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
     feature_configs = serializers.SerializerMethodField()
@@ -1175,6 +1165,7 @@ class NimbusBranchScreenshotReviewSerializer(NimbusBranchScreenshotSerializer):
 
 class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerializer):
     id = serializers.IntegerField()
+    value = serializers.CharField(allow_blank=False)
 
     class Meta:
         model = NimbusBranchFeatureValue
@@ -1197,16 +1188,6 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
 class NimbusBranchReviewSerializer(NimbusBranchSerializer):
     feature_values = NimbusBranchFeatureValueReviewSerializer(many=True, required=True)
     screenshots = NimbusBranchScreenshotReviewSerializer(many=True, required=False)
-
-    def validate_feature_value(self, value):
-        if value:
-            try:
-                json.loads(value)
-            except Exception as e:
-                raise serializers.ValidationError(f"Invalid JSON: {e.msg}") from e
-        else:
-            raise serializers.ValidationError("This field may not be blank.")
-        return value
 
 
 class NimbusReviewSerializer(serializers.ModelSerializer):
@@ -1235,12 +1216,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     )
     reference_branch = NimbusBranchReviewSerializer(required=True)
     treatment_branches = NimbusBranchReviewSerializer(many=True)
-    feature_config = serializers.PrimaryKeyRelatedField(
-        queryset=NimbusFeatureConfig.objects.all(),
-        allow_null=False,
-        error_messages={"null": NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG},
-        write_only=True,
-    )
     feature_configs = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         many=True,
@@ -1358,8 +1333,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         errors = {}
 
         feature_configs = data.get("feature_configs", [])
-        if len(feature_configs) <= 1:
-            return data
 
         warn_feature_schema = data.get("warn_feature_schema", False)
 
@@ -1413,56 +1386,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             treatment_branches_errors.append({"feature_values": treatment_branch_errors})
 
         if treatment_branches_errors_found:
-            errors["treatment_branches"] = treatment_branches_errors
-
-        if any(errors):
-            if warn_feature_schema:
-                self.warnings = errors
-            else:
-                raise serializers.ValidationError(errors)
-
-        return data
-
-    def _validate_feature_config(self, data):
-        errors = {}
-
-        feature_configs = data.get("feature_configs", [])
-        if len(feature_configs) > 1:
-            return data
-
-        feature_config = data.get("feature_config", None)
-        warn_feature_schema = data.get("warn_feature_schema", False)
-
-        if not feature_config or not feature_config.schema or not self.instance:
-            return data
-
-        if self.instance.application != feature_config.application:
-            errors["feature_config"] = [
-                f"Feature Config application {feature_config.application} does "
-                f"not match experiment application {self.instance.application}."
-            ]
-
-        localizations = None
-        if data.get("is_localized"):
-            localizations = json.loads(data.get("localizations"))
-
-        if schema_errors := self._validate_feature_value_against_schema(
-            feature_config, data["reference_branch"]["feature_value"], localizations
-        ):
-            errors["reference_branch"] = {"feature_value": schema_errors}
-
-        treatment_branches_errors = []
-        for branch_data in data["treatment_branches"]:
-            branch_error = {}
-
-            if schema_errors := self._validate_feature_value_against_schema(
-                feature_config, branch_data["feature_value"], localizations
-            ):
-                branch_error = {"feature_value": schema_errors}
-
-            treatment_branches_errors.append(branch_error)
-
-        if any(treatment_branches_errors):
             errors["treatment_branches"] = treatment_branches_errors
 
         if any(errors):
@@ -1769,7 +1692,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
         data = super().validate(data)
         data = self._validate_localizations(data)
-        data = self._validate_feature_config(data)
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
         data = self._validate_sticky_enrollment(data)

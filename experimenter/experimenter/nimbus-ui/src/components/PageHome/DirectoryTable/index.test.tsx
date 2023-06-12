@@ -95,13 +95,18 @@ describe("DirectoryColumnFeature", () => {
     );
     expect(
       screen.getByTestId("directory-feature-config-name"),
-    ).toHaveTextContent(experiment.featureConfig!.name);
+    ).toHaveTextContent(
+      experiment
+        .featureConfigs!.map((fc) => fc?.name)
+        .sort()
+        .join(", "),
+    );
   });
 
   it("renders the None label if feature config is not present", () => {
     render(
       <TestTable>
-        <DirectoryColumnFeature {...experiment} featureConfig={null} />
+        <DirectoryColumnFeature {...experiment} featureConfigs={[]} />
       </TestTable>,
     );
     expect(
@@ -408,7 +413,10 @@ describe("DirectoryTable", () => {
       expectTableCells("directory-table-cell", [
         experiment.name,
         experiment.owner!.username,
-        experiment.featureConfig!.name,
+        experiment
+          .featureConfigs!.map((fc) => fc?.name)
+          .sort()
+          .join(", "),
         "Desktop",
         "Desktop Nightly",
         experiment.populationPercent!.toString(),

@@ -276,14 +276,14 @@ export const FormBranches = ({
           <Form.Control
             isValid={selectValid}
             as="select"
-            name="featureConfig"
+            name="featureConfigs"
             data-testid="feature-config-select"
             // Displaying the review-readiness error is handled here instead of `formControlAttrs`
             // due to a state conflict between `react-hook-form` and our internal branch state mangement
             className={classNames({
               "is-warning":
-                fieldMessages.feature_config?.length > 0 ||
-                fieldWarnings.feature_config?.length > 0,
+                fieldMessages.feature_configs?.length > 0 ||
+                fieldWarnings.feature_configs?.length > 0,
             })}
             custom
             onChange={onFeatureConfigChange}
@@ -308,18 +308,18 @@ export const FormBranches = ({
                 </option>
               ))}
           </Form.Control>
-          {fieldMessages.feature_config?.length > 0 && (
+          {fieldMessages.feature_configs?.length > 0 && (
             // @ts-ignore This component doesn't technically support type="warning", but
             // all it's doing is using the string in a class, so we can safely override.
-            <Form.Control.Feedback type="warning" data-for="featureConfig">
-              {(fieldMessages.feature_config as SerializerMessage).join(", ")}
+            <Form.Control.Feedback type="warning" data-for="featureConfigs">
+              {(fieldMessages.feature_configs as SerializerMessage).join(", ")}
             </Form.Control.Feedback>
           )}
-          {fieldWarnings.feature_config?.length > 0 && (
+          {fieldWarnings.feature_configs?.length > 0 && (
             // @ts-ignore This component doesn't technically support type="warning", but
             // all it's doing is using the string in a class, so we can safely override.
-            <Form.Control.Feedback type="warning" data-for="featureConfig">
-              {(fieldWarnings.feature_config as SerializerMessage).join(", ")}
+            <Form.Control.Feedback type="warning" data-for="featureConfigs">
+              {(fieldWarnings.feature_configs as SerializerMessage).join(", ")}
             </Form.Control.Feedback>
           )}
         </Form.Group>

@@ -802,7 +802,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             [NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG],
         )
 
@@ -897,7 +897,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             [
                 "Feature Config application ios does not "
                 "match experiment application fenix."
@@ -924,7 +924,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             ["You must select a feature configuration from the drop down."],
         )
 
@@ -967,7 +967,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn(
             "Unterminated string",
-            serializer.errors["reference_branch"]["feature_value"][0],
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][0],
         )
         self.assertEqual(len(serializer.errors), 1)
 
@@ -1008,9 +1008,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertTrue(
-            serializer.errors["reference_branch"]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.errors,
         )
         self.assertEqual(len(serializer.errors), 1)
@@ -1053,9 +1053,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertTrue(serializer.is_valid())
         self.assertTrue(
-            serializer.warnings["reference_branch"]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.warnings["reference_branch"]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.warnings,
         )
         self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
@@ -1097,9 +1097,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertTrue(
-            serializer.errors["treatment_branches"][0]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.errors["treatment_branches"][0]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.errors,
         )
         self.assertEqual(len(serializer.errors), 1)
@@ -1144,9 +1144,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
         self.assertTrue(
-            serializer.warnings["treatment_branches"][0]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.warnings["treatment_branches"][0]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.warnings,
         )
 
@@ -1198,9 +1198,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
         self.assertTrue(
-            serializer.warnings["treatment_branches"][0]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.warnings["treatment_branches"][0]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.warnings,
         )
 
@@ -1490,7 +1490,11 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"reference_branch": {"feature_value": ["This field may not be blank."]}},
+            {
+                "reference_branch": {
+                    "feature_values": [{"value": ["This field may not be blank."]}]
+                }
+            },
         )
 
     def test_bucket_namespace_warning_for_dupe_rollouts(self):
@@ -2061,12 +2065,16 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             serializer.errors,
             {
                 "reference_branch": {
-                    "feature_value": [
-                        (
-                            "Schema validation errors occured during locale "
-                            "substitution for locale en-US"
-                        ),
-                        "'foo text' is not of type 'boolean'",
+                    "feature_values": [
+                        {
+                            "value": [
+                                (
+                                    "Schema validation errors occured during locale "
+                                    "substitution for locale en-US"
+                                ),
+                                "'foo text' is not of type 'boolean'",
+                            ]
+                        }
                     ]
                 }
             },
@@ -2137,7 +2145,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"reference_branch": {"feature_value": [error_msg]}},
+            {"reference_branch": {"feature_values": [{"value": [error_msg]}]}},
             serializer.errors,
         )
 

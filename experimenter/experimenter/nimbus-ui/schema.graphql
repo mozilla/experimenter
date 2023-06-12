@@ -63,7 +63,6 @@ type NimbusExperimentType {
   computedEnrollmentDays: Int
   computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
-  featureConfig: NimbusFeatureConfigType
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
   jexlTargetingExpression: String
@@ -301,7 +300,6 @@ type NimbusBranchType {
   ratio: Int!
   featureValues: [NimbusBranchFeatureValueType]
   screenshots: [NimbusBranchScreenshotType!]
-  featureValue: String
 }
 
 type NimbusBranchFeatureValueType {
@@ -460,7 +458,6 @@ input ExperimentInput {
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   countries: [String]
   documentationLinks: [DocumentationLinkInput]
-  featureConfigId: Int
   featureConfigIds: [Int]
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
@@ -510,13 +507,12 @@ input BranchInput {
   name: String!
   description: String!
   ratio: Int!
-  featureValue: String
   featureValues: [BranchFeatureValueInput]
   screenshots: [BranchScreenshotInput]
 }
 
 input BranchFeatureValueInput {
-  featureConfig: Int
+  featureConfig: String
   value: String
 }
 

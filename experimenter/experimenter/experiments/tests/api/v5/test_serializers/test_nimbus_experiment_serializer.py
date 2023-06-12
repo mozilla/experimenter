@@ -144,7 +144,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "name": "",
             "hypothesis": "",
             "public_description": "",
-            "feature_config": None,
+            "feature_configs": [],
             "treatment_branches": [],
             "primary_outcomes": [],
             "secondary_outcomes": [],

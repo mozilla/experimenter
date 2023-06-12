@@ -20,7 +20,7 @@ const fieldPageMap: { [page: string]: string[] } = {
   branches: [
     "reference_branch",
     "treatment_branches",
-    "feature_config",
+    "feature_configs",
     "is_rollout",
     "localizations",
   ],

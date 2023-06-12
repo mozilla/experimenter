@@ -56,12 +56,12 @@ export const FormScreenshot = ({
   const imageProps = formControlAttrs("image");
 
   return (
-    <Form.Group className="mx-4 mb-5" data-testid="FormScreenshot">
-      <Form.Group as={Row} controlId={`${fieldNamePrefix}-description`}>
+    <Form.Group className="mt-2" data-testid="FormScreenshot">
+      <Form.Group controlId={`${fieldNamePrefix}-description`}>
         <Form.Label className="w-100">
-          <Row className="w-100 m-0">
-            <Col className="p-0">Description</Col>
-            <Col className="p-0 text-right">
+          <Row className="w-100">
+            <Col>Description</Col>
+            <Col className="text-right">
               <Button
                 data-testid="remove-screenshot"
                 variant="light"
@@ -81,7 +81,7 @@ export const FormScreenshot = ({
         />
         <FormErrors name="description" />
       </Form.Group>
-      <Form.Group as={Row} controlId={`${fieldNamePrefix}-image`}>
+      <Form.Group controlId={`${fieldNamePrefix}-image`}>
         <Form.Label>Image</Form.Label>
         <Controller
           name={imageProps.name}

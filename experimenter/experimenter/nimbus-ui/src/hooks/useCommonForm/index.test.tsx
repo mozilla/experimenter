@@ -12,7 +12,10 @@ import { Subject as OverviewSubject } from "src/components/FormOverview/mocks";
 import { audienceFieldNames } from "src/components/PageEditAudience/FormAudience";
 import { Subject as AudienceSubject } from "src/components/PageEditAudience/FormAudience/mocks";
 import { branchFieldNames } from "src/components/PageEditBranches/FormBranches/FormBranch";
-import { SubjectBranch as BranchSubject } from "src/components/PageEditBranches/FormBranches/mocks";
+import {
+  MOCK_BRANCH,
+  SubjectBranch as BranchSubject,
+} from "src/components/PageEditBranches/FormBranches/mocks";
 import { metricsFieldNames } from "src/components/PageEditMetrics/FormMetrics";
 import { Subject as MetricsSubject } from "src/components/PageEditMetrics/FormMetrics/mocks";
 import { useCommonNestedForm, useForm } from "src/hooks";
@@ -158,16 +161,17 @@ describe("hooks/useCommonForm", () => {
     });
 
     it("FormBranch", () => {
-      const { container } = render(<BranchSubject />);
+      render(<BranchSubject />);
 
       branchFieldNames.forEach((name) => {
         const fieldName = `referenceBranch.${name}`;
-        expect(screen.queryByTestId(fieldName)).toBeInTheDocument();
-
-        expect(
-          screen.queryByTestId(`${fieldName}-form-errors`),
-        ).toBeInTheDocument();
+        screen.getByTestId(fieldName);
+        screen.getByTestId(`${fieldName}-form-errors`);
       });
+
+      for (let idx = 0; idx < MOCK_BRANCH!.featureValues!.length; idx++) {
+        screen.getByTestId(`referenceBranch.featureValues[${idx}].value`);
+      }
     });
   });
 

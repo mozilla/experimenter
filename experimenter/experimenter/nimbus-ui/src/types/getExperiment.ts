@@ -18,6 +18,15 @@ export interface getExperiment_experimentBySlug_parent {
   slug: string;
 }
 
+export interface getExperiment_experimentBySlug_referenceBranch_featureValues_featureConfig {
+  id: number | null;
+}
+
+export interface getExperiment_experimentBySlug_referenceBranch_featureValues {
+  featureConfig: getExperiment_experimentBySlug_referenceBranch_featureValues_featureConfig | null;
+  value: string | null;
+}
+
 export interface getExperiment_experimentBySlug_referenceBranch_screenshots {
   id: number | null;
   description: string | null;
@@ -30,8 +39,17 @@ export interface getExperiment_experimentBySlug_referenceBranch {
   slug: string;
   description: string;
   ratio: number;
-  featureValue: string | null;
+  featureValues: (getExperiment_experimentBySlug_referenceBranch_featureValues | null)[] | null;
   screenshots: getExperiment_experimentBySlug_referenceBranch_screenshots[] | null;
+}
+
+export interface getExperiment_experimentBySlug_treatmentBranches_featureValues_featureConfig {
+  id: number | null;
+}
+
+export interface getExperiment_experimentBySlug_treatmentBranches_featureValues {
+  featureConfig: getExperiment_experimentBySlug_treatmentBranches_featureValues_featureConfig | null;
+  value: string | null;
 }
 
 export interface getExperiment_experimentBySlug_treatmentBranches_screenshots {
@@ -46,7 +64,7 @@ export interface getExperiment_experimentBySlug_treatmentBranches {
   slug: string;
   description: string;
   ratio: number;
-  featureValue: string | null;
+  featureValues: (getExperiment_experimentBySlug_treatmentBranches_featureValues | null)[] | null;
   screenshots: getExperiment_experimentBySlug_treatmentBranches_screenshots[] | null;
 }
 
