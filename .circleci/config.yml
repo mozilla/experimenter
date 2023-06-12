@@ -529,13 +529,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Check for changes in schemas/ in last commit before proceeding.
+          name: Check for package version change in last commit before proceeding.
           command: |
-            if git diff --name-only main HEAD~1 | grep -E 'schemas/'
+            if git diff main HEAD~1 schemas/pyproject.toml | grep 'version'
               then
-                echo "Found changes to schemas dir, proceeding with deployment."
+                echo "Found changes to package version dir, proceeding with deployment."
               else
-                echo "No changes in /schemas directory. Skipping mozilla-nimbus-schemas deployment."
+                echo "No changes in package version. Skipping mozilla-nimbus-schemas deployment."
                 circleci-agent step halt
             fi
       - run:
