@@ -119,7 +119,9 @@ export const FormAudience = ({
     totalEnrolledClients: experiment.totalEnrolledClients,
     proposedEnrollment: experiment.proposedEnrollment,
     proposedDuration: experiment.proposedDuration,
-    proposedReleaseDate: experiment.proposedReleaseDate,
+    proposedReleaseDate: experiment.isFirstRun
+      ? experiment.proposedReleaseDate
+      : "",
     countries: selectOptions(experiment.countries as SelectIdItems),
     locales: selectOptions(experiment.locales as SelectIdItems),
     languages: selectOptions(experiment.languages as SelectIdItems),
@@ -235,26 +237,6 @@ export const FormAudience = ({
             </Form.Control>
             <FormErrors name="channel" />
           </Form.Group>
-        </Form.Row>
-        <Form.Row>
-          <Form.Group as={Col} controlId="proposedReleaseDate">
-            <Form.Label className="d-flex align-items-center">
-              Release Date
-              <Info
-                data-tip={TOOLTIP_RELEASE_DATE}
-                data-testid="tooltip-proposed-release-date"
-                width="20"
-                height="20"
-                className="ml-1"
-                onClick={() => window.open(EXTERNAL_URLS.WHAT_TRAIN_IS_IT)}
-              />
-            </Form.Label>
-            <Form.Control
-              {...formControlAttrs("proposedReleaseDate")}
-              type="date"
-            />
-            <FormErrors name="proposedReleaseDate" />
-          </Form.Group>
           <Form.Group as={Col} controlId="minVersion">
             <Form.Label className="d-flex align-items-center">
               Min Version
@@ -368,27 +350,50 @@ export const FormAudience = ({
           </Form.Group>
         </Form.Row>
         {!isDesktop && (
-          <Form.Row>
-            <Form.Group as={Col} controlId="isFirstRun">
-              <Form.Check
-                {...formControlAttrs("isFirstRun")}
-                type="checkbox"
-                onChange={(e) => setIsFirstRun(e.target.checked)}
-                checked={isFirstRun}
-                disabled={isFirstRunRequiredWarning || isLocked!}
-                label="First Run Experiment"
-              />
-              {isFirstRunRequiredWarning && (
-                <Alert
-                  data-testid="is-first-run-required-warning"
-                  variant="warning"
-                >
-                  First run is required for this targeting configuration.
-                </Alert>
-              )}
-              <FormErrors name="isFirstRun" />
-            </Form.Group>
-          </Form.Row>
+          <Form.Group>
+            <Form.Row>
+              <Form.Group as={Col} controlId="isFirstRun">
+                <Form.Check
+                  {...formControlAttrs("isFirstRun")}
+                  type="checkbox"
+                  onChange={(e) => setIsFirstRun(e.target.checked)}
+                  checked={isFirstRun}
+                  disabled={isFirstRunRequiredWarning || isLocked!}
+                  label="First Run Experiment"
+                />
+                {isFirstRunRequiredWarning && (
+                  <Alert
+                    data-testid="is-first-run-required-warning"
+                    variant="warning"
+                  >
+                    First run is required for this targeting configuration.
+                  </Alert>
+                )}
+                <FormErrors name="isFirstRun" />
+              </Form.Group>
+            </Form.Row>
+            <Form.Row>
+              <Form.Group as={Col} controlId="proposedReleaseDate">
+                <Form.Label className="d-flex align-items-center">
+                  First Run Release Date
+                  <Info
+                    data-tip={TOOLTIP_RELEASE_DATE}
+                    data-testid="tooltip-proposed-release-date"
+                    width="20"
+                    height="20"
+                    className="ml-1"
+                    onClick={() => window.open(EXTERNAL_URLS.WHAT_TRAIN_IS_IT)}
+                  />
+                </Form.Label>
+                <Form.Control
+                  {...formControlAttrs("proposedReleaseDate")}
+                  type="date"
+                  disabled={!isFirstRun}
+                />
+                <FormErrors name="proposedReleaseDate" />
+              </Form.Group>
+            </Form.Row>
+          </Form.Group>
         )}
       </Form.Group>
 
