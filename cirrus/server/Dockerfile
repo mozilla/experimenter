@@ -28,6 +28,7 @@ RUN git submodule update --recursive
 
 RUN cargo build --manifest-path megazords/cirrus/Cargo.toml --release
 RUN cargo uniffi-bindgen generate components/nimbus/src/cirrus.udl --language python
+RUN cargo uniffi-bindgen generate components/support/nimbus-fml/src/fml.udl --language python
 
 # Use official Python runtime as a parent image
 FROM python:3.11.2-slim-buster
@@ -39,6 +40,8 @@ WORKDIR /cirrus
 COPY --from=builder /application-services/components/nimbus/src/cirrus.py /application-services/cirrus_sdk.py
 # megazord
 COPY --from=builder /application-services/target/release/libcirrus.so /application-services/libcirrus.so
+# fml
+COPY --from=builder /application-services/components/support/nimbus-fml/src/fml.py /application-services/fml_sdk.py
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services
 

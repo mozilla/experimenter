@@ -35,6 +35,23 @@ pre_treatments = ["remove_nulls"]
 log_space = true
 
 
+[metrics.http_sub_tls_handshake]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.http_sub_tls_handshake")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.http_sub_tls_handshake.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.http_sub_tls_handshake.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.http_sub_tls_handshake.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
 [metrics.http_page_open_to_first_sent]
 select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.http_page_open_to_first_sent")}}'
 data_source = 'main'
@@ -51,3 +68,307 @@ log_space = true
 pre_treatments = ["remove_nulls"]
 log_space = true
 
+
+[metrics.time_to_response_start_ms]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.time_to_response_start_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.time_to_response_start_ms.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.time_to_response_start_ms.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.time_to_response_start_ms.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.cert_error_page_loaded]
+select_expression = """(
+    COALESCE(COUNTIF(
+        event_category = 'security.ui.certerror' AND
+        event_method = 'load' AND
+        event_object = 'aboutcerterror'
+    ), 0)
+)"""
+data_source = "events"
+friendly_name = "Cert Error Pages Loaded"
+type = "scalar"
+bigger_is_better = false
+
+[metrics.cert_error_page_loaded.statistics.bootstrap_mean]
+
+[metrics.cert_error_page_loaded.statistics.deciles]
+
+[metrics.cert_error_page_loaded.statistics.kernel_density_estimate]
+
+[metrics.cert_error_page_loaded.statistics.empirical_cdf]
+
+
+[metrics.cert_error_page_clicked]
+select_expression = """(
+    COALESCE(COUNTIF(
+        event_category = 'security.ui.certerror' AND
+        event_method = 'click' AND
+        event_object = 'aboutcerterror'
+    ), 0)
+)"""
+data_source = "events"
+friendly_name = "Cert Error Pages Clicked"
+type = "scalar"
+bigger_is_better = false
+
+[metrics.cert_error_page_clicked.statistics.bootstrap_mean]
+
+[metrics.cert_error_page_clicked.statistics.deciles]
+
+[metrics.cert_error_page_clicked.statistics.kernel_density_estimate]
+
+[metrics.cert_error_page_clicked.statistics.empirical_cdf]
+
+
+[metrics.http_transactions_using_tls]
+select_expression = '{{agg_hist_zero_fract("payload.histograms.http_transaction_is_ssl")}}'
+data_source = "main"
+type = "scalar"
+
+[metrics.http_transactions_using_tls.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.http_transactions_using_tls.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.http_transactions_using_tls.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.http_transactions_using_tls.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.http_pageloads_using_tls]
+select_expression = '{{agg_hist_zero_fract("payload.histograms.http_pageload_is_ssl")}}'
+data_source = "main"
+type = "scalar"
+
+[metrics.http_pageloads_using_tls.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.http_pageloads_using_tls.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.http_pageloads_using_tls.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.http_pageloads_using_tls.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.http_channels_success]
+select_expression = '{{agg_hist_zero_fract("payload.histograms.http_channel_onstart_success")}}'
+data_source = "main"
+type = "scalar"
+
+[metrics.http_channels_success.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.http_channels_success.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.http_channels_success.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.http_channels_success.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.tls_successful_cert_validation_time]
+data_source = "main"
+select_expression = """{{agg_histogram_mean("payload.processes.content.histograms.ssl_succesful_cert_validation_time_mozillapkix")}}"""
+type = "scalar"
+bigger_is_better = false
+
+[metrics.tls_successful_cert_validation_time.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+log_space = true
+
+[metrics.tls_successful_cert_validation_time.statistics.deciles]
+pre_treatments = ['remove_nulls']
+log_space = true
+
+[metrics.tls_successful_cert_validation_time.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+log_space = true
+
+[metrics.tls_successful_cert_validation_time.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+log_space = true
+
+
+[metrics.tls_failed_cert_validation_time]
+data_source = "main"
+select_expression = """{{agg_histogram_mean("payload.processes.content.histograms.ssl_initial_failed_cert_validation_time_mozillapkix")}}"""
+type = "scalar"
+bigger_is_better = false
+
+[metrics.tls_failed_cert_validation_time.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+log_space = true
+
+[metrics.tls_failed_cert_validation_time.statistics.deciles]
+pre_treatments = ['remove_nulls']
+log_space = true
+
+[metrics.tls_failed_cert_validation_time.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+log_space = true
+
+[metrics.tls_failed_cert_validation_time.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+log_space = true
+
+
+[metrics.tls_successful_connections_overall]
+data_source = "main"
+select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result")}}'
+type = "scalar"
+
+[metrics.tls_successful_connections_overall.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_connections_overall.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_connections_overall.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_connections_overall.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.tls_successful_connections_with_ech]
+data_source = "main"
+select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result_ech")}}'
+type = "scalar"
+
+[metrics.tls_successful_connections_with_ech.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_connections_with_ech.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_connections_with_ech.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_connections_with_ech.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.tls_successful_connections_with_ech_grease]
+data_source = "main"
+select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result_ech_grease")}}'
+type = "scalar"
+
+[metrics.tls_successful_connections_with_ech_grease.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_connections_with_ech_grease.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_connections_with_ech_grease.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_connections_with_ech_grease.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.tls_successful_first_try_connections]
+data_source = "main"
+select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result_first_try")}}'
+type = "scalar"
+
+[metrics.tls_successful_first_try_connections.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_first_try_connections.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_first_try_connections.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_first_try_connections.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.tls_successful_conservative_connections]
+data_source = "main"
+select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result_conservative")}}'
+type = "scalar"
+
+[metrics.tls_successful_conservative_connections.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_conservative_connections.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_conservative_connections.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.tls_successful_conservative_connections.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.quic_successful_connections_no_ech]
+data_source = "main"
+select_expression = """{{agg_hist_zero_fract("mozfun.map.get_key(payload.keyed_histograms.http3_ech_outcome, 'NONE')")}}"""
+type = "scalar"
+
+[metrics.quic_successful_connections_no_ech.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.quic_successful_connections_no_ech.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.quic_successful_connections_no_ech.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.quic_successful_connections_no_ech.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.quic_successful_connections_ech_grease]
+data_source = "main"
+select_expression = """{{agg_hist_zero_fract("mozfun.map.get_key(payload.keyed_histograms.http3_ech_outcome, 'GREASE')")}}"""
+type = "scalar"
+
+[metrics.quic_successful_connections_ech_grease.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.quic_successful_connections_ech_grease.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.quic_successful_connections_ech_grease.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.quic_successful_connections_ech_grease.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']
+
+
+[metrics.quic_successful_connections_ech_real]
+data_source = "main"
+select_expression = """{{agg_hist_zero_fract("mozfun.map.get_key(payload.keyed_histograms.http3_ech_outcome, 'REAL')")}}"""
+type = "scalar"
+
+[metrics.quic_successful_connections_ech_real.statistics.bootstrap_mean]
+pre_treatments = ['remove_nulls']
+
+[metrics.quic_successful_connections_ech_real.statistics.deciles]
+pre_treatments = ['remove_nulls']
+
+[metrics.quic_successful_connections_ech_real.statistics.kernel_density_estimate]
+pre_treatments = ['remove_nulls']
+
+[metrics.quic_successful_connections_ech_real.statistics.empirical_cdf]
+pre_treatments = ['remove_nulls']

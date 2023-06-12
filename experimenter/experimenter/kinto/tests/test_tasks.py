@@ -989,6 +989,7 @@ class TestNimbusSendEmails(MockKintoClientMixin, TestCase):
             proposed_enrollment=0,
             proposed_duration=20,
             with_latest_change_now=True,
+            is_rollout=False,
         )
 
         tasks.nimbus_send_emails()
@@ -1000,6 +1001,27 @@ class TestNimbusSendEmails(MockKintoClientMixin, TestCase):
         )
         self.assertEqual(experiment.emails.count(), 1)
         self.assertEqual(len(mail.outbox), 1)
+
+    def test_enrollment_ending_email_not_sent_for_rollouts_after_enrollment_end_date(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=0,
+            proposed_duration=20,
+            with_latest_change_now=True,
+            is_rollout=True,
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertFalse(
+            experiment.emails.filter(
+                type=NimbusExperiment.EmailType.ENROLLMENT_END
+            ).exists()
+        )
+        self.assertEqual(experiment.emails.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_experiment_ending_email_not_sent_for_experiments_before_enrollment_end_date(
         self,
