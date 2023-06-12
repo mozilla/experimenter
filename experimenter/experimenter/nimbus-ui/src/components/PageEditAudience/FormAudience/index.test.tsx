@@ -904,7 +904,6 @@ describe("FormAudience", () => {
       totalEnrolledClients: MOCK_EXPERIMENT.totalEnrolledClients,
       proposedEnrollment: "" + MOCK_EXPERIMENT.proposedEnrollment,
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
-      proposedReleaseDate: MOCK_EXPERIMENT.proposedReleaseDate,
       countries: MOCK_EXPERIMENT.countries.map((v) => "" + v.id),
       locales: MOCK_EXPERIMENT.locales.map((v) => "" + v.id),
       languages: MOCK_EXPERIMENT.languages.map((v) => "" + v.id),
@@ -978,7 +977,16 @@ describe("FormAudience", () => {
     const enteredDate = "2023-05-12";
 
     const onSubmit = jest.fn();
-    renderSubjectWithDefaultValues(onSubmit);
+    render(
+      <Subject
+        {...{ onSubmit }}
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+          isFirstRun: true,
+        }}
+      />,
+    );
     await waitFor(() => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
@@ -996,11 +1004,22 @@ describe("FormAudience", () => {
 
   it("changing proposed release date to empty sets form value", async () => {
     const expectedDate = "";
-
     const onSubmit = jest.fn();
-    renderSubjectWithDefaultValues(onSubmit);
+
+    render(
+      <Subject
+        {...{ onSubmit }}
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+          isFirstRun: true,
+        }}
+      />,
+    );
+
     await waitFor(() => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+      expect(screen.queryByTestId("proposedReleaseDate")).toBeInTheDocument();
     });
 
     const submitButton = screen.getByTestId("submit-button");
@@ -1012,9 +1031,52 @@ describe("FormAudience", () => {
     expect(onSubmit.mock.calls[0][0].proposedReleaseDate).toEqual(expectedDate);
   });
 
+  it("only access proposed release date field for mobile applications", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+          isFirstRun: true,
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("isFirstRun")).toBeInTheDocument();
+      expect(screen.queryByTestId("proposedReleaseDate")).toBeInTheDocument();
+    });
+  });
+
+  it("cannot access proposed release date field for desktop applications", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("isFirstRun")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("proposedReleaseDate"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it("clicking proposed release date title takes you to whattrainisit", async () => {
     const onSubmit = jest.fn();
-    renderSubjectWithDefaultValues(onSubmit);
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+          isFirstRun: true,
+        }}
+      />,
+    );
     await waitFor(() => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
