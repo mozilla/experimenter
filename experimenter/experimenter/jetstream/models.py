@@ -261,6 +261,12 @@ class ResultsObjectModelBase(BaseModel):
                     primary_metric_data, BranchComparison.ABSOLUTE
                 )
 
+                if (
+                    absolute_primary_metric_vals.all is None
+                    or len(absolute_primary_metric_vals.all) == 0
+                ):
+                    continue
+
                 population_count = absolute_user_counts.first.point
                 conversion_percent = absolute_primary_metric_vals.first.point
 
