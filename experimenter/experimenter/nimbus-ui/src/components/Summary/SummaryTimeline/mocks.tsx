@@ -16,18 +16,22 @@ export const Subject = ({
   computedEndDate = "2020-12-08T14:52:44.704811+00:00",
   computedDurationDays = 10,
   computedEnrollmentDays = 1,
+  proposedReleaseDate = "",
   status = NimbusExperimentStatusEnum.DRAFT,
   publishStatus = NimbusExperimentPublishStatusEnum.IDLE,
   isRollout = false,
+  isFirstRun = false,
 }: {
   startDate?: string;
   computedDurationDays?: number;
   computedEndDate?: string;
   computedEnrollmentDays?: number;
   computedEnrollmentEndDate?: string;
+  proposedReleaseDate?: string;
   status?: NimbusExperimentStatusEnum;
   publishStatus?: NimbusExperimentPublishStatusEnum;
   isRollout?: boolean;
+  isFirstRun?: boolean;
 }) => {
   const { experiment } = mockExperimentQuery("something-vague", {
     startDate,
@@ -35,9 +39,11 @@ export const Subject = ({
     computedEndDate,
     computedEnrollmentDays,
     computedEnrollmentEndDate,
+    proposedReleaseDate,
     status,
     publishStatus,
     isRollout,
+    isFirstRun,
   });
   return <SummaryTimeline {...{ experiment }} />;
 };

@@ -26,6 +26,9 @@ const SummaryTimeline = ({
         {...{
           status,
           startDate: experiment.startDate,
+          proposedReleaseDate: experiment.isFirstRun
+            ? experiment.proposedReleaseDate
+            : null,
           computedEnrollmentEndDate: experiment.computedEnrollmentEndDate,
           computedEndDate: experiment.computedEndDate,
           isRollout: experiment.isRollout,
@@ -54,12 +57,14 @@ const SummaryTimeline = ({
 const StartEnd = ({
   status,
   startDate,
+  proposedReleaseDate,
   computedEnrollmentEndDate,
   computedEndDate,
   isRollout,
 }: {
   status: StatusCheck;
   startDate: string | null;
+  proposedReleaseDate: string | null;
   computedEnrollmentEndDate: string | null;
   computedEndDate: string | null;
   isRollout: boolean | null;
@@ -74,6 +79,14 @@ const StartEnd = ({
         <span className="flex-fill" data-testid="label-start-date">
           Start: <b>{humanDate(startDate!)}</b>
         </span>
+        {proposedReleaseDate && (
+          <span
+            className="flex-fill text-center"
+            data-testid="label-release-date"
+          >
+            Release date: <b>{humanDate(proposedReleaseDate!)}</b>
+          </span>
+        )}
         {computedEnrollmentEndDate && !isRollout && (
           <span
             className="flex-fill text-center"
