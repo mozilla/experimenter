@@ -32,6 +32,12 @@ const MOCK_STATE: FormBranchesState = {
     errors: {},
     isValid: true,
     isDirty: false,
+    featureValues: MOCK_EXPERIMENT.referenceBranch!.featureValues?.map(
+      (fv) => ({
+        featureConfig: fv?.featureConfig?.id?.toString(),
+        value: fv?.value,
+      }),
+    ),
   },
   treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map((branch, idx) => ({
     ...branch!,
@@ -40,6 +46,10 @@ const MOCK_STATE: FormBranchesState = {
     errors: {},
     isValid: true,
     isDirty: false,
+    featureValues: branch!.featureValues?.map((fv) => ({
+      featureConfig: fv?.featureConfig?.id?.toString(),
+      value: fv?.value,
+    })),
   })),
 };
 
@@ -421,15 +431,18 @@ describe("formBranchesReducer", () => {
 
   describe("commitFormData", () => {
     const formData = {
-      referenceBranch: { name: "Name from form" },
+      referenceBranch: {
+        name: "Name from form",
+        featureValues: [],
+      },
       treatmentBranches: [
         { description: "Description 1" },
         {
           description: "Description 2",
           featureValues: [
-            { enabled: true, value: "{ foo: true }" },
-            { enabled: false },
-            { value: "{ bar: 123 }" },
+            { featureConfig: "8", value: "{ foo: true }" },
+            { featureConfig: "6" },
+            { featureConfig: "7", value: "{ bar: 123 }" },
           ],
         },
       ],
@@ -473,19 +486,19 @@ describe("formBranchesReducer", () => {
       );
       expect(newState.treatmentBranches![1]!.featureValues).toEqual([
         {
-          featureConfigId: 8,
+          featureConfig: "8",
           value: "{ foo: true }",
         },
         {
-          featureConfigId: 6,
+          featureConfig: "6",
           value: undefined,
         },
         {
-          featureConfigId: 7,
+          featureConfig: "7",
           value: "{ bar: 123 }",
         },
         {
-          featureConfigId: 5,
+          featureConfig: "5",
           value: undefined,
         },
       ]);
