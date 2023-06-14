@@ -38,7 +38,9 @@ describe("TableAudience", () => {
     it("with proposed release date", () => {
       const expectedDate = "2023-12-12";
       const { experiment } = mockExperimentQuery("demo-slug", {
+        application: NimbusExperimentApplicationEnum.IOS,
         proposedReleaseDate: expectedDate,
+        isFirstRun: true,
       });
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-release-date")).toHaveTextContent(
@@ -46,11 +48,34 @@ describe("TableAudience", () => {
       );
     });
     it("when not set", () => {
-      const { experiment } = mockExperimentQuery("demo-slug");
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        application: NimbusExperimentApplicationEnum.IOS,
+        isFirstRun: true,
+      });
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-release-date")).toHaveTextContent(
         "Not set",
       );
+    });
+  });
+
+  describe("render First Run fields based on application", () => {
+    it("when application is desktop", () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
+      expect(screen.queryByTestId("experiment-is-first-run")).toBeNull();
+      expect(screen.queryByTestId("experiment-release-date")).toBeNull();
+    });
+    it("when application is mobile", () => {
+      const expectedDate = "2023-12-12";
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        application: NimbusExperimentApplicationEnum.IOS,
+        proposedReleaseDate: expectedDate,
+        isFirstRun: true,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-is-first-run")).toBeInTheDocument();
+      expect(screen.getByTestId("experiment-release-date")).toBeInTheDocument();
     });
   });
 
@@ -328,6 +353,7 @@ describe("TableAudience", () => {
   describe("renders 'First Run Experiment' row as expected", () => {
     it("with stick enrollment True", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
+        application: NimbusExperimentApplicationEnum.IOS,
         isFirstRun: true,
       });
       render(<Subject {...{ experiment }} />);
@@ -337,6 +363,7 @@ describe("TableAudience", () => {
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
+        application: NimbusExperimentApplicationEnum.IOS,
         isFirstRun: false,
       });
       render(<Subject {...{ experiment }} />);
