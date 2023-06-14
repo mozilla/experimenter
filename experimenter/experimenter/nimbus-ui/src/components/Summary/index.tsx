@@ -92,9 +92,13 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
         <Card className="border-left-0 border-right-0 border-bottom-0">
           <Card.Header as="h5">Actions</Card.Header>
           <Card.Body>
-            {status.dirty && (
+            {experiment.isRollout && status.live && (
               <RequestLiveUpdate
-                {...{ isLoading, onSubmit: onRequestUpdateClicked }}
+                {...{
+                  isLoading,
+                  onSubmit: onRequestUpdateClicked,
+                  experiment: experiment,
+                }}
               />
             )}
 

@@ -4,14 +4,22 @@
 
 import React from "react";
 import { Button } from "react-bootstrap";
+import { getStatus } from "src/lib/experiment";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 const RequestLiveUpdate = ({
   isLoading,
   onSubmit,
+  experiment,
 }: {
   isLoading: boolean;
   onSubmit: () => void;
+  experiment: getExperiment_experimentBySlug;
 }) => {
+  const status = getStatus(experiment);
+  const shouldDisable =
+    !status.dirty || status.review || status.approved || status.waiting;
+
   return (
     <div className="mb-4" data-testid="update-live-to-review">
       <Button
@@ -19,7 +27,7 @@ const RequestLiveUpdate = ({
         id="request-update-button"
         type="button"
         className="mr-2 btn btn-primary"
-        disabled={isLoading}
+        disabled={isLoading || shouldDisable}
         onClick={onSubmit}
       >
         Request Update
