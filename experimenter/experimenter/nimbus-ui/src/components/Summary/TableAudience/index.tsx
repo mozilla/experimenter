@@ -144,7 +144,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
             </tr>
             <tr>
               <th>First Run Release Date</th>
-              <td data-testid="experiment-release-date">
+              <td colSpan={3} data-testid="experiment-release-date">
                 {experiment.proposedReleaseDate ? (
                   experiment.proposedReleaseDate
                 ) : (
