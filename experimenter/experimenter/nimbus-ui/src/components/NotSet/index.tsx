@@ -7,11 +7,13 @@ import React from "react";
 const NotSet = ({
   copy = "Not set",
   "data-testid": testid = "not-set",
+  color = "text-danger",
 }: {
   copy?: string;
   "data-testid"?: string;
+  color?: string;
 }) => (
-  <span className="text-danger" data-testid={testid}>
+  <span className={color} data-testid={testid}>
     {copy}
   </span>
 );
