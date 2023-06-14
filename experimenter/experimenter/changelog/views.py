@@ -6,7 +6,7 @@ from experimenter.experiments.models import NimbusExperiment
 
 class NimbusChangeLogsView(DetailView):
     model = NimbusExperiment
-    template_name = "changelog/changelogs_overview.html"
+    template_name = "changelog/overview.html"
     context_object_name = "experiment"
 
     def get_object(self, queryset=None):
