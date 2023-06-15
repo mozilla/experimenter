@@ -544,9 +544,9 @@ jobs:
           command: |
             make schemas_build
       - run:
-          name: Install twine
+          name: Install twine for PyPI publishing
           command: |
-            python -m pip install twine
+            pip install --upgrade twine
       - run:
           name: Upload to PyPI
           command: |
