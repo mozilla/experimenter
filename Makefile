@@ -265,4 +265,6 @@ schemas_build:
 	(cd schemas && poetry build)
 
 schemas_deploy_pypi: schemas_install schemas_build
-	cd schemas && poetry run twine upload --skip-existing dist/* && cd ..
+	cd schemas;
+	poetry run twine upload --skip-existing dist/*;
+	cd ..

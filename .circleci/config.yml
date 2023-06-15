@@ -532,7 +532,7 @@ jobs:
       - run:
           name: Check for package version change in last commit before proceeding.
           command: |
-            if git diff main HEAD schemas/pyproject.toml | grep 'version'
+            if git diff main HEAD~1 schemas/pyproject.toml | grep 'version'
               then
                 echo "Found changes to package version dir, proceeding with deployment."
               else
@@ -544,17 +544,13 @@ jobs:
           command: |
             make schemas_build
       - run:
-          name: Install twine for PyPI publishing
-          command: |
-            pip install --upgrade twine
-      - run:
           name: Upload to PyPI
           command: |
             # Relies on the TWINE_USERNAME and TWINE_PASSWORD environment variables configured at:
             #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
             # For more on twine, see:
             #   https://twine.readthedocs.io/en/latest/
-            twine upload --skip-existing schemas/dist/*
+            make schemas_deploy_pypi
 
 workflows:
   version: 2
@@ -686,4 +682,4 @@ workflows:
       - schemas_deploy:
           filters:
             branches:
-              ignore: main
+              only: main
