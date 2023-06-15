@@ -527,7 +527,6 @@ jobs:
   schemas_deploy:
     docker:
       - image: cimg/python:3.10.8 # poetry 1.2.2
-    working_directory: ~/schemas
     steps:
       - checkout
       - run:
@@ -543,7 +542,7 @@ jobs:
       - run:
           name: Create the distribution files
           command: |
-            poetry build
+            make schemas_build
       - run:
           name: Upload to PyPI
           command: |
@@ -551,7 +550,7 @@ jobs:
             #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
             # For more on twine, see:
             #   https://twine.readthedocs.io/en/latest/
-            poetry run twine upload --skip-existing dist/*
+            make schemas_deploy_pypi
 
 workflows:
   version: 2
