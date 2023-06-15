@@ -554,7 +554,7 @@ jobs:
             #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
             # For more on twine, see:
             #   https://twine.readthedocs.io/en/latest/
-            twine upload --skip-existing dist/*
+            cd schemas && twine upload --skip-existing dist/*
 
 workflows:
   version: 2
