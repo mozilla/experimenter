@@ -2,6 +2,9 @@
 
 This directory contains a published package of schemas used by different parts of the Mozilla Nimbus experimentation ecosystem.
 
+## Versioning
+`mozilla-nimbus-schemas` uses a date-based versioning scheme. The format is `yyyy.m.#`, where `m` is the non-zero-padded month, and `#` is an incrementing number starting from 1 for each month. For example, the second release in June of 2023 would have a version of `2023.6.2`.
+
 ## Installation/Usage
 ### Prerequisites
 - python ^3.10
