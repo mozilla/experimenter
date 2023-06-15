@@ -1,6 +1,51 @@
-import pytest
+import sys
+import unittest
+from unittest.mock import patch
 
-from cirrus.main import fetch_schedule_recipes
+import pytest
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from cirrus_sdk import NimbusError
+from fastapi import FastAPI
+from fml_sdk import FmlError
+
+from cirrus.experiment_recipes import RemoteSettings
+from cirrus.feature_manifest import FeatureManifestLanguage as FML
+from cirrus.main import fetch_schedule_recipes, initialize_app, setup
+from cirrus.sdk import SDK
+
+
+class TestSetup(unittest.TestCase):
+    def test_setup_with_fml_error(self):
+        with patch.object(sys, "exit") as mock_exit, patch("cirrus.main.FML") as mock_fml:
+            mock_fml.side_effect = FmlError("Error occurred during FML creation")
+
+            setup()
+
+            mock_exit.assert_called_once_with(1)  # Assert that sys.exit(1) was called
+
+    def test_setup_with_sdk_error(self):
+        with patch.object(sys, "exit") as mock_exit, patch("cirrus.main.SDK") as mock_sdk:
+            mock_sdk.side_effect = NimbusError("Error occurred during FML creation")
+
+            setup()
+
+            mock_exit.assert_called_once_with(1)  # Assert that sys.exit(1) was called
+
+
+def test_initialize_app():
+    app = initialize_app()
+    assert isinstance(app, FastAPI)
+
+
+def test_setup():
+    app, sdk, remote_setting, fml, scheduler = setup()
+
+    # Check the types of the returned objects
+    assert isinstance(app, FastAPI)
+    assert isinstance(sdk, SDK)
+    assert isinstance(remote_setting, RemoteSettings)
+    assert isinstance(fml, FML)
+    assert isinstance(scheduler, AsyncIOScheduler)
 
 
 def test_read_root(client):

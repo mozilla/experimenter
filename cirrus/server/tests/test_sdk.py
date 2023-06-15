@@ -1,13 +1,52 @@
+import json
 import unittest
 
 from cirrus_sdk import NimbusError
+from parameterized import parameterized
 
+from cirrus.main import sdk
 from cirrus.sdk import SDK
 
 
 class SDKTestCase(unittest.TestCase):
+    @parameterized.expand(
+        [
+            [
+                json.dumps(
+                    {  # missing app_id
+                        "app_name": "test_name",
+                        "channel": "test_channel",
+                    }
+                ),
+                "NimbusError.JsonError('JSON Error: missing field `app_id`",
+            ],
+            [
+                json.dumps(
+                    {  # missing app_name
+                        "app_id": "test_id",
+                        "channel": "test_channel",
+                    }
+                ),
+                "NimbusError.JsonError('JSON Error: missing field `app_name`",
+            ],
+            [
+                json.dumps(
+                    {  # missing channel
+                        "app_id": "test_id",
+                        "app_name": "test_app_name",
+                    }
+                ),
+                "NimbusError.JsonError('JSON Error: missing field `channel`",
+            ],
+        ]
+    )
+    def test_invalid_context(self, context, expected_error_message):
+        with self.assertRaises(NimbusError) as e:
+            SDK(context=context)
+
+        self.assertTrue(str(e.exception).startswith(expected_error_message))
+
     def test_compute_enrollments(self):
-        sdk = SDK()
         targeting_context = {"clientId": "test", "requestContext": {}}
 
         result = sdk.compute_enrollments(targeting_context)
@@ -16,7 +55,6 @@ class SDKTestCase(unittest.TestCase):
         )
 
     def test_failure_case_no_client_id_key(self):
-        sdk = SDK()
         targeting_context = {"requestContext": {}}
 
         try:
@@ -26,7 +64,6 @@ class SDKTestCase(unittest.TestCase):
         self.assertEqual(result, {})
 
     def test_failure_case_no_client_id_value(self):
-        sdk = SDK()
         targeting_context = {"clientId": None, "requestContext": {}}
 
         try:
@@ -36,7 +73,6 @@ class SDKTestCase(unittest.TestCase):
         self.assertEqual(result, {})
 
     def test_failure_case_no_request_context(self):
-        sdk = SDK()
         targeting_context = {"clientId": "test"}
 
         try:
@@ -46,7 +82,6 @@ class SDKTestCase(unittest.TestCase):
         self.assertEqual(result, {})
 
     def test_set_experiments_recipe_both_empty(self):
-        sdk = SDK()
         recipes = "{}"
         targeting_context = {}
         sdk.set_experiments(recipes)
@@ -54,7 +89,6 @@ class SDKTestCase(unittest.TestCase):
         self.assertEqual(result, {})
 
     def test_set_experiments_success(self):
-        sdk = SDK()
         recipes = '{"data": [{"experiment1": True}, {"experiment2": False}]}'
         targeting_context = {"clientId": "test", "requestContext": {}}
         sdk.set_experiments(recipes)
@@ -64,7 +98,6 @@ class SDKTestCase(unittest.TestCase):
         )
 
     def test_set_experiments_failure_missing_data_key(self):
-        sdk = SDK()
         recipes = '{"invalid": []}'
 
         targeting_context = {"clientId": "test", "requestContext": {}}
@@ -75,7 +108,6 @@ class SDKTestCase(unittest.TestCase):
         )
 
     def test_set_experiments_failure_malform_key(self):
-        sdk = SDK()
         recipes = '{"invalid}'
 
         targeting_context = {"clientId": "test", "requestContext": {}}

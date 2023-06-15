@@ -1,23 +1,63 @@
 import logging
+import sys
 from typing import Any, Dict
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
+from cirrus_sdk import NimbusError  # type: ignore
 from fastapi import FastAPI, status
+from fml_sdk import FmlError  # type: ignore
 
-from .experiment_recipes import remote_setting
-from .feature_manifest import fml
-from .sdk import sdk
-from .settings import remote_setting_refresh_rate_in_seconds
+from .experiment_recipes import RemoteSettings
+from .feature_manifest import FeatureManifestLanguage as FML
+from .sdk import SDK
+from .settings import channel, context, fml_path, remote_setting_refresh_rate_in_seconds
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+
+def initialize_app():
+    app = FastAPI()
+    return app
 
 
-# Set up scheduler with ThreadPoolExecutor and configure job options
-scheduler: AsyncIOScheduler = AsyncIOScheduler(
-    job_defaults={"coalesce": False, "max_instances": 3, "misfire_grace_time": 60},
-)
+def create_fml():
+    try:
+        fml = FML(fml_path=fml_path, channel=channel)
+        return fml
+    except FmlError as e:
+        logger.error(f"Error occurred during FML creation: {e}")
+        sys.exit(1)
+
+
+def create_sdk():
+    try:
+        sdk = SDK(context=context)
+        return sdk
+    except NimbusError as e:
+        logger.error(f"Error occurred during SDK creation: {e}")
+        sys.exit(1)
+
+
+def create_scheduler():
+    return AsyncIOScheduler(
+        job_defaults={
+            "coalesce": False,
+            "max_instances": 3,
+            "misfire_grace_time": 60,
+        }
+    )
+
+
+def setup():
+    app = initialize_app()
+    sdk = create_sdk()
+    remote_setting = RemoteSettings(sdk)
+    fml = create_fml()
+    scheduler = create_scheduler()
+    return app, sdk, remote_setting, fml, scheduler
+
+
+app, sdk, remote_setting, fml, scheduler = setup()
 
 
 @app.get("/")
