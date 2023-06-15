@@ -544,13 +544,17 @@ jobs:
           command: |
             make schemas_build
       - run:
+          name: Install twine
+          command: |
+            python -m pip install twine
+      - run:
           name: Upload to PyPI
           command: |
             # Relies on the TWINE_USERNAME and TWINE_PASSWORD environment variables configured at:
             #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
             # For more on twine, see:
             #   https://twine.readthedocs.io/en/latest/
-            make schemas_deploy_pypi
+            twine upload --skip-existing dist/*
 
 workflows:
   version: 2
