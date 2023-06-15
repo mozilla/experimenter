@@ -17,6 +17,7 @@ import {
   POSITIVE_NUMBER_FIELD,
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
   TOOLTIP_DURATION,
+  TOOLTIP_RELEASE_DATE,
 } from "src/lib/constants";
 import { getStatus } from "src/lib/experiment";
 import {
@@ -50,6 +51,7 @@ export const audienceFieldNames = [
   "totalEnrolledClients",
   "proposedEnrollment",
   "proposedDuration",
+  "proposedReleaseDate",
   "countries",
   "locales",
   "languages",
@@ -117,6 +119,9 @@ export const FormAudience = ({
     totalEnrolledClients: experiment.totalEnrolledClients,
     proposedEnrollment: experiment.proposedEnrollment,
     proposedDuration: experiment.proposedDuration,
+    proposedReleaseDate: experiment.isFirstRun
+      ? experiment.proposedReleaseDate
+      : "",
     countries: selectOptions(experiment.countries as SelectIdItems),
     locales: selectOptions(experiment.locales as SelectIdItems),
     languages: selectOptions(experiment.languages as SelectIdItems),
@@ -345,27 +350,50 @@ export const FormAudience = ({
           </Form.Group>
         </Form.Row>
         {!isDesktop && (
-          <Form.Row>
-            <Form.Group as={Col} controlId="isFirstRun">
-              <Form.Check
-                {...formControlAttrs("isFirstRun")}
-                type="checkbox"
-                onChange={(e) => setIsFirstRun(e.target.checked)}
-                checked={isFirstRun}
-                disabled={isFirstRunRequiredWarning || isLocked!}
-                label="First Run Experiment"
-              />
-              {isFirstRunRequiredWarning && (
-                <Alert
-                  data-testid="is-first-run-required-warning"
-                  variant="warning"
-                >
-                  First run is required for this targeting configuration.
-                </Alert>
-              )}
-              <FormErrors name="isFirstRun" />
-            </Form.Group>
-          </Form.Row>
+          <Form.Group>
+            <Form.Row>
+              <Form.Group as={Col} controlId="isFirstRun">
+                <Form.Check
+                  {...formControlAttrs("isFirstRun")}
+                  type="checkbox"
+                  onChange={(e) => setIsFirstRun(e.target.checked)}
+                  checked={isFirstRun}
+                  disabled={isFirstRunRequiredWarning || isLocked!}
+                  label="First Run Experiment"
+                />
+                {isFirstRunRequiredWarning && (
+                  <Alert
+                    data-testid="is-first-run-required-warning"
+                    variant="warning"
+                  >
+                    First run is required for this targeting configuration.
+                  </Alert>
+                )}
+                <FormErrors name="isFirstRun" />
+              </Form.Group>
+            </Form.Row>
+            <Form.Row>
+              <Form.Group as={Col} controlId="proposedReleaseDate">
+                <Form.Label className="d-flex align-items-center">
+                  First Run Release Date
+                  <Info
+                    data-tip={TOOLTIP_RELEASE_DATE}
+                    data-testid="tooltip-proposed-release-date"
+                    width="20"
+                    height="20"
+                    className="ml-1"
+                    onClick={() => window.open(EXTERNAL_URLS.WHAT_TRAIN_IS_IT)}
+                  />
+                </Form.Label>
+                <Form.Control
+                  {...formControlAttrs("proposedReleaseDate")}
+                  type="date"
+                  disabled={!isFirstRun}
+                />
+                <FormErrors name="proposedReleaseDate" />
+              </Form.Group>
+            </Form.Row>
+          </Form.Group>
         )}
       </Form.Group>
 

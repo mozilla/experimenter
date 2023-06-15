@@ -1,10 +1,28 @@
 version: 2.1
 orbs:
   gh: circleci/github-cli@2.0
+commands:
+  check_file_paths:
+    description: "Check file paths"
+    parameters:
+      paths:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Check file paths
+          command: |
+            if git diff --name-only main HEAD | grep -E '<< parameters.paths >>'
+              then
+                echo "Changes detected in << parameters.paths >> directory. Running tests and linting."
+              else
+                echo "No changes in << parameters.paths >>. Skipping tests and linting."
+                circleci-agent step halt
+            fi
 jobs:
   check_branch:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -16,22 +34,18 @@ jobs:
           name: Docker compose info
           command: docker-compose -v
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run tests and linting
           command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/'
-              then
-                echo "Changes detected in /experimenter directory. Running Experimenter tests and linting."
-                cp .env.sample .env
-                make check
-              else
-                echo "No changes in /experimenter directory. Skipping tests and linting."
-                circleci-agent step halt
-            fi
+            cp .env.sample .env
+            make check
+
 
   check_main:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -52,7 +66,7 @@ jobs:
 
   integration_nimbus_desktop_release_targeting:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -62,16 +76,8 @@ jobs:
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
-      - run:
-          name: Check file paths
-          command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
-              then
-                echo "Continuing"
-              else
-                echo "No targeting changes, skipping"
-                circleci-agent step halt
-            fi
+      - check_file_paths:
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
       - run:
           name: Run integration tests
           command: |
@@ -82,7 +88,7 @@ jobs:
 
   integration_nimbus_desktop_beta_targeting:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -92,16 +98,8 @@ jobs:
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
-      - run:
-          name: Check file paths
-          command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
-              then
-                echo "Continuing"
-              else
-                echo "No targeting changes, skipping"
-                circleci-agent step halt
-            fi
+      - check_file_paths:
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
       - run:
           name: Run integration tests
           command: |
@@ -112,7 +110,7 @@ jobs:
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -122,16 +120,8 @@ jobs:
       UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
-      - run:
-          name: Check file paths
-          command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
-              then
-                echo "Continuing"
-              else
-                echo "No targeting changes, skipping"
-                circleci-agent step halt
-            fi
+      - check_file_paths:
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
       - run:
           name: Run integration tests
           command: |
@@ -142,7 +132,7 @@ jobs:
 
   integration_nimbus_desktop_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -151,6 +141,8 @@ jobs:
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -161,7 +153,7 @@ jobs:
 
   integration_nimbus_fenix_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -170,6 +162,8 @@ jobs:
       PYTEST_ARGS: -k FENIX -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -180,7 +174,7 @@ jobs:
 
   integration_nimbus_ios_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -189,6 +183,8 @@ jobs:
       PYTEST_ARGS: -k 'not (FOCUS_IOS or DESKTOP or FENIX or FOCUS_ANDROID)' -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -199,7 +195,7 @@ jobs:
 
   integration_nimbus_focus_android_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -208,6 +204,8 @@ jobs:
       PYTEST_ARGS: -k FOCUS_ANDROID -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -218,7 +216,7 @@ jobs:
 
   integration_nimbus_focus_ios_remote_settings:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -227,6 +225,8 @@ jobs:
       PYTEST_ARGS: -k FOCUS_IOS -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -237,7 +237,7 @@ jobs:
 
   integration_nimbus_desktop_enrollment:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
@@ -247,6 +247,8 @@ jobs:
       UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -258,7 +260,7 @@ jobs:
 
   integration_nimbus_desktop_ui:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -267,6 +269,8 @@ jobs:
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m nimbus_ui -n 2 --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -277,12 +281,14 @@ jobs:
 
   integration_nimbus_sdk_targeting:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
       - run:
           name: Check file paths
           command: |
@@ -303,7 +309,7 @@ jobs:
 
   integration_legacy:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -317,6 +323,8 @@ jobs:
           name: Docker compose info
           command: docker-compose -v
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -328,7 +336,7 @@ jobs:
   deploy:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     steps:
       - checkout
@@ -351,7 +359,7 @@ jobs:
   update_external_configs:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     steps:
       - add_ssh_keys:
@@ -391,7 +399,7 @@ jobs:
   build_firefox_versions:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     steps:
       - checkout
@@ -449,7 +457,7 @@ jobs:
   build_rust_image:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     steps:
       - checkout
@@ -485,7 +493,7 @@ jobs:
             docker push ${DOCKERHUB_REPO}:nimbus-rust-image
   cirrus_check:
     machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/cirrus
@@ -497,17 +505,25 @@ jobs:
           name: Docker compose info
           command: docker-compose -v
       - checkout
+      - check_file_paths:
+          paths: "cirrus/"
       - run:
           name: Run Cirrus tests and linting
           command: |
-            if git diff --name-only main HEAD | grep -E 'cirrus/'
-              then
-                echo "Changes detected in /cirrus directory. Running Cirrus tests and linting."
-                make cirrus_check
-              else
-                echo "No changes in /cirrus directory. Skipping tests and linting."
-                circleci-agent step halt
-            fi
+            make cirrus_check
+
+  schemas_check:
+    docker:
+      - image: cimg/python:3.10.8 # poetry 1.2.2
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "schemas/"
+      - run:
+          name: Run Schemas tests and linting
+          command: |
+            make schemas_check
+
 
 workflows:
   version: 2
@@ -628,3 +644,9 @@ workflows:
                 - main
       - cirrus_check:
           name: Check Cirrus
+      - schemas_check:
+          name: Check Schemas
+          filters:
+            branches:
+              ignore:
+                - main

@@ -67,9 +67,6 @@ class UpdateExperiment(graphene.Mutation):
         if "reference_branch" in input and input["reference_branch"] is None:
             input.pop("reference_branch")
 
-        if "feature_config_id" in input:
-            input["feature_config"] = input.pop("feature_config_id", None)
-
         if "feature_config_ids" in input:
             input["feature_configs"] = input.pop("feature_config_ids", None)
 

@@ -146,27 +146,24 @@ urlbar:
       fallbackPref: browser.urlbar.addons.featureGate
       description: >-
         Feature gate that controls whether all aspects of the addons suggestion
-        feature are exposed to the user. See also `addonsKeywordsMinimumLength`
-        and `addonsKeywordsMinimumLengthCap`.
-    addonsKeywordsMinimumLength:
+        feature are exposed to the user.
+    addonsShowLessFrequentlyCap:
       type: int
       description: >-
-        If defined and non-zero, the addons suggestion will be triggered only by
-        the query that has number of chars more than this variable.
-        However, if there is a value in browser.urlbar.addons.minKeywordLength,
-        it will take priority.
-    addonsKeywordsMinimumLengthCap:
-      type: int
+        If defined and non-zero, this is the maximum number of times the user
+        will be able to click the "Show less frequently" command for addon
+        suggestions. If undefined or zero, the user will be able to click the
+        command without any limit.
+    addonsUITreatment:
+      type: string
+      enum:
+        - a
+        - b
       description: >-
-        If defined and non-zero, the user will not be able to increment the
-        minimum keyword length beyond this value. e.g., if this value is 6, the
-        current minimum length is 5, and the user clicks "Show less frequently",
-        then the minimum length will be incremented to 6, the "Show less
-        frequently" command will be hidden, and the user can continue to trigger
-        the weather suggestion by typing 6 characters, but they will not be able
-        to increment the minimum length any further.
-        If not defines a cap, no cap will be used, and the user will be able to
-        increment the minimum length without any limit.
+        Define the UI type for addon suggestions.
+        In case of "a", display rating stars and review volume on the bottom of
+        the suggestion. In case of "b", display a label explaining that the
+        addon suggestion is a recommendation.
     autoFillAdaptiveHistoryEnabled:
       type: boolean
       fallbackPref: browser.urlbar.autoFill.adaptiveHistory.enabled
@@ -231,6 +228,12 @@ urlbar:
       setPref: browser.urlbar.showExposureResults
       description: >-
         Boolean used to determine if the results defined in `exposureResults` should be shown in search results. Should be false for Control branch of an experiment.
+    pocketFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.pocket.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of the Pocket suggestions
+        feature are exposed to the user.
     quickSuggestAllowPositionInSuggestions:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.allowPositionInSuggestions
@@ -371,6 +374,40 @@ frecency:
         last N days, where N is controlled by this variable.
       type: int
       setPref: "places.frecency.origins.alternative.daysCutOff"
+    pagesAlternativeEnable:
+      description: >-
+        Use an alternative ranking algorithm for sorting history and bookmarks
+        among the urlbar results.
+      type: boolean
+      setPref: "places.frecency.pages.alternative.featureGate"
+    pagesNumSampledVisits:
+      description: >-
+        The number of recent visits to sample when calculating the ranking of
+        a page. Examining all the visits would be expensive, so we only sample
+        recent visits.
+      type: int
+      setPref: "places.frecency.pages.alternative.numSampledVisits"
+    pagesHalfLifeDays:
+      description: >-
+        The number of days after which the ranking halves. This implements the
+        "recency" part of the algorithm.
+      type: int
+      setPref: "places.frecency.pages.alternative.halfLifeDays"
+    pagesHighWeight:
+      description: >-
+        The weight to use for the high importance bucket.
+      type: int
+      setPref: "places.frecency.pages.alternative.highWeight"
+    pagesMediumWeight:
+      description: >-
+        The weight to use for the medium importance bucket.
+      type: int
+      setPref: "places.frecency.pages.alternative.mediumWeight"
+    pagesLowWeight:
+      description: >-
+        The weight to use for the low importance bucket.
+      type: int
+      setPref: "places.frecency.pages.alternative.lowWeight"
 
 aboutwelcome:
   description: "The about:welcome page"
@@ -680,6 +717,10 @@ pocketNewtab:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       type: int
       description: The maximum number of sponsored Top Sites to be displayed
+    topSitesContileMaxSponsored:
+      # Defined under `pocketNewtab` as it needs to be used along with other variables
+      type: int
+      description: The maximum number of sponsored Top Sites used from Contile
     topSitesContileSovEnabled:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       description: Enable the Share-of-Voice feature for Sponsored Topsites.
@@ -1359,6 +1400,26 @@ fontvisibility:
       setPref: layout.css.font-visibility.private
       description: Set the Font Visibility level for private browsing (will override ETP)
 
+fingerprintingProtection:
+  description: Control Fingerprinting Protection
+  owner: tihuang@mozilla.com
+  hasExposure: false
+  variables:
+    enabledNormal:
+      type: boolean
+      setPref: privacy.fingerprintingProtection
+      description: Enables / disables fingerprinting protection in normal browsing mode.
+    enabledPrivate:
+      type: boolean
+      setPref: privacy.fingerprintingProtection.pbmode
+      description: Enables / disables fingerprinting protection in private browsing mode.
+    overrides:
+      type: string
+      setPref: privacy.fingerprintingProtection.overrides
+      description: >-
+        The protection overrides to add or remove fingerprinting protection
+        targets. Please check RFPTargets.inc for all supported targets.
+
 migrationWizard:
   description: Prefs to control the Migration Wizard UI.
   owner: mconley@mozilla.com
@@ -1507,3 +1568,63 @@ deviceMigration:
       description: True if new help menu item should be hidden
       type: boolean
       fallbackPref: browser.device-migration.help-menu.hidden
+
+shopping2023:
+  description: Prefs to control the 2023 shopping experiment.
+  owner: jhirsch@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    The timing of the exposure event depends on the experiment, but generally
+    the event is recorded when the user first encounters onboarding UI for
+    the shopping feature.
+  variables:
+    enabled:
+      description: True if the experience is enabled
+      type: boolean
+      fallbackPref: browser.shopping.experience2023.enabled
+
+opaqueResponseBlocking:
+  description: Prefs to enable Opaque Response Blocking
+  owner: farre@mozilla.com
+  isEarlyStartup: true
+  hasExposure: true
+  exposureDescription: Exposure is sent when a response is blocked
+  variables:
+    enabled:
+      description: Whether ORB is enabled
+      type: boolean
+      setPref: "browser.opaqueResponseBlocking"
+    javascriptValidator:
+      description: Whether JavaScript validation for ORB is enabled
+      type: boolean
+      setPref: "browser.opaqueResponseBlocking.javascriptValidator"
+    filterFetchResponse:
+      description: Whether filtering of internal responses in the parent ORB is enabled
+      type: int
+      setPref: "browser.opaqueResponseBlocking.filterFetchResponse"
+    mediaExceptionsStrategy:
+      description: >-
+        If we partially or wholly allow audio and video MIME types in conflict with spec.
+      type: int
+      setPref: "browser.opaqueResponseBlocking.mediaExceptionsStrategy"
+
+updatePrompt:
+  description: Prefs to control content and behavior of update notifications
+  owner: omc@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Exposure is sent at most once per browsing session when an update
+    notification prompt is displayed.
+  isEarlyStartup: true
+  variables:
+    showReleaseNotesLink:
+      type: boolean
+      description: >-
+        If true, the "Learn More" link will be shown in the update prompt. If
+        false or omitted, the link will only be shown for supported locales.
+    releaseNotesURL:
+      type: string
+      fallbackPref: app.releaseNotesURL.prompt
+      description: >-
+        Template for the URL opened when the user clicks the "Learn More" link
+        in the update prompt. If an empty string, the link will not be shown.

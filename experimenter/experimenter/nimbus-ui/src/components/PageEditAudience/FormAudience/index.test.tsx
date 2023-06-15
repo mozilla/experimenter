@@ -33,6 +33,18 @@ import {
 } from "src/types/globalTypes";
 
 describe("FormAudience", () => {
+  const origWindowOpen = global.window.open;
+  let mockWindowOpen: any;
+
+  beforeEach(() => {
+    mockWindowOpen = jest.fn();
+    global.window.open = mockWindowOpen;
+  });
+
+  afterEach(() => {
+    global.window.open = origWindowOpen;
+  });
+
   it("renders without error", async () => {
     render(
       <Subject
@@ -961,6 +973,121 @@ describe("FormAudience", () => {
     }
   });
 
+  it("changing proposed release date sets form value", async () => {
+    const enteredDate = "2023-05-12";
+
+    const onSubmit = jest.fn();
+    render(
+      <Subject
+        {...{ onSubmit }}
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+          isFirstRun: true,
+        }}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    const field = screen.getByTestId("proposedReleaseDate") as HTMLInputElement;
+    fireEvent.change(field, { target: { value: enteredDate } });
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].proposedReleaseDate).toEqual(enteredDate);
+  });
+
+  it("changing proposed release date to empty sets form value", async () => {
+    const expectedDate = "";
+    const onSubmit = jest.fn();
+
+    render(
+      <Subject
+        {...{ onSubmit }}
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+          isFirstRun: true,
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+      expect(screen.queryByTestId("proposedReleaseDate")).toBeInTheDocument();
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].proposedReleaseDate).toEqual(expectedDate);
+  });
+
+  it("only access proposed release date field for mobile applications", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+          isFirstRun: true,
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("isFirstRun")).toBeInTheDocument();
+      expect(screen.queryByTestId("proposedReleaseDate")).toBeInTheDocument();
+    });
+  });
+
+  it("cannot access proposed release date field for desktop applications", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("isFirstRun")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("proposedReleaseDate"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it("clicking proposed release date title takes you to whattrainisit", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+          isFirstRun: true,
+        }}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    const tooltipInfo = screen.getByTestId("tooltip-proposed-release-date");
+    await act(async () => {
+      fireEvent.click(tooltipInfo);
+    });
+    expect(mockWindowOpen).toBeCalledWith(EXTERNAL_URLS.WHAT_TRAIN_IS_IT);
+  });
+
   it("using the population percent text box sets form value", async () => {
     const enteredValue = "45";
     const expectedValue = "45";
@@ -1678,6 +1805,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         populationPercent: "0",
         proposedDuration: 0,
         proposedEnrollment: 0,
+        proposedReleaseDate: "",
         targetingConfigSlug: "",
         countries: [],
         locales: [],

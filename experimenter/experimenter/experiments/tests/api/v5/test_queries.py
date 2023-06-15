@@ -89,6 +89,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     isEnrollmentPaused
                     proposedDuration
                     proposedEnrollment
+                    proposedReleaseDate
                     computedEndDate
                     computedEnrollmentEndDate
                     status
@@ -99,10 +100,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     resultsExpectedDate
                     resultsReady
                     showResultsUrl
-                    featureConfig {
-                        slug
-                        name
-                    }
                     channel
                     populationPercent
                     projects {
@@ -135,10 +132,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     if experiment.computed_enrollment_end_date is not None
                     else None
                 ),
-                "featureConfig": {
-                    "name": feature_config.name,
-                    "slug": feature_config.slug,
-                },
                 "featureConfigs": [
                     {
                         "application": NimbusExperiment.Application(
@@ -169,6 +162,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 "populationPercent": str(experiment.population_percent),
                 "proposedDuration": experiment.proposed_duration,
                 "proposedEnrollment": experiment.proposed_enrollment,
+                "proposedReleaseDate": experiment.proposed_release_date,
                 "publishStatus": NimbusExperiment.PublishStatus(
                     experiment.publish_status
                 ).name,
@@ -253,91 +247,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             experiment_data["treatmentBranches"],
             [{"name": "Treatment A", "slug": "", "description": "", "ratio": 1}],
         )
-
-    def test_experiments_with_branches_returns_branch_data_single_feature(self):
-        user_email = "user@example.com"
-        feature_config = NimbusFeatureConfigFactory(
-            application=NimbusExperiment.Application.DESKTOP
-        )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, feature_configs=[feature_config]
-        )
-        screenshot = experiment.reference_branch.screenshots.first()
-        screenshot.image = None
-        screenshot.save()
-
-        response = self.query(
-            """
-            query {
-                experiments {
-                    featureConfig {
-                        id
-                        name
-                    }
-                    referenceBranch {
-                        slug
-                        name
-                        description
-                        ratio
-                        featureValue
-                        screenshots {
-                            description
-                            image
-                        }
-                    }
-                    treatmentBranches {
-                        slug
-                        name
-                        description
-                        ratio
-                        featureValue
-                        screenshots {
-                            description
-                            image
-                        }
-                    }
-                }
-            }
-            """,
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        experiment_data = content["data"]["experiments"][0]
-
-        self.assertEqual(
-            experiment_data["featureConfig"],
-            {"id": feature_config.id, "name": feature_config.name},
-        )
-
-        self.assertEqual(
-            experiment_data["referenceBranch"],
-            {
-                "slug": experiment.reference_branch.slug,
-                "name": experiment.reference_branch.name,
-                "description": experiment.reference_branch.description,
-                "ratio": experiment.reference_branch.ratio,
-                "featureValue": experiment.reference_branch.feature_values.get().value,
-                "screenshots": [{"description": screenshot.description, "image": None}],
-            },
-        )
-
-        for treatment_branch_data in experiment_data["treatmentBranches"]:
-            treatment_branch = experiment.branches.get(slug=treatment_branch_data["slug"])
-            self.assertEqual(
-                treatment_branch_data,
-                {
-                    "slug": treatment_branch.slug,
-                    "name": treatment_branch.name,
-                    "description": treatment_branch.description,
-                    "ratio": treatment_branch.ratio,
-                    "featureValue": treatment_branch.feature_values.get().value,
-                    "screenshots": [
-                        {"description": s.description, "image": s.image.url}
-                        for s in treatment_branch.screenshots.all()
-                    ],
-                },
-            )
 
     def test_experiments_with_branches_returns_branch_data_multi_feature(self):
         user_email = "user@example.com"
@@ -683,7 +592,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         slug
                         description
                         ratio
-                        featureValue
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            value
+                        }
                         screenshots {
                             id
                             description
@@ -697,7 +611,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         slug
                         description
                         ratio
-                        featureValue
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            value
+                        }
                         screenshots {
                             id
                             description
@@ -928,7 +847,14 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 ),
                 "referenceBranch": {
                     "description": reference_branch.description,
-                    "featureValue": reference_feature_value.value,
+                    "featureValues": [
+                        {
+                            "featureConfig": {
+                                "id": reference_feature_value.feature_config.id,
+                            },
+                            "value": reference_feature_value.value,
+                        }
+                    ],
                     "id": reference_branch.id,
                     "name": reference_branch.name,
                     "ratio": reference_branch.ratio,
@@ -1016,7 +942,14 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "treatmentBranches": [
                     {
                         "description": treatment_branch.description,
-                        "featureValue": treatment_feature_value.value,
+                        "featureValues": [
+                            {
+                                "featureConfig": {
+                                    "id": treatment_feature_value.feature_config.id,
+                                },
+                                "value": treatment_feature_value.value,
+                            }
+                        ],
                         "id": treatment_branch.id,
                         "name": treatment_branch.name,
                         "ratio": treatment_branch.ratio,
@@ -1751,7 +1684,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             """
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
-                    featureConfig {
+                    featureConfigs {
                         id
                         application
                     }
@@ -1766,8 +1699,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         feature_config = experiment.feature_configs.get()
         self.assertEqual(
-            experiment_data["featureConfig"],
-            {"id": feature_config.id, "application": "DESKTOP"},
+            experiment_data["featureConfigs"],
+            [{"id": feature_config.id, "application": "DESKTOP"}],
         )
 
     def test_feature_config_with_multiple_features(self):
@@ -1789,7 +1722,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             """
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
-                    featureConfig {
+                    featureConfigs {
                         id
                         application
                     }
@@ -1803,8 +1736,11 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
-            experiment_data["featureConfig"],
-            {"id": feature_config1.id, "application": "DESKTOP"},
+            experiment_data["featureConfigs"],
+            [
+                {"id": feature_config1.id, "application": "DESKTOP"},
+                {"id": feature_config2.id, "application": "DESKTOP"},
+            ],
         )
 
     def test_branches(self):
@@ -1833,7 +1769,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         slug
                         description
                         ratio
-                        featureValue
+                        featureValues {
+                            featureConfig { id }
+                            value
+                        }
                     }
                     treatmentBranches {
                         id
@@ -1841,7 +1780,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         slug
                         description
                         ratio
-                        featureValue
+                        featureValues {
+                            featureConfig { id }
+                            value
+                        }
                     }
                 }
             }
@@ -1860,9 +1802,20 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "slug": experiment.reference_branch.slug,
                 "ratio": experiment.reference_branch.ratio,
                 "description": experiment.reference_branch.description,
-                "featureValue": experiment.reference_branch.feature_values.get(
-                    feature_config=feature_config1
-                ).value,
+                "featureValues": [
+                    {
+                        "featureConfig": {"id": feature_config1.id},
+                        "value": experiment.reference_branch.feature_values.get(
+                            feature_config=feature_config1
+                        ).value,
+                    },
+                    {
+                        "featureConfig": {"id": feature_config2.id},
+                        "value": experiment.reference_branch.feature_values.get(
+                            feature_config=feature_config2
+                        ).value,
+                    },
+                ],
             },
         )
 
@@ -1874,9 +1827,20 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     "slug": treatment_branch.slug,
                     "ratio": treatment_branch.ratio,
                     "description": treatment_branch.description,
-                    "featureValue": treatment_branch.feature_values.get(
-                        feature_config=feature_config1
-                    ).value,
+                    "featureValues": [
+                        {
+                            "featureConfig": {"id": feature_config1.id},
+                            "value": treatment_branch.feature_values.get(
+                                feature_config=feature_config1
+                            ).value,
+                        },
+                        {
+                            "featureConfig": {"id": feature_config2.id},
+                            "value": treatment_branch.feature_values.get(
+                                feature_config=feature_config2
+                            ).value,
+                        },
+                    ],
                 },
                 experiment_data["treatmentBranches"],
             )

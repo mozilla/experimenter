@@ -137,11 +137,30 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                 {experiment.isSticky ? "True" : "False"}
               </td>
 
-              <th>First Run Experiment</th>
-              <td data-testid="experiment-is-first-run">
-                {experiment.isFirstRun ? "True" : "False"}
-              </td>
+              {!isDesktop ? (
+                <>
+                  <th>First Run Experiment</th>
+                  <td data-testid="experiment-is-first-run">
+                    {experiment.isFirstRun ? "True" : "False"}
+                  </td>
+                </>
+              ) : (
+                <td colSpan={2}></td>
+              )}
             </tr>
+            {!isDesktop && (
+              <tr>
+                <th>First Run Release Date</th>
+                <td colSpan={3} data-testid="experiment-release-date">
+                  {experiment.proposedReleaseDate ? (
+                    experiment.proposedReleaseDate
+                  ) : (
+                    <NotSet color="primary" />
+                  )}
+                </td>
+              </tr>
+            )}
+
             {experiment.jexlTargetingExpression &&
             experiment.jexlTargetingExpression !== "" ? (
               <tr>

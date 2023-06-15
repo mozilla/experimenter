@@ -184,7 +184,7 @@ export enum NimbusExperimentStatusEnum {
 }
 
 export interface BranchFeatureValueInput {
-  featureConfig?: number | null;
+  featureConfig?: string | null;
   value?: string | null;
 }
 
@@ -193,7 +193,6 @@ export interface BranchInput {
   name: string;
   description: string;
   ratio: number;
-  featureValue?: string | null;
   featureValues?: (BranchFeatureValueInput | null)[] | null;
   screenshots?: (BranchScreenshotInput | null)[] | null;
 }
@@ -222,7 +221,6 @@ export interface ExperimentInput {
   conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   countries?: (string | null)[] | null;
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
-  featureConfigId?: number | null;
   featureConfigIds?: (number | null)[] | null;
   firefoxMaxVersion?: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;

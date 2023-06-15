@@ -1,4 +1,12 @@
 ---
+autopush-feature:
+  description: This property defines the autopush feature configuration
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    use-new-autopush-client:
+      type: boolean
+      description: "If true, the autopush client based on the Rust component will be used"
 contextual-hint-feature:
   description: This set holds all features pertaining to contextual hints.
   hasExposure: true
@@ -120,9 +128,6 @@ onboarding-framework-feature:
   hasExposure: true
   exposureDescription: ""
   variables:
-    card-ordering:
-      type: json
-      description: "A list of card names in the order they should appear. These names should match the names of the cards in the \"card\" variable, otherwise, they will be excluded.\n"
     cards:
       type: json
       description: "The list of available cards for onboarding.\n"

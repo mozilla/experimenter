@@ -27,7 +27,8 @@ export const SERVER_ERRORS = {
   NULL_FIELD: "This field may not be null.",
   EMPTY_LIST: "This list may not be empty.",
   BLANK_DESCRIPTION: "Description may not be blank.",
-  FEATURE_CONFIG: "You must select a feature configuration from the drop down.",
+  FEATURE_CONFIGS:
+    "You must select a feature configuration from the drop down.",
 };
 
 export const EXTERNAL_URLS = {
@@ -68,6 +69,7 @@ export const EXTERNAL_URLS = {
     "https://experimenter.info/faq/Rollouts-and-experiments#question-2",
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/custom-audiences",
+  WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
 };
 
 export const RISK_QUESTIONS = {
@@ -81,6 +83,8 @@ export const RISK_QUESTIONS = {
 
 export const TOOLTIP_DURATION =
   "This is the total duration of the experiment, including the enrollment period.";
+export const TOOLTIP_RELEASE_DATE =
+  "This is the approximate release date of the version that is being targeted. Click here to find your date!";
 
 export const LIFECYCLE_REVIEW_FLOWS = {
   LAUNCH: {

@@ -331,14 +331,19 @@ class TestUpdateExperimentMutationSingleFeature(
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureValue": "",
+            "featureValues": [],
         }
         treatment_branches_data = [
             {
                 "name": "treatment1",
                 "description": "desc1",
                 "ratio": 1,
-                "featureValue": '{"key": "value"}',
+                "featureValues": [
+                    {
+                        "featureConfig": "1",
+                        "value": '{"key": "value"}',
+                    }
+                ],
             }
         ]
         response = self.query(
@@ -346,7 +351,7 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": feature.id,
+                    "featureConfigIds": [feature.id],
                     "referenceBranch": reference_branch_data,
                     "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",
@@ -360,12 +365,12 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.feature_configs.get(), feature)
         self.assertEqual(experiment.branches.count(), 2)
         self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
-        self.assertEqual(experiment.reference_branch.feature_values.get().value, "")
+        self.assertEqual(experiment.reference_branch.feature_values.count(), 0)
         treatment_branch = experiment.treatment_branches[0]
         self.assertEqual(treatment_branch.name, treatment_branches_data[0]["name"])
         self.assertEqual(
             treatment_branch.feature_values.get().value,
-            treatment_branches_data[0]["featureValue"],
+            treatment_branches_data[0]["featureValues"][0]["value"],
         )
 
     def test_update_experiment_warn_feature_schema(self):
@@ -532,14 +537,19 @@ class TestUpdateExperimentMutationSingleFeature(
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureValue": "",
+            "featureValues": [],
         }
         treatment_branches_data = [
             {
                 "name": "treatment1",
                 "description": "desc1",
                 "ratio": 1,
-                "featureValue": '{"key": "value"}',
+                "featureValues": [
+                    {
+                        "featureConfig": "1",
+                        "value": '{"key": "value"}',
+                    }
+                ],
             }
         ]
         response = self.query(
@@ -547,7 +557,7 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": None,
+                    "featureConfigIds": [],
                     "referenceBranch": reference_branch_data,
                     "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",
@@ -562,17 +572,17 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.branches.count(), 2)
 
         self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
-        self.assertEqual(
-            experiment.reference_branch.feature_values.get().feature_config, None
-        )
-        self.assertEqual(experiment.reference_branch.feature_values.get().value, "")
+        self.assertEqual(experiment.reference_branch.feature_values.count(), 0)
 
         treatment_branch = experiment.treatment_branches[0]
         self.assertEqual(treatment_branch.name, treatment_branches_data[0]["name"])
-        self.assertEqual(treatment_branch.feature_values.get().feature_config, None)
+        self.assertEqual(
+            treatment_branch.feature_values.get().feature_config,
+            NimbusFeatureConfig.objects.get(pk=1),
+        )
         self.assertEqual(
             treatment_branch.feature_values.get().value,
-            treatment_branches_data[0]["featureValue"],
+            treatment_branches_data[0]["featureValues"][0]["value"],
         )
 
     def test_update_experiment_branches_with_feature_config_error(self):
@@ -588,7 +598,7 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": invalid_feature_config_id,
+                    "featureConfigIds": [invalid_feature_config_id],
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                     "changelogMessage": "test changelog message",
@@ -603,7 +613,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(
             result["message"],
             {
-                "feature_config": [
+                "feature_configs": [
                     f'Invalid pk "{invalid_feature_config_id}" - object does not exist.'
                 ]
             },
@@ -648,7 +658,7 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": feature.id,
+                    "featureConfigIds": [feature.id],
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                     "changelogMessage": "test changelog message",
@@ -1209,8 +1219,8 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
             "description": "a control",
             "ratio": 1,
             "featureValues": [
-                {"featureConfig": feature1.id, "value": ""},
-                {"featureConfig": feature2.id, "value": ""},
+                {"featureConfig": str(feature1.id), "value": ""},
+                {"featureConfig": str(feature2.id), "value": ""},
             ],
         }
         treatment_branches_data = [
@@ -1220,11 +1230,11 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
                 "ratio": 1,
                 "featureValues": [
                     {
-                        "featureConfig": feature1.id,
+                        "featureConfig": str(feature1.id),
                         "value": "{'key': 'value'}",
                     },
                     {
-                        "featureConfig": feature2.id,
+                        "featureConfig": str(feature2.id),
                         "value": "{'key': 'value'}",
                     },
                 ],
@@ -1301,7 +1311,7 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": None,
+                    "featureConfigIds": [],
                     "referenceBranch": reference_branch_data,
                     "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",
@@ -1362,6 +1372,39 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
                 ]
             },
         )
+
+    def test_update_proposed_release_date(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            slug="old slug",
+            name="old name",
+            hypothesis="old hypothesis",
+            public_description="old public description",
+            is_first_run=True,
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "name": "new name",
+                    "hypothesis": "new hypothesis",
+                    "publicDescription": "new public description",
+                    "changelogMessage": "test changelog message",
+                    "proposedReleaseDate": "2023-12-12",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get()
+        self.assertEqual(experiment.is_first_run, True)
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 12, 12))
 
 
 @mock_valid_outcomes
