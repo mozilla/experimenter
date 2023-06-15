@@ -532,7 +532,7 @@ jobs:
       - run:
           name: Check for package version change in last commit before proceeding.
           command: |
-            if git diff main HEAD~1 schemas/pyproject.toml | grep 'version'
+            if git diff main HEAD schemas/pyproject.toml | grep 'version'
               then
                 echo "Found changes to package version dir, proceeding with deployment."
               else
