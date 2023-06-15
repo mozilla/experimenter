@@ -265,4 +265,4 @@ schemas_build:
 	(cd schemas && poetry build)
 
 schemas_deploy_pypi: schemas_install schemas_build
-	(cd schemas && twine upload --skip-existing dist/*)
+	(cd schemas && poetry config pypi-token.pypi ${TWINE_PASSWORD} && poetry publish --skip-existing --repository pypi)
