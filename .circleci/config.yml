@@ -542,7 +542,7 @@ jobs:
       - run:
           name: Create the distribution files
           command: |
-            poetry build
+            make schemas_build
       - run:
           name: Install twine for PyPI publishing
           command: |
@@ -554,7 +554,7 @@ jobs:
             #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
             # For more on twine, see:
             #   https://twine.readthedocs.io/en/latest/
-            twine upload --skip-existing dist/*
+            twine upload --skip-existing schemas/dist/*
 
 workflows:
   version: 2
