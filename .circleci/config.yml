@@ -683,5 +683,3 @@ workflows:
           filters:
             branches:
               ignore: main
-          requires:
-            - Check Schemas (main)
