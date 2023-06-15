@@ -679,12 +679,6 @@ workflows:
                 - main
   deploy_schemas:
     jobs:
-      - schemas_check:
-          name: Check Schemas (main)
-          filters:
-            branches:
-              ignore:
-                - main
       - schemas_deploy:
           filters:
             branches:
