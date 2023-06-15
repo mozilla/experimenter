@@ -683,11 +683,11 @@ workflows:
           name: Check Schemas (main)
           filters:
             branches:
-              only:
+              ignore:
                 - main
       - schemas_deploy:
           filters:
             branches:
-              only: main
+              ignore: main
           requires:
             - Check Schemas (main)
