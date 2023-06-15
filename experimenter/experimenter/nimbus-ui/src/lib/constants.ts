@@ -36,7 +36,7 @@ export const EXTERNAL_URLS = {
     "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Onboarding",
   NIMBUS_MANA_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
   WORKFLOW_MANA_DOC:
-    "https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=109990007",
+    "https://experimenter.info/data-scientists/#sample-size-recommendations",
   BRANCHES_GOOGLE_DOC:
     "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.i8g4ppfvkq0x",
   METRICS_GOOGLE_DOC:
@@ -66,7 +66,7 @@ export const EXTERNAL_URLS = {
   LAUNCH_DOCUMENTATION:
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
-    "https://experimenter.info/faq/Rollouts-and-experiments#question-2",
+    "https://experimenter.info/rollouts-and-experiments#question-2",
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
