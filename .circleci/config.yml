@@ -527,7 +527,7 @@ jobs:
   schemas_deploy:
     docker:
       - image: cimg/python:3.10.8 # poetry 1.2.2
-    working_directory: ~/schemas
+    working_directory: ./schemas
     steps:
       - checkout
       - run:
