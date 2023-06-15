@@ -22,21 +22,25 @@
     - [Publish (Approve/Reject)](#publish-approvereject)
     - [Publish (Approve/Reject+Rollback)](#publish-approvereject--manual-rollback)
     - [Publish (Approve/Timeout)](#publish-approvetimeout)
+    - [Publish (Cancel ------/------)](#publish-cancel-------------)
     - [Update (Approve/Approve)](#update-approveapprove)
     - [Update (Reject/------)](#update-reject------)
     - [Update (Approve/Reject)](#update-approvereject)
     - [Update (Approve/Reject+Rollback)](#update-approvereject--manual-rollback)
     - [Update (Approve/Timeout)](#update-approvetimeout)
+    - [Update (Cancel ------/------)](#update-cancel-------------)
     - [End Enrollment (Approve/Approve)](#end-enrollment-approveapprove)
     - [End Enrollment (Reject/------)](#end-enrollment-reject------)
     - [End Enrollment (Approve/Reject)](#end-enrollment-approvereject)
     - [End Enrollment (Approve/Reject+Rollback)](#end-enrollment-approverejectmanual-rollback)
     - [End Enrollment (Approve/Timeout)](#end-enrollment-approvetimeout)
+    - [End Enrollment (Cancel ------/------)](#end-enrollment-cancel-------------)
     - [End (Approve/Approve)](#end-approveapprove)
     - [End (Reject/------)](#end-reject------)
     - [End (Approve/Reject)](#end-approvereject)
     - [End (Approve/Reject+Rollback)](#end-approverejectmanual-rollback)
     - [End (Approve/Timeout)](#end-approvetimeout)
+    - [End (Cancel ------/------)](#end-cancel-------------)
   - [Maintaining These Docs](#maintaining-these-docs)
 
 ## Overview
@@ -255,7 +259,7 @@ A draft experiment/rollout that has been validly completed (no errors) is reject
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Publish (Reject/----)
+    title Publish (Reject/------)
     Note over Experiment Owner: An owner is ready to launch <br/> their draft experiment/rollout <br/> from draft and clicks the <br/> Launch button
     
     rect rgb(255,204,255) 
@@ -450,7 +454,7 @@ A draft experiment/rollout that has been validly completed is reviewed and appro
 %%{init:{'themeCSS':'g:nth-of-type(1) .note { stroke: purple ;fill: white; };'}}%%
 ```
 
-### Publish (Cancel ----/----)
+### Publish (Cancel ------/------)
 
 When a draft experiment/rollout has requested review in Experimenter, the review can also be canceled in Experimenter. The review can only be canceled before it has been reviewed in Experimenter.
 
@@ -463,7 +467,7 @@ When a draft experiment/rollout has requested review in Experimenter, the review
         participant Experimenter Worker
         participant Remote Settings UI
         participant Remote Settings Backend
-        title Cancel from Draft (Cancel ----/----)
+        title Cancel from Draft (Cancel ------/------)
         Note over Experiment Owner: An owner is ready to launch <br/> their draft experiment/rollout <br/> from draft and clicks the <br/> Review button
 
         rect rgb(255,204,255)
@@ -492,7 +496,7 @@ This can also be canceled when an experiment/rollout is in the Preview state and
         participant Experimenter Worker
         participant Remote Settings UI
         participant Remote Settings Backend
-        title Cancel from Preview (Cancel ----/----)
+        title Cancel from Preview (Cancel ------/------)
         
         Note over Experiment Owner: An owner is ready to publish <br/> their draft experiment/rollout <br/> to Preview
     
@@ -506,7 +510,7 @@ This can also be canceled when an experiment/rollout is in the Preview state and
         rect rgb(255,204,255)
             Note right of Experiment Owner: Owner launches in Experimenter
             Experiment Owner->>Experimenter UI: Send to Review
-            Experimenter UI->>Experimenter Backend: Status: Preview <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+            Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
         end
 
         Experimenter Backend-->>Reviewer: To review
@@ -840,7 +844,7 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
     end 
 ```
 
-### Update (Cancel ----/----)
+### Update (Cancel ------/------)
 
 A live rollout can have updates pushed to its state while remaining Live. These updated changes must be reviewed in order to be published to the user, following the same flow to be approved in both Experimenter and Remote Settings. Like the publish flow, these reviews can be canceled from Experimenter.
 
@@ -853,7 +857,7 @@ A live rollout can have updates pushed to its state while remaining Live. These 
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Update (Cancel ----/----)
+    title Update (Cancel ------/------)
     
     Note over Experiment Owner: An owner is ready to update <br/> their live rollout
     
@@ -1151,7 +1155,7 @@ A live experiment that is published in Remote Settings has passed its planned en
     end 
 ```
 
-### End Enrollment (Cancel ----/----)
+### End Enrollment (Cancel ------/------)
 
 A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests to end the enrollment. The end enrollment request can be canceled before it is approved in Experimenter.
 
@@ -1164,7 +1168,7 @@ A live experiment that is published in Remote Settings has passed its planned en
         participant Experimenter Worker
         participant Remote Settings UI
         participant Remote Settings Backend
-        title End enrollment (Cancel ----/----)
+        title End enrollment (Cancel ------/------)
         
         Note over Experiment Owner: An owner is ready to end <br/> enrollment for their live experiment <br/> and clicks the end enrollment button
         
@@ -1444,7 +1448,7 @@ Note over Experiment Owner: An owner is ready to end <br/> their live experiment
     end 
 ```
 
-### End (Cancel ----/----)
+### End (Cancel ------/------)
 
 A live experiment/rollout that is published in Remote Settings is requested to end by the owner. This end request must be reviewed in similar fashion to launching, end enrollment, and updating, and thus can be canceled before approval on the Experimenter side.
 
@@ -1457,7 +1461,7 @@ A live experiment/rollout that is published in Remote Settings is requested to e
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title End experiment (Cancel ----/----)
+    title End experiment (Cancel ------/------)
     
     Note over Experiment Owner: An owner is ready to end <br/> their live experiment/rollout and <br/> clicks the end experiment button
     
