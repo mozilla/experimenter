@@ -1,5 +1,6 @@
 import logging
 import sys
+from contextlib import asynccontextmanager
 from typing import Any, Dict
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
@@ -15,9 +16,17 @@ from .settings import channel, context, fml_path, remote_setting_refresh_rate_in
 logger = logging.getLogger(__name__)
 
 
-def initialize_app():
-    app = FastAPI()
-    return app
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.sdk = create_sdk()
+    app.state.remote_setting = RemoteSettings(app.state.sdk)
+    app.state.fml = create_fml()
+    app.state.scheduler = create_scheduler()
+    start_and_set_initial_job()
+
+    yield
+    if app.state.scheduler:
+        app.state.scheduler.shutdown()
 
 
 def create_fml():
@@ -48,67 +57,47 @@ def create_scheduler():
     )
 
 
-def setup():
-    app = initialize_app()
-    sdk = create_sdk()
-    remote_setting = RemoteSettings(sdk)
-    fml = create_fml()
-    scheduler = create_scheduler()
-    return app, sdk, remote_setting, fml, scheduler
+def start_and_set_initial_job():
+    app.state.scheduler.start()
+    app.state.scheduler.add_job(
+        fetch_schedule_recipes,
+        "interval",
+        seconds=remote_setting_refresh_rate_in_seconds,
+        max_instances=1,
+    )
 
 
-app, sdk, remote_setting, fml, scheduler = setup()
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Hello": "World", "recipe": app.state.remote_setting.get_recipes()}
 
 
 @app.post("/v1/features/", status_code=status.HTTP_200_OK)
 async def compute_features():
     # # will recieve as part of incoming request
     targeting_context: Dict[str, Any] = {"clientId": "test", "requestContext": {}}
-    enrolled_partial_configuration: Dict[str, Any] = sdk.compute_enrollments(
+    enrolled_partial_configuration: Dict[str, Any] = app.state.sdk.compute_enrollments(
         targeting_context
     )
-
-    client_feature_configuration: Dict[str, Any] = fml.compute_feature_configurations(
-        enrolled_partial_configuration
-    )
+    client_feature_configuration: Dict[
+        str, Any
+    ] = app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
     return client_feature_configuration
-
-
-@app.on_event("startup")
-async def start_scheduler():
-    scheduler.start()
-    app.state.scheduler = scheduler
-
-
-@app.on_event("shutdown")
-async def shutdown_scheduler():
-    scheduler.shutdown()
 
 
 async def fetch_schedule_recipes() -> None:
     try:
-        remote_setting.fetch_recipes()
+        app.state.remote_setting.fetch_recipes()
     except Exception as e:
         # If an exception is raised, log the error and schedule a retry
         logger.error(f"Failed to fetch recipes: {e}")
-        scheduler.add_job(  # type: ignore
+        app.state.scheduler.add_job(
             fetch_schedule_recipes,
             "interval",
             seconds=30,
             max_instances=1,
             max_retries=3,
         )
-
-
-# Schedule the initial job to fetch recipes
-scheduler.add_job(  # type: ignore
-    fetch_schedule_recipes,
-    "interval",
-    seconds=remote_setting_refresh_rate_in_seconds,
-    max_instances=1,
-)
