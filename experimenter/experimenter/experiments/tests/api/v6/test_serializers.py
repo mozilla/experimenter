@@ -20,6 +20,7 @@ class TestNimbusExperimentSerializer(TestCase):
     maxDiff = None
 
     def test_expected_schema_with_desktop_single_feature(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
@@ -28,6 +29,7 @@ class TestNimbusExperimentSerializer(TestCase):
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
+            locales=[locale_en_us],
         )
 
         serializer = NimbusExperimentSerializer(experiment)
@@ -65,7 +67,8 @@ class TestNimbusExperimentSerializer(TestCase):
                 "slug": experiment.slug,
                 "targeting": (
                     '(browserSettings.update.channel == "nightly") '
-                    "&& (version|versionCompare('94.!') >= 0)"
+                    "&& (version|versionCompare('94.!') >= 0) "
+                    "&& (locale in ['en-US'])"
                 ),
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
@@ -80,6 +83,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "featureIds": [experiment.feature_configs.get().slug],
                 "featureValidationOptOut": experiment.is_client_schema_disabled,
                 "localizations": None,
+                "locales": ["en-US"],
             },
         )
         self.assertEqual(
@@ -112,6 +116,7 @@ class TestNimbusExperimentSerializer(TestCase):
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_expected_schema_with_desktop_multifeature(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
         application = NimbusExperiment.Application.DESKTOP
         feature1 = NimbusFeatureConfigFactory.create(application=application)
         feature2 = NimbusFeatureConfigFactory.create(application=application)
@@ -124,6 +129,7 @@ class TestNimbusExperimentSerializer(TestCase):
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
+            locales=[locale_en_us],
         )
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
@@ -161,7 +167,8 @@ class TestNimbusExperimentSerializer(TestCase):
                 "slug": experiment.slug,
                 "targeting": (
                     '(browserSettings.update.channel == "nightly") '
-                    "&& (version|versionCompare('95.!') >= 0)"
+                    "&& (version|versionCompare('95.!') >= 0) "
+                    "&& (locale in ['en-US'])"
                 ),
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
@@ -175,6 +182,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 ],
                 "featureValidationOptOut": experiment.is_client_schema_disabled,
                 "localizations": None,
+                "locales": ["en-US"],
             },
         )
 
@@ -432,6 +440,34 @@ class TestNimbusExperimentSerializer(TestCase):
             serializer.data["localizations"], json.loads(TEST_LOCALIZATIONS)
         )
         check_schema("experiments/NimbusExperiment", serializer.data)
+
+    def test_multiple_locales(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        locale_en_ca = LocaleFactory.create(code="en-CA")
+        locale_fr = LocaleFactory.create(code="fr")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            locales=[locale_en_us, locale_en_ca, locale_fr],
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+
+        self.assertIn("locales", serializer.data)
+        self.assertEqual(set(serializer.data["locales"]), {"en-US", "en-CA", "fr"})
+
+    def test_all_locales(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+
+        self.assertIn("locales", serializer.data)
+        self.assertIsNone(serializer.data["locales"])
 
     @parameterized.expand(
         [

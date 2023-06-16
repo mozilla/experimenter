@@ -128,6 +128,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         source="is_client_schema_disabled"
     )
     localizations = serializers.SerializerMethodField()
+    locales = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -158,6 +159,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "referenceBranch",
             "featureValidationOptOut",
             "localizations",
+            "locales",
         )
 
     def get_application(self, obj):
@@ -205,3 +207,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         if obj.is_localized:
             with contextlib.suppress(json.JSONDecodeError):
                 return json.loads(obj.localizations)
+
+    def get_locales(self, obj):
+        locale_codes = [locale.code for locale in obj.locales.all()]
+        if len(locale_codes):
+            return locale_codes
