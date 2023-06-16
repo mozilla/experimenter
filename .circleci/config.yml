@@ -1,6 +1,24 @@
 version: 2.1
 orbs:
   gh: circleci/github-cli@2.0
+commands:
+  check_file_paths:
+    description: "Check file paths"
+    parameters:
+      paths:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Check file paths
+          command: |
+            if git diff --name-only main HEAD | grep -E '<< parameters.paths >>'
+              then
+                echo "Changes detected in << parameters.paths >> directory. Running tests and linting."
+              else
+                echo "No changes in << parameters.paths >>. Skipping tests and linting."
+                circleci-agent step halt
+            fi
 jobs:
   check_branch:
     machine:
@@ -16,18 +34,14 @@ jobs:
           name: Docker compose info
           command: docker-compose -v
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run tests and linting
           command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/'
-              then
-                echo "Changes detected in /experimenter directory. Running Experimenter tests and linting."
-                cp .env.sample .env
-                make check
-              else
-                echo "No changes in /experimenter directory. Skipping tests and linting."
-                circleci-agent step halt
-            fi
+            cp .env.sample .env
+            make check
+
 
   check_main:
     machine:
@@ -62,16 +76,8 @@ jobs:
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
-      - run:
-          name: Check file paths
-          command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
-              then
-                echo "Continuing"
-              else
-                echo "No targeting changes, skipping"
-                circleci-agent step halt
-            fi
+      - check_file_paths:
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
       - run:
           name: Run integration tests
           command: |
@@ -92,16 +98,8 @@ jobs:
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
-      - run:
-          name: Check file paths
-          command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
-              then
-                echo "Continuing"
-              else
-                echo "No targeting changes, skipping"
-                circleci-agent step halt
-            fi
+      - check_file_paths:
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
       - run:
           name: Run integration tests
           command: |
@@ -122,16 +120,8 @@ jobs:
       UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
-      - run:
-          name: Check file paths
-          command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
-              then
-                echo "Continuing"
-              else
-                echo "No targeting changes, skipping"
-                circleci-agent step halt
-            fi
+      - check_file_paths:
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
       - run:
           name: Run integration tests
           command: |
@@ -151,6 +141,8 @@ jobs:
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -170,6 +162,8 @@ jobs:
       PYTEST_ARGS: -k FENIX -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -189,6 +183,8 @@ jobs:
       PYTEST_ARGS: -k 'not (FOCUS_IOS or DESKTOP or FENIX or FOCUS_ANDROID)' -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -208,6 +204,8 @@ jobs:
       PYTEST_ARGS: -k FOCUS_ANDROID -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -227,6 +225,8 @@ jobs:
       PYTEST_ARGS: -k FOCUS_IOS -m remote_settings --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -247,6 +247,8 @@ jobs:
       UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -267,6 +269,8 @@ jobs:
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m nimbus_ui -n 2 --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -283,6 +287,8 @@ jobs:
     working_directory: ~/experimenter
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
       - run:
           name: Check file paths
           command: |
@@ -317,6 +323,8 @@ jobs:
           name: Docker compose info
           command: docker-compose -v
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Run integration tests
           command: |
@@ -497,34 +505,52 @@ jobs:
           name: Docker compose info
           command: docker-compose -v
       - checkout
+      - check_file_paths:
+          paths: "cirrus/"
       - run:
           name: Run Cirrus tests and linting
           command: |
-            if git diff --name-only main HEAD | grep -E 'cirrus/'
-              then
-                echo "Changes detected in /cirrus directory. Running Cirrus tests and linting."
-                make cirrus_check
-              else
-                echo "No changes in /cirrus directory. Skipping tests and linting."
-                circleci-agent step halt
-            fi
+            make cirrus_check
+
   schemas_check:
     docker:
       - image: cimg/python:3.10.8 # poetry 1.2.2
     steps:
       - checkout
+      - check_file_paths:
+          paths: "schemas/"
       - run:
           name: Run Schemas tests and linting
           command: |
-            if git diff --name-only main HEAD | grep -E 'schemas/'
+            make schemas_check
+
+  schemas_deploy:
+    docker:
+      - image: cimg/python:3.10.8 # poetry 1.2.2
+    steps:
+      - checkout
+      - run:
+          name: Check for package version change in last commit before proceeding.
+          command: |
+            if git diff main HEAD~1 schemas/pyproject.toml | grep 'version'
               then
-                echo "Changes detected in /schemas directory. Running Schemas tests and linting."
-                env
-                make schemas_check
+                echo "Found changes to package version dir, proceeding with deployment."
               else
-                echo "No changes in /schemas directory. Skipping tests and linting."
+                echo "No changes in package version. Skipping mozilla-nimbus-schemas deployment."
                 circleci-agent step halt
             fi
+      - run:
+          name: Create the distribution files
+          command: |
+            make schemas_build
+      - run:
+          name: Upload to PyPI
+          command: |
+            # Relies on the TWINE_USERNAME and TWINE_PASSWORD environment variables configured at:
+            #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
+            # For more on twine, see:
+            #   https://twine.readthedocs.io/en/latest/
+            make schemas_deploy_pypi
 
 workflows:
   version: 2
@@ -651,3 +677,9 @@ workflows:
             branches:
               ignore:
                 - main
+  deploy_schemas:
+    jobs:
+      - schemas_deploy:
+          filters:
+            branches:
+              only: main
