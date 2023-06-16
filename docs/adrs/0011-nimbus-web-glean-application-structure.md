@@ -41,11 +41,23 @@ The problem this ADR addresses is as follows: with Cirrus, how should we structu
 
 ## Decision Outcome
 
-TBD based on discussion. Personally, I'm leaning towards "One Glean app ID per product domain."
+Chosen option: "One Glean app ID per product domain", because it has the most advantages and fewest disadvantages _(see below)_. 
+Option "One Glean app ID" is also viable, but it could come with additional disadvantages in the form of conflicting data retention policies across product domains.
+Option "One glean app ID per application"'s disadvantages are simply too detrimental to the project for the option to be viable.
 
-[//]: # (Chosen option: "[option 1]", because [justification. e.g., only option, which meets k.o. criterion decision driver | which resolves force force | … | comes out best &#40;see below&#41;].)
-[//]: # (### Positive Consequences <!-- optional -->)
-[//]: # (### Negative Consequences <!-- optional -->)
+### Positive Consequences
+
+* Its usage will work with the existing Glean Python SDK architecture
+* Collating data for one app and across apps is straightforward
+* Probe-scraper repository list will have overall fewer listings for Nimbus web applications than the current model
+* Sidecar deployment model remains viable within Pocket's architecture
+* Data retention can be set differently for each product domain
+
+### Negative Consequences
+
+* Jetstream will require changes in order to support this choice
+* We are breaking away from our historical standard of Glean practices
+* We may have to make more intensive changes to Experimenter
 
 ## Pros and Cons of the Options
 
