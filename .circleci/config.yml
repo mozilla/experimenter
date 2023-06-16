@@ -524,6 +524,33 @@ jobs:
           command: |
             make schemas_check
 
+  schemas_deploy:
+    docker:
+      - image: cimg/python:3.10.8 # poetry 1.2.2
+    steps:
+      - checkout
+      - run:
+          name: Check for package version change in last commit before proceeding.
+          command: |
+            if git diff main HEAD~1 schemas/pyproject.toml | grep 'version'
+              then
+                echo "Found changes to package version dir, proceeding with deployment."
+              else
+                echo "No changes in package version. Skipping mozilla-nimbus-schemas deployment."
+                circleci-agent step halt
+            fi
+      - run:
+          name: Create the distribution files
+          command: |
+            make schemas_build
+      - run:
+          name: Upload to PyPI
+          command: |
+            # Relies on the TWINE_USERNAME and TWINE_PASSWORD environment variables configured at:
+            #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
+            # For more on twine, see:
+            #   https://twine.readthedocs.io/en/latest/
+            make schemas_deploy_pypi
 
 workflows:
   version: 2
@@ -650,3 +677,9 @@ workflows:
             branches:
               ignore:
                 - main
+  deploy_schemas:
+    jobs:
+      - schemas_deploy:
+          filters:
+            branches:
+              only: main
