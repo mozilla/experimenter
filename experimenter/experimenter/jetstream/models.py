@@ -336,14 +336,26 @@ def create_results_object_model(data):
     return create_model("ResultsObjectModel", **branches, __base__=ResultsObjectModelBase)
 
 
+# TODO: migrate sizing data schemas to mozilla-nimbus-schemas
 class SizingMetricName(str, Enum):
     ACTIVE_HOURS = "active_hours"
     SEARCH_COUNT = "search_count"
     DAYS_OF_USE = "days_of_use"
 
 
+class SizingReleaseChannel(str, Enum):
+    RELEASE = "release"
+    BETA = "beta"
+    NIGHTLY = "nightly"
+
+
+class SizingUserType(str, Enum):
+    NEW = "new"
+    EXISTING = "existing"
+
+
 class SizingMetric(BaseModel):
-    number_of_clients_targets: int
+    number_of_clients_targeted: int
     sample_size_per_branch: float
     population_percent_per_branch: float
 
@@ -359,13 +371,23 @@ class SizingDetails(BaseModel):
 
 
 class SizingRecipe(BaseModel):
-    minimum_version: str
-    locale: list[str]
-    release_channel: Literal["release", "beta", "nightly"]
+    app_id: str
+    channel: SizingReleaseChannel
+    locale: str
     country: str
-    user_type: Literal["existing", "new"]
+    new_or_existing: SizingUserType
+    minimum_version: str
 
 
 class SizingTarget(BaseModel):
-    target_recipe: dict[Literal["app_id", "target_recipe"], SizingRecipe]
+    target_recipe: SizingRecipe
     sample_sizes: dict[str, SizingDetails]
+
+
+class SizingByUserType(BaseModel):
+    __root__: dict[SizingUserType, SizingTarget]
+
+
+class SampleSizes(BaseModel):
+    # dynamic key representing the target for easy lookup
+    __root__: dict[str, SizingByUserType]

@@ -1,4 +1,3 @@
-import datetime as dt
 import json
 import os
 from collections import defaultdict
@@ -15,7 +14,7 @@ from experimenter.jetstream.models import (
     JetstreamData,
     Metric,
     Segment,
-    SizingTarget,
+    SampleSizes,
     Statistic,
     create_results_object_model,
 )
@@ -40,9 +39,11 @@ class AnalysisWindow:
     OVERALL = "overall"
 
 
-def load_data_from_gcs(path):
+def load_data_from_gcs(path, parse_json=True):
     if default_storage.exists(path):
-        return json.loads(default_storage.open(path).read())
+        if parse_json:
+            return json.loads(default_storage.open(path).read())
+        return default_storage.open(path).read()
 
 
 def get_data(slug, window):
@@ -63,20 +64,10 @@ def get_analysis_errors(slug):
     return load_data_from_gcs(path)
 
 
-def get_sizing_data():
-    sizing_date = get_previous_sunday()
-    # format date like yyyy_MM_dd
-    sizing_date_str = f"{sizing_date.year}_{sizing_date.month:02}_{sizing_date.day:02}"
-    filename = f"sample_sizes_auto_sizing_results_{sizing_date_str}.json"
+def get_sizing_data(suffix="latest"):
+    filename = f"sample_sizes_auto_sizing_results_{suffix}.json"
     path = os.path.join(SIZING_FOLDER, filename)
-    return load_data_from_gcs(path)
-
-
-def get_previous_sunday(cur_date: dt.date = dt.date.today()) -> dt.date:
-    """Utility to return the date of the most recent Sunday (which could be today)"""
-    delta = cur_date.isoweekday()
-    # Sunday is 0 so subtract current weekday index from current day
-    return cur_date - dt.timedelta(days=delta)
+    return load_data_from_gcs(path, parse_json=False)
 
 
 def get_results_metrics_map(
@@ -303,12 +294,9 @@ def get_experiment_data(experiment):
 
 
 def get_population_sizing_data():
-    sizing_data = get_sizing_data()
-    sizing = []
+    sizing_data = get_sizing_data(suffix="latest")
+    sizing = {}
     if sizing_data is not None:
-        for target_key in sizing_data:
-            target_data = sizing_data.get(target_key)
-            sizing_target = SizingTarget.parse_obj(target_data)
-            sizing.append(sizing_target)
+        sizing = SampleSizes.parse_raw(sizing_data)
 
     return {"v1": sizing}
