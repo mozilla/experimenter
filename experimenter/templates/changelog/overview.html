@@ -1,4 +1,8 @@
-{% extends "changelog-base.html" %}
+{% extends "experimenter_base.html" %}
+
+{% block title %}
+<title>History</title>
+{% endblock %}
 
 {% block content %}
     <h1>This is the changes overview template</h1>
@@ -6,6 +10,5 @@
     {% for changelog in changelogs %}
     <h2>{{ changelog.changed_on }}</h2>
     <p>{{ changelog.changed_by }}</p>
-    <!-- Access other fields of the changelog as needed -->
   {% endfor %}
 {% endblock %}
