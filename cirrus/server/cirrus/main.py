@@ -72,7 +72,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World", "recipe": app.state.remote_setting.get_recipes()}
+    return {"Hello": "World"}
 
 
 @app.post("/v1/features/", status_code=status.HTTP_200_OK)
