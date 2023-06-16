@@ -6,12 +6,23 @@ from parameterized import parameterized
 
 from cirrus.feature_manifest import FeatureManifestLanguage
 from cirrus.sdk import SDK
+from cirrus.settings import channel, context, fml_path
 
 
 class FeatureManifestLanguageTestCase(unittest.TestCase):
     def setUp(self):
-        self.fml = FeatureManifestLanguage()
-        self.sdk = SDK()
+        self.fml = FeatureManifestLanguage(fml_path, channel)
+        self.sdk = SDK(context=context)
+
+    def test_invalid_fml_path(self):
+        with self.assertRaises(FmlError) as e:
+            FeatureManifestLanguage("invalid_fml_path.txt", channel)
+        self.assertTrue(str(e.exception).startswith("FmlError.InvalidPath"))
+
+    def test_invalid_channel(self):
+        with self.assertRaises(FmlError) as e:
+            FeatureManifestLanguage(fml_path, "invalid_channel")
+        self.assertTrue(str(e.exception).startswith("FmlError.InvalidChannelError"))
 
     def test_compute_feature_configurations_always_return_default_config(self):
         enrolled_partial_configuration = {
