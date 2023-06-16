@@ -4,13 +4,11 @@ from typing import Any, Dict, List
 
 from fml_sdk import FmlClient, FmlError, MergedJsonWithErrors  # type: ignore
 
-from .settings import channel, fml_path
-
 logger = logging.getLogger(__name__)
 
 
 class FeatureManifestLanguage:
-    def __init__(self):
+    def __init__(self, fml_path: str, channel: str):
         self.fml_client = FmlClient(fml_path, channel)
         self.merge_errors: List[FmlError] = []
 
@@ -37,6 +35,3 @@ class FeatureManifestLanguage:
             )
 
         return json.loads(merged_res.json)  # type: ignore
-
-
-fml = FeatureManifestLanguage()
