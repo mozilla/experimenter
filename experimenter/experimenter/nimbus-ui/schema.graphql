@@ -331,6 +331,7 @@ enum NimbusExperimentDocumentationLinkEnum {
   DS_JIRA
   DESIGN_DOC
   ENG_TICKET
+  QA_TICKET
 }
 
 type NimbusChangeLogType {
