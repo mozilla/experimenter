@@ -40,6 +40,7 @@ export enum NimbusExperimentDocumentationLinkEnum {
   DESIGN_DOC = "DESIGN_DOC",
   DS_JIRA = "DS_JIRA",
   ENG_TICKET = "ENG_TICKET",
+  QA_TICKET = "QA_TICKET",
 }
 
 export enum NimbusExperimentFirefoxVersionEnum {
