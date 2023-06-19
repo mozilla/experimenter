@@ -120,7 +120,9 @@ compose_rm:
 	$(COMPOSE_INTEGRATION) rm -f -v || true
 	$(COMPOSE_PROD) rm -f -v || true
 
-volumes_rm:
+docker_prune:
+	docker container prune -f
+	docker image prune -f
 	docker volume prune -f
 
 static_rm:
@@ -130,7 +132,7 @@ static_rm:
 	rm -Rf experimenter/experimenter/legacy/legacy-ui/assets/
 	rm -Rf experimenter/experimenter/nimbus-ui/build/
 
-kill: compose_stop compose_rm volumes_rm
+kill: compose_stop compose_rm docker_prune
 	echo "All containers removed!"
 
 check: build_test
