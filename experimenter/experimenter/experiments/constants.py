@@ -204,6 +204,7 @@ class NimbusConstants(object):
         DS_JIRA = "DS_JIRA", "Data Science Jira Ticket"
         DESIGN_DOC = "DESIGN_DOC", "Experiment Design Document"
         ENG_TICKET = "ENG_TICKET", "Engineering Ticket (Bugzilla/Jira/GitHub)"
+        QA_TICKET = "QA_TICKET", "QA Testing Ticket (Bugzilla/Jira/Github)"
 
     class Version(models.TextChoices):
         @staticmethod
