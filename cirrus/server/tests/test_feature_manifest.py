@@ -1,54 +1,44 @@
 import json
-import unittest
 
+import pytest
 from fml_sdk import FmlError
-from parameterized import parameterized
 
 from cirrus.feature_manifest import FeatureManifestLanguage
-from cirrus.sdk import SDK
-from cirrus.settings import channel, context, fml_path
+from cirrus.settings import channel, fml_path
 
 
-class FeatureManifestLanguageTestCase(unittest.TestCase):
-    def setUp(self):
-        self.fml = FeatureManifestLanguage(fml_path, channel)
-        self.sdk = SDK(context=context)
-
+class TestFeatureManifestLanguage:
     def test_invalid_fml_path(self):
-        with self.assertRaises(FmlError) as e:
+        with pytest.raises(FmlError) as e:
             FeatureManifestLanguage("invalid_fml_path.txt", channel)
-        self.assertTrue(str(e.exception).startswith("FmlError.InvalidPath"))
+        assert str(e.value).startswith("FmlError.InvalidPath")
 
     def test_invalid_channel(self):
-        with self.assertRaises(FmlError) as e:
+        with pytest.raises(FmlError) as e:
             FeatureManifestLanguage(fml_path, "invalid_channel")
-        self.assertTrue(str(e.exception).startswith("FmlError.InvalidChannelError"))
+        assert str(e.value).startswith("FmlError.InvalidChannelError")
 
-    def test_compute_feature_configurations_always_return_default_config(self):
+    def test_compute_feature_configurations_always_return_default_config(self, fml):
         enrolled_partial_configuration = {
             "enrolledFeatureConfigMap": {},
             "enrollments": [],
             "events": [],
         }
 
-        result = self.fml.compute_feature_configurations(enrolled_partial_configuration)
+        result = fml.compute_feature_configurations(enrolled_partial_configuration)
 
-        self.assertEqual(
-            result, {"example-feature": {"enabled": False, "something": "wicked"}}
-        )
+        assert result == {"example-feature": {"enabled": False, "something": "wicked"}}
 
-    @parameterized.expand(
+    @pytest.mark.parametrize(
+        "feature_name, expected_feature_status",
         [
-            [
-                "imported-module-1-included-feature-1",
-                False,
-            ],
-            ["example-feature", True],
-            ["", False],
-        ]
+            ("imported-module-1-included-feature-1", False),
+            ("example-feature", True),
+            ("", False),
+        ],
     )
     def test_compute_feature_configurations_feature(
-        self, feature_name, expected_feature_status
+        self, fml, feature_name, expected_feature_status
     ):
         enrolled_partial_configuration = {
             "enrolledFeatureConfigMap": {
@@ -85,19 +75,16 @@ class FeatureManifestLanguageTestCase(unittest.TestCase):
             ],
         }
 
-        result = self.fml.compute_feature_configurations(enrolled_partial_configuration)
+        result = fml.compute_feature_configurations(enrolled_partial_configuration)
 
-        self.assertEqual(
-            result,
-            {
-                "example-feature": {
-                    "enabled": expected_feature_status,
-                    "something": "wicked",
-                }
-            },
-        )
+        assert result == {
+            "example-feature": {
+                "enabled": expected_feature_status,
+                "something": "wicked",
+            }
+        }
 
-    def test_compute_feature_configurations_invalid_key_merge_errors(self):
+    def test_compute_feature_configurations_invalid_key_merge_errors(self, fml):
         enrolled_partial_configuration = {
             "enrolledFeatureConfigMap": {
                 "example-feature": {
@@ -114,15 +101,14 @@ class FeatureManifestLanguageTestCase(unittest.TestCase):
             "events": [],
         }
 
-        result = self.fml.compute_feature_configurations(enrolled_partial_configuration)
+        result = fml.compute_feature_configurations(enrolled_partial_configuration)
 
-        self.assertEqual(
-            result, {"example-feature": {"enabled": False, "something": "wicked"}}
-        )  # returns default config
-        self.assertEqual(len(self.fml.merge_errors), 1)
-        assert isinstance(self.fml.merge_errors[0], FmlError)
+        assert result == {"example-feature": {"enabled": False, "something": "wicked"}}
+        assert len(fml.merge_errors) == 1
+        assert isinstance(fml.merge_errors[0], FmlError)
 
-    def test_compute_feature_configurations_targeting_doesnt_match(self):
+    def test_compute_feature_configurations_targeting_doesnt_match(self, fml_setup):
+        fml, sdk = fml_setup
         bucket_config = {
             "randomizationUnit": "user_id",
             "count": 100,
@@ -172,25 +158,20 @@ class FeatureManifestLanguageTestCase(unittest.TestCase):
             "clientId": "test",
             "requestContext": {"username": "test1"},
         }
-        self.sdk.set_experiments(data)
-        enrolled_partial_configuration = self.sdk.compute_enrollments(targeting_context)
-        self.assertEqual(
-            enrolled_partial_configuration,
-            {
-                "enrolledFeatureConfigMap": {},
-                "enrollments": [
-                    {
-                        "slug": "experiment-slug",
-                        "status": {"NotEnrolled": {"reason": "NotTargeted"}},
-                    }
-                ],
-                "events": [],
-            },
-        )
+        sdk.set_experiments(data)
+        enrolled_partial_configuration = sdk.compute_enrollments(targeting_context)
+        assert enrolled_partial_configuration == {
+            "enrolledFeatureConfigMap": {},
+            "enrollments": [
+                {
+                    "slug": "experiment-slug",
+                    "status": {"NotEnrolled": {"reason": "NotTargeted"}},
+                }
+            ],
+            "events": [],
+        }
 
-        result = self.fml.compute_feature_configurations(enrolled_partial_configuration)
+        result = fml.compute_feature_configurations(enrolled_partial_configuration)
 
-        self.assertEqual(
-            result, {"example-feature": {"enabled": False, "something": "wicked"}}
-        )  # default config
-        self.assertEqual(len(self.fml.merge_errors), 0)
+        assert result == {"example-feature": {"enabled": False, "something": "wicked"}}
+        assert len(fml.merge_errors) == 0
