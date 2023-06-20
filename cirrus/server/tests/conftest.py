@@ -29,7 +29,7 @@ def remote_setting_mock():
 
 
 @fixture
-def remote_setting(sdk):
+def remote_settings(sdk):
     return RemoteSettings(sdk)
 
 
