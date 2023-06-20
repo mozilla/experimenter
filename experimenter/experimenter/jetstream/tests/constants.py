@@ -284,6 +284,24 @@ class JetstreamTestData:
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.statistic = Statistic.MEAN
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.branch = "variant"
 
+        BROKEN_STATISTIC_DATA_ROW = CONTROL_DATA_ROW.copy()
+        BROKEN_STATISTIC_DATA_ROW.comparison = BranchComparison.ABSOLUTE
+        BROKEN_STATISTIC_DATA_ROW.metric = "custom_metric"
+        BROKEN_STATISTIC_DATA_ROW.statistic = "something_else"
+
+        VARIANT_BROKEN_STATISTIC_DATA_ROW = VARIANT_DATA_ROW.copy()
+        VARIANT_BROKEN_STATISTIC_DATA_ROW.comparison = BranchComparison.ABSOLUTE
+        VARIANT_BROKEN_STATISTIC_DATA_ROW.metric = "custom_metric"
+        VARIANT_BROKEN_STATISTIC_DATA_ROW.statistic = "something_else"
+
+        EXPOSURES_BROKEN_STATISTIC_DATA_ROW = BROKEN_STATISTIC_DATA_ROW.copy()
+        EXPOSURES_BROKEN_STATISTIC_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
+
+        VARIANT_EXPOSURES_BROKEN_STATISTIC_DATA_ROW = BROKEN_STATISTIC_DATA_ROW.copy()
+        VARIANT_EXPOSURES_BROKEN_STATISTIC_DATA_ROW.analysis_basis = (
+            AnalysisBasis.EXPOSURES
+        )
+
         (
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
             CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW,
@@ -347,6 +365,8 @@ class JetstreamTestData:
             VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
             CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+            BROKEN_STATISTIC_DATA_ROW.dict(exclude_none=True),
+            VARIANT_BROKEN_STATISTIC_DATA_ROW.dict(exclude_none=True),
         ]
         DAILY_EXPOSURES_DATA = [
             EXPOSURES_CONTROL_DATA_ROW.dict(exclude_none=True),
@@ -356,6 +376,8 @@ class JetstreamTestData:
             EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
             EXPOSURES_VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
             EXPOSURES_CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+            EXPOSURES_BROKEN_STATISTIC_DATA_ROW.dict(exclude_none=True),
+            VARIANT_EXPOSURES_BROKEN_STATISTIC_DATA_ROW.dict(exclude_none=True),
         ]
         SEGMENT_DATA = [
             SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
@@ -416,6 +438,7 @@ class JetstreamTestData:
                         "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL.dict(
                             exclude_none=True
                         ),
+                        "custom_metric": EMPTY_METRIC_DATA.dict(exclude_none=True),
                     },
                 },
             },
@@ -435,6 +458,7 @@ class JetstreamTestData:
                         "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE.dict(
                             exclude_none=True
                         ),
+                        "custom_metric": EMPTY_METRIC_DATA.dict(exclude_none=True),
                     },
                 },
             },
@@ -460,6 +484,7 @@ class JetstreamTestData:
                         "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL.dict(
                             exclude_none=True
                         ),
+                        "custom_metric": EMPTY_METRIC_DATA.dict(exclude_none=True),
                     },
                 },
             },
@@ -481,6 +506,7 @@ class JetstreamTestData:
                         "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE.dict(
                             exclude_none=True
                         ),
+                        "custom_metric": EMPTY_METRIC_DATA.dict(exclude_none=True),
                     },
                 },
             },
