@@ -34,6 +34,7 @@ data_source = "clients_daily"
 friendly_name = "Proportion of URIs coming from PBM"
 
 [metrics.share_of_uri_count_in_pbm.statistics.bootstrap_mean]
+pre_treatments = ["remove_nulls"]
 
 [data_sources.etp_events]
 from_expression = """
