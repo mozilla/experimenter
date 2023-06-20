@@ -453,6 +453,25 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Feature values can not contain floats (ie numbers with decimal points)."
     )
 
+    ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE = (
+        "An experiment appears in both the list of required experiments and excluded "
+        "experiments"
+    )
+
+    ERROR_EXCLUDED_REQUIRED_INCLUDES_SELF = (
+        "This experiment cannot be included in the list of required or excluded "
+        "experiments"
+    )
+
+    ERROR_EXCLUDED_REQUIRED_DIFFERENT_APPLICATION = (
+        "'{slug}' is for a different application and cannot be required or excluded"
+    )
+
+    ERROR_EXCLUDED_REQUIRED_MIN_VERSION = (
+        "Firefox version must be at least 116 for requiring or excluding other "
+        "experiments"
+    )
+
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
     # buffer day is added for Jetstream to compute the results.
@@ -470,3 +489,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     L10N_MIN_STRING_ID_LEN = 9
 
     MIN_REQUIRED_VERSION = Version.FIREFOX_96
+
+    EXCLUDED_REQUIRED_MIN_VERSION = Version.FIREFOX_116
