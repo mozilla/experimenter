@@ -1,6 +1,38 @@
-import pytest
+import sys
+from unittest.mock import patch
 
-from cirrus.main import fetch_schedule_recipes
+import pytest
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from cirrus_sdk import NimbusError
+from fml_sdk import FmlError
+
+from cirrus.main import create_fml, create_scheduler, create_sdk, fetch_schedule_recipes
+
+
+def test_create_fml_with_error():
+    with patch.object(sys, "exit") as mock_exit, patch("cirrus.main.FML") as mock_fml:
+        mock_fml.side_effect = FmlError("Error occurred during FML creation")
+
+        fml = create_fml()
+
+        mock_exit.assert_called_once_with(1)  # Assert that sys.exit(1) was called
+        assert fml is None
+
+
+def test_create_sdk_with_error():
+    with patch.object(sys, "exit") as mock_exit, patch("cirrus.main.SDK") as mock_sdk:
+        mock_sdk.side_effect = NimbusError("Error occurred during SDK creation")
+
+        sdk = create_sdk()
+
+        mock_exit.assert_called_once_with(1)  # Assert that sys.exit(1) was called
+        assert sdk is None
+
+
+def test_create_scheduler():
+    scheduler = create_scheduler()
+
+    assert isinstance(scheduler, AsyncIOScheduler)
 
 
 def test_read_root(client):

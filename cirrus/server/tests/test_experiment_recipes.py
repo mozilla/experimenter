@@ -4,11 +4,16 @@ from unittest.mock import MagicMock, patch
 import requests
 
 from cirrus.experiment_recipes import RemoteSettings
+from cirrus.sdk import SDK
+from cirrus.settings import context
 
 
 class TestFetchRecipes(unittest.TestCase):
+    def setUp(self):
+        self.sdk = SDK(context)
+
     def get_remote_settings(self):
-        return RemoteSettings()
+        return RemoteSettings(self.sdk)
 
     def test_get_recipes_is_empty(self):
         rs = self.get_remote_settings()
