@@ -35,6 +35,9 @@ type SummaryProps = {
 const Summary = ({ experiment, refetch }: SummaryProps) => {
   const takeawaysProps = useTakeaways(experiment, refetch);
   const status = getStatus(experiment);
+  const shouldDisableUpdateButton =
+    !status.dirty || status.review || status.approved || status.waiting;
+
   const {
     isLoading,
     submitError,
@@ -97,7 +100,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
                 {...{
                   isLoading,
                   onSubmit: onRequestUpdateClicked,
-                  experiment: experiment,
+                  disable: shouldDisableUpdateButton,
                 }}
               />
             )}
