@@ -42,7 +42,7 @@ def test_invalid_context(context, expected_error_message):
     with pytest.raises(NimbusError) as e:
         SDK(context=context)
 
-    assert str(e.value).startswith(expected_error_message)
+        assert str(e.value).startswith(expected_error_message)
 
 
 def test_compute_enrollments(sdk):
@@ -106,22 +106,14 @@ def test_set_experiments_success(sdk):
     }
 
 
-def test_set_experiments_failure_missing_data_key(sdk):
-    recipes = '{"invalid": []}'
-
-    targeting_context = {"clientId": "test", "requestContext": {}}
-    sdk.set_experiments(recipes)
-    result = sdk.compute_enrollments(targeting_context)
-    assert result == {
-        "enrolledFeatureConfigMap": {},
-        "enrollments": [],
-        "events": [],
-    }
-
-
-def test_set_experiments_failure_malform_key(sdk):
-    recipes = '{"invalid}'
-
+@pytest.mark.parametrize(
+    ("recipes"),
+    [
+        ('{"invalid": []}'),
+        ('{"invalid}'),
+    ],
+)
+def test_set_experiments_failure_invalid_malform_key(sdk, recipes):
     targeting_context = {"clientId": "test", "requestContext": {}}
     sdk.set_experiments(recipes)
     result = sdk.compute_enrollments(targeting_context)

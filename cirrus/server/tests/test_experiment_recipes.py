@@ -58,7 +58,7 @@ def test_failed_request(mock_get, remote_settings):
     with pytest.raises(requests.exceptions.RequestException) as context:
         remote_settings.fetch_recipes()
 
-    assert str(context.value) == "Failed request"
+        assert str(context.value) == "Failed request"
     assert remote_settings.get_recipes() == {"data": []}
 
 

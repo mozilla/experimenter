@@ -10,13 +10,13 @@ from cirrus.settings import channel, fml_path
 def test_invalid_fml_path():
     with pytest.raises(FmlError) as e:
         FeatureManifestLanguage("invalid_fml_path.txt", channel)
-    assert str(e.value).startswith("FmlError.InvalidPath")
+        assert str(e.value).startswith("FmlError.InvalidPath")
 
 
 def test_invalid_channel():
     with pytest.raises(FmlError) as e:
         FeatureManifestLanguage(fml_path, "invalid_channel")
-    assert str(e.value).startswith("FmlError.InvalidChannelError")
+        assert str(e.value).startswith("FmlError.InvalidChannelError")
 
 
 def test_compute_feature_configurations_always_return_default_config(fml):
