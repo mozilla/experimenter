@@ -528,6 +528,35 @@ describe("Summary", () => {
     });
   });
 
+  it("do not show request update button for non rollouts", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      statusNext: null,
+      isEnrollmentPaused: false,
+      isRollout: false,
+      isRolloutDirty: false,
+    });
+
+    const mutationMock = createMutationMock(
+      experiment.id!,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      {
+        changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+        statusNext: null,
+        publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+        status: NimbusExperimentStatusEnum.LIVE,
+        isRolloutDirty: false,
+      },
+    );
+    render(<Subject props={experiment} mocks={[mock, mutationMock]} />);
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("request-update-button"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe("request update button rendering", () => {
     it("request update button disabled when rollout is live with no updates", async () => {
       const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
