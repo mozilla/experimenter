@@ -2,7 +2,9 @@ import datetime
 import json
 from unittest.mock import patch
 
+from django.core.cache import caches
 from django.test import TestCase, override_settings
+from django_redis import get_redis_connection
 from parameterized import parameterized
 
 from experimenter.experiments.models import NimbusExperiment
@@ -26,6 +28,9 @@ class TestFetchJetstreamDataTask(TestCase):
     def setUp(self):
         super().setUp()
         Outcomes.clear_cache()
+
+    def tearDown(self):
+        get_redis_connection("sizing").flushall()
 
     @parameterized.expand(
         [
@@ -1091,3 +1096,147 @@ class TestFetchJetstreamDataTask(TestCase):
         mock_get_experiment_data.side_effect = Exception
         with self.assertRaises(Exception):
             tasks.fetch_experiment_data(experiment.id)
+
+    @patch("django.core.files.storage.default_storage.open")
+    @patch("django.core.files.storage.default_storage.exists")
+    def test_sizing_data_parsed_and_stored(self, mock_exists, mock_open):
+        class File:
+            def __init__(self, filename):
+                self.name = filename
+
+            def read(self):
+                if "sample_sizes" not in self.name:
+                    return ""
+                return """
+                {
+                    "firefox_desktop:release:['EN-US']:US:108": {
+                        "new": {
+                            "target_recipe": {
+                                "app_id": "firefox_desktop",
+                                "channel": "release",
+                                "locale": "('EN-US')",
+                                "country": "US",
+                                "new_or_existing": "new",
+                                "minimum_version": "108"
+                            },
+                            "sample_sizes": {
+                                "Power0.8EffectSize0.05": {
+                                    "parameters": {
+                                        "power": 0.8,
+                                        "effect_size": 0.05
+                                    },
+                                    "metrics": {
+                                        "active_hours": {
+                                            "number_of_clients_targeted": 35,
+                                            "sample_size_per_branch": 3,
+                                            "population_percent_per_branch": 8.571428571
+                                        },
+                                        "search_count": {
+                                            "number_of_clients_targeted": 35,
+                                            "sample_size_per_branch": 5,
+                                            "population_percent_per_branch": 14.285714285
+                                        },
+                                        "days_of_use": {
+                                            "number_of_clients_targeted": 35,
+                                            "sample_size_per_branch": 20,
+                                            "population_percent_per_branch": 57.142857142
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "existing": {
+                            "target_recipe": {
+                                "app_id": "firefox_desktop",
+                                "channel": "release",
+                                "locale": "('EN-US')",
+                                "country": "US",
+                                "new_or_existing": "existing",
+                                "minimum_version": "108"
+                            },
+                            "sample_sizes": {
+                                "Power0.8EffectSize0.05": {
+                                    "parameters": {
+                                        "power": 0.8,
+                                        "effect_size": 0.05
+                                    },
+                                    "metrics": {
+                                        "active_hours": {
+                                            "number_of_clients_targeted": 10000,
+                                            "sample_size_per_branch": 100000,
+                                            "population_percent_per_branch": 1000.0
+                                        },
+                                        "search_count": {
+                                            "number_of_clients_targeted": 10000,
+                                            "sample_size_per_branch": 100,
+                                            "population_percent_per_branch": 1
+                                        },
+                                        "days_of_use": {
+                                            "number_of_clients_targeted": 10000,
+                                            "sample_size_per_branch": 10000,
+                                            "population_percent_per_branch": 100
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                """
+
+        def open_file(filename):
+            return File(filename)
+
+        mock_open.side_effect = open_file
+        mock_exists.return_value = True
+
+        tasks.fetch_population_sizing_data()
+        sizing_cache = caches["sizing"]
+        sizing_results = sizing_cache.get("population_sizing")
+        self.assertIsNotNone(sizing_results)
+
+    @patch("django.core.files.storage.default_storage.open")
+    @patch("django.core.files.storage.default_storage.exists")
+    def test_empty_fetch_population_sizing_data(self, mock_exists, mock_open):
+        class File:
+            def __init__(self, filename):
+                self.name = filename
+
+            def read(self):
+                if "sample_sizes" not in self.name:
+                    return ""
+                return "{}"
+
+        def open_file(filename):
+            return File(filename)
+
+        mock_open.side_effect = open_file
+        mock_exists.return_value = True
+        tasks.fetch_population_sizing_data()
+        sizing_cache = caches["sizing"]
+        sizing_results = sizing_cache.get("population_sizing")
+        self.assertEqual(sizing_results.json(), "{}")
+
+    @patch("django.core.files.storage.default_storage.open")
+    @patch("django.core.files.storage.default_storage.exists")
+    def test_exception_for_fetch_population_sizing_data_empty(
+        self, mock_exists, mock_open
+    ):
+        class File:
+            def __init__(self, filename):
+                self.name = filename
+
+            def read(self):
+                if "sample_sizes" not in self.name:
+                    return ""
+                return """
+                    {"test": {"invalid_key"}}
+                """
+
+        def open_file(filename):
+            return File(filename)
+
+        mock_open.side_effect = open_file
+        mock_exists.return_value = True
+        with self.assertRaises(Exception):
+            tasks.fetch_population_sizing_data()

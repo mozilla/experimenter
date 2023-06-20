@@ -344,6 +344,17 @@ REDIS_HOST = config("REDIS_HOST")
 REDIS_PORT = config("REDIS_PORT")
 REDIS_DB = config("REDIS_DB")
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    },
+    "sizing": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+        "TIMEOUT": None,
+    },
+}
+
 # Celery
 CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
     host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB
@@ -374,6 +385,10 @@ CELERY_BEAT_SCHEDULE = {
     "fetch_jetstream_data": {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
         "schedule": 28800,
+    },
+    "fetch_population_sizing_data": {
+        "task": "experimenter.jetstream.tasks.fetch_population_sizing_data",
+        "schedule": 86400,
     },
 }
 

@@ -13,8 +13,8 @@ from experimenter.jetstream.models import (
     Group,
     JetstreamData,
     Metric,
-    Segment,
     SampleSizes,
+    Segment,
     Statistic,
     create_results_object_model,
 )
@@ -39,11 +39,9 @@ class AnalysisWindow:
     OVERALL = "overall"
 
 
-def load_data_from_gcs(path, parse_json=True):
+def load_data_from_gcs(path):
     if default_storage.exists(path):
-        if parse_json:
-            return json.loads(default_storage.open(path).read())
-        return default_storage.open(path).read()
+        return json.loads(default_storage.open(path).read())
 
 
 def get_data(slug, window):
@@ -67,7 +65,7 @@ def get_analysis_errors(slug):
 def get_sizing_data(suffix="latest"):
     filename = f"sample_sizes_auto_sizing_results_{suffix}.json"
     path = os.path.join(SIZING_FOLDER, filename)
-    return load_data_from_gcs(path, parse_json=False)
+    return load_data_from_gcs(path)
 
 
 def get_results_metrics_map(
@@ -297,6 +295,6 @@ def get_population_sizing_data():
     sizing_data = get_sizing_data(suffix="latest")
     sizing = {}
     if sizing_data is not None:
-        sizing = SampleSizes.parse_raw(sizing_data)
+        sizing = SampleSizes.parse_obj(sizing_data)
 
     return {"v1": sizing}

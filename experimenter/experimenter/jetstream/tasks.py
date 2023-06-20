@@ -2,7 +2,7 @@ import datetime as dt
 
 import markus
 from celery.utils.log import get_task_logger
-from django.core.cache import cache
+from django.core.cache import caches
 
 from experimenter.celery import app
 from experimenter.experiments.constants import NimbusConstants
@@ -79,7 +79,9 @@ def fetch_population_sizing_data():
         sizing_data = get_population_sizing_data()
         sizing = sizing_data.get("v1")
 
-        cache.set("population_sizing", sizing)
+        sizing_cache = caches["sizing"]
+        sizing_cache.set("population_sizing", sizing)
+        metrics.incr("fetch_population_sizing_data.completed")
     except Exception as e:
         metrics.incr("fetch_population_sizing_data.failed")
         logger.error(f"Fetching experiment population auto-sizing data failed: {e}")
