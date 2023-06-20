@@ -7,6 +7,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
 from fastapi import FastAPI, status
 from fml_sdk import FmlError  # type: ignore
+from pydantic import BaseModel
 
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
@@ -14,6 +15,11 @@ from .sdk import SDK
 from .settings import channel, context, fml_path, remote_setting_refresh_rate_in_seconds
 
 logger = logging.getLogger(__name__)
+
+
+class FeatureRequest(BaseModel):
+    client_id: str
+    context: Dict[str, Any]
 
 
 @asynccontextmanager
@@ -76,9 +82,14 @@ def read_root():
 
 
 @app.post("/v1/features/", status_code=status.HTTP_200_OK)
-async def compute_features():
-    # # will recieve as part of incoming request
-    targeting_context: Dict[str, Any] = {"clientId": "test", "requestContext": {}}
+async def compute_features(request_data: FeatureRequest):
+    client_id = request_data.client_id
+    context = request_data.context
+
+    targeting_context: Dict[str, Any] = {
+        "clientId": client_id,
+        "requestContext": context,
+    }
     enrolled_partial_configuration: Dict[str, Any] = app.state.sdk.compute_enrollments(
         targeting_context
     )
