@@ -346,6 +346,7 @@ class TestFetchJetstreamDataTask(TestCase):
                                 "default_browser_action",
                                 "mozilla_default_browser",
                                 "default_browser_null",
+                                "custom_metric",
                             ],
                             "default_metrics": [],
                         }
@@ -369,7 +370,8 @@ class TestFetchJetstreamDataTask(TestCase):
                                 "metrics": [
                                     "default_browser_action",
                                     "mozilla_default_browser",
-                                    "default_browser_null"
+                                    "default_browser_null",
+                                    "custom_metric"
                                 ],
                                 "default_metrics": []
                             }
@@ -519,6 +521,7 @@ class TestFetchJetstreamDataTask(TestCase):
                                 "default_browser_action",
                                 "mozilla_default_browser",
                                 "default_browser_null",
+                                "custom_metric",
                             ],
                             "default_metrics": [],
                         }
@@ -560,6 +563,7 @@ class TestFetchJetstreamDataTask(TestCase):
                                     "default_browser_action",
                                     "mozilla_default_browser",
                                     "default_browser_null",
+                                    "custom_metric",
                                 ],
                                 "default_metrics": [],
                             }

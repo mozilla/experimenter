@@ -19,3 +19,5 @@ data_source = "search_clients_daily"
 [metrics.default_browser_action.statistics.deciles]
 
 [metrics.default_browser_null]
+
+[metrics.custom_metric]
