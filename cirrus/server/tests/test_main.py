@@ -50,7 +50,14 @@ def test_read_root(client):
     "request_data",
     [
         {
-            "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+            "client_id": "",  # client id value is missing
+            "context": {
+                "key1": "value1",
+                "key2": {"key2.1": "value2", "key2.2": "value3"},
+            },
+        },
+        {
+            # client id is missing
             "context": {
                 "key1": "value1",
                 "key2": {"key2.1": "value2", "key2.2": "value3"},
@@ -58,17 +65,14 @@ def test_read_root(client):
         },
         {
             "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-            "context": {
-                "key1": "value1",
-                "key2": {"key2.1": "value2", "key2.2": "value3"},
-            },
+            "context": {},  # context value is missing
         },
         {
             "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-            "context": {
-                "key1": "value1",
-                "key2": {"key2.1": "value2", "key2.2": "value3"},
-            },
+            # context key is missing
+        },
+        {  # clinet id key is missing
+            # context key is missing
         },
     ],
 )
