@@ -236,7 +236,7 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903_PREFER_MOTION = NimbusTargetingC
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FIRST_RUN_NEED_DEFAULT_NEED_PIN_WINDOWS_1903 = NimbusTargetingConfig(
+FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_NEED_PIN_WINDOWS_1903 = NimbusTargetingConfig(
     name=(
         "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
         "new profile, needing default & pin"
