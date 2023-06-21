@@ -527,4 +527,169 @@ describe("Summary", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  it("do not show request update button for non rollouts", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      statusNext: null,
+      isEnrollmentPaused: false,
+      isRollout: false,
+      isRolloutDirty: false,
+    });
+
+    const mutationMock = createMutationMock(
+      experiment.id!,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      {
+        changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+        statusNext: null,
+        publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+        status: NimbusExperimentStatusEnum.LIVE,
+        isRolloutDirty: false,
+      },
+    );
+    render(<Subject props={experiment} mocks={[mock, mutationMock]} />);
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("request-update-button"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("request update button rendering", () => {
+    it("request update button disabled when rollout is live with no updates", async () => {
+      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+        statusNext: null,
+        isEnrollmentPaused: false,
+        isRolloutDirty: false,
+      });
+
+      render(<Subject props={rollout} mocks={[mockRollout]} />);
+      const requestUpdateButton = await screen.findByTestId(
+        "request-update-button",
+      );
+      await waitFor(() => {
+        expect(requestUpdateButton).toBeDisabled();
+      });
+    });
+
+    it("request update button enabled when update is made", async () => {
+      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+        statusNext: null,
+        isEnrollmentPaused: false,
+        isRolloutDirty: true,
+      });
+
+      const mutationMock = createMutationMock(
+        rollout.id!,
+        NimbusExperimentPublishStatusEnum.IDLE,
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+          statusNext: null,
+          publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+          status: NimbusExperimentStatusEnum.LIVE,
+          isRolloutDirty: true,
+        },
+      );
+      render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+      const requestUpdateButton = await screen.findByTestId(
+        "request-update-button",
+      );
+      await waitFor(() => {
+        expect(requestUpdateButton).not.toBeDisabled();
+      });
+    });
+
+    it("request update button disabled when review is requested", async () => {
+      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+        statusNext: null,
+        isEnrollmentPaused: false,
+        isRolloutDirty: false,
+      });
+
+      const mutationMock = createMutationMock(
+        rollout.id!,
+        NimbusExperimentPublishStatusEnum.REVIEW,
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+          status: NimbusExperimentStatusEnum.LIVE,
+          isRolloutDirty: true,
+        },
+      );
+      render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+      const requestUpdateButton = await screen.findByTestId(
+        "request-update-button",
+      );
+      await waitFor(() => {
+        expect(requestUpdateButton).toBeDisabled();
+      });
+    });
+
+    it("request update button disabled when review is approved", async () => {
+      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+        statusNext: NimbusExperimentStatusEnum.LIVE,
+        isEnrollmentPaused: false,
+        isRolloutDirty: true,
+      });
+
+      const mutationMock = createMutationMock(
+        rollout.id!,
+        NimbusExperimentPublishStatusEnum.REVIEW,
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
+          status: NimbusExperimentStatusEnum.LIVE,
+          isRolloutDirty: true,
+        },
+      );
+      render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+      const requestUpdateButton = await screen.findByTestId(
+        "request-update-button",
+      );
+      await waitFor(() => {
+        expect(requestUpdateButton).toBeDisabled();
+      });
+    });
+
+    it("request update button disabled when review is waiting", async () => {
+      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
+        statusNext: NimbusExperimentStatusEnum.LIVE,
+        isEnrollmentPaused: false,
+        isRolloutDirty: true,
+      });
+
+      const mutationMock = createMutationMock(
+        rollout.id!,
+        NimbusExperimentPublishStatusEnum.APPROVED,
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.WAITING,
+          status: NimbusExperimentStatusEnum.LIVE,
+          isRolloutDirty: true,
+        },
+      );
+      render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+      const requestUpdateButton = await screen.findByTestId(
+        "request-update-button",
+      );
+      await waitFor(() => {
+        expect(requestUpdateButton).toBeDisabled();
+      });
+    });
+  });
 });

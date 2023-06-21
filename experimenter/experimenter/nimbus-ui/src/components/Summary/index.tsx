@@ -35,6 +35,9 @@ type SummaryProps = {
 const Summary = ({ experiment, refetch }: SummaryProps) => {
   const takeawaysProps = useTakeaways(experiment, refetch);
   const status = getStatus(experiment);
+  const shouldDisableUpdateButton =
+    !status.dirty || status.review || status.approved || status.waiting;
+
   const {
     isLoading,
     submitError,
@@ -92,9 +95,13 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
         <Card className="border-left-0 border-right-0 border-bottom-0">
           <Card.Header as="h5">Actions</Card.Header>
           <Card.Body>
-            {status.dirty && (
+            {experiment.isRollout && status.live && (
               <RequestLiveUpdate
-                {...{ isLoading, onSubmit: onRequestUpdateClicked }}
+                {...{
+                  isLoading,
+                  onSubmit: onRequestUpdateClicked,
+                  disable: shouldDisableUpdateButton,
+                }}
               />
             )}
 

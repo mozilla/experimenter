@@ -3,27 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { Button } from "react-bootstrap";
+import DisabledButton from "src/components/DisabledButton";
 
 const RequestLiveUpdate = ({
   isLoading,
   onSubmit,
+  disable,
 }: {
   isLoading: boolean;
   onSubmit: () => void;
+  disable: boolean;
 }) => {
   return (
     <div className="mb-4" data-testid="update-live-to-review">
-      <Button
-        data-testid="request-update-button"
+      <DisabledButton
         id="request-update-button"
-        type="button"
-        className="mr-2 btn btn-primary"
-        disabled={isLoading}
+        testId="request-update-button"
+        disabled={isLoading || disable}
         onClick={onSubmit}
       >
         Request Update
-      </Button>
+      </DisabledButton>
     </div>
   );
 };
