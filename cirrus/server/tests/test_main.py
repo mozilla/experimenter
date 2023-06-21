@@ -86,9 +86,12 @@ async def test_fetch_schedule_recipes_failure(
 async def test_fetch_schedule_recipes_retry(
     scheduler_mock, remote_setting_mock, exception
 ):
-    # Set up the remote_setting_mock to raise an exception the first time it is called,
+    # Set up the remote_setting_mock to raise an exception the first time it is called
     # and return a value the second time it is called
-    remote_setting_mock.fetch_recipes.side_effect = [exception, ["recipe1", "recipe2"]]
+    remote_setting_mock.fetch_recipes.side_effect = [
+        exception,
+        ["recipe1", "recipe2"],
+    ]
 
     await fetch_schedule_recipes()
 
