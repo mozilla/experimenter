@@ -1,13 +1,14 @@
 import logging
 import sys
 from contextlib import asynccontextmanager
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
-from fastapi import FastAPI, status, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from fml_sdk import FmlError  # type: ignore
 from pydantic import BaseModel
+
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
 from .sdk import SDK
