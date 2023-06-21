@@ -56,34 +56,20 @@ def test_compute_enrollments(sdk):
     }
 
 
-def test_failure_case_no_client_id_key(sdk):
-    targeting_context = {"requestContext": {}}
-
+@pytest.mark.parametrize(
+    "targeting_context, expected_result",
+    [
+        ({"requestContext": {}}, {}),
+        ({"clientId": None, "requestContext": {}}, {}),
+        ({"clientId": "test"}, {}),
+    ],
+)
+def test_failure_cases(sdk, targeting_context, expected_result):
     try:
         result = sdk.compute_enrollments(targeting_context)
     except NimbusError:
         pytest.fail("NimbusError was raised when it should not have been")
-    assert result == {}
-
-
-def test_failure_case_no_client_id_value(sdk):
-    targeting_context = {"clientId": None, "requestContext": {}}
-
-    try:
-        result = sdk.compute_enrollments(targeting_context)
-    except NimbusError:
-        pytest.fail("NimbusError was raised when it should not have been")
-    assert result == {}
-
-
-def test_failure_case_no_request_context(sdk):
-    targeting_context = {"clientId": "test"}
-
-    try:
-        result = sdk.compute_enrollments(targeting_context)
-    except NimbusError:
-        pytest.fail("NimbusError was raised when it should not have been")
-    assert result == {}
+    assert result == expected_result
 
 
 def test_set_experiments_recipe_both_empty(sdk):
