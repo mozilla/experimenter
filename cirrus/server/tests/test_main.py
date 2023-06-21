@@ -1,6 +1,6 @@
 import sys
 from unittest.mock import patch
-
+from fastapi import status
 import pytest
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from cirrus_sdk import NimbusError
@@ -46,40 +46,92 @@ def test_read_root(client):
     assert response.json() == {"Hello": "World"}
 
 
-@pytest.mark.parametrize(
-    "request_data",
-    [
-        {
-            "client_id": "",  # client id value is missing
-            "context": {
-                "key1": "value1",
-                "key2": {"key2.1": "value2", "key2.2": "value3"},
-            },
+def test_get_features_with_required_field(client):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
         },
-        {
-            # client id is missing
-            "context": {
-                "key1": "value1",
-                "key2": {"key2.1": "value2", "key2.2": "value3"},
-            },
-        },
-        {
-            "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-            "context": {},  # context value is missing
-        },
-        {
-            "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-            # context key is missing
-        },
-        {},  # both  clinet id and context key is missing
-    ],
-)
-def test_get_features_returns_default(client, request_data):
+    }
+
     response = client.post("/v1/features/", json=request_data)
     assert response.status_code == 200
     assert response.json() == {
         "example-feature": {"enabled": False, "something": "wicked"}
     }
+
+
+@pytest.mark.parametrize(
+    "request_data, expected_status, expected_message",
+    [
+        (
+            {
+                "client_id": "",
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                },
+            },
+            status.HTTP_400_BAD_REQUEST,
+            "Client ID value is missing or empty",
+        ),
+        (
+            {
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                }
+            },
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "loc": ["body", "client_id"],
+                    "msg": "field required",
+                    "type": "value_error.missing",
+                }
+            ],
+        ),
+        (
+            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449", "context": {}},
+            status.HTTP_400_BAD_REQUEST,
+            "Context value is missing or empty",
+        ),
+        (
+            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "loc": ["body", "context"],
+                    "msg": "field required",
+                    "type": "value_error.missing",
+                }
+            ],
+        ),
+        (
+            {},
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "loc": ["body", "client_id"],
+                    "msg": "field required",
+                    "type": "value_error.missing",
+                },
+                {
+                    "loc": ["body", "context"],
+                    "msg": "field required",
+                    "type": "value_error.missing",
+                },
+            ],
+        ),
+    ],
+)
+def test_get_features_missing_required_field(
+    client, request_data, expected_status, expected_message
+):
+    response = client.post("/v1/features/", json=request_data)
+    assert response.status_code == expected_status
+    assert response.json()["detail"] == expected_message
 
 
 @pytest.mark.asyncio
