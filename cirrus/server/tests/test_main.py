@@ -71,9 +71,7 @@ def test_read_root(client):
             "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
             # context key is missing
         },
-        {  # clinet id key is missing
-            # context key is missing
-        },
+        {},  # both  clinet id and context key is missing
     ],
 )
 def test_get_features_returns_default(client, request_data):
