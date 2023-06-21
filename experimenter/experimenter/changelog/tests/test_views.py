@@ -37,8 +37,7 @@ class NimbusChangeLogsViewTest(TestCase):
         request.user = self.user
         response = self.view(request, slug=self.experiment.slug)
         context = response.context_data
-        self.assertEqual(context["slug"], self.experiment.slug)
-        self.assertEqual(context["experiment"], self.experiment)
+        self.assertEqual(context["nimbusexperiment"], self.experiment)
         self.assertQuerysetEqual(
             context["changelogs"],
             [repr(self.changelog1), repr(self.changelog2)],
