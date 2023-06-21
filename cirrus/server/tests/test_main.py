@@ -6,7 +6,12 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from cirrus_sdk import NimbusError
 from fml_sdk import FmlError
 
-from cirrus.main import create_fml, create_scheduler, create_sdk, fetch_schedule_recipes
+from cirrus.main import (
+    create_fml,
+    create_scheduler,
+    create_sdk,
+    fetch_schedule_recipes,
+)
 
 
 def test_create_fml_with_error():
@@ -41,8 +46,59 @@ def test_read_root(client):
     assert response.json() == {"Hello": "World"}
 
 
-def test_get_features(client):
-    response = client.post("/v1/features/")
+@pytest.mark.parametrize(
+    "request_data, expected_response",
+    [
+        (
+            {
+                "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                },
+            },
+            {"example-feature": {"enabled": False, "something": "wicked"}},
+        ),
+        (
+            {
+                "client_id": "",  # missing client id value
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                },
+            },
+            {"example-feature": {"enabled": False, "something": "wicked"}},
+        ),
+        (
+            {  # missing client id key
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                },
+            },
+            {"example-feature": {"enabled": False, "something": "wicked"}},
+        ),
+        (
+            {
+                "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+                # missing context
+            },
+            {"example-feature": {"enabled": False, "something": "wicked"}},
+        ),
+    ],
+)
+def test_get_features_returns_default(client, request_data, expected_response):
+    response = client.post("/v1/features/", json=request_data)
+    assert response.status_code == 200
+    assert response.json() == expected_response
+
+
+def test_get_features_missing_client_id(client):
+    request_data = {
+        "client_id": "",
+        "context": {"key1": "value1", "key2": {"key2.1": "value2", "key2.2": "value3"}},
+    }
+    response = client.post("/v1/features/", json=request_data)
     assert response.status_code == 200
     assert response.json() == {
         "example-feature": {"enabled": False, "something": "wicked"}

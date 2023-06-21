@@ -1,7 +1,7 @@
 import logging
 import sys
 from contextlib import asynccontextmanager
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 class FeatureRequest(BaseModel):
-    client_id: str
-    context: Dict[str, Any]
+    client_id: Optional[str]
+    context: Optional[Dict[str, Any]]
 
 
 @asynccontextmanager
@@ -83,12 +83,9 @@ def read_root():
 
 @app.post("/v1/features/", status_code=status.HTTP_200_OK)
 async def compute_features(request_data: FeatureRequest):
-    client_id = request_data.client_id
-    context = request_data.context
-
     targeting_context: Dict[str, Any] = {
-        "clientId": client_id,
-        "requestContext": context,
+        "clientId": request_data.client_id or "",
+        "requestContext": request_data.context or {},
     }
     enrolled_partial_configuration: Dict[str, Any] = app.state.sdk.compute_enrollments(
         targeting_context
