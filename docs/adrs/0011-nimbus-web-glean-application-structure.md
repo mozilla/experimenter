@@ -27,7 +27,6 @@ The problem this ADR addresses is as follows: with Cirrus, how should we structu
 
 ## Decision Drivers
 
-* [Probe-scraper repository list](https://github.com/mozilla/probe-scraper/blob/main/repositories.yaml) developer burden
 * Ease of data collation
   * How easy is it to collate data for an application?
   * How easy is it to collate data across applications?
@@ -81,6 +80,7 @@ One downside of this solution is that data from multiple product domains will ex
 
 In this option, we would have one Glean application ID that is shared across all applications within a given product domain.
 As an example, this might look like all Pocket applications (web, iOS, Android) sharing a single `cirrus_pocket` Glean app ID, but MDN, VPN, Relay, and others would have app IDs for their own product domains.
+In order to support this, additional information would be sent alongside Glean metrics, such as a source application ID and app channel.
 This gives us the benefits of having fewer total Glean app IDs, while also granting additional benefits such as separate retention periods for each product domain.
 
 * Good, because it has a smaller footprint in the probe-scraper repository.
