@@ -979,6 +979,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 )
             ],
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         response = self.query(

@@ -411,6 +411,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MIN = (
         "Ensure this value is less than or equal to the maximum version"
     )
+    ERROR_FIREFOX_VERSION_MIN_96 = "The minimum targetable Firefox version is 96"
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
@@ -451,3 +452,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     DEFAULT_TREATMENT_BRANCH_NAME = "Treatment A"
 
     L10N_MIN_STRING_ID_LEN = 9
+
+    MIN_REQUIRED_VERSION = Version.FIREFOX_96
