@@ -6,6 +6,7 @@ from itertools import chain
 
 from django.conf import settings
 from django.core.files.storage import default_storage
+from mozilla_nimbus_schemas.jetstream import AnalysisErrors, Metadata, Statistics
 
 from experimenter.jetstream.models import (
     METRIC_GROUP,
@@ -42,22 +43,43 @@ def load_data_from_gcs(path):
         return json.loads(default_storage.open(path).read())
 
 
+def validate_data(data_json):
+    Statistics.parse_obj(data_json)
+
+
 def get_data(slug, window):
     filename = f"statistics_{slug}_{window}.json"
     path = os.path.join(STATISTICS_FOLDER, filename)
-    return load_data_from_gcs(path)
+    data = load_data_from_gcs(path)
+    if data:
+        validate_data(data)
+    return data
+
+
+def validate_metadata(metadata_json):
+    Metadata.parse_obj(metadata_json)
 
 
 def get_metadata(slug):
     filename = f"metadata_{slug}.json"
     path = os.path.join(METADATA_FOLDER, filename)
-    return load_data_from_gcs(path)
+    metadata = load_data_from_gcs(path)
+    if metadata:
+        validate_metadata(metadata)
+    return metadata
+
+
+def validate_analysis_errors(analysis_errors_json):
+    AnalysisErrors.parse_obj(analysis_errors_json)
 
 
 def get_analysis_errors(slug):
     filename = f"errors_{slug}.json"
     path = os.path.join(ERRORS_FOLDER, filename)
-    return load_data_from_gcs(path)
+    analysis_errors = load_data_from_gcs(path)
+    if analysis_errors:
+        validate_analysis_errors(analysis_errors)
+    return analysis_errors
 
 
 def get_results_metrics_map(
