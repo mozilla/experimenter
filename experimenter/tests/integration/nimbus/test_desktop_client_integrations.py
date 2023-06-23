@@ -98,6 +98,7 @@ def test_check_telemetry_enrollment_unenrollment(
         "treatmentBranches": [],
         "populationPercent": "100",
         "totalEnrolledClients": 55,
+        "firefoxMinVersion": "FIREFOX_96",
     }
     helpers.create_desktop_experiment(
         experiment_slug,

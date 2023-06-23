@@ -356,6 +356,7 @@ def fixture_experiment_default_data():
         ],
         "populationPercent": "100",
         "totalEnrolledClients": 55,
+        "firefoxMinVersion": "FIREFOX_96",
     }
 
 

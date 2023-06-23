@@ -1402,10 +1402,32 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         is_rollout = data.get("is_rollout")
         application = data.get("application")
 
+        if min_version == "":
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": [
+                        NimbusExperiment.ERROR_FIREFOX_VERSION_MIN_96
+                    ],
+                }
+            )
+
+        parsed_min_version = NimbusExperiment.Version.parse(min_version)
+
+        if parsed_min_version < NimbusExperiment.Version.parse(
+            NimbusExperiment.MIN_REQUIRED_VERSION
+        ):
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": [
+                        NimbusExperiment.ERROR_FIREFOX_VERSION_MIN_96
+                    ],
+                }
+            )
+
         if (
             application == NimbusExperiment.Application.DESKTOP
             and is_rollout
-            and NimbusExperiment.Version.parse(min_version)
+            and parsed_min_version
             < NimbusExperiment.Version.parse(
                 NimbusConstants.DESKTOP_ROLLOUT_MIN_SUPPORTED_VERSION
             )
@@ -1417,10 +1439,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if (
             min_version != ""
             and max_version != ""
-            and (
-                NimbusExperiment.Version.parse(min_version)
-                > NimbusExperiment.Version.parse(max_version)
-            )
+            and (parsed_min_version > NimbusExperiment.Version.parse(max_version))
         ):
             raise serializers.ValidationError(
                 {
