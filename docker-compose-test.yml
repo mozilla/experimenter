@@ -12,6 +12,7 @@ services:
       - ./docs/experimenter:/experimenter/experimenter/docs
     links:
       - db
+      - redis
 
   db:
     restart: always
@@ -25,3 +26,6 @@ services:
       context: cirrus/server/
       dockerfile: Dockerfile
     working_dir: /cirrus
+
+  redis:
+    image: redis:6.2.6
