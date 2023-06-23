@@ -64,7 +64,7 @@ def validate_metadata(metadata_json):
 def get_metadata(slug):
     filename = f"metadata_{slug}.json"
     path = os.path.join(METADATA_FOLDER, filename)
-    return validate_data(load_data_from_gcs(path))
+    return validate_metadata(load_data_from_gcs(path))
 
 
 def validate_analysis_errors(analysis_errors_json):
@@ -76,7 +76,7 @@ def validate_analysis_errors(analysis_errors_json):
 def get_analysis_errors(slug):
     filename = f"errors_{slug}.json"
     path = os.path.join(ERRORS_FOLDER, filename)
-    return validate_data(load_data_from_gcs(path))
+    return validate_analysis_errors(load_data_from_gcs(path))
 
 
 def get_results_metrics_map(
