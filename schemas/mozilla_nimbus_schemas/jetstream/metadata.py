@@ -2,9 +2,9 @@ import datetime as dt
 import json
 from typing import Optional
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, validator
 
-from mozilla_nimbus_schemas.jetstream.statistics import AnalysisBasis
+from mozilla_nimbus_schemas.jetstream.statistics import SCHEMA_VERSION, AnalysisBasis
 
 
 def nonstrict_json_loads(*args, **kwargs):
@@ -24,7 +24,7 @@ class Metric(BaseModel):
 
 
 class Outcome(BaseModel):
-    commit_hash: str
+    commit_hash: Optional[str]
     default_metrics: list[str]
     description: str
     friendly_name: str
@@ -46,7 +46,13 @@ class Metadata(BaseModel):
     external_config: Optional[ExternalConfig] = None
     metrics: dict[str, Metric]
     outcomes: dict[str, Outcome] = {}
-    schema_version: int
+    schema_version: int = SCHEMA_VERSION
+
+    @validator("analysis_start_time", pre=True)
+    def treat_empty_str_as_none(cls, v):
+        if v == "":
+            return None
+        return v
 
     class Config:
         # override json_loads because `description` field in Metric may contain \n
