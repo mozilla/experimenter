@@ -44,41 +44,41 @@ def load_data_from_gcs(path):
 
 
 def validate_data(data_json):
-    Statistics.parse_obj(data_json)
+    if data_json:
+        Statistics.parse_obj(data_json)
 
 
 def get_data(slug, window):
     filename = f"statistics_{slug}_{window}.json"
     path = os.path.join(STATISTICS_FOLDER, filename)
     data = load_data_from_gcs(path)
-    if data:
-        validate_data(data)
+    validate_data(data)
     return data
 
 
 def validate_metadata(metadata_json):
-    Metadata.parse_obj(metadata_json)
+    if metadata_json:
+        Metadata.parse_obj(metadata_json)
 
 
 def get_metadata(slug):
     filename = f"metadata_{slug}.json"
     path = os.path.join(METADATA_FOLDER, filename)
     metadata = load_data_from_gcs(path)
-    if metadata:
-        validate_metadata(metadata)
+    validate_metadata(metadata)
     return metadata
 
 
 def validate_analysis_errors(analysis_errors_json):
-    AnalysisErrors.parse_obj(analysis_errors_json)
+    if analysis_errors_json:
+        AnalysisErrors.parse_obj(analysis_errors_json)
 
 
 def get_analysis_errors(slug):
     filename = f"errors_{slug}.json"
     path = os.path.join(ERRORS_FOLDER, filename)
     analysis_errors = load_data_from_gcs(path)
-    if analysis_errors:
-        validate_analysis_errors(analysis_errors)
+    validate_analysis_errors(analysis_errors)
     return analysis_errors
 
 
