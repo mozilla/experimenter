@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mozilla-nimbus-schemas"
-version = "2023.6.4"
+version = "2023.6.5"
 description = "Schemas used by Mozilla Nimbus and related projects."
 authors = ["mikewilli"]
 license = "MPL 2.0"
@@ -44,6 +44,8 @@ ignore = [
     "RET505",
     "SIM102",
 ]
+[tool.ruff.pep8-naming]
+classmethod-decorators = ["classmethod", "pydantic.validator"]
 
 [tool.flake8]
 max-line-length = 90
