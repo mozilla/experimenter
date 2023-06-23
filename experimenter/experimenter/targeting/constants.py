@@ -526,6 +526,28 @@ NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+RELAY_USER = NimbusTargetingConfig(
+    name="Relay user",
+    slug="relay_user",
+    description="Include users who have Relay",
+    targeting=('("9ebfe2c2f9ea3c58" in attachedFxAOAuthClients|mapToProperty("id"))'),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NOT_RELAY_USER = NimbusTargetingConfig(
+    name="Not Relay user",
+    slug="not_relay_user",
+    description="Excludes users who have Relay",
+    targeting=f"!({RELAY_USER.targeting})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
     name="No enterprise or past VPN use",
     slug="no_enterprise_or_past_vpn",
