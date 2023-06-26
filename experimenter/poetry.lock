@@ -1358,6 +1358,20 @@ docs = ["sphinx"]
 test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
+name = "mozilla-nimbus-schemas"
+version = "2023.6.5"
+description = "Schemas used by Mozilla Nimbus and related projects."
+optional = false
+python-versions = ">=3.10,<4.0"
+files = [
+    {file = "mozilla_nimbus_schemas-2023.6.5-py3-none-any.whl", hash = "sha256:a3ad98e94241ed5586d8cd3cd5bb02e50343264042ef1ef11e0cf23b79737ffb"},
+    {file = "mozilla_nimbus_schemas-2023.6.5.tar.gz", hash = "sha256:ed314284d5aa4ae27aebb44029133b1f76a70389f125638382b87cfcec140736"},
+]
+
+[package.dependencies]
+pydantic = ">=1.10.7,<2.0.0"
+
+[[package]]
 name = "mozilla-nimbus-shared"
 version = "2.4.0"
 description = "Shared data and schemas for Project Nimbus"
@@ -2668,4 +2682,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "c94cc72eec99a2451f75adfe9b6b62dc90e82a865191b415908c623efcd48621"
+content-hash = "29613228810e10de6c8186e0fda1a38234c4e4b0034a92d30aae23d8cdc60d95"
