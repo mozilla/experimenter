@@ -109,7 +109,6 @@ services:
     env_file: .env
     volumes:
       - ./cirrus/server/:/cirrus
-      - ./cirrus/server/feature_manifest/sample.yml:/sample.yml
     working_dir: /cirrus
     ports:
       - "8001:8001"
