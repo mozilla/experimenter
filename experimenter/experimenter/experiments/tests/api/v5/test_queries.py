@@ -1702,7 +1702,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         feature_config = experiment.feature_configs.get()
         self.assertEqual(
             experiment_data["featureConfigs"],
-            [{"id": feature_config.id, "application": "DESKTOP"}],
+            [
+                {
+                    "id": feature_config.id,
+                    "application": NimbusExperiment.Application.DESKTOP.name,
+                }
+            ],
         )
 
     def test_feature_config_with_multiple_features(self):
@@ -1737,12 +1742,20 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
-        self.assertEqual(
+        self.assertEqual(len(experiment_data["featureConfigs"]), 2)
+        self.assertIn(
+            {
+                "id": feature_config1.id,
+                "application": NimbusExperiment.Application.DESKTOP.name,
+            },
             experiment_data["featureConfigs"],
-            [
-                {"id": feature_config1.id, "application": "DESKTOP"},
-                {"id": feature_config2.id, "application": "DESKTOP"},
-            ],
+        )
+        self.assertIn(
+            {
+                "id": feature_config2.id,
+                "application": NimbusExperiment.Application.DESKTOP.name,
+            },
+            experiment_data["featureConfigs"],
         )
 
     def test_branches(self):
