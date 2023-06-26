@@ -5,6 +5,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
+import selectEvent from "react-select-event";
 import {
   MOCK_BRANCH,
   MOCK_EXPERIMENT,
@@ -241,20 +242,23 @@ describe("FormBranches", () => {
     });
   });
 
-  it("gracefully handles selecting an invalid feature config", async () => {
-    const onSave = jest.fn();
-    render(<SubjectBranches {...{ onSave }} />);
-    selectFeatureConfig(null);
-    await clickAndWaitForSave(onSave);
-    const saveResult = onSave.mock.calls[0][0];
-    expect(saveResult.featureConfigIds).toEqual([]);
-  });
+  it("renders options", async () => {
+    const { container } = render(
+      <SubjectBranches experiment={{ ...MOCK_EXPERIMENT }} />,
+    );
+    const select = screen.getByLabelText("Features");
 
-  it("does not render options when feature is not enabled", async () => {
-    render(<SubjectBranches experiment={{ ...MOCK_EXPERIMENT }} />);
-    const select = screen.getByTestId("feature-config-select");
-    const options = select.querySelectorAll("option");
-    expect(options).toHaveLength(5);
+    let options = container.querySelectorAll(
+      "#react-select-feature-configs-listbox .react-select__option",
+    );
+    expect(options.length).toEqual(0);
+
+    await selectEvent.openMenu(select);
+
+    options = container.querySelectorAll(
+      "#react-select-feature-configs-listbox .react-select__option",
+    );
+    expect(options.length).toEqual(4);
   });
 
   it("requires adding a valid control branch before save is completed", async () => {
@@ -280,7 +284,7 @@ describe("FormBranches", () => {
     });
 
     fireEvent.click(screen.getByTestId("add-branch"));
-    selectFeatureConfig();
+    await selectFeatureConfigs([1]);
     await fillInBranch(container, "referenceBranch");
     expect(screen.getByTestId("save-button")).not.toBeDisabled();
 
@@ -384,7 +388,7 @@ describe("FormBranches", () => {
       />,
     );
 
-    selectFeatureConfig();
+    await selectFeatureConfigs([1]);
     await fillInBranch(container, "referenceBranch");
 
     onSave.mockClear();
@@ -474,7 +478,7 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    selectFeatureConfig(expectedFeatureId);
+    await selectFeatureConfigs([expectedFeatureId!]);
     await clickAndWaitForSave(onSave);
     expect(onSave.mock.calls[0][0].featureConfigIds).toEqual([
       expectedFeatureId,
@@ -702,7 +706,7 @@ describe("FormBranches", () => {
       expect(checkbox.checked).toEqual(false);
     });
 
-    it("resets when switching away from a feature config that sets prefs", () => {
+    it("resets when switching away from a feature config that sets prefs", async () => {
       render(
         <SubjectBranches
           experiment={{
@@ -720,17 +724,21 @@ describe("FormBranches", () => {
         expect(checkbox).toBeInTheDocument();
         expect(checkbox.checked).toEqual(false);
 
-        fireEvent.click(checkbox);
+        await userEvent.click(checkbox);
         expect(checkbox.checked).toEqual(true);
       }
 
-      selectFeatureConfig(MOCK_FEATURE_CONFIG.id);
+      await selectFeatureConfigs([MOCK_FEATURE_CONFIG.id!], { clear: true });
 
-      expect(
-        screen.queryByTestId("prevent-pref-conflicts-checkbox"),
-      ).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("prevent-pref-conflicts-checkbox"),
+        ).toBeNull();
+      });
 
-      selectFeatureConfig(MOCK_FEATURE_CONFIG_WITH_SETS_PREFS.id);
+      await selectFeatureConfigs([MOCK_FEATURE_CONFIG_WITH_SETS_PREFS.id!], {
+        clear: true,
+      });
 
       {
         const checkbox = screen.getByTestId(
@@ -836,6 +844,50 @@ describe("FormBranches", () => {
       }),
     );
   });
+
+  it("prevents multiple values from being selected", async () => {
+    const onSave = jest.fn();
+    const { experiment } = mockExperimentQuery("slug");
+    const { container } = render(
+      <SubjectBranches {...{ experiment, onSave }} />,
+    );
+
+    let selected = container.querySelectorAll(
+      ".react-select__multi-value__label",
+    );
+
+    expect(selected.length).toEqual(1);
+    expect(selected[0].textContent).toEqual(
+      MOCK_CONFIG.allFeatureConfigs![0]!.name,
+    );
+
+    await selectFeatureConfigs([2]);
+
+    selected = container.querySelectorAll(".react-select__multi-value__label");
+    expect(selected.length).toEqual(1);
+    expect(selected[0].textContent).toEqual(
+      MOCK_CONFIG.allFeatureConfigs![1]!.name,
+    );
+
+    await clickAndWaitForSave(onSave);
+
+    const payload = onSave.mock.calls[0][0];
+    expect(payload.featureConfigIds).toEqual([2]);
+    expect(payload.referenceBranch.featureValues).toEqual([
+      {
+        featureConfig: "2",
+        value: "",
+      },
+    ]);
+
+    expect(payload.treatmentBranches.length).toEqual(1);
+    expect(payload.treatmentBranches[0].featureValues).toEqual([
+      {
+        featureConfig: "2",
+        value: "",
+      },
+    ]);
+  });
 });
 
 const clickSave = () => fireEvent.click(screen.getByTestId("save-button"));
@@ -870,11 +922,27 @@ async function fillInBranch(
   }
 }
 
-function selectFeatureConfig(featureIdx: number | null = 1) {
-  const featureConfigSelects = screen.getByTestId(
-    "feature-config-select",
-  ) as HTMLInputElement;
-  fireEvent.change(featureConfigSelects, {
-    target: { value: featureIdx },
-  });
+async function selectFeatureConfigs(
+  featureConfigIds: number[],
+  { clear = false }: { clear?: boolean } = {},
+) {
+  const featureConfigsSelect = screen.getByLabelText("Features");
+
+  if (clear) {
+    await selectEvent.clearAll(featureConfigsSelect);
+  }
+
+  if (featureConfigIds.length) {
+    await selectEvent.select(featureConfigsSelect, (content, el) => {
+      if (!el) {
+        return false;
+      }
+      const featureConfigId = el.getAttribute("data-feature-config-id");
+      if (!featureConfigId) {
+        return false;
+      }
+
+      return featureConfigIds.includes(parseInt(featureConfigId));
+    });
+  }
 }

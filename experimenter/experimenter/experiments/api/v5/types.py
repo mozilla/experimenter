@@ -202,7 +202,7 @@ class NimbusBranchType(DjangoObjectType):
         )
 
     def resolve_feature_values(self, info):
-        return self.feature_values.all()
+        return self.feature_values.all().order_by("feature_config__id")
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
