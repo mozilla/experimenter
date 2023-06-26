@@ -1,9 +1,87 @@
-Create `.env` file inside directory `cirrus/server` and copy
-`cp .env.example .env`
+# Cirrus
+
+Cirrus is a feature configuration server that allows clients to obtain a set of features based on their provided `client_id` and `context` information.
+This document provides information on setting up the Cirrus environment, including required environment variables and commands for running and testing Cirrus.
+
+## Environment Setup
+
+To set up the Cirrus environment, follow these steps:
+
+1. Create a `.env` file inside the `cirrus/server` directory.
+2. Copy the contents of `.env.example` into `.env` by running the following command:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Open the `.env` file and modify the values of the following environment variables:
+
+   ```plaintext
+   REMOTE_SETTING_URL=https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/nimbus-web-experiments/records
+   REMOTE_SETTING_REFRESH_RATE_IN_SECONDS=10
+   APP_ID=test_app_id
+   APP_NAME=test_app_name
+   CHANNEL=developer
+   CIRRUS_FML_PATH=./feature_manifest/sample.yml
+   ```
+
+   Here's what each variable represents:
+
+   - `REMOTE_SETTING_URL`: The URL of the remote settings where the experiments data is stored. In this case, it points to the collection of nimbus web experiments.
+   - `REMOTE_SETTING_REFRESH_RATE_IN_SECONDS`: The refresh rate in seconds for fetching the experiments recipes from the remote settings. Set it to `10` to retrieve the latest data every 10 seconds.
+   - `APP_ID`: Replace `test_app_id` with the actual ID of your application for example `firefox-desktop`.
+   - `APP_NAME`: Replace `test_app_name` with the desired name for your application for example `firefox_desktop`.
+   - `CHANNEL`: Replace `developer` with the channel like `beta`, `release` etc.
+   - `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.yml` or specify the correct path to your feature manifest file.
+
+   Adjust the values of these variables according to your specific configuration requirements.
+
+By following these steps, you will create the `.env` file and configure the necessary environment variables for the Cirrus application.
+
+## Commands
+
+The following are the available commands for working with Cirrus:
+
+- **cirrus_build**: Builds the Cirrus container.
+
+  - Usage: `make cirrus_build`
+
+- **cirrus_build_test**: Builds the Cirrus container for testing.
+
+  - Usage: `make cirrus_build_test`
+
+- **cirrus_up**: Starts the Cirrus container.
+
+  - Usage: `make cirrus_up`
+
+- **cirrus_down**:`cirrus_down`: Stops the Cirrus container.
+
+  - Usage: `make cirrus_down`
+
+- **cirrus_test**: Runs tests for the Cirrus application.
+
+  - Usage: `make cirrus_test`
+
+- **cirrus_check**: Performs various checks on the Cirrus application including Ruff linting, Black code formatting check, Pyright static type checking, pytest tests, and documentation generation..
+
+  - Usage: `make cirrus_check`
+
+- **cirrus_code_format**: Formats the code in the Cirrus application.
+
+  - Usage: `make cirrus_code_format`
+
+- **cirrus_typecheck_createstub**: Performs static type checking and creates stub files.
+
+  - Usage: `make cirrus_typecheck_createstub`
+
+- **cirrus_generate_docs**: Generates documentation for the Cirrus application such as openapi schema.
+  - Usage: `make cirrus_generate_docs`
+
+## OpenAPI Schema
+
+[OpenAPI schema](/cirrus/server/cirrus/docs/openapi.json) for the Cirrus API
 
 # Cirrus Server to get Feature configuration API structure
-
-This Cirrus API allows clients to obtain a set of features based on their provided `client_id` and context information.
 
 ## Endpoint
 
