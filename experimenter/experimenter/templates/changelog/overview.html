@@ -6,8 +6,8 @@
 
 {% block content %}
     <h1>Changes Overview</h1>
-    <p>Experiment Slug: {{ object.slug }}</p>
-    {% for changelog in object.get_changelogs %}
+    <p>Experiment Slug: {{ nimbusexperiment.slug }}</p>
+    {% for changelog in nimbusexperiment.get_changelogs %}
     <div>
         <h2>{{ changelog.changed_on }}</h2>
         <p>Change made: {{ changelog.message }}</p>  
