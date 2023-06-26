@@ -120,7 +120,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_invalid_experiment_default_hypothesis(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1058,7 +1058,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertTrue(
             serializer.warnings["reference_branch"]["feature_values"][0]["value"][
                 0
@@ -1149,7 +1149,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
         self.assertTrue(
             serializer.warnings["treatment_branches"][0]["feature_values"][0]["value"][
@@ -2264,6 +2264,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 ),
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
         )
 
         serializer = NimbusReviewSerializer(
@@ -2322,6 +2323,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_with_schema,
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(
@@ -2368,6 +2370,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_with_schema,
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(
@@ -2538,7 +2541,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_feature_configs_reference_value_schema_warn(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -2627,7 +2630,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertTrue(
             serializer.warnings["treatment_branches"][0]["feature_values"][1]["value"][
                 0
@@ -2674,7 +2677,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertNotIn("reference_branch", serializer.warnings)
         self.assertNotIn("treatment_branch", serializer.warnings)
 

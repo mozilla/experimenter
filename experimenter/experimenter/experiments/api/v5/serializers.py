@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import jsonschema
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db import transaction
+from django.db import models, transaction
 from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework_dataclasses.serializers import DataclassSerializer
@@ -379,6 +379,21 @@ class NimbusBranchScreenshotSerializer(serializers.ModelSerializer):
         )
 
 
+class NimbusBranchFeatureValueListSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        """Return a list of primitive data types representing the objects
+
+        This enforces that the serialized data is ordered by the feature config ID.
+        """
+        super().to_representation
+        iterable = data.all() if isinstance(data, models.Manager) else data
+
+        return [
+            self.child.to_representation(item)
+            for item in iterable.order_by("feature_config__id")
+        ]
+
+
 class NimbusBranchFeatureValueSerializer(serializers.ModelSerializer):
     feature_config = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(), required=False, allow_null=False
@@ -391,14 +406,12 @@ class NimbusBranchFeatureValueSerializer(serializers.ModelSerializer):
             "feature_config",
             "value",
         )
+        list_serializer_class = NimbusBranchFeatureValueListSerializer
 
 
 class NimbusBranchSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False, allow_null=True)
     screenshots = NimbusBranchScreenshotSerializer(many=True, required=False)
-    feature_value = serializers.CharField(
-        required=False, allow_blank=True, write_only=True
-    )
     feature_values = NimbusBranchFeatureValueSerializer(many=True, required=False)
 
     class Meta:
@@ -409,21 +422,8 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             "description",
             "ratio",
             "screenshots",
-            "feature_value",
             "feature_values",
         )
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data["feature_value"] = ""
-
-        if instance.feature_values.exists():
-            feature_value = (
-                instance.feature_values.all().order_by("feature_config__slug").first()
-            )
-            data["feature_value"] = feature_value.value
-
-        return data
 
     def validate_name(self, value):
         if slugify(value):
@@ -458,22 +458,10 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
         return data
 
-    def _save_feature_values(self, feature_value, feature_values, branch):
-        feature_config = None
-        if branch.experiment.feature_configs.exists():
-            feature_config = (
-                branch.experiment.feature_configs.all().order_by("slug").first()
-            )
-
+    def _save_feature_values(self, feature_values, branch):
         branch.feature_values.all().delete()
 
-        if feature_value is not None:
-            NimbusBranchFeatureValue.objects.create(
-                branch=branch,
-                feature_config=feature_config,
-                value=feature_value,
-            )
-        elif feature_values is not None:
+        if feature_values is not None:
             for feature_value_data in feature_values:
                 NimbusBranchFeatureValue.objects.create(
                     branch=branch, **feature_value_data
@@ -505,7 +493,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
                 serializer.save(branch=branch)
 
     def save(self, *args, **kwargs):
-        feature_value = self.validated_data.pop("feature_value", None)
         feature_values = self.validated_data.pop("feature_values", None)
         screenshots = self.validated_data.pop("screenshots", None)
         slug = slugify(self.validated_data["name"])
@@ -513,7 +500,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             branch = super().save(*args, slug=slug, **kwargs)
 
-            self._save_feature_values(feature_value, feature_values, branch)
+            self._save_feature_values(feature_values, branch)
             self._save_screenshots(screenshots, branch)
 
         return branch
@@ -1175,6 +1162,7 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
             "feature_config",
             "value",
         )
+        list_serializer_class = NimbusBranchFeatureValueListSerializer
 
     def validate_value(self, value):
         if value:

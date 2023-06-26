@@ -10,7 +10,7 @@ import { AnnotatedBranch } from "src/components/PageEditBranches/FormBranches/re
 import { formBranchesActionReducer } from "src/components/PageEditBranches/FormBranches/reducer/actions";
 import { FormBranchesState } from "src/components/PageEditBranches/FormBranches/reducer/state";
 import { useForm } from "src/hooks";
-import { mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
 import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
@@ -111,7 +111,10 @@ export const SubjectBranch = ({
   onRemoveScreenshot = () => {},
   onRemove = () => {},
   isDesktop = true,
-}: Partial<React.ComponentProps<typeof FormBranch>>) => {
+  config = MOCK_CONFIG,
+}: Partial<React.ComponentProps<typeof FormBranch>> & {
+  config?: typeof MOCK_CONFIG;
+}) => {
   const defaultValues = {
     referenceBranch: branch,
     treatmentBranches: [branch],
@@ -130,31 +133,34 @@ export const SubjectBranch = ({
   } = formMethods;
 
   return (
-    <FormProvider {...formMethods}>
-      <form className="p-5">
-        <FormBranch
-          {...{
-            fieldNamePrefix,
-            // react-hook-form types seem broken for nested fields
-            errors: (errors.referenceBranch || {}) as FormBranchProps["errors"],
-            // react-hook-form types seem broken for nested fields
-            touched: (touched.referenceBranch ||
-              {}) as FormBranchProps["touched"],
-            reviewErrors: {},
-            reviewWarnings: {},
-            branch,
-            isReference,
-            equalRatio,
-            onRemove,
-            onAddScreenshot,
-            onRemoveScreenshot,
-            defaultValues: defaultValues.referenceBranch || {},
-            setSubmitErrors,
-            isDesktop,
-          }}
-        />
-      </form>
-    </FormProvider>
+    <MockedCache config={config}>
+      <FormProvider {...formMethods}>
+        <form className="p-5">
+          <FormBranch
+            {...{
+              fieldNamePrefix,
+              // react-hook-form types seem broken for nested fields
+              errors: (errors.referenceBranch ||
+                {}) as FormBranchProps["errors"],
+              // react-hook-form types seem broken for nested fields
+              touched: (touched.referenceBranch ||
+                {}) as FormBranchProps["touched"],
+              reviewErrors: {},
+              reviewWarnings: {},
+              branch,
+              isReference,
+              equalRatio,
+              onRemove,
+              onAddScreenshot,
+              onRemoveScreenshot,
+              defaultValues: defaultValues.referenceBranch || {},
+              setSubmitErrors,
+              isDesktop,
+            }}
+          />
+        </form>
+      </FormProvider>
+    </MockedCache>
   );
 };
 
@@ -164,8 +170,10 @@ export const SubjectBranches = ({
   allFeatureConfigs = MOCK_CONFIG.allFeatureConfigs,
   onSave = () => {},
   saveOnInitialRender = false,
+  config = MOCK_CONFIG,
 }: Partial<React.ComponentProps<typeof FormBranches>> & {
   saveOnInitialRender?: boolean;
+  config?: typeof MOCK_CONFIG;
 } = {}) => {
   useEffect(() => {
     if (saveOnInitialRender) {
@@ -178,16 +186,18 @@ export const SubjectBranches = ({
   }, [saveOnInitialRender]);
 
   return (
-    <div className="p-5">
-      <FormBranches
-        {...{
-          isLoading,
-          experiment,
-          allFeatureConfigs,
-          onSave,
-        }}
-      />
-    </div>
+    <MockedCache config={config}>
+      <div className="p-5">
+        <FormBranches
+          {...{
+            isLoading,
+            experiment,
+            allFeatureConfigs,
+            onSave,
+          }}
+        />
+      </div>
+    </MockedCache>
   );
 };
 

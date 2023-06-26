@@ -121,6 +121,44 @@ describe("FormBranch", () => {
     ).toBeNull();
   });
 
+  it("renders FormFeatureValue for each feature selected", () => {
+    const branch = {
+      ...MOCK_ANNOTATED_BRANCH,
+      featureValues: [
+        {
+          featureConfig: "1",
+          value: `{"value": "foo"}`,
+        },
+        {
+          featureConfig: "3",
+          value: `{"value": "bar"}`,
+        },
+        {
+          featureConfig: "5",
+          value: `{"value": "baz"}`,
+        },
+      ],
+    };
+
+    render(<SubjectBranch branch={branch} />);
+
+    const inputs = [
+      screen.getByTestId(
+        "referenceBranch.featureValues[0].value",
+      ) as HTMLTextAreaElement,
+      screen.getByTestId(
+        "referenceBranch.featureValues[1].value",
+      ) as HTMLTextAreaElement,
+      screen.getByTestId(
+        "referenceBranch.featureValues[2].value",
+      ) as HTMLTextAreaElement,
+    ];
+
+    for (let i = 0; i < 3; i++) {
+      expect(inputs[i].value).toEqual(branch.featureValues[i].value);
+    }
+  });
+
   const assertInvalidField = async (container: HTMLElement, testId: string) => {
     await waitFor(() => {
       expect(screen.getByTestId(testId)).toHaveClass("is-invalid");

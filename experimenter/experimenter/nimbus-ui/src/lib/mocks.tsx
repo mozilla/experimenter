@@ -562,7 +562,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
     ],
     screenshots: [],
   },
-  featureConfigs: [],
+  featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
   targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
   isSticky: false,
   isFirstRun: false,

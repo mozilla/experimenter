@@ -13,7 +13,10 @@ from experimenter.base.tests.factories import (
 )
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.models import NimbusBucketRange, NimbusExperiment
+from experimenter.experiments.models import (
+    NimbusBucketRange,
+    NimbusExperiment,
+)
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -327,15 +330,25 @@ class TestNimbusExperimentSerializer(TestCase):
                 "name": "control",
                 "description": "a control",
                 "ratio": 1,
-                "feature_value": "",
+                "feature_values": [
+                    {
+                        "feature_config": feature_config.id,
+                        "value": "",
+                    },
+                ],
             },
             "treatment_branches": [
                 {
                     "name": "treatment",
                     "description": "a treatment",
                     "ratio": 1,
-                    "feature_value": "{'this': 'that'}",
-                }
+                    "feature_values": [
+                        {
+                            "feature_config": feature_config.id,
+                            "value": "{'this': 'that'}",
+                        }
+                    ],
+                },
             ],
             "changelog_message": "test changelog message",
         }
