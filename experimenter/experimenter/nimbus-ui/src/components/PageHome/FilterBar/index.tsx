@@ -6,7 +6,7 @@ import { useQuery } from "@apollo/client";
 import React, { useMemo } from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import Select, { OptionsType, OptionTypeBase } from "react-select";
+import Select, { Options } from "react-select";
 import { optionIndexKeys } from "src/components/PageHome/filterExperiments";
 import {
   FilterOptions,
@@ -123,7 +123,8 @@ const FilterSelect = <
   fieldOptions,
   optionLabelName,
 }: FilterSelectProps<K, T>) => {
-  const filterOptions = useMemo(
+  type OptionType = Record<string, any>;
+  const filterOptions: Options<OptionType> = useMemo(
     () =>
       (fieldOptions! as NonNullFilterOptions<K>).filter(
         (option): option is NonNullable<typeof option> => !!option,
@@ -146,21 +147,21 @@ const FilterSelect = <
           value: fieldValue,
           isDisabled: loading,
           placeholder: "All " + fieldLabel + "s",
-          getOptionLabel: (item: OptionTypeBase) =>
+          getOptionLabel: (item: OptionType) =>
             fieldLabel === "Feature"
               ? item[optionLabelName as string] +
                 ` (${displayConfigLabelOrNotSet(
-                  item["application"],
+                  item["application" as keyof OptionType],
                   applications,
                 )})`
               : item[optionLabelName as string],
-          getOptionValue: (item: OptionTypeBase) =>
+          getOptionValue: (item: OptionType) =>
             optionIndexKeys[filterValueName](
               // @ts-ignore because this works in practice but types disagree
               item as NonNullFilterOption<K>,
             )!,
-          options: filterOptions,
-          onChange: (fieldValue: OptionsType<OptionTypeBase>) => {
+          options: filterOptions as Options<OptionType>,
+          onChange: (fieldValue: Options<OptionType>) => {
             onChange({
               ...filterValue,
               [filterValueName]: fieldValue,

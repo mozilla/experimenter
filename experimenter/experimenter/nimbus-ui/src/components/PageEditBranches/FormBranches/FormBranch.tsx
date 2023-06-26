@@ -171,6 +171,7 @@ export const FormBranch = ({
               <div key={idx}>
                 <FormFeatureValue
                   {...{
+                    featureId: parseInt(featureValue!.featureConfig!, 10),
                     fieldNamePrefix: `${fieldNamePrefix}.featureValues[${idx}]`,
                     defaultValues: defaultValues.featureValues?.[idx] || {},
                     setSubmitErrors,

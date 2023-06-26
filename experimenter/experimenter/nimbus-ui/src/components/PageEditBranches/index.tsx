@@ -100,8 +100,8 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   return (
     <AppLayoutWithExperiment title="Branches" testId="PageEditBranches">
       <p>
-        You must select a <strong>feature</strong> configuration for your
-        experiment. Experiments can only change one feature at a time.{" "}
+        You must select at least one <strong>feature</strong> configuration for
+        your experiment.{" "}
         <LinkExternal
           href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
           data-testid="learn-more-link"

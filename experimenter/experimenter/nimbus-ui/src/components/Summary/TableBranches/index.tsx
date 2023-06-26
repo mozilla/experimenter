@@ -12,6 +12,7 @@ import Table from "react-bootstrap/Table";
 import CloneDialog, { useCloneDialog } from "src/components/CloneDialog";
 import { Code } from "src/components/Code";
 import NotSet from "src/components/NotSet";
+import { useConfig } from "src/hooks";
 import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
 import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
 import {
@@ -149,8 +150,20 @@ const TableBranch = ({
   experiment: getExperiment_experimentBySlug;
   branch: Branch;
 }) => {
+  const { allFeatureConfigs } = useConfig();
   const { name, slug, description, ratio, featureValues, screenshots } = branch;
   const cloneDialogProps = useCloneDialog(experiment, branch);
+  const featureSlugs = Object.fromEntries(
+    (featureValues ?? []).map((featureValue) => {
+      const featureConfigId = featureValue?.featureConfig?.id;
+
+      return [
+        featureConfigId,
+        allFeatureConfigs?.find((feature) => feature?.id === featureConfigId)
+          ?.slug,
+      ];
+    }),
+  );
   return (
     <Table data-testid="table-branch" className="table-fixed " id={slug}>
       <thead>
@@ -193,7 +206,7 @@ const TableBranch = ({
         {featureValues ? (
           featureValues.map((featureValue, idx) => (
             <tr key={idx}>
-              <th>Value</th>
+              <th>{featureSlugs[featureValue!.featureConfig!.id!]} Value</th>
               <td colSpan={3} data-testid="branch-featureValue">
                 {featureValue ? (
                   <Code codeString={featureValue.value!} />

@@ -48,11 +48,16 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_value": "{}",
+            "feature_values": [
+                {
+                    "feature_config": feature_config.id,
+                    "value": "{}",
+                },
+            ],
         }
 
         branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertTrue(branch_serializer.is_valid())
+        self.assertTrue(branch_serializer.is_valid(), branch_serializer.errors)
 
         branch = branch_serializer.save(experiment=experiment)
         self.assertEqual(branch.name, "control")
@@ -74,7 +79,12 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 2,
-            "feature_value": "{}",
+            "feature_values": [
+                {
+                    "feature_config": feature_config.id,
+                    "value": "{}",
+                }
+            ],
         }
 
         branch_serializer = NimbusBranchSerializer(
