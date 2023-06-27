@@ -35,6 +35,7 @@ for cls in [
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 APP_VERSION_JSON_PATH = os.path.join(BASE_DIR, "version.json")
 APP_VERSION = config("APP_VERSION", default=None)
 
@@ -124,6 +125,7 @@ TEMPLATES = [
             os.path.join(BASE_DIR, "legacy", "legacy-ui", "templates"),
             os.path.join(BASE_DIR, "nimbus-ui", "templates"),
             os.path.join(BASE_DIR, "docs"),
+            os.path.join(BASE_DIR, "templates"),
         ],
         "APP_DIRS": True,
         "OPTIONS": {

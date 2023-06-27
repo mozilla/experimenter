@@ -17,8 +17,9 @@ from experimenter.experiments.api.v5.serializers import (
     TransitionConstants,
 )
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusBranchFeatureValue, NimbusExperiment
 from experimenter.experiments.tests.factories import (
+    NimbusBranchFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -1701,7 +1702,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         feature_config = experiment.feature_configs.get()
         self.assertEqual(
             experiment_data["featureConfigs"],
-            [{"id": feature_config.id, "application": "DESKTOP"}],
+            [
+                {
+                    "id": feature_config.id,
+                    "application": NimbusExperiment.Application.DESKTOP.name,
+                }
+            ],
         )
 
     def test_feature_config_with_multiple_features(self):
@@ -1736,12 +1742,20 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
-        self.assertEqual(
+        self.assertEqual(len(experiment_data["featureConfigs"]), 2)
+        self.assertIn(
+            {
+                "id": feature_config1.id,
+                "application": NimbusExperiment.Application.DESKTOP.name,
+            },
             experiment_data["featureConfigs"],
-            [
-                {"id": feature_config1.id, "application": "DESKTOP"},
-                {"id": feature_config2.id, "application": "DESKTOP"},
-            ],
+        )
+        self.assertIn(
+            {
+                "id": feature_config2.id,
+                "application": NimbusExperiment.Application.DESKTOP.name,
+            },
+            experiment_data["featureConfigs"],
         )
 
     def test_branches(self):
@@ -1980,6 +1994,147 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 }
                 for c in experiment.changes.all().order_by("changed_on")
             ],
+        )
+
+    def test_query_feature_order(self):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature3 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+
+        self.assertTrue(feature1.id < feature2.id < feature3.id)
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature2.id, feature1.id, feature3.id],
+        )
+
+        experiment.branches.all().delete()
+        experiment.reference_branch = NimbusBranchFactory(
+            experiment=experiment, feature_values=[]
+        )
+        NimbusBranchFeatureValue.objects.bulk_create(
+            [
+                NimbusBranchFeatureValue(
+                    branch=experiment.reference_branch,
+                    feature_config=feature3,
+                    value="""{"value": 3}""",
+                ),
+                NimbusBranchFeatureValue(
+                    branch=experiment.reference_branch,
+                    feature_config=feature2,
+                    value="""{"value": 2}""",
+                ),
+                NimbusBranchFeatureValue(
+                    branch=experiment.reference_branch,
+                    feature_config=feature1,
+                    value="""{"value": 1}""",
+                ),
+            ]
+        )
+
+        treatment = NimbusBranchFactory(
+            experiment=experiment,
+            feature_values=[],
+        )
+        NimbusBranchFeatureValue.objects.bulk_create(
+            [
+                NimbusBranchFeatureValue(
+                    branch=treatment,
+                    feature_config=feature2,
+                    value="""{"value": 2}""",
+                ),
+                NimbusBranchFeatureValue(
+                    branch=treatment,
+                    feature_config=feature3,
+                    value="""{"value": 3}""",
+                ),
+                NimbusBranchFeatureValue(
+                    branch=treatment,
+                    feature_config=feature1,
+                    value="""{"value": 1}""",
+                ),
+            ]
+        ),
+        experiment.branches.add(treatment)
+        experiment.save()
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    referenceBranch {
+                        featureValues {
+                            featureConfig { id }
+                            value
+                        }
+                    }
+
+                    treatmentBranches {
+                        featureValues {
+                            featureConfig { id }
+                            value
+                        }
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+
+        self.assertEqual(len(experiment_data["treatmentBranches"]), 1)
+
+        reference_branch = experiment_data["referenceBranch"]
+        treatment_branch = experiment_data["treatmentBranches"][0]
+
+        self.assertEqual(
+            reference_branch,
+            {
+                "featureValues": [
+                    {
+                        "featureConfig": {"id": feature1.id},
+                        "value": """{"value": 1}""",
+                    },
+                    {
+                        "featureConfig": {"id": feature2.id},
+                        "value": """{"value": 2}""",
+                    },
+                    {
+                        "featureConfig": {"id": feature3.id},
+                        "value": """{"value": 3}""",
+                    },
+                ]
+            },
+        )
+
+        self.assertEqual(
+            treatment_branch,
+            {
+                "featureValues": [
+                    {
+                        "featureConfig": {"id": feature1.id},
+                        "value": """{"value": 1}""",
+                    },
+                    {
+                        "featureConfig": {"id": feature2.id},
+                        "value": """{"value": 2}""",
+                    },
+                    {
+                        "featureConfig": {"id": feature3.id},
+                        "value": """{"value": 3}""",
+                    },
+                ]
+            },
         )
 
 
