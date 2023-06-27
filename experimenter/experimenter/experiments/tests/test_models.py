@@ -2179,6 +2179,12 @@ class TestNimbusExperiment(TestCase):
                 )
         return child
 
+    def test_get_changelogs(self):
+        experiment = NimbusExperimentFactory.create(slug="experiment-1")
+        generate_nimbus_changelog(experiment, experiment.owner, "Test message")
+        experiment_changelogs = experiment.get_changelogs()
+        self.assertEqual(experiment_changelogs[0].message, "Test message")
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
