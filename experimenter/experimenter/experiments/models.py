@@ -812,6 +812,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return cloned
 
+    def get_changelogs(self):
+        return self.changes.all()
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
