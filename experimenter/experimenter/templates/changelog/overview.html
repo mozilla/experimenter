@@ -1,0 +1,17 @@
+{% extends "experimenter_base.html" %}
+
+{% block title %}
+  History
+{% endblock %}
+
+{% block content %}
+    <h1>Changes Overview</h1>
+    <p>Experiment Slug: {{ experiment.slug }}</p>
+    {% for changelog in experiment.get_changelogs %}
+    <div>
+        <h2>{{ changelog.changed_on }}</h2>
+        <p>Change made: {{ changelog.message }}</p>  
+        <p>Changed by: {{ changelog.changed_by }}</p>
+    </div>
+  {% endfor %}
+{% endblock %}

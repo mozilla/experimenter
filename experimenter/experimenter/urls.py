@@ -23,6 +23,7 @@ urlpatterns = [
     re_path(r"^api/v5/", include("experimenter.experiments.api.v5.urls")),
     re_path(r"^api/v6/", include("experimenter.experiments.api.v6.urls")),
     re_path(r"^admin/", admin.site.urls),
+    re_path(r"^history/", include("experimenter.changelog.urls")),
     re_path(r"^experiments/", include("experimenter.legacy.legacy_experiments.urls")),
     re_path(r"^nimbus/", NimbusUIView.as_view(), name="nimbus-list"),
     re_path(r"^nimbus/(?P<slug>[\w-]+)/", NimbusUIView.as_view(), name="nimbus-detail"),
