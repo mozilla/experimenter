@@ -15,7 +15,7 @@ Test cases for analysis errors schemas:
 
 def test_analysis_errors():
     ae0 = AnalysisError(
-        analysis_basis=AnalysisBasis.enrollments,
+        analysis_basis=AnalysisBasis.ENROLLMENTS,
         exception="(<class 'errors.TestException'>, TestException('err')",
         exception_type="EnrollmentNotCompleteException",
         experiment="test-experiment-slug",
@@ -29,7 +29,7 @@ def test_analysis_errors():
         timestamp="2023-05-17T06:42:31+00:00",
     )
     ae1 = AnalysisError(
-        analysis_basis=AnalysisBasis.exposures,
+        analysis_basis=AnalysisBasis.EXPOSURES,
         exception="(<class 'errors.TestException'>, TestException('err')",
         exception_type="EnrollmentNotCompleteException",
         experiment="test-experiment-slug",

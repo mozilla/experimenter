@@ -7,8 +7,8 @@ SCHEMA_VERSION = 4
 
 
 class AnalysisBasis(str, Enum):
-    enrollments = "enrollments"
-    exposures = "exposures"
+    ENROLLMENTS = "enrollments"
+    EXPOSURES = "exposures"
 
 
 class Statistic(BaseModel):
