@@ -272,6 +272,14 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     conclusion_recommendation = forms.ChoiceField(
         choices=NimbusExperiment.ConclusionRecommendation.choices, required=False
     )
+    required_experiments = forms.ModelMultipleChoiceField(
+        queryset=NimbusExperiment.objects.all(),
+        required=False,
+    )
+    excluded_experiments = forms.ModelMultipleChoiceField(
+        queryset=NimbusExperiment.objects.all(),
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

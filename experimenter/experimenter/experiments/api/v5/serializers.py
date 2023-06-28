@@ -1238,7 +1238,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = NimbusExperiment
-        exclude = ("id",)
+        exclude = ("id", "excluded_experiments", "required_experiments")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
