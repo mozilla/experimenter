@@ -348,14 +348,12 @@ REDIS_DB = config("REDIS_DB")
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    },
-    "sizing": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
         "TIMEOUT": None,
     },
 }
+SIZING_DATA_KEY = "population_sizing"
 
 # Celery
 CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
