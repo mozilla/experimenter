@@ -164,6 +164,11 @@ DATABASES = {
 # Graphene Schema
 GRAPHENE = {"SCHEMA": "experimenter.experiments.api.v5.schema"}
 
+if DEBUG:  # pragma: no cover
+    GRAPHENE["MIDDLEWARE"] = [
+        "experimenter.base.graphene.GrapheneExceptionMiddleware",
+    ]
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
