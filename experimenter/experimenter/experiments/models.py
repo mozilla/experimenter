@@ -212,6 +212,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     is_localized = models.BooleanField(default=False)
     localizations = models.TextField(blank=True, null=True)
 
+    required_experiments = models.ManyToManyField["NimbusExperiment"](
+        "NimbusExperiment", related_name="required_by"
+    )
+    excluded_experiments = models.ManyToManyField["NimbusExperiment"](
+        "NimbusExperiment", related_name="excluded_by"
+    )
+
     objects = NimbusExperimentManager()
 
     class Meta:
