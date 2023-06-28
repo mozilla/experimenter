@@ -1388,6 +1388,24 @@ SET_DEFAULT_PDF_EXPERIMENT_ENROLLEES = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TEST_MOBILE_FIRST_RUN_TARGETING_CRITERIA_IOS = NimbusTargetingConfig(
+    name="TEST first run targeting criteria",
+    slug="test_mobile_first_run_targeting_criteria",
+    description=(
+        "Users for whom this is their first run of the application, and the number of "
+        "days since install is less than 7. Additionally, though this targets first run "
+        "users this advanced targeting option does not require first run to be enabled."
+    ),
+    targeting="(isFirstRun == 'true' || is_first_run == true) && days_since_install < 7",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(
+        Application.FENIX.name,
+        Application.IOS.name,
+    ),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
