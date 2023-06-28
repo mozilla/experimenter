@@ -8,6 +8,9 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import { FieldError } from "react-hook-form";
+import FormFeatureValue, {
+  FormFeatureValueProps,
+} from "src/components/PageEditBranches/FormBranches/FormFeatureValue";
 import FormScreenshot, {
   FormScreenshotProps,
 } from "src/components/PageEditBranches/FormBranches/FormScreenshot";
@@ -16,12 +19,7 @@ import { useCommonNestedForm } from "src/hooks";
 import { ReactComponent as DeleteIcon } from "src/images/x.svg";
 import { NUMBER_FIELD, REQUIRED_FIELD } from "src/lib/constants";
 
-export const branchFieldNames = [
-  "name",
-  "description",
-  "ratio",
-  "featureValue",
-] as const;
+export const branchFieldNames = ["name", "description", "ratio"] as const;
 
 type BranchFieldName = typeof branchFieldNames[number];
 
@@ -61,7 +59,12 @@ export const FormBranch = ({
 
   const { FormErrors, formControlAttrs, watch } =
     useCommonNestedForm<BranchFieldName>(
-      defaultValues,
+      (defaultValues = {
+        ...defaultValues,
+        featureValue: defaultValues.featureValues.length
+          ? defaultValues.featureValues[0].value
+          : "",
+      }),
       setSubmitErrors,
       fieldNamePrefix,
       submitErrors,
@@ -89,10 +92,10 @@ export const FormBranch = ({
 
   return (
     <div
-      className="mb-3 border border-secondary rounded"
+      className="mb-3 border border-secondary rounded p-3"
       data-testid="FormBranch"
     >
-      <Form.Group className="p-1 mx-3 mt-2 mb-0">
+      <Form.Group>
         <Form.Row>
           <Form.Group as={Col} controlId={`${id}-name`} sm={4} md={3}>
             <Form.Label>
@@ -161,27 +164,42 @@ export const FormBranch = ({
         </Form.Row>
       </Form.Group>
 
-      <Form.Group
-        className="p-1 mx-3 mt-2 mb-0"
-        data-testid="feature-config-edit"
-      >
-        <Form.Row data-testid="feature-value-edit">
-          <Form.Group as={Col} controlId={`${id}-featureValue`}>
-            <Form.Label>Value</Form.Label>
-            <Form.Control
-              {...formControlAttrs("featureValue")}
-              as="textarea"
-              rows={4}
-            />
-            <FormErrors name="featureValue" />
+      <Form.Group data-testid="feature-values-edit">
+        <Form.Row>
+          <Form.Group as={Col}>
+            {branch.featureValues?.map((featureValue, idx) => (
+              <div key={idx}>
+                <FormFeatureValue
+                  {...{
+                    featureId: parseInt(featureValue!.featureConfig!, 10),
+                    fieldNamePrefix: `${fieldNamePrefix}.featureValues[${idx}]`,
+                    defaultValues: defaultValues.featureValues?.[idx] || {},
+                    setSubmitErrors,
+                    //@ts-ignore react-hook-form types seem broken for nested fields
+                    submitErrors: (submitErrors?.featureValues?.[idx] ||
+                      {}) as FormFeatureValueProps["submitErrors"],
+                    //@ts-ignore react-hook-form types seem broken for nested fields
+                    errors: (errors?.featureValues?.[idx] ||
+                      {}) as FormFeatureValueProps["errors"],
+                    //@ts-ignore react-hook-form types seem broken for nested fields
+                    touched: (touched?.featureValues?.[idx] ||
+                      {}) as FormFeatureValueProps["touched"],
+                    //@ts-ignore react-hook-form types seem broken for nested fields
+                    reviewErrors: (reviewErrors?.feature_values?.[idx] ||
+                      {}) as FormFeatureValueProps["reviewErrors"],
+                    //@ts-ignore react-hook-form types seem broken for nested fields
+                    reviewWarnings: (reviewWarnings?.feature_values?.[idx] ||
+                      {}) as FormFeatureValueProps["reviewWarnings"],
+                  }}
+                />
+              </div>
+            ))}
           </Form.Group>
         </Form.Row>
       </Form.Group>
-      <Form.Group
-        className="px-3 pt-2 border-top"
-        data-testid="screenshots-edit"
-      >
-        <Form.Row className="my-3">
+
+      <Form.Group className="pt-2 border-top" data-testid="screenshots-edit">
+        <Form.Row>
           <Col>Screenshots</Col>
           {!addScreenshotButtonAtEnd && (
             <Form.Group

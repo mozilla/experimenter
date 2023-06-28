@@ -204,6 +204,7 @@ class NimbusConstants(object):
         DS_JIRA = "DS_JIRA", "Data Science Jira Ticket"
         DESIGN_DOC = "DESIGN_DOC", "Experiment Design Document"
         ENG_TICKET = "ENG_TICKET", "Engineering Ticket (Bugzilla/Jira/GitHub)"
+        QA_TICKET = "QA_TICKET", "QA Testing Ticket (Bugzilla/Jira/Github)"
 
     class Version(models.TextChoices):
         @staticmethod
@@ -328,6 +329,7 @@ class NimbusConstants(object):
         FIREFOX_113 = "113.!"
         FIREFOX_113_0_1 = "113.0.1"
         FIREFOX_114 = "114.!"
+        FIREFOX_114_3_0 = "114.3.0"
         FIREFOX_115 = "115.!"
         FIREFOX_116 = "116.!"
         FIREFOX_117 = "117.!"
@@ -410,6 +412,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MIN = (
         "Ensure this value is less than or equal to the maximum version"
     )
+    ERROR_FIREFOX_VERSION_MIN_96 = "The minimum targetable Firefox version is 96"
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
@@ -450,3 +453,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     DEFAULT_TREATMENT_BRANCH_NAME = "Treatment A"
 
     L10N_MIN_STRING_ID_LEN = 9
+
+    MIN_REQUIRED_VERSION = Version.FIREFOX_96

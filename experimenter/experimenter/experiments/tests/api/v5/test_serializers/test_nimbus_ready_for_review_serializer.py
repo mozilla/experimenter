@@ -1,6 +1,6 @@
 import datetime
 import json
-from itertools import chain
+from itertools import chain, product
 
 from django.test import TestCase
 from parameterized import parameterized
@@ -85,6 +85,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                 )
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -109,6 +110,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                 ),
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -118,7 +120,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_invalid_experiment_default_hypothesis(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -209,7 +211,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_83,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_96,
             is_sticky=True,
         )
         experiment.save()
@@ -673,6 +675,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=targeting_config,
             channel=NimbusExperiment.Channel.RELEASE,
             is_sticky=is_sticky,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         serializer = NimbusReviewSerializer(
@@ -692,8 +695,8 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_valid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_83,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+            firefox_max_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             is_sticky=True,
         )
         experiment.save()
@@ -744,6 +747,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                 )
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -802,7 +806,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             [NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG],
         )
 
@@ -856,6 +860,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         serializer = NimbusReviewSerializer(
@@ -897,7 +902,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             [
                 "Feature Config application ios does not "
                 "match experiment application fenix."
@@ -924,7 +929,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             ["You must select a feature configuration from the drop down."],
         )
 
@@ -967,7 +972,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn(
             "Unterminated string",
-            serializer.errors["reference_branch"]["feature_value"][0],
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][0],
         )
         self.assertEqual(len(serializer.errors), 1)
 
@@ -984,6 +989,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                 )
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get()
@@ -1008,9 +1014,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertTrue(
-            serializer.errors["reference_branch"]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.errors,
         )
         self.assertEqual(len(serializer.errors), 1)
@@ -1029,6 +1035,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP,
                 )
             ],
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get()
@@ -1051,11 +1058,11 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertTrue(
-            serializer.warnings["reference_branch"]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.warnings["reference_branch"]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.warnings,
         )
         self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
@@ -1097,9 +1104,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertTrue(
-            serializer.errors["treatment_branches"][0]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.errors["treatment_branches"][0]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.errors,
         )
         self.assertEqual(len(serializer.errors), 1)
@@ -1119,6 +1126,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                 )
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = """\
@@ -1141,12 +1149,12 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
         self.assertTrue(
-            serializer.warnings["treatment_branches"][0]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.warnings["treatment_branches"][0]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.warnings,
         )
 
@@ -1167,6 +1175,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                 )
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = """\
@@ -1198,9 +1207,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
         self.assertTrue(
-            serializer.warnings["treatment_branches"][0]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.warnings["treatment_branches"][0]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.warnings,
         )
 
@@ -1220,6 +1229,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                 )
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = """\
@@ -1256,6 +1266,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                 )
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -1490,7 +1501,11 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"reference_branch": {"feature_value": ["This field may not be blank."]}},
+            {
+                "reference_branch": {
+                    "feature_values": [{"value": ["This field may not be blank."]}]
+                }
+            },
         )
 
     def test_bucket_namespace_warning_for_dupe_rollouts(self):
@@ -2061,12 +2076,16 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             serializer.errors,
             {
                 "reference_branch": {
-                    "feature_value": [
-                        (
-                            "Schema validation errors occured during locale "
-                            "substitution for locale en-US"
-                        ),
-                        "'foo text' is not of type 'boolean'",
+                    "feature_values": [
+                        {
+                            "value": [
+                                (
+                                    "Schema validation errors occured during locale "
+                                    "substitution for locale en-US"
+                                ),
+                                "'foo text' is not of type 'boolean'",
+                            ]
+                        }
                     ]
                 }
             },
@@ -2137,7 +2156,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"reference_branch": {"feature_value": [error_msg]}},
+            {"reference_branch": {"feature_values": [{"value": [error_msg]}]}},
             serializer.errors,
         )
 
@@ -2148,6 +2167,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             is_sticky=True,
             is_localized=False,
             localizations="",
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         serializer = NimbusReviewSerializer(
@@ -2171,6 +2191,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             is_sticky=True,
             is_first_run=False,
             proposed_release_date=release_date,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -2197,6 +2218,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             is_sticky=True,
             is_first_run=True,
             proposed_release_date=release_date,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -2242,6 +2264,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 ),
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
         )
 
         serializer = NimbusReviewSerializer(
@@ -2300,6 +2323,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_with_schema,
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(
@@ -2346,6 +2370,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_with_schema,
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(
@@ -2392,6 +2417,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_with_schema,
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(
@@ -2440,6 +2466,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_with_schema,
             ],
             is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get(
             feature_config=self.feature_with_schema
@@ -2487,6 +2514,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_without_schema,
                 self.feature_with_schema,
             ],
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get(
             feature_config=self.feature_with_schema
@@ -2513,7 +2541,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_feature_configs_reference_value_schema_warn(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -2527,6 +2555,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_without_schema,
                 self.feature_with_schema,
             ],
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(
@@ -2574,6 +2603,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_without_schema,
                 self.feature_with_schema,
             ],
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get(
             feature_config=self.feature_with_schema
@@ -2600,7 +2630,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertTrue(
             serializer.warnings["treatment_branches"][0]["feature_values"][1]["value"][
                 0
@@ -2620,6 +2650,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_without_schema,
                 self.feature_with_schema,
             ],
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get(
             feature_config=self.feature_with_schema
@@ -2646,7 +2677,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertNotIn("reference_branch", serializer.warnings)
         self.assertNotIn("treatment_branch", serializer.warnings)
 
@@ -2717,3 +2748,51 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             partial=True,
         )
         self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @parameterized.expand(
+        product(
+            list(NimbusExperiment.Application),
+            (
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.FIREFOX_95,
+                NimbusExperiment.Version.FIREFOX_100,
+            ),
+        )
+    )
+    def test_minimum_version(self, application, firefox_min_version):
+        valid_version = NimbusExperiment.Version.parse(
+            firefox_min_version
+        ) >= NimbusExperiment.Version.parse(NimbusExperiment.MIN_REQUIRED_VERSION)
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=firefox_min_version,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertEqual(
+            serializer.is_valid(),
+            valid_version,
+            serializer.errors if valid_version else "Experiment is invalid",
+        )
+
+        if not valid_version:
+            self.assertEqual(
+                serializer.errors,
+                {
+                    "firefox_min_version": [
+                        NimbusExperiment.ERROR_FIREFOX_VERSION_MIN_96
+                    ],
+                },
+            )

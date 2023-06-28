@@ -28,17 +28,27 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_value": "",
+            "feature_values": [
+                {
+                    "feature_config": str(feature_config.id),
+                    "value": "",
+                }
+            ],
         }
         treatment_branch = {
             "name": "treatment",
             "description": "a treatment",
             "ratio": 1,
-            "feature_value": '{"value": true}',
+            "feature_values": [
+                {
+                    "feature_config": str(feature_config.id),
+                    "value": '{"value": true}',
+                }
+            ],
         }
 
         data = {
-            "feature_config": feature_config.id,
+            "feature_configs": [feature_config.id],
             "reference_branch": reference_branch,
             "treatment_branches": [treatment_branch],
             "changelog_message": "test changelog message",
@@ -46,7 +56,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
         )
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         serializer.save()
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.feature_configs.get(), feature_config)
@@ -83,17 +93,27 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 1,
-            "feature_value": "",
+            "feature_values": [
+                {
+                    "feature_config": str(feature_config.id),
+                    "value": "",
+                }
+            ],
         }
         treatment_branch = {
             "name": "new treatment",
             "description": "a new treatment",
             "ratio": 1,
-            "feature_value": '{"value": true}',
+            "feature_values": [
+                {
+                    "feature_config": str(feature_config.id),
+                    "value": '{"value": true}',
+                },
+            ],
         }
 
         data = {
-            "feature_config": feature_config.id,
+            "feature_configs": [feature_config.id],
             "reference_branch": reference_branch,
             "treatment_branches": [treatment_branch],
             "changelog_message": "test changelog message",
@@ -145,18 +165,28 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 1,
-            "feature_value": "",
+            "feature_values": [
+                {
+                    "feature_config": str(feature_config.id),
+                    "value": "",
+                }
+            ],
         }
         treatment_branch = {
             "id": experiment.treatment_branches[0].id,
             "name": "new treatment",
             "description": "a new treatment",
             "ratio": 1,
-            "feature_value": '{"value": true}',
+            "feature_values": [
+                {
+                    "feature_config": str(feature_config.id),
+                    "value": '{"value": true}',
+                },
+            ],
         }
 
         data = {
-            "feature_config": feature_config.id,
+            "feature_configs": [feature_config.id],
             "reference_branch": reference_branch,
             "treatment_branches": [treatment_branch],
             "changelog_message": "test changelog message",

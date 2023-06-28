@@ -4,14 +4,12 @@ from typing import Any, Dict
 
 from cirrus_sdk import CirrusClient, NimbusError  # type: ignore
 
-from .settings import context
-
 logger = logging.getLogger(__name__)
 
 
 class SDK:
-    def __init__(self):
-        self.client = CirrusClient(context)
+    def __init__(self, context: str):
+        self.client = CirrusClient(context)  # does not match struct- throw an exception
 
     def compute_enrollments(self, targeting_context: Dict[str, str]) -> Dict[str, Any]:
         try:
@@ -28,6 +26,3 @@ class SDK:
             self.client.set_experiments(recipes)  # type: ignore
         except NimbusError as e:
             logger.error(f"An error occurred during set_experiments: {e}")
-
-
-sdk = SDK()

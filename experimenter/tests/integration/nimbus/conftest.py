@@ -329,23 +329,34 @@ def fixture_experiment_default_data():
         "riskRevenue": False,
         "riskPartnerRelated": False,
         "riskBrand": False,
-        "featureConfigId": 1,
+        "featureConfigIds": [1],
         "referenceBranch": {
             "description": "reference branch",
             "name": "Branch 1",
             "ratio": 50,
-            "featureValue": "{}",
+            "featureValues": [
+                {
+                    "featureConfig": "1",
+                    "value": "{}",
+                },
+            ],
         },
         "treatmentBranches": [
             {
                 "description": "treatment branch",
                 "name": "Branch 2",
                 "ratio": 50,
-                "featureValue": "",
+                "featureValues": [
+                    {
+                        "featureConfig": "1",
+                        "value": "",
+                    },
+                ],
             }
         ],
         "populationPercent": "100",
         "totalEnrolledClients": 55,
+        "firefoxMinVersion": "FIREFOX_96",
     }
 
 

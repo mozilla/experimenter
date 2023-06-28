@@ -40,6 +40,7 @@ export enum NimbusExperimentDocumentationLinkEnum {
   DESIGN_DOC = "DESIGN_DOC",
   DS_JIRA = "DS_JIRA",
   ENG_TICKET = "ENG_TICKET",
+  QA_TICKET = "QA_TICKET",
 }
 
 export enum NimbusExperimentFirefoxVersionEnum {
@@ -67,6 +68,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_113 = "FIREFOX_113",
   FIREFOX_113_0_1 = "FIREFOX_113_0_1",
   FIREFOX_114 = "FIREFOX_114",
+  FIREFOX_114_3_0 = "FIREFOX_114_3_0",
   FIREFOX_115 = "FIREFOX_115",
   FIREFOX_116 = "FIREFOX_116",
   FIREFOX_117 = "FIREFOX_117",
@@ -184,7 +186,7 @@ export enum NimbusExperimentStatusEnum {
 }
 
 export interface BranchFeatureValueInput {
-  featureConfig?: number | null;
+  featureConfig?: string | null;
   value?: string | null;
 }
 
@@ -193,7 +195,6 @@ export interface BranchInput {
   name: string;
   description: string;
   ratio: number;
-  featureValue?: string | null;
   featureValues?: (BranchFeatureValueInput | null)[] | null;
   screenshots?: (BranchScreenshotInput | null)[] | null;
 }
@@ -222,7 +223,6 @@ export interface ExperimentInput {
   conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   countries?: (string | null)[] | null;
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
-  featureConfigId?: number | null;
   featureConfigIds?: (number | null)[] | null;
   firefoxMaxVersion?: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;

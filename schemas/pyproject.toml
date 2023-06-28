@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "mozilla-nimbus-schemas"
+version = "2023.6.6"
+description = "Schemas used by Mozilla Nimbus and related projects."
+authors = ["mikewilli"]
+license = "MPL 2.0"
+readme = "README.md"
+packages = [{include = "mozilla_nimbus_schemas"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic = "^1.10.7"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.269"
+black = "^23.3.0"
+pytest = "^7.3.1"
+twine = "^4.0.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
+[tool.ruff]
+# # Enable Pyflakes `E` and `F` codes by default.
+select = ["F", "E", "W", "I", "N", "YTT", "A", "C4", "RET", "SIM"]
+ignore = [
+    "A003",
+    "E402",
+    "E741",
+    "F403",
+    "N802",
+    "N803",
+    "N806",
+    "N812",
+    "N815",
+    "RET503",
+    "RET504",
+    "RET505",
+    "SIM102",
+]
+[tool.ruff.pep8-naming]
+classmethod-decorators = ["classmethod", "pydantic.validator"]
+
+[tool.flake8]
+max-line-length = 90
+[tool.black]
+line-length = 90

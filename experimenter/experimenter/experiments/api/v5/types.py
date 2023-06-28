@@ -186,7 +186,6 @@ class NimbusBranchFeatureValueType(DjangoObjectType):
 
 class NimbusBranchType(DjangoObjectType):
     id = graphene.Int(required=False)
-    feature_value = graphene.String(required=False)
     feature_values = graphene.List(NimbusBranchFeatureValueType)
     screenshots = DjangoListField(NimbusBranchScreenshotType)
 
@@ -194,7 +193,6 @@ class NimbusBranchType(DjangoObjectType):
         model = NimbusBranch
         fields = (
             "description",
-            "feature_value",
             "feature_values",
             "id",
             "name",
@@ -204,13 +202,7 @@ class NimbusBranchType(DjangoObjectType):
         )
 
     def resolve_feature_values(self, info):
-        return self.feature_values.all()
-
-    def resolve_feature_value(self, info):
-        return (
-            self.feature_values.exists()
-            and self.feature_values.all().order_by("feature_config__slug").first().value
-        ) or ""
+        return self.feature_values.all().order_by("feature_config__id")
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
@@ -442,7 +434,6 @@ class NimbusExperimentType(DjangoObjectType):
     countries = graphene.List(graphene.NonNull(NimbusCountryType), required=True)
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     enrollment_end_date = graphene.DateTime()
-    feature_config = graphene.Field(NimbusFeatureConfigType)
     feature_configs = graphene.List(NimbusFeatureConfigType)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
@@ -510,7 +501,6 @@ class NimbusExperimentType(DjangoObjectType):
             "countries",
             "documentation_links",
             "enrollment_end_date",
-            "feature_config",
             "feature_configs",
             "firefox_max_version",
             "firefox_min_version",
@@ -570,13 +560,6 @@ class NimbusExperimentType(DjangoObjectType):
             "warn_feature_schema",
         )
 
-    def resolve_feature_config(self, info):
-        if self.feature_configs.exists():
-            return sorted(
-                self.feature_configs.all(),
-                key=lambda feature_config: (feature_config.slug),
-            )[0]
-
     def resolve_feature_configs(self, info):
         return self.feature_configs.all()
 
@@ -611,9 +594,7 @@ class NimbusExperimentType(DjangoObjectType):
         return self.targeting_config_slug
 
     def resolve_targeting_config(self, info):
-
         if self.targeting_config_slug in self.TargetingConfig:
-
             return [
                 NimbusExperimentTargetingConfigType(
                     label=NimbusExperiment.TARGETING_CONFIGS[

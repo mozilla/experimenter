@@ -236,6 +236,31 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903_PREFER_MOTION = NimbusTargetingC
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_NEED_PIN_WINDOWS_1903 = NimbusTargetingConfig(
+    name=(
+        "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
+        "new profile, needing default & pin"
+    ),
+    slug="first_run_need_default_need_pin",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows 1903+, "
+        "with a new profile, needing default & pin"
+    ),
+    targeting=(
+        "{first_run} && doesAppNeedPin".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND doesAppNeedPin".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
+        )
+    ),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
     name=(
         "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
@@ -457,6 +482,17 @@ URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_DISABLED = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Data Collection Disabled",
+    slug="urlbar_firefox_suggest_data_collection_disabled",
+    description="Users with Firefox Suggest data collection disabled",
+    targeting="!('browser.urlbar.quicksuggest.dataCollection.enabled'|preferenceValue)",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 MAC_ONLY = NimbusTargetingConfig(
     name="Mac OS users only",
     slug="mac_only",
@@ -484,6 +520,28 @@ NO_ENTERPRISE = NimbusTargetingConfig(
     slug="no_enterprise_users",
     description="Exclude users with active enterpries policies",
     targeting="!hasActiveEnterprisePolicies",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+RELAY_USER = NimbusTargetingConfig(
+    name="Relay user",
+    slug="relay_user",
+    description="Include users who have Relay",
+    targeting=('("9ebfe2c2f9ea3c58" in attachedFxAOAuthClients|mapToProperty("id"))'),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NOT_RELAY_USER = NimbusTargetingConfig(
+    name="Not Relay user",
+    slug="not_relay_user",
+    description="Excludes users who have Relay",
+    targeting=f"!({RELAY_USER.targeting})",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

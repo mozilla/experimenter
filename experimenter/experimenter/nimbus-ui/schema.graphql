@@ -63,7 +63,6 @@ type NimbusExperimentType {
   computedEnrollmentDays: Int
   computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
-  featureConfig: NimbusFeatureConfigType
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
   jexlTargetingExpression: String
@@ -227,6 +226,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_113
   FIREFOX_113_0_1
   FIREFOX_114
+  FIREFOX_114_3_0
   FIREFOX_115
   FIREFOX_116
   FIREFOX_117
@@ -301,7 +301,6 @@ type NimbusBranchType {
   ratio: Int!
   featureValues: [NimbusBranchFeatureValueType]
   screenshots: [NimbusBranchScreenshotType!]
-  featureValue: String
 }
 
 type NimbusBranchFeatureValueType {
@@ -333,6 +332,7 @@ enum NimbusExperimentDocumentationLinkEnum {
   DS_JIRA
   DESIGN_DOC
   ENG_TICKET
+  QA_TICKET
 }
 
 type NimbusChangeLogType {
@@ -460,7 +460,6 @@ input ExperimentInput {
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   countries: [String]
   documentationLinks: [DocumentationLinkInput]
-  featureConfigId: Int
   featureConfigIds: [Int]
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
@@ -510,13 +509,12 @@ input BranchInput {
   name: String!
   description: String!
   ratio: Int!
-  featureValue: String
   featureValues: [BranchFeatureValueInput]
   screenshots: [BranchScreenshotInput]
 }
 
 input BranchFeatureValueInput {
-  featureConfig: Int
+  featureConfig: String
   value: String
 }
 

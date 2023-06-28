@@ -19,3 +19,4 @@ context: str = json.dumps(
         "channel": channel,
     }
 )
+fml_path: str = cast(str, config("CIRRUS_FML_PATH", default=""))

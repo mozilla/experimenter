@@ -75,7 +75,11 @@ function addBranch(state: FormBranchesState): FormBranchesState {
   lastId++;
 
   if (referenceBranch === null) {
-    referenceBranch = createAnnotatedBranch(lastId, "control");
+    referenceBranch = createAnnotatedBranch(
+      lastId,
+      "control",
+      state.featureConfigIds,
+    );
   } else {
     treatmentBranches = [
       ...(treatmentBranches || []),
@@ -83,6 +87,7 @@ function addBranch(state: FormBranchesState): FormBranchesState {
         state.lastId,
         // 65 is A, but we generate a control, so start at 64
         `Treatment ${String.fromCharCode(64 + lastId)}`,
+        state.featureConfigIds,
       ),
     ];
   }
@@ -123,9 +128,39 @@ function setFeatureConfigs(
   state: FormBranchesState,
   { value: featureConfigIds }: SetFeatureConfigsAction,
 ): FormBranchesState {
+  function extractFeatureValue(
+    featureConfigId: string,
+    branch: AnnotatedBranch | null,
+  ): string {
+    return (
+      branch?.featureValues?.find((fv) => fv?.featureConfig === featureConfigId)
+        ?.value ?? ""
+    );
+  }
+  featureConfigIds?.sort((a, b) => a! - b!);
   return {
     ...state,
     featureConfigIds: featureConfigIds || null,
+    referenceBranch: {
+      ...state.referenceBranch,
+      featureValues: featureConfigIds?.map((featureConfigId) => ({
+        featureConfig: featureConfigId?.toString(),
+        value: extractFeatureValue(
+          featureConfigId!.toString(),
+          state.referenceBranch,
+        ),
+      })),
+    } as AnnotatedBranch,
+    treatmentBranches: state.treatmentBranches?.map((treatmentBranch) => ({
+      ...treatmentBranch,
+      featureValues: featureConfigIds?.map((featureConfigId) => ({
+        featureConfig: featureConfigId?.toString(),
+        value: extractFeatureValue(
+          featureConfigId!.toString(),
+          treatmentBranch,
+        ),
+      })),
+    })) as AnnotatedBranch[],
   };
 }
 
@@ -366,10 +401,14 @@ function branchUpdatedWithFormData(
       image,
     };
   });
-  const featureValues = state.featureConfigIds?.map((featureConfigId, idx) => {
-    const { value } = formData?.featureValues?.[idx] || {};
+  const featureValues = state.featureConfigIds?.map((featureConfigId) => {
+    const featureConfig = featureConfigId!.toString();
+    const { value } =
+      formData?.featureValues?.find(
+        (featureValue) => featureValue!.featureConfig === featureConfig,
+      ) ?? {};
     return {
-      featureConfigId,
+      featureConfig,
       value,
     };
   });

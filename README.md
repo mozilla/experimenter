@@ -75,7 +75,7 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
         - Click the activate and restart button to save your change.
     - Install Make and Git
         - Open the ubuntu terminal
-        - You should install make using this command `sudo apt-get update && sudo apt install make` in the ubuntu terminal. 
+        - You should install make using this command `sudo apt-get update && sudo apt install make` in the ubuntu terminal.
         This is necessary for the `make secretkey` command and other commands.
         - Ensure git is available by running `git --version`. If it's not recognized, install git using `sudo apt install git`
 
@@ -534,7 +534,7 @@ Learn more about the organization of these UIs [here](./experimenter/experimente
 
 ## API
 
-API documentation can be found [here](https://htmlpreview.github.io/?https://github.com/mozilla/experimenter/blob/main/experimenter/experimenter/docs/swagger-ui.html)
+API documentation can be found [here](https://htmlpreview.github.io/?https://github.com/mozilla/experimenter/blob/main/docs/experimenter/swagger-ui.html)
 
 ## Contributing
 

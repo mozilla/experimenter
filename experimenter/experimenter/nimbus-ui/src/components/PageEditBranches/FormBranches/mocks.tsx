@@ -10,7 +10,7 @@ import { AnnotatedBranch } from "src/components/PageEditBranches/FormBranches/re
 import { formBranchesActionReducer } from "src/components/PageEditBranches/FormBranches/reducer/actions";
 import { FormBranchesState } from "src/components/PageEditBranches/FormBranches/reducer/state";
 import { useForm } from "src/hooks";
-import { mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
 import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
@@ -24,7 +24,12 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
     slug: "control",
     description: "Behind almost radio result personal none future current.",
     ratio: 1,
-    featureValue: '{"environmental-fact": "really-citizen"}',
+    featureValues: [
+      {
+        featureConfig: { id: 1 },
+        value: '{"environmental-fact": "really-citizen"}',
+      },
+    ],
     screenshots: [],
   },
   treatmentBranches: [
@@ -34,7 +39,12 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       slug: "managed-zero-tolerance-projection",
       description: "Next ask then he in degree order.",
       ratio: 1,
-      featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
+      featureValues: [
+        {
+          featureConfig: { id: 1 },
+          value: '{"effect-effect-whole": "close-teach-exactly"}',
+        },
+      ],
       screenshots: [],
     },
     {
@@ -43,7 +53,12 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       slug: "salt-way-link",
       description: "Flame the dark true.",
       ratio: 2,
-      featureValue: '{"frosted-wake": "simple-hesitation"}',
+      featureValues: [
+        {
+          featureConfig: { id: 1 },
+          value: '{"frosted-wake": "simple-hesitation"}',
+        },
+      ],
       screenshots: [],
     },
   ],
@@ -64,6 +79,12 @@ const MOCK_STATE: FormBranchesState = {
     errors: {},
     isValid: true,
     isDirty: false,
+    featureValues: MOCK_EXPERIMENT.referenceBranch?.featureValues?.map(
+      (fv) => ({
+        featureConfig: fv?.featureConfig?.id?.toString(),
+        value: fv?.value,
+      }),
+    ),
   },
   treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map((branch, idx) => ({
     ...branch!,
@@ -72,6 +93,10 @@ const MOCK_STATE: FormBranchesState = {
     errors: {},
     isValid: true,
     isDirty: false,
+    featureValues: branch?.featureValues?.map((fv) => ({
+      featureConfig: fv?.featureConfig?.id?.toString(),
+      value: fv?.value,
+    })),
   })),
 };
 
@@ -86,7 +111,10 @@ export const SubjectBranch = ({
   onRemoveScreenshot = () => {},
   onRemove = () => {},
   isDesktop = true,
-}: Partial<React.ComponentProps<typeof FormBranch>>) => {
+  config = MOCK_CONFIG,
+}: Partial<React.ComponentProps<typeof FormBranch>> & {
+  config?: typeof MOCK_CONFIG;
+}) => {
   const defaultValues = {
     referenceBranch: branch,
     treatmentBranches: [branch],
@@ -105,31 +133,34 @@ export const SubjectBranch = ({
   } = formMethods;
 
   return (
-    <FormProvider {...formMethods}>
-      <form className="p-5">
-        <FormBranch
-          {...{
-            fieldNamePrefix,
-            // react-hook-form types seem broken for nested fields
-            errors: (errors.referenceBranch || {}) as FormBranchProps["errors"],
-            // react-hook-form types seem broken for nested fields
-            touched: (touched.referenceBranch ||
-              {}) as FormBranchProps["touched"],
-            reviewErrors: {},
-            reviewWarnings: {},
-            branch,
-            isReference,
-            equalRatio,
-            onRemove,
-            onAddScreenshot,
-            onRemoveScreenshot,
-            defaultValues: defaultValues.referenceBranch || {},
-            setSubmitErrors,
-            isDesktop,
-          }}
-        />
-      </form>
-    </FormProvider>
+    <MockedCache config={config}>
+      <FormProvider {...formMethods}>
+        <form className="p-5">
+          <FormBranch
+            {...{
+              fieldNamePrefix,
+              // react-hook-form types seem broken for nested fields
+              errors: (errors.referenceBranch ||
+                {}) as FormBranchProps["errors"],
+              // react-hook-form types seem broken for nested fields
+              touched: (touched.referenceBranch ||
+                {}) as FormBranchProps["touched"],
+              reviewErrors: {},
+              reviewWarnings: {},
+              branch,
+              isReference,
+              equalRatio,
+              onRemove,
+              onAddScreenshot,
+              onRemoveScreenshot,
+              defaultValues: defaultValues.referenceBranch || {},
+              setSubmitErrors,
+              isDesktop,
+            }}
+          />
+        </form>
+      </FormProvider>
+    </MockedCache>
   );
 };
 
@@ -139,8 +170,10 @@ export const SubjectBranches = ({
   allFeatureConfigs = MOCK_CONFIG.allFeatureConfigs,
   onSave = () => {},
   saveOnInitialRender = false,
+  config = MOCK_CONFIG,
 }: Partial<React.ComponentProps<typeof FormBranches>> & {
   saveOnInitialRender?: boolean;
+  config?: typeof MOCK_CONFIG;
 } = {}) => {
   useEffect(() => {
     if (saveOnInitialRender) {
@@ -153,16 +186,18 @@ export const SubjectBranches = ({
   }, [saveOnInitialRender]);
 
   return (
-    <div className="p-5">
-      <FormBranches
-        {...{
-          isLoading,
-          experiment,
-          allFeatureConfigs,
-          onSave,
-        }}
-      />
-    </div>
+    <MockedCache config={config}>
+      <div className="p-5">
+        <FormBranches
+          {...{
+            isLoading,
+            experiment,
+            allFeatureConfigs,
+            onSave,
+          }}
+        />
+      </div>
+    </MockedCache>
   );
 };
 
@@ -174,6 +209,10 @@ export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
   errors: {},
   ...MOCK_BRANCH,
   screenshots: [],
+  featureValues: MOCK_BRANCH.featureValues?.map((fv) => ({
+    featureConfig: fv?.featureConfig?.id?.toString(),
+    value: fv?.value,
+  })),
 };
 export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.allFeatureConfigs![0]!;
 export const MOCK_FEATURE_CONFIG_WITH_SCHEMA =

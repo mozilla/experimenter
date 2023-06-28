@@ -120,7 +120,9 @@ compose_rm:
 	$(COMPOSE_INTEGRATION) rm -f -v || true
 	$(COMPOSE_PROD) rm -f -v || true
 
-volumes_rm:
+docker_prune:
+	docker container prune -f
+	docker image prune -f
 	docker volume prune -f
 
 static_rm:
@@ -130,7 +132,7 @@ static_rm:
 	rm -Rf experimenter/experimenter/legacy/legacy-ui/assets/
 	rm -Rf experimenter/experimenter/nimbus-ui/build/
 
-kill: compose_stop compose_rm volumes_rm
+kill: compose_stop compose_rm docker_prune
 	echo "All containers removed!"
 
 check: build_test
@@ -244,3 +246,25 @@ cirrus_typecheck_createstub: cirrus_build
 cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
+schemas_install:
+	(cd schemas && poetry install)
+
+schemas_black:
+	(cd schemas && poetry run black --check --diff .)
+
+schemas_ruff:
+	(cd schemas && poetry run ruff .)
+
+schemas_test:
+	(cd schemas && poetry run pytest)
+
+schemas_check: schemas_install schemas_black schemas_ruff schemas_test
+
+schemas_code_format:
+	(cd schemas && poetry run black . && poetry run ruff --fix .)
+
+schemas_build:
+	(cd schemas && poetry build)
+
+schemas_deploy_pypi: schemas_install schemas_build
+	cd schemas; poetry run twine upload --skip-existing dist/*;

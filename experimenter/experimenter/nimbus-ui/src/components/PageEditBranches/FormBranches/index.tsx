@@ -9,6 +9,12 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
+import Select, {
+  components as SelectComponents,
+  MultiValueGenericProps,
+  OptionProps,
+  Options,
+} from "react-select";
 import FormBranch from "src/components/PageEditBranches/FormBranches/FormBranch";
 import {
   FormBranchesSaveState,
@@ -19,9 +25,18 @@ import { FormBranchesState } from "src/components/PageEditBranches/FormBranches/
 import { FormData } from "src/components/PageEditBranches/FormBranches/reducer/update";
 import { useExitWarning, useForm, useReviewCheck } from "src/hooks";
 import { IsDirtyUnsaved } from "src/hooks/useCommonForm/useCommonFormMethods";
-import { getConfig_nimbusConfig } from "src/types/getConfig";
+import {
+  getConfig_nimbusConfig,
+  getConfig_nimbusConfig_allFeatureConfigs,
+} from "src/types/getConfig";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
+
+interface FeatureConfigOption {
+  value: string;
+  name: string;
+  description: string | null;
+}
 
 type FormBranchesProps = {
   isLoading: boolean;
@@ -41,7 +56,17 @@ export const FormBranches = ({
   allFeatureConfigs,
   onSave,
 }: FormBranchesProps) => {
-  const { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
+  const [selectDirty, setSelectDirty] = useState(false);
+
+  let { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
+
+  [fieldMessages, fieldWarnings] = useMemo(() => {
+    // When we change the selected features, the errors will not line up correctly.
+    if (selectDirty) {
+      return [{}, {}];
+    }
+    return [fieldMessages, fieldWarnings];
+  }, [selectDirty, fieldMessages, fieldWarnings]);
 
   const [
     {
@@ -176,11 +201,15 @@ export const FormBranches = ({
     });
   };
 
-  const onFeatureConfigChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFeatureId = parseInt(ev.target.value, 10);
-    setIsSelectValid(true);
+  const onFeatureConfigsChanged = (newValue: Options<FeatureConfigOption>) => {
+    setIsSelectValid(newValue.length > 0);
+    setSelectDirty(true);
+
+    // Limit to a single value until multi-feature support has been QA'd.
+    newValue = newValue.length > 0 ? [newValue[newValue.length - 1]] : newValue;
+
     return handleFeatureConfigsChange(
-      isNaN(selectedFeatureId) ? [] : [selectedFeatureId],
+      newValue.map((value) => parseInt(value.value, 10)),
     );
   };
 
@@ -220,6 +249,7 @@ export const FormBranches = ({
     handleSubmit((dataIn: DefaultValues) => {
       try {
         setIsFormSubmitted(true);
+        setSelectDirty(false);
         if (!isLoading) {
           commitFormData();
           onSave(
@@ -252,6 +282,40 @@ export const FormBranches = ({
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
 
+  const featureConfigOptions: FeatureConfigOption[] = useMemo(() => {
+    return (allFeatureConfigs ?? [])
+      .filter(
+        (feature): feature is getConfig_nimbusConfig_allFeatureConfigs =>
+          !!feature?.enabled,
+      )
+      .map((feature) => {
+        return {
+          name: feature.name,
+          description: feature.description,
+          value: feature.id!.toString(),
+        };
+      });
+  }, [allFeatureConfigs]);
+
+  const selectedFeatureConfigOptions: FeatureConfigOption[] = useMemo(
+    () =>
+      (experimentFeatureConfigIds ?? [])
+        .filter<number>((id): id is number => typeof id !== "undefined")
+        .map(
+          (id) =>
+            featureConfigOptions.find(
+              (feature) => feature.value === id.toString(),
+            )!,
+        ),
+    [experimentFeatureConfigIds, featureConfigOptions],
+  );
+
+  const selectIsWarning = !!(
+    fieldMessages.feature_configs ??
+    fieldWarnings.feature_configs ??
+    []
+  ).length;
+
   return (
     <FormProvider {...formMethods}>
       <Form
@@ -273,53 +337,41 @@ export const FormBranches = ({
         ))}
 
         <Form.Group>
-          <Form.Control
-            isValid={selectValid}
-            as="select"
-            name="featureConfig"
-            data-testid="feature-config-select"
-            // Displaying the review-readiness error is handled here instead of `formControlAttrs`
-            // due to a state conflict between `react-hook-form` and our internal branch state mangement
-            className={classNames({
-              "is-warning":
-                fieldMessages.feature_config?.length > 0 ||
-                fieldWarnings.feature_config?.length > 0,
-            })}
-            custom
-            onChange={onFeatureConfigChange}
-            value={
-              experimentFeatureConfigIds?.length
-                ? experimentFeatureConfigIds[0] || undefined
-                : undefined
+          <Select<FeatureConfigOption, true>
+            isMulti
+            placeholder="Features..."
+            options={featureConfigOptions}
+            onChange={onFeatureConfigsChanged}
+            value={selectedFeatureConfigOptions}
+            aria-label="Features"
+            instanceId="feature-configs"
+            classNames={{
+              control: () => classNames({ "is-valid": selectValid }),
+              container: () => classNames({ "is-warning": selectIsWarning }),
+            }}
+            classNamePrefix="react-select"
+            getOptionLabel={(option: FeatureConfigOption) =>
+              option.description
+                ? `${option.name} - ${option.description}`
+                : option.name
             }
-          >
-            <option value="">Select...</option>
-            {allFeatureConfigs
-              ?.filter((feature) => feature?.enabled)
-              .map((feature) => (
-                <option
-                  key={`feature-${feature?.slug}-${feature?.id!}`}
-                  value={feature?.id!}
-                >
-                  {feature?.name}
-                  {feature?.description?.length
-                    ? ` - ${feature.description}`
-                    : ""}
-                </option>
-              ))}
-          </Form.Control>
-          {fieldMessages.feature_config?.length > 0 && (
+            components={{
+              MultiValueLabel: FeatureConfigSelectLabel,
+              Option: FeatureConfigSelectOption,
+            }}
+          />
+          {fieldMessages.feature_configs?.length && (
             // @ts-ignore This component doesn't technically support type="warning", but
             // all it's doing is using the string in a class, so we can safely override.
-            <Form.Control.Feedback type="warning" data-for="featureConfig">
-              {(fieldMessages.feature_config as SerializerMessage).join(", ")}
+            <Form.Control.Feedback type="warning" data-for="featureConfigs">
+              {(fieldMessages.feature_configs as SerializerMessage).join(", ")}
             </Form.Control.Feedback>
           )}
-          {fieldWarnings.feature_config?.length > 0 && (
+          {fieldWarnings.feature_configs?.length && (
             // @ts-ignore This component doesn't technically support type="warning", but
             // all it's doing is using the string in a class, so we can safely override.
-            <Form.Control.Feedback type="warning" data-for="featureConfig">
-              {(fieldWarnings.feature_config as SerializerMessage).join(", ")}
+            <Form.Control.Feedback type="warning" data-for="featureConfigs">
+              {(fieldWarnings.feature_configs as SerializerMessage).join(", ")}
             </Form.Control.Feedback>
           )}
         </Form.Group>
@@ -549,5 +601,33 @@ export const FormBranches = ({
     </FormProvider>
   );
 };
+
+function FeatureConfigSelectLabel(
+  props: MultiValueGenericProps<FeatureConfigOption>,
+) {
+  return (
+    <SelectComponents.MultiValueLabel {...props}>
+      {props.data.name}
+    </SelectComponents.MultiValueLabel>
+  );
+}
+
+function FeatureConfigSelectOption(
+  props: OptionProps<FeatureConfigOption, true>,
+) {
+  return (
+    // @ts-ignore innerProps are passed directly to the underlying <div> and
+    // data-* attributes are valid, but they do not appear in the prop types.
+    <SelectComponents.Option
+      {...{
+        ...props,
+        innerProps: {
+          ...props.innerProps,
+          "data-feature-config-id": props.data.value,
+        },
+      }}
+    />
+  );
+}
 
 export default FormBranches;

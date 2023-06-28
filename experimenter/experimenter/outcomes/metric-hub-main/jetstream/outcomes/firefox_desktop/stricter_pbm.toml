@@ -14,7 +14,7 @@ select_expression = """(
         event_object = 'etp_toggle_off'        
     ), 0)
 )"""
-data_source = "events"
+data_source = "etp_events"
 friendly_name = "ETP Disablement"
 
 [metrics.etp_disablement.statistics.bootstrap_mean]
@@ -34,3 +34,16 @@ data_source = "clients_daily"
 friendly_name = "Proportion of URIs coming from PBM"
 
 [metrics.share_of_uri_count_in_pbm.statistics.bootstrap_mean]
+pre_treatments = ["remove_nulls"]
+
+[data_sources.etp_events]
+from_expression = """
+(
+    SELECT * 
+    FROM mozdata.telemetry.events
+    WHERE event_category = 'security.ui.protectionspopup' AND 
+        event_method = 'click' AND 
+        event_object = 'etp_toggle_off' 
+)
+"""
+experiments_column_type = "native"

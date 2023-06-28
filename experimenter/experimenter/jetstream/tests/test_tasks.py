@@ -346,11 +346,16 @@ class TestFetchJetstreamDataTask(TestCase):
                                 "default_browser_action",
                                 "mozilla_default_browser",
                                 "default_browser_null",
+                                "custom_metric",
                             ],
                             "default_metrics": [],
+                            "description": "default browser outcome",
+                            "friendly_name": "Default Browser",
+                            "slug": "default-browser",
                         }
                     },
                     "analysis_start_time": "2022-08-31T04:30:03+00:00",
+                    "metrics": {},
                 },
                 "show_analysis": False,
                 "errors": ERRORS,
@@ -369,12 +374,17 @@ class TestFetchJetstreamDataTask(TestCase):
                                 "metrics": [
                                     "default_browser_action",
                                     "mozilla_default_browser",
-                                    "default_browser_null"
+                                    "default_browser_null",
+                                    "custom_metric"
                                 ],
-                                "default_metrics": []
+                                "default_metrics": [],
+                                "description": "default browser outcome",
+                                "friendly_name": "Default Browser",
+                                "slug": "default-browser"
                             }
                         },
-                        "analysis_start_time": "2022-08-31T04:30:03+00:00"
+                        "analysis_start_time": "2022-08-31T04:30:03+00:00",
+                        "metrics": {}
                     }"""
                 if "errors" in self.name:
                     return """[
@@ -416,6 +426,7 @@ class TestFetchJetstreamDataTask(TestCase):
                             "message": "test-experiment-slug -> error",
                             "metric": null,
                             "statistic": null,
+                            "timestamp": "2022-08-31T04:32:04",
                             "analysis_basis": "enrollments",
                             "segment": "all"
                         },
@@ -429,7 +440,7 @@ class TestFetchJetstreamDataTask(TestCase):
                             "message": "test-experiment-slug -> error",
                             "metric": null,
                             "statistic": null,
-                            "timestamp": null,
+                            "timestamp": "2022-08-31T04:32:05",
                             "analysis_basis": "enrollments",
                             "segment": "all"
                         },
@@ -481,20 +492,16 @@ class TestFetchJetstreamDataTask(TestCase):
 
     @parameterized.expand(
         [
-            (None, None),
-            ("", ""),
-            ("2022-08-31T04:30:03+00:00", ""),
-            ("", "2022-08-31T04:32:03+00:00"),
+            (None, "2022-08-31T04:32:03"),
+            ("", "2022-08-31 04:32:03+04:00"),
             ("2022-08-31T04:30:03+00:00", "2022-08-31T04:32:03+00:00"),
         ]
     )
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
-    def test_error_analysis_timestamps(
+    def test_valid_error_and_analysis_timestamps(
         self, analysis_start_time, error_timestamp, mock_exists, mock_open
     ):
-        # analysis_start_time = timestamps[0]
-        # error_timestamp = timestamps[1]
         experiment = NimbusExperimentFactory.create()
 
         (
@@ -519,11 +526,16 @@ class TestFetchJetstreamDataTask(TestCase):
                                 "default_browser_action",
                                 "mozilla_default_browser",
                                 "default_browser_null",
+                                "custom_metric",
                             ],
                             "default_metrics": [],
+                            "description": "default browser outcome",
+                            "friendly_name": "Default Browser",
+                            "slug": "default-browser",
                         }
                     },
                     "analysis_start_time": analysis_start_time,
+                    "metrics": {},
                 },
                 "show_analysis": False,
                 "errors": {
@@ -560,11 +572,16 @@ class TestFetchJetstreamDataTask(TestCase):
                                     "default_browser_action",
                                     "mozilla_default_browser",
                                     "default_browser_null",
+                                    "custom_metric",
                                 ],
                                 "default_metrics": [],
+                                "description": "default browser outcome",
+                                "friendly_name": "Default Browser",
+                                "slug": "default-browser",
                             }
                         },
                         "analysis_start_time": analysis_start_time,
+                        "metrics": {},
                     }
                 elif "errors" in self.name:
                     ret_json = [
@@ -593,9 +610,13 @@ class TestFetchJetstreamDataTask(TestCase):
         mock_open.side_effect = open_file
         mock_exists.return_value = True
 
-        tasks.fetch_experiment_data(experiment.id)
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.results_data, FULL_DATA)
+        if not error_timestamp:
+            with self.assertRaises(Exception):
+                tasks.fetch_experiment_data(experiment.id)
+        else:
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertEqual(experiment.results_data, FULL_DATA)
 
     @parameterized.expand(
         [

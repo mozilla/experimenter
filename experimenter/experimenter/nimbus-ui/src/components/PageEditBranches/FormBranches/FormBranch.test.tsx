@@ -45,11 +45,13 @@ describe("FormBranch", () => {
       <SubjectBranch
         branch={{
           ...MOCK_ANNOTATED_BRANCH,
-          featureValue: "this is a default value",
+          featureValues: [{ value: "this is a default value" }],
         }}
       />,
     );
-    expect(screen.queryByTestId("feature-value-edit")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("referenceBranch.featureValues[0].value"),
+    ).toBeInTheDocument();
   });
 
   it("calls onRemove when the branch remove button is clicked", async () => {
@@ -104,6 +106,57 @@ describe("FormBranch", () => {
     };
     const { container } = render(<SubjectBranch branch={branch} />);
     await assertInvalidField(container, "referenceBranch.description");
+  });
+
+  it("does not render FormFeatureValue when no values features are selected", () => {
+    const branch = {
+      ...MOCK_ANNOTATED_BRANCH,
+      featureValues: [],
+    };
+
+    render(<SubjectBranch branch={branch} />);
+
+    expect(
+      screen.queryByTestId("referenceBranch.featureValues[0].value"),
+    ).toBeNull();
+  });
+
+  it("renders FormFeatureValue for each feature selected", () => {
+    const branch = {
+      ...MOCK_ANNOTATED_BRANCH,
+      featureValues: [
+        {
+          featureConfig: "1",
+          value: `{"value": "foo"}`,
+        },
+        {
+          featureConfig: "3",
+          value: `{"value": "bar"}`,
+        },
+        {
+          featureConfig: "5",
+          value: `{"value": "baz"}`,
+        },
+      ],
+    };
+
+    render(<SubjectBranch branch={branch} />);
+
+    const inputs = [
+      screen.getByTestId(
+        "referenceBranch.featureValues[0].value",
+      ) as HTMLTextAreaElement,
+      screen.getByTestId(
+        "referenceBranch.featureValues[1].value",
+      ) as HTMLTextAreaElement,
+      screen.getByTestId(
+        "referenceBranch.featureValues[2].value",
+      ) as HTMLTextAreaElement,
+    ];
+
+    for (let i = 0; i < 3; i++) {
+      expect(inputs[i].value).toEqual(branch.featureValues[i].value);
+    }
   });
 
   const assertInvalidField = async (container: HTMLElement, testId: string) => {
