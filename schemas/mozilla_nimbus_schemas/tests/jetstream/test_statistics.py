@@ -15,7 +15,7 @@ def test_statistics():
         point=1.0,
         lower=0.2,
         upper=1.2,
-        analysis_basis=AnalysisBasis.enrollments,
+        analysis_basis=AnalysisBasis.ENROLLMENTS,
         window_index="1",
     )
     s1 = Statistic(
@@ -26,7 +26,7 @@ def test_statistics():
         point=1.0,
         lower=0.2,
         upper=1.2,
-        analysis_basis=AnalysisBasis.enrollments,
+        analysis_basis=AnalysisBasis.ENROLLMENTS,
         window_index="1",
     )
     s2 = Statistic(
@@ -37,7 +37,7 @@ def test_statistics():
         point=1.0,
         lower=0.2,
         upper=1.2,
-        analysis_basis=AnalysisBasis.enrollments,
+        analysis_basis=AnalysisBasis.ENROLLMENTS,
         window_index="1",
     )
 
