@@ -5,13 +5,38 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Changes Overview</h1>
-    <p>Experiment Slug: {{ experiment.slug }}</p>
-    {% for changelog in experiment.get_changelogs %}
-    <div>
-        <h2>{{ changelog.changed_on }}</h2>
-        <p>Change made: {{ changelog.message }}</p>  
-        <p>Changed by: {{ changelog.changed_by }}</p>
+    <h1 class="font-bold text-white  text-2xl p-4 bg-slate-800">Changelogs Overview</h1>
+    <div class="flex justify-center w-full p-4 flex-col items-center space-y-2">
+      <p class="underline">Experiment Slug: {{ experiment.slug }}</p>
+      <ol class="space-y-2 w-5/6">
+      {% for changelog in experiment.get_changelogs %}
+      <li>
+      <div x-data="dropdown" class=" bg-gray-200 w-full rounded-md">
+        <div @click="toggle" class="flex justify-between items-center space-x-2 bg-slate-600 p-4 rounded-t-md">
+          <div class="flex space-x-2 justify-start items-center">
+            <i class="fa-regular fa-calendar h-6 w-6 text-white"></i>
+            <h2 class="text-white font-semibold text-xl" >{{ changelog.changed_on }}</h2>
+          </div>
+          <div>
+            <i class="fa-solid fa-caret-down text-white" x-show="!open"></i>
+            <i class="fa-solid fa-caret-up text-white" x-show="open"></i>
+          </div>
+        </div>
+        <div x-show="open"  class="p-4 space-y-2">
+          <div class="flex justify-start items-center space-x-3"> 
+            <i class="fa-regular fa-user"></i>
+            <span class="underline font-semibold">Changed by: </span>
+            <span>{{ changelog.changed_by.get_full_name }}</span>
+          </div>
+          <div  class="flex justify-start items-center space-x-3"> 
+            <i class="fa-regular fa-pen-to-square"></i>
+            <span class="underline font-semibold">Change made: </span>
+            <span>{{ changelog.message }}</span>
+          </div>
+        </div>
+      </div>
+      </li>
+        {% endfor %}
+      </ol>
     </div>
-  {% endfor %}
 {% endblock %}

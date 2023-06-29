@@ -101,6 +101,17 @@ INSTALLED_APPS = [
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
+    # Tailwind and fontawesome
+    "tailwind",
+    "theme",
+    "django_browser_reload",
+    "fontawesomefree",
+]
+
+TAILWIND_APP_NAME = "theme"
+
+INTERNAL_IPS = [
+    "127.0.0.1",
 ]
 
 MIDDLEWARE = [
@@ -114,6 +125,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "dockerflow.django.middleware.DockerflowMiddleware",
     "experimenter.openidc.middleware.OpenIDCAuthMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = "experimenter.urls"
@@ -218,6 +230,7 @@ STATICFILES_DIRS = [
     ("scripts", os.path.join(BASE_DIR, "legacy", "legacy-ui", "scripts")),
     ("imgs", os.path.join(BASE_DIR, "legacy", "legacy-ui", "imgs")),
     ("nimbus", os.path.join(BASE_DIR, "nimbus-ui", "build")),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")

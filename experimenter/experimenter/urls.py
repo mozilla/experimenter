@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.urls import path
 from django.views.generic.base import RedirectView
 
 from experimenter.legacy.legacy_experiments.views import (
@@ -33,6 +34,7 @@ urlpatterns = [
         RedirectView.as_view(pattern_name="nimbus-list"),
         name="redirect-to-nimbus",
     ),
+    path("__reload__/", include("django_browser_reload.urls")),
 ]
 
 handler404 = PageNotFoundView.as_404_view()
