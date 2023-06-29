@@ -14,6 +14,7 @@ from experimenter.jetstream.models import (
     Group,
     JetstreamData,
     Metric,
+    SampleSizes,
     Segment,
     Statistic,
     create_results_object_model,
@@ -24,6 +25,7 @@ BRANCH_DATA = "branch_data"
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
 ERRORS_FOLDER = "errors"
+SIZING_FOLDER = "sample_sizes"
 ALL_STATISTICS = {
     Statistic.BINOMIAL,
     Statistic.MEAN,
@@ -77,6 +79,12 @@ def get_analysis_errors(slug):
     filename = f"errors_{slug}.json"
     path = os.path.join(ERRORS_FOLDER, filename)
     return validate_analysis_errors(load_data_from_gcs(path))
+
+
+def get_sizing_data(suffix="latest"):
+    filename = f"sample_sizes_auto_sizing_results_{suffix}.json"
+    path = os.path.join(SIZING_FOLDER, filename)
+    return load_data_from_gcs(path)
 
 
 def get_results_metrics_map(
@@ -300,3 +308,12 @@ def get_experiment_data(experiment):
     experiment_data["errors"] = errors_by_metric
 
     return {"v2": experiment_data}
+
+
+def get_population_sizing_data():
+    sizing_data = get_sizing_data(suffix="latest")
+    sizing = {}
+    if sizing_data is not None:
+        sizing = SampleSizes.parse_obj(sizing_data)
+
+    return {"v1": sizing}
