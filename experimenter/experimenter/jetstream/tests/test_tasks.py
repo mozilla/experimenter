@@ -1215,7 +1215,7 @@ class TestFetchJetstreamDataTask(TestCase):
         mock_exists.return_value = True
 
         sizing_results = cache.get(SIZING_DATA_KEY)
-        assert sizing_results is None
+        self.assertIsNone(sizing_results)
 
         tasks.fetch_population_sizing_data()
         sizing_results = cache.get(SIZING_DATA_KEY)
@@ -1241,7 +1241,7 @@ class TestFetchJetstreamDataTask(TestCase):
         mock_exists.return_value = True
 
         sizing_results = cache.get(SIZING_DATA_KEY)
-        assert sizing_results is None
+        self.assertIsNone(sizing_results)
 
         tasks.fetch_population_sizing_data()
         sizing_results = cache.get(SIZING_DATA_KEY)
