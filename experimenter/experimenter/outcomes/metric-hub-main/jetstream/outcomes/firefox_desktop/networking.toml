@@ -196,7 +196,6 @@ log_space = true
 
 [metrics.tls_successful_cert_validation_time.statistics.deciles]
 pre_treatments = ['remove_nulls']
-log_space = true
 
 [metrics.tls_successful_cert_validation_time.statistics.kernel_density_estimate]
 pre_treatments = ['remove_nulls']
@@ -219,7 +218,6 @@ log_space = true
 
 [metrics.tls_failed_cert_validation_time.statistics.deciles]
 pre_treatments = ['remove_nulls']
-log_space = true
 
 [metrics.tls_failed_cert_validation_time.statistics.kernel_density_estimate]
 pre_treatments = ['remove_nulls']
