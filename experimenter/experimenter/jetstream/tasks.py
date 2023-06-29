@@ -2,11 +2,13 @@ import datetime as dt
 
 import markus
 from celery.utils.log import get_task_logger
+from django.core.cache import cache
 
 from experimenter.celery import app
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.jetstream.client import get_experiment_data
+from experimenter.jetstream.client import get_experiment_data, get_population_sizing_data
+from experimenter.settings import SIZING_DATA_KEY
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("jetstream.tasks")
@@ -67,4 +69,20 @@ def fetch_jetstream_data():
     except Exception as e:
         metrics.incr("fetch_jetstream_data.failed")
         logger.info(f"Fetching Jetstream data failed: {e}")
+        raise e
+
+
+@app.task
+@metrics.timer_decorator("fetch_population_sizing_data")
+def fetch_population_sizing_data():
+    metrics.incr("fetch_population_sizing_data.started")
+    try:
+        sizing_data = get_population_sizing_data()
+        sizing = sizing_data.get("v1")
+
+        cache.set(SIZING_DATA_KEY, sizing)
+        metrics.incr("fetch_population_sizing_data.completed")
+    except Exception as e:
+        metrics.incr("fetch_population_sizing_data.failed")
+        logger.error(f"Fetching experiment population auto-sizing data failed: {e}")
         raise e
