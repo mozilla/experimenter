@@ -69,6 +69,7 @@ mozilla-nimbus-shared = "^2.4.0"
 mozilla-nimbus-schemas = "^2023.6.5"
 django-tailwind = {extras = ["reload"], version = "^3.6.0"}
 fontawesomefree = "6.4.0"
+django-redis = "^5.3.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
