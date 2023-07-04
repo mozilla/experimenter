@@ -2180,10 +2180,43 @@ class TestNimbusExperiment(TestCase):
         return child
 
     def test_get_changelogs(self):
-        experiment = NimbusExperimentFactory.create(slug="experiment-1")
-        generate_nimbus_changelog(experiment, experiment.owner, "Test message")
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment-1",
+            published_dto={"id": "experiment", "test": False},
+        )
+        user = UserFactory.create()
+
+        generate_nimbus_changelog(experiment, user, "created")
+
+        experiment.status = NimbusExperiment.Status.DRAFT
+        experiment.status_next = NimbusExperiment.Status.LIVE
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.published_dto = {"id": "experiment", "test": True}
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, user, "test message")
+
+        # Get the changelogs
         experiment_changelogs = experiment.get_changelogs()
-        self.assertEqual(experiment_changelogs[0].message, "Test message")
+
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 4)
+        # Assert the changelog messages
+        self.assertIn(
+            f"{user.get_full_name()} created this experiment",
+            [change["change_message"] for change in experiment_changelogs[0]["changes"]],
+        )
+        self.assertIn(
+            f"{user.get_full_name()} changed value of publish_status from Idle to Review",
+            [change["change_message"] for change in experiment_changelogs[0]["changes"]],
+        )
+        self.assertIn(
+            f"{user.get_full_name()} changed value of published_dto",
+            [change["change_message"] for change in experiment_changelogs[0]["changes"]],
+        )
+        self.assertIn(
+            f"{user.get_full_name()} changed value of status_next from None to Live",
+            [change["change_message"] for change in experiment_changelogs[0]["changes"]],
+        )
 
 
 class TestNimbusBranch(TestCase):

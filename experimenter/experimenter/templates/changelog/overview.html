@@ -9,9 +9,13 @@
     <p>Experiment Slug: {{ experiment.slug }}</p>
     {% for changelog in experiment.get_changelogs %}
     <div>
-        <h2>{{ changelog.changed_on }}</h2>
-        <p>Change made: {{ changelog.message }}</p>  
-        <p>Changed by: {{ changelog.changed_by }}</p>
+        <h2>{{ changelog.date }}</h2>
+        {% for change in changelog.changes %}
+        <div>
+          <p>Change Log: {{ change.change_message }}</p>  
+          <p>Changed at: {{ change.timestamp }}</p>
+        </div>
+        {% endfor %}
     </div>
   {% endfor %}
 {% endblock %}
