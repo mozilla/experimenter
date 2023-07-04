@@ -101,6 +101,8 @@ INSTALLED_APPS = [
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
+    # fontawesome
+    "fontawesomefree",
 ]
 
 MIDDLEWARE = [
