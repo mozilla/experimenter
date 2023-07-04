@@ -10,8 +10,8 @@
     {% for changelog in experiment.get_changelogs %}
     <div>
         <h2>{{ changelog.changed_on }}</h2>
-        <p>Change made: {{ changelog.message }}</p>  
-        <p>Changed by: {{ changelog.changed_by }}</p>
+        <p><i class="fa-regular fa-pen-to-square"></i> : {{ changelog.message }}</p>  
+        <p><i class="fa-regular fa-user"></i> : {{ changelog.changed_by }}</p>
     </div>
   {% endfor %}
 {% endblock %}
