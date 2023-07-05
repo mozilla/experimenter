@@ -8,11 +8,17 @@ Technical Story: [Supporting exposure events for coenrolled features](https://mo
 
 ## Context and Problem Statement
 
+Application feature code can be configured from and by Nimbus. In the case of `messaging` and `onboarding`, the complete set of messages and all their associated data is implemented by this feature configuration.
+
 The feature configuration is composed by merging together the default configuration, any configuration from a rollout, and any configuration from experiments.
 
-Features can now be configured to enroll in more than one experiment on the same client device. Such features, known as coenrolling features, serve multiple treatments to the user (e.g. a `mmessaging` message, or an `onboarding` card) from different parts of the complete feature configuration.
+In the next release, features can be configured to enroll in more than one experiment on the same client device. Such features, known as coenrolling features, serve multiple treatments to the user (e.g. a `messaging` message, or an `onboarding` card) from different parts of the complete feature configuration.
 
-It is not currently possible to work from the part of the feature configuration backkwards to the experiment to record an exposure event, giving credit for experiment that provided this treatment.
+It is not _currently_ possible to work from the part of the feature configuration backwards to the experiment to record an exposure event, giving credit for experiment that provided this treatment.
+
+This ADR is deciding what to do— in the case of messaging— about the attribution of which experiment a particular message came from.
+
+### Current status: no coenrollments
 
 Currently, for [experimenting with mobile `messaging`](https://experimenter.info/mobile-messaging/#experimenting-with-messages), the message sender (the user) must identify which message or messages are under experiment, then the system works out the experiment. For example, the feature JSON for annotating a message as being under experiment is:
 
@@ -74,9 +80,9 @@ Under consideration. Please submit comments before 2023-07-11.
 
 ## Pros and Cons of the Options
 
-### Record exposure events only when we're sure of which experiment is involved
+### Option 1: Record exposure events only when we're sure of which experiment is involved
 
-In practice, this is might be for when exactly one experiment is using the `messaging` feature.
+In practice, this might be only for when exactly one experiment is using the `messaging` feature.
 
 The message sending experiment owner should continue to use the `message-under-experiment` key.
 
@@ -89,7 +95,7 @@ Fewer exposure events will be emitted than should be.
 
 This is the current implementation.
 
-### Record the exposure event with the message key as well as the experiment slug
+### Option 2: Record the exposure event with the message key
 
 The Glean event schema for exposure events would have an additional `part-id` extra, or even another type of exposure event created.
 
@@ -97,16 +103,18 @@ The message sending experiment owner should stop using the `message-under-experi
 
 An exposure event is emitted for _every_ message that is displayed, even if the message came bundled with the app.
 
-An extra manual step in data analysis is get the message keys from the experiment, and then to match up the exposure events to the experiment.
+An extra manual step in data analysis is needed to get the message keys from the experiment, and then to match up the exposure events to the experiment.
 
 * Bad, because it increases the number of false positive exposure events; increasing bandwidth and compute costs
 * Bad, because it involves a change to the feature JSON, and the user to change their behavior.
 * Bad, because it requires changes to the exposure event schema, which could affect every experiment.
 * Bad, because it requires additional steps to the data-analysis, some of which will be impossible to automate.
 
-### Annotate the message with the experiment slug
+### Option 3: Annotate the message with the experiment slug in the feature JSON
 
-Instead of the user telling the feature which messaage is under experiment, the user annotate the message with the experiment slug.
+Instead of the user telling the feature which _message_ is under experiment, the user annotates the message with the _experiment_ slug.
+
+i.e. remove the `message-under-experiment` property, and replace it with a new optional `experiment` message property.
 
 ```json
 {
@@ -119,9 +127,9 @@ Instead of the user telling the feature which messaage is under experiment, the 
 }
 ```
 
-When the experiment slug is known, e.g. at enrollment, the feature config is checked for strings containing `{experiment}`, and the slug used to replace it.
+When the experiment slug is known, e.g. at enrollment, the feature config is checked for strings containing `{experiment}`, and the slug used to replace it: i.e. the user should not need to type the actual slug.
 
-When the messgae is displayed, the `experiment` property is the experiment slug; this can be used to look up the branch, and an exposure event then recorded.
+When the message is displayed, the `experiment` property is the experiment slug; this can be used to look up the branch, and an exposure event then recorded.
 
 * Good, because implementation is relatively simple, and restricted to the client side.
 * Good, because the correct number of exposure events are recorded.
