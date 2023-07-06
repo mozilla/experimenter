@@ -8,11 +8,11 @@ Technical Story: [Supporting exposure events for coenrolled features](https://mo
 
 ## Context and Problem Statement
 
-Application feature code can be configured from and by Nimbus. In the case of `messaging` and `onboarding`, the complete set of messages and all their associated data is implemented by this feature configuration.
+Application feature code can be configured from and by Nimbus. In the case of `messaging`, the complete set of messages and all their associated data is implemented by this feature configuration.
 
 The feature configuration is composed by merging together the default configuration, any configuration from a rollout, and any configuration from experiments.
 
-In the next release, features can be configured to enroll in more than one experiment on the same client device. Such features, known as coenrolling features, serve multiple treatments to the user (e.g. a `messaging` message, or an `onboarding` card) from different parts of the complete feature configuration.
+In the next release, features can be configured to enroll in more than one experiment on the same client device. Such features, known as coenrolling features, serve multiple treatments to the user (e.g. a `messaging` message) from different parts of the complete feature configuration.
 
 It is not _currently_ possible to work from the part of the feature configuration backwards to the experiment to record an exposure event, giving credit for experiment that provided this treatment.
 
