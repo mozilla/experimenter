@@ -822,14 +822,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def get_changelogs(self):
         changes_by_date = defaultdict(list)
-        previous_changelog = None
-        changelogs = self.changes.all()
+        date_option = "%I:%M:%S %p"
+        changelogs = self.changes.order_by("-changed_on").prefetch_related("changed_by")
+        size = len(changelogs) - 1
 
-        for changelog in changelogs:
-            if previous_changelog:
-                previous_data = previous_changelog.experiment_data
+        for index, changelog in enumerate(changelogs):
+            if index < size:
                 current_data = changelog.experiment_data
-                timestamp = changelog.changed_on.strftime("%I:%M:%S %p")
+                previous_data = changelogs[index + 1].experiment_data
+                timestamp = changelog.changed_on.strftime(date_option)
 
                 diff_fields = {
                     field: {
@@ -838,52 +839,40 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     }
                     for field in current_data
                     if field != "_updated_date_time"
+                    and field != "published_dto"
                     and current_data[field] != previous_data.get(field)
                 }
 
                 for field, field_diff in diff_fields.items():
-                    if field == "published_dto":
-                        change = {
-                            "change_message": (
-                                f"{changelog.changed_by.get_full_name()} "
-                                f"changed value of {field}"
-                            ),
-                            "timestamp": timestamp,  # Modified to use time of day
-                        }
-                    else:
-                        change = {
-                            "change_message": (
-                                f"{changelog.changed_by.get_full_name()} "
-                                f"changed value of {field} from "
-                                f"{field_diff['old_value']} to {field_diff['new_value']}"
-                            ),
-                            "timestamp": timestamp,  # Modified to use time of day
-                        }
+                    change = {
+                        "field": field,
+                        "event": "GENERAL",
+                        "old_value": field_diff["old_value"],
+                        "new_value": field_diff["new_value"],
+                        "changed_by": changelog.changed_by.get_full_name(),
+                        "timestamp": timestamp,
+                    }
+
                     changes_by_date[changelog.changed_on.date()].append(change)
 
-            previous_changelog = changelog
-
-        first_changelog = changelogs[0] if changelogs else None
-        if first_changelog:
-            first_timestamp = first_changelog.changed_on.strftime("%I:%M:%S %p")
+        if creation_log := changelogs[size] if changelogs else None:
+            first_timestamp = creation_log.changed_on.strftime(date_option)
             change = {
-                "change_message": (
-                    f"{first_changelog.changed_by.get_full_name()} "
-                    f"created this experiment"
-                ),
+                "field": None,
+                "event": "CREATION",
+                "old_value": None,
+                "new_value": None,
+                "changed_by": creation_log.changed_by.get_full_name(),
                 "timestamp": first_timestamp,
             }
-            changes_by_date[first_changelog.changed_on.date()].append(change)
+            changes_by_date[creation_log.changed_on.date()].append(change)
 
         transformed_changelogs = [
             {"date": date, "changes": changes}
             for date, changes in changes_by_date.items()
         ]
-        sorted_changelogs = sorted(
-            transformed_changelogs, key=lambda x: x["date"], reverse=True
-        )
 
-        return sorted_changelogs
+        return transformed_changelogs
 
 
 class NimbusBranch(models.Model):

@@ -2185,37 +2185,67 @@ class TestNimbusExperiment(TestCase):
             published_dto={"id": "experiment", "test": False},
         )
         user = UserFactory.create()
+        time_format = "%I:%M:%S %p"
+        current_date = datetime.date.today()
 
-        generate_nimbus_changelog(experiment, user, "created")
+        timestamp_1 = datetime.datetime.combine(current_date, datetime.time(hour=8))
+        formatted_timestamp_1 = timestamp_1.strftime(time_format)
 
-        experiment.status = NimbusExperiment.Status.DRAFT
-        experiment.status_next = NimbusExperiment.Status.LIVE
+        timestamp_2 = timestamp_1 + datetime.timedelta(hours=2)
+        formatted_timestamp_2 = timestamp_2.strftime(time_format)
+
+        timestamp_3 = timestamp_2 + datetime.timedelta(hours=2)
+        formatted_timestamp_3 = timestamp_3.strftime(time_format)
+
+        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.published_dto = {"id": "experiment", "test": True}
         experiment.save()
 
-        generate_nimbus_changelog(experiment, user, "test message")
+        generate_nimbus_changelog(experiment, user, "publish_status change", timestamp_2)
 
-        # Get the changelogs
+        experiment.status_next = NimbusExperiment.Status.LIVE
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, user, "status_next change", timestamp_3)
+
         experiment_changelogs = experiment.get_changelogs()
 
-        self.assertEqual(len(experiment_changelogs[0]["changes"]), 4)
-        # Assert the changelog messages
-        self.assertIn(
-            f"{user.get_full_name()} created this experiment",
-            [change["change_message"] for change in experiment_changelogs[0]["changes"]],
-        )
-        self.assertIn(
-            f"{user.get_full_name()} changed value of publish_status from Idle to Review",
-            [change["change_message"] for change in experiment_changelogs[0]["changes"]],
-        )
-        self.assertIn(
-            f"{user.get_full_name()} changed value of published_dto",
-            [change["change_message"] for change in experiment_changelogs[0]["changes"]],
-        )
-        self.assertIn(
-            f"{user.get_full_name()} changed value of status_next from None to Live",
-            [change["change_message"] for change in experiment_changelogs[0]["changes"]],
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 3)
+
+        self.assertEqual(
+            experiment_changelogs,
+            [
+                {
+                    "date": current_date,
+                    "changes": [
+                        {
+                            "field": "status_next",
+                            "event": "GENERAL",
+                            "old_value": None,
+                            "new_value": "Live",
+                            "changed_by": user.get_full_name(),
+                            "timestamp": formatted_timestamp_3,
+                        },
+                        {
+                            "field": "publish_status",
+                            "event": "GENERAL",
+                            "old_value": "Idle",
+                            "new_value": "Review",
+                            "changed_by": user.get_full_name(),
+                            "timestamp": formatted_timestamp_2,
+                        },
+                        {
+                            "field": None,
+                            "event": "CREATION",
+                            "old_value": None,
+                            "new_value": None,
+                            "changed_by": user.get_full_name(),
+                            "timestamp": formatted_timestamp_1,
+                        },
+                    ],
+                }
+            ],
         )
 
 

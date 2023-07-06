@@ -12,7 +12,11 @@
         <h2>{{ changelog.date }}</h2>
         {% for change in changelog.changes %}
         <div>
-          <p>Change Log: {{ change.change_message }}</p>  
+          {% if change.event == "GENERAL" %}
+            <p>Change Log: {{ change.changed_by}} changed the value of {{ change.field }} from {{ change.old_value }} to {{ change.new_value}}</p>  
+          {% elif change.event == "CREATION" %}
+            <p>Change Log: {{ change.changed_by}} created this experiment</p>  
+          {% endif %}
           <p>Changed at: {{ change.timestamp }}</p>
         </div>
         {% endfor %}
