@@ -64,19 +64,19 @@ The [`is-control` message property](https://experimenter.info/mobile-messaging/#
 
 ## Decision Outcome
 
-Under consideration. Please submit comments before 2023-07-11.
+Chosen option: "Option 3: Add the experiment slug to the feature schema, so the experiment slug travels with the message", because it is the only option that meets the criteria set by the decision drivers.
 
-<!-- Chosen option: "[option 1]", because [justification. e.g., only option, which meets k.o. criterion decision driver | which resolves force force | … | comes out best (see below)]. -->
+### Positive Consequences
 
-<!-- ### Positive Consequences
-
-* [e.g., improvement of quality attribute satisfaction, follow-up decisions required, …]
-* …
+* Good, because implementation is relatively simple, and restricted to the client side.
+* Good, because the correct number of exposure events are recorded.
+* Good, because no extra steps needed in post experiment data-analysis.
 
 ### Negative Consequences
 
-* [e.g., compromising quality attribute, follow-up decisions required, …]
-* … -->
+* Bad, because it involves a change to the feature JSON, and the user to change their behavior.
+
+This has consequences for the implementation of `messaging` in Firefox for iOS and Firefox for Android, and some work in the Nimbus SDK, and documentation in experimenter.info.
 
 ## Pros and Cons of the Options
 
