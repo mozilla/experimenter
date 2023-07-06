@@ -317,6 +317,33 @@ FIRST_RUN_NEW_PROFILE_WINDOWS_1903_EXCLUDE_RTAMO = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_NEW_PROFILE_WINDOWS_1903_PAIDSEARCH = NimbusTargetingConfig(
+    name=(
+        "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
+        "new profile, needing default, with paidsearch attribution"
+    ),
+    slug="first_run_new_profile_paidsearch",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows 1903+, "
+        "with a new profile, needing default, with paidsearch attribution"
+    ),
+    targeting=(
+        "{first_run} && {attribution}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
+            attribution=ATTRIBUTION_MEDIUM_PAIDSEARCH.targeting,
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND {attribution}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
+            attribution=ATTRIBUTION_MEDIUM_PAIDSEARCH.targeting,
+        )
+    ),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_TCP_STUDY = NimbusTargetingConfig(
     name="Exclude users in the TCP revenue study",
     slug="not_tcp_study",
