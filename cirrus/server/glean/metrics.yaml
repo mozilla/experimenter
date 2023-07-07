@@ -24,7 +24,7 @@ cirrus_events:
         description: Indicates whether this is an experiment or rollout
       user_id:
         type: string
-        description: A unique identifier for User/Client sending a request to get feature configuratio
+        description: A unique identifier for User/Client sending a request to get feature configuration
       app_id:
         type: string
         description: A unique identifier for application
