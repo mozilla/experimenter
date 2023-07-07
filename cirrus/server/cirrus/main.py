@@ -51,7 +51,7 @@ def create_fml():
     try:
         fml = FML(fml_path=fml_path, channel=channel)
         return fml
-    except FmlError as e:
+    except FmlError as e:  # type: ignore
         logger.error(f"Error occurred during FML creation: {e}")
         sys.exit(1)
 
@@ -60,7 +60,7 @@ def create_sdk():
     try:
         sdk = SDK(context=context)
         return sdk
-    except NimbusError as e:
+    except NimbusError as e:  # type: ignore
         logger.error(f"Error occurred during SDK creation: {e}")
         sys.exit(1)
 
