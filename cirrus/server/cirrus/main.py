@@ -141,10 +141,7 @@ async def compute_features(request_data: FeatureRequest):
     client_feature_configuration: Dict[
         str, Any
     ] = app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
-    app.state.metrics.cirrus_events.enrollment.record(
-        app.state.metrics.cirrus_events.EnrollmentExtra(app_id=app_id)
-    )
-    app.state.pings.enrollment.submit()
+
     return client_feature_configuration
 
 
