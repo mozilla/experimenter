@@ -38,7 +38,7 @@ cirrus_events:
       - ykhurana@mozilla.com
       - chumphreys@mozilla.com
       - jkerim@mozilla.com
-      - telemetry-team@mozilla.com
+      - project-nimbus@mozilla.com
     expires: never
     send_in_pings:
       - enrollment
