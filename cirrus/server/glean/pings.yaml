@@ -10,7 +10,7 @@ enrollment:
     - ykhurana@mozilla.com
     - chumphreys@mozilla.com
     - jkerim@mozilla.com
-    - telemetry-team@mozilla.com
+    - project-nimbus@mozilla.com
   bugs:
     - https://github.com/mozilla/experimenter/issues/8928
   data_reviews:
