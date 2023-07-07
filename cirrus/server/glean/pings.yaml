@@ -14,4 +14,4 @@ enrollment:
   bugs:
     - https://github.com/mozilla/experimenter/issues/8928
   data_reviews:
-    - https://bugzilla.mozilla.org/show_bug.cgi?id=1581647#c9
+    - https://github.com/mozilla/experimenter/pull/9081#issuecomment-1625751843

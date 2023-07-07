@@ -31,7 +31,7 @@ cirrus_events:
     bugs:
       - https://github.com/mozilla/experimenter/issues/8928
     data_reviews:
-      - https://github.com/mozilla-mobile/android-components/pull/9168#issuecomment-743461975
+      - https://github.com/mozilla/experimenter/pull/9081#issuecomment-1625751843
     data_sensitivity:
       - technical
     notification_emails:
