@@ -1474,4 +1474,20 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
-        self.assertEquals(experiment.proposed_release_date, None)
+        self.assertIsNone(experiment.proposed_release_date)
+
+    def test_preview_to_draft_sets_published_dto_to_None(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW, published_dto="{}"
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {
+                "status": NimbusExperiment.Status.DRAFT,
+                "changelog_message": "Test changelog",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertIsNone(experiment.published_dto)
