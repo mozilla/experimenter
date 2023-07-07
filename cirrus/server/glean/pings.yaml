@@ -1,0 +1,17 @@
+---
+$schema: moz://mozilla.org/schemas/glean/pings/2-0-0
+
+enrollment:
+  description: >
+    A ping to record enrollment. The purpose of this data
+    gathering is to get the enrollment telemetry for Cirrus
+  include_client_id: true
+  notification_emails:
+    - ykhurana@mozilla.com
+    - chumphreys@mozilla.com
+    - jkerim@mozilla.com
+    - telemetry-team@mozilla.com
+  bugs:
+    - https://github.com/mozilla/experimenter/issues/8928
+  data_reviews:
+    - https://bugzilla.mozilla.org/show_bug.cgi?id=1581647#c9
