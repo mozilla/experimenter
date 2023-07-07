@@ -16,7 +16,6 @@ from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
 from .sdk import SDK
 from .settings import (
-    app_id,
     channel,
     context,
     fml_path,
