@@ -25,7 +25,7 @@ class FeatureManifestLanguage:
         merged_res: MergedJsonWithErrors = self.fml_client.merge(  # type: ignore
             feature_configs
         )
-        self.merge_errors = merged_res.errors  # type: ignore
+        self.merge_errors = merged_res.errors
 
         if self.merge_errors:
             logger.error(
@@ -34,4 +34,4 @@ class FeatureManifestLanguage:
                 f"{self.merge_errors}"
             )
 
-        return json.loads(merged_res.json)  # type: ignore
+        return json.loads(merged_res.json)

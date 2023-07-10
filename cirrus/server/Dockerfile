@@ -47,8 +47,11 @@ ENV PYTHONPATH=$PYTHONPATH:/application-services
 
 # Install curl and bash utilities
 RUN apt-get update && \
-    apt-get -y install curl bash && \
+    apt-get -y install curl bash build-essential && \
     rm -rf /var/lib/apt/lists/*
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y --no-modify-path
+ENV PATH=$PATH:/root/.cargo/bin
 
 # Install poetry package management tool
 RUN curl -sSL https://install.python-poetry.org | python3 -
@@ -59,6 +62,7 @@ ENV PATH "/root/.local/bin:$PATH"
 # Copy only the pyproject.toml file and poetry.lock file to install dependencies ignoring dev dependencies
 COPY pyproject.toml /cirrus/
 COPY poetry.lock /cirrus/
+
 
 # Configure poetry and install dependencies
 RUN poetry config virtualenvs.create false && \
