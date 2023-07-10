@@ -1,6 +1,7 @@
 import logging
 import sys
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any, Dict
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
@@ -9,10 +10,20 @@ from fastapi import FastAPI, HTTPException, status
 from fml_sdk import FmlError  # type: ignore
 from pydantic import BaseModel
 
+from glean import Configuration, Glean, load_metrics, load_pings  # type: ignore
+
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
 from .sdk import SDK
-from .settings import channel, context, fml_path, remote_setting_refresh_rate_in_seconds
+from .settings import (
+    channel,
+    context,
+    fml_path,
+    metrics_config,
+    metrics_path,
+    pings_path,
+    remote_setting_refresh_rate_in_seconds,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +40,7 @@ async def lifespan(app: FastAPI):
     app.state.fml = create_fml()
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
+    app.state.pings, app.state.metrics = initialize_glean()
 
     yield
     if app.state.scheduler:
@@ -39,7 +51,7 @@ def create_fml():
     try:
         fml = FML(fml_path=fml_path, channel=channel)
         return fml
-    except FmlError as e:
+    except FmlError as e:  # type: ignore
         logger.error(f"Error occurred during FML creation: {e}")
         sys.exit(1)
 
@@ -48,7 +60,7 @@ def create_sdk():
     try:
         sdk = SDK(context=context)
         return sdk
-    except NimbusError as e:
+    except NimbusError as e:  # type: ignore
         logger.error(f"Error occurred during SDK creation: {e}")
         sys.exit(1)
 
@@ -71,6 +83,30 @@ def start_and_set_initial_job():
         seconds=remote_setting_refresh_rate_in_seconds,
         max_instances=1,
     )
+
+
+def initialize_glean():
+    pings = load_pings(pings_path)
+    metrics = load_metrics(metrics_path)
+
+    data_dir_path = Path(metrics_config.data_dir)
+
+    config = Configuration(
+        channel=metrics_config.channel,
+        max_events=metrics_config.max_events_buffer,
+        server_endpoint=metrics_config.server_endpoint,
+    )
+
+    Glean.initialize(
+        application_build_id=metrics_config.build,
+        application_id=metrics_config.app_id,
+        application_version=metrics_config.version,
+        configuration=config,
+        data_dir=data_dir_path,
+        log_level=int(metrics_config.log_level),
+        upload_enabled=metrics_config.upload_enabled,
+    )
+    return pings, metrics
 
 
 app = FastAPI(lifespan=lifespan)
@@ -104,6 +140,7 @@ async def compute_features(request_data: FeatureRequest):
     client_feature_configuration: Dict[
         str, Any
     ] = app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
+
     return client_feature_configuration
 
 
