@@ -1,6 +1,7 @@
 import datetime
 import os.path
 from decimal import Decimal
+from itertools import product
 
 import mock
 from django.conf import settings
@@ -784,6 +785,55 @@ class TestNimbusExperiment(TestCase):
             ('(browserSettings.update.channel == "release")'),
         )
         JEXLParser().parse(experiment.targeting)
+
+    @parameterized.expand(
+        [
+            (application, require, exclude, expected_targeting)
+            for (application, (require, exclude, expected_targeting)) in product(
+                list(NimbusExperiment.Application),
+                [
+                    ([], [], "true"),
+                    (["foo"], [], "('foo' in enrollments)"),
+                    ([], ["bar"], "(!('bar' in enrollments))"),
+                    (
+                        ["foo", "bar"],
+                        ["baz"],
+                        (
+                            "(!('baz' in enrollments)) && "
+                            "('foo' in enrollments) && "
+                            "('bar' in enrollments)"
+                        ),
+                    ),
+                ],
+            )
+        ]
+    )
+    def test_targeting_excluded_required_experiments(
+        self, application, require, exclude, expected_targeting
+    ):
+        experiments = {
+            slug: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                application=application,
+                slug=slug,
+                firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            )
+            for slug in ("foo", "bar", "baz")
+        }
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            slug="slug",
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            required_experiments=[experiments[slug] for slug in require],
+            excluded_experiments=[experiments[slug] for slug in exclude],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        self.assertEqual(experiment.targeting, expected_targeting)
 
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"

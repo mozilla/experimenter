@@ -434,11 +434,14 @@ class NimbusExperimentType(DjangoObjectType):
     countries = graphene.List(graphene.NonNull(NimbusCountryType), required=True)
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     enrollment_end_date = graphene.DateTime()
+    excluded_experiments = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
+    )
     feature_configs = graphene.List(NimbusFeatureConfigType)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
     hypothesis = graphene.String()
-    id = graphene.Int()
+    id = graphene.Int(required=True)
     is_archived = graphene.Boolean()
     is_rollout_dirty = graphene.NonNull(graphene.Boolean)
     is_enrollment_pause_pending = graphene.Boolean()
@@ -465,6 +468,9 @@ class NimbusExperimentType(DjangoObjectType):
     recipe_json = graphene.String()
     reference_branch = graphene.Field(NimbusBranchType)
     rejection = graphene.Field(NimbusChangeLogType)
+    required_experiments = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
+    )
     results_expected_date = graphene.DateTime()
     results_ready = graphene.Boolean()
     review_request = graphene.Field(NimbusChangeLogType)
@@ -485,6 +491,7 @@ class NimbusExperimentType(DjangoObjectType):
     warn_feature_schema = graphene.Boolean()
 
     class Meta:
+        name = "NimbusExperimentType"
         model = NimbusExperiment
         fields = (
             "application",
@@ -662,3 +669,9 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_changes(self, info):
         return self.changes.all().order_by("changed_on")
+
+    def resolve_excluded_experiments(self, info):
+        return self.excluded_experiments.only("id", "slug", "name", "public_description")
+
+    def resolve_required_experiments(self, info):
+        return self.required_experiments.only("id", "slug", "name", "public_description")

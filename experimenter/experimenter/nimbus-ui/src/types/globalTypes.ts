@@ -223,6 +223,7 @@ export interface ExperimentInput {
   conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   countries?: (string | null)[] | null;
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
+  excludedExperiments?: number[] | null;
   featureConfigIds?: (number | null)[] | null;
   firefoxMaxVersion?: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;
@@ -248,6 +249,7 @@ export interface ExperimentInput {
   publicDescription?: string | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
   referenceBranch?: BranchInput | null;
+  requiredExperiments?: number[] | null;
   riskBrand?: boolean | null;
   riskMitigationLink?: string | null;
   riskPartnerRelated?: boolean | null;

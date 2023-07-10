@@ -156,7 +156,7 @@ export interface getExperiment_experimentBySlug_projects {
 }
 
 export interface getExperiment_experimentBySlug {
-  id: number | null;
+  id: number;
   isRollout: boolean | null;
   isArchived: boolean | null;
   canEdit: boolean | null;

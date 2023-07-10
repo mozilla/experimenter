@@ -5,12 +5,15 @@ type Query {
   """Retrieve a Nimbus experiment by its slug."""
   experimentBySlug(slug: String!): NimbusExperimentType
 
+  """List Nimbus Experiments by application."""
+  experimentsByApplication(application: NimbusExperimentApplicationEnum!): [NimbusExperimentType!]!
+
   """Nimbus Configuration Data for front-end usage."""
   nimbusConfig: NimbusConfigurationType
 }
 
 type NimbusExperimentType {
-  id: Int
+  id: Int!
   parent: NimbusExperimentType
   isRollout: Boolean
   isArchived: Boolean
@@ -63,6 +66,7 @@ type NimbusExperimentType {
   computedEnrollmentDays: Int
   computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
+  excludedExperiments: [NimbusExperimentType!]!
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
   jexlTargetingExpression: String
@@ -70,6 +74,7 @@ type NimbusExperimentType {
   readyForReview: NimbusReviewType
   recipeJson: String
   rejection: NimbusChangeLogType
+  requiredExperiments: [NimbusExperimentType!]!
   resultsExpectedDate: DateTime
   resultsReady: Boolean
   reviewRequest: NimbusChangeLogType
@@ -460,6 +465,7 @@ input ExperimentInput {
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   countries: [String]
   documentationLinks: [DocumentationLinkInput]
+  excludedExperiments: [Int!]
   featureConfigIds: [Int]
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
@@ -485,6 +491,7 @@ input ExperimentInput {
   publicDescription: String
   publishStatus: NimbusExperimentPublishStatusEnum
   referenceBranch: BranchInput = null
+  requiredExperiments: [Int!]
   riskBrand: Boolean
   riskMitigationLink: String
   riskPartnerRelated: Boolean

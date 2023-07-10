@@ -461,7 +461,15 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             self.languages.add(*extracted)
 
     @classmethod
-    def create(cls, branches=None, feature_configs=None, *args, **kwargs):
+    def create(
+        cls,
+        branches=None,
+        feature_configs=None,
+        excluded_experiments=None,
+        required_experiments=None,
+        *args,
+        **kwargs,
+    ):
         experiment = super(NimbusExperimentFactory, cls).create(*args, **kwargs)
 
         if branches is not None:
@@ -470,6 +478,12 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 "please modify the branches that are created or delete them and add "
                 "new ones."
             )
+
+        if excluded_experiments is not None:
+            experiment.excluded_experiments.add(*excluded_experiments)
+
+        if required_experiments is not None:
+            experiment.required_experiments.add(*required_experiments)
 
         # FeatureConfigs must be set on the experiment before branches are created
         if feature_configs is not None:
