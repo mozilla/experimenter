@@ -1177,7 +1177,7 @@ class TestFetchJetstreamDataTask(TestCase):
                                         "sample_size_per_branch": 100000.0,
                                         "population_percent_per_branch": 1000.0
                                     },
-                                    "search_count": {
+                                    "tagged_search_count": {
                                         "number_of_clients_targeted": 10000,
                                         "sample_size_per_branch": 100.0,
                                         "population_percent_per_branch": 1.0

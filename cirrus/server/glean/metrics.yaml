@@ -1,0 +1,44 @@
+---
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+
+cirrus_events:
+  enrollment:
+    type: event
+    description: >
+      Recorded when a user has met the conditions and is first bucketed into an
+      experiment (i.e. targeting matched and they were randomized into a bucket
+      and branch of the experiment). Expected a maximum of once per experiment
+      per user.
+    extra_keys:
+      experiment:
+        type: string
+        description: The slug/unique identifier of the experiment
+      branch:
+        type: string
+        description: The branch slug/identifier that was randomly chosen
+      enrollment_id:
+        type: string
+        description: A unique identifier generated at enrollment time
+      experiment_type:
+        type: string
+        description: Indicates whether this is an experiment or rollout
+      user_id:
+        type: string
+        description: A unique identifier for User/Client sending a request to get feature configuration
+      app_id:
+        type: string
+        description: A unique identifier for application
+    bugs:
+      - https://github.com/mozilla/experimenter/issues/8928
+    data_reviews:
+      - https://github.com/mozilla/experimenter/pull/9081#issuecomment-1625751843
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - ykhurana@mozilla.com
+      - chumphreys@mozilla.com
+      - jkerim@mozilla.com
+      - project-nimbus@mozilla.com
+    expires: never
+    send_in_pings:
+      - enrollment
