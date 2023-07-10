@@ -104,7 +104,7 @@ INSTALLED_APPS = [
     # fontawesome, tailwind css
     "fontawesomefree",
     "tailwind",
-    "theme",
+    "experimenter.theme",
 ]
 
 TAILWIND_APP_NAME = "theme"
