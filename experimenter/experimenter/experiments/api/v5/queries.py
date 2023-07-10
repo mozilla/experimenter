@@ -2,6 +2,7 @@ import graphene
 
 from experimenter.experiments.api.v5.types import (
     NimbusConfigurationType,
+    NimbusExperimentApplicationEnum,
     NimbusExperimentType,
 )
 from experimenter.experiments.models import NimbusExperiment
@@ -17,6 +18,11 @@ class Query(graphene.ObjectType):
         description="Retrieve a Nimbus experiment by its slug.",
         slug=graphene.String(required=True),
     )
+    experiments_by_application = graphene.NonNull(
+        graphene.List(graphene.NonNull(NimbusExperimentType)),
+        description="List Nimbus Experiments by application.",
+        application=NimbusExperimentApplicationEnum(required=True),
+    )
 
     nimbus_config = graphene.Field(
         NimbusConfigurationType,
@@ -31,6 +37,9 @@ class Query(graphene.ObjectType):
             return NimbusExperiment.objects.get(slug=slug)
         except NimbusExperiment.DoesNotExist:
             return None
+
+    def resolve_experiments_by_application(self, info, application):
+        return NimbusExperiment.objects.filter(application=application)
 
     def resolve_nimbus_config(self, info):
         return NimbusConfigurationType()
