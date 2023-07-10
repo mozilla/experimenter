@@ -388,8 +388,6 @@ def nimbus_synchronize_preview_experiments_in_kinto():
 
         for experiment in should_unpublish_experiments:
             kinto_client.delete_record(experiment.slug)
-            experiment.published_dto = None
-            experiment.save()
             logger.info(f"{experiment.slug} is being removed from preview")
 
         metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.completed")

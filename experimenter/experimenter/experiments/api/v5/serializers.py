@@ -877,17 +877,18 @@ class NimbusExperimentSerializer(
         ]
 
     def __init__(self, instance=None, data=None, **kwargs):
-        self.should_call_preview_task = instance and (
-            (
-                instance.status == NimbusExperiment.Status.DRAFT
-                and data
-                and (data.get("status") == NimbusExperiment.Status.PREVIEW)
-            )
-            or (
-                instance.status == NimbusExperiment.Status.PREVIEW
-                and data
-                and (data.get("status") == NimbusExperiment.Status.DRAFT)
-            )
+        self.is_draft_to_preview = instance and (
+            instance.status == NimbusExperiment.Status.DRAFT
+            and data
+            and (data.get("status") == NimbusExperiment.Status.PREVIEW)
+        )
+        self.is_preview_to_draft = instance and (
+            instance.status == NimbusExperiment.Status.PREVIEW
+            and data
+            and (data.get("status") == NimbusExperiment.Status.DRAFT)
+        )
+        self.should_call_preview_task = (
+            self.is_draft_to_preview or self.is_preview_to_draft
         )
         self.should_call_push_task = (
             data and data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
@@ -1086,6 +1087,9 @@ class NimbusExperimentSerializer(
 
                 if feature_configs:
                     self.instance.feature_configs.add(*feature_configs)
+
+                if self.is_preview_to_draft:
+                    self.instance.published_dto = None
 
             experiment = super().save()
 
