@@ -205,9 +205,6 @@ export const FormBranches = ({
     setIsSelectValid(newValue.length > 0);
     setSelectDirty(true);
 
-    // Limit to a single value until multi-feature support has been QA'd.
-    newValue = newValue.length > 0 ? [newValue[newValue.length - 1]] : newValue;
-
     return handleFeatureConfigsChange(
       newValue.map((value) => parseInt(value.value, 10)),
     );
