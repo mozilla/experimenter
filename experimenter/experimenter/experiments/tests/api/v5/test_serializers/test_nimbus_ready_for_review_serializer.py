@@ -2796,3 +2796,52 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                     ],
                 },
             )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "toplevel": 1.2,
+                },
+            ),
+            (
+                {
+                    "nested_list": [{"nested_value": 1.2}],
+                },
+            ),
+            (
+                {
+                    "nested_dict": {"list": [1.2]},
+                },
+            ),
+        ]
+    )
+    def test_feature_value_with_float_is_invalid(self, value):
+        application = NimbusExperiment.Application.DESKTOP
+        feature = NimbusFeatureConfigFactory.create(application=application, schema=None)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+        )
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps(value)
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            NimbusExperiment.ERROR_NO_FLOATS_IN_FEATURE_VALUE,
+            serializer.errors["reference_branch"]["feature_values"][0]["value"],
+        )
