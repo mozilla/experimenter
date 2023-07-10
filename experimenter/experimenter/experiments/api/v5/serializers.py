@@ -1169,11 +1169,28 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
         list_serializer_class = NimbusBranchFeatureValueListSerializer
 
     def validate_value(self, value):
+        data = None
         if value:
             try:
-                json.loads(value)
+                data = json.loads(value)
             except Exception as e:
                 raise serializers.ValidationError(f"Invalid JSON: {e.msg}") from e
+
+        def throw_on_float(item):
+            if isinstance(item, (list, tuple)):
+                for i in item:
+                    throw_on_float(i)
+            elif isinstance(item, dict):
+                for i in item.values():
+                    throw_on_float(i)
+            elif isinstance(item, float):
+                raise serializers.ValidationError(
+                    NimbusExperiment.ERROR_NO_FLOATS_IN_FEATURE_VALUE
+                )
+
+        if data is not None:
+            throw_on_float(data)
+
         return value
 
 

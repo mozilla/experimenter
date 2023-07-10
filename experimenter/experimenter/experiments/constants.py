@@ -449,6 +449,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Are you missing your first run targeting?"
     )
 
+    ERROR_NO_FLOATS_IN_FEATURE_VALUE = (
+        "Feature values can not contain floats (ie numbers with decimal points)."
+    )
+
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
     # buffer day is added for Jetstream to compute the results.
