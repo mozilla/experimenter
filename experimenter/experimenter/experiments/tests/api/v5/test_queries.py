@@ -108,6 +108,14 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         name
                     }
                     hypothesis
+                    excludedExperiments {
+                        id
+                        slug
+                    }
+                    requiredExperiments {
+                        id
+                        slug
+                    }
                 }
             }
             """,
@@ -205,6 +213,8 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 ],
                 "projects": [{"id": str(project.id), "name": project.name}],
                 "hypothesis": experiment.hypothesis,
+                "requiredExperiments": [],
+                "excludedExperiments": [],
             },
         )
         self.assertEqual(experiment_data["hypothesis"], experiment.hypothesis)
@@ -508,6 +518,83 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 {"slug": project.slug, "name": project.name},
                 experiment_data["projects"],
             )
+
+    def test_query_excluded_required_experiments(self):
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            excluded_experiments=[excluded],
+            required_experiments=[required],
+        )
+
+        response = self.query(
+            """
+            query getAllExperiments {
+                experiments {
+                    id
+                    excludedExperiments {
+                        id
+                        slug
+                    }
+                    requiredExperiments {
+                        id
+                        slug
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+
+        experiments = content["data"]["experiments"]
+
+        self.assertEqual(len(experiments), 3)
+
+        self.assertIn(
+            {
+                "id": excluded.id,
+                "excludedExperiments": [],
+                "requiredExperiments": [],
+            },
+            experiments,
+        )
+        self.assertIn(
+            {
+                "id": required.id,
+                "excludedExperiments": [],
+                "requiredExperiments": [],
+            },
+            experiments,
+        )
+        self.assertIn(
+            {
+                "id": experiment.id,
+                "excludedExperiments": [
+                    {
+                        "id": excluded.id,
+                        "slug": excluded.slug,
+                    }
+                ],
+                "requiredExperiments": [
+                    {
+                        "id": required.id,
+                        "slug": required.slug,
+                    },
+                ],
+            },
+            experiments,
+        )
 
 
 class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
@@ -2136,6 +2223,59 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 ]
             },
         )
+
+
+class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
+    GRAPHQL_URL = reverse("nimbus-api-graphql")
+
+    @property
+    def default_headers(self):
+        return {settings.OPENIDC_EMAIL_HEADER: "user@example.com"}
+
+    def test_query_excludes_other_applications(self):
+        experiments_by_application = {
+            application.value: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                application=application,
+            )
+            for application in list(NimbusExperiment.Application)
+        }
+
+        for application in list(NimbusExperiment.Application):
+            response = self.query(
+                """
+                query getAllExperimentsByApplication(
+                    $application: NimbusExperimentApplicationEnum!
+                ) {
+                    experimentsByApplication(application: $application) {
+                        id
+                        name
+                        slug
+                        publicDescription
+                    }
+                }
+                """,
+                variables={
+                    "application": application.name,
+                },
+                headers=self.default_headers,
+            )
+
+            self.assertEqual(response.status_code, 200, response.content)
+            content = json.loads(response.content)
+            experiments = content["data"]["experimentsByApplication"]
+
+            experiment = experiments_by_application[application.value]
+            self.assertEqual(len(experiments), 1)
+            self.assertIn(
+                {
+                    "id": experiment.id,
+                    "name": experiment.name,
+                    "slug": experiment.slug,
+                    "publicDescription": experiment.public_description,
+                },
+                experiments,
+            )
 
 
 class TestNimbusConfigQuery(GraphQLTestCase):
