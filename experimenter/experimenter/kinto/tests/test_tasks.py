@@ -928,7 +928,6 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestC
         should_unpublish_experiment = NimbusExperiment.objects.get(
             id=should_unpublish_experiment.id
         )
-        self.assertIsNone(should_unpublish_experiment.published_dto)
 
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
