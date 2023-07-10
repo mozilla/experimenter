@@ -156,6 +156,17 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_KLAR_IOS.name,
     )
 
+    @staticmethod
+    def is_mobile(application):
+        return application in (
+            Application.FENIX,
+            Application.IOS,
+            Application.FOCUS_ANDROID,
+            Application.KLAR_ANDROID,
+            Application.FOCUS_IOS,
+            Application.KLAR_IOS,
+        )
+
 
 class NimbusConstants(object):
     class Status(models.TextChoices):
