@@ -1,17 +1,16 @@
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment as Experiment
 
 
 class TestMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0234_alter_nimbusexperiment_is_rollout_dirty",
+        "0237_alter_nimbusexperiment_experiment_targeting",
     )
     migrate_to = (
         "experiments",
-        "0235_auto_20230512_1934",
+        "0238_set_draft_published_dto_to_none",
     )
 
     def prepare(self):
@@ -22,16 +21,16 @@ class TestMigration(MigratorTestCase):
         )
         user = User.objects.create(email="test@example.com")
 
-        # create experiment with analysis_basis
-        NimbusExperiment.objects.create(
-            owner=user,
-            name="test experiment",
-            slug="test-experiment",
-            application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-            publish_status="Dirty",
-            is_rollout_dirty=False,
-        )
+        for status in NimbusConstants.Status:
+            NimbusExperiment.objects.create(
+                owner=user,
+                name=f"test experiment {status}",
+                slug=f"test-experiment-{status}",
+                application=NimbusConstants.Application.DESKTOP,
+                status=status,
+                publish_status=NimbusConstants.PublishStatus.IDLE,
+                published_dto="{}",
+            )
 
     def test_migration(self):
         """Run the test itself."""
@@ -39,6 +38,23 @@ class TestMigration(MigratorTestCase):
             "experiments", "NimbusExperiment"
         )
 
-        experiment = NimbusExperiment.objects.get(slug="test-experiment")
-        self.assertEquals(experiment.publish_status, "Idle")
-        self.assertTrue(experiment.is_rollout_dirty)
+        self.assertEqual(
+            set(
+                NimbusExperiment.objects.filter(published_dto__isnull=True).values_list(
+                    "status", flat=True
+                )
+            ),
+            {NimbusConstants.Status.DRAFT.value},
+        )
+        self.assertEqual(
+            set(
+                NimbusExperiment.objects.filter(published_dto="{}").values_list(
+                    "status", flat=True
+                )
+            ),
+            {
+                NimbusConstants.Status.PREVIEW.value,
+                NimbusConstants.Status.LIVE.value,
+                NimbusConstants.Status.COMPLETE.value,
+            },
+        )
