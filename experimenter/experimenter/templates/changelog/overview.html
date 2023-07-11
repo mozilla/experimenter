@@ -7,7 +7,7 @@
 {% block content %}
     <h1>Changes Overview</h1>
     <p>Experiment Slug: {{ experiment.slug }}</p>
-    {% for changelog in experiment.get_changelogs %}
+    {% for changelog in experiment.get_changelogs_by_date %}
     <div>
         <h2>{{ changelog.date }}</h2>
         {% for change in changelog.changes %}

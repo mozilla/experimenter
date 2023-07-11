@@ -836,7 +836,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return cloned
 
-    def get_changelogs(self):
+    def get_changelogs_by_date(self):
         changes_by_date = defaultdict(list)
         date_option = "%I:%M:%S %p"
         changelogs = list(

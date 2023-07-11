@@ -2259,7 +2259,7 @@ class TestNimbusExperiment(TestCase):
 
         generate_nimbus_changelog(experiment, user, "status_next change", timestamp_3)
 
-        experiment_changelogs = experiment.get_changelogs()
+        experiment_changelogs = experiment.get_changelogs_by_date()
 
         self.assertEqual(len(experiment_changelogs[0]["changes"]), 3)
 
