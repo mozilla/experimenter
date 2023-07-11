@@ -842,7 +842,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         changelogs = list(
             self.changes.order_by("-changed_on").prefetch_related("changed_by")
         )
-        len(changelogs) - 1
 
         for index, changelog in enumerate(changelogs[:-1]):
             current_data = changelog.experiment_data
