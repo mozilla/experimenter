@@ -823,39 +823,42 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_changelogs(self):
         changes_by_date = defaultdict(list)
         date_option = "%I:%M:%S %p"
-        changelogs = self.changes.order_by("-changed_on").prefetch_related("changed_by")
-        size = len(changelogs) - 1
+        changelogs = list(
+            self.changes.order_by("-changed_on").prefetch_related("changed_by")
+        )
+        len(changelogs) - 1
 
-        for index, changelog in enumerate(changelogs):
-            if index < size:
-                current_data = changelog.experiment_data
-                previous_data = changelogs[index + 1].experiment_data
-                timestamp = changelog.changed_on.strftime(date_option)
+        for index, changelog in enumerate(changelogs[:-1]):
+            current_data = changelog.experiment_data
+            previous_data = changelogs[index + 1].experiment_data
+            timestamp = changelog.changed_on.strftime(date_option)
 
-                diff_fields = {
-                    field: {
-                        "old_value": previous_data.get(field),
-                        "new_value": current_data.get(field),
-                    }
-                    for field in current_data
-                    if field != "_updated_date_time"
+            diff_fields = {
+                field: {
+                    "old_value": previous_data.get(field),
+                    "new_value": current_data.get(field),
+                }
+                for field in current_data
+                if (
+                    field != "_updated_date_time"
                     and field != "published_dto"
                     and current_data[field] != previous_data.get(field)
+                )
+            }
+
+            for field, field_diff in diff_fields.items():
+                change = {
+                    "field": field,
+                    "event": "GENERAL",
+                    "old_value": field_diff["old_value"],
+                    "new_value": field_diff["new_value"],
+                    "changed_by": changelog.changed_by.get_full_name(),
+                    "timestamp": timestamp,
                 }
 
-                for field, field_diff in diff_fields.items():
-                    change = {
-                        "field": field,
-                        "event": "GENERAL",
-                        "old_value": field_diff["old_value"],
-                        "new_value": field_diff["new_value"],
-                        "changed_by": changelog.changed_by.get_full_name(),
-                        "timestamp": timestamp,
-                    }
+                changes_by_date[changelog.changed_on.date()].append(change)
 
-                    changes_by_date[changelog.changed_on.date()].append(change)
-
-        if creation_log := changelogs[size] if changelogs else None:
+        if creation_log := changelogs[-1] if changelogs else None:
             first_timestamp = creation_log.changed_on.strftime(date_option)
             change = {
                 "field": None,

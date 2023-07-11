@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from experimenter.experiments.models import (
@@ -52,6 +53,9 @@ def generate_nimbus_changelog(experiment, changed_by, message, changed_on=None):
     latest_change = experiment.changes.latest_change()
     experiment_data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
 
+    if not changed_on:
+        changed_on = timezone.now()
+
     old_status = None
     old_status_next = None
     old_publish_status = None
@@ -64,32 +68,17 @@ def generate_nimbus_changelog(experiment, changed_by, message, changed_on=None):
             "published_dto"
         ) != experiment_data.get("published_dto")
 
-    if changed_on:
-        return NimbusChangeLog.objects.create(
-            experiment=experiment,
-            old_status=old_status,
-            old_status_next=old_status_next,
-            old_publish_status=old_publish_status,
-            new_status=experiment.status,
-            new_status_next=experiment.status_next,
-            new_publish_status=experiment.publish_status,
-            changed_by=changed_by,
-            experiment_data=experiment_data,
-            published_dto_changed=published_dto_changed,
-            message=message,
-            changed_on=changed_on,
-        )
-    else:
-        return NimbusChangeLog.objects.create(
-            experiment=experiment,
-            old_status=old_status,
-            old_status_next=old_status_next,
-            old_publish_status=old_publish_status,
-            new_status=experiment.status,
-            new_status_next=experiment.status_next,
-            new_publish_status=experiment.publish_status,
-            changed_by=changed_by,
-            experiment_data=experiment_data,
-            published_dto_changed=published_dto_changed,
-            message=message,
-        )
+    return NimbusChangeLog.objects.create(
+        experiment=experiment,
+        old_status=old_status,
+        old_status_next=old_status_next,
+        old_publish_status=old_publish_status,
+        new_status=experiment.status,
+        new_status_next=experiment.status_next,
+        new_publish_status=experiment.publish_status,
+        changed_by=changed_by,
+        experiment_data=experiment_data,
+        published_dto_changed=published_dto_changed,
+        message=message,
+        changed_on=changed_on,
+    )
