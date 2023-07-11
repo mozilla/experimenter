@@ -845,7 +845,7 @@ describe("FormBranches", () => {
     );
   });
 
-  it("prevents multiple values from being selected", async () => {
+  it("allows multiple values to be selected", async () => {
     const onSave = jest.fn();
     const { experiment } = mockExperimentQuery("slug");
     const { container } = render(
@@ -864,16 +864,23 @@ describe("FormBranches", () => {
     await selectFeatureConfigs([2]);
 
     selected = container.querySelectorAll(".react-select__multi-value__label");
-    expect(selected.length).toEqual(1);
+    expect(selected.length).toEqual(2);
     expect(selected[0].textContent).toEqual(
+      MOCK_CONFIG.allFeatureConfigs![0]!.name,
+    );
+    expect(selected[1].textContent).toEqual(
       MOCK_CONFIG.allFeatureConfigs![1]!.name,
     );
 
     await clickAndWaitForSave(onSave);
 
     const payload = onSave.mock.calls[0][0];
-    expect(payload.featureConfigIds).toEqual([2]);
+    expect(payload.featureConfigIds).toEqual([1, 2]);
     expect(payload.referenceBranch.featureValues).toEqual([
+      {
+        featureConfig: "1",
+        value: '{"environmental-fact": "really-citizen"}',
+      },
       {
         featureConfig: "2",
         value: "",
@@ -882,6 +889,10 @@ describe("FormBranches", () => {
 
     expect(payload.treatmentBranches.length).toEqual(1);
     expect(payload.treatmentBranches[0].featureValues).toEqual([
+      {
+        featureConfig: "1",
+        value: '{"effect-effect-whole": "close-teach-exactly"}',
+      },
       {
         featureConfig: "2",
         value: "",

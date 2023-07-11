@@ -1474,4 +1474,51 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
+        self.assertIsNone(experiment.proposed_release_date)
+
+    def test_preview_to_draft_sets_published_dto_to_None(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW, published_dto="{}"
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {
+                "status": NimbusExperiment.Status.DRAFT,
+                "changelog_message": "Test changelog",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertIsNone(experiment.published_dto)
         self.assertEquals(experiment.proposed_release_date, None)
+
+    def test_can_set_excluded_required_experiments(self):
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {
+                "excluded_experiments": [excluded.id],
+                "required_experiments": [required.id],
+                "changelog_message": "Test changelog",
+            },
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.excluded_experiments.get(), excluded)
+        self.assertEqual(experiment.required_experiments.get(), required)
