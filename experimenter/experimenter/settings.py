@@ -101,7 +101,6 @@ INSTALLED_APPS = [
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
-    # fontawesome, tailwind css
     "fontawesomefree",
     "tailwind",
     "experimenter.theme",
