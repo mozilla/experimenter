@@ -42,7 +42,6 @@ jobs:
             cp .env.sample .env
             make check
 
-
   check_main:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
@@ -62,7 +61,6 @@ jobs:
           command: |
             cp .env.sample .env
             make check
-
 
   integration_nimbus_desktop_release_targeting:
     machine:
@@ -355,6 +353,24 @@ jobs:
             docker push ${DOCKERHUB_REPO}:build_test
             docker push ${DOCKERHUB_REPO}:build_ui
             docker push ${DOCKERHUB_REPO}:latest
+  cirrus_deploy:
+    working_directory: ~/cirrus
+    machine:
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - deploy:
+          name: Deploy to latest
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            make cirrus_build cirrus_test
+            docker tag cirrus:dev ${DOCKERHUB_CIRRUS_REPO}:cirrus_build
+            docker tag cirrus:test ${DOCKERHUB_CIRRUS_REPO}:cirrus_test
+            docker tag cirrus:deploy ${DOCKERHUB_REPO}:latest
+            docker push ${DOCKERHUB_CIRRUS_REPO}:cirrus_build
+            docker push ${DOCKERHUB_CIRRUS_REPO}:cirrus_test
+            docker push ${DOCKERHUB_CIRRUS_REPO}:latest
 
   update_external_configs:
     working_directory: ~/experimenter
@@ -597,6 +613,13 @@ workflows:
               only: main
           requires:
             - Check Experimenter (Main)
+      - cirrus_deploy:
+          name: Deploy Cirrus
+          filters:
+            branches:
+              only: main
+          requires:
+            - Check Cirrus (Main)
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
