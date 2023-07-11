@@ -213,10 +213,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     localizations = models.TextField(blank=True, null=True)
 
     required_experiments = models.ManyToManyField["NimbusExperiment"](
-        "NimbusExperiment", related_name="required_by"
+        "NimbusExperiment",
+        related_name="required_by",
+        blank=True,
     )
     excluded_experiments = models.ManyToManyField["NimbusExperiment"](
-        "NimbusExperiment", related_name="excluded_by"
+        "NimbusExperiment",
+        related_name="excluded_by",
+        blank=True,
     )
 
     objects = NimbusExperimentManager()
@@ -377,6 +381,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 country.code for country in sorted(countries, key=lambda c: c.code)
             ]
             sticky_expressions.append(f"region in {countries}")
+
+        if excluded_experiments := self.excluded_experiments.order_by("id").values_list(
+            "slug", flat=True
+        ):
+            for slug in excluded_experiments:
+                sticky_expressions.append(f"!('{slug}' in enrollments)")
+
+        if required_experiments := self.required_experiments.order_by("id").values_list(
+            "slug", flat=True
+        ):
+            for slug in required_experiments:
+                sticky_expressions.append(f"'{slug}' in enrollments")
 
         if self.is_sticky and sticky_expressions:
             expressions.append(

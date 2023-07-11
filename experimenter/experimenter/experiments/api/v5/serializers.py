@@ -825,6 +825,18 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
+    excluded_experiments = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusExperiment.objects.all(),
+        many=True,
+        allow_empty=True,
+        required=False,
+    )
+    required_experiments = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusExperiment.objects.all(),
+        many=True,
+        allow_empty=True,
+        required=False,
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -835,6 +847,7 @@ class NimbusExperimentSerializer(
             "conclusion_recommendation",
             "countries",
             "documentation_links",
+            "excluded_experiments",
             "feature_config",
             "feature_configs",
             "firefox_max_version",
@@ -861,6 +874,7 @@ class NimbusExperimentSerializer(
             "public_description",
             "publish_status",
             "reference_branch",
+            "required_experiments",
             "risk_brand",
             "risk_mitigation_link",
             "risk_partner_related",
@@ -1256,10 +1270,20 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     localizations = serializers.CharField(
         required=False, allow_blank=True, allow_null=True
     )
+    excluded_experiments = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusExperiment.objects.all(),
+        many=True,
+        allow_empty=True,
+    )
+    required_experiments = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusExperiment.objects.all(),
+        many=True,
+        allow_empty=True,
+    )
 
     class Meta:
         model = NimbusExperiment
-        exclude = ("id", "excluded_experiments", "required_experiments")
+        exclude = ("id",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1299,6 +1323,31 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def validate_hypothesis(self, value):
         if value == NimbusExperiment.HYPOTHESIS_DEFAULT.strip():
             raise serializers.ValidationError("Hypothesis cannot be the default value.")
+        return value
+
+    def validate_excluded_experiments(self, value):
+        return self._validate_required_or_excluded_experiments(value)
+
+    def validate_required_experiments(self, value):
+        return self._validate_required_or_excluded_experiments(value)
+
+    def _validate_required_or_excluded_experiments(self, value):
+        if self.instance and value:
+            if self.instance in value:
+                raise serializers.ValidationError(
+                    [NimbusExperiment.ERROR_EXCLUDED_REQUIRED_INCLUDES_SELF]
+                )
+
+            for experiment in value:
+                if experiment.application != self.instance.application:
+                    raise serializers.ValidationError(
+                        [
+                            NimbusExperiment.ERROR_EXCLUDED_REQUIRED_DIFFERENT_APPLICATION.format(
+                                slug=experiment.slug
+                            )
+                        ]
+                    )
+
         return value
 
     def _validate_feature_value_against_schema(
@@ -1445,6 +1494,22 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 NimbusConstants.ERROR_DESKTOP_ROLLOUT_VERSION
             ]
 
+        excluded_experiments = data.get("excluded_experiments")
+        required_experiments = data.get("required_experiments")
+        if (excluded_experiments or required_experiments) and (
+            parsed_min_version
+            < NimbusExperiment.Version.parse(
+                NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION
+            )
+        ):
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": [
+                        NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MIN_VERSION,
+                    ],
+                }
+            )
+
         if (
             min_version != ""
             and max_version != ""
@@ -1496,6 +1561,26 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                                 below version {min_supported_version}"
                     }
                 )
+        return data
+
+    def _validate_enrollment_targeting(self, data):
+        excluded_experiments = set(data.get("excluded_experiments", []))
+        required_experiments = set(data.get("required_experiments", []))
+
+        common = excluded_experiments & required_experiments
+
+        if common:
+            raise serializers.ValidationError(
+                {
+                    "excluded_experiments": [
+                        NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE,
+                    ],
+                    "required_experiments": [
+                        NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE,
+                    ],
+                }
+            )
+
         return data
 
     def _validate_sticky_enrollment(self, data):
@@ -1722,6 +1807,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_localizations(data)
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
+        data = self._validate_enrollment_targeting(data)
         data = self._validate_sticky_enrollment(data)
         data = self._validate_rollout_version_support(data)
         data = self._validate_bucket_duplicates(data)
