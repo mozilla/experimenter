@@ -5,9 +5,10 @@ from pytest import fixture
 
 from cirrus.experiment_recipes import RemoteSettings
 from cirrus.feature_manifest import FeatureManifestLanguage
-from cirrus.main import app
+from cirrus.main import app, initialize_glean
 from cirrus.sdk import SDK
 from cirrus.settings import channel, context, fml_path
+from glean import testing
 
 
 @fixture(scope="module")
@@ -51,3 +52,13 @@ def fml():
 @fixture
 def exception():
     return Exception("some error")
+
+
+@fixture(name="reset_glean", scope="function", autouse=True)
+def fixture_reset_glean():
+    testing.reset_glean(application_id="cirrus-test", application_version="0.1.0")
+
+
+@fixture
+def get_telemetry():
+    return initialize_glean()

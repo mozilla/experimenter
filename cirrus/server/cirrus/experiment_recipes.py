@@ -19,6 +19,17 @@ class RemoteSettings:
     def get_recipes(self) -> Dict[str, List[Any]]:
         return self.recipes
 
+    def get_recipe_type(
+        self, experiment_slug: str
+    ) -> str:  # enum or search for the return type valid choices?
+        for experiment in self.get_recipes()["data"]:
+            if experiment["slug"] == experiment_slug:
+                is_rollout = experiment.get("isRollout", False)
+                if is_rollout:
+                    return "rollout"
+                else:
+                    return "experiment"
+
     def update_recipes(self, new_recipes: Dict[str, List[Any]]) -> None:
         self.recipes = new_recipes
         self.sdk.set_experiments(json.dumps(self.recipes))

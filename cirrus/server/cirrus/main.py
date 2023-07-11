@@ -16,6 +16,7 @@ from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
 from .sdk import SDK
 from .settings import (
+    app_id,
     channel,
     context,
     fml_path,
@@ -109,6 +110,45 @@ def initialize_glean():
     return pings, metrics
 
 
+def record_metrics(enrolled_partial_configuration: Dict[str, Any], client_id: str):
+    enrollments = enrolled_partial_configuration.get("enrollments", [])
+    experiment_slug = enrollments[0].get("slug") if enrollments else ""
+    branch_slug = (
+        enrollments[0].get("status", {}).get("Enrolled", {}).get("branch")
+        if enrollments
+        else ""
+    )
+    events = enrollment_id = enrolled_partial_configuration.get("events", [])
+    enrollment_id = events[0].get("enrollment_id") if events else ""
+    if experiment_slug:
+        experiment_type = app.state.remote_setting.get_recipe_type(
+            experiment_slug=experiment_slug
+        )
+        app.state.metrics.cirrus_events.enrollment.record(
+            app.state.metrics.cirrus_events.EnrollmentExtra(
+                experiment_type=experiment_type
+            )
+        )
+
+    app.state.metrics.cirrus_events.enrollment.record(
+        app.state.metrics.cirrus_events.EnrollmentExtra(app_id=app_id)
+    )
+
+    app.state.metrics.cirrus_events.enrollment.record(
+        app.state.metrics.cirrus_events.EnrollmentExtra(user_id=client_id)
+    )
+    app.state.metrics.cirrus_events.enrollment.record(
+        app.state.metrics.cirrus_events.EnrollmentExtra(experiment=experiment_slug)
+    )
+    app.state.metrics.cirrus_events.enrollment.record(
+        app.state.metrics.cirrus_events.EnrollmentExtra(branch=branch_slug)
+    )
+    app.state.metrics.cirrus_events.enrollment.record(
+        app.state.metrics.cirrus_events.EnrollmentExtra(enrollment_id=enrollment_id)
+    )
+    app.state.pings.enrollment.submit()
+
+
 app = FastAPI(lifespan=lifespan)
 
 
@@ -137,9 +177,15 @@ async def compute_features(request_data: FeatureRequest):
     enrolled_partial_configuration: Dict[str, Any] = app.state.sdk.compute_enrollments(
         targeting_context
     )
+
     client_feature_configuration: Dict[
         str, Any
     ] = app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
+
+    record_metrics(
+        enrolled_partial_configuration=enrolled_partial_configuration,
+        client_id=request_data.client_id,
+    )
 
     return client_feature_configuration
 
