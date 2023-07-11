@@ -111,14 +111,18 @@ def test_every_form_page_can_be_resaved(
 
 
 @pytest.mark.nimbus_ui
+@pytest.mark.skipif(
+    "FIREFOX_DESKTOP" in os.getenv("PYTEST_ARGS"),
+    reason="Only run for mobile applications",
+)
 def test_first_run_release_date(
     base_url,
     selenium,
     kinto_client,
     slugify,
     experiment_name,
+    application,
 ):
-    application = "FENIX"
     experiment_slug = str(slugify(experiment_name))
     targeting = helpers.load_targeting_configs(app=application)[0]
     data = {
@@ -169,6 +173,10 @@ def test_first_run_release_date(
 
 
 @pytest.mark.nimbus_ui
+@pytest.mark.skipif(
+    "FIREFOX_DESKTOP" in os.getenv("PYTEST_ARGS"),
+    reason="Only run for mobile applications",
+)
 def test_audience_page_release_date(
     base_url,
     selenium,
@@ -225,6 +233,10 @@ def test_audience_page_release_date(
 
 
 @pytest.mark.nimbus_ui
+@pytest.mark.skipif(
+    "FIREFOX_DESKTOP" in os.getenv("PYTEST_ARGS"),
+    reason="Only run for mobile applications",
+)
 def test_summary_timeline_release_date(
     base_url,
     selenium,
