@@ -619,7 +619,7 @@ workflows:
             branches:
               only: main
           requires:
-            - Check Cirrus (Main)
+            - Check Cirrus
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
