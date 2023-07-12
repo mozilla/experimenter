@@ -1,0 +1,14 @@
+{% extends "experimenter_base.html" %}
+
+{% block content %}
+    <div class="w-full max-w-screen-2xl h-full md:grid md:grid-cols-12 flex flex-col justify-start items-center">
+        <div x-show="open" class="md:w-full w-fit h-full md:col-span-3 xl:col-span-2 border-r  absolute md:static left-0 top-0 z-20 md:z-0">
+            {% block sidebar %}
+            {% endblock %}
+        </div>
+        <div class="w-full h-full md:col-span-9 xl:col-span-10">
+            {% block main_content %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}
