@@ -225,6 +225,9 @@ cirrus_build:
 cirrus_build_test:
 	$(COMPOSE_TEST) build cirrus
 
+cirrus_build_prod:
+	DOCKER_BUILDKIT=1 docker build --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-arg BUILDKIT_INLINE_CACHE=1 cirrus/server/
+
 cirrus_up: cirrus_build
 	$(COMPOSE) up cirrus
 
