@@ -342,6 +342,7 @@ class NimbusConstants(object):
         FIREFOX_114 = "114.!"
         FIREFOX_114_3_0 = "114.3.0"
         FIREFOX_115 = "115.!"
+        FIREFOX_115_0_2 = "105.0.2"
         FIREFOX_116 = "116.!"
         FIREFOX_117 = "117.!"
         FIREFOX_118 = "118.!"
