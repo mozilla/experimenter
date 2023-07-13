@@ -364,7 +364,7 @@ jobs:
           name: Deploy to latest
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            make cirrus_build cirrus_test
+            make cirrus_build_prod
             docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
             docker push ${DOCKERHUB_CIRRUS_REPO}:latest
 
@@ -613,7 +613,8 @@ workflows:
           name: Deploy Cirrus
           filters:
             branches:
-              only: main
+              ignore:
+               - main
           requires:
             - Check Cirrus
       - integration_nimbus_desktop_release_targeting:
