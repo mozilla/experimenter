@@ -100,7 +100,7 @@ def test_check_telemetry_enrollment_unenrollment(
         "totalEnrolledClients": 55,
         "firefoxMinVersion": "FIREFOX_96",
     }
-    helpers.create_desktop_experiment(
+    helpers.create_experiment(
         experiment_slug,
         "desktop",
         targeting,
@@ -185,7 +185,7 @@ def test_check_telemetry_pref_flip(
         ],
     }
     experiment_default_data["treatmentBranches"] = []
-    helpers.create_desktop_experiment(
+    helpers.create_experiment(
         experiment_slug,
         "desktop",
         targeting,
@@ -280,7 +280,7 @@ def test_check_telemetry_sticky_targeting(
     }
     experiment_default_data["treatmentBranches"] = []
     experiment_default_data["isSticky"] = True
-    helpers.create_desktop_experiment(
+    helpers.create_experiment(
         experiment_slug,
         "desktop",
         targeting_config_slug,
