@@ -8,6 +8,13 @@ from .sdk import SDK
 from .settings import remote_setting_url
 
 logger = logging.getLogger(__name__)
+from enum import Enum
+
+
+class RecipeType(Enum):
+    ROLLOUT = "rollout"
+    EXPERIMENT = "experiment"
+    EMPTY = ""
 
 
 class RemoteSettings:
@@ -19,16 +26,20 @@ class RemoteSettings:
     def get_recipes(self) -> Dict[str, List[Any]]:
         return self.recipes
 
-    def get_recipe_type(
-        self, experiment_slug: str
-    ) -> str:  # enum or search for the return type valid choices?
-        for experiment in self.get_recipes()["data"]:
+    def get_recipe_type(self, experiment_slug: str) -> RecipeType:
+        recipes_data = self.get_recipes()["data"]
+        if not recipes_data:
+            return RecipeType.EMPTY.value
+
+        for experiment in recipes_data:
             if experiment["slug"] == experiment_slug:
                 is_rollout = experiment.get("isRollout", False)
                 if is_rollout:
-                    return "rollout"
+                    return RecipeType.ROLLOUT.value
                 else:
-                    return "experiment"
+                    return RecipeType.EXPERIMENT.value
+
+        return RecipeType.EMPTY.value
 
     def update_recipes(self, new_recipes: Dict[str, List[Any]]) -> None:
         self.recipes = new_recipes

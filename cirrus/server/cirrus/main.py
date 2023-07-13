@@ -110,7 +110,7 @@ def initialize_glean():
     return pings, metrics
 
 
-def record_metrics(enrolled_partial_configuration: Dict[str, Any], client_id: str):
+def get_metrics_data(enrolled_partial_configuration: Dict[str, Any]):
     enrollments = enrolled_partial_configuration.get("enrollments", [])
     experiment_slug = enrollments[0].get("slug") if enrollments else ""
     branch_slug = (
@@ -120,31 +120,27 @@ def record_metrics(enrolled_partial_configuration: Dict[str, Any], client_id: st
     )
     events = enrollment_id = enrolled_partial_configuration.get("events", [])
     enrollment_id = events[0].get("enrollment_id") if events else ""
-    if experiment_slug:
-        experiment_type = app.state.remote_setting.get_recipe_type(
-            experiment_slug=experiment_slug
-        )
-        app.state.metrics.cirrus_events.enrollment.record(
-            app.state.metrics.cirrus_events.EnrollmentExtra(
-                experiment_type=experiment_type
-            )
-        )
+    experiment_type = (
+        app.state.remote_setting.get_recipe_type(experiment_slug)
+        if experiment_slug
+        else ""
+    )
+    return experiment_slug, branch_slug, enrollment_id, experiment_type
 
-    app.state.metrics.cirrus_events.enrollment.record(
-        app.state.metrics.cirrus_events.EnrollmentExtra(app_id=app_id)
-    )
 
-    app.state.metrics.cirrus_events.enrollment.record(
-        app.state.metrics.cirrus_events.EnrollmentExtra(user_id=client_id)
+def record_metrics(enrolled_partial_configuration: Dict[str, Any], client_id: str):
+    experiment_slug, branch_slug, enrollment_id, experiment_type = get_metrics_data(
+        enrolled_partial_configuration=enrolled_partial_configuration
     )
     app.state.metrics.cirrus_events.enrollment.record(
-        app.state.metrics.cirrus_events.EnrollmentExtra(experiment=experiment_slug)
-    )
-    app.state.metrics.cirrus_events.enrollment.record(
-        app.state.metrics.cirrus_events.EnrollmentExtra(branch=branch_slug)
-    )
-    app.state.metrics.cirrus_events.enrollment.record(
-        app.state.metrics.cirrus_events.EnrollmentExtra(enrollment_id=enrollment_id)
+        app.state.metrics.cirrus_events.EnrollmentExtra(
+            experiment_type=experiment_type,
+            app_id=app_id,
+            user_id=client_id,
+            experiment=experiment_slug,
+            branch=branch_slug,
+            enrollment_id=enrollment_id,
+        )
     )
     app.state.pings.enrollment.submit()
 

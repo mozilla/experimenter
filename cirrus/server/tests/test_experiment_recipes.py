@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock, patch
+from cirrus.experiment_recipes import RecipeType
 
 import pytest
 import requests
@@ -72,3 +73,20 @@ def test_empty_data_key_with_non_empty_recipes(mock_get, remote_settings):
     remote_settings.update_recipes({"data": [{"experiment1": True}]})
     remote_settings.fetch_recipes()
     assert remote_settings.get_recipes() == {"data": [{"experiment1": True}]}
+
+
+@pytest.mark.parametrize(
+    "slug, expected_type",
+    [
+        ("cirrus-test-1", RecipeType.ROLLOUT.value),
+        ("cirrus-test-2", RecipeType.EXPERIMENT.value),
+        ("non-existent-slug", RecipeType.EMPTY.value),
+    ],
+)
+def test_get_recipe_type_with_actual_recipes(
+    remote_settings, recipes, slug, expected_type
+):
+    remote_settings.update_recipes(recipes)
+
+    experiment_type = remote_settings.get_recipe_type(slug)
+    assert experiment_type == expected_type
