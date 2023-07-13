@@ -7,6 +7,7 @@ services:
     environment:
       - MOZ_HEADLESS
       - FIREFOX_VERSION
+      - PYTEST_ARGS
     volumes:
       - .:/code
       - /code/experimenter/tests/integration/.tox
