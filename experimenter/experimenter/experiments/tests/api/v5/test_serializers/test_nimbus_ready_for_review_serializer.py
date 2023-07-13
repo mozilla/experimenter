@@ -232,10 +232,20 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             },
         )
 
-    def test_desktop_min_version_under_113_shows_warning(self):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.FOCUS_ANDROID,
+            NimbusExperiment.Application.IOS,
+            NimbusExperiment.Application.FOCUS_IOS,
+        ]
+    )
+    def test_rollout_min_version_under_115_shows_warning(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_114,
+            application=application,
             is_rollout=True,
             is_sticky=True,
         )
@@ -254,15 +264,30 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertEqual(
             serializer.warnings,
             {
-                "firefox_min_version": [NimbusExperiment.ERROR_DESKTOP_ROLLOUT_VERSION],
+                "firefox_min_version": [
+                    NimbusExperiment.ERROR_ROLLOUT_VERSION.format(
+                        application=NimbusExperiment.Application(application).label,
+                        version=NimbusExperiment.Version.parse(
+                            NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION[
+                                application
+                            ]
+                        ),
+                    )
+                ],
             },
         )
 
-    def test_desktop_min_version_over_113_no_warning(self):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.KLAR_IOS,
+            NimbusExperiment.Application.KLAR_IOS,
+        ]
+    )
+    def test_rollout_klar_min_version_under_115_no_warning(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_118,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
             is_rollout=True,
             is_sticky=True,
         )
@@ -280,11 +305,20 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.warnings, {})
 
-    def test_mobile_min_version_under_113_no_warning(self):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.FOCUS_ANDROID,
+            NimbusExperiment.Application.IOS,
+            NimbusExperiment.Application.FOCUS_IOS,
+        ]
+    )
+    def test_rollout_min_version_over_115_no_warning(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
             is_rollout=True,
             is_sticky=True,
         )
@@ -1575,7 +1609,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             lifecycle,
             application=NimbusExperiment.Application.FENIX,
             channel=channel,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
             feature_configs=feature_configs_fenix,
             is_sticky=False,
             is_rollout=True,
@@ -1585,7 +1619,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             lifecycle,
             application=NimbusExperiment.Application.IOS,
             channel=channel,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
             feature_configs=feature_configs_ios,
             is_sticky=False,
             is_rollout=True,
