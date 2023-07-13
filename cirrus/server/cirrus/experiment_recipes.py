@@ -26,7 +26,7 @@ class RemoteSettings:
     def get_recipes(self) -> Dict[str, List[Any]]:
         return self.recipes
 
-    def get_recipe_type(self, experiment_slug: str) -> RecipeType:
+    def get_recipe_type(self, experiment_slug: str) -> str:
         recipes_data = self.get_recipes()["data"]
         if not recipes_data:
             return RecipeType.EMPTY.value

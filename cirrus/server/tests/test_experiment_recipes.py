@@ -1,8 +1,9 @@
 from unittest.mock import MagicMock, patch
-from cirrus.experiment_recipes import RecipeType
 
 import pytest
 import requests
+
+from cirrus.experiment_recipes import RecipeType
 
 
 def test_get_recipes_is_empty(remote_settings):
