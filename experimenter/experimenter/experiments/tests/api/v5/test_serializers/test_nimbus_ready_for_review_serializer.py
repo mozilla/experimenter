@@ -2231,6 +2231,157 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEquals(serializer.warnings, {})
 
+    @parameterized.expand([("excluded_experiments",), ("required_experiments",)])
+    def test_targeting_exclude_require_self(self, field):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION,
+        )
+
+        getattr(experiment, field).set([experiment])
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEquals(
+            serializer.errors,
+            {
+                field: [NimbusExperiment.ERROR_EXCLUDED_REQUIRED_INCLUDES_SELF],
+            },
+        )
+
+    @parameterized.expand(
+        product(
+            ("excluded_experiments", "required_experiments"),
+            list(NimbusExperiment.Application),
+            list(NimbusExperiment.Application),
+        )
+    )
+    def test_targeting_exclude_require_application(self, field, app1, app2):
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=app1,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=app2,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION,
+            **{field: [other]},
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertEquals(
+            serializer.is_valid(),
+            app1 == app2,
+            serializer.errors,
+        )
+        if app1 != app2:
+            expected_error = (
+                NimbusExperiment.ERROR_EXCLUDED_REQUIRED_DIFFERENT_APPLICATION
+            )
+            self.assertEquals(
+                serializer.errors,
+                {field: [expected_error.format(slug=other.slug)]},
+            )
+
+    @parameterized.expand(
+        product(
+            list(NimbusExperiment.Application),
+            ("excluded_experiments", "required_experiments"),
+        )
+    )
+    def test_targeting_exclude_require_min_version(self, application, field):
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_115,
+            **{field: [other]},
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEquals(
+            serializer.errors,
+            {
+                "firefox_min_version": [
+                    NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MIN_VERSION
+                ],
+            },
+        )
+
+    def test_targeting_exclude_require_mutally_exclusive(self):
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION,
+            excluded_experiments=[other],
+            required_experiments=[other],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEquals(
+            serializer.errors,
+            {
+                "excluded_experiments": [
+                    NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE,
+                ],
+                "required_experiments": [
+                    NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE,
+                ],
+            },
+        )
+
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
     def setUp(self):
@@ -2796,3 +2947,52 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                     ],
                 },
             )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "toplevel": 1.2,
+                },
+            ),
+            (
+                {
+                    "nested_list": [{"nested_value": 1.2}],
+                },
+            ),
+            (
+                {
+                    "nested_dict": {"list": [1.2]},
+                },
+            ),
+        ]
+    )
+    def test_feature_value_with_float_is_invalid(self, value):
+        application = NimbusExperiment.Application.DESKTOP
+        feature = NimbusFeatureConfigFactory.create(application=application, schema=None)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+        )
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps(value)
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            NimbusExperiment.ERROR_NO_FLOATS_IN_FEATURE_VALUE,
+            serializer.errors["reference_branch"]["feature_values"][0]["value"],
+        )
