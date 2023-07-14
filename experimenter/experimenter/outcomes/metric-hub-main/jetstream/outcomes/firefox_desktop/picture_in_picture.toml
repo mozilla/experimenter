@@ -10,7 +10,7 @@ select_expression = """
         AND event_method = "create"
     )
 """
-data_source = "events"
+data_source = "events_pip"
 statistics = { binomial = {} }
 
 [metrics.picture_in_picture_sessions]
@@ -22,7 +22,7 @@ select_expression = """
         AND event_method = "create"
     )
 """
-data_source = "events"
+data_source = "events_pip"
 statistics = { deciles = {}, bootstrap_mean = {} }
 
 [metrics.picture_in_picture_median_duration]
@@ -75,7 +75,7 @@ select_expression = """
         AND event_method = "saw_toggle"
     )
 """
-data_source = "events"
+data_source = "events_pip"
 statistics = { binomial = {} }
 
 [metrics.saw_pip_toggle_first_time]
@@ -88,7 +88,7 @@ select_expression = """
         AND mozfun.map.get_key(event_map_values, 'firstTime') = 'true'
     )
 """
-data_source = "events"
+data_source = "events_pip"
 statistics = { binomial = {} }
 
 [metrics.opened_pip_on_first_time]
@@ -101,7 +101,7 @@ select_expression = """
         AND mozfun.map.get_key(event_map_values, 'firstTimeToggle') = 'true'
     )
 """
-data_source = "events"
+data_source = "events_pip"
 statistics = { binomial = {} }
 
 [metrics.opened_pip_more_than_once]
@@ -114,5 +114,21 @@ select_expression = """
         AND mozfun.map.get_key(event_map_values, 'firstTimeToggle') = 'false'
     )
 """
-data_source = "events"
+data_source = "events_pip"
 statistics = { binomial = {} }
+
+
+[data_sources.events_pip]
+from_expression = """
+    (
+        SELECT
+            *
+        FROM `moz-fx-data-shared-prod.telemetry.events`
+        WHERE 
+            event_category = 'pictureinpicture'
+    )
+"""
+submission_date_column = "submission_date"
+friendly_name = "Picture in Picture events"
+description = "Picture in Picture related events"
+experiments_column_type = "native"
