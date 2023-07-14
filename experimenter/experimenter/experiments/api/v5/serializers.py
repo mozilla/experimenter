@@ -1482,17 +1482,20 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 }
             )
 
-        if (
-            application == NimbusExperiment.Application.DESKTOP
-            and is_rollout
-            and parsed_min_version
-            < NimbusExperiment.Version.parse(
-                NimbusConstants.DESKTOP_ROLLOUT_MIN_SUPPORTED_VERSION
+        rollout_live_resize_min_app_version = (
+            NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.get(application)
+        )
+        if rollout_live_resize_min_app_version:
+            parsed_min_app_version = NimbusExperiment.Version.parse(
+                rollout_live_resize_min_app_version
             )
-        ):
-            self.warnings["firefox_min_version"] = [
-                NimbusConstants.ERROR_DESKTOP_ROLLOUT_VERSION
-            ]
+            if is_rollout and parsed_min_version < parsed_min_app_version:
+                self.warnings["firefox_min_version"] = [
+                    NimbusConstants.ERROR_ROLLOUT_VERSION.format(
+                        application=NimbusExperiment.Application(application).label,
+                        version=parsed_min_app_version,
+                    )
+                ]
 
         excluded_experiments = data.get("excluded_experiments")
         required_experiments = data.get("required_experiments")
