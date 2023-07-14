@@ -2,14 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useQuery } from "@apollo/client";
 import React, { useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
-import Select from "react-select";
+import Select, { createFilter, FormatOptionLabelMeta } from "react-select";
 import ReactTooltip from "react-tooltip";
 import LinkExternal from "src/components/LinkExternal";
+import { GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY } from "src/gql/experiments";
 import { useCommonForm, useConfig, useReviewCheck } from "src/hooks";
 import { ReactComponent as Info } from "src/images/info.svg";
 import {
@@ -20,6 +22,11 @@ import {
   TOOLTIP_RELEASE_DATE,
 } from "src/lib/constants";
 import { getStatus } from "src/lib/experiment";
+import {
+  getAllExperimentsByApplication,
+  getAllExperimentsByApplicationVariables,
+  getAllExperimentsByApplication_experimentsByApplication,
+} from "src/types/getAllExperimentsByApplication";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_targetingConfigs,
@@ -52,6 +59,8 @@ export const audienceFieldNames = [
   "proposedEnrollment",
   "proposedDuration",
   "proposedReleaseDate",
+  "requiredExperiments",
+  "excludedExperiments",
   "countries",
   "locales",
   "languages",
@@ -59,11 +68,82 @@ export const audienceFieldNames = [
   "isFirstRun",
 ] as const;
 
+interface SelectExperimentOption {
+  name: string;
+  slug: string;
+  description: string;
+  value: string;
+}
+
 const selectOptions = (items: SelectIdItems) =>
   items.map((item) => ({
     label: item.name!,
     value: item.id!,
   }));
+
+// react-select does not expose the FilterOptionOption type and our version of
+// TypeScript is too old to support `typeof f<T>` where `f` is a generic
+// function.
+type FilterOptionOption<T> = {
+  data: T;
+  label: string;
+  value: string;
+};
+const experimentOptionFilterConfig = {
+  stringify: (option: FilterOptionOption<SelectExperimentOption>): string => {
+    return `${option.data.slug} ${option.data.name} ${option.data.description}`;
+  },
+};
+
+function selectExperimentOptions(
+  allExperiments: getAllExperimentsByApplication_experimentsByApplication[],
+  ids?: (number | string)[],
+): SelectExperimentOption[] {
+  let options: getAllExperimentsByApplication_experimentsByApplication[];
+  if (ids) {
+    options = ids.reduce((found, id) => {
+      const meta = allExperiments.find((experiment) => experiment?.id === +id);
+      if (meta) {
+        found.push(meta);
+      }
+      return found;
+    }, [] as getAllExperimentsByApplication_experimentsByApplication[]);
+  } else {
+    options = allExperiments;
+  }
+
+  return options.map((experiment) => ({
+    name: experiment.name,
+    slug: experiment.slug,
+    description: experiment.publicDescription ?? "",
+    value: experiment.id.toString(),
+  }));
+}
+
+function filterExperimentOptions(
+  options: SelectExperimentOption[],
+  excludeIds: string[],
+): SelectExperimentOption[] {
+  return options.filter((option) => !excludeIds.includes(option.value));
+}
+
+function formatExperimentOptionLabel(
+  data: SelectExperimentOption,
+  meta: FormatOptionLabelMeta<SelectExperimentOption>,
+): React.ReactNode {
+  if (meta.context === "menu") {
+    return (
+      <>
+        <b>{data.name}</b> (
+        <span className="required-excluded-experiment-slug">{data.slug}</span>)
+        <br />
+        <i>{data.description}</i>
+      </>
+    );
+  }
+
+  return <span className="required-excluded-experiment-slug">{data.slug}</span>;
+}
 
 export const FormAudience = ({
   experiment,
@@ -75,6 +155,19 @@ export const FormAudience = ({
 }: FormAudienceProps) => {
   const config = useConfig();
   const { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
+  const allExperimentsByApplicationQueryResponse = useQuery<
+    getAllExperimentsByApplication,
+    getAllExperimentsByApplicationVariables
+  >(GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY, {
+    variables: { application: experiment.application! },
+  });
+
+  const allExperimentMeta = useMemo(
+    () =>
+      allExperimentsByApplicationQueryResponse?.data
+        ?.experimentsByApplication ?? [],
+    [allExperimentsByApplicationQueryResponse],
+  );
 
   const [locales, setLocales] = useState<string[]>(
     experiment!.locales.map((v) => "" + v.id!),
@@ -88,6 +181,36 @@ export const FormAudience = ({
 
   const [isSticky, setIsSticky] = useState<boolean>(
     experiment.isSticky ?? false,
+  );
+
+  const [excludedExperiments, setExcludedExperiments] = useState<string[]>(
+    experiment!.excludedExperiments.map((e) => e.id.toString()),
+  );
+  const [requiredExperiments, setRequiredExperiments] = useState<string[]>(
+    experiment!.requiredExperiments.map((e) => e.id.toString()),
+  );
+
+  const experimentOptions = useMemo(
+    () => selectExperimentOptions(allExperimentMeta ?? []),
+    [allExperimentMeta],
+  );
+
+  const requiredExperimentOptions = useMemo(
+    () =>
+      filterExperimentOptions(experimentOptions, [
+        experiment.id.toString(),
+        ...excludedExperiments,
+      ]),
+    [experiment.id, experimentOptions, excludedExperiments],
+  );
+
+  const excludedExperimentOptions = useMemo(
+    () =>
+      filterExperimentOptions(experimentOptions, [
+        experiment.id.toString(),
+        ...requiredExperiments,
+      ]),
+    [experiment.id, experimentOptions, requiredExperiments],
   );
 
   const [isFirstRun, setIsFirstRun] = useState<boolean>(
@@ -110,24 +233,33 @@ export const FormAudience = ({
     experiment!.populationPercent?.toString(),
   );
 
-  const defaultValues = {
-    channel: experiment.channel,
-    firefoxMinVersion: experiment.firefoxMinVersion,
-    firefoxMaxVersion: experiment.firefoxMaxVersion,
-    targetingConfigSlug: experiment.targetingConfigSlug,
-    populationPercent: experiment.populationPercent,
-    totalEnrolledClients: experiment.totalEnrolledClients,
-    proposedEnrollment: experiment.proposedEnrollment,
-    proposedDuration: experiment.proposedDuration,
-    proposedReleaseDate: experiment.isFirstRun
-      ? experiment.proposedReleaseDate
-      : "",
-    countries: selectOptions(experiment.countries as SelectIdItems),
-    locales: selectOptions(experiment.locales as SelectIdItems),
-    languages: selectOptions(experiment.languages as SelectIdItems),
-    isSticky: experiment.isSticky,
-    isFirstRun: experiment.isFirstRun,
-  };
+  const defaultValues = React.useMemo(
+    () => ({
+      channel: experiment.channel,
+      firefoxMinVersion: experiment.firefoxMinVersion,
+      firefoxMaxVersion: experiment.firefoxMaxVersion,
+      targetingConfigSlug: experiment.targetingConfigSlug,
+      populationPercent: experiment.populationPercent,
+      totalEnrolledClients: experiment.totalEnrolledClients,
+      proposedEnrollment: experiment.proposedEnrollment,
+      proposedDuration: experiment.proposedDuration,
+      proposedReleaseDate: experiment.isFirstRun
+        ? experiment.proposedReleaseDate
+        : "",
+      countries: selectOptions(experiment.countries as SelectIdItems),
+      locales: selectOptions(experiment.locales as SelectIdItems),
+      languages: selectOptions(experiment.languages as SelectIdItems),
+      isSticky: experiment.isSticky,
+      isFirstRun: experiment.isFirstRun,
+      excludedExperiments: selectExperimentOptions(
+        experiment.excludedExperiments as getAllExperimentsByApplication_experimentsByApplication[],
+      ),
+      requiredExperiments: selectExperimentOptions(
+        experiment.requiredExperiments as getAllExperimentsByApplication_experimentsByApplication[],
+      ),
+    }),
+    [experiment],
+  );
 
   const {
     FormErrors,
@@ -149,8 +281,8 @@ export const FormAudience = ({
   const [handleSave, handleSaveNext] = useMemo(
     () =>
       [false, true].map((next) =>
-        handleSubmit(
-          (dataIn: DefaultValues) =>
+        handleSubmit((dataIn: DefaultValues) => {
+          return (
             !isLoading &&
             onSubmit(
               {
@@ -161,10 +293,17 @@ export const FormAudience = ({
                 locales,
                 countries,
                 languages,
+                requiredExperiments: requiredExperiments.map((id) =>
+                  parseInt(id, 10),
+                ),
+                excludedExperiments: excludedExperiments.map((id) =>
+                  parseInt(id, 10),
+                ),
               },
               next,
-            ),
-        ),
+            )
+          );
+        }),
       ),
     [
       isLoading,
@@ -176,6 +315,8 @@ export const FormAudience = ({
       locales,
       countries,
       languages,
+      excludedExperiments,
+      requiredExperiments,
     ],
   );
 
@@ -321,6 +462,42 @@ export const FormAudience = ({
               <TargetConfigSelectOptions options={targetingConfigSlugOptions} />
             </Form.Control>
             <FormErrors name="targetingConfigSlug" />
+          </Form.Group>
+        </Form.Row>
+        <Form.Row>
+          <Form.Group as={Col} controlId="excludedExperiments">
+            <Form.Label className="d-flex align-items-center">
+              Exclude users enrolled in these experiments/rollouts (past or
+              present)
+            </Form.Label>
+            <SelectExperimentField
+              name="excludedExperiments"
+              formSelectAttrs={formSelectAttrs}
+              setExperiments={setExcludedExperiments}
+              allExperiments={allExperimentMeta}
+              experimentIds={excludedExperiments}
+              options={excludedExperimentOptions}
+              isDisabled={isLocked!}
+            />
+            <FormErrors name="excludedExperiments" />
+          </Form.Group>
+        </Form.Row>
+        <Form.Row>
+          <Form.Group as={Col} controlId="requiredExperiments">
+            <Form.Label className="d-flex align-items-center">
+              Require users to be enrolled in these experiments/rollouts (past
+              or present)
+            </Form.Label>
+            <SelectExperimentField
+              name="requiredExperiments"
+              formSelectAttrs={formSelectAttrs}
+              setExperiments={setRequiredExperiments}
+              allExperiments={allExperimentMeta}
+              experimentIds={requiredExperiments}
+              options={requiredExperimentOptions}
+              isDisabled={isLocked!}
+            />
+            <FormErrors name="requiredExperiments" />
           </Form.Group>
         </Form.Row>
         <Form.Row>
@@ -635,5 +812,44 @@ export const filterAndSortTargetingConfigs = (
             a?.label?.localeCompare(b?.label || "") ||
             0,
         );
+
+interface SelectExperimentFieldProps {
+  name: string;
+  formSelectAttrs: ReturnType<typeof useCommonForm>["formSelectAttrs"];
+  setExperiments: React.Dispatch<React.SetStateAction<string[]>>;
+  allExperiments: getAllExperimentsByApplication_experimentsByApplication[];
+  experimentIds: string[];
+  options: SelectExperimentOption[];
+  isDisabled?: boolean;
+}
+
+function SelectExperimentField({
+  name,
+  formSelectAttrs,
+  setExperiments,
+  allExperiments,
+  experimentIds,
+  options,
+  isDisabled,
+}: SelectExperimentFieldProps) {
+  return (
+    <Select<SelectExperimentOption, true>
+      isMulti
+      placeholder="Experiments..."
+      {...formSelectAttrs(name, setExperiments)}
+      value={selectExperimentOptions(allExperiments, experimentIds)}
+      options={options}
+      formatOptionLabel={formatExperimentOptionLabel}
+      isDisabled={isDisabled}
+      instanceId={name}
+      name={name}
+      inputId={name}
+      classNamePrefix="react-select"
+      filterOption={createFilter<SelectExperimentOption>(
+        experimentOptionFilterConfig,
+      )}
+    />
+  );
+}
 
 export default FormAudience;
