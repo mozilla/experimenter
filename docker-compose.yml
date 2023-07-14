@@ -73,7 +73,7 @@ services:
 
   db:
     restart: always
-    image: postgres:9.6.17
+    image: postgres:14.8
     environment:
       POSTGRES_PASSWORD: postgres
     ports:
@@ -112,7 +112,6 @@ services:
     working_dir: /cirrus
     ports:
       - "8001:8001"
-
 
 volumes:
   db_volume:
