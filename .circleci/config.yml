@@ -20,7 +20,7 @@ commands:
                 circleci-agent step halt
             fi
 jobs:
-  check_branch:
+  check_experimenter_branch:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
@@ -42,8 +42,7 @@ jobs:
             cp .env.sample .env
             make check
 
-
-  check_main:
+  check_experimenter_main:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
@@ -62,7 +61,6 @@ jobs:
           command: |
             cp .env.sample .env
             make check
-
 
   integration_nimbus_desktop_release_targeting:
     machine:
@@ -333,7 +331,7 @@ jobs:
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
-  deploy:
+  deploy_experimenter:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
@@ -355,6 +353,21 @@ jobs:
             docker push ${DOCKERHUB_REPO}:build_test
             docker push ${DOCKERHUB_REPO}:build_ui
             docker push ${DOCKERHUB_REPO}:latest
+
+  deploy_cirrus:
+    working_directory: ~/cirrus
+    machine:
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - deploy:
+          name: Deploy to latest
+          command: |
+            docker login -u $DOCKERHUB_CIRRUS_USER -p $DOCKERHUB_CIRRUS_PASS
+            make cirrus_build_prod
+            docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
+            docker push ${DOCKERHUB_CIRRUS_REPO}:latest
 
   update_external_configs:
     working_directory: ~/experimenter
@@ -491,7 +504,7 @@ jobs:
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-rust-image
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push ${DOCKERHUB_REPO}:nimbus-rust-image
-  cirrus_check:
+  check_cirrus:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
@@ -510,9 +523,9 @@ jobs:
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check
+            make check_cirrus
 
-  schemas_check:
+  check_schemas:
     docker:
       - image: cimg/python:3.10.8 # poetry 1.2.2
     steps:
@@ -522,7 +535,7 @@ jobs:
       - run:
           name: Run Schemas tests and linting
           command: |
-            make schemas_check
+            make check_schemas
 
   schemas_deploy:
     docker:
@@ -579,24 +592,39 @@ workflows:
 
   build:
     jobs:
-      - check_branch:
+      - check_experimenter_branch:
           name: Check Experimenter (Branch)
           filters:
             branches:
               ignore:
                 - main
-      - check_main:
+      - check_experimenter_main:
           name: Check Experimenter (Main)
           filters:
             branches:
               only: main
-      - deploy:
+      - check_cirrus:
+          name: Check Cirrus
+      - check_schemas:
+          name: Check Schemas
+          filters:
+            branches:
+              ignore:
+                - main
+      - deploy_experimenter:
           name: Deploy Experimenter
           filters:
             branches:
               only: main
           requires:
             - Check Experimenter (Main)
+      - deploy_cirrus:
+          name: Deploy Cirrus
+          filters:
+            branches:
+              only: main
+          requires:
+            - Check Cirrus
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
@@ -665,14 +693,6 @@ workflows:
                 - main
       - integration_legacy:
           name: Test Legacy Desktop (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - cirrus_check:
-          name: Check Cirrus
-      - schemas_check:
-          name: Check Schemas
           filters:
             branches:
               ignore:
