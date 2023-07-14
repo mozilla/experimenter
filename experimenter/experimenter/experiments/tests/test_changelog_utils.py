@@ -190,17 +190,17 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             dict(NimbusExperimentSerializer(experiment).data).keys(),
         )
 
-        for feature_config in experiment.feature_configs.all():
+        for feature_config in experiment.feature_configs.all().prefetch_related(
+            "schemas"
+        ):
             self.assertIn(
                 {
                     "application": feature_config.application,
                     "description": feature_config.description,
                     "name": feature_config.name,
                     "owner_email": feature_config.owner_email,
-                    "read_only": feature_config.read_only,
-                    "schema": feature_config.schema,
+                    "schema": feature_config.schemas.get(version=None).schema,
                     "slug": feature_config.slug,
-                    "sets_prefs": feature_config.sets_prefs,
                     "enabled": feature_config.enabled,
                 },
                 feature_configs_data,

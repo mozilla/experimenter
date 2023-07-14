@@ -1,6 +1,6 @@
 readerMode:
   description: Firefox Reader Mode
-  exposureDescription: false
+  hasExposure: false
   isEarlyStartup: true
   variables:
     - fallbackPref: reader.pocket.ctaVersion
