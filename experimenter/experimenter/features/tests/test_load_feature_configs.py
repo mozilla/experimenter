@@ -4,7 +4,10 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
-from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
+from experimenter.experiments.tests.factories import (
+    NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
+)
 from experimenter.features import Features
 from experimenter.features.tests import (
     mock_invalid_remote_schema_features,
@@ -26,13 +29,15 @@ class TestLoadFeatureConfigs(TestCase):
         call_command("load_feature_configs")
 
         feature_config = NimbusFeatureConfig.objects.get(slug="someFeature")
+        schema = feature_config.schemas.get(version=None)
+
         self.assertEqual(feature_config.name, "someFeature")
         self.assertEqual(
             feature_config.description,
             "Some Firefox Feature",
         )
         self.assertEqual(
-            json.loads(feature_config.schema),
+            json.loads(schema.schema),
             {
                 "type": "object",
                 "properties": {
@@ -57,9 +62,10 @@ class TestLoadFeatureConfigs(TestCase):
         )
 
         feature_config = NimbusFeatureConfig.objects.get(slug="prefSettingFeature")
+        schema = feature_config.schemas.get(version=None)
 
         self.assertEqual(
-            sorted(feature_config.sets_prefs),
+            sorted(schema.sets_prefs),
             sorted(["nimbus.test.string", "nimbus.test.int", "nimbus.test.boolean"]),
         )
 
@@ -68,24 +74,35 @@ class TestLoadFeatureConfigs(TestCase):
             name="someFeature",
             slug="someFeature",
             application=NimbusExperiment.Application.DESKTOP,
-            schema="{}",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema="{}",
+                )
+            ],
         )
         NimbusFeatureConfigFactory.create(
             name="prefSettingFeature",
             slug="prefSettingFeature",
             application=NimbusExperiment.Application.DESKTOP,
-            schema="{}",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema="{}",
+                )
+            ],
         )
         call_command("load_feature_configs")
 
         feature_config = NimbusFeatureConfig.objects.get(slug="someFeature")
+        schema = feature_config.schemas.get(version=None)
         self.assertEqual(feature_config.name, "someFeature")
         self.assertEqual(
             feature_config.description,
             "Some Firefox Feature",
         )
         self.assertEqual(
-            json.loads(feature_config.schema),
+            json.loads(schema.schema),
             {
                 "type": "object",
                 "properties": {
@@ -112,7 +129,7 @@ class TestLoadFeatureConfigs(TestCase):
         feature_config = NimbusFeatureConfig.objects.get(slug="prefSettingFeature")
 
         self.assertEqual(
-            sorted(feature_config.sets_prefs),
+            sorted(feature_config.schemas.get(version=None).sets_prefs),
             sorted(["nimbus.test.string", "nimbus.test.int", "nimbus.test.boolean"]),
         )
 
@@ -121,7 +138,12 @@ class TestLoadFeatureConfigs(TestCase):
             name="Some Firefox Feature different name",
             slug="someFeature",
             application=NimbusExperiment.Application.DESKTOP,
-            schema="{}",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema="{}",
+                )
+            ],
         )
         call_command("load_feature_configs")
 
@@ -136,7 +158,12 @@ class TestLoadFeatureConfigs(TestCase):
         NimbusFeatureConfigFactory.create(
             slug="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
-            schema="{}",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema="{}",
+                )
+            ],
             enabled=True,
         )
 
@@ -149,15 +176,25 @@ class TestLoadFeatureConfigs(TestCase):
         feature_desktop = NimbusFeatureConfigFactory.create(
             slug="someFeature",
             application=NimbusExperiment.Application.DESKTOP,
-            schema="{}",
             enabled=True,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema="{}",
+                )
+            ],
         )
 
         feature_fenix = NimbusFeatureConfigFactory.create(
             slug="someFeature",
             application=NimbusExperiment.Application.FENIX,
-            schema="{}",
             enabled=True,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema="{}",
+                )
+            ],
         )
 
         call_command("load_feature_configs")
@@ -182,13 +219,20 @@ class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
     def test_load_feature_config_ignores_invalid_remote_json(self):
         schema = "{}"
         NimbusFeatureConfigFactory.create(
-            slug="cfr", application=NimbusExperiment.Application.DESKTOP, schema=schema
+            slug="cfr",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=schema,
+                ),
+            ],
         )
 
         call_command("load_feature_configs")
 
         feature_config = NimbusFeatureConfig.objects.get(slug="cfr")
-        self.assertEqual(feature_config.schema, schema)
+        self.assertEqual(feature_config.schemas.get(version=None).schema, schema)
 
     def test_load_feature_does_not_set_no_features_slug_enabled_to_false(self):
 

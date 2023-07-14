@@ -9,6 +9,7 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
@@ -18,11 +19,22 @@ class TestNimbusConfigurationSerializer(TestCase):
     def test_expected_output(self):
         feature_configs = NimbusFeatureConfigFactory.create_batch(8)
         feature_configs.append(
-            NimbusFeatureConfigFactory.create(sets_prefs=["foo.bar.baz"])
+            NimbusFeatureConfigFactory.create(
+                schemas=[
+                    NimbusVersionedSchemaFactory.build(
+                        version=None,
+                        sets_prefs=["foo.bar.baz"],
+                    )
+                ],
+            ),
         )
         feature_configs.append(
             NimbusFeatureConfigFactory.create(
-                sets_prefs=["qux.quux.corge", "grault.garply.waldo"]
+                schemas=[
+                    NimbusVersionedSchemaFactory.build(
+                        version=None, sets_prefs=["qux.quux.corge", "grault.garply.waldo"]
+                    )
+                ]
             )
         )
         experiment = NimbusExperimentFactory.create()
@@ -90,8 +102,10 @@ class TestNimbusConfigurationSerializer(TestCase):
                         feature_config.application
                     ).name,
                     "ownerEmail": feature_config.owner_email,
-                    "schema": feature_config.schema,
-                    "setsPrefs": bool(feature_config.sets_prefs),
+                    "schema": feature_config.schemas.get(version=None).schema,
+                    "setsPrefs": bool(
+                        feature_config.schemas.get(version=None).sets_prefs
+                    ),
                     "enabled": bool(feature_config.enabled),
                 },
                 config["allFeatureConfigs"],

@@ -182,7 +182,7 @@ export interface getExperiment_experimentBySlug {
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
   preventPrefConflicts: boolean | null;
-  featureConfigs: (getExperiment_experimentBySlug_featureConfigs | null)[] | null;
+  featureConfigs: getExperiment_experimentBySlug_featureConfigs[] | null;
   primaryOutcomes: (string | null)[] | null;
   secondaryOutcomes: (string | null)[] | null;
   channel: NimbusExperimentChannelEnum | null;
