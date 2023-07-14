@@ -2,6 +2,7 @@ import json
 
 import graphene
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
@@ -23,6 +24,7 @@ from experimenter.experiments.models import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
+from experimenter.settings import SIZING_DATA_KEY
 
 
 class NimbusExperimentStatusEnum(graphene.Enum):
@@ -294,6 +296,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     conclusion_recommendations = graphene.List(NimbusLabelValueType)
     types = graphene.List(NimbusLabelValueType)
     status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
+    population_sizing_data = graphene.String()
 
     def _text_choices_to_label_value_list(self, text_choices):
         return [
@@ -336,6 +339,12 @@ class NimbusConfigurationType(graphene.ObjectType):
         return self._text_choices_to_label_value_list(
             NimbusExperiment.ConclusionRecommendation
         )
+
+    def resolve_population_sizing_data(self, info):
+        sizing_data = cache.get(SIZING_DATA_KEY)
+        if sizing_data:
+            return sizing_data.json()
+        return "Sizing data not available."
 
     @staticmethod
     def sort_version_choices(choices):

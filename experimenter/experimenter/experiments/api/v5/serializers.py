@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import jsonschema
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import models, transaction
 from django.utils.text import slugify
 from rest_framework import serializers
@@ -35,6 +36,7 @@ from experimenter.kinto.tasks import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
+from experimenter.settings import SIZING_DATA_KEY
 
 
 class TransitionConstants:
@@ -207,6 +209,7 @@ class NimbusConfigurationDataClass:
     types: typing.List[LabelValueDataClass]
     hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
+    population_sizing_data: str = ""
 
     def __init__(self):
         self.applications = self._enum_to_label_value(NimbusExperiment.Application)
@@ -234,6 +237,7 @@ class NimbusConfigurationDataClass:
             NimbusExperiment.ConclusionRecommendation
         )
         self.types = self._enum_to_label_value(NimbusExperiment.Type)
+        self.population_sizing_data = self._get_population_sizing_data()
 
     def _geo_model_to_dataclass(self, queryset):
         return [GeoDataClass(id=i.id, name=i.name, code=i.code) for i in queryset]
@@ -281,6 +285,12 @@ class NimbusConfigurationDataClass:
             )
             for f in NimbusFeatureConfig.objects.all().order_by("name")
         ]
+
+    def _get_population_sizing_data(self):
+        sizing_data = cache.get(SIZING_DATA_KEY)
+        if sizing_data:
+            return sizing_data.json()
+        return "Sizing data not available."
 
     def _get_owners(self):
         owners = (

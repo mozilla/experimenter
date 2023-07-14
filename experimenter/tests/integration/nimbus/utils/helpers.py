@@ -123,6 +123,7 @@ def load_config_data():
                             experiments
                             rollouts
                         }
+                        populationSizingData
                     }
                 }
                 """,

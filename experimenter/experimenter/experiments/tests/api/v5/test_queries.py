@@ -2390,6 +2390,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         experiments
                         rollouts
                     }
+                    populationSizingData
                 }
             }
             """,
