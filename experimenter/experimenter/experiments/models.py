@@ -863,23 +863,27 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
             for field, field_diff in diff_fields.items():
                 change = {
-                    "field": field,
                     "event": "GENERAL",
-                    "old_value": field_diff["old_value"],
-                    "new_value": field_diff["new_value"],
+                    "event_message":(
+                        f"{changelog.changed_by.get_full_name()} "
+                        f"changed value of {field} from "
+                        f"{field_diff['old_value']} to {field_diff['new_value']}"
+                    ),
                     "changed_by": changelog.changed_by.get_full_name(),
                     "timestamp": timestamp,
                 }
 
                 changes_by_date[changelog.changed_on.date()].append(change)
 
-        if creation_log := changelogs[-1] if changelogs else None:
+        if changelogs:
+            creation_log = changelogs[-1]
             first_timestamp = creation_log.changed_on.strftime(date_option)
             change = {
-                "field": None,
                 "event": "CREATION",
-                "old_value": None,
-                "new_value": None,
+                "event_message":(
+                    f"{creation_log.changed_by.get_full_name()} "
+                    f"created this experiment"
+                ),
                 "changed_by": creation_log.changed_by.get_full_name(),
                 "timestamp": first_timestamp,
             }

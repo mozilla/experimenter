@@ -5,6 +5,7 @@ from itertools import product
 
 import mock
 from django.conf import settings
+from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db.models import Q
@@ -2236,15 +2237,15 @@ class TestNimbusExperiment(TestCase):
         )
         user = UserFactory.create()
         time_format = "%I:%M:%S %p"
-        current_date = datetime.date.today()
+        current_date = timezone.now().date()
 
-        timestamp_1 = datetime.datetime.combine(current_date, datetime.time(hour=8))
+        timestamp_1 = timezone.make_aware(timezone.datetime.combine(current_date, timezone.datetime.min.time()))
         formatted_timestamp_1 = timestamp_1.strftime(time_format)
 
-        timestamp_2 = timestamp_1 + datetime.timedelta(hours=2)
+        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
         formatted_timestamp_2 = timestamp_2.strftime(time_format)
 
-        timestamp_3 = timestamp_2 + datetime.timedelta(hours=2)
+        timestamp_3 = timestamp_2 + timezone.timedelta(hours=2)
         formatted_timestamp_3 = timestamp_3.strftime(time_format)
 
         generate_nimbus_changelog(experiment, user, "created", timestamp_1)
@@ -2270,26 +2271,21 @@ class TestNimbusExperiment(TestCase):
                     "date": current_date,
                     "changes": [
                         {
-                            "field": "status_next",
                             "event": "GENERAL",
-                            "old_value": None,
-                            "new_value": "Live",
+                            "event_message": f"{user.get_full_name()} changed value of status_next from None to Live",
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_3,
                         },
                         {
-                            "field": "publish_status",
                             "event": "GENERAL",
-                            "old_value": "Idle",
-                            "new_value": "Review",
+
+                            "event_message": f"{user.get_full_name()} changed value of publish_status from Idle to Review",
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_2,
                         },
                         {
-                            "field": None,
                             "event": "CREATION",
-                            "old_value": None,
-                            "new_value": None,
+                            "event_message": f"{user.get_full_name()} created this experiment",
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_1,
                         },
