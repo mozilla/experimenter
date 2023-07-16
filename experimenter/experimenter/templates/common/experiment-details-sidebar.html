@@ -1,0 +1,144 @@
+<div x-data="{ redirectToReactRoute: function(slug, pageSlug) { window.location.href = `/nimbus/${slug}/edit/${pageSlug}`; } }"  class="flex  flex-col w-full h-full">
+  <div class="overflow-y-auto overflow-x-hidden flex-grow">
+      <div class="px-5">
+          <a class="flex justify-start space-x-2 items-center text-gray-500" href="{% url 'nimbus-detail' experiment.slug %}">
+            <i class="fa-solid fa-chevron-left h-3"></i>
+            <p class="text-md">Back to Summary</p>
+          </a>
+      </div>
+    <ul class="flex flex-col py-4 space-y-1">
+      <li class="px-5">
+        <div class="flex flex-row items-center h-8">
+          <div class="text-sm w-full  flex flex-row items-center justify-between font-light tracking-wide text-gray-500">
+              Edit
+              <hr class="border-t ml-2 w-full border-gray-200"/>
+          </div>
+        </div>
+      </li>
+      <li>
+        <button x-on:click="redirectToReactRoute('{{ experiment.slug }}', 'overview')"  
+        {% if experiment.can_edit %}
+          class="w-full flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-700 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6"
+        {% else %}
+          disabled
+          class="w-full flex flex-row items-center h-11  text-gray-400 grayscale cursor-not-allowed pr-6"
+        {% endif %}
+          >
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-gear"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Overview</span>
+        </button>
+      </li>
+      <li>
+        <button x-on:click="redirectToReactRoute('{{ experiment.slug }}', 'branches')" 
+        {% if experiment.can_edit %}
+        class="w-full flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-700 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6"
+      {% else %}
+        disabled
+        class="w-full flex flex-row items-center h-11  text-gray-400 grayscale cursor-not-allowed pr-6"
+      {% endif %}
+        >
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-layer-group"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Branches</span>
+        </button>
+      </li>
+      <li>
+        <button x-on:click="redirectToReactRoute('{{ experiment.slug }}', 'metrics')"  
+        {% if experiment.can_edit %}
+        class="w-full flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-700 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6"
+      {% else %}
+        disabled
+        class="w-full flex flex-row items-center h-11  text-gray-400 grayscale cursor-not-allowed pr-6"
+      {% endif %}
+        >
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-arrow-trend-up"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Metrics</span>
+        </button>
+      </li>
+      <li>
+        <button x-on:click="redirectToReactRoute('{{ experiment.slug }}', 'audience')"  
+        {% if experiment.can_edit %}
+        class="w-full flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-700 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6"
+      {% else %}
+        disabled
+        class="w-full flex flex-row items-center h-11  text-gray-400 grayscale cursor-not-allowed pr-6"
+      {% endif %}
+        >
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-user-group"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Audience</span>
+        </button>
+      </li>
+      <li class="px-5">
+        <div class="flex flex-row items-center h-8">
+          <div class="text-sm w-full  flex flex-row items-center justify-between font-light tracking-wide text-gray-500">
+              Actions
+              <hr class="border-t ml-2 w-full border-gray-200"/>
+          </div>
+        </div>
+      </li>
+      <li>
+        <a href="#" class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6">
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-box-archive"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Archive</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6">
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-clone"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Clone</span>
+        </a>
+      </li>
+      <li class="px-5">
+        <div class="flex flex-row items-center h-8">
+          <div class="text-sm w-full flex flex-row items-center justify-between font-light tracking-wide text-gray-500">
+              Help
+              <hr class="border-t ml-2 w-full border-gray-200"/>
+          </div>
+        </div>
+      </li>
+      <li>
+        <a href="https://experimenter.info/" target="_blank" rel="noreferrer" class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6">
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-book"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Experimenter Documentation</span>
+        </a>
+      </li>
+      <li>
+        <a href="https://mozilla.slack.com/?redir=%2Farchives%2FCF94YGE03" target="_blank" rel="noreferrer" class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6">
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-brands fa-slack"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">#ask-experimenter</span>
+        </a>
+      </li>
+      <li>
+        <a href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&issuetype=10097" target="_blank" rel="noreferrer"  class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6">
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-message"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Feedback</span>
+        </a>
+      </li>
+      <li>
+          <a href="https://github.com/mozilla/experimenter/issues/new" target="_blank" rel="noreferrer" class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-[#b590d4] pr-6">
+              <span class="inline-flex justify-center items-center ml-4">
+                  <i class="fa-brands fa-github"></i>
+              </span>            
+              <span class="ml-2 text-sm tracking-wide truncate">File targeting criteria request</span>
+          </a>
+      </li>
+    </ul>
+  </div>
+</div>
