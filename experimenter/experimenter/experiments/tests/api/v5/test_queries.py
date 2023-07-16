@@ -23,6 +23,7 @@ from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -108,6 +109,14 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         name
                     }
                     hypothesis
+                    excludedExperiments {
+                        id
+                        slug
+                    }
+                    requiredExperiments {
+                        id
+                        slug
+                    }
                 }
             }
             """,
@@ -142,7 +151,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         "id": feature_config.id,
                         "name": feature_config.name,
                         "ownerEmail": feature_config.owner_email,
-                        "schema": feature_config.schema,
+                        "schema": feature_config.schemas.get(version=None).schema,
                         "slug": feature_config.slug,
                     }
                 ],
@@ -205,6 +214,8 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 ],
                 "projects": [{"id": str(project.id), "name": project.name}],
                 "hypothesis": experiment.hypothesis,
+                "requiredExperiments": [],
+                "excludedExperiments": [],
             },
         )
         self.assertEqual(experiment_data["hypothesis"], experiment.hypothesis)
@@ -509,6 +520,83 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 experiment_data["projects"],
             )
 
+    def test_query_excluded_required_experiments(self):
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            excluded_experiments=[excluded],
+            required_experiments=[required],
+        )
+
+        response = self.query(
+            """
+            query getAllExperiments {
+                experiments {
+                    id
+                    excludedExperiments {
+                        id
+                        slug
+                    }
+                    requiredExperiments {
+                        id
+                        slug
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+
+        experiments = content["data"]["experiments"]
+
+        self.assertEqual(len(experiments), 3)
+
+        self.assertIn(
+            {
+                "id": excluded.id,
+                "excludedExperiments": [],
+                "requiredExperiments": [],
+            },
+            experiments,
+        )
+        self.assertIn(
+            {
+                "id": required.id,
+                "excludedExperiments": [],
+                "requiredExperiments": [],
+            },
+            experiments,
+        )
+        self.assertIn(
+            {
+                "id": experiment.id,
+                "excludedExperiments": [
+                    {
+                        "id": excluded.id,
+                        "slug": excluded.slug,
+                    }
+                ],
+                "requiredExperiments": [
+                    {
+                        "id": required.id,
+                        "slug": required.slug,
+                    },
+                ],
+            },
+            experiments,
+        )
+
 
 class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     maxDiff = None
@@ -635,6 +723,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         application
                         ownerEmail
                         schema
+                        setsPrefs
                     }
 
                     primaryOutcomes
@@ -793,7 +882,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         "id": feature_config.id,
                         "name": feature_config.name,
                         "ownerEmail": feature_config.owner_email,
-                        "schema": feature_config.schema,
+                        "schema": feature_config.schemas.get(version=None).schema,
+                        "setsPrefs": bool(
+                            feature_config.schemas.get(version=None).sets_prefs
+                        ),
                         "slug": feature_config.slug,
                     }
                 ],
@@ -1864,7 +1956,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
-            sets_prefs=["foo.bar.baz"],
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    sets_prefs=["foo.bar.baz"],
+                ),
+            ],
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2138,6 +2235,59 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         )
 
 
+class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
+    GRAPHQL_URL = reverse("nimbus-api-graphql")
+
+    @property
+    def default_headers(self):
+        return {settings.OPENIDC_EMAIL_HEADER: "user@example.com"}
+
+    def test_query_excludes_other_applications(self):
+        experiments_by_application = {
+            application.value: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                application=application,
+            )
+            for application in list(NimbusExperiment.Application)
+        }
+
+        for application in list(NimbusExperiment.Application):
+            response = self.query(
+                """
+                query getAllExperimentsByApplication(
+                    $application: NimbusExperimentApplicationEnum!
+                ) {
+                    experimentsByApplication(application: $application) {
+                        id
+                        name
+                        slug
+                        publicDescription
+                    }
+                }
+                """,
+                variables={
+                    "application": application.name,
+                },
+                headers=self.default_headers,
+            )
+
+            self.assertEqual(response.status_code, 200, response.content)
+            content = json.loads(response.content)
+            experiments = content["data"]["experimentsByApplication"]
+
+            experiment = experiments_by_application[application.value]
+            self.assertEqual(len(experiments), 1)
+            self.assertIn(
+                {
+                    "id": experiment.id,
+                    "name": experiment.name,
+                    "slug": experiment.slug,
+                    "publicDescription": experiment.public_description,
+                },
+                experiments,
+            )
+
+
 class TestNimbusConfigQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
 
@@ -2344,8 +2494,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         feature_config.application
                     ).name,
                     "ownerEmail": feature_config.owner_email,
-                    "schema": feature_config.schema,
-                    "setsPrefs": bool(feature_config.sets_prefs),
+                    "schema": feature_config.schemas.get(version=None).schema,
+                    "setsPrefs": bool(
+                        feature_config.schemas.get(version=None).sets_prefs
+                    ),
                 },
                 config["allFeatureConfigs"],
             )

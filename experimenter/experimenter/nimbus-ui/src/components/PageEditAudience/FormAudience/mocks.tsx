@@ -9,24 +9,34 @@ import {
   mockExperimentQuery,
   mockLiveRolloutQuery,
   MOCK_CONFIG,
+  MOCK_EXPERIMENTS_BY_APPLICATION,
 } from "src/lib/mocks";
+import { getAllExperimentsByApplication_experimentsByApplication } from "src/types/getAllExperimentsByApplication";
 import { getConfig_nimbusConfig } from "src/types/getConfig";
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export const Subject = ({
   config = MOCK_CONFIG,
   experiment = MOCK_EXPERIMENT,
+  experimentsByApplication,
   submitErrors = {},
   isLoading = false,
   isServerValid = true,
   onSubmit = () => {},
 }: {
   config?: getConfig_nimbusConfig;
+  experimentsByApplication?: Partial<{
+    allExperiments?: typeof MOCK_EXPERIMENTS_BY_APPLICATION;
+    application?: NimbusExperimentApplicationEnum;
+  }>;
+  allExperimentMeta?: getAllExperimentsByApplication_experimentsByApplication[];
+  allExperimentMetaApplication?: NimbusExperimentApplicationEnum;
 } & Partial<React.ComponentProps<typeof FormAudience>>) => {
   const [submitErrorsDefault, setSubmitErrors] =
     useState<SerializerMessages>(submitErrors);
   return (
     <div className="p-5">
-      <MockedCache {...{ config }}>
+      <MockedCache {...{ config, experimentsByApplication }}>
         <FormAudience
           submitErrors={submitErrorsDefault}
           {...{

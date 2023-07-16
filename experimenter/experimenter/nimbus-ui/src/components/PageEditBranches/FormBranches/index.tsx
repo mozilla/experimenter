@@ -49,7 +49,6 @@ type FormBranchesProps = {
     next: boolean,
   ) => void;
 };
-
 export const FormBranches = ({
   isLoading,
   experiment,
@@ -204,9 +203,6 @@ export const FormBranches = ({
   const onFeatureConfigsChanged = (newValue: Options<FeatureConfigOption>) => {
     setIsSelectValid(newValue.length > 0);
     setSelectDirty(true);
-
-    // Limit to a single value until multi-feature support has been QA'd.
-    newValue = newValue.length > 0 ? [newValue[newValue.length - 1]] : newValue;
 
     return handleFeatureConfigsChange(
       newValue.map((value) => parseInt(value.value, 10)),

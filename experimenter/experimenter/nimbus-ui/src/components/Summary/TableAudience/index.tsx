@@ -10,7 +10,10 @@ import { displayConfigLabelOrNotSet } from "src/components/Summary";
 import { useConfig } from "src/hooks";
 import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
 import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
-import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import {
+  getExperiment_experimentBySlug,
+  getExperiment_experimentBySlug_excludedExperiments,
+} from "src/types/getExperiment";
 import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 type TableAudienceProps = {
@@ -160,6 +163,16 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                 </td>
               </tr>
             )}
+            <tr>
+              <th>Required Experiments</th>
+              <td>
+                <ExperimentList experiments={experiment.requiredExperiments} />
+              </td>
+              <th>Excluded Experiments</th>
+              <td>
+                <ExperimentList experiments={experiment.excludedExperiments} />
+              </td>
+            </tr>
 
             {experiment.jexlTargetingExpression &&
             experiment.jexlTargetingExpression !== "" ? (
@@ -229,5 +242,24 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
     </Card>
   );
 };
+
+interface ExperimentListProps {
+  experiments: getExperiment_experimentBySlug_excludedExperiments[];
+}
+function ExperimentList({ experiments }: ExperimentListProps) {
+  if (experiments.length === 0) {
+    return <span>None</span>;
+  }
+
+  return (
+    <>
+      {experiments.map((experiment) => (
+        <p key={experiment.slug}>
+          <a href={`/nimbus/${experiment.slug}/summary`}>{experiment.name}</a>
+        </p>
+      ))}
+    </>
+  );
+}
 
 export default TableAudience;

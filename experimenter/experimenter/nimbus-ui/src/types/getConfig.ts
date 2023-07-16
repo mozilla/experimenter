@@ -123,7 +123,7 @@ export interface getConfig_nimbusConfig {
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
   conclusionRecommendations: (getConfig_nimbusConfig_conclusionRecommendations | null)[] | null;
   applicationConfigs: (getConfig_nimbusConfig_applicationConfigs | null)[] | null;
-  allFeatureConfigs: (getConfig_nimbusConfig_allFeatureConfigs | null)[] | null;
+  allFeatureConfigs: getConfig_nimbusConfig_allFeatureConfigs[] | null;
   firefoxVersions: (getConfig_nimbusConfig_firefoxVersions | null)[] | null;
   outcomes: (getConfig_nimbusConfig_outcomes | null)[] | null;
   owners: (getConfig_nimbusConfig_owners | null)[] | null;

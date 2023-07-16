@@ -35,6 +35,8 @@ const fieldPageMap: { [page: string]: string[] } = {
     "proposed_duration",
     "population_percent",
     "total_enrolled_clients",
+    "required_experiments",
+    "excluded_experiments",
   ],
 };
 

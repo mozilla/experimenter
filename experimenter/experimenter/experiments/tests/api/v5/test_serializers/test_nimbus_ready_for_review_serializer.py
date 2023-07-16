@@ -18,6 +18,7 @@ from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 
@@ -232,10 +233,20 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             },
         )
 
-    def test_desktop_min_version_under_113_shows_warning(self):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.FOCUS_ANDROID,
+            NimbusExperiment.Application.IOS,
+            NimbusExperiment.Application.FOCUS_IOS,
+        ]
+    )
+    def test_rollout_min_version_under_115_shows_warning(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_114,
+            application=application,
             is_rollout=True,
             is_sticky=True,
         )
@@ -254,15 +265,30 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertEqual(
             serializer.warnings,
             {
-                "firefox_min_version": [NimbusExperiment.ERROR_DESKTOP_ROLLOUT_VERSION],
+                "firefox_min_version": [
+                    NimbusExperiment.ERROR_ROLLOUT_VERSION.format(
+                        application=NimbusExperiment.Application(application).label,
+                        version=NimbusExperiment.Version.parse(
+                            NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION[
+                                application
+                            ]
+                        ),
+                    )
+                ],
             },
         )
 
-    def test_desktop_min_version_over_113_no_warning(self):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.KLAR_IOS,
+            NimbusExperiment.Application.KLAR_IOS,
+        ]
+    )
+    def test_rollout_klar_min_version_under_115_no_warning(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_118,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
             is_rollout=True,
             is_sticky=True,
         )
@@ -280,11 +306,20 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.warnings, {})
 
-    def test_mobile_min_version_under_113_no_warning(self):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.FOCUS_ANDROID,
+            NimbusExperiment.Application.IOS,
+            NimbusExperiment.Application.FOCUS_IOS,
+        ]
+    )
+    def test_rollout_min_version_over_115_no_warning(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
             is_rollout=True,
             is_sticky=True,
         )
@@ -884,8 +919,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.IOS,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -941,8 +981,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -984,8 +1029,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1031,8 +1081,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        )
+                    ],
                 )
             ],
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
@@ -1075,8 +1130,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        )
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1121,8 +1181,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1170,8 +1235,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1224,8 +1294,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             warn_feature_schema=False,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=REF_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=REF_JSON_SCHEMA,
+                        )
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1261,8 +1336,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=None,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1480,8 +1560,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=None,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
                 )
             ],
         )
@@ -1575,7 +1660,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             lifecycle,
             application=NimbusExperiment.Application.FENIX,
             channel=channel,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
             feature_configs=feature_configs_fenix,
             is_sticky=False,
             is_rollout=True,
@@ -1585,7 +1670,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             lifecycle,
             application=NimbusExperiment.Application.IOS,
             channel=channel,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
             feature_configs=feature_configs_ios,
             is_sticky=False,
             is_rollout=True,
@@ -2038,8 +2123,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            schema=BASIC_JSON_SCHEMA,
+                            version=None,
+                        ),
+                    ],
                 ),
             ],
         )
@@ -2231,6 +2321,157 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEquals(serializer.warnings, {})
 
+    @parameterized.expand([("excluded_experiments",), ("required_experiments",)])
+    def test_targeting_exclude_require_self(self, field):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION,
+        )
+
+        getattr(experiment, field).set([experiment])
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEquals(
+            serializer.errors,
+            {
+                field: [NimbusExperiment.ERROR_EXCLUDED_REQUIRED_INCLUDES_SELF],
+            },
+        )
+
+    @parameterized.expand(
+        product(
+            ("excluded_experiments", "required_experiments"),
+            list(NimbusExperiment.Application),
+            list(NimbusExperiment.Application),
+        )
+    )
+    def test_targeting_exclude_require_application(self, field, app1, app2):
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=app1,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=app2,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION,
+            **{field: [other]},
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertEquals(
+            serializer.is_valid(),
+            app1 == app2,
+            serializer.errors,
+        )
+        if app1 != app2:
+            expected_error = (
+                NimbusExperiment.ERROR_EXCLUDED_REQUIRED_DIFFERENT_APPLICATION
+            )
+            self.assertEquals(
+                serializer.errors,
+                {field: [expected_error.format(slug=other.slug)]},
+            )
+
+    @parameterized.expand(
+        product(
+            list(NimbusExperiment.Application),
+            ("excluded_experiments", "required_experiments"),
+        )
+    )
+    def test_targeting_exclude_require_min_version(self, application, field):
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_115,
+            **{field: [other]},
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEquals(
+            serializer.errors,
+            {
+                "firefox_min_version": [
+                    NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MIN_VERSION
+                ],
+            },
+        )
+
+    def test_targeting_exclude_require_mutally_exclusive(self):
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION,
+            excluded_experiments=[other],
+            required_experiments=[other],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEquals(
+            serializer.errors,
+            {
+                "excluded_experiments": [
+                    NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE,
+                ],
+                "required_experiments": [
+                    NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE,
+                ],
+            },
+        )
+
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
     def setUp(self):
@@ -2238,13 +2479,23 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         self.user = UserFactory()
         self.feature_without_schema = NimbusFeatureConfigFactory.create(
             slug="feature_without_schema",
-            schema=None,
             application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=None,
+                )
+            ],
         )
         self.feature_with_schema = NimbusFeatureConfigFactory.create(
             slug="feature_with_schema",
-            schema=BASIC_JSON_SCHEMA,
             application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=BASIC_JSON_SCHEMA,
+                )
+            ],
         )
 
     def test_feature_configs_application_mismatches_error(self):
@@ -2255,12 +2506,22 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=None,
                     application=NimbusExperiment.Application.FENIX,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
                 ),
                 NimbusFeatureConfigFactory.create(
-                    schema=None,
                     application=NimbusExperiment.Application.IOS,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
                 ),
             ],
             is_sticky=True,
@@ -2796,3 +3057,60 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                     ],
                 },
             )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "toplevel": 1.2,
+                },
+            ),
+            (
+                {
+                    "nested_list": [{"nested_value": 1.2}],
+                },
+            ),
+            (
+                {
+                    "nested_dict": {"list": [1.2]},
+                },
+            ),
+        ]
+    )
+    def test_feature_value_with_float_is_invalid(self, value):
+        application = NimbusExperiment.Application.DESKTOP
+        feature = NimbusFeatureConfigFactory.create(
+            application=application,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=None,
+                )
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+        )
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps(value)
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            NimbusExperiment.ERROR_NO_FLOATS_IN_FEATURE_VALUE,
+            serializer.errors["reference_branch"]["feature_values"][0]["value"],
+        )

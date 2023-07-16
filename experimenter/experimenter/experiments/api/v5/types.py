@@ -2,6 +2,7 @@ import json
 
 import graphene
 from django.contrib.auth.models import User
+from django.db.models import Prefetch
 from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
@@ -20,6 +21,7 @@ from experimenter.experiments.models import (
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
+    NimbusVersionedSchema,
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
@@ -141,6 +143,7 @@ class NimbusFeatureConfigType(DjangoObjectType):
     id = graphene.Int()
     application = NimbusExperimentApplicationEnum()
     sets_prefs = graphene.Boolean()
+    schema = graphene.String()
 
     class Meta:
         model = NimbusFeatureConfig
@@ -150,14 +153,23 @@ class NimbusFeatureConfigType(DjangoObjectType):
             "id",
             "name",
             "owner_email",
-            "sets_prefs",
-            "schema",
             "slug",
             "enabled",
         )
 
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return queryset.prefetch_related(
+            Prefetch(
+                "schemas", queryset=NimbusVersionedSchema.objects.filter(version=None)
+            )
+        )
+
     def resolve_sets_prefs(self, info):
-        return bool(self.sets_prefs)
+        return bool(self.schemas.get().sets_prefs)
+
+    def resolve_schema(self, info):
+        return self.schemas.get().schema
 
 
 class NimbusBranchScreenshotType(DjangoObjectType):
@@ -281,7 +293,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     channels = graphene.List(NimbusLabelValueType)
     countries = graphene.List(NimbusCountryType)
     documentation_link = graphene.List(NimbusLabelValueType)
-    all_feature_configs = graphene.List(NimbusFeatureConfigType)
+    all_feature_configs = DjangoListField(NimbusFeatureConfigType)
     firefox_versions = graphene.List(NimbusLabelValueType)
     hypothesis_default = graphene.String()
     locales = graphene.List(NimbusLocaleType)
@@ -434,11 +446,14 @@ class NimbusExperimentType(DjangoObjectType):
     countries = graphene.List(graphene.NonNull(NimbusCountryType), required=True)
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     enrollment_end_date = graphene.DateTime()
-    feature_configs = graphene.List(NimbusFeatureConfigType)
+    excluded_experiments = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
+    )
+    feature_configs = DjangoListField(NimbusFeatureConfigType)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
     hypothesis = graphene.String()
-    id = graphene.Int()
+    id = graphene.Int(required=True)
     is_archived = graphene.Boolean()
     is_rollout_dirty = graphene.NonNull(graphene.Boolean)
     is_enrollment_pause_pending = graphene.Boolean()
@@ -465,6 +480,9 @@ class NimbusExperimentType(DjangoObjectType):
     recipe_json = graphene.String()
     reference_branch = graphene.Field(NimbusBranchType)
     rejection = graphene.Field(NimbusChangeLogType)
+    required_experiments = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
+    )
     results_expected_date = graphene.DateTime()
     results_ready = graphene.Boolean()
     review_request = graphene.Field(NimbusChangeLogType)
@@ -485,6 +503,7 @@ class NimbusExperimentType(DjangoObjectType):
     warn_feature_schema = graphene.Boolean()
 
     class Meta:
+        name = "NimbusExperimentType"
         model = NimbusExperiment
         fields = (
             "application",
@@ -662,3 +681,9 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_changes(self, info):
         return self.changes.all().order_by("changed_on")
+
+    def resolve_excluded_experiments(self, info):
+        return self.excluded_experiments.only("id", "slug", "name", "public_description")
+
+    def resolve_required_experiments(self, info):
+        return self.required_experiments.only("id", "slug", "name", "public_description")

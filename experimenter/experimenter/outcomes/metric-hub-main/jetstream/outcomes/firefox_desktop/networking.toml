@@ -94,7 +94,7 @@ select_expression = """(
         event_object = 'aboutcerterror'
     ), 0)
 )"""
-data_source = "events"
+data_source = "events_certerror"
 friendly_name = "Cert Error Pages Loaded"
 type = "scalar"
 bigger_is_better = false
@@ -116,7 +116,7 @@ select_expression = """(
         event_object = 'aboutcerterror'
     ), 0)
 )"""
-data_source = "events"
+data_source = "events_certerror"
 friendly_name = "Cert Error Pages Clicked"
 type = "scalar"
 bigger_is_better = false
@@ -192,7 +192,6 @@ bigger_is_better = false
 
 [metrics.tls_successful_cert_validation_time.statistics.bootstrap_mean]
 pre_treatments = ['remove_nulls']
-log_space = true
 
 [metrics.tls_successful_cert_validation_time.statistics.deciles]
 pre_treatments = ['remove_nulls']
@@ -214,7 +213,6 @@ bigger_is_better = false
 
 [metrics.tls_failed_cert_validation_time.statistics.bootstrap_mean]
 pre_treatments = ['remove_nulls']
-log_space = true
 
 [metrics.tls_failed_cert_validation_time.statistics.deciles]
 pre_treatments = ['remove_nulls']
@@ -370,3 +368,37 @@ pre_treatments = ['remove_nulls']
 
 [metrics.quic_successful_connections_ech_real.statistics.empirical_cdf]
 pre_treatments = ['remove_nulls']
+
+# this outcome can only be used on nightly otherwise it processes too much data
+
+[data_sources.main]
+from_expression = """(
+    SELECT
+        *,
+        DATE(submission_timestamp) AS submission_date,
+        environment.experiments
+    FROM `moz-fx-data-shared-prod.telemetry_stable.main_v4`
+    WHERE normalized_channel = 'nightly'
+)"""
+experiments_column_type = "native"
+
+# filtering on event_category to save cost here
+
+[data_sources.events]
+from_expression = """(SELECT * FROM mozdata.telemetry.events WHERE event_category = 'security.ui.certerror')"""
+experiments_column_type = "native"
+
+[data_sources.events_certerror]
+from_expression = """
+    (
+        SELECT
+            *
+        FROM `moz-fx-data-shared-prod.telemetry.events`
+        WHERE 
+            event_category = 'security.ui.certerror'
+    )
+"""
+submission_date_column = "submission_date"
+friendly_name = "Certerror events"
+description = "Cert Error related events"
+experiments_column_type = "native"

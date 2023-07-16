@@ -28,6 +28,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
+    NimbusVersionedSchema,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -84,10 +85,38 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.Application)).value
     )
     owner_email = factory.LazyAttribute(lambda o: faker.email())
-    schema = FAKER_JSON_SCHEMA
+
+    @factory.post_generation
+    def schemas(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if isinstance(extracted, Iterable):
+            for instance in extracted:
+                instance.feature_config = self
+                instance.save()
+        elif self.schemas.count() == 0:
+            self.schemas.add(
+                NimbusVersionedSchemaFactory.create(
+                    feature_config=self,
+                    version=None,
+                )
+            )
 
     class Meta:
         model = NimbusFeatureConfig
+
+
+class NimbusVersionedSchemaFactory(factory.django.DjangoModelFactory):
+    feature_config = factory.SubFactory(NimbusFeatureConfigFactory)
+    version = factory.LazyAttribute(
+        lambda o: random.choice(list(NimbusExperiment.Version)[1:]).value
+    )
+    schema = factory.LazyAttribute(lambda o: FAKER_JSON_SCHEMA)
+    sets_prefs = factory.LazyAttribute(lambda o: [])
+
+    class Meta:
+        model = NimbusVersionedSchema
 
 
 class LifecycleStates(Enum):
@@ -461,7 +490,15 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             self.languages.add(*extracted)
 
     @classmethod
-    def create(cls, branches=None, feature_configs=None, *args, **kwargs):
+    def create(
+        cls,
+        branches=None,
+        feature_configs=None,
+        excluded_experiments=None,
+        required_experiments=None,
+        *args,
+        **kwargs,
+    ):
         experiment = super(NimbusExperimentFactory, cls).create(*args, **kwargs)
 
         if branches is not None:
@@ -470,6 +507,12 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 "please modify the branches that are created or delete them and add "
                 "new ones."
             )
+
+        if excluded_experiments is not None:
+            experiment.excluded_experiments.add(*excluded_experiments)
+
+        if required_experiments is not None:
+            experiment.required_experiments.add(*required_experiments)
 
         # FeatureConfigs must be set on the experiment before branches are created
         if feature_configs is not None:

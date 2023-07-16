@@ -1,4 +1,5 @@
-FROM rust:buster AS builder
+# First stage: Build the Rust components
+FROM rust:buster AS rust-builder
 
 ARG as_version
 
@@ -30,25 +31,19 @@ RUN cargo build --manifest-path megazords/cirrus/Cargo.toml --release
 RUN cargo uniffi-bindgen generate components/nimbus/src/cirrus.udl --language python
 RUN cargo uniffi-bindgen generate components/support/nimbus-fml/src/fml.udl --language python
 
-# Use official Python runtime as a parent image
-FROM python:3.11.2-slim-buster
+# Second stage: Build Python environment with dependencies
+FROM python:3.11.2-slim-buster as python-builder
 
 # Set working directory for the container
 WORKDIR /cirrus
 
-# cirrus
-COPY --from=builder /application-services/components/nimbus/src/cirrus.py /application-services/cirrus_sdk.py
-# megazord
-COPY --from=builder /application-services/target/release/libcirrus.so /application-services/libcirrus.so
-# fml
-COPY --from=builder /application-services/components/support/nimbus-fml/src/fml.py /application-services/fml_sdk.py
-
-ENV PYTHONPATH=$PYTHONPATH:/application-services
-
 # Install curl and bash utilities
 RUN apt-get update && \
-    apt-get -y install curl bash && \
+    apt-get -y install curl bash build-essential && \
     rm -rf /var/lib/apt/lists/*
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y --no-modify-path
+ENV PATH=$PATH:/root/.cargo/bin
 
 # Install poetry package management tool
 RUN curl -sSL https://install.python-poetry.org | python3 -
@@ -63,6 +58,22 @@ COPY poetry.lock /cirrus/
 # Configure poetry and install dependencies
 RUN poetry config virtualenvs.create false && \
     poetry install --only=main --no-interaction --no-ansi
+
+# Third stage: Deploy stage
+FROM python:3.11.2-slim-buster as deploy
+
+WORKDIR /cirrus
+
+# Copy specific Rust components
+COPY --from=rust-builder /application-services/components/nimbus/src/cirrus.py /application-services/cirrus_sdk.py
+COPY --from=rust-builder /application-services/target/release/libcirrus.so /application-services/libcirrus.so
+COPY --from=rust-builder /application-services/components/support/nimbus-fml/src/fml.py /application-services/fml_sdk.py
+
+# Copy Python site packages and scripts
+COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=python-builder /usr/local/bin /usr/local/bin
+
+ENV PYTHONPATH=$PYTHONPATH:/application-services
 
 # Copy all other files into the container's working directory
 COPY . .

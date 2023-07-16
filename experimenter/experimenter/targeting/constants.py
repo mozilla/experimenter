@@ -317,6 +317,33 @@ FIRST_RUN_NEW_PROFILE_WINDOWS_1903_EXCLUDE_RTAMO = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_NEW_PROFILE_WINDOWS_1903_PAIDSEARCH = NimbusTargetingConfig(
+    name=(
+        "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
+        "new profile, needing default, with paidsearch attribution"
+    ),
+    slug="first_run_new_profile_paidsearch",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows 1903+, "
+        "with a new profile, needing default, with paidsearch attribution"
+    ),
+    targeting=(
+        "{first_run} && {attribution}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
+            attribution=ATTRIBUTION_MEDIUM_PAIDSEARCH.targeting,
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND {attribution}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
+            attribution=ATTRIBUTION_MEDIUM_PAIDSEARCH.targeting,
+        )
+    ),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_TCP_STUDY = NimbusTargetingConfig(
     name="Exclude users in the TCP revenue study",
     slug="not_tcp_study",
@@ -541,7 +568,7 @@ NOT_RELAY_USER = NimbusTargetingConfig(
     name="Not Relay user",
     slug="not_relay_user",
     description="Excludes users who have Relay",
-    targeting=f"!({RELAY_USER.targeting})",
+    targeting=f"!({RELAY_USER.targeting}) && isFxAEnabled && usesFirefoxSync",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -572,6 +599,27 @@ EXISTING_USER_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
         "(!os.isWindows || os.windowsBuildNumber >= 18362) && "
         "userMonthlyActivity|length >= 1 && "
         "!('e6eb0d1e856335fc' in attachedFxAOAuthClients|mapToProperty('id'))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+EXISTING_USER_NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig(
+    name=(
+        "Existing users, no enterprise or past VPN use, hasn't disabled "
+        "'Recommend extensions/features'"
+    ),
+    slug="existing_user_no_vpn_has_not_disabled_recommend_features",
+    description=(
+        "Exclude users who have used Mozilla VPN, are enterprise users, or have"
+        " disabled 'Recommend extensions/features'"
+    ),
+    targeting=(
+        f"{EXISTING_USER_NO_ENTERPRISE_OR_PAST_VPN.targeting} && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
     ),
     desktop_telemetry="",
     sticky_required=False,

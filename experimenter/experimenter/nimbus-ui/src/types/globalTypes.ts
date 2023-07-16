@@ -70,6 +70,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_114 = "FIREFOX_114",
   FIREFOX_114_3_0 = "FIREFOX_114_3_0",
   FIREFOX_115 = "FIREFOX_115",
+  FIREFOX_115_0_2 = "FIREFOX_115_0_2",
   FIREFOX_116 = "FIREFOX_116",
   FIREFOX_117 = "FIREFOX_117",
   FIREFOX_118 = "FIREFOX_118",
@@ -223,6 +224,7 @@ export interface ExperimentInput {
   conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   countries?: (string | null)[] | null;
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
+  excludedExperiments?: number[] | null;
   featureConfigIds?: (number | null)[] | null;
   firefoxMaxVersion?: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;
@@ -248,6 +250,7 @@ export interface ExperimentInput {
   publicDescription?: string | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
   referenceBranch?: BranchInput | null;
+  requiredExperiments?: number[] | null;
   riskBrand?: boolean | null;
   riskMitigationLink?: string | null;
   riskPartnerRelated?: boolean | null;

@@ -156,6 +156,17 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_KLAR_IOS.name,
     )
 
+    @staticmethod
+    def is_mobile(application):
+        return application in (
+            Application.FENIX,
+            Application.IOS,
+            Application.FOCUS_ANDROID,
+            Application.KLAR_ANDROID,
+            Application.FOCUS_IOS,
+            Application.KLAR_IOS,
+        )
+
 
 class NimbusConstants(object):
     class Status(models.TextChoices):
@@ -331,6 +342,7 @@ class NimbusConstants(object):
         FIREFOX_114 = "114.!"
         FIREFOX_114_3_0 = "114.3.0"
         FIREFOX_115 = "115.!"
+        FIREFOX_115_0_2 = "115.0.2"
         FIREFOX_116 = "116.!"
         FIREFOX_117 = "117.!"
         FIREFOX_118 = "118.!"
@@ -359,7 +371,13 @@ class NimbusConstants(object):
     }
 
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
-    DESKTOP_ROLLOUT_MIN_SUPPORTED_VERSION = Version.FIREFOX_114
+    ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_115,
+        Application.FENIX: Version.FIREFOX_116,
+        Application.FOCUS_ANDROID: Version.FIREFOX_116,
+        Application.IOS: Version.FIREFOX_116,
+        Application.FOCUS_IOS: Version.FIREFOX_116,
+    }
 
     ROLLOUT_SUPPORT_VERSION = {
         Application.DESKTOP: Version.FIREFOX_105,
@@ -425,9 +443,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         will be enrolled in one and not the other and \
         you will not be able to adjust the sizing for this rollout."
 
-    ERROR_DESKTOP_ROLLOUT_VERSION = "WARNING: Decreasing the population size while the \
-        rollout is live is not supported for Desktop versions under 114. You will still \
-        be able to increase the population size."
+    ERROR_ROLLOUT_VERSION = (
+        "WARNING: Adjusting the population size while the"
+        "rollout is live is not supported for {application} versions under {version}."
+    )
 
     ERROR_DESKTOP_LOCALIZATION_VERSION = (
         "Firefox version must be at least 113 for localized experiments."
@@ -436,6 +455,29 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIRST_RUN_RELEASE_DATE = (
         "This field is for first run experiments only. "
         "Are you missing your first run targeting?"
+    )
+
+    ERROR_NO_FLOATS_IN_FEATURE_VALUE = (
+        "Feature values can not contain floats (ie numbers with decimal points)."
+    )
+
+    ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE = (
+        "An experiment appears in both the list of required experiments and excluded "
+        "experiments"
+    )
+
+    ERROR_EXCLUDED_REQUIRED_INCLUDES_SELF = (
+        "This experiment cannot be included in the list of required or excluded "
+        "experiments"
+    )
+
+    ERROR_EXCLUDED_REQUIRED_DIFFERENT_APPLICATION = (
+        "'{slug}' is for a different application and cannot be required or excluded"
+    )
+
+    ERROR_EXCLUDED_REQUIRED_MIN_VERSION = (
+        "Firefox version must be at least 116 for requiring or excluding other "
+        "experiments"
     )
 
     # Analysis can be computed starting the week after enrollment
@@ -455,3 +497,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     L10N_MIN_STRING_ID_LEN = 9
 
     MIN_REQUIRED_VERSION = Version.FIREFOX_96
+
+    EXCLUDED_REQUIRED_MIN_VERSION = Version.FIREFOX_116

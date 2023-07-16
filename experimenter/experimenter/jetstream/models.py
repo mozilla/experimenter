@@ -344,6 +344,7 @@ class SizingMetricName(str, Enum):
     ACTIVE_HOURS = "active_hours"
     SEARCH_COUNT = "search_count"
     DAYS_OF_USE = "days_of_use"
+    TAGGED_SEARCH_COUNT = "tagged_search_count"
 
 
 class SizingReleaseChannel(str, Enum):

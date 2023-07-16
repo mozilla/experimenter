@@ -15,7 +15,7 @@ services:
 
   db:
     restart: always
-    image: postgres:9.6.17
+    image: postgres:14.8
     environment:
       POSTGRES_PASSWORD: postgres
 
