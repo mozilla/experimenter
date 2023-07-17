@@ -535,7 +535,7 @@ jobs:
       - run:
           name: Run Schemas tests and linting
           command: |
-            make check_schemas
+            make schemas_check
 
   schemas_deploy:
     docker:
