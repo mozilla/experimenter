@@ -23,6 +23,7 @@ from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -150,7 +151,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         "id": feature_config.id,
                         "name": feature_config.name,
                         "ownerEmail": feature_config.owner_email,
-                        "schema": feature_config.schema,
+                        "schema": feature_config.schemas.get(version=None).schema,
                         "slug": feature_config.slug,
                     }
                 ],
@@ -722,6 +723,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         application
                         ownerEmail
                         schema
+                        setsPrefs
                     }
 
                     primaryOutcomes
@@ -880,7 +882,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         "id": feature_config.id,
                         "name": feature_config.name,
                         "ownerEmail": feature_config.owner_email,
-                        "schema": feature_config.schema,
+                        "schema": feature_config.schemas.get(version=None).schema,
+                        "setsPrefs": bool(
+                            feature_config.schemas.get(version=None).sets_prefs
+                        ),
                         "slug": feature_config.slug,
                     }
                 ],
@@ -1951,7 +1956,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
-            sets_prefs=["foo.bar.baz"],
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    sets_prefs=["foo.bar.baz"],
+                ),
+            ],
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2485,8 +2495,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         feature_config.application
                     ).name,
                     "ownerEmail": feature_config.owner_email,
-                    "schema": feature_config.schema,
-                    "setsPrefs": bool(feature_config.sets_prefs),
+                    "schema": feature_config.schemas.get(version=None).schema,
+                    "setsPrefs": bool(
+                        feature_config.schemas.get(version=None).sets_prefs
+                    ),
                 },
                 config["allFeatureConfigs"],
             )

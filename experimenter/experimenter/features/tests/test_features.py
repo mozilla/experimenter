@@ -35,6 +35,7 @@ class TestFeatures(TestCase):
             Feature(
                 applicationSlug="firefox-desktop",
                 description="Some Firefox Feature",
+                hasExposure=True,
                 exposureDescription="An exposure event",
                 isEarlyStartup=True,
                 slug="someFeature",

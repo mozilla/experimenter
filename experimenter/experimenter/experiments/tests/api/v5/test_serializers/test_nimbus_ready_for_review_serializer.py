@@ -18,6 +18,7 @@ from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 
@@ -918,8 +919,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.IOS,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -975,8 +981,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1018,8 +1029,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1065,8 +1081,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        )
+                    ],
                 )
             ],
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
@@ -1109,8 +1130,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        )
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1155,8 +1181,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1204,8 +1235,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=BASIC_JSON_SCHEMA,
+                        ),
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1258,8 +1294,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             warn_feature_schema=False,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=REF_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=REF_JSON_SCHEMA,
+                        )
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1295,8 +1336,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=None,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
                 )
             ],
             is_sticky=True,
@@ -1514,8 +1560,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=None,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
                 )
             ],
         )
@@ -2072,8 +2123,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=BASIC_JSON_SCHEMA,
                     application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            schema=BASIC_JSON_SCHEMA,
+                            version=None,
+                        ),
+                    ],
                 ),
             ],
         )
@@ -2423,13 +2479,23 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         self.user = UserFactory()
         self.feature_without_schema = NimbusFeatureConfigFactory.create(
             slug="feature_without_schema",
-            schema=None,
             application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=None,
+                )
+            ],
         )
         self.feature_with_schema = NimbusFeatureConfigFactory.create(
             slug="feature_with_schema",
-            schema=BASIC_JSON_SCHEMA,
             application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=BASIC_JSON_SCHEMA,
+                )
+            ],
         )
 
     def test_feature_configs_application_mismatches_error(self):
@@ -2440,12 +2506,22 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=None,
                     application=NimbusExperiment.Application.FENIX,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
                 ),
                 NimbusFeatureConfigFactory.create(
-                    schema=None,
                     application=NimbusExperiment.Application.IOS,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
                 ),
             ],
             is_sticky=True,
@@ -3003,7 +3079,15 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     )
     def test_feature_value_with_float_is_invalid(self, value):
         application = NimbusExperiment.Application.DESKTOP
-        feature = NimbusFeatureConfigFactory.create(application=application, schema=None)
+        feature = NimbusFeatureConfigFactory.create(
+            application=application,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=None,
+                )
+            ],
+        )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
