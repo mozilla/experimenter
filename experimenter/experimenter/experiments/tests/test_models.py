@@ -5,11 +5,11 @@ from itertools import product
 
 import mock
 from django.conf import settings
-from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db.models import Q
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
@@ -2239,7 +2239,9 @@ class TestNimbusExperiment(TestCase):
         time_format = "%I:%M:%S %p"
         current_date = timezone.now().date()
 
-        timestamp_1 = timezone.make_aware(timezone.datetime.combine(current_date, timezone.datetime.min.time()))
+        timestamp_1 = timezone.make_aware(
+            timezone.datetime.combine(current_date, timezone.datetime.min.time())
+        )
         formatted_timestamp_1 = timestamp_1.strftime(time_format)
 
         timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
@@ -2272,20 +2274,29 @@ class TestNimbusExperiment(TestCase):
                     "changes": [
                         {
                             "event": "GENERAL",
-                            "event_message": f"{user.get_full_name()} changed value of status_next from None to Live",
+                            "event_message": (
+                                f"{user.get_full_name()} "
+                                f"changed value of status_next from "
+                                f"None to Live"
+                            ),
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_3,
                         },
                         {
                             "event": "GENERAL",
-
-                            "event_message": f"{user.get_full_name()} changed value of publish_status from Idle to Review",
+                            "event_message": (
+                                f"{user.get_full_name()} "
+                                f"changed value of publish_status from "
+                                f"Idle to Review"
+                            ),
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_2,
                         },
                         {
                             "event": "CREATION",
-                            "event_message": f"{user.get_full_name()} created this experiment",
+                            "event_message": (
+                                f"{user.get_full_name()} " f"created this experiment"
+                            ),
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_1,
                         },
