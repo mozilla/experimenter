@@ -1,6 +1,7 @@
 import json
 import logging
-from typing import Any, Dict, List
+from enum import Enum
+from typing import Any
 
 import requests
 
@@ -8,7 +9,6 @@ from .sdk import SDK
 from .settings import remote_setting_url
 
 logger = logging.getLogger(__name__)
-from enum import Enum
 
 
 class RecipeType(Enum):
@@ -19,29 +19,24 @@ class RecipeType(Enum):
 
 class RemoteSettings:
     def __init__(self, sdk: SDK):
-        self.recipes: Dict[str, List[Any]] = {"data": []}
+        self.recipes: dict[str, list[Any]] = {"data": []}
         self.url: str = remote_setting_url
         self.sdk = sdk
 
-    def get_recipes(self) -> Dict[str, List[Any]]:
+    def get_recipes(self) -> dict[str, list[Any]]:
         return self.recipes
 
     def get_recipe_type(self, experiment_slug: str) -> str:
-        recipes_data = self.get_recipes()["data"]
-        if not recipes_data:
-            return RecipeType.EMPTY.value
-
-        for experiment in recipes_data:
+        for experiment in self.get_recipes()["data"]:
             if experiment["slug"] == experiment_slug:
-                is_rollout = experiment.get("isRollout", False)
-                if is_rollout:
+                if experiment.get("isRollout", False):
                     return RecipeType.ROLLOUT.value
                 else:
                     return RecipeType.EXPERIMENT.value
 
         return RecipeType.EMPTY.value
 
-    def update_recipes(self, new_recipes: Dict[str, List[Any]]) -> None:
+    def update_recipes(self, new_recipes: dict[str, list[Any]]) -> None:
         self.recipes = new_recipes
         self.sdk.set_experiments(json.dumps(self.recipes))
 
