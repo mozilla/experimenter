@@ -57,7 +57,7 @@ def test_check_advanced_targeting(
         "populationPercent": "100",
         "totalEnrolledClients": 55,
     }
-    helpers.create_desktop_experiment(
+    helpers.create_experiment(
         experiment_slug,
         "desktop",
         targeting_config_slug,
@@ -111,7 +111,7 @@ def test_check_audience_targeting(
 ):
     experiment_slug = str(slugify(experiment_name))
     experiment_default_data.update(audience_field)
-    helpers.create_desktop_experiment(
+    helpers.create_experiment(
         experiment_slug,
         "desktop",
         "no_targeting",

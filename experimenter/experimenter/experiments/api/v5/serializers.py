@@ -8,6 +8,7 @@ import jsonschema
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models, transaction
+from django.db.models import Prefetch
 from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework_dataclasses.serializers import DataclassSerializer
@@ -28,6 +29,7 @@ from experimenter.experiments.models import (
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
+    NimbusVersionedSchema,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -275,11 +277,17 @@ class NimbusConfigurationDataClass:
                 description=f.description,
                 application=NimbusExperiment.Application(f.application).name,
                 ownerEmail=f.owner_email,
-                schema=f.schema,
-                setsPrefs=bool(f.sets_prefs),
+                schema=f.schemas.get().schema,
+                setsPrefs=bool(f.schemas.get().sets_prefs),
                 enabled=f.enabled,
             )
-            for f in NimbusFeatureConfig.objects.all().order_by("name")
+            for f in NimbusFeatureConfig.objects.all()
+            .prefetch_related(
+                Prefetch(
+                    "schemas", queryset=NimbusVersionedSchema.objects.filter(version=None)
+                )
+            )
+            .order_by("name")
         ]
 
     def _get_owners(self):
@@ -1353,9 +1361,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def _validate_feature_value_against_schema(
         self, feature_config, value, localizations
     ):
-        if feature_config.schema:
-            schema = json.loads(feature_config.schema)
 
+        if schema := feature_config.schemas.get(version=None).schema:
+            json_schema = json.loads(schema)
             json_value = json.loads(value)
 
             if localizations:
@@ -1367,7 +1375,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     except LocalizationError as e:
                         return [str(e)]
 
-                    if schema_errors := self._validate_schema(substituted_value, schema):
+                    if schema_errors := self._validate_schema(
+                        substituted_value, json_schema
+                    ):
                         return [
                             (
                                 f"Schema validation errors occured during locale "
@@ -1377,7 +1387,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         ]
 
             else:
-                return self._validate_schema(json_value, schema)
+                return self._validate_schema(json_value, json_schema)
 
         return None
 
@@ -1482,17 +1492,20 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 }
             )
 
-        if (
-            application == NimbusExperiment.Application.DESKTOP
-            and is_rollout
-            and parsed_min_version
-            < NimbusExperiment.Version.parse(
-                NimbusConstants.DESKTOP_ROLLOUT_MIN_SUPPORTED_VERSION
+        rollout_live_resize_min_app_version = (
+            NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.get(application)
+        )
+        if rollout_live_resize_min_app_version:
+            parsed_min_app_version = NimbusExperiment.Version.parse(
+                rollout_live_resize_min_app_version
             )
-        ):
-            self.warnings["firefox_min_version"] = [
-                NimbusConstants.ERROR_DESKTOP_ROLLOUT_VERSION
-            ]
+            if is_rollout and parsed_min_version < parsed_min_app_version:
+                self.warnings["firefox_min_version"] = [
+                    NimbusConstants.ERROR_ROLLOUT_VERSION.format(
+                        application=NimbusExperiment.Application(application).label,
+                        version=parsed_min_app_version,
+                    )
+                ]
 
         excluded_experiments = data.get("excluded_experiments")
         required_experiments = data.get("required_experiments")

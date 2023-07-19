@@ -11,9 +11,14 @@ from experimenter.experiments.models import (
 
 
 class NimbusFeatureConfigChangeLogSerializer(serializers.ModelSerializer):
+    schema = serializers.SerializerMethodField()
+
     class Meta:
         model = NimbusFeatureConfig
         exclude = ("id",)
+
+    def get_schema(self, obj):
+        return obj.schemas.get(version=None).schema
 
 
 class NimbusBranchFeatureValueChangeLogSerializer(serializers.ModelSerializer):
