@@ -12,7 +12,12 @@ import {
 import React from "react";
 import { createMutationMock, Subject } from "src/components/Summary/mocks";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
-import { mockExperimentQuery, mockLiveRolloutQuery } from "src/lib/mocks";
+import {
+  mockExperimentQuery,
+  mockLiveRolloutQuery,
+  MOCK_EXPERIMENT,
+  MOCK_EXPERIMENTS_BY_APPLICATION,
+} from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
@@ -691,5 +696,17 @@ describe("Summary", () => {
         expect(requestUpdateButton).toBeDisabled();
       });
     });
+  });
+
+  it("render the required and excluded experiments", () => {
+    const experiment = {
+      ...MOCK_EXPERIMENT,
+      requiredExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1]],
+      excludedExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[2]],
+    };
+    render(<Subject props={experiment} />);
+
+    screen.getByRole("link", { name: MOCK_EXPERIMENTS_BY_APPLICATION[1].name });
+    screen.getByRole("link", { name: MOCK_EXPERIMENTS_BY_APPLICATION[2].name });
   });
 });

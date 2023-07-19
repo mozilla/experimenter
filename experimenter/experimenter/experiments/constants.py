@@ -342,6 +342,7 @@ class NimbusConstants(object):
         FIREFOX_114 = "114.!"
         FIREFOX_114_3_0 = "114.3.0"
         FIREFOX_115 = "115.!"
+        FIREFOX_115_0_2 = "115.0.2"
         FIREFOX_116 = "116.!"
         FIREFOX_117 = "117.!"
         FIREFOX_118 = "118.!"
@@ -370,7 +371,13 @@ class NimbusConstants(object):
     }
 
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
-    DESKTOP_ROLLOUT_MIN_SUPPORTED_VERSION = Version.FIREFOX_114
+    ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_115,
+        Application.FENIX: Version.FIREFOX_116,
+        Application.FOCUS_ANDROID: Version.FIREFOX_116,
+        Application.IOS: Version.FIREFOX_116,
+        Application.FOCUS_IOS: Version.FIREFOX_116,
+    }
 
     ROLLOUT_SUPPORT_VERSION = {
         Application.DESKTOP: Version.FIREFOX_105,
@@ -436,9 +443,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         will be enrolled in one and not the other and \
         you will not be able to adjust the sizing for this rollout."
 
-    ERROR_DESKTOP_ROLLOUT_VERSION = "WARNING: Decreasing the population size while the \
-        rollout is live is not supported for Desktop versions under 114. You will still \
-        be able to increase the population size."
+    ERROR_ROLLOUT_VERSION = (
+        "WARNING: Adjusting the population size while the"
+        "rollout is live is not supported for {application} versions under {version}."
+    )
 
     ERROR_DESKTOP_LOCALIZATION_VERSION = (
         "Firefox version must be at least 113 for localized experiments."

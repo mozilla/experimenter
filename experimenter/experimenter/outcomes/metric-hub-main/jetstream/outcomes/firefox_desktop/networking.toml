@@ -94,7 +94,7 @@ select_expression = """(
         event_object = 'aboutcerterror'
     ), 0)
 )"""
-data_source = "events"
+data_source = "events_certerror"
 friendly_name = "Cert Error Pages Loaded"
 type = "scalar"
 bigger_is_better = false
@@ -116,7 +116,7 @@ select_expression = """(
         event_object = 'aboutcerterror'
     ), 0)
 )"""
-data_source = "events"
+data_source = "events_certerror"
 friendly_name = "Cert Error Pages Clicked"
 type = "scalar"
 bigger_is_better = false
@@ -388,3 +388,17 @@ experiments_column_type = "native"
 from_expression = """(SELECT * FROM mozdata.telemetry.events WHERE event_category = 'security.ui.certerror')"""
 experiments_column_type = "native"
 
+[data_sources.events_certerror]
+from_expression = """
+    (
+        SELECT
+            *
+        FROM `moz-fx-data-shared-prod.telemetry.events`
+        WHERE 
+            event_category = 'security.ui.certerror'
+    )
+"""
+submission_date_column = "submission_date"
+friendly_name = "Certerror events"
+description = "Cert Error related events"
+experiments_column_type = "native"

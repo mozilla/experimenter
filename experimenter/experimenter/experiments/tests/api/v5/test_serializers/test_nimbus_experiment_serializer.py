@@ -20,6 +20,7 @@ from experimenter.experiments.models import (
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -275,7 +276,11 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_saves_existing_experiment_with_changelog(self):
         feature_config = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
-            sets_prefs=["foo.bar.baz"],
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None, sets_prefs=["foo.bar.baz"]
+                ),
+            ],
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
