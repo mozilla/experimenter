@@ -23,7 +23,16 @@ services:
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
-    command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python /experimenter/manage.py runserver 0:7001 & yarn --cwd /experimenter/experimenter/theme/static_src run dev"
+    command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python /experimenter/manage.py runserver 0:7001"
+
+  tailwind:
+    image: experimenter:dev
+    env_file: .env
+    tty: true
+    volumes:
+      - ./experimenter:/experimenter
+      - /experimenter/experimenter/theme/static_src/node_modules/
+    command: "yarn --cwd /experimenter/experimenter/theme/static_src run dev"
 
   yarn-nimbus-ui:
     image: experimenter:dev
