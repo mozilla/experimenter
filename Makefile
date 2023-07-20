@@ -250,7 +250,7 @@ cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
 schemas_install:
-	(cd schemas && poetry install)
+	(cd schemas && poetry install && yarn install)
 
 schemas_black:
 	(cd schemas && poetry run black --check --diff .)
@@ -271,3 +271,6 @@ schemas_build:
 
 schemas_deploy_pypi: schemas_install schemas_build
 	cd schemas; poetry run twine upload --skip-existing dist/*;
+
+schemas_deploy_npm: schemas_install schemas_build
+	cd schemas; yarn publish
