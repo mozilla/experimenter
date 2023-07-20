@@ -1,5 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
 
 from nimbus.pages.experimenter.base import ExperimenterBase
@@ -157,3 +158,15 @@ class AudiencePage(ExperimenterBase):
         for _ in text:
             el.send_keys(f"{_}")
             el.send_keys(Keys.TAB)
+
+    def wait_until_release_date_not_found(self):
+        self.wait.until_not(
+            EC.presence_of_element_located(self._release_date_locator),
+            message="Audience Page: could not find release date",
+        )
+
+    def wait_until_first_run_not_found(self):
+        self.wait.until_not(
+            EC.presence_of_element_located(self._first_run_checkbox_locator),
+            message="Audience Page: could not find first run checkbox",
+        )

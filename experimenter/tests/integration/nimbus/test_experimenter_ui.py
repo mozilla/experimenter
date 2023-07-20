@@ -292,3 +292,49 @@ def test_summary_timeline_release_date(
 
     summary.wait_for_timeline_visible()
     summary.wait_for_release_date()
+
+
+@pytest.mark.nimbus_ui
+@pytest.mark.skipif(
+    ("FOCUS_IOS" or "FIREFOX_IOS" or "FENIX" or "FOCUS_ANDROID")
+    in os.getenv("PYTEST_ARGS"),
+    reason="Only run for desktop",
+)
+def test_summary_release_date_not_visible(
+    selenium,
+    kinto_client,
+    create_experiment,
+    experiment_url,
+):
+    summary = create_experiment(selenium)
+    summary.launch_and_approve()
+
+    kinto_client.approve()
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.wait_for_live_status()
+
+    summary.wait_for_timeline_visible()
+    timeline_release_date = summary.wait_until_timeline_release_date_not_found()
+    assert not timeline_release_date
+    audience_release_date = summary.wait_until_audience_section_release_date_not_found()
+    assert not audience_release_date
+
+
+@pytest.mark.nimbus_ui
+@pytest.mark.skipif(
+    ("FOCUS_IOS" or "FIREFOX_IOS" or "FENIX" or "FOCUS_ANDROID")
+    in os.getenv("PYTEST_ARGS"),
+    reason="Only run for desktop",
+)
+def test_audience_page_release_date_not_visible(
+    selenium,
+    create_experiment,
+):
+    summary = create_experiment(selenium)
+    audience = summary.navigate_to_audience()
+
+    release_date = audience.wait_until_release_date_not_found()
+    assert not release_date
+    first_run = audience.wait_until_first_run_not_found()
+    assert not first_run
