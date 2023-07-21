@@ -12,8 +12,8 @@
       {% for changelog in experiment.get_changelogs %}
       <div class="bg-gray-200 rounded-md p-2">
           <h2 class="font-semibold">{{ changelog.changed_on }}</h2>
-          <p><i class="fa-regular fa-pen-to-square"></i> : {{ changelog.message }}</p>  
-          <p><i class="fa-regular fa-user"></i> : {{ changelog.changed_by }}</p>
+          <p><span class="fa-regular fa-pen-to-square"></span> : {{ changelog.message }}</p>  
+          <p><span class="fa-regular fa-user"></span> : {{ changelog.changed_by }}</p>
       </div>
       {% endfor %}
     </div>
