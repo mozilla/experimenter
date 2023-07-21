@@ -523,7 +523,7 @@ jobs:
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make check_cirrus
+            make cirrus_check
 
   check_schemas:
     docker:
