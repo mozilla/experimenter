@@ -88,6 +88,18 @@ export interface getExperiment_experimentBySlug_targetingConfig {
   isFirstRunRequired: boolean | null;
 }
 
+export interface getExperiment_experimentBySlug_excludedExperiments {
+  id: number;
+  slug: string;
+  name: string;
+}
+
+export interface getExperiment_experimentBySlug_requiredExperiments {
+  id: number;
+  slug: string;
+  name: string;
+}
+
 export interface getExperiment_experimentBySlug_readyForReview {
   ready: boolean | null;
   message: ObjectField | null;
@@ -182,7 +194,7 @@ export interface getExperiment_experimentBySlug {
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
   preventPrefConflicts: boolean | null;
-  featureConfigs: (getExperiment_experimentBySlug_featureConfigs | null)[] | null;
+  featureConfigs: getExperiment_experimentBySlug_featureConfigs[] | null;
   primaryOutcomes: (string | null)[] | null;
   secondaryOutcomes: (string | null)[] | null;
   channel: NimbusExperimentChannelEnum | null;
@@ -192,6 +204,8 @@ export interface getExperiment_experimentBySlug {
   targetingConfig: (getExperiment_experimentBySlug_targetingConfig | null)[] | null;
   isSticky: boolean | null;
   isFirstRun: boolean;
+  excludedExperiments: getExperiment_experimentBySlug_excludedExperiments[];
+  requiredExperiments: getExperiment_experimentBySlug_requiredExperiments[];
   jexlTargetingExpression: string | null;
   populationPercent: string | null;
   totalEnrolledClients: number;

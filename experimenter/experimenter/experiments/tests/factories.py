@@ -28,6 +28,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
+    NimbusVersionedSchema,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -84,10 +85,38 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.Application)).value
     )
     owner_email = factory.LazyAttribute(lambda o: faker.email())
-    schema = FAKER_JSON_SCHEMA
+
+    @factory.post_generation
+    def schemas(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if isinstance(extracted, Iterable):
+            for instance in extracted:
+                instance.feature_config = self
+                instance.save()
+        elif self.schemas.count() == 0:
+            self.schemas.add(
+                NimbusVersionedSchemaFactory.create(
+                    feature_config=self,
+                    version=None,
+                )
+            )
 
     class Meta:
         model = NimbusFeatureConfig
+
+
+class NimbusVersionedSchemaFactory(factory.django.DjangoModelFactory):
+    feature_config = factory.SubFactory(NimbusFeatureConfigFactory)
+    version = factory.LazyAttribute(
+        lambda o: random.choice(list(NimbusExperiment.Version)[1:]).value
+    )
+    schema = factory.LazyAttribute(lambda o: FAKER_JSON_SCHEMA)
+    sets_prefs = factory.LazyAttribute(lambda o: [])
+
+    class Meta:
+        model = NimbusVersionedSchema
 
 
 class LifecycleStates(Enum):

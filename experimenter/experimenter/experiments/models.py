@@ -341,7 +341,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if self.prevent_pref_conflicts:
             for config in self.feature_configs.all():
-                prefs.extend(config.sets_prefs)
+                prefs.extend(config.schemas.get(version=None).sets_prefs)
 
         return prefs
 
@@ -1087,9 +1087,6 @@ class NimbusFeatureConfig(models.Model):
         null=True,
     )
     owner_email = models.EmailField(blank=True, null=True)
-    schema = models.TextField(blank=True, null=True)
-    read_only = models.BooleanField(default=False)
-    sets_prefs = ArrayField(models.CharField(max_length=255, null=False), default=list)
     enabled = models.BooleanField(default=True)
 
     class Meta:
@@ -1099,6 +1096,28 @@ class NimbusFeatureConfig(models.Model):
 
     def __str__(self):  # pragma: no cover
         return self.name
+
+
+class NimbusVersionedSchema(models.Model):
+    feature_config = models.ForeignKey(
+        NimbusFeatureConfig,
+        related_name="schemas",
+        on_delete=models.CASCADE,
+    )
+    version = models.CharField(max_length=255, null=True)
+    schema = models.TextField(blank=True, null=True)
+    sets_prefs = ArrayField(models.CharField(max_length=255, null=False, default=list))
+
+    class Meta:
+        verbose_name = "Nimbus Versioned Schema"
+        verbose_name_plural = "Nimbus Versioned Schemas"
+        unique_together = ("feature_config", "version")
+
+    def __repr__(self):  # pragma: no cover
+        return (
+            f"<NimbusVersionedSchema(feature_config_id={self.feature_config_id}, "
+            f"version={self.version!r})>"
+        )
 
 
 class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
