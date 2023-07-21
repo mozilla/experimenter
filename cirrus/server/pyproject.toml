@@ -19,6 +19,8 @@ requests = "^2.31.0"
 pytest-asyncio = "^0.21.0"
 python-decouple = "^3.8"
 glean-sdk = "^53.1.0"
+pytest-mock = "^3.11.1"
+mozilla-nimbus-shared = "^2.4.0"
 
 [tool.pyright]
 typeCheckingMode = "strict"
