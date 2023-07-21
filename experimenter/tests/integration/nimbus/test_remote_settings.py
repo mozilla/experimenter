@@ -1,3 +1,4 @@
+import os
 from urllib.parse import urljoin
 
 import pytest
@@ -254,3 +255,29 @@ def test_rollout_live_update_reject_on_experimenter(
     summary_page.set_rejection_reason()
     summary_page.submit_rejection()
     summary_page.wait_for_rejection_notice_visible()
+
+
+@pytest.mark.remote_settings
+@pytest.mark.skipif(
+    os.getenv("PYTEST_ARGS") != "FIREFOX_DESKTOP",
+    reason="Only run for desktop",
+)
+def test_summary_release_date_not_visible(
+    selenium,
+    kinto_client,
+    create_experiment,
+    experiment_url,
+):
+    summary = create_experiment(selenium)
+    summary.launch_and_approve()
+
+    kinto_client.approve()
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.wait_for_live_status()
+
+    summary.wait_for_timeline_visible()
+    timeline_release_date = summary.wait_until_timeline_release_date_not_found()
+    assert not timeline_release_date
+    audience_release_date = summary.wait_until_audience_section_release_date_not_found()
+    assert not audience_release_date
