@@ -788,6 +788,12 @@ password-autocomplete:
     firefoxRelayIntegration:
       type: boolean
       description: Can show Firefox Relay integration offer?
+
+cm-csv-import:
+  description: Importing logins from CSV files
+  owner: issozi@mozilla.com
+  hasExposure: false
+  variables:
     csvImport:
       type: boolean
       description: Can show CSV Import in about:logins or Migration Wizard
@@ -1570,6 +1576,18 @@ shopping2023:
       description: True if the experience is enabled
       type: boolean
       fallbackPref: browser.shopping.experience2023.enabled
+    useOHTTP:
+      description: True if we prefer using OHTTP for these requests.
+      type: boolean
+      fallbackPref: toolkit.shopping.useOHTTP
+    ohttpRelayURL:
+      description: What OHTTP relay URL to use
+      type: string
+      fallbackPref: toolkit.shopping.ohttpRelayURL
+    ohttpConfigURL:
+      description: URL for the OHTTP config to use
+      type: string
+      fallbackPref: toolkit.shopping.ohttpConfigURL
 
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
