@@ -101,9 +101,12 @@ INSTALLED_APPS = [
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
-    # fontawesome
     "fontawesomefree",
+    "tailwind",
+    "experimenter.theme",
 ]
+
+TAILWIND_APP_NAME = "theme"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
