@@ -1,0 +1,26 @@
+{
+  "name": "experimenter-theme",
+  "version": "3.6.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "build": "yarn run build:clean && yarn run build:tailwind",
+    "build:clean": "rm -rf ../static/css/dist",
+    "build:tailwind": "env NODE_ENV=production tailwindcss --postcss -i ./src/styles.css -o ../static/css/dist/styles.css --minify",
+    "dev": "env NODE_ENV=development tailwindcss --postcss -i ./src/styles.css -o ../static/css/dist/styles.css -w",
+    "tailwindcss": "tailwindcss"
+  },
+  "author": "Mozilla",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.3",
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "@tailwindcss/typography": "^0.5.9",
+    "postcss": "^8.4.24",
+    "postcss-import": "^15.1.0",
+    "postcss-nested": "^6.0.1",
+    "postcss-simple-vars": "^7.0.1",
+    "tailwindcss": "^3.3.2"
+  }
+}
