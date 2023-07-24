@@ -3,9 +3,6 @@
   "version": "2023.7.1",
   "description": "Schemas used by Mozilla Nimbus and related projects.",
   "main": "index.ts",
-  "scripts": {
-    "build": "openapi --input http://localhost:8000/openapi.json --output ./index.ts --client axios"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mozilla/experimenter.git"
@@ -17,7 +14,7 @@
   },
   "homepage": "https://github.com/mozilla/experimenter#readme",
   "devDependencies": {
-    "openapi-typescript-codegen": "^0.25.0",
+    "json-schema-to-typescript": "^13.0.2",
     "typescript": "^5.1.6"
   }
 }

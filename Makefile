@@ -272,5 +272,8 @@ schemas_build:
 schemas_deploy_pypi: schemas_install schemas_build
 	cd schemas; poetry run twine upload --skip-existing dist/*;
 
-schemas_deploy_npm: schemas_install schemas_build
-	cd schemas; yarn publish
+schemas_build_npm: schemas_install
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output ./index.ts --json2ts-cmd "yarn json2ts")
+
+schemas_deploy_npm: schemas_build_npm
+	cd schemas; yarn publish;
