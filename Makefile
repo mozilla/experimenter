@@ -250,7 +250,7 @@ cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
 schemas_install:
-	(cd schemas && poetry install)
+	(cd schemas && poetry install && yarn install)
 
 schemas_black:
 	(cd schemas && poetry run black --check --diff .)
@@ -271,3 +271,9 @@ schemas_build:
 
 schemas_deploy_pypi: schemas_install schemas_build
 	cd schemas; poetry run twine upload --skip-existing dist/*;
+
+schemas_build_npm: schemas_install
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output ./index.ts --json2ts-cmd "yarn json2ts")
+
+schemas_deploy_npm: schemas_build_npm
+	cd schemas; yarn publish;
