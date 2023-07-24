@@ -18,11 +18,21 @@ services:
       - media_volume:/experimenter/experimenter/media
       - /experimenter/experimenter/legacy/legacy-ui/core/.cache/
       - /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
+      - /experimenter/experimenter/theme/static_src/node_modules/
       - /experimenter/experimenter/nimbus-ui/node_modules/
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python /experimenter/manage.py runserver 0:7001"
+
+  tailwind:
+    image: experimenter:dev
+    env_file: .env
+    tty: true
+    volumes:
+      - ./experimenter:/experimenter
+      - /experimenter/experimenter/theme/static_src/node_modules/
+    command: "yarn --cwd /experimenter/experimenter/theme/static_src run dev"
 
   yarn-nimbus-ui:
     image: experimenter:dev
@@ -73,7 +83,7 @@ services:
 
   db:
     restart: always
-    image: postgres:9.6.17
+    image: postgres:14.8
     environment:
       POSTGRES_PASSWORD: postgres
     ports:
@@ -112,7 +122,6 @@ services:
     working_dir: /cirrus
     ports:
       - "8001:8001"
-
 
 volumes:
   db_volume:

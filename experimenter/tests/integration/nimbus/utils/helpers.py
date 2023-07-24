@@ -189,7 +189,7 @@ def create_basic_experiment(name, app, targeting, languages=[]):
     )
 
 
-def create_desktop_experiment(slug, app, targeting, data):
+def create_experiment(slug, app, targeting, data):
     # create a basic experiment via graphql so we can get an ID
     create_basic_experiment(
         slug,

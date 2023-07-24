@@ -17,6 +17,7 @@ import { DocumentNode, print } from "graphql";
 import React, { ReactNode } from "react";
 import { GET_CONFIG_QUERY } from "src/gql/config";
 import {
+  GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY,
   GET_EXPERIMENTS_QUERY,
   GET_EXPERIMENT_QUERY,
 } from "src/gql/experiments";
@@ -32,6 +33,7 @@ import {
   getAllExperiments,
   getAllExperiments_experiments,
 } from "src/types/getAllExperiments";
+import { getAllExperimentsByApplication_experimentsByApplication } from "src/types/getAllExperimentsByApplication";
 import { getConfig_nimbusConfig } from "src/types/getConfig";
 import {
   getExperiment,
@@ -50,6 +52,10 @@ import {
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
+  experimentsByApplication?: Partial<{
+    allExperiments?: Partial<typeof MOCK_EXPERIMENTS_BY_APPLICATION>;
+    application?: NimbusExperimentApplicationEnum;
+  }>;
   childProps?: Record<any, any>;
   children?: React.ReactElement;
   mocks?: MockedResponse<Record<string, any>>[];
@@ -437,13 +443,29 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
 // Disabling this rule for now because we'll eventually
 // be using props from MockedProps.
 // eslint-disable-next-line no-empty-pattern
-export function createCache({ config = {} }: MockedProps = {}) {
+export function createCache({
+  config = {},
+  experimentsByApplication: {
+    allExperiments = MOCK_EXPERIMENTS_BY_APPLICATION,
+    application = NimbusExperimentApplicationEnum.DESKTOP,
+  } = {},
+}: MockedProps = {}) {
   const cache = new InMemoryCache(cacheConfig);
 
   cache.writeQuery({
     query: GET_CONFIG_QUERY,
     data: {
       nimbusConfig: { ...MOCK_CONFIG, ...config },
+    },
+  });
+
+  cache.writeQuery({
+    query: GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY,
+    variables: {
+      application: application,
+    },
+    data: {
+      experimentsByApplication: allExperiments,
     },
   });
 
@@ -631,6 +653,8 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   projects: [{ name: "Pocket", id: "1" }],
   isLocalized: false,
   localizations: null,
+  requiredExperiments: [],
+  excludedExperiments: [],
 };
 
 export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
@@ -735,6 +759,8 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   countries: [{ name: "Canada", id: "1" }],
   languages: [{ name: "English", id: "1" }],
   projects: [{ name: "Pocket", id: "1" }],
+  requiredExperiments: [],
+  excludedExperiments: [],
 };
 
 export function mockExperiment<
@@ -1049,6 +1075,14 @@ export function mockDirectoryExperimentsQuery(
     },
   };
 }
+
+export const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_experimentsByApplication[] =
+  Array.from(mockDirectoryExperiments().entries()).map(([idx, experiment]) => ({
+    id: idx + 1,
+    name: experiment.name,
+    slug: experiment.slug ?? experiment.name.toLowerCase().replace(" ", "-"),
+    publicDescription: "mock description",
+  }));
 
 // Basically the same as useOutcomes, but uses the mocked config values
 export function mockOutcomeSets(experiment: getExperiment_experimentBySlug): {

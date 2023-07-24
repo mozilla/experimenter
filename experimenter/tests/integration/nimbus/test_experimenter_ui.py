@@ -1,9 +1,11 @@
 import os
+from urllib.parse import urljoin
 
 import pytest
 
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
+from nimbus.utils import helpers
 
 
 @pytest.mark.nimbus_ui
@@ -106,3 +108,187 @@ def test_every_form_page_can_be_resaved(
     audience = metrics.save_and_continue()
     summary = audience.save_and_continue()
     assert summary.experiment_slug is not None
+
+
+@pytest.mark.nimbus_ui
+@pytest.mark.skipif(
+    "FIREFOX_DESKTOP" in os.getenv("PYTEST_ARGS"),
+    reason="Only run for mobile applications",
+)
+def test_first_run_release_date(
+    base_url,
+    selenium,
+    kinto_client,
+    slugify,
+    experiment_name,
+    application,
+):
+    experiment_slug = str(slugify(experiment_name))
+    targeting = helpers.load_targeting_configs(app=application)[0]
+    data = {
+        "hypothesis": "Test Hypothesis",
+        "application": application,
+        "changelogMessage": "test updates",
+        "targetingConfigSlug": targeting,
+        "publicDescription": "Some sort of Fancy Words",
+        "riskRevenue": False,
+        "riskPartnerRelated": False,
+        "riskBrand": False,
+        "featureConfigIds": [2],
+        "referenceBranch": {
+            "description": "reference branch",
+            "name": "Branch 1",
+            "ratio": 50,
+            "featureValues": [
+                {
+                    "featureConfig": "1",
+                    "value": "{}",
+                },
+            ],
+        },
+        "treatmentBranches": [],
+        "firefoxMinVersion": "FIREFOX_120",
+        "populationPercent": "100",
+        "totalEnrolledClients": 55,
+        "isFirstRun": True,
+        "proposedReleaseDate": "2023-12-12",
+    }
+    helpers.create_experiment(
+        experiment_slug,
+        app=application,
+        targeting=targeting,
+        data=data,
+    )
+
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary.launch_and_approve()
+
+    kinto_client.approve()
+
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary.wait_for_live_status()
+
+    assert summary.first_run
+    assert summary.proposed_release_date == "2023-12-12"
+
+
+@pytest.mark.nimbus_ui
+@pytest.mark.skipif(
+    "FIREFOX_DESKTOP" in os.getenv("PYTEST_ARGS"),
+    reason="Only run for mobile applications",
+)
+def test_audience_page_release_date(
+    base_url,
+    selenium,
+    slugify,
+    experiment_name,
+):
+    application = "FENIX"
+    experiment_slug = str(slugify(experiment_name))
+    targeting = helpers.load_targeting_configs(app=application)[0]
+    data = {
+        "hypothesis": "Test Hypothesis",
+        "application": application,
+        "changelogMessage": "test updates",
+        "targetingConfigSlug": targeting,
+        "publicDescription": "Some sort of Fancy Words",
+        "riskRevenue": False,
+        "riskPartnerRelated": False,
+        "riskBrand": False,
+        "featureConfigIds": [2],
+        "referenceBranch": {
+            "description": "reference branch",
+            "name": "Branch 1",
+            "ratio": 50,
+            "featureValues": [
+                {
+                    "featureConfig": "1",
+                    "value": "{}",
+                },
+            ],
+        },
+        "treatmentBranches": [],
+        "firefoxMinVersion": "FIREFOX_120",
+        "populationPercent": "100",
+        "totalEnrolledClients": 55,
+        "isFirstRun": True,
+        "proposedReleaseDate": "2023-12-12",
+    }
+    helpers.create_experiment(
+        experiment_slug,
+        app=application,
+        targeting=targeting,
+        data=data,
+    )
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+
+    audience = summary.navigate_to_audience()
+    assert audience.is_first_run
+    assert audience.proposed_release_date == "2023-12-12"
+
+    audience.make_first_run()
+    summary = audience.save_and_continue()
+
+    assert summary.proposed_release_date == "Not set"
+
+
+@pytest.mark.nimbus_ui
+@pytest.mark.skipif(
+    "FIREFOX_DESKTOP" in os.getenv("PYTEST_ARGS"),
+    reason="Only run for mobile applications",
+)
+def test_summary_timeline_release_date(
+    base_url,
+    selenium,
+    kinto_client,
+    slugify,
+    experiment_name,
+):
+    application = "FENIX"
+    experiment_slug = str(slugify(experiment_name))
+    targeting = helpers.load_targeting_configs(app=application)[0]
+    data = {
+        "hypothesis": "Test Hypothesis",
+        "application": application,
+        "changelogMessage": "test updates",
+        "targetingConfigSlug": targeting,
+        "publicDescription": "Some sort of Fancy Words",
+        "riskRevenue": False,
+        "riskPartnerRelated": False,
+        "riskBrand": False,
+        "featureConfigIds": [2],
+        "referenceBranch": {
+            "description": "reference branch",
+            "name": "Branch 1",
+            "ratio": 50,
+            "featureValues": [
+                {
+                    "featureConfig": "1",
+                    "value": "{}",
+                },
+            ],
+        },
+        "treatmentBranches": [],
+        "firefoxMinVersion": "FIREFOX_120",
+        "populationPercent": "100",
+        "totalEnrolledClients": 55,
+        "isFirstRun": True,
+        "proposedReleaseDate": "2023-12-12",
+    }
+    helpers.create_experiment(
+        experiment_slug,
+        app=application,
+        targeting=targeting,
+        data=data,
+    )
+
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary.launch_and_approve()
+
+    kinto_client.approve()
+
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary.wait_for_live_status()
+
+    summary.wait_for_timeline_visible()
+    summary.wait_for_release_date()

@@ -42,7 +42,7 @@ type NimbusExperimentType {
   hypothesis: String
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
-  featureConfigs: [NimbusFeatureConfigType]
+  featureConfigs: [NimbusFeatureConfigType!]
   warnFeatureSchema: Boolean
   targetingConfigSlug: String
   referenceBranch: NimbusBranchType
@@ -233,6 +233,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_114
   FIREFOX_114_3_0
   FIREFOX_115
+  FIREFOX_115_0_2
   FIREFOX_116
   FIREFOX_117
   FIREFOX_118
@@ -293,9 +294,9 @@ type NimbusFeatureConfigType {
   description: String
   application: NimbusExperimentApplicationEnum
   ownerEmail: String
-  schema: String
-  setsPrefs: Boolean
   enabled: Boolean!
+  setsPrefs: Boolean
+  schema: String
 }
 
 type NimbusBranchType {
@@ -396,7 +397,7 @@ type NimbusConfigurationType {
   channels: [NimbusLabelValueType]
   countries: [NimbusCountryType]
   documentationLink: [NimbusLabelValueType]
-  allFeatureConfigs: [NimbusFeatureConfigType]
+  allFeatureConfigs: [NimbusFeatureConfigType!]
   firefoxVersions: [NimbusLabelValueType]
   hypothesisDefault: String
   locales: [NimbusLocaleType]

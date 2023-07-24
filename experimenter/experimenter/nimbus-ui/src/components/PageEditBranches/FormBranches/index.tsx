@@ -49,7 +49,6 @@ type FormBranchesProps = {
     next: boolean,
   ) => void;
 };
-
 export const FormBranches = ({
   isLoading,
   experiment,
