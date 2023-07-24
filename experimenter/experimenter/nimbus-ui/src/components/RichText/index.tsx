@@ -25,7 +25,11 @@ const RichText = ({ text }: { text: string }) => (
           if (!href.startsWith("http")) {
             href = `https://${href}`;
           }
-          return <LinkExternal {...{ href, key: idx }}>{text}</LinkExternal>;
+          return (
+            <LinkExternal key={idx} {...{ href }}>
+              {text}
+            </LinkExternal>
+          );
         }
 
         if (newlineMatch) {
