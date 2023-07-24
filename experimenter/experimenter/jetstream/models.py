@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Any, Dict, List
 
 from pydantic import BaseModel, create_model
