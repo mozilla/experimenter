@@ -32,6 +32,7 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusVersionedSchema,
 )
+from experimenter.jetstream.models import SampleSizes
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
@@ -209,9 +210,9 @@ class NimbusConfigurationDataClass:
     targetingConfigs: typing.List[TargetingConfigDataClass]
     conclusionRecommendations: typing.List[LabelValueDataClass]
     types: typing.List[LabelValueDataClass]
+    population_sizing_data: SampleSizes
     hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
-    population_sizing_data: str = ""
 
     def __init__(self):
         self.applications = self._enum_to_label_value(NimbusExperiment.Application)
@@ -296,9 +297,7 @@ class NimbusConfigurationDataClass:
 
     def _get_population_sizing_data(self):
         sizing_data = cache.get(SIZING_DATA_KEY)
-        if sizing_data:
-            return sizing_data.json()
-        return "Sizing data not available."
+        return sizing_data if sizing_data else "Sizing data not available."
 
     def _get_owners(self):
         owners = (
