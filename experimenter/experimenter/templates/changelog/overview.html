@@ -5,17 +5,17 @@
 {% endblock %}
 
 {% block content %}
-  <div class="p-6">
-    <h1 class="text-3xl font-bold">Changes Overview</h1>
-    <p>Experiment Slug: {{ experiment.slug }}</p>
-    <div class="py-2 space-y-2">
-      {% for changelog in experiment.get_changelogs %}
-      <div class="bg-gray-200 rounded-md p-2">
-          <h2 class="font-semibold">{{ changelog.changed_on }}</h2>
-          <p><span class="fa-regular fa-pen-to-square"></span> : {{ changelog.message }}</p>  
-          <p><span class="fa-regular fa-user"></span> : {{ changelog.changed_by }}</p>
-      </div>
-      {% endfor %}
+<div class="w-5/6 p-4">
+  <h1 class="text-3xl">Changes Overview</h1>
+  <p>Experiment Slug: {{ experiment.slug }}</p>
+  <div class="py-2 space-y-2">
+    {% for changelog in experiment.get_changelogs %}
+    <div>
+        <h2 class="font-semibold">{{ changelog.changed_on }}</h2>
+        <p>Change made: {{ changelog.message }}</p>  
+        <p>Changed by: {{ changelog.changed_by }}</p>
     </div>
+  {% endfor %}
   </div>
+</div>
 {% endblock %}
