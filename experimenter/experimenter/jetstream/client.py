@@ -6,12 +6,7 @@ from itertools import chain
 
 from django.conf import settings
 from django.core.files.storage import default_storage
-from mozilla_nimbus_schemas.jetstream import (
-    AnalysisErrors,
-    Metadata,
-    SampleSizes,
-    Statistics,
-)
+from mozilla_nimbus_schemas.jetstream import AnalysisErrors, Metadata, Statistics
 
 from experimenter.jetstream.models import (
     METRIC_GROUP,
@@ -19,6 +14,7 @@ from experimenter.jetstream.models import (
     Group,
     JetstreamData,
     Metric,
+    SampleSizes,
     Segment,
     Statistic,
     create_results_object_model,
