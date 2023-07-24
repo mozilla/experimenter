@@ -12,7 +12,11 @@
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
 </head>
 <body>
-    {% block content %}
-    {% endblock %}
+    {% include "common/header.html"%}
+    <div class="h-full min-h-screen w-full flex flex-col justify-start items-center">
+        {% block content %}
+        {% endblock %}
+    </div>
+    {% include "common/footer.html"%}
 </body>
 </html>
