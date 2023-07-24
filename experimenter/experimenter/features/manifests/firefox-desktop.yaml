@@ -829,18 +829,6 @@ upgradeDialog:
       fallbackPref: browser.startup.upgradeDialog.enabled
       description: Is the feature enabled?
 
-readerMode:
-  description: Firefox Reader Mode
-  owner: sdowne@getpocket.com
-  hasExposure: false
-  isEarlyStartup: true
-  variables:
-    pocketCTAVersion:
-      type: string
-      fallbackPref: reader.pocket.ctaVersion
-      description: >-
-        What version of Pocket CTA to show in Reader Mode (Empty string is no
-        CTA)
 cfr:
   description: "A Firefox Messaging System message for the cfr message channel"
   owner: omc@mozilla.com
@@ -1667,3 +1655,22 @@ firefoxViewNext:
       type: boolean
       fallbackPref: "browser.tabs.firefox-view-next"
       description: "Whether or not to enable the new Firefox View"
+
+backgroundUpdate:
+  description: Prefs to control aspects of the background update process.
+  owner: install-update@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    The exposure event is sent when scheduling the background task and both the
+    feature is enabled and the service registry key (Mozilla Maintenance
+    Service) is *not* available for this installation. That is the first time
+    the feature can impact Firefox behaviour and the user experience.
+  isEarlyStartup: false
+  variables:
+    allowUpdatesForUnelevatedInstallions:
+      description: >-
+        Allow the background update process to download and apply updates when
+        the Mozilla Maintenance Service is unavailable but the installation
+        directory can be written.
+      type: boolean
+      fallbackPref: app.update.background.allowUpdatesForUnelevatedInstallations
