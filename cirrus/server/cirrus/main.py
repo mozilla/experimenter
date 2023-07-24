@@ -2,20 +2,20 @@ import logging
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, NamedTuple
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
 from fastapi import FastAPI, HTTPException, status
 from fml_sdk import FmlError  # type: ignore
-from pydantic import BaseModel
-
 from glean import Configuration, Glean, load_metrics, load_pings  # type: ignore
+from pydantic import BaseModel
 
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
 from .sdk import SDK
 from .settings import (
+    app_id,
     channel,
     context,
     fml_path,
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 class FeatureRequest(BaseModel):
     client_id: str
-    context: Dict[str, Any]
+    context: dict[str, Any]
 
 
 @asynccontextmanager
@@ -109,6 +109,49 @@ def initialize_glean():
     return pings, metrics
 
 
+class EnrollmentMetricData(NamedTuple):
+    experiment_slug: str
+    branch_slug: str
+    experiment_type: str
+
+
+def collate_enrollment_metric_data(
+    enrolled_partial_configuration: dict[str, Any]
+) -> list[EnrollmentMetricData]:
+    events: list[dict[str, Any]] = enrolled_partial_configuration.get("events", [])
+    data: list[EnrollmentMetricData] = []
+    for event in events:
+        if event.get("change") == "Enrollment":
+            experiment_slug = event.get("experiment_slug", "")
+            branch_slug = event.get("branch_slug", "")
+            experiment_type = app.state.remote_setting.get_recipe_type(experiment_slug)
+            data.append(
+                EnrollmentMetricData(
+                    experiment_slug=experiment_slug,
+                    branch_slug=branch_slug,
+                    experiment_type=experiment_type,
+                )
+            )
+    return data
+
+
+def record_metrics(enrolled_partial_configuration: dict[str, Any], client_id: str):
+    metrics = collate_enrollment_metric_data(
+        enrolled_partial_configuration=enrolled_partial_configuration
+    )
+    for experiment_slug, branch_slug, experiment_type in metrics:
+        app.state.metrics.cirrus_events.enrollment.record(
+            app.state.metrics.cirrus_events.EnrollmentExtra(
+                user_id=client_id,
+                app_id=app_id,
+                experiment=experiment_slug,
+                branch=branch_slug,
+                experiment_type=experiment_type,
+            )
+        )
+    app.state.pings.enrollment.submit()
+
+
 app = FastAPI(lifespan=lifespan)
 
 
@@ -130,16 +173,22 @@ async def compute_features(request_data: FeatureRequest):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Context value is missing or empty",
         )
-    targeting_context: Dict[str, Any] = {
+    targeting_context: dict[str, Any] = {
         "clientId": request_data.client_id,
         "requestContext": request_data.context,
     }
-    enrolled_partial_configuration: Dict[str, Any] = app.state.sdk.compute_enrollments(
+    enrolled_partial_configuration: dict[str, Any] = app.state.sdk.compute_enrollments(
         targeting_context
     )
-    client_feature_configuration: Dict[
+
+    client_feature_configuration: dict[
         str, Any
     ] = app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
+
+    record_metrics(
+        enrolled_partial_configuration=enrolled_partial_configuration,
+        client_id=request_data.client_id,
+    )
 
     return client_feature_configuration
 
