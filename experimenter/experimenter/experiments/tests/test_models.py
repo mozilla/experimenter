@@ -2230,6 +2230,37 @@ class TestNimbusExperiment(TestCase):
                 )
         return child
 
+    def test_get_changelogs_without_prior_change(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        current_datetime = timezone.datetime(2021, 1, 1).date()
+        time_format = "%I:%M:%S %p"
+        formatted_timestamp = current_datetime.strftime(time_format)
+
+        experiment_changelogs = experiment.get_changelogs_by_date()
+
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 1)
+        self.assertEqual(
+            experiment_changelogs,
+            [
+                {
+                    "date": current_datetime,
+                    "changes": [
+                        {
+                            "event": "CREATION",
+                            "event_message": (
+                                f"{experiment.owner.get_full_name()} "
+                                f"created this experiment"
+                            ),
+                            "changed_by": experiment.owner.get_full_name(),
+                            "timestamp": formatted_timestamp,
+                        },
+                    ],
+                }
+            ],
+        )
+
     def test_get_changelogs(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment-1",
