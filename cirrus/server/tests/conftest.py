@@ -37,7 +37,7 @@ def remote_settings(sdk):
 
 @fixture
 def sdk():
-    return SDK(context=context)
+    return SDK(context=context, coenrolling_feature_ids=[])
 
 
 @fixture

@@ -40,7 +40,7 @@ from cirrus.sdk import SDK
 )
 def test_invalid_context(context, expected_error_message):
     with pytest.raises(NimbusError) as e:
-        SDK(context=context)
+        SDK(context=context, coenrolling_feature_ids=[])
 
         assert str(e.value).startswith(expected_error_message)
 
