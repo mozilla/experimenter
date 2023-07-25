@@ -49,8 +49,7 @@ async def lifespan(app: FastAPI):
 
 def create_fml():
     try:
-        fml = FML(fml_path=fml_path, channel=channel)
-        return fml
+        return FML(fml_path=fml_path, channel=channel)
     except FmlError as e:  # type: ignore
         logger.error(f"Error occurred during FML creation: {e}")
         sys.exit(1)
@@ -58,8 +57,7 @@ def create_fml():
 
 def create_sdk():
     try:
-        sdk = SDK(context=context)
-        return sdk
+        return SDK(context=context)
     except NimbusError as e:  # type: ignore
         logger.error(f"Error occurred during SDK creation: {e}")
         sys.exit(1)

@@ -112,7 +112,7 @@ def create_recipe():
                 "count": bucket_count,
                 "start": bucket_start,
                 "total": bucket_total,
-                "namespace": feature + "-" + slug,
+                "namespace": f"{feature}-{slug}",
                 "randomizationUnit": bucket_randomization_unit,
             },
             "localizations": None,
