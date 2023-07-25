@@ -48,8 +48,7 @@ class RemoteSettings:
             logger.error(f"Failed to fetch recipes: {e}")
             raise e
 
-        data = response.json().get("data", [])
-        if data:
+        if data := response.json().get("data", []):
             self.update_recipes({"data": data})
             logger.info("Fetched resources")
         else:
