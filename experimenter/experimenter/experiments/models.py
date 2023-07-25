@@ -385,15 +385,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if excluded_experiments := self.excluded_experiments.order_by("id").values_list(
             "slug", flat=True
         ):
-            for slug in excluded_experiments:
-                sticky_expressions.append(f"!('{slug}' in enrollments)")
-
+            sticky_expressions.extend(
+                f"!('{slug}' in enrollments)" for slug in excluded_experiments
+            )
         if required_experiments := self.required_experiments.order_by("id").values_list(
             "slug", flat=True
         ):
-            for slug in required_experiments:
-                sticky_expressions.append(f"'{slug}' in enrollments")
-
+            sticky_expressions.extend(
+                f"'{slug}' in enrollments" for slug in required_experiments
+            )
         if self.is_sticky and sticky_expressions:
             expressions.append(
                 make_sticky_targeting_expression(
