@@ -101,9 +101,12 @@ INSTALLED_APPS = [
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
-    # fontawesome
     "fontawesomefree",
+    "tailwind",
+    "experimenter.theme",
 ]
+
+TAILWIND_APP_NAME = "theme"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -220,6 +223,7 @@ STATICFILES_DIRS = [
     ("scripts", os.path.join(BASE_DIR, "legacy", "legacy-ui", "scripts")),
     ("imgs", os.path.join(BASE_DIR, "legacy", "legacy-ui", "imgs")),
     ("nimbus", os.path.join(BASE_DIR, "nimbus-ui", "build")),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
