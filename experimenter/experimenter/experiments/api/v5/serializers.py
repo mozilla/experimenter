@@ -1064,18 +1064,17 @@ class NimbusExperimentSerializer(
         if (
             experiment.is_rollout
             and validated_data.get("population_percent") != experiment.population_percent
+        ) and (
+            not experiment.is_paused
+            and experiment.status == NimbusExperiment.Status.LIVE
+            and experiment.status_next is None
+            and experiment.publish_status == NimbusExperiment.PublishStatus.IDLE
+            and validated_data.get("publish_status")
+            != NimbusConstants.PublishStatus.REVIEW
         ):
-            if (
-                not experiment.is_paused
-                and experiment.status == NimbusExperiment.Status.LIVE
-                and experiment.status_next is None
-                and experiment.publish_status == NimbusExperiment.PublishStatus.IDLE
-                and validated_data.get("publish_status")
-                != NimbusConstants.PublishStatus.REVIEW
-            ):
-                # can be Live Update (Dirty), End Enrollment, or End Experiment
-                # (including rejections) if we don't check validated_data
-                validated_data["is_rollout_dirty"] = True
+            # can be Live Update (Dirty), End Enrollment, or End Experiment
+            # (including rejections) if we don't check validated_data
+            validated_data["is_rollout_dirty"] = True
 
         self.changelog_message = validated_data.pop("changelog_message")
         return super().update(experiment, validated_data)
@@ -1361,33 +1360,29 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def _validate_feature_value_against_schema(
         self, feature_config, value, localizations
     ):
-
         if schema := feature_config.schemas.get(version=None).schema:
             json_schema = json.loads(schema)
             json_value = json.loads(value)
 
-            if localizations:
-                for locale_code, substitutions in localizations.items():
-                    try:
-                        substituted_value = self._substitute_localizations(
-                            json_value, substitutions, locale_code
-                        )
-                    except LocalizationError as e:
-                        return [str(e)]
-
-                    if schema_errors := self._validate_schema(
-                        substituted_value, json_schema
-                    ):
-                        return [
-                            (
-                                f"Schema validation errors occured during locale "
-                                f"substitution for locale {locale_code}"
-                            ),
-                            *schema_errors,
-                        ]
-
-            else:
+            if not localizations:
                 return self._validate_schema(json_value, json_schema)
+
+            for locale_code, substitutions in localizations.items():
+                try:
+                    substituted_value = self._substitute_localizations(
+                        json_value, substitutions, locale_code
+                    )
+                except LocalizationError as e:
+                    return [str(e)]
+
+                if schema_errors := self._validate_schema(substituted_value, json_schema):
+                    return [
+                        (
+                            f"Schema validation errors occured during locale "
+                            f"substitution for locale {locale_code}"
+                        ),
+                        *schema_errors,
+                    ]
 
         return None
 
@@ -1398,20 +1393,19 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             return [e.message]
 
     def _validate_feature_configs(self, data):
-        errors = {}
-
         feature_configs = data.get("feature_configs", [])
 
         warn_feature_schema = data.get("warn_feature_schema", False)
 
-        for feature_config in feature_configs:
-            if self.instance.application != feature_config.application:
-                errors["feature_configs"] = [
-                    f"Feature Config application {feature_config.application} "
-                    f"does not match experiment application "
-                    f"{self.instance.application}."
-                ]
-
+        errors = {
+            "feature_configs": [
+                f"Feature Config application {feature_config.application} "
+                f"does not match experiment application "
+                f"{self.instance.application}."
+            ]
+            for feature_config in feature_configs
+            if self.instance.application != feature_config.application
+        }
         if data.get("is_localized"):
             localizations = json.loads(data.get("localizations"))
         else:
@@ -1492,10 +1486,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 }
             )
 
-        rollout_live_resize_min_app_version = (
+        if rollout_live_resize_min_app_version := (
             NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.get(application)
-        )
-        if rollout_live_resize_min_app_version:
+        ):
             parsed_min_app_version = NimbusExperiment.Version.parse(
                 rollout_live_resize_min_app_version
             )
@@ -1580,9 +1573,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         excluded_experiments = set(data.get("excluded_experiments", []))
         required_experiments = set(data.get("required_experiments", []))
 
-        common = excluded_experiments & required_experiments
-
-        if common:
+        if excluded_experiments & required_experiments:
             raise serializers.ValidationError(
                 {
                     "excluded_experiments": [
@@ -1704,7 +1695,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         except Exception as e:
             raise serializers.ValidationError(
                 {"localizations": [f"Localization schema validation error: {e}"]}
-            )
+            ) from e
 
         experiment_locale_codes = [locale.code for locale in experiment_locales]
         for locale_code in experiment_locale_codes:

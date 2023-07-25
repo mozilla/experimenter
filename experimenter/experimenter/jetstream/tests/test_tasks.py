@@ -1204,9 +1204,7 @@ class TestFetchJetstreamDataTask(TestCase):
                 self.name = filename
 
             def read(self):
-                if "sample_sizes" not in self.name:
-                    return ""
-                return sizing_test_data
+                return "" if "sample_sizes" not in self.name else sizing_test_data
 
         def open_file(filename):
             return File(filename)
@@ -1230,9 +1228,7 @@ class TestFetchJetstreamDataTask(TestCase):
                 self.name = filename
 
             def read(self):
-                if "sample_sizes" not in self.name:
-                    return ""
-                return "{}"
+                return "" if "sample_sizes" not in self.name else "{}"
 
         def open_file(filename):
             return File(filename)
