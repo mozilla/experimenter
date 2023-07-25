@@ -160,7 +160,9 @@ def load_experiment_data(slug):
     )
 
 
-def create_basic_experiment(name, app, targeting, languages=[]):
+def create_basic_experiment(name, app, targeting, languages=None):
+    if languages is None:
+        languages = []
     config_data = load_config_data()
     language_ids = [l["id"] for l in config_data["languages"] if l["code"] in languages]
     load_graphql_data(

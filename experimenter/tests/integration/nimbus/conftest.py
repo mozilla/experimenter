@@ -377,8 +377,7 @@ def fixture_check_ping_for_experiment(trigger_experiment_loader):
                     return True
             time.sleep(5)
             trigger_experiment_loader()
-        else:
-            return False
+        return False
 
     return _check_ping_for_experiment
 
@@ -398,8 +397,7 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
                 for item in _event:
                     if (experiment and event) in item:
                         return True
-            else:
-                raise AssertionError
+            raise AssertionError
         except (AssertionError, TypeError):
             trigger_experiment_loader()
             return False
