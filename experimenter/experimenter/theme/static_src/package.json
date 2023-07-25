@@ -4,11 +4,12 @@
   "description": "",
   "private": true,
   "scripts": {
-    "build": "yarn run build:clean && yarn run build:tailwind",
+    "build": "yarn run build:clean && yarn run build:tailwind  && yarn run webpack",
     "build:clean": "rm -rf ../static/css/dist",
     "build:tailwind": "env NODE_ENV=production tailwindcss --postcss -i ./src/styles.css -o ../static/css/dist/styles.css --minify",
     "dev": "env NODE_ENV=development tailwindcss --postcss -i ./src/styles.css -o ../static/css/dist/styles.css -w",
-    "tailwindcss": "tailwindcss"
+    "tailwindcss": "tailwindcss",
+    "webpack": "webpack --config webpack.config.js"
   },
   "author": "Mozilla",
   "license": "MPL-2.0",
@@ -21,6 +22,11 @@
     "postcss-import": "^15.1.0",
     "postcss-nested": "^6.0.1",
     "postcss-simple-vars": "^7.0.1",
-    "tailwindcss": "^3.3.2"
+    "tailwindcss": "^3.3.2",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "alpinejs": "^3.12.3"
   }
 }
