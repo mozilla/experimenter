@@ -8,7 +8,7 @@ from mozilla_nimbus_schemas.jetstream.statistics import SCHEMA_VERSION, Analysis
 
 
 def nonstrict_json_loads(*args, **kwargs):
-    kwargs.update({"strict": False})
+    kwargs["strict"] = False
     return json.loads(*args, **kwargs)
 
 
@@ -50,9 +50,7 @@ class Metadata(BaseModel):
 
     @validator("analysis_start_time", pre=True)
     def treat_empty_str_as_none(cls, v):
-        if v == "":
-            return None
-        return v
+        return None if v == "" else v
 
     class Config:
         # override json_loads because `description` field in Metric may contain \n

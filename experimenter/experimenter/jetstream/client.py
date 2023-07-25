@@ -316,8 +316,5 @@ def get_experiment_data(experiment):
 
 def get_population_sizing_data():
     sizing_data = get_sizing_data(suffix="latest")
-    sizing = {}
-    if sizing_data is not None:
-        sizing = SampleSizes.parse_obj(sizing_data)
-
+    sizing = SampleSizes.parse_obj(sizing_data) if sizing_data is not None else {}
     return {"v1": sizing}
