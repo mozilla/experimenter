@@ -1338,6 +1338,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def validate_required_experiments(self, value):
         return self._validate_required_or_excluded_experiments(value)
 
+    def validate_feature_configs(self, value):
+        if len(value) > NimbusExperiment.MULTIFEATURE_MAX_FEATURES:
+            raise serializers.ValidationError(
+                NimbusExperiment.ERROR_MULTIFEATURE_TOO_MANY_FEATURES
+            )
+        return value
+
     def _validate_required_or_excluded_experiments(self, value):
         if self.instance and value:
             if self.instance in value:
