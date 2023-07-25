@@ -527,7 +527,7 @@ jobs:
 
   check_schemas:
     docker:
-      - image: cimg/python:3.10.8 # poetry 1.2.2
+      - image: cimg/python:3.10.8-node # poetry 1.2.2
     steps:
       - checkout
       - check_file_paths:

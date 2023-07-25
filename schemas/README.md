@@ -1,21 +1,44 @@
 # Nimbus Schemas
 
-This directory contains a published package of schemas used by different parts of the Mozilla Nimbus experimentation ecosystem.
+This directory contains a package of schemas published to various repositories for use by different parts of the Mozilla Nimbus experimentation ecosystem.
 
-## Versioning
-`mozilla-nimbus-schemas` uses a date-based versioning scheme. The format is `yyyy.m.#`, where `m` is the non-zero-padded month, and `#` is an incrementing number starting from 1 for each month. For example, the second release in June of 2023 would have a version of `2023.6.2`.
 
 ## Installation/Usage
 ### Prerequisites
 - python ^3.10
 - poetry ^1.2.2
+- node ^16
+- yarn ^1.22
 
+#### Common Operations
 From project root (i.e., parent to this directory)
 - Install: `make schemas_install`
 - Run linting and tests: `make schemas_check`
 - Code formatting: `make schemas_code_format`
 
+#### Building Python Schemas Package
+`make schemas_build`
+
+#### Building Typescript Schemas Package
+`make schemas_build_npm`
+
 ## Schemas
 ### Jetstream
 
 Contains schemas describing analysis results, metadata, and errors from [Jetstream](https://github.com/mozilla/jetstream).
+
+
+## Deployment
+The build and deployment occurs automatically through CI. A deployment is triggered on merges into the `main` branch when the version number changes. Schemas are published to various repos for access in different languages.
+
+#### Versioning
+`mozilla-nimbus-schemas` uses a date-based versioning scheme (`CalVer`). The format is `yyyy.m.MINOR`, where `m` is the non-zero-padded month, and `MINOR` is an incrementing number starting from 1 for each month. Notably, this `MINOR` number does NOT correspond to the day of the month. For example, the second release in June of 2023 would have a version of `2023.6.2`.
+
+### Python
+Published to PyPI as `mozilla-nimbus-schemas`
+
+### Typescript
+Published to NPM as `@mozilla/nimbus-schemas`
+
+### Rust
+Not yet implemented.
