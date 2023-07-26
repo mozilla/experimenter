@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from cirrus_sdk import CirrusClient, NimbusError  # type: ignore
 
@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 class SDK:
-    def __init__(self, context: str):
-        self.client = CirrusClient(context)  # does not match struct- throw an exception
+    def __init__(self, context: str, coenrolling_feature_ids: List[str]):
+        self.client = CirrusClient(context, coenrolling_feature_ids)
 
     def compute_enrollments(self, targeting_context: Dict[str, str]) -> Dict[str, Any]:
         try:

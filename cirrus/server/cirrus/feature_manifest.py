@@ -35,3 +35,6 @@ class FeatureManifestLanguage:
             )
 
         return json.loads(merged_res.json)
+
+    def get_coenrolling_feature_ids(self) -> List[str]:
+        return self.fml_client.get_coenrolling_feature_ids()
