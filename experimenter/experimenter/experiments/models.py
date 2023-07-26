@@ -817,6 +817,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             link.experiment = cloned
             link.save()
 
+        cloned.required_experiments.add(*self.required_experiments.all())
+        cloned.excluded_experiments.add(*self.excluded_experiments.all())
+
         cloned.feature_configs.add(*self.feature_configs.all())
         cloned.countries.add(*self.countries.all())
         if self.application == self.Application.DESKTOP:
