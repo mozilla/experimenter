@@ -564,7 +564,6 @@ class TestNimbusExperiment(TestCase):
         JEXLParser().parse(experiment.targeting)
 
     def test_targeting_with_projects(self):
-
         project_mdn = ProjectFactory.create(slug="mdn")
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -2017,6 +2016,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_clone_created_experiment(self):
         owner = UserFactory.create()
+        required_experiment = NimbusExperimentFactory.create()
+        excluded_experiment = NimbusExperimentFactory.create()
         parent = NimbusExperiment.objects.create(
             owner=owner,
             name="Parent Experiment",
@@ -2025,6 +2026,8 @@ class TestNimbusExperiment(TestCase):
             conclusion_recommendation="RERUN",
             takeaways_summary="takeaway",
         )
+        parent.required_experiments.add(required_experiment)
+        parent.excluded_experiments.add(excluded_experiment)
         child = self._clone_experiment_and_assert_common_expectations(parent)
 
         # Specifically assert default values for a clone of a newly-created experiment
@@ -2174,6 +2177,15 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(child.is_rollout, parent.is_rollout)
+
+        self.assertEqual(
+            set(parent.required_experiments.all().values_list("slug", flat=True)),
+            set(child.required_experiments.all().values_list("slug", flat=True)),
+        )
+        self.assertEqual(
+            set(parent.excluded_experiments.all().values_list("slug", flat=True)),
+            set(child.excluded_experiments.all().values_list("slug", flat=True)),
+        )
 
         for parent_link in parent.documentation_links.all():
             child_link = child.documentation_links.get(title=parent_link.title)
