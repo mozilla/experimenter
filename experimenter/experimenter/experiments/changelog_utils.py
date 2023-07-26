@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from experimenter.experiments.models import (
@@ -53,9 +54,12 @@ class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
         exclude = ("id",)
 
 
-def generate_nimbus_changelog(experiment, changed_by, message):
+def generate_nimbus_changelog(experiment, changed_by, message, changed_on=None):
     latest_change = experiment.changes.latest_change()
     experiment_data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
+
+    if not changed_on:
+        changed_on = timezone.now()
 
     old_status = None
     old_status_next = None
@@ -81,4 +85,5 @@ def generate_nimbus_changelog(experiment, changed_by, message):
         experiment_data=experiment_data,
         published_dto_changed=published_dto_changed,
         message=message,
+        changed_on=changed_on,
     )
