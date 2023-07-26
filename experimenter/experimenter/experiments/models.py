@@ -1,6 +1,7 @@
 import copy
 import datetime
 import os.path
+from collections import defaultdict
 from decimal import Decimal
 from typing import Any, Dict
 from urllib.parse import urljoin
@@ -838,8 +839,65 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return cloned
 
-    def get_changelogs(self):
-        return self.changes.all()
+    def get_changelogs_by_date(self):
+        changes_by_date = defaultdict(list)
+        date_option = "%I:%M:%S %p"
+        changelogs = list(
+            self.changes.order_by("-changed_on").prefetch_related("changed_by")
+        )
+
+        for index, changelog in enumerate(changelogs[:-1]):
+            current_data = changelog.experiment_data
+            previous_data = changelogs[index + 1].experiment_data
+            timestamp = changelog.changed_on.strftime(date_option)
+
+            diff_fields = {
+                field: {
+                    "old_value": previous_data.get(field),
+                    "new_value": current_data.get(field),
+                }
+                for field in current_data
+                if (
+                    field != "_updated_date_time"
+                    and field != "published_dto"
+                    and current_data[field] != previous_data.get(field)
+                )
+            }
+
+            for field, field_diff in diff_fields.items():
+                change = {
+                    "event": "GENERAL",
+                    "event_message": (
+                        f"{changelog.changed_by.get_full_name()} "
+                        f"changed value of {field} from "
+                        f"{field_diff['old_value']} to {field_diff['new_value']}"
+                    ),
+                    "changed_by": changelog.changed_by.get_full_name(),
+                    "timestamp": timestamp,
+                }
+
+                changes_by_date[changelog.changed_on.date()].append(change)
+
+        if changelogs:
+            creation_log = changelogs[-1]
+            first_timestamp = creation_log.changed_on.strftime(date_option)
+            change = {
+                "event": "CREATION",
+                "event_message": (
+                    f"{creation_log.changed_by.get_full_name()} "
+                    f"created this experiment"
+                ),
+                "changed_by": creation_log.changed_by.get_full_name(),
+                "timestamp": first_timestamp,
+            }
+            changes_by_date[creation_log.changed_on.date()].append(change)
+
+        transformed_changelogs = [
+            {"date": date, "changes": changes}
+            for date, changes in changes_by_date.items()
+        ]
+
+        return transformed_changelogs
 
 
 class NimbusBranch(models.Model):
