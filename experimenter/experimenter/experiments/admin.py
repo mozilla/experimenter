@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from django import forms
 from django.contrib import admin
@@ -114,7 +114,7 @@ class NimbusExperimentResource(resources.ModelResource):
             return None
         return experiment.conclusion_recommendation
 
-    def before_import_row(self, row: Dict[str, Any], row_number=None, **kwargs):
+    def before_import_row(self, row: dict[str, Any], row_number=None, **kwargs):
         owner_id = row.get("owner")
 
         try:
@@ -256,7 +256,7 @@ class NimbusExperimentBucketRangeInlineAdmin(
 
 class NimbusExperimentAdminForm(forms.ModelForm):
     application = forms.ChoiceField(choices=NimbusExperiment.Application.choices)
-    channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices)
+    channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices, required=False)
     public_description = forms.CharField(required=False, widget=forms.Textarea())
     firefox_min_version = forms.ChoiceField(
         choices=NimbusExperiment.Version.choices, required=False
@@ -264,7 +264,6 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     firefox_max_version = forms.ChoiceField(
         choices=NimbusExperiment.Version.choices, required=False
     )
-    channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices, required=False)
     primary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
     secondary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
     targeting_config_slug = forms.ChoiceField(

@@ -3,7 +3,7 @@ import datetime
 import os.path
 from collections import defaultdict
 from decimal import Decimal
-from typing import Any, Dict
+from typing import Any
 from urllib.parse import urljoin
 from uuid import uuid4
 
@@ -185,10 +185,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     reference_branch = models.OneToOneField["NimbusBranch"](
         "NimbusBranch", blank=True, null=True, on_delete=models.SET_NULL
     )
-    published_dto = models.JSONField[Dict[str, Any]](
+    published_dto = models.JSONField[dict[str, Any]](
         encoder=DjangoJSONEncoder, blank=True, null=True
     )
-    results_data = models.JSONField[Dict[str, Any]](
+    results_data = models.JSONField[dict[str, Any]](
         encoder=DjangoJSONEncoder, blank=True, null=True
     )
     risk_partner_related = models.BooleanField(default=None, blank=True, null=True)
@@ -287,9 +287,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def experiment_url(self):
-        return urljoin(
-            "https://{host}".format(host=settings.HOSTNAME), self.get_absolute_url()
-        )
+        return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
 
     def _get_targeting_min_version(self):
         expressions = []
@@ -989,6 +987,9 @@ class NimbusBranchScreenshot(models.Model):
     class Meta:
         ordering = ["id"]
 
+    def __str__(self):  # pragma: no cover
+        return f"{self.branch}: {self.description}"
+
     def delete(self, *args, **kwargs):
         old_image_name = self.image.name if self.image and self.image.name else None
         super().delete(*args, **kwargs)
@@ -1174,7 +1175,7 @@ class NimbusVersionedSchema(models.Model):
         verbose_name_plural = "Nimbus Versioned Schemas"
         unique_together = ("feature_config", "version")
 
-    def __repr__(self):  # pragma: no cover
+    def __str__(self):  # pragma: no cover
         return (
             f"<NimbusVersionedSchema(feature_config_id={self.feature_config_id}, "
             f"version={self.version!r})>"
@@ -1240,7 +1241,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         max_length=255, choices=NimbusExperiment.PublishStatus.choices
     )
     message = models.TextField(blank=True, null=True)
-    experiment_data = models.JSONField[Dict[str, Any]](
+    experiment_data = models.JSONField[dict[str, Any]](
         encoder=DjangoJSONEncoder, blank=True, null=True
     )
     published_dto_changed = models.BooleanField(default=False)

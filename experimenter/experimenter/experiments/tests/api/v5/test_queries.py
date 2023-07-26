@@ -396,7 +396,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED
         )
         documentation_links = experiment.documentation_links.all()
-        self.assert_(len(documentation_links) > 0)
+        self.assertTrue(len(documentation_links) > 0)
 
         response = self.query(
             """
@@ -2429,7 +2429,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS,
             config["statusUpdateExemptFields"][0],
         )
-        for index, name in enumerate(NimbusExperiment.Version.names):
+        for _index, name in enumerate(NimbusExperiment.Version.names):
             self.assertIn(
                 {"label": NimbusExperiment.Version[name].label, "value": name},
                 config["firefoxVersions"],

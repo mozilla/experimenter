@@ -2292,7 +2292,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             serializer.warnings,
             {
                 "proposed_release_date": [NimbusExperiment.ERROR_FIRST_RUN_RELEASE_DATE],
@@ -2319,7 +2319,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid())
-        self.assertEquals(serializer.warnings, {})
+        self.assertEqual(serializer.warnings, {})
 
     @parameterized.expand([("excluded_experiments",), ("required_experiments",)])
     def test_targeting_exclude_require_self(self, field):
@@ -2341,7 +2341,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
 
         self.assertFalse(serializer.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             serializer.errors,
             {
                 field: [NimbusExperiment.ERROR_EXCLUDED_REQUIRED_INCLUDES_SELF],
@@ -2380,7 +2380,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertEquals(
+        self.assertEqual(
             serializer.is_valid(),
             app1 == app2,
             serializer.errors,
@@ -2389,7 +2389,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             expected_error = (
                 NimbusExperiment.ERROR_EXCLUDED_REQUIRED_DIFFERENT_APPLICATION
             )
-            self.assertEquals(
+            self.assertEqual(
                 serializer.errors,
                 {field: [expected_error.format(slug=other.slug)]},
             )
@@ -2426,7 +2426,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
 
         self.assertFalse(serializer.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             serializer.errors,
             {
                 "firefox_min_version": [
@@ -2460,7 +2460,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
 
         self.assertFalse(serializer.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             serializer.errors,
             {
                 "excluded_experiments": [

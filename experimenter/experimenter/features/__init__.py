@@ -1,7 +1,7 @@
 import json
 import os
 from enum import Enum
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import yaml
 from django.conf import settings
@@ -32,26 +32,26 @@ FEATURE_PYTHON_TYPES = {
 
 
 class FeatureVariable(BaseModel):
-    description: Optional[str]
-    enum: Optional[list[str]]
-    fallbackPref: Optional[str]
-    type: Optional[FeatureVariableType]
-    setPref: Optional[str]
+    description: str | None
+    enum: list[str] | None
+    fallbackPref: str | None
+    type: FeatureVariableType | None
+    setPref: str | None
 
 
 class FeatureSchema(BaseModel):
-    uri: Optional[str]
-    path: Optional[str]
+    uri: str | None
+    path: str | None
 
 
 class Feature(BaseModel):
     applicationSlug: str
-    description: Optional[str]
-    exposureDescription: Optional[Union[Literal[False], str]]
-    isEarlyStartup: Optional[bool]
+    description: str | None
+    exposureDescription: Literal[False] | str | None
+    isEarlyStartup: bool | None
     slug: str
-    variables: Optional[dict[str, FeatureVariable]]
-    schema_paths: Optional[FeatureSchema] = Field(alias="schema")
+    variables: dict[str, FeatureVariable] | None
+    schema_paths: FeatureSchema | None = Field(alias="schema")
 
     def load_remote_jsonschema(self):
         if self.schema_paths:

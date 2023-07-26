@@ -128,7 +128,7 @@ class LabelValueDataClass:
 @dataclass
 class ApplicationConfigDataClass:
     application: str
-    channels: typing.List[LabelValueDataClass]
+    channels: list[LabelValueDataClass]
 
 
 @dataclass
@@ -150,10 +150,10 @@ class FeatureConfigDataClass:
     id: int
     name: str
     slug: str
-    description: typing.Optional[str]
+    description: str | None
     application: str
-    ownerEmail: typing.Optional[str]
-    schema: typing.Optional[str]
+    ownerEmail: str | None
+    schema: str | None
     setsPrefs: bool
     enabled: bool
 
@@ -167,7 +167,7 @@ class UserDataClass:
 class TargetingConfigDataClass:
     label: str
     value: str
-    applicationValues: typing.List[str]
+    applicationValues: list[str]
     description: str
     stickyRequired: bool
     isFirstRunRequired: bool
@@ -187,26 +187,26 @@ class OutcomeDataClass:
     friendlyName: str
     slug: str
     isDefault: bool
-    metrics: typing.List[MetricDataClass]
+    metrics: list[MetricDataClass]
 
 
 @dataclass
 class NimbusConfigurationDataClass:
-    applications: typing.List[LabelValueDataClass]
-    channels: typing.List[LabelValueDataClass]
-    applicationConfigs: typing.List[ApplicationConfigDataClass]
-    countries: typing.List[GeoDataClass]
-    locales: typing.List[GeoDataClass]
-    languages: typing.List[GeoDataClass]
-    projects: typing.List[ProjectDataClass]
-    documentationLink: typing.List[LabelValueDataClass]
-    allFeatureConfigs: typing.List[FeatureConfigDataClass]
-    firefoxVersions: typing.List[LabelValueDataClass]
-    outcomes: typing.List[OutcomeDataClass]
-    owners: typing.List[UserDataClass]
-    targetingConfigs: typing.List[TargetingConfigDataClass]
-    conclusionRecommendations: typing.List[LabelValueDataClass]
-    types: typing.List[LabelValueDataClass]
+    applications: list[LabelValueDataClass]
+    channels: list[LabelValueDataClass]
+    applicationConfigs: list[ApplicationConfigDataClass]
+    countries: list[GeoDataClass]
+    locales: list[GeoDataClass]
+    languages: list[GeoDataClass]
+    projects: list[ProjectDataClass]
+    documentationLink: list[LabelValueDataClass]
+    allFeatureConfigs: list[FeatureConfigDataClass]
+    firefoxVersions: list[LabelValueDataClass]
+    outcomes: list[OutcomeDataClass]
+    owners: list[UserDataClass]
+    targetingConfigs: list[TargetingConfigDataClass]
+    conclusionRecommendations: list[LabelValueDataClass]
+    types: list[LabelValueDataClass]
     hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
@@ -393,7 +393,6 @@ class NimbusBranchFeatureValueListSerializer(serializers.ListSerializer):
 
         This enforces that the serialized data is ordered by the feature config ID.
         """
-        super().to_representation
         iterable = data.all() if isinstance(data, models.Manager) else data
 
         return [
@@ -668,7 +667,7 @@ class NimbusStatusValidationMixin:
                     )
 
             for status_field in restrictive_statuses:
-                current_status = getattr(self.instance, "status")
+                current_status = self.instance.status
                 is_locked = current_status not in restrictive_statuses
                 modifying_fields = set(data.keys()) - exempt_fields
                 is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
@@ -1084,11 +1083,13 @@ class NimbusExperimentSerializer(
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["user"],
-                "channel": list(
-                    NimbusExperiment.APPLICATION_CONFIGS[
-                        validated_data["application"]
-                    ].channel_app_id.keys()
-                )[0],
+                "channel": next(
+                    iter(
+                        NimbusExperiment.APPLICATION_CONFIGS[
+                            validated_data["application"]
+                        ].channel_app_id.keys()
+                    )
+                ),
             }
         )
         self.changelog_message = validated_data.pop("changelog_message")
@@ -1198,7 +1199,7 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
                 raise serializers.ValidationError(f"Invalid JSON: {e.msg}") from e
 
         def throw_on_float(item):
-            if isinstance(item, (list, tuple)):
+            if isinstance(item, list | tuple):
                 for i in item:
                     throw_on_float(i)
             elif isinstance(item, dict):

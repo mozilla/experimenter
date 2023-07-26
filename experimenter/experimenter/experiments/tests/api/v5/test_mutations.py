@@ -1,7 +1,7 @@
 import datetime
 import json
+from unittest import mock
 
-import mock
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
@@ -1138,7 +1138,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(result["message"], "success")
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEquals(experiment.proposed_release_date, datetime.date(2023, 12, 12))
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 12, 12))
 
     def test_update_conclusion_recommendation_null(self):
         user_email = "user@example.com"

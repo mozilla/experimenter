@@ -37,7 +37,6 @@ class AudiencePage(ExperimenterBase):
         By.CSS_SELECTOR,
         "div[data-testid='languages'] > div:nth-child(1)",
     )
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
     _first_run_checkbox_locator = (By.CSS_SELECTOR, '[data-testid="isFirstRun"]')
     _release_date_locator = (By.CSS_SELECTOR, '[data-testid="proposedReleaseDate"]')
 

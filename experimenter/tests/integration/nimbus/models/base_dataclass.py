@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional
 
 
 class BaseExperimentApplications(Enum):
@@ -28,18 +27,18 @@ class BaseExperimentBranchDataClass:
 class BaseExperimentAudienceDataClass:
     channel: BaseExperimentAudienceChannels
     min_version: int
-    targeting: Optional[str]
+    targeting: str | None
     percentage: float
     expected_clients: int
-    locale: Optional[str]
-    countries: Optional[str]
-    languages: Optional[str]
+    locale: str | None
+    countries: str | None
+    languages: str | None
 
 
 @dataclass
 class BaseExperimentMetricsDataClass:
-    primary_outcomes: Optional[List[str]]
-    secondary_outcomes: Optional[List[str]]
+    primary_outcomes: list[str] | None
+    secondary_outcomes: list[str] | None
 
 
 @dataclass
@@ -48,7 +47,7 @@ class BaseExperimentDataClass:
     hypothesis: str
     application: BaseExperimentApplications
     public_description: str
-    branches: Optional[List[BaseExperimentBranchDataClass]]
+    branches: list[BaseExperimentBranchDataClass] | None
     metrics: BaseExperimentMetricsDataClass
     audience: BaseExperimentAudienceDataClass
     feature_config_id: str

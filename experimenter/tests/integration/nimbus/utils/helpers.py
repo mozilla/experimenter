@@ -1,6 +1,6 @@
 import json
 import time
-from functools import lru_cache
+from functools import cache
 
 import requests
 
@@ -23,7 +23,7 @@ def load_graphql_data(query):
             time.sleep(LOAD_DATA_RETRY_DELAY)
 
 
-@lru_cache(maxsize=None)
+@cache
 def load_config_data():
     return load_graphql_data(
         {

@@ -2,8 +2,8 @@ import datetime
 import os.path
 from decimal import Decimal
 from itertools import product
+from unittest import mock
 
-import mock
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
@@ -694,7 +694,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            ("(app_version|versionCompare('101.*') <= 0) " f"&& {sticky_expression}"),
+            f"(app_version|versionCompare('101.*') <= 0) && {sticky_expression}",
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -2338,7 +2338,7 @@ class TestNimbusExperiment(TestCase):
                         {
                             "event": "CREATION",
                             "event_message": (
-                                f"{user.get_full_name()} " f"created this experiment"
+                                f"{user.get_full_name()} created this experiment"
                             ),
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_1,

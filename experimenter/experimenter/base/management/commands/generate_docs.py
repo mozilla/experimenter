@@ -45,7 +45,7 @@ class Command(BaseCommand):
         swagger_html_path = os.path.join(docs_dir, "swagger-ui.html")
 
         if options["check"]:
-            with open(schema_json_path, "r") as f:
+            with open(schema_json_path) as f:
                 old_json = f.read()
                 if json.loads(api_json) != json.loads(old_json):
                     raise ValueError("Api Schemas have changed and have not been updated")

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 from pydantic import BaseModel, create_model
 
@@ -90,7 +90,7 @@ class JetstreamData(BaseModel):
             The list should be filtered as needed coming in (e.g., by a given segment).
     """
 
-    __root__: List[JetstreamDataPoint] = []
+    __root__: list[JetstreamDataPoint] = []
 
     def __iter__(self):
         return iter(self.__root__)
@@ -169,13 +169,13 @@ class DataPoint(BaseModel):
 
 
 class BranchComparisonData(BaseModel):
-    all: List[DataPoint] = []
+    all: list[DataPoint] = []
     first: DataPoint = DataPoint()
 
 
 class SignificanceData(BaseModel):
-    overall: Dict[str, Any] = {}
-    weekly: Dict[str, Any] = {}
+    overall: dict[str, Any] = {}
+    weekly: dict[str, Any] = {}
 
 
 class MetricData(BaseModel):
@@ -188,7 +188,7 @@ class MetricData(BaseModel):
 
 class ResultsObjectModelBase(BaseModel):
     def __init__(self, result_metrics, data, experiment, window="overall"):
-        super(ResultsObjectModelBase, self).__init__()
+        super().__init__()
 
         for jetstream_data_point in data:
             metric = jetstream_data_point.metric

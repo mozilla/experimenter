@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Dict
 
 from django.conf import settings
 from django.db import models
@@ -27,7 +26,7 @@ class ApplicationConfig:
     name: str
     slug: str
     app_name: str
-    channel_app_id: Dict[str, str]
+    channel_app_id: dict[str, str]
     kinto_collection: str
     randomization_unit: str
 
@@ -168,7 +167,7 @@ class Application(models.TextChoices):
         )
 
 
-class NimbusConstants(object):
+class NimbusConstants:
     class Status(models.TextChoices):
         DRAFT = "Draft"
         PREVIEW = "Preview"

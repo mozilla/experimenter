@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from dataclasses_json import dataclass_json
 
@@ -18,7 +17,7 @@ class BaseAppContextDataClass:
     locale: str
     os: str
     os_version: str
-    android_sdk_version: Optional[str]
-    debug_tag: Optional[str]
-    installation_date: Optional[int]
-    home_directory: Optional[bool]
+    android_sdk_version: str | None
+    debug_tag: str | None
+    installation_date: int | None
+    home_directory: bool | None
