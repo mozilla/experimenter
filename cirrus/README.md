@@ -22,7 +22,7 @@ To set up the Cirrus environment, follow these steps:
    APP_ID=test_app_id
    APP_NAME=test_app_name
    CHANNEL=developer
-   CIRRUS_FML_PATH=./feature_manifest/sample.yml
+   CIRRUS_FML_PATH=./feature_manifest/sample.fml.yaml
    ```
 
    Here's what each variable represents:
@@ -32,7 +32,7 @@ To set up the Cirrus environment, follow these steps:
    - `APP_ID`: Replace `test_app_id` with the actual ID of your application for example `firefox-desktop`.
    - `APP_NAME`: Replace `test_app_name` with the desired name for your application for example `firefox_desktop`.
    - `CHANNEL`: Replace `developer` with the channel like `beta`, `release` etc.
-   - `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.yml` or specify the correct path to your feature manifest file.
+   - `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.fml.yaml` or specify the correct path to your feature manifest file.
 
    Adjust the values of these variables according to your specific configuration requirements.
 

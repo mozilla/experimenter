@@ -1,0 +1,14 @@
+about:
+  description: Nimbus Feature Manifest with coenrolling features for Python Testing
+channels:
+  - nightly
+  - developer
+features:
+  coenrolling-feature:
+    description: A coenrolling feature
+    allow-coenrollment: true
+    variables:
+      map:
+        description: An extensible map
+        type: Map<String, String>
+        default: {}
