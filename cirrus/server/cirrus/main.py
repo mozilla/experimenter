@@ -2,7 +2,7 @@ import logging
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import Any, List, NamedTuple
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
@@ -55,7 +55,7 @@ def create_fml():
         sys.exit(1)
 
 
-def create_sdk(coenrolling_feature_ids):
+def create_sdk(coenrolling_feature_ids: List[str]):
     try:
         return SDK(context=context, coenrolling_feature_ids=coenrolling_feature_ids)
     except NimbusError as e:  # type: ignore
