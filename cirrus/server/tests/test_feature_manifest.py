@@ -179,3 +179,8 @@ def test_compute_feature_configurations_targeting_doesnt_match(fml_setup):
 
     assert result == {"example-feature": {"enabled": False, "something": "wicked"}}
     assert len(fml.merge_errors) == 0
+
+
+def test_coenrolling_feature_ids(fml_with_coenrolling_features):
+    fml = fml_with_coenrolling_features
+    assert fml.get_coenrolling_feature_ids() == ["coenrolling-feature"]

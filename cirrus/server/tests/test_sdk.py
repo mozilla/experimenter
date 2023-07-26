@@ -108,3 +108,19 @@ def test_set_experiments_failure_invalid_malform_key(sdk, recipes):
         "enrollments": [],
         "events": [],
     }
+
+
+def test_coenrolling_feature_recipes(recipes_with_coenrolling_features):
+    targeting_context = {"clientId": "test", "requestContext": {}}
+    context = {"app_id": "org.mozilla.test", "app_name": "test_app", "channel": "release"}
+    feature_id = "coenrolling-feature"
+    sdk = SDK(context=json.dumps(context), coenrolling_feature_ids=[feature_id])
+    sdk.set_experiments(recipes_with_coenrolling_features)
+    result = sdk.compute_enrollments(targeting_context)
+
+    assert result["enrolledFeatureConfigMap"][feature_id]["feature"]["value"] == {
+        "map": {
+            "experiment-1": "experiment-1",
+            "experiment-2": "experiment-2",
+        }
+    }

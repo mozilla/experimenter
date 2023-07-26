@@ -1,3 +1,4 @@
+import json
 from unittest import mock
 
 from fastapi.testclient import TestClient
@@ -51,6 +52,16 @@ def fml():
 
 
 @fixture
+def fml_with_coenrolling_features_path():
+    return "./tests/feature_manifest/sample-with-coenrollment.fml.yaml"
+
+
+@fixture
+def fml_with_coenrolling_features(fml_with_coenrolling_features_path):
+    return FeatureManifestLanguage(fml_with_coenrolling_features_path, channel)
+
+
+@fixture
 def exception():
     return Exception("some error")
 
@@ -73,6 +84,7 @@ def create_recipe():
         app_name="test_app",
         channel="release",
         feature="test-feature",
+        value={"enabled": True},
         is_rollout=False,
         targeting="true",
         bucket_count=10000,
@@ -94,7 +106,7 @@ def create_recipe():
                     "ratio": 1,
                     "features": [
                         {
-                            "value": {"enabled": True},
+                            "value": value,
                             "featureId": feature,
                         }
                     ],
@@ -147,3 +159,20 @@ def recipes(create_recipe):
             ),
         ]
     }
+
+
+@fixture
+def recipes_with_coenrolling_features(create_recipe):
+    value = {"map": {"{experiment}": "{experiment}"}}
+    return json.dumps(
+        {
+            "data": [
+                create_recipe(
+                    slug="experiment-1", feature="coenrolling-feature", value=value
+                ),
+                create_recipe(
+                    slug="experiment-2", feature="coenrolling-feature", value=value
+                ),
+            ]
+        }
+    )
