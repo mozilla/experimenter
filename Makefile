@@ -249,6 +249,10 @@ cirrus_typecheck_createstub: cirrus_build
 cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
+# nimbus schemas package
+SCHEMAS_VERSION_FILE := schemas/VERSION
+SCHEMAS_VERSION := $(shell cat ${SCHEMAS_VERSION_FILE})
+
 schemas_install:
 	(cd schemas && poetry install && yarn install)
 
@@ -277,3 +281,7 @@ schemas_build_npm: schemas_install
 
 schemas_deploy_npm: schemas_build_npm
 	cd schemas; yarn publish;
+
+schemas_version:
+	npm --prefix schemas version ${SCHEMAS_VERSION};
+	poetry --directory=schemas version ${SCHEMAS_VERSION};
