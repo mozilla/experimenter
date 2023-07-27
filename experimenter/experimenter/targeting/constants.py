@@ -557,7 +557,7 @@ NO_AUTOFILL_ADDRESSES = NimbusTargetingConfig(
     name="No autofill addresses saved",
     slug="no_autofill_addresses",
     description="Only users who have 0 autofill addresses.",
-    targeting=("(addressesSaved == 0)"),
+    targeting="(addressesSaved == 0)",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -590,7 +590,7 @@ NOT_RELAY_USER_WITH_NO_AUTOFILL_ADDRESSES = NimbusTargetingConfig(
     name="FXA user without Relay & no autofill addresses saved",
     slug="not_relay_user_no_autofill_addresses",
     description="FXA user without Relay & no autofill addresses saved",
-    targeting=f"{NOT_RELAY_USER.targeting} && {NO_AUTOFILL_ADDRESSES}",
+    targeting=f"{NOT_RELAY_USER.targeting} && {NO_AUTOFILL_ADDRESSES.targeting}",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -1482,8 +1482,7 @@ class TargetingConstants:
     TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'
 
     TARGETING_CONFIGS = {
-        targeting.slug: targeting
-        for targeting in NimbusTargetingConfig.targeting_configs
+        targeting.slug: targeting for targeting in NimbusTargetingConfig.targeting_configs
     }
 
     TargetingConfig = models.TextChoices(
