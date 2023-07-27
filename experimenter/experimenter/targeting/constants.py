@@ -553,6 +553,17 @@ NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_AUTOFILL_ADDRESSES = NimbusTargetingConfig(
+    name="No autofill addresses saved",
+    slug="no_autofill_addresses",
+    description="Only users who have 0 autofill addresses.",
+    targeting=("(addressesSaved == 0)"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 RELAY_USER = NimbusTargetingConfig(
     name="Relay user",
     slug="relay_user",
@@ -569,6 +580,17 @@ NOT_RELAY_USER = NimbusTargetingConfig(
     slug="not_relay_user",
     description="Excludes users who have Relay",
     targeting=f"!({RELAY_USER.targeting}) && isFxAEnabled && usesFirefoxSync",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NOT_RELAY_USER_WITH_NO_AUTOFILL_ADDRESSES = NimbusTargetingConfig(
+    name="FXA user without Relay & no autofill addresses saved",
+    slug="not_relay_user_no_autofill_addresses",
+    description="FXA user without Relay & no autofill addresses saved",
+    targeting=f"{NOT_RELAY_USER.targeting} && {NO_AUTOFILL_ADDRESSES}",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -1460,7 +1482,8 @@ class TargetingConstants:
     TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'
 
     TARGETING_CONFIGS = {
-        targeting.slug: targeting for targeting in NimbusTargetingConfig.targeting_configs
+        targeting.slug: targeting
+        for targeting in NimbusTargetingConfig.targeting_configs
     }
 
     TargetingConfig = models.TextChoices(
