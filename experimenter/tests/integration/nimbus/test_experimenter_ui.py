@@ -296,8 +296,11 @@ def test_summary_timeline_release_date(
 
 @pytest.mark.nimbus_ui
 @pytest.mark.skipif(
-    os.getenv("PYTEST_ARGS") != "FIREFOX_DESKTOP",
-    reason="Only run for desktop",
+    any(
+        app in os.getenv("PYTEST_ARGS")
+        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID"]
+    ),
+    reason="Only run for non-mobile applications",
 )
 def test_audience_page_release_date_not_visible(
     selenium,
