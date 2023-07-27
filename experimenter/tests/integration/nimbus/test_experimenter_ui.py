@@ -292,3 +292,24 @@ def test_summary_timeline_release_date(
 
     summary.wait_for_timeline_visible()
     summary.wait_for_release_date()
+
+
+@pytest.mark.nimbus_ui
+@pytest.mark.skipif(
+    any(
+        app in os.getenv("PYTEST_ARGS")
+        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID"]
+    ),
+    reason="Only run for non-mobile applications",
+)
+def test_audience_page_release_date_not_visible(
+    selenium,
+    create_experiment,
+):
+    summary = create_experiment(selenium)
+    audience = summary.navigate_to_audience()
+
+    release_date = audience.wait_until_release_date_not_found()
+    assert not release_date
+    first_run = audience.wait_until_first_run_not_found()
+    assert not first_run
