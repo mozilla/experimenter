@@ -19,6 +19,17 @@ commands:
                 echo "No changes in << parameters.paths >>. Skipping tests and linting."
                 circleci-agent step halt
             fi
+  pull_firefox_images:
+    description: "Pull the latest Firefox Selenium images"
+    parameters:
+      firefox_version:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Pull Firefox Selenium Images
+          command: |
+            docker pull mozilla/experimenter:<< parameters.firefox_version >>
 jobs:
   check_experimenter_branch:
     machine:
@@ -76,6 +87,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -98,6 +111,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-beta
       - run:
           name: Run integration tests
           command: |
@@ -120,6 +135,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -141,6 +158,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -162,6 +181,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -183,6 +204,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -204,6 +227,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -225,6 +250,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -247,6 +274,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -269,6 +298,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -323,6 +354,8 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - pull_firefox_images:
+          firefox_version: nimbus-firefox-release
       - run:
           name: Run integration tests
           command: |
@@ -444,21 +477,28 @@ jobs:
       - run:
           name: Save Images
           command: |
+            # Build Firefox
             results=$(sudo ./.circleci/get_firefox_versions.sh)
             mv /home/circleci/experimenter/new_versions.txt /home/circleci/experimenter/old_versions.txt
             cd docker-selenium
             BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
             BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
+
             # Save release
             docker run -d --name firefox-release-build selenium/standalone-firefox:firefox-release
             docker_id=$(docker ps -aqf "name=^firefox-release-build")
             docker cp /home/circleci/experimenter/old_versions.txt $docker_id:/old_versions.txt
+            docker exec $docker_id bash -c "sudo apt-get update && sudo apt-get install -y software-properties-common && sudo add-apt-repository ppa:deadsnakes/nightly && sudo apt-get update && sudo apt-get install -y python3.11 python3.11-venv python3.11-dev"
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-firefox-release
+
             # Save Dev
             docker run -d --name firefox-beta-build selenium/standalone-firefox:firefox-beta
             docker_id=$(docker ps -aqf "name=^firefox-beta-build")
             docker cp /home/circleci/experimenter/old_versions.txt $docker_id:/old_versions.txt
+            docker exec $docker_id bash -c "sudo apt-get update && sudo apt-get install -y software-properties-common && sudo add-apt-repository ppa:deadsnakes/nightly && sudo apt-get update && sudo apt-get install -y python3.11 python3.11-venv python3.11-dev"
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-firefox-beta
+
+            # Push images
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push ${DOCKERHUB_REPO}:nimbus-firefox-beta
             docker push ${DOCKERHUB_REPO}:nimbus-firefox-release
@@ -504,6 +544,7 @@ jobs:
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-rust-image
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push ${DOCKERHUB_REPO}:nimbus-rust-image
+
   check_cirrus:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
@@ -537,7 +578,7 @@ jobs:
           command: |
             make schemas_check
 
-  schemas_deploy:
+  deploy_schemas:
     docker:
       - image: cimg/python:3.10.8 # poetry 1.2.2
     steps:
@@ -592,6 +633,12 @@ workflows:
 
   build:
     jobs:
+      - build_firefox_versions:
+          name: Build Firefox Versions
+          filters:
+            branches:
+              ignore:
+                - main
       - check_experimenter_branch:
           name: Check Experimenter (Branch)
           filters:
@@ -625,6 +672,11 @@ workflows:
               only: main
           requires:
             - Check Cirrus
+      - deploy_schemas:
+          name: Deploy Schemas
+          filters:
+            branches:
+              only: main
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
@@ -697,9 +749,3 @@ workflows:
             branches:
               ignore:
                 - main
-  deploy_schemas:
-    jobs:
-      - schemas_deploy:
-          filters:
-            branches:
-              only: main
