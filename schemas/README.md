@@ -36,13 +36,13 @@ The build and deployment occurs automatically through CI. A deployment is trigge
 
 #### Version Updates
 1. To update the published package versions, update the `VERSION` file in this directory.
-- From the project root, you can run the helper script:
-  - `./scripts/set_schemas_version.sh <version>`
-- Or write to the file:
-  - `echo <version> > ./schemas/VERSION`
-- Or simply edit the file in any text editor.
+  - From the project root, you can run the helper script:
+    - `./scripts/set_schemas_version.sh <version>`
+  - Or write to the file:
+    - `echo <version> > ./schemas/VERSION`
+  - Or simply edit the file in any text editor.
 2. Update the package versions with the new VERSION file:
-- `make schemas_version`
+  - `make schemas_version`
 
 ### Python
 Published to PyPI as `mozilla-nimbus-schemas`
