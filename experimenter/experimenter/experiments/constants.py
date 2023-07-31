@@ -499,3 +499,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     MIN_REQUIRED_VERSION = Version.FIREFOX_96
 
     EXCLUDED_REQUIRED_MIN_VERSION = Version.FIREFOX_116
+
+    MULTIFEATURE_MAX_FEATURES = 20
+    ERROR_MULTIFEATURE_TOO_MANY_FEATURES = (
+        "Multi-feature experiments can only support up to 20 different features."
+    )
