@@ -1051,7 +1051,7 @@ class NimbusIsolationGroup(models.Model):
     application = models.CharField(
         max_length=255, choices=NimbusExperiment.Application.choices
     )
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=2048)
     instance = models.PositiveIntegerField(default=1)
     total = models.PositiveIntegerField(default=NimbusConstants.BUCKET_TOTAL)
 
