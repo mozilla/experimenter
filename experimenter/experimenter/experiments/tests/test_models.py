@@ -2300,7 +2300,7 @@ class TestNimbusExperiment(TestCase):
 
         generate_nimbus_changelog(experiment, user, "publish_status change", timestamp_2)
 
-        experiment.status_next = NimbusExperiment.Status.LIVE
+        experiment.status = NimbusExperiment.Status.PREVIEW
         experiment.save()
 
         generate_nimbus_changelog(experiment, user, "status_next change", timestamp_3)
@@ -2316,20 +2316,20 @@ class TestNimbusExperiment(TestCase):
                     "date": current_date,
                     "changes": [
                         {
-                            "event": "GENERAL",
+                            "event": NimbusConstants.ChangeEvent.STATUS.value,
                             "event_message": (
                                 f"{user.get_full_name()} "
-                                f"changed value of status_next from "
-                                f"None to Live"
+                                f"changed value of Status from "
+                                f"Draft to Preview"
                             ),
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_3,
                         },
                         {
-                            "event": "GENERAL",
+                            "event": NimbusConstants.ChangeEvent.PUBLISH_STATUS.value,
                             "event_message": (
                                 f"{user.get_full_name()} "
-                                f"changed value of publish_status from "
+                                f"changed value of Publish Status from "
                                 f"Idle to Review"
                             ),
                             "changed_by": user.get_full_name(),

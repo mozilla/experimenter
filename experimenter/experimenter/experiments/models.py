@@ -860,16 +860,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 if (
                     field != "_updated_date_time"
                     and field != "published_dto"
+                    and field != "status_next"
                     and current_data[field] != previous_data.get(field)
                 )
             }
 
             for field, field_diff in diff_fields.items():
+                event = NimbusConstants.ChangeEvent.find_enum_by_key(field.upper())
+                fieldName =  event.display_name if event.value != NimbusConstants.ChangeEvent.GENERAL.value else field
                 change = {
-                    "event": "GENERAL",
+                    "event": event.value,
                     "event_message": (
                         f"{changelog.changed_by.get_full_name()} "
-                        f"changed value of {field} from "
+                        f"changed value of {fieldName} from "
                         f"{field_diff['old_value']} to {field_diff['new_value']}"
                     ),
                     "changed_by": changelog.changed_by.get_full_name(),
