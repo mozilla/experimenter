@@ -86,7 +86,7 @@ async def test_enrollment_metrics_recorded_with_compute_features(mocker, recipes
             "channel": "release",
         }
     )
-    sdk = SDK(context=context)
+    sdk = SDK(context=context, coenrolling_feature_ids=[])
 
     request = FeatureRequest(
         client_id="test_client_id", context={"user_id": "test-client-id"}

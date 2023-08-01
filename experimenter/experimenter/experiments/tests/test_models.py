@@ -9,6 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db.models import Q
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
@@ -564,7 +565,6 @@ class TestNimbusExperiment(TestCase):
         JEXLParser().parse(experiment.targeting)
 
     def test_targeting_with_projects(self):
-
         project_mdn = ProjectFactory.create(slug="mdn")
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -2017,6 +2017,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_clone_created_experiment(self):
         owner = UserFactory.create()
+        required_experiment = NimbusExperimentFactory.create()
+        excluded_experiment = NimbusExperimentFactory.create()
         parent = NimbusExperiment.objects.create(
             owner=owner,
             name="Parent Experiment",
@@ -2025,6 +2027,8 @@ class TestNimbusExperiment(TestCase):
             conclusion_recommendation="RERUN",
             takeaways_summary="takeaway",
         )
+        parent.required_experiments.add(required_experiment)
+        parent.excluded_experiments.add(excluded_experiment)
         child = self._clone_experiment_and_assert_common_expectations(parent)
 
         # Specifically assert default values for a clone of a newly-created experiment
@@ -2175,6 +2179,15 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(child.is_rollout, parent.is_rollout)
 
+        self.assertEqual(
+            set(parent.required_experiments.all().values_list("slug", flat=True)),
+            set(child.required_experiments.all().values_list("slug", flat=True)),
+        )
+        self.assertEqual(
+            set(parent.excluded_experiments.all().values_list("slug", flat=True)),
+            set(child.excluded_experiments.all().values_list("slug", flat=True)),
+        )
+
         for parent_link in parent.documentation_links.all():
             child_link = child.documentation_links.get(title=parent_link.title)
             self.assertEqual(child_link.link, parent_link.link)
@@ -2229,11 +2242,111 @@ class TestNimbusExperiment(TestCase):
                 )
         return child
 
+    def test_get_changelogs_without_prior_change(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        current_datetime = timezone.datetime(2021, 1, 1).date()
+        time_format = "%I:%M:%S %p"
+        formatted_timestamp = current_datetime.strftime(time_format)
+
+        experiment_changelogs = experiment.get_changelogs_by_date()
+
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 1)
+        self.assertEqual(
+            experiment_changelogs,
+            [
+                {
+                    "date": current_datetime,
+                    "changes": [
+                        {
+                            "event": "CREATION",
+                            "event_message": (
+                                f"{experiment.owner.get_full_name()} "
+                                f"created this experiment"
+                            ),
+                            "changed_by": experiment.owner.get_full_name(),
+                            "timestamp": formatted_timestamp,
+                        },
+                    ],
+                }
+            ],
+        )
+
     def test_get_changelogs(self):
-        experiment = NimbusExperimentFactory.create(slug="experiment-1")
-        generate_nimbus_changelog(experiment, experiment.owner, "Test message")
-        experiment_changelogs = experiment.get_changelogs()
-        self.assertEqual(experiment_changelogs[0].message, "Test message")
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment-1",
+            published_dto={"id": "experiment", "test": False},
+        )
+        user = UserFactory.create()
+        time_format = "%I:%M:%S %p"
+        current_date = timezone.now().date()
+
+        timestamp_1 = timezone.make_aware(
+            timezone.datetime.combine(current_date, timezone.datetime.min.time())
+        )
+        formatted_timestamp_1 = timestamp_1.strftime(time_format)
+
+        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
+        formatted_timestamp_2 = timestamp_2.strftime(time_format)
+
+        timestamp_3 = timestamp_2 + timezone.timedelta(hours=2)
+        formatted_timestamp_3 = timestamp_3.strftime(time_format)
+
+        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, user, "publish_status change", timestamp_2)
+
+        experiment.status_next = NimbusExperiment.Status.LIVE
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, user, "status_next change", timestamp_3)
+
+        experiment_changelogs = experiment.get_changelogs_by_date()
+
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 3)
+
+        self.assertEqual(
+            experiment_changelogs,
+            [
+                {
+                    "date": current_date,
+                    "changes": [
+                        {
+                            "event": "GENERAL",
+                            "event_message": (
+                                f"{user.get_full_name()} "
+                                f"changed value of status_next from "
+                                f"None to Live"
+                            ),
+                            "changed_by": user.get_full_name(),
+                            "timestamp": formatted_timestamp_3,
+                        },
+                        {
+                            "event": "GENERAL",
+                            "event_message": (
+                                f"{user.get_full_name()} "
+                                f"changed value of publish_status from "
+                                f"Idle to Review"
+                            ),
+                            "changed_by": user.get_full_name(),
+                            "timestamp": formatted_timestamp_2,
+                        },
+                        {
+                            "event": "CREATION",
+                            "event_message": (
+                                f"{user.get_full_name()} " f"created this experiment"
+                            ),
+                            "changed_by": user.get_full_name(),
+                            "timestamp": formatted_timestamp_1,
+                        },
+                    ],
+                }
+            ],
+        )
 
 
 class TestNimbusBranch(TestCase):

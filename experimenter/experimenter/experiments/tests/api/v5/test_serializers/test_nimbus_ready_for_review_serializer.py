@@ -3114,3 +3114,53 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             NimbusExperiment.ERROR_NO_FLOATS_IN_FEATURE_VALUE,
             serializer.errors["reference_branch"]["feature_values"][0]["value"],
         )
+
+    @parameterized.expand(
+        [
+            (20, True),
+            (21, False),
+        ]
+    )
+    def test_multifeature_max_features(self, feature_count, expected_valid):
+        application = NimbusExperiment.Application.DESKTOP
+        features = [
+            NimbusFeatureConfigFactory(application=application)
+            for _ in range(feature_count)
+        ]
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=features,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+        )
+
+        for fv in experiment.reference_branch.feature_values.all():
+            fv.value = "{}"
+            fv.save()
+
+        experiment.branches.exclude(id=experiment.reference_branch.id).delete()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        if expected_valid:
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+        else:
+            self.assertFalse(serializer.is_valid())
+            self.assertEqual(
+                serializer.errors,
+                {
+                    "feature_configs": [
+                        NimbusExperiment.ERROR_MULTIFEATURE_TOO_MANY_FEATURES
+                    ]
+                },
+            )

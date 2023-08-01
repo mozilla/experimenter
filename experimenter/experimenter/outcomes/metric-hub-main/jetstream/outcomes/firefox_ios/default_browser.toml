@@ -18,7 +18,7 @@ friendly_name = "Go To Settings clicks via onboarding card"
 description = """
     Number of clicks on Go To Settings from the default browser onboarding card
 """
-select_expression = "SUM(metrics.counter.default_browser_card_go_to_settings_pressed)"
+select_expression = "SUM(metrics.counter.default_browser_onboarding_go_to_settings_pressed)"
 data_source = "metrics"
 statistics = { bootstrap_mean = { pre_treatments = ["remove_nulls"] }, deciles = { pre_treatments = ["remove_nulls"] } }
 
