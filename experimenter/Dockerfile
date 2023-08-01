@@ -85,6 +85,7 @@ RUN yarn workspace @experimenter/core build
 COPY --from=file-loader /experimenter/experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/nimbus-ui build
 COPY --from=file-loader /experimenter/experimenter/theme/ /experimenter/experimenter/theme/ 
+COPY --from=file-loader /experimenter/experimenter/templates/ /experimenter/experimenter/templates/ 
 RUN yarn --cwd /experimenter/experimenter/theme/static_src build
 
 # Deploy image
@@ -114,3 +115,4 @@ COPY --from=file-loader /experimenter/manage.py /experimenter/manage.py
 COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
 COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
+COPY --from=ui /experimenter/experimenter/theme/static/ /experimenter/experimenter/theme/static/
