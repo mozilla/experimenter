@@ -199,6 +199,12 @@ urlbar:
       type: boolean
       description: >-
         Whether the experiment (or rollout) is related to best match. If true, then the Nimbus exposure event will be recorded when the user first triggers a best match (or would have triggered a best match, for users in the control group). Deprecated, please use `experimentType: "best-match"` instead.
+    mdnFeatureGate:
+      type: boolean
+      setPref: browser.urlbar.mdn.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of the mdn suggestion
+        feature are exposed to the user.
     merinoClientVariants:
       type: string
       fallbackPref: browser.urlbar.merino.clientVariants
@@ -788,6 +794,12 @@ password-autocomplete:
     firefoxRelayIntegration:
       type: boolean
       description: Can show Firefox Relay integration offer?
+
+cm-csv-import:
+  description: Importing logins from CSV files
+  owner: issozi@mozilla.com
+  hasExposure: false
+  variables:
     csvImport:
       type: boolean
       description: Can show CSV Import in about:logins or Migration Wizard
@@ -866,6 +878,20 @@ infobar:
 
 spotlight:
   description: "A Firefox Messaging System message for the spotlight message channel"
+  owner: omc@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
+  isEarlyStartup: false
+  schema:
+    uri: "resource://activity-stream/schemas/MessagingExperiment.schema.json"
+    path: "browser/components/newtab/content-src/asrouter/schemas/MessagingExperiment.schema.json"
+  variables: {}
+
+# Before 117, this feature only included one variable, pdfJsTourProgress. So,
+# the minimum version for messaging experiments using this feature ID is 117.
+featureCallout:
+  description: "A Firefox Messaging System message for the Feature Callout message channel"
   owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
@@ -1125,16 +1151,6 @@ majorRelease2022:
       fallbackPref: "browser.majorrelease.onboarding"
       description: "Whether or not to use the MR2022 onboarding settings."
 
-featureCallout:
-  description: "Prefs that control users' progress through Feature Callout tours"
-  owner: omc@mozilla.com
-  hasExposure: false
-  isEarlyStartup: false
-  variables:
-    pdfJsTourProgress:
-      description: A JSON String representing the intitial state of the pref that holds the progress of the PDF.js feature tour.
-      type: string
-      setPref: "browser.pdfjs.feature-tour"
 browserLowMemoryPrefs:
   description: Prefs which control the browser's behaviour under low memory.
   owner: haftandilian@mozilla.com
@@ -1570,6 +1586,18 @@ shopping2023:
       description: True if the experience is enabled
       type: boolean
       fallbackPref: browser.shopping.experience2023.enabled
+    useOHTTP:
+      description: True if we prefer using OHTTP for these requests.
+      type: boolean
+      fallbackPref: toolkit.shopping.useOHTTP
+    ohttpRelayURL:
+      description: What OHTTP relay URL to use
+      type: string
+      fallbackPref: toolkit.shopping.ohttpRelayURL
+    ohttpConfigURL:
+      description: URL for the OHTTP config to use
+      type: string
+      fallbackPref: toolkit.shopping.ohttpConfigURL
 
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
@@ -1667,7 +1695,7 @@ backgroundUpdate:
     the feature can impact Firefox behaviour and the user experience.
   isEarlyStartup: false
   variables:
-    allowUpdatesForUnelevatedInstallions:
+    allowUpdatesForUnelevatedInstallations:
       description: >-
         Allow the background update process to download and apply updates when
         the Mozilla Maintenance Service is unavailable but the installation

@@ -6,7 +6,12 @@ from itertools import chain
 
 from django.conf import settings
 from django.core.files.storage import default_storage
-from mozilla_nimbus_schemas.jetstream import AnalysisErrors, Metadata, Statistics
+from mozilla_nimbus_schemas.jetstream import (
+    AnalysisErrors,
+    Metadata,
+    SampleSizes,
+    Statistics,
+)
 
 from experimenter.jetstream.models import (
     METRIC_GROUP,
@@ -14,7 +19,6 @@ from experimenter.jetstream.models import (
     Group,
     JetstreamData,
     Metric,
-    SampleSizes,
     Segment,
     Statistic,
     create_results_object_model,
@@ -312,8 +316,5 @@ def get_experiment_data(experiment):
 
 def get_population_sizing_data():
     sizing_data = get_sizing_data(suffix="latest")
-    sizing = {}
-    if sizing_data is not None:
-        sizing = SampleSizes.parse_obj(sizing_data)
-
+    sizing = SampleSizes.parse_obj(sizing_data) if sizing_data is not None else {}
     return {"v1": sizing}

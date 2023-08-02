@@ -20,7 +20,4 @@ features:
         value: { "enabled": true }
       - channel: developer
         value: { "something": "wicked" }
-
-types:
-  objects: {}
-  enums: {}
+        
