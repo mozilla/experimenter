@@ -13,15 +13,14 @@ class TestPopulationSizing(TestCase):
         """Test against known good data."""
         sizing_test_data = """
         {
-            "firefox_desktop:release:['EN-US']:US:108": {
+            "firefox_desktop:release:['EN-US']:US": {
                 "new": {
                     "target_recipe": {
                         "app_id": "firefox_desktop",
                         "channel": "release",
                         "locale": "('EN-US')",
                         "country": "US",
-                        "new_or_existing": "new",
-                        "minimum_version": "108"
+                        "new_or_existing": "new"
                     },
                     "sample_sizes": {
                         "Power0.8EffectSize0.05": {
@@ -55,8 +54,7 @@ class TestPopulationSizing(TestCase):
                         "channel": "release",
                         "locale": "('EN-US')",
                         "country": "US",
-                        "new_or_existing": "existing",
-                        "minimum_version": "108"
+                        "new_or_existing": "existing"
                     },
                     "sample_sizes": {
                         "Power0.8EffectSize0.05": {
