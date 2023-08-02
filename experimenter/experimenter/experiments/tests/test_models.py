@@ -794,12 +794,12 @@ class TestNimbusExperiment(TestCase):
                 [
                     ([], [], "true"),
                     (["foo"], [], "('foo' in enrollments)"),
-                    ([], ["bar"], "(!('bar' in enrollments))"),
+                    ([], ["bar"], "(('bar' in enrollments) == false)"),
                     (
                         ["foo", "bar"],
                         ["baz"],
                         (
-                            "(!('baz' in enrollments)) && "
+                            "(('baz' in enrollments) == false) && "
                             "('foo' in enrollments) && "
                             "('bar' in enrollments)"
                         ),

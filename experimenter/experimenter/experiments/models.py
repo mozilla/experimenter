@@ -386,8 +386,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if excluded_experiments := self.excluded_experiments.order_by("id").values_list(
             "slug", flat=True
         ):
+            # Mobile does not support ! in expressions.
             sticky_expressions.extend(
-                f"!('{slug}' in enrollments)" for slug in excluded_experiments
+                f"('{slug}' in enrollments) == false" for slug in excluded_experiments
             )
         if required_experiments := self.required_experiments.order_by("id").values_list(
             "slug", flat=True
