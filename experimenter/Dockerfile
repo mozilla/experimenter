@@ -116,3 +116,4 @@ COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
 COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
 COPY --from=ui /experimenter/experimenter/theme/static/ /experimenter/experimenter/theme/static/
+COPY --from=ui /experimenter/experimenter/static/scripts/ /experimenter/experimenter/static/scripts/

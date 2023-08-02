@@ -10,6 +10,7 @@
     <title>{% block title %}{% endblock %}</title>
     {% tailwind_css %}
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+    <script defer src="{% static 'scripts/bundle.js' %}"></script>
 </head>
 <body>
     {% include "common/header.html"%}
