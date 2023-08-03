@@ -386,8 +386,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if excluded_experiments := self.excluded_experiments.order_by("id").values_list(
             "slug", flat=True
         ):
+            # Mobile does not support ! in expressions.
             sticky_expressions.extend(
-                f"!('{slug}' in enrollments)" for slug in excluded_experiments
+                f"('{slug}' in enrollments) == false" for slug in excluded_experiments
             )
         if required_experiments := self.required_experiments.order_by("id").values_list(
             "slug", flat=True
@@ -1058,7 +1059,7 @@ class NimbusIsolationGroup(models.Model):
     application = models.CharField(
         max_length=255, choices=NimbusExperiment.Application.choices
     )
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=2048)
     instance = models.PositiveIntegerField(default=1)
     total = models.PositiveIntegerField(default=NimbusConstants.BUCKET_TOTAL)
 
