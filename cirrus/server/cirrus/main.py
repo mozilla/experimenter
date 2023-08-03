@@ -45,6 +45,7 @@ async def lifespan(app: FastAPI):
     yield
     if app.state.scheduler:
         app.state.scheduler.shutdown()
+    Glean.shutdown()
 
 
 def create_fml():
