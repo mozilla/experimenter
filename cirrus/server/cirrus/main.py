@@ -2,7 +2,7 @@ import logging
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import Any, List, NamedTuple
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
@@ -35,9 +35,9 @@ class FeatureRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.sdk = create_sdk()
-    app.state.remote_setting = RemoteSettings(app.state.sdk)
     app.state.fml = create_fml()
+    app.state.sdk = create_sdk(app.state.fml.get_coenrolling_feature_ids())
+    app.state.remote_setting = RemoteSettings(app.state.sdk)
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
     app.state.pings, app.state.metrics = initialize_glean()
@@ -49,17 +49,15 @@ async def lifespan(app: FastAPI):
 
 def create_fml():
     try:
-        fml = FML(fml_path=fml_path, channel=channel)
-        return fml
+        return FML(fml_path=fml_path, channel=channel)
     except FmlError as e:  # type: ignore
         logger.error(f"Error occurred during FML creation: {e}")
         sys.exit(1)
 
 
-def create_sdk():
+def create_sdk(coenrolling_feature_ids: List[str]):
     try:
-        sdk = SDK(context=context)
-        return sdk
+        return SDK(context=context, coenrolling_feature_ids=coenrolling_feature_ids)
     except NimbusError as e:  # type: ignore
         logger.error(f"Error occurred during SDK creation: {e}")
         sys.exit(1)

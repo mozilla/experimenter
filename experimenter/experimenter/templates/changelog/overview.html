@@ -10,34 +10,32 @@
 {% endblock %}
 
 {% block main_content %}
-  <div class="p-8 space-y-4">
-    <div class="mb-6">
-      <h1 class="text-3xl">Changes Overview</h1>
-      <p>Experiment Slug: {{ experiment.slug }}</p>
+  <div class="p-5 sm:p-8 space-y-4">
+    <div class="mb-6 space-y-1">
+      <h1 class="text-2xl sm:text-3xl text-spaceCadet font-medium">Changes Overview</h1>
+      <p class="text-sm sm:text-base text-gray-500">{{ experiment.slug }}</p>
     </div>
-    <div class="flex justify-center max-w-screen-2xl w-full h-full  flex-col items-center px-4">
+    <div class="flex justify-center max-w-screen-2xl w-full h-full  flex-col items-center px-2 sm:px-4">
       <ol class="border-l-2 border-spaceCadet w-full">
-      {% for changelog in experiment.get_changelogs %}
-      <li>
-        <div class="flex-start flex items-center">
-          <div
-            class="-ml-[9px] -mt-2 mr-3 flex h-4 w-4 items-center justify-center rounded-full bg-purple-300"></div>
-          <h4 class="-mt-2 text-xl font-semibold text-spaceCadet">{{ changelog.changed_on }}</h4>
+        {% for changelog in experiment.get_changelogs_by_date  %}
+        <div class="">
+
         </div>
-        <div class="mb-6 ml-6 pb-6">
-          <div class="space-x-1">
-            <i class="fa-regular fa-user"></i>
-            <a
-              href="#!"
-              class="text-sm text-primary transition duration-150 ease-in-out hover:text-darkSlateBlue focus:text-rythm active:text-darkSlateBlue"
-              >{{ changelog.changed_by.get_full_name }}</a>
+        <li class="mb-8">
+          <div class="flex-start flex items-center">
+            <div class="-ml-[9px] -mt-2 mr-3 flex h-4 w-4 items-center justify-center rounded-full bg-purple-300"></div>
+            <h4 class="-mt-2 text-lg sm:text-xl font-semibold text-darkSlateBlue">{{ changelog.date }}</h4>
           </div>
-          <p class="mb-4 mt-2 text-neutral-600">
-            {{ changelog.message }}
-          </p>
-        </div>
-      </li>
-      {% endfor %}
+          {% for change in changelog.changes %}
+          <div class="flex items-center space-x-2 my-2 p-2 ml-6 sm:ml-8 text-sm sm:text-base">
+            <i class="fa-regular fa-circle-check text-rythm"></i>
+            <p class="text-neutral-600">
+              {{ change.event_message }}
+            </p>
+          </div>
+          {% endfor %}
+        </li>
+        {% endfor %}
       </ol>
     </div>
   </div>
