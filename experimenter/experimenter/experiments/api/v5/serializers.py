@@ -11,6 +11,7 @@ from django.core.cache import cache
 from django.db import models, transaction
 from django.db.models import Prefetch
 from django.utils.text import slugify
+from mozilla_nimbus_schemas.jetstream import SampleSizes
 from rest_framework import serializers
 from rest_framework_dataclasses.serializers import DataclassSerializer
 
@@ -32,7 +33,6 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusVersionedSchema,
 )
-from experimenter.jetstream.models import SampleSizes
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
