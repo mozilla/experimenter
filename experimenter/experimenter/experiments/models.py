@@ -867,7 +867,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
             for field, field_diff in diff_fields.items():
                 event = NimbusConstants.ChangeEvent.find_enum_by_key(field.upper())
-                fieldName =  event.display_name if event.value != NimbusConstants.ChangeEvent.GENERAL.value else field
+                fieldName = (
+                    event.display_name
+                    if event.value != NimbusConstants.ChangeEvent.GENERAL.value
+                    else field
+                )
                 change = {
                     "event": event.value,
                     "event_message": (

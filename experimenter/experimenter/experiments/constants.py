@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from typing import Dict
 from enum import Enum
+from typing import Dict
+
 from django.conf import settings
 from django.db import models
 from packaging import version
@@ -500,8 +501,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     EXCLUDED_REQUIRED_MIN_VERSION = Version.FIREFOX_116
 
-
-
     class ChangeEvent(Enum):
         GENERAL = ("GENERAL", "General Change")
         STATUS = ("STATUS_CHANGE", "Status")
@@ -516,10 +515,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
         @classmethod
         def find_enum_by_key(cls, key):
-            # Find the enum member based on the key (e.g., 'STATUS', 'PRIORITY')
             try:
                 return cls[key]
             except KeyError:
-                return cls.GENERAL  # Return GENERAL event by default if not found
-
- 
+                return cls.GENERAL  
