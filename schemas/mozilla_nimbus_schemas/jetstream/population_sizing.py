@@ -43,7 +43,6 @@ class SizingRecipe(BaseModel):
     locale: str
     country: str
     new_or_existing: SizingUserType
-    minimum_version: str
 
 
 class SizingTarget(BaseModel):
