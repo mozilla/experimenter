@@ -20,6 +20,7 @@ class Channel(models.TextChoices):
 class BucketRandomizationUnit(models.TextChoices):
     NORMANDY = "normandy_id"
     NIMBUS = "nimbus_id"
+    USER_ID = "user_id"
 
 
 @dataclass
@@ -124,6 +125,19 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
+APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
+    name="Monitor Web",
+    slug="monitor-web",
+    app_name="monitor_web",
+    channel_app_id={
+        Channel.BETA: "monitor-beta",
+        Channel.RELEASE: "monitor-release",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+)
+
+
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
     "no-feature-klar-ios",
@@ -132,6 +146,7 @@ NO_FEATURE_SLUG = [
     "no-feature-ios",
     "no-feature-fenix",
     "no-feature-firefox-desktop",
+    "no-feature-monitor",
 ]
 
 
@@ -154,6 +169,10 @@ class Application(models.TextChoices):
     KLAR_IOS = (
         APPLICATION_CONFIG_KLAR_IOS.slug,
         APPLICATION_CONFIG_KLAR_IOS.name,
+    )
+    MONITOR = (
+        APPLICATION_CONFIG_MONITOR_WEB.slug,
+        APPLICATION_CONFIG_MONITOR_WEB.name,
     )
 
     @staticmethod
@@ -207,6 +226,7 @@ class NimbusConstants(object):
         Application.KLAR_ANDROID: APPLICATION_CONFIG_KLAR_ANDROID,
         Application.FOCUS_IOS: APPLICATION_CONFIG_FOCUS_IOS,
         Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
+        Application.MONITOR: APPLICATION_CONFIG_MONITOR_WEB,
     }
 
     Channel = Channel

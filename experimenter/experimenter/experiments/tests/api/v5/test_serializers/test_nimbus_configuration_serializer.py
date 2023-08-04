@@ -32,7 +32,8 @@ class TestNimbusConfigurationSerializer(TestCase):
             NimbusFeatureConfigFactory.create(
                 schemas=[
                     NimbusVersionedSchemaFactory.build(
-                        version=None, sets_prefs=["qux.quux.corge", "grault.garply.waldo"]
+                        version=None,
+                        sets_prefs=["qux.quux.corge", "grault.garply.waldo"],
                     )
                 ]
             )
@@ -51,11 +52,12 @@ class TestNimbusConfigurationSerializer(TestCase):
         assertChoices(config["channels"], NimbusExperiment.Channel)
         assertChoices(config["types"], NimbusExperiment.Type)
         assertChoices(
-            config["conclusionRecommendations"], NimbusExperiment.ConclusionRecommendation
+            config["conclusionRecommendations"],
+            NimbusExperiment.ConclusionRecommendation,
         )
         assertChoices(config["firefoxVersions"], NimbusExperiment.Version)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
-        self.assertEqual(len(config["allFeatureConfigs"]), 18)
+        self.assertEqual(len(config["allFeatureConfigs"]), 19)
 
         for application_config_data in config["applicationConfigs"]:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[
