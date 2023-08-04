@@ -16,16 +16,16 @@
         </div>
       </li>
       <li>
-        {% include "components/sidebar_redirect_button.html" with experiment=experiment pageSlug="overview" pageName="Overview" iconClass="fa-solid fa-gear" %}
+        {% include "components/sidebar_navigation_button.html" with experiment=experiment pageSlug="overview" pageName="Overview" iconClass="fa-solid fa-gear" %}
       </li>
       <li>
-        {% include "components/sidebar_redirect_button.html" with experiment=experiment pageSlug="branches" pageName="Branches" iconClass="fa-solid fa-layer-group" %}
+        {% include "components/sidebar_navigation_button.html" with experiment=experiment pageSlug="branches" pageName="Branches" iconClass="fa-solid fa-layer-group" %}
       </li>
       <li>
-        {% include "components/sidebar_redirect_button.html" with experiment=experiment pageSlug="metrics" pageName="Metrics" iconClass="fa-solid fa-arrow-trend-up" %}
+        {% include "components/sidebar_navigation_button.html" with experiment=experiment pageSlug="metrics" pageName="Metrics" iconClass="fa-solid fa-arrow-trend-up" %}
       </li>
       <li>
-        {% include "components/sidebar_redirect_button.html" with experiment=experiment pageSlug="audience" pageName="Audience" iconClass="fa-solid fa-user-group" %}
+        {% include "components/sidebar_navigation_button.html" with experiment=experiment pageSlug="audience" pageName="Audience" iconClass="fa-solid fa-user-group" %}
       </li>
       <li class="px-5">
         <div class="flex flex-row items-center h-8">
@@ -62,36 +62,16 @@
         </div>
       </li>
       <li>
-        <a href="https://experimenter.info/" target="_blank" rel="noreferrer" class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-lenurple pr-6">
-          <span class="inline-flex justify-center items-center ml-4">
-              <i class="fa-solid fa-book"></i>
-          </span>
-          <span class="ml-2 text-sm tracking-wide truncate">Experimenter Documentation</span>
-        </a>
+        {% include "components/sidebar_redirect_button.html" with label="Experimenter Documentation" redirectLink="https://experimenter.info/" iconClass="fa-solid fa-book" %}
       </li>
       <li>
-        <a href="https://mozilla.slack.com/?redir=%2Farchives%2FCF94YGE03" target="_blank" rel="noreferrer" class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-lenurple pr-6">
-          <span class="inline-flex justify-center items-center ml-4">
-              <i class="fa-brands fa-slack"></i>
-          </span>
-          <span class="ml-2 text-sm tracking-wide truncate">#ask-experimenter</span>
-        </a>
+        {% include "components/sidebar_redirect_button.html" with label="#ask-experimenter" redirectLink="https://mozilla.slack.com/?redir=%2Farchives%2FCF94YGE03" iconClass="fa-brands fa-slack" %}
       </li>
       <li>
-        <a href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&issuetype=10097" target="_blank" rel="noreferrer"  class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-lenurple pr-6">
-          <span class="inline-flex justify-center items-center ml-4">
-              <i class="fa-solid fa-message"></i>
-          </span>
-          <span class="ml-2 text-sm tracking-wide truncate">Feedback</span>
-        </a>
+        {% include "components/sidebar_redirect_button.html" with label="Feedback" redirectLink="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&issuetype=10097" iconClass="fa-solid fa-message" %}
       </li>
       <li>
-          <a href="https://github.com/mozilla/experimenter/issues/new" target="_blank" rel="noreferrer" class="flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-lenurple pr-6">
-              <span class="inline-flex justify-center items-center ml-4">
-                  <i class="fa-brands fa-github"></i>
-              </span>            
-              <span class="ml-2 text-sm tracking-wide truncate">File targeting criteria request</span>
-          </a>
+        {% include "components/sidebar_redirect_button.html" with label="File targeting criteria request" redirectLink="https://github.com/mozilla/experimenter/issues/new" iconClass="fa-brands fa-github" %}
       </li>
     </ul>
   </div>
