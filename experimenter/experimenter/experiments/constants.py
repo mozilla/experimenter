@@ -513,6 +513,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         IS_PAUSED = ("BOOLEAN", "Pause Enrollment Flag")
         IS_ARCHIVED = ("BOOLEAN", "Archive Experiment Flag")
         POPULATION_PERCENTAGE = ("LIVE_CHANGE", "Population Percentage")
+        RESULTS_DATA = ("DETAILED_CHANGE", "Results")
 
         def __init__(self, event, display_name):
             self._value_ = event

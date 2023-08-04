@@ -26,6 +26,7 @@ from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
+from experimenter.experiments.change_utils import get_change_object
 
 
 class FilterMixin:
@@ -867,34 +868,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             }
 
             for field, field_diff in diff_fields.items():
-                event = NimbusConstants.ChangeEvent.find_enum_by_key(field.upper())
-                fieldName = (
-                    event.display_name
-                    if event.value != NimbusConstants.ChangeEvent.GENERAL.value
-                    else field
-                )
-                change = {
-                    "event": event.value,
-                    "event_message": (
-                        f"{changelog.changed_by.get_full_name()} "
-                        f"changed value of {fieldName} from "
-                        f"{field_diff['old_value']} to {field_diff['new_value']}"
-                    ),
-                    "changed_by": changelog.changed_by.get_full_name(),
-                    "timestamp": timestamp,
-                }
+                change = get_change_object(field,field_diff,changelog,timestamp)
 
                 changes_by_date[changelog.changed_on.date()].append(change)
 
         if changelogs:
             creation_log = changelogs[-1]
+            if self.parent:
+                message =  (
+                    f"{creation_log.changed_by.get_full_name()} "
+                    f"cloned this experiment from {self.parent.name}"
+                )
+            else:
+                message =  (
+                    f"{creation_log.changed_by.get_full_name()} "
+                    f"created this experiment"
+                )
             first_timestamp = creation_log.changed_on.strftime(date_option)
             change = {
                 "event": "CREATION",
-                "event_message": (
-                    f"{creation_log.changed_by.get_full_name()} "
-                    f"created this experiment"
-                ),
+                "event_message": message,
                 "changed_by": creation_log.changed_by.get_full_name(),
                 "timestamp": first_timestamp,
             }
