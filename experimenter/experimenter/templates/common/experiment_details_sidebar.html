@@ -1,0 +1,78 @@
+<div x-data="redirect"  class="flex  flex-col w-full h-full">
+  <div class="overflow-y-auto overflow-x-hidden flex-grow">
+      <div class="px-5">
+          <a class="flex justify-start space-x-2 items-center text-gray-500" href="{% url 'nimbus-detail' experiment.slug %}">
+            <i class="fa-solid fa-chevron-left h-3"></i>
+            <p class="text-md">Back to Summary</p>
+          </a>
+      </div>
+    <ul class="flex flex-col py-4 space-y-1">
+      <li class="px-5">
+        <div class="flex flex-row items-center h-8">
+          <div class="text-sm w-full  flex flex-row items-center justify-between font-light tracking-wide text-gray-500">
+              Edit
+              <hr class="border-t ml-2 w-full border-gray-200"/>
+          </div>
+        </div>
+      </li>
+      <li>
+        {% include "components/sidebar_navigation_button.html" with experiment=experiment pageSlug="overview" pageName="Overview" iconClass="fa-solid fa-gear" %}
+      </li>
+      <li>
+        {% include "components/sidebar_navigation_button.html" with experiment=experiment pageSlug="branches" pageName="Branches" iconClass="fa-solid fa-layer-group" %}
+      </li>
+      <li>
+        {% include "components/sidebar_navigation_button.html" with experiment=experiment pageSlug="metrics" pageName="Metrics" iconClass="fa-solid fa-arrow-trend-up" %}
+      </li>
+      <li>
+        {% include "components/sidebar_navigation_button.html" with experiment=experiment pageSlug="audience" pageName="Audience" iconClass="fa-solid fa-user-group" %}
+      </li>
+      <li class="px-5">
+        <div class="flex flex-row items-center h-8">
+          <div class="text-sm w-full  flex flex-row items-center justify-between font-light tracking-wide text-gray-500">
+              Actions
+              <hr class="border-t ml-2 w-full border-gray-200"/>
+          </div>
+        </div>
+      </li>
+      <li>
+        <button  disabled
+        class="w-full flex flex-row items-center h-11  text-gray-400 grayscale cursor-not-allowed pr-6">
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-box-archive"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Archive</span>
+        </button>
+      </li>
+      <li>
+        <button  disabled
+        class="w-full flex flex-row items-center h-11  text-gray-400 grayscale cursor-not-allowed pr-6">
+          <span class="inline-flex justify-center items-center ml-4">
+              <i class="fa-solid fa-clone"></i>
+          </span>
+          <span class="ml-2 text-sm tracking-wide truncate">Clone</span>
+        </button>
+      </li>
+      <li class="px-5">
+        <div class="flex flex-row items-center h-8">
+          <div class="text-sm w-full flex flex-row items-center justify-between font-light tracking-wide text-gray-500">
+              Help
+              <hr class="border-t ml-2 w-full border-gray-200"/>
+          </div>
+        </div>
+      </li>
+      <li>
+        {% include "components/sidebar_redirect_button.html" with label="Experimenter Documentation" redirectLink="https://experimenter.info/" iconClass="fa-solid fa-book" %}
+      </li>
+      <li>
+        {% include "components/sidebar_redirect_button.html" with label="#ask-experimenter" redirectLink="https://mozilla.slack.com/?redir=%2Farchives%2FCF94YGE03" iconClass="fa-brands fa-slack" %}
+      </li>
+      <li>
+        {% include "components/sidebar_redirect_button.html" with label="Feedback" redirectLink="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&issuetype=10097" iconClass="fa-solid fa-message" %}
+      </li>
+      <li>
+        {% include "components/sidebar_redirect_button.html" with label="File targeting criteria request" redirectLink="https://github.com/mozilla/experimenter/issues/new" iconClass="fa-brands fa-github" %}
+      </li>
+    </ul>
+  </div>
+</div>
