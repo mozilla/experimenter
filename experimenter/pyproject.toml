@@ -70,6 +70,7 @@ mozilla-nimbus-schemas = "2023.7.1"
 django-redis = "^5.3.0"
 fontawesomefree = "6.4.0"
 django-tailwind = "^3.6.0"
+polyfactory = "2.7.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
