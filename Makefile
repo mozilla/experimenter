@@ -185,7 +185,8 @@ refresh: kill build_dev compose_build
 
 dependabot_approve:
 	echo "Install and configure the Github CLI https://github.com/cli/cli"
-	gh pr list --author experimenter/dependabot | awk '{print $$1}' | xargs -n1 gh pr review -a -b "@dependabot squash and merge"
+	gh pr list | grep "dependabot/" |  awk '{print $$1}' | xargs -n1 gh pr review -a -b "@dependabot squash and merge"
+	gh pr list | grep "dependabot/" |  awk '{print $$1}' | xargs -n1 gh pr merge
 
 # integration tests
 integration_shell:
