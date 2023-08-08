@@ -79,6 +79,7 @@ class ExperimentInput(graphene.InputObjectType):
     secondary_outcomes = graphene.List(graphene.String)
     status = NimbusExperimentStatusEnum()
     status_next = NimbusExperimentStatusEnum()
+    takeaways_metric_gain = graphene.Boolean(required=False)
     takeaways_qbr_learning = graphene.Boolean(required=False)
     takeaways_summary = graphene.String()
     targeting_config_slug = graphene.String()
