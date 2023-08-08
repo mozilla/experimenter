@@ -19,6 +19,7 @@ export const takeawaysEditorFieldNames = [
   "takeawaysSummary",
   "takeawaysQbrLearning",
   "takeawaysMetricGain",
+  "takeawaysGainAmount",
 ] as const;
 
 type TakeawaysEditorFieldName = typeof takeawaysEditorFieldNames[number];
@@ -35,6 +36,7 @@ export const TakeawaysEditor = ({
   takeawaysSummary,
   takeawaysQbrLearning,
   takeawaysMetricGain,
+  takeawaysGainAmount,
   setShowEditor,
   onSubmit,
   submitErrors,
@@ -46,6 +48,7 @@ export const TakeawaysEditor = ({
     takeawaysSummary,
     takeawaysQbrLearning,
     takeawaysMetricGain,
+    takeawaysGainAmount,
   };
 
   type DefaultValues = typeof defaultValues;
@@ -199,6 +202,15 @@ export const TakeawaysEditor = ({
                 {...{ "data-testid": "takeawaysMetricGain" }}
               />
             </Form.Group>
+          </Form.Group>
+          <Form.Group as={Row} controlId="takeaways-gain">
+            <Form.Label className="font-weight-bold">Gain Amount:</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={5}
+              placeholder="Examples: 0.5% gain in retention, or 0.5% gain in days of use"
+              {...formControlAttrs("takeawaysGainAmount")}
+            />
           </Form.Group>
         </Form>
       </FormProvider>

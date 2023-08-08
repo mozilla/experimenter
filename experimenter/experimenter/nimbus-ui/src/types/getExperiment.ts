@@ -188,6 +188,7 @@ export interface getExperiment_experimentBySlug {
   publicDescription: string | null;
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum | null;
   takeawaysMetricGain: boolean;
+  takeawaysGainAmount: string | null;
   takeawaysQbrLearning: boolean;
   takeawaysSummary: string | null;
   owner: getExperiment_experimentBySlug_owner;

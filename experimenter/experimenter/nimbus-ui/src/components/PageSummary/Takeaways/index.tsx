@@ -26,6 +26,7 @@ export const Takeaways = (props: TakeawaysProps) => {
     takeawaysSummary,
     takeawaysQbrLearning,
     takeawaysMetricGain,
+    takeawaysGainAmount,
     isArchived,
   } = props;
 
@@ -76,23 +77,28 @@ export const Takeaways = (props: TakeawaysProps) => {
           </Row>
         </Card.Header>
         <Card.Body>
-          {takeawaysSummary ? (
-            <div data-testid="takeaways-summary-rendered">
-              <ReactMarkdown>{takeawaysSummary}</ReactMarkdown>
-            </div>
-          ) : (
-            <div className="font-weight-bold">
-              Summary: <NotSet />
-            </div>
-          )}
-          <div
-            className="font-weight-bold"
-            data-testid="takeaways-qbr-learning"
-          >
-            QBR Learning: {takeawaysQbrLearning ? "True" : "False"}
+          <div data-testid="summary">
+            <b>Summary: </b>
+            {takeawaysSummary ? (
+              <div data-testid="takeaways-summary-rendered">
+                <ReactMarkdown>{takeawaysSummary}</ReactMarkdown>
+              </div>
+            ) : (
+              <NotSet />
+            )}
           </div>
-          <div className="font-weight-bold" data-testid="takeaways-metric-gain">
-            Promising Metric Gain: {takeawaysMetricGain ? "True" : "False"}
+          <div>
+            <b>QBR Learning:</b> {takeawaysQbrLearning ? "True" : "False"}
+          </div>
+          <div data-testid="gain-amount">
+            <b>Gain Amount:</b>
+            {takeawaysGainAmount ? (
+              <div data-testid="takeaways-gain-amount-rendered">
+                <ReactMarkdown>{takeawaysGainAmount}</ReactMarkdown>
+              </div>
+            ) : (
+              <NotSet />
+            )}
           </div>
         </Card.Body>
       </section>
