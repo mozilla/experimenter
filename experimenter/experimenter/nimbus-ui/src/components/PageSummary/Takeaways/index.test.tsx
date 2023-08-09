@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from "@apollo/client/testing";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
   act as hookAct,
   renderHook,
@@ -28,6 +28,7 @@ import { NimbusExperimentConclusionRecommendationEnum } from "src/types/globalTy
 
 const { experiment } = mockExperimentQuery("demo-slug", {
   takeawaysSummary: "old content",
+  takeawaysQbrLearning: true,
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.RERUN,
 });
 
@@ -39,6 +40,7 @@ const Subject = ({
 );
 
 const takeawaysSummary = "sample *exciting* content";
+const takeawaysQbrLearning = true;
 const conclusionRecommendation =
   NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE;
 const expectedConclusionRecommendationLabel = "Change course";
@@ -59,7 +61,15 @@ describe("Takeaways", () => {
   });
 
   it("renders as expected with content", () => {
-    render(<Subject {...{ takeawaysSummary, conclusionRecommendation }} />);
+    render(
+      <Subject
+        {...{
+          takeawaysSummary,
+          takeawaysQbrLearning,
+          conclusionRecommendation,
+        }}
+      />,
+    );
     expect(screen.queryByTestId("Takeaways")).toBeInTheDocument();
     expect(screen.queryByTestId("TakeawaysEditor")).not.toBeInTheDocument();
     expect(
@@ -75,7 +85,12 @@ describe("Takeaways", () => {
   it("renders takeaways without edit button when experiment is archived", () => {
     render(
       <Subject
-        {...{ takeawaysSummary, conclusionRecommendation, isArchived: true }}
+        {...{
+          takeawaysSummary,
+          takeawaysQbrLearning,
+          conclusionRecommendation,
+          isArchived: true,
+        }}
       />,
     );
     expect(screen.queryByTestId("Takeaways")).toBeInTheDocument();
@@ -94,7 +109,12 @@ describe("Takeaways", () => {
     const setShowEditor = jest.fn();
     render(
       <Subject
-        {...{ setShowEditor, takeawaysSummary, conclusionRecommendation }}
+        {...{
+          setShowEditor,
+          takeawaysSummary,
+          takeawaysQbrLearning,
+          conclusionRecommendation,
+        }}
       />,
     );
     const editButton = screen.getByTestId("edit-takeaways");
@@ -113,7 +133,12 @@ describe("TakeawaysEditor", () => {
   it("renders as expected with content", () => {
     render(
       <Subject
-        {...{ showEditor: true, takeawaysSummary, conclusionRecommendation }}
+        {...{
+          showEditor: true,
+          takeawaysSummary,
+          takeawaysQbrLearning,
+          conclusionRecommendation,
+        }}
       />,
     );
     expect(screen.queryByTestId("TakeawaysEditor")).toBeInTheDocument();
@@ -124,6 +149,7 @@ describe("TakeawaysEditor", () => {
       takeawaysSummary,
       conclusionRecommendation,
     });
+    expect(screen.queryByTestId("takeaways-qbr")).toBeInTheDocument();
   });
 
   it("disables buttons when loading", async () => {
@@ -135,6 +161,7 @@ describe("TakeawaysEditor", () => {
           showEditor: true,
           isLoading: true,
           takeawaysSummary,
+          takeawaysQbrLearning,
           conclusionRecommendation,
         }}
       />,
@@ -148,13 +175,19 @@ describe("TakeawaysEditor", () => {
   });
 
   it("submits form data when save is clicked", async () => {
+    const expected = {
+      takeawaysQbrLearning: takeawaysQbrLearning,
+      takeawaysSummary: takeawaysSummary,
+      conclusionRecommendation: conclusionRecommendation,
+    };
     const onSubmit = jest.fn();
-    render(
+    const { container } = render(
       <Subject
         {...{
           onSubmit,
           showEditor: true,
           takeawaysSummary,
+          takeawaysQbrLearning,
           conclusionRecommendation,
         }}
       />,
@@ -162,7 +195,63 @@ describe("TakeawaysEditor", () => {
     await act(async () => {
       fireEvent.click(screen.getByText("Save"));
     });
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    expect(onSubmit.mock.calls[0][0]).toEqual(expected);
+    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
+  });
+
+  it("updates qbr learning checkbox and saves", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <Subject
+        {...{
+          onSubmit,
+          showEditor: true,
+          takeawaysSummary,
+          takeawaysQbrLearning: false,
+          conclusionRecommendation,
+        }}
+      />,
+    );
+    expect(screen.getByTestId("takeawaysQbrLearning")).not.toBeChecked();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("takeawaysQbrLearning"));
+    });
+
+    expect(screen.getByTestId("takeawaysQbrLearning")).toBeChecked();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText("Save"));
+    });
+
     expect(onSubmit).toHaveBeenCalled();
+    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toBeTruthy();
+
+    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
+  });
+
+  it("submits qbr learning value even if checkbox not changed", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <Subject
+        {...{
+          onSubmit,
+          showEditor: true,
+          takeawaysSummary,
+          takeawaysQbrLearning,
+          conclusionRecommendation,
+        }}
+      />,
+    );
+    expect(screen.getByTestId("takeawaysQbrLearning")).toBeChecked();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText("Save"));
+    });
+
+    expect(onSubmit).toHaveBeenCalled();
+    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
   });
 
   it("hides the editor when cancel is clicked", async () => {
@@ -173,6 +262,7 @@ describe("TakeawaysEditor", () => {
           setShowEditor,
           showEditor: true,
           takeawaysSummary,
+          takeawaysQbrLearning,
           conclusionRecommendation,
         }}
       />,
@@ -194,6 +284,7 @@ describe("TakeawaysEditor", () => {
         {...{
           showEditor: true,
           takeawaysSummary,
+          takeawaysQbrLearning,
           conclusionRecommendation,
           isServerValid: false,
           submitErrors,
@@ -217,11 +308,13 @@ describe("TakeawaysEditor", () => {
 describe("useTakeaways", () => {
   const submitData = {
     takeawaysSummary: "super exciting results",
+    takeawaysQbrLearning: true,
     conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.STOP,
   };
   const mutationVariables = {
     id: experiment.id,
     takeawaysSummary: submitData.takeawaysSummary,
+    takeawaysQbrLearning: submitData.takeawaysQbrLearning,
     conclusionRecommendation: submitData.conclusionRecommendation,
     changelogMessage: CHANGELOG_MESSAGES.UPDATED_TAKEAWAYS,
   };

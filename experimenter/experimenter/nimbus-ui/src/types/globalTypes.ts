@@ -72,6 +72,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_115 = "FIREFOX_115",
   FIREFOX_115_0_2 = "FIREFOX_115_0_2",
   FIREFOX_116 = "FIREFOX_116",
+  FIREFOX_116_0_1 = "FIREFOX_116_0_1",
   FIREFOX_117 = "FIREFOX_117",
   FIREFOX_118 = "FIREFOX_118",
   FIREFOX_119 = "FIREFOX_119",
@@ -258,6 +259,7 @@ export interface ExperimentInput {
   secondaryOutcomes?: (string | null)[] | null;
   status?: NimbusExperimentStatusEnum | null;
   statusNext?: NimbusExperimentStatusEnum | null;
+  takeawaysQbrLearning?: boolean | null;
   takeawaysSummary?: string | null;
   targetingConfigSlug?: string | null;
   totalEnrolledClients?: number | null;

@@ -50,6 +50,7 @@ type NimbusExperimentType {
   riskRevenue: Boolean
   riskBrand: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
+  takeawaysQbrLearning: Boolean!
   takeawaysSummary: String
   isFirstRun: Boolean!
   preventPrefConflicts: Boolean
@@ -235,6 +236,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_115
   FIREFOX_115_0_2
   FIREFOX_116
+  FIREFOX_116_0_1
   FIREFOX_117
   FIREFOX_118
   FIREFOX_119
@@ -500,6 +502,7 @@ input ExperimentInput {
   secondaryOutcomes: [String]
   status: NimbusExperimentStatusEnum
   statusNext: NimbusExperimentStatusEnum
+  takeawaysQbrLearning: Boolean
   takeawaysSummary: String
   targetingConfigSlug: String
   totalEnrolledClients: Int

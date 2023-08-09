@@ -7,7 +7,7 @@ authors = [""]
 [tool.poetry.dependencies]
 python = "^3.10.10"
 ruff = "^0.0.254"
-fastapi = "^0.100.0"
+fastapi = "^0.101.0"
 uvicorn = "^0.23.1"
 pytest = "^7.2.2"
 httpx = "^0.24.1"
@@ -18,7 +18,7 @@ apscheduler = "^3.9.1"
 requests = "^2.31.0"
 pytest-asyncio = "^0.21.0"
 python-decouple = "^3.8"
-glean-sdk = "^53.1.0"
+glean-sdk = "^53.2.0"
 pytest-mock = "^3.11.1"
 mozilla-nimbus-shared = "^2.4.0"
 
