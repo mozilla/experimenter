@@ -1,4 +1,8 @@
-from mozilla_nimbus_schemas.jetstream import AnalysisBasis, Statistic, Statistics
+from mozilla_nimbus_schemas.jetstream import (
+    AnalysisBasis,
+    Statistic,
+    Statistics,
+)
 
 """
 Test cases for statistics schemas:
