@@ -1,7 +1,7 @@
 import json
 from unittest import TestCase
 
-from mozilla_nimbus_schemas.jetstream import SampleSizes, SampleSizesFactory
+from mozilla_nimbus_schemas.jetstream import SampleSizes
 
 """
 Test cases for population sizing schemas.
@@ -87,4 +87,3 @@ class TestPopulationSizing(TestCase):
         """
         sample_sizes = SampleSizes.parse_raw(sizing_test_data)
         self.assertEqual(json.dumps(json.loads(sizing_test_data)), sample_sizes.json())
-s
