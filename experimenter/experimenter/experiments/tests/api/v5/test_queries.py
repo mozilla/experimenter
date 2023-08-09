@@ -2449,7 +2449,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         )
 
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
-        self.assertEqual(len(config["allFeatureConfigs"]), 19)
+        self.assertEqual(len(config["allFeatureConfigs"]), 18)
 
         for application_config_data in config["applicationConfigs"]:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[
