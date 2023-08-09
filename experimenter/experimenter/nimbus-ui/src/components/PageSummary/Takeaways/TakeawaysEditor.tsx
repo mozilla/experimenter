@@ -18,6 +18,7 @@ export const takeawaysEditorFieldNames = [
   "conclusionRecommendation",
   "takeawaysSummary",
   "takeawaysQbrLearning",
+  "takeawaysMetricGain",
 ] as const;
 
 type TakeawaysEditorFieldName = typeof takeawaysEditorFieldNames[number];
@@ -33,6 +34,7 @@ export const TakeawaysEditor = ({
   conclusionRecommendation,
   takeawaysSummary,
   takeawaysQbrLearning,
+  takeawaysMetricGain,
   setShowEditor,
   onSubmit,
   submitErrors,
@@ -43,6 +45,7 @@ export const TakeawaysEditor = ({
     conclusionRecommendation,
     takeawaysSummary,
     takeawaysQbrLearning,
+    takeawaysMetricGain,
   };
 
   type DefaultValues = typeof defaultValues;
@@ -70,9 +73,13 @@ export const TakeawaysEditor = ({
   const [isQbrLearning, setIsQbrLearning] =
     useState<boolean>(takeawaysQbrLearning);
 
+  const [isMetricGain, setIsMetricGain] =
+    useState<boolean>(takeawaysMetricGain);
+
   const handleSave = handleSubmit(async (data: DefaultValues) => {
     if (isLoading) return;
     data.takeawaysQbrLearning = isQbrLearning;
+    data.takeawaysMetricGain = isMetricGain;
     await onSubmit(data);
   });
 
@@ -177,6 +184,19 @@ export const TakeawaysEditor = ({
                 onSubmit={handleSave}
                 id="takeawaysQbrLearning"
                 {...{ "data-testid": "takeawaysQbrLearning" }}
+              />
+            </Form.Group>
+          </Form.Group>
+          <Form.Group as={Row} controlId="takeawaysMetricGain">
+            <Form.Group data-testid="takeaways-metric" className="ml-3">
+              <Form.Check
+                type="checkbox"
+                label="Promising Metric Gains"
+                defaultChecked={isMetricGain ? isMetricGain : false}
+                onChange={(e) => setIsMetricGain(e.target.checked)}
+                onSubmit={handleSave}
+                id="takeawaysMetricGain"
+                {...{ "data-testid": "takeawaysMetricGain" }}
               />
             </Form.Group>
           </Form.Group>
