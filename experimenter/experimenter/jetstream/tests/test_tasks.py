@@ -4,9 +4,8 @@ from unittest.mock import patch
 
 from django.core.cache import cache
 from django.test import TestCase, override_settings
-from mozilla_nimbus_schemas.jetstream import SampleSizes
+from mozilla_nimbus_schemas.jetstream import SampleSizesFactory
 from parameterized import parameterized
-from polyfactory.factories.pydantic_factory import ModelFactory
 
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
@@ -20,10 +19,6 @@ from experimenter.jetstream.tests.constants import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.settings import SIZING_DATA_KEY
-
-
-class SampleSizesFactory(ModelFactory[SampleSizes]):
-    __model__ = SampleSizes
 
 
 @mock_valid_outcomes
@@ -1128,8 +1123,7 @@ class TestFetchJetstreamDataTask(TestCase):
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
     def test_sizing_data_parsed_and_stored(self, mock_exists, mock_open):
-        sizing_data = SampleSizesFactory.build()
-        sizing_test_data = sizing_data.json()
+        sizing_test_data = SampleSizesFactory.build().json()
 
         class File:
             def __init__(self, filename):
@@ -1177,9 +1171,7 @@ class TestFetchJetstreamDataTask(TestCase):
 
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
-    def test_exception_for_fetch_population_sizing_data_empty(
-        self, mock_exists, mock_open
-    ):
+    def test_fetch_population_sizing_data_invalid(self, mock_exists, mock_open):
         class File:
             def __init__(self, filename):
                 self.name = filename
