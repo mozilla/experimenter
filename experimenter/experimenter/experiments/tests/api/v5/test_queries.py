@@ -662,6 +662,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     publicDescription
 
                     conclusionRecommendation
+                    takeawaysQbrLearning
                     takeawaysSummary
 
                     owner {
@@ -1007,6 +1008,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     if experiment.status_next is not None
                     else None
                 ),
+                "takeawaysQbrLearning": experiment.takeaways_qbr_learning,
                 "takeawaysSummary": experiment.takeaways_summary,
                 "targetingConfig": [
                     {
