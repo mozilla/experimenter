@@ -26,7 +26,6 @@ from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
-from experimenter.experiments.change_utils import get_change_object
 
 
 class FilterMixin:
@@ -768,7 +767,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
         return self.publish_status == self.PublishStatus.WAITING and review_expired
 
-    def clone(self, name, user, rollout_branch_slug=None):
+    def clone(self, name, user, rollout_branch_slug=None, changed_on=None):
         # Inline import to prevent circular import
         from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 
@@ -835,13 +834,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 cloned,
                 user,
                 f"Cloned from {self} with rollout branch {rollout_branch_slug}",
+                changed_on,
             )
         else:
-            generate_nimbus_changelog(cloned, user, f"Cloned from {self}")
+            generate_nimbus_changelog(cloned, user, f"Cloned from {self}", changed_on)
 
         return cloned
 
     def get_changelogs_by_date(self):
+        # Inline import to prevent circular import
+        from experimenter.experiments.changelog_utils import get_formatted_change_object
+
         changes_by_date = defaultdict(list)
         date_option = "%I:%M:%S %p"
         changelogs = list(
@@ -868,19 +871,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             }
 
             for field, field_diff in diff_fields.items():
-                change = get_change_object(field,field_diff,changelog,timestamp)
+                change = get_formatted_change_object(
+                    field, field_diff, changelog, timestamp
+                )
 
                 changes_by_date[changelog.changed_on.date()].append(change)
 
         if changelogs:
             creation_log = changelogs[-1]
             if self.parent:
-                message =  (
+                message = (
                     f"{creation_log.changed_by.get_full_name()} "
                     f"cloned this experiment from {self.parent.name}"
                 )
             else:
-                message =  (
+                message = (
                     f"{creation_log.changed_by.get_full_name()} "
                     f"created this experiment"
                 )

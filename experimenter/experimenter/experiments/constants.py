@@ -508,13 +508,49 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
 
     class ChangeEvent(Enum):
-        GENERAL = ("GENERAL", "General Change")
-        STATUS = ("STATUS_CHANGE", "Status")
-        PUBLISH_STATUS = ("PUBLISH_STATUS_CHANGE", "Publish Status")
-        IS_PAUSED = ("BOOLEAN", "Pause Enrollment Flag")
-        IS_ARCHIVED = ("BOOLEAN", "Archive Experiment Flag")
-        POPULATION_PERCENTAGE = ("LIVE_CHANGE", "Population Percentage")
-        RESULTS_DATA = ("DETAILED_CHANGE", "Results")
+        TRIVIAL = ("TRIVIAL", "Trivial Change")
+        STATUS = ("STATE", "Status")
+        PUBLISH_STATUS = ("STATE", "Publish status")
+        IS_PAUSED = ("BOOLEAN", "Pause enrollment flag")
+        IS_ARCHIVED = ("BOOLEAN", "Archive experiment flag")
+        POPULATION_PERCENTAGE = ("DYNAMIC", "Population percentage")
+        RESULTS_DATA = ("DETAILED", "Results")
+        FEATURE_CONFIGS = ("DETAILED", "Experiment's feature configuration")
+        IS_ROLLOUT = ("BOOLEAN", "isRollout flag")
+        PUBLIC_DESCRIPTION = ("GENERAL", "Experiment's description")
+        PROPOSED_DURATION = ("GENERAL", "Experiment's expected duration")
+        PROPOSED_ENROLLMENT = ("GENERAL", "Expected number of enrolled clients")
+        TOTAL_ENROLLED_CLIENTS = ("GENERAL", "Total number of enrolled clients")
+        FIREFOX_MIN_VERSION = ("GENERAL", "Minimum firefox version")
+        FIREFOX_MAX_VERSION = ("GENERAL", "Maximum firefox version")
+        APPLICATION = ("GENERAL", "Application type")
+        CHANNEL = ("GENERAL", "Channel type")
+        LOCALES = ("LIST", "Supported locales")
+        COUNTRIES = ("LIST", "Supported countries")
+        LANGUAGES = ("LIST", "Supported languages")
+        PROJECTS = ("LIST", "Supported projects")
+        PRIMARY_OUTCOMES = ("LIST", "Experiment's primary outcomes")
+        SECONDARY_OUTCOMES = ("LIST", "Experiment's secondary outcomes")
+        _START_DATE = ("DATE_TIME", "Experiment's start date")
+        _END_DATE = ("DATE_TIME", "Experiment's end date")
+        _ENROLLMENT_END_DATE = ("DATE_TIME", "Last date for Enrollment")
+        PROPOSED_RELEASE_DATE = ("DATE_TIME", "Expected experiment release date")
+        REQUIRED_EXPERIMENTS = ("LIST", "List of required experiments")
+        EXCLUDED_EXPERIMENTS = ("LIST", "List of excluded experiments")
+        REFERENCE_BRANCH = ("DETAILED", "Experiment's reference branch")
+        TARGETING_CONFIG_SLUG = ("GENERAL", "Experiment's targeting")
+        RISK_BRAND = ("BOOLEAN", "Is a brand risk flag")
+        RISK_REVENUE = ("BOOLEAN", "Is a revenue risk flag")
+        RISK_PARTNER_RELATED = ("BOOLEAN", "Is a Brand risk flag")
+        CONCLUSION_RECOMMENDATION = ("GENERAL", "Experiment's conclusion")
+        TAKEAWAYS_SUMMARY = ("GENERAL", "Experiment's takeaways")
+        IS_FIRST_RUN = ("BOOLEAN", "Is first run flag")
+        IS_CLIENT_SCHEMA_DISABLED = ("BOOLEAN", "Is client schema disabled flag")
+        LOCALIZATIONS = ("GENERAL", "Experiment's localizations")
+        IS_LOCALIZED = ("BOOLEAN", "Is experiment localized flag")
+        PREVENT_PREF_CONFLICTS = ("BOOLEAN", "Prevent preference conflicts flag")
+        HYPOTHESIS = ("GENERAL", "Experiment's hypothesis")
+        BRANCHES = ("LIST", "Experiment's branches")
 
         def __init__(self, event, display_name):
             self._value_ = event
@@ -525,4 +561,4 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             try:
                 return cls[key]
             except KeyError:
-                return cls.GENERAL  
+                return cls.TRIVIAL

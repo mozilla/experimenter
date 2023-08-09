@@ -2273,6 +2273,47 @@ class TestNimbusExperiment(TestCase):
             ],
         )
 
+    def test_initial_log_of_cloned_experiment(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="test-experiment",
+            published_dto={"id": "experiment", "test": False},
+        )
+        user = UserFactory.create()
+        current_date = timezone.now().date()
+        time_format = "%I:%M:%S %p"
+        timestamp = timezone.make_aware(
+            timezone.datetime.combine(current_date, timezone.datetime.min.time())
+        )
+        formatted_timestamp = timestamp.strftime(time_format)
+
+        cloned_experiment = experiment.clone(
+            "test experiment clone", user, changed_on=timestamp
+        )
+
+        experiment_changelogs = cloned_experiment.get_changelogs_by_date()
+
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 1)
+        self.assertEqual(
+            experiment_changelogs,
+            [
+                {
+                    "date": current_date,
+                    "changes": [
+                        {
+                            "event": "CREATION",
+                            "event_message": (
+                                f"{user.get_full_name()} "
+                                f"cloned this experiment from "
+                                f"{cloned_experiment.parent.name}"
+                            ),
+                            "changed_by": user.get_full_name(),
+                            "timestamp": formatted_timestamp,
+                        },
+                    ],
+                }
+            ],
+        )
+
     def test_get_changelogs(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment-1",
@@ -2329,7 +2370,7 @@ class TestNimbusExperiment(TestCase):
                             "event": NimbusConstants.ChangeEvent.PUBLISH_STATUS.value,
                             "event_message": (
                                 f"{user.get_full_name()} "
-                                f"changed value of Publish Status from "
+                                f"changed value of Publish status from "
                                 f"Idle to Review"
                             ),
                             "changed_by": user.get_full_name(),

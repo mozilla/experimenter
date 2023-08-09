@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -87,3 +88,52 @@ def generate_nimbus_changelog(experiment, changed_by, message, changed_on=None):
         message=message,
         changed_on=changed_on,
     )
+
+
+def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
+    event = NimbusConstants.ChangeEvent.find_enum_by_key(field_name.upper())
+    field_display_name = (
+        event.display_name
+        if event.value != NimbusConstants.ChangeEvent.TRIVIAL.value
+        else field_name
+    )
+
+    old_value = field_diff["old_value"]
+    new_value = field_diff["new_value"]
+
+    if event.value == "LIST" or event.value == "DETAILED":
+        change = {
+            "event": event.value,
+            "event_message": (
+                f"{changelog.changed_by.get_full_name()} "
+                f"changed value of {field_display_name}"
+            ),
+            "changed_by": changelog.changed_by.get_full_name(),
+            "timestamp": timestamp,
+            "old_value": old_value,
+            "new_value": new_value,
+        }
+    elif event.value == "BOOLEAN":
+        change = {
+            "event": event.value,
+            "event_message": (
+                f"{changelog.changed_by.get_full_name()} "
+                f"set the {field_display_name} "
+                f"as {new_value}"
+            ),
+            "changed_by": changelog.changed_by.get_full_name(),
+            "timestamp": timestamp,
+        }
+    else:
+        change = {
+            "event": event.value,
+            "event_message": (
+                f"{changelog.changed_by.get_full_name()} "
+                f"changed value of {field_display_name} from "
+                f"{old_value} to {new_value}"
+            ),
+            "changed_by": changelog.changed_by.get_full_name(),
+            "timestamp": timestamp,
+        }
+
+    return change
