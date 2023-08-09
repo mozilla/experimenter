@@ -41,6 +41,7 @@ const Subject = ({
 );
 
 const takeawaysSummary = "sample *exciting* content";
+const takeawaysGainAmount = "1.5% gain in retention";
 const takeawaysQbrLearning = true;
 const takeawaysMetricGain = false;
 const conclusionRecommendation =
@@ -91,6 +92,7 @@ describe("Takeaways", () => {
         {...{
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysGainAmount,
           conclusionRecommendation,
           isArchived: true,
         }}
@@ -117,6 +119,7 @@ describe("Takeaways", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -142,6 +145,7 @@ describe("TakeawaysEditor", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -152,10 +156,12 @@ describe("TakeawaysEditor", () => {
     const editorForm = screen.getByTestId("FormTakeaways");
     expect(editorForm).toHaveFormValues({
       takeawaysSummary,
+      takeawaysGainAmount,
       conclusionRecommendation,
     });
     expect(screen.queryByTestId("takeaways-qbr")).toBeInTheDocument();
     expect(screen.queryByTestId("takeaways-metric")).toBeInTheDocument();
+    expect(screen.queryByTestId("takeaways-gain")).toBeInTheDocument();
   });
 
   it("disables buttons when loading", async () => {
@@ -169,6 +175,7 @@ describe("TakeawaysEditor", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -183,6 +190,7 @@ describe("TakeawaysEditor", () => {
 
   it("submits form data when save is clicked", async () => {
     const expected = {
+      takeawaysGainAmount: takeawaysGainAmount,
       takeawaysMetricGain: takeawaysMetricGain,
       takeawaysQbrLearning: takeawaysQbrLearning,
       takeawaysSummary: takeawaysSummary,
@@ -195,6 +203,7 @@ describe("TakeawaysEditor", () => {
           onSubmit,
           showEditor: true,
           takeawaysSummary,
+          takeawaysGainAmount,
           takeawaysMetricGain,
           takeawaysQbrLearning,
           conclusionRecommendation,
@@ -204,10 +213,15 @@ describe("TakeawaysEditor", () => {
     await act(async () => {
       fireEvent.click(screen.getByText("Save"));
     });
+
+    const result = onSubmit.mock.calls[0][0];
+
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
-    expect(onSubmit.mock.calls[0][0]).toEqual(expected);
-    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
-    expect(onSubmit.mock.calls[0][0].takeawaysMetricGain).toEqual(false);
+
+    expect(result).toEqual(expected);
+    expect(result.takeawaysQbrLearning).toEqual(true);
+    expect(result.takeawaysMetricGain).toEqual(false);
+    expect(result.takeawaysGainAmount).toEqual(takeawaysGainAmount);
   });
 
   it("updates qbr learning checkbox and saves", async () => {
@@ -220,6 +234,7 @@ describe("TakeawaysEditor", () => {
           takeawaysSummary,
           takeawaysMetricGain: false,
           takeawaysQbrLearning: false,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -267,8 +282,41 @@ describe("TakeawaysEditor", () => {
           onSubmit,
           showEditor: true,
           takeawaysSummary,
+          takeawaysQbrLearning: false,
+          takeawaysGainAmount,
+          conclusionRecommendation,
+        }}
+      />,
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByText("Save"));
+    });
+
+    expect(onSubmit).toHaveBeenCalled();
+
+    const result = onSubmit.mock.calls[0][0];
+    expect(result.takeawaysQbrLearning).toBeTruthy();
+    expect(result.takeawaysQbrLearning).toEqual(takeawaysQbrLearning);
+
+    expect(result.takeawaysMetricGain).toBeTruthy();
+    expect(result.takeawaysMetricGain).toEqual(takeawaysMetricGain);
+
+    expect(result.takeawaysGainAmount).toBeTruthy();
+    expect(result.takeawaysGainAmount).toEqual(takeawaysGainAmount);
+  });
+
+  it("submits qbr learning value even if checkbox not changed", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <Subject
+        {...{
+          onSubmit,
+          showEditor: true,
+          takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -280,9 +328,12 @@ describe("TakeawaysEditor", () => {
       fireEvent.click(screen.getByText("Save"));
     });
 
+    const result = onSubmit.mock.calls[0][0];
+
     expect(onSubmit).toHaveBeenCalled();
-    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
-    expect(onSubmit.mock.calls[0][0].takeawaysMetricGain).toEqual(false);
+    expect(result.takeawaysQbrLearning).toEqual(true);
+    expect(result.takeawaysMetricGain).toEqual(false);
+    expect(result.takeawaysGainAmount).toEqual(takeawaysGainAmount);
   });
 
   it("hides the editor when cancel is clicked", async () => {
@@ -294,6 +345,7 @@ describe("TakeawaysEditor", () => {
           showEditor: true,
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -342,6 +394,7 @@ describe("useTakeaways", () => {
     takeawaysSummary: "super exciting results",
     takeawaysQbrLearning: true,
     takeawaysMetricGain: false,
+    takeawaysGainAmount: "lots of sick gains",
     conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.STOP,
   };
   const mutationVariables = {
@@ -349,6 +402,7 @@ describe("useTakeaways", () => {
     takeawaysSummary: submitData.takeawaysSummary,
     takeawaysQbrLearning: submitData.takeawaysQbrLearning,
     takeawaysMetricGain: submitData.takeawaysMetricGain,
+    takeawaysGainAmount: submitData.takeawaysGainAmount,
     conclusionRecommendation: submitData.conclusionRecommendation,
     changelogMessage: CHANGELOG_MESSAGES.UPDATED_TAKEAWAYS,
   };
@@ -363,6 +417,7 @@ describe("useTakeaways", () => {
     const props = result.current;
     expect(props).toMatchObject({
       id: experiment.id,
+      takeawaysGainAmount: experiment.takeawaysGainAmount,
       takeawaysSummary: experiment.takeawaysSummary,
       conclusionRecommendation: experiment.conclusionRecommendation,
       showEditor: false,
