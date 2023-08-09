@@ -29,6 +29,7 @@ import { NimbusExperimentConclusionRecommendationEnum } from "src/types/globalTy
 const { experiment } = mockExperimentQuery("demo-slug", {
   takeawaysSummary: "old content",
   takeawaysQbrLearning: true,
+  takeawaysMetricGain: false,
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.RERUN,
 });
 
@@ -41,6 +42,7 @@ const Subject = ({
 
 const takeawaysSummary = "sample *exciting* content";
 const takeawaysQbrLearning = true;
+const takeawaysMetricGain = false;
 const conclusionRecommendation =
   NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE;
 const expectedConclusionRecommendationLabel = "Change course";
@@ -66,6 +68,7 @@ describe("Takeaways", () => {
         {...{
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysMetricGain,
           conclusionRecommendation,
         }}
       />,
@@ -113,6 +116,7 @@ describe("Takeaways", () => {
           setShowEditor,
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysMetricGain,
           conclusionRecommendation,
         }}
       />,
@@ -137,6 +141,7 @@ describe("TakeawaysEditor", () => {
           showEditor: true,
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysMetricGain,
           conclusionRecommendation,
         }}
       />,
@@ -150,6 +155,7 @@ describe("TakeawaysEditor", () => {
       conclusionRecommendation,
     });
     expect(screen.queryByTestId("takeaways-qbr")).toBeInTheDocument();
+    expect(screen.queryByTestId("takeaways-metric")).toBeInTheDocument();
   });
 
   it("disables buttons when loading", async () => {
@@ -162,6 +168,7 @@ describe("TakeawaysEditor", () => {
           isLoading: true,
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysMetricGain,
           conclusionRecommendation,
         }}
       />,
@@ -176,6 +183,7 @@ describe("TakeawaysEditor", () => {
 
   it("submits form data when save is clicked", async () => {
     const expected = {
+      takeawaysMetricGain: takeawaysMetricGain,
       takeawaysQbrLearning: takeawaysQbrLearning,
       takeawaysSummary: takeawaysSummary,
       conclusionRecommendation: conclusionRecommendation,
@@ -187,6 +195,7 @@ describe("TakeawaysEditor", () => {
           onSubmit,
           showEditor: true,
           takeawaysSummary,
+          takeawaysMetricGain,
           takeawaysQbrLearning,
           conclusionRecommendation,
         }}
@@ -198,6 +207,7 @@ describe("TakeawaysEditor", () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
     expect(onSubmit.mock.calls[0][0]).toEqual(expected);
     expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
+    expect(onSubmit.mock.calls[0][0].takeawaysMetricGain).toEqual(false);
   });
 
   it("updates qbr learning checkbox and saves", async () => {
@@ -208,6 +218,7 @@ describe("TakeawaysEditor", () => {
           onSubmit,
           showEditor: true,
           takeawaysSummary,
+          takeawaysMetricGain: false,
           takeawaysQbrLearning: false,
           conclusionRecommendation,
         }}
@@ -224,14 +235,31 @@ describe("TakeawaysEditor", () => {
     await act(async () => {
       fireEvent.click(screen.getByText("Save"));
     });
+    const result1 = onSubmit.mock.calls[0][0];
 
     expect(onSubmit).toHaveBeenCalled();
-    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toBeTruthy();
+    expect(result1.takeawaysQbrLearning).toBeTruthy();
+    expect(result1.takeawaysQbrLearning).toEqual(true);
 
-    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
+    expect(screen.getByTestId("takeawaysMetricGain")).not.toBeChecked();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("takeawaysMetricGain"));
+    });
+
+    expect(screen.getByTestId("takeawaysMetricGain")).toBeChecked();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText("Save"));
+    });
+    const result2 = onSubmit.mock.calls[1][0];
+
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+    expect(result2.takeawaysMetricGain).toBeTruthy();
+    expect(result2.takeawaysMetricGain).toEqual(true);
   });
 
-  it("submits qbr learning value even if checkbox not changed", async () => {
+  it("submits takeaway checkbox values even if value not changed", async () => {
     const onSubmit = jest.fn();
     render(
       <Subject
@@ -240,11 +268,13 @@ describe("TakeawaysEditor", () => {
           showEditor: true,
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysMetricGain,
           conclusionRecommendation,
         }}
       />,
     );
     expect(screen.getByTestId("takeawaysQbrLearning")).toBeChecked();
+    expect(screen.getByTestId("takeawaysMetricGain")).not.toBeChecked();
 
     await act(async () => {
       fireEvent.click(screen.getByText("Save"));
@@ -252,6 +282,7 @@ describe("TakeawaysEditor", () => {
 
     expect(onSubmit).toHaveBeenCalled();
     expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
+    expect(onSubmit.mock.calls[0][0].takeawaysMetricGain).toEqual(false);
   });
 
   it("hides the editor when cancel is clicked", async () => {
@@ -285,6 +316,7 @@ describe("TakeawaysEditor", () => {
           showEditor: true,
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysMetricGain,
           conclusionRecommendation,
           isServerValid: false,
           submitErrors,
@@ -309,12 +341,14 @@ describe("useTakeaways", () => {
   const submitData = {
     takeawaysSummary: "super exciting results",
     takeawaysQbrLearning: true,
+    takeawaysMetricGain: false,
     conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.STOP,
   };
   const mutationVariables = {
     id: experiment.id,
     takeawaysSummary: submitData.takeawaysSummary,
     takeawaysQbrLearning: submitData.takeawaysQbrLearning,
+    takeawaysMetricGain: submitData.takeawaysMetricGain,
     conclusionRecommendation: submitData.conclusionRecommendation,
     changelogMessage: CHANGELOG_MESSAGES.UPDATED_TAKEAWAYS,
   };

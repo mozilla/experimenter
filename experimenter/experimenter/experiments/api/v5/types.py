@@ -570,6 +570,7 @@ class NimbusExperimentType(DjangoObjectType):
             "start_date",
             "status_next",
             "status",
+            "takeaways_metric_gain",
             "takeaways_qbr_learning",
             "takeaways_summary",
             "targeting_config_slug",
