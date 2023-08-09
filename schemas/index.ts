@@ -81,7 +81,6 @@ export interface SizingRecipe {
   locale: string;
   country: string;
   new_or_existing: SizingUserType;
-  minimum_version: string;
 }
 export interface SizingTarget {
   target_recipe: SizingRecipe;
