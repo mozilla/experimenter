@@ -88,10 +88,14 @@ export const Takeaways = (props: TakeawaysProps) => {
             )}
           </div>
           <div>
-            <b>QBR Learning:</b> {takeawaysQbrLearning ? "True" : "False"}
+            <b>QBR Learning: </b> {takeawaysQbrLearning ? "True" : "False"}
+          </div>
+          <div>
+            <b>Promising Metric Gain: </b>{" "}
+            {takeawaysMetricGain ? "True" : "False"}
           </div>
           <div data-testid="gain-amount">
-            <b>Gain Amount:</b>
+            <b>Gain Amount: </b>
             {takeawaysGainAmount ? (
               <div data-testid="takeaways-gain-amount-rendered">
                 <ReactMarkdown>{takeawaysGainAmount}</ReactMarkdown>

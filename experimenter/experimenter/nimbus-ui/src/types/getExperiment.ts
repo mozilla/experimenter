@@ -187,8 +187,8 @@ export interface getExperiment_experimentBySlug {
   application: NimbusExperimentApplicationEnum | null;
   publicDescription: string | null;
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum | null;
-  takeawaysMetricGain: boolean;
   takeawaysGainAmount: string | null;
+  takeawaysMetricGain: boolean;
   takeawaysQbrLearning: boolean;
   takeawaysSummary: string | null;
   owner: getExperiment_experimentBySlug_owner;

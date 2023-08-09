@@ -203,7 +203,7 @@ export const TakeawaysEditor = ({
               />
             </Form.Group>
           </Form.Group>
-          <Form.Group as={Row} controlId="takeaways-gain">
+          <Form.Group as={Row} controlId="takeaways-gain" className="ml-1">
             <Form.Label className="font-weight-bold">Gain Amount:</Form.Label>
             <Form.Control
               as="textarea"

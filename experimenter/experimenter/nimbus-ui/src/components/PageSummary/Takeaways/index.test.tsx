@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from "@apollo/client/testing";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import {
   act as hookAct,
   renderHook,
@@ -30,6 +36,7 @@ const { experiment } = mockExperimentQuery("demo-slug", {
   takeawaysSummary: "old content",
   takeawaysQbrLearning: true,
   takeawaysMetricGain: false,
+  takeawaysGainAmount: null,
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.RERUN,
 });
 
@@ -40,10 +47,10 @@ const Subject = ({
   <BaseSubject {...{ onSubmit, ...props }} />
 );
 
-const takeawaysSummary = "sample *exciting* content";
-const takeawaysGainAmount = "1.5% gain in retention";
-const takeawaysQbrLearning = true;
+const takeawaysGainAmount = "sick gains all around";
 const takeawaysMetricGain = false;
+const takeawaysQbrLearning = true;
+const takeawaysSummary = "sample *exciting* content";
 const conclusionRecommendation =
   NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE;
 const expectedConclusionRecommendationLabel = "Change course";
@@ -57,10 +64,20 @@ describe("Takeaways", () => {
       screen.queryByTestId("conclusion-recommendation-status"),
     ).not.toBeInTheDocument();
     expect(screen.queryByTestId("edit-takeaways")).toBeInTheDocument();
+
     expect(
       screen.queryByTestId("takeaways-summary-rendered"),
     ).not.toBeInTheDocument();
-    expect(screen.queryByTestId("not-set")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("summary")).queryByTestId("not-set"),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByTestId("takeaways-gain-amount-rendered"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("gain-amount")).queryByTestId("not-set"),
+    ).toBeInTheDocument();
   });
 
   it("renders as expected with content", () => {
@@ -70,6 +87,7 @@ describe("Takeaways", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -83,7 +101,9 @@ describe("Takeaways", () => {
       "<p>sample <em>exciting</em> content</p>",
     );
     expect(screen.queryByTestId("edit-takeaways")).toBeInTheDocument();
-    expect(screen.queryByTestId("not-set")).not.toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("gain-amount")).queryByTestId("not-set"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders takeaways without edit button when experiment is archived", () => {
@@ -92,6 +112,7 @@ describe("Takeaways", () => {
         {...{
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysMetricGain,
           takeawaysGainAmount,
           conclusionRecommendation,
           isArchived: true,
@@ -161,7 +182,6 @@ describe("TakeawaysEditor", () => {
     });
     expect(screen.queryByTestId("takeaways-qbr")).toBeInTheDocument();
     expect(screen.queryByTestId("takeaways-metric")).toBeInTheDocument();
-    expect(screen.queryByTestId("takeaways-gain")).toBeInTheDocument();
   });
 
   it("disables buttons when loading", async () => {
@@ -219,12 +239,12 @@ describe("TakeawaysEditor", () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
 
     expect(result).toEqual(expected);
-    expect(result.takeawaysQbrLearning).toEqual(true);
-    expect(result.takeawaysMetricGain).toEqual(false);
     expect(result.takeawaysGainAmount).toEqual(takeawaysGainAmount);
+    expect(result.takeawaysMetricGain).toEqual(takeawaysMetricGain);
+    expect(result.takeawaysQbrLearning).toEqual(takeawaysQbrLearning);
   });
 
-  it("updates qbr learning checkbox and saves", async () => {
+  it("updates takeaways checkboxes and saves as expected", async () => {
     const onSubmit = jest.fn();
     render(
       <Subject
@@ -232,9 +252,9 @@ describe("TakeawaysEditor", () => {
           onSubmit,
           showEditor: true,
           takeawaysSummary,
+          takeawaysGainAmount,
           takeawaysMetricGain: false,
           takeawaysQbrLearning: false,
-          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -274,68 +294,6 @@ describe("TakeawaysEditor", () => {
     expect(result2.takeawaysMetricGain).toEqual(true);
   });
 
-  it("submits takeaway checkbox values even if value not changed", async () => {
-    const onSubmit = jest.fn();
-    render(
-      <Subject
-        {...{
-          onSubmit,
-          showEditor: true,
-          takeawaysSummary,
-          takeawaysQbrLearning: false,
-          takeawaysGainAmount,
-          conclusionRecommendation,
-        }}
-      />,
-    );
-
-    await act(async () => {
-      fireEvent.click(screen.getByText("Save"));
-    });
-
-    expect(onSubmit).toHaveBeenCalled();
-
-    const result = onSubmit.mock.calls[0][0];
-    expect(result.takeawaysQbrLearning).toBeTruthy();
-    expect(result.takeawaysQbrLearning).toEqual(takeawaysQbrLearning);
-
-    expect(result.takeawaysMetricGain).toBeTruthy();
-    expect(result.takeawaysMetricGain).toEqual(takeawaysMetricGain);
-
-    expect(result.takeawaysGainAmount).toBeTruthy();
-    expect(result.takeawaysGainAmount).toEqual(takeawaysGainAmount);
-  });
-
-  it("submits qbr learning value even if checkbox not changed", async () => {
-    const onSubmit = jest.fn();
-    render(
-      <Subject
-        {...{
-          onSubmit,
-          showEditor: true,
-          takeawaysSummary,
-          takeawaysQbrLearning,
-          takeawaysMetricGain,
-          takeawaysGainAmount,
-          conclusionRecommendation,
-        }}
-      />,
-    );
-    expect(screen.getByTestId("takeawaysQbrLearning")).toBeChecked();
-    expect(screen.getByTestId("takeawaysMetricGain")).not.toBeChecked();
-
-    await act(async () => {
-      fireEvent.click(screen.getByText("Save"));
-    });
-
-    const result = onSubmit.mock.calls[0][0];
-
-    expect(onSubmit).toHaveBeenCalled();
-    expect(result.takeawaysQbrLearning).toEqual(true);
-    expect(result.takeawaysMetricGain).toEqual(false);
-    expect(result.takeawaysGainAmount).toEqual(takeawaysGainAmount);
-  });
-
   it("hides the editor when cancel is clicked", async () => {
     const setShowEditor = jest.fn();
     render(
@@ -346,6 +304,7 @@ describe("TakeawaysEditor", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysGainAmount,
+          takeawaysMetricGain,
           conclusionRecommendation,
         }}
       />,
@@ -369,6 +328,7 @@ describe("TakeawaysEditor", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
           isServerValid: false,
           submitErrors,
@@ -418,6 +378,7 @@ describe("useTakeaways", () => {
     expect(props).toMatchObject({
       id: experiment.id,
       takeawaysGainAmount: experiment.takeawaysGainAmount,
+      takeawaysMetricGain: experiment.takeawaysMetricGain,
       takeawaysSummary: experiment.takeawaysSummary,
       conclusionRecommendation: experiment.conclusionRecommendation,
       showEditor: false,
