@@ -47,6 +47,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       publicDescription
 
       conclusionRecommendation
+      takeawaysMetricGain
       takeawaysQbrLearning
       takeawaysSummary
 

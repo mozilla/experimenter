@@ -50,6 +50,7 @@ type NimbusExperimentType {
   riskRevenue: Boolean
   riskBrand: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
+  takeawaysMetricGain: Boolean!
   takeawaysQbrLearning: Boolean!
   takeawaysSummary: String
   isFirstRun: Boolean!
@@ -502,6 +503,7 @@ input ExperimentInput {
   secondaryOutcomes: [String]
   status: NimbusExperimentStatusEnum
   statusNext: NimbusExperimentStatusEnum
+  takeawaysMetricGain: Boolean
   takeawaysQbrLearning: Boolean
   takeawaysSummary: String
   targetingConfigSlug: String
