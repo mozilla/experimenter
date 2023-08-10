@@ -253,6 +253,7 @@ enum NimbusExperimentApplicationEnum {
   KLAR_ANDROID
   FOCUS_IOS
   KLAR_IOS
+  MONITOR
 }
 
 enum NimbusExperimentChannelEnum {

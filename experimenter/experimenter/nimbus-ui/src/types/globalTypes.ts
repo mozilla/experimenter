@@ -15,6 +15,7 @@ export enum NimbusExperimentApplicationEnum {
   IOS = "IOS",
   KLAR_ANDROID = "KLAR_ANDROID",
   KLAR_IOS = "KLAR_IOS",
+  MONITOR = "MONITOR",
 }
 
 export enum NimbusExperimentChannelEnum {
