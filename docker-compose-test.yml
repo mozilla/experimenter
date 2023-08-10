@@ -33,10 +33,15 @@ services:
     ports:
       - '3002:3002'
     restart: always
+
   demo-app-frontend:
     build:
       context: ./demo-app/frontend
       dockerfile: Dockerfile
     ports:
-      - '8080:80'
+      - '8080:3000'
     restart: always
+    links:
+      - demo-app-server
+    environment:
+      - DEMO_APP_SERVER=http://demo-app-server:3002
