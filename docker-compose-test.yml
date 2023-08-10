@@ -26,22 +26,3 @@ services:
       dockerfile: Dockerfile
     working_dir: /cirrus
 
-  demo-app-server:
-    build:
-      context: ./demo-app/server
-      dockerfile: Dockerfile
-    ports:
-      - '3002:3002'
-    restart: always
-
-  demo-app-frontend:
-    build:
-      context: ./demo-app/frontend
-      dockerfile: Dockerfile
-    ports:
-      - '8080:3000'
-    restart: always
-    links:
-      - demo-app-server
-    environment:
-      - DEMO_APP_SERVER=http://demo-app-server:3002
