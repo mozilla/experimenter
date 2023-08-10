@@ -1,4 +1,12 @@
-from mozilla_nimbus_schemas.jetstream import AnalysisBasis, Statistic, Statistics
+import pytest
+from pydantic import ValidationError
+
+from mozilla_nimbus_schemas.jetstream import (
+    AnalysisBasis,
+    Statistic,
+    Statistics,
+    StatisticsFactory,
+)
 
 """
 Test cases for statistics schemas:
@@ -90,3 +98,15 @@ def test_parse_statistics():
     """
     stats = Statistics.parse_raw(stats_json)
     assert len(stats.__root__) == 3
+
+
+def test_statistics_factory():
+    stats = StatisticsFactory.build()
+    Statistics.validate(stats)
+
+
+def test_statistics_invalid():
+    stats_dict = StatisticsFactory.build().dict()
+    stats_dict["__root__"][0]["ci_width"] = "invalid data"
+    with pytest.raises(ValidationError):
+        Statistics.parse_obj(stats_dict)

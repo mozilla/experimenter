@@ -98,6 +98,8 @@ class TransitionConstants:
             "status",
             "takeaways_summary",
             "conclusion_recommendation",
+            "takeaways_metric_gain",
+            "takeaways_qbr_learning",
         ],
         "experiments": [],
         "rollouts": ["population_percent"],
@@ -829,6 +831,8 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
+    takeaways_metric_gain = serializers.BooleanField(required=False)
+    takeaways_qbr_learning = serializers.BooleanField(required=False)
     proposed_release_date = serializers.DateField(
         allow_null=True,
         required=False,
@@ -891,6 +895,8 @@ class NimbusExperimentSerializer(
             "slug",
             "status",
             "status_next",
+            "takeaways_metric_gain",
+            "takeaways_qbr_learning",
             "takeaways_summary",
             "targeting_config_slug",
             "total_enrolled_clients",
