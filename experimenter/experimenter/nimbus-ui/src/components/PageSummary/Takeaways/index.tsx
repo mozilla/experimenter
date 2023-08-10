@@ -91,7 +91,7 @@ export const Takeaways = (props: TakeawaysProps) => {
             <b>QBR Learning: </b> {takeawaysQbrLearning ? "True" : "False"}
           </div>
           <div>
-            <b>Promising Metric Gain: </b>{" "}
+            <b>Statistically Significant DAU Gain: </b>{" "}
             {takeawaysMetricGain ? "True" : "False"}
           </div>
           <div data-testid="gain-amount">

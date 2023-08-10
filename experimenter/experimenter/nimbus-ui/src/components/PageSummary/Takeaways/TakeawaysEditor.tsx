@@ -194,7 +194,7 @@ export const TakeawaysEditor = ({
             <Form.Group data-testid="takeaways-metric" className="ml-3">
               <Form.Check
                 type="checkbox"
-                label="Promising Metric Gains"
+                label="Statistically Significant DAU Gain"
                 defaultChecked={isMetricGain ? isMetricGain : false}
                 onChange={(e) => setIsMetricGain(e.target.checked)}
                 onSubmit={handleSave}
