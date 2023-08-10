@@ -1,5 +1,6 @@
 from enum import Enum
 
+from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel
 
 
@@ -57,3 +58,7 @@ class SizingByUserType(BaseModel):
 class SampleSizes(BaseModel):
     # dynamic key representing the target for easy lookup
     __root__: dict[str, SizingByUserType]
+
+
+class SampleSizesFactory(ModelFactory[SampleSizes]):
+    __model__ = SampleSizes
