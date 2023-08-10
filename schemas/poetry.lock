@@ -330,6 +330,20 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "faker"
+version = "19.3.0"
+description = "Faker is a Python package that generates fake data for you."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "Faker-19.3.0-py3-none-any.whl", hash = "sha256:bee54278d6e1289573317604ab6f4782acca724396bf261eaf1890de228e553d"},
+    {file = "Faker-19.3.0.tar.gz", hash = "sha256:7d6ed00de3eef9bd57504500c67ee034cab959e4248f9c24aca33e08af82ca93"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+
+[[package]]
 name = "idna"
 version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -550,6 +564,29 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "polyfactory"
+version = "2.7.2"
+description = "Mock data generation factories"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "polyfactory-2.7.2-py3-none-any.whl", hash = "sha256:4e61d504527368a90bc51423670ba3528304d20ae0fb9705464ee99a40a711ca"},
+    {file = "polyfactory-2.7.2.tar.gz", hash = "sha256:ec919ccca990987134ff8f7b400983feb54285f832b743aa7012be35f998ccd4"},
+]
+
+[package.dependencies]
+faker = "*"
+typing-extensions = "*"
+
+[package.extras]
+attrs = ["attrs"]
+beanie = ["beanie", "pydantic[email]"]
+full = ["attrs", "beanie", "msgspec", "odmantic", "pydantic[email]"]
+msgspec = ["msgspec"]
+odmantic = ["odmantic", "pydantic[email]"]
+pydantic = ["pydantic[email]"]
+
+[[package]]
 name = "pycparser"
 version = "2.21"
 description = "C parser in Python"
@@ -647,6 +684,20 @@ tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 
 [package.extras]
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
+
+[[package]]
+name = "python-dateutil"
+version = "2.8.2"
+description = "Extensions to the standard Python datetime module"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+files = [
+    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
+    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+]
+
+[package.dependencies]
+six = ">=1.5"
 
 [[package]]
 name = "pywin32-ctypes"
@@ -887,4 +938,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a7bb3892f708aba11fb15b2674bf4284b22e8f0b34b6e7aaab1c3cf636c54bb0"
+content-hash = "d9b8c79f17d9d5f4f5401d1448aebbee01979274faacd3384927f46cbd2cc848"

@@ -19,7 +19,12 @@ import {
 // Params are a select subset of experiment properties
 export type UseTakeawaysExperimentSubset = Pick<
   getExperiment_experimentBySlug,
-  "id" | "conclusionRecommendation" | "takeawaysSummary" | "isArchived"
+  | "id"
+  | "conclusionRecommendation"
+  | "takeawaysSummary"
+  | "takeawaysQbrLearning"
+  | "takeawaysMetricGain"
+  | "isArchived"
 >;
 
 export type UseTakeawaysResult = UseTakeawaysExperimentSubset & {
@@ -48,7 +53,13 @@ export const useTakeaways = (
   const onSubmit = useCallback(
     ({ id }: UseTakeawaysExperimentSubset, refetch?: () => Promise<unknown>) =>
       async (data: Record<string, any>) => {
-        const { conclusionRecommendation, takeawaysSummary } = data;
+        const {
+          conclusionRecommendation,
+          takeawaysSummary,
+          takeawaysQbrLearning,
+          takeawaysMetricGain,
+        } = data;
+
         try {
           setIsLoading(true);
           const variables = {
@@ -56,6 +67,8 @@ export const useTakeaways = (
               id,
               conclusionRecommendation: conclusionRecommendation || null,
               takeawaysSummary,
+              takeawaysQbrLearning: takeawaysQbrLearning,
+              takeawaysMetricGain: takeawaysMetricGain,
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_TAKEAWAYS,
             },
           };

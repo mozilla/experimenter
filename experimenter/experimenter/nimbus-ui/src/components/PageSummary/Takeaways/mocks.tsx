@@ -8,6 +8,8 @@ import { RouterSlugProvider } from "src/lib/test-utils";
 export const Subject = ({
   id = 123,
   takeawaysSummary = null,
+  takeawaysQbrLearning = false,
+  takeawaysMetricGain = false,
   conclusionRecommendation = null,
   isLoading = false,
   isArchived = false,
@@ -30,6 +32,8 @@ export const Subject = ({
           {...{
             id,
             takeawaysSummary,
+            takeawaysQbrLearning,
+            takeawaysMetricGain,
             conclusionRecommendation,
             isLoading,
             isArchived,

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import classNames from "classnames";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -17,6 +17,8 @@ import { getConfig_nimbusConfig } from "src/types/getConfig";
 export const takeawaysEditorFieldNames = [
   "conclusionRecommendation",
   "takeawaysSummary",
+  "takeawaysQbrLearning",
+  "takeawaysMetricGain",
 ] as const;
 
 type TakeawaysEditorFieldName = typeof takeawaysEditorFieldNames[number];
@@ -31,13 +33,21 @@ export const TakeawaysEditor = ({
   conclusionRecommendations,
   conclusionRecommendation,
   takeawaysSummary,
+  takeawaysQbrLearning,
+  takeawaysMetricGain,
   setShowEditor,
   onSubmit,
   submitErrors,
   setSubmitErrors,
   isServerValid,
 }: TakeawaysEditorProps) => {
-  const defaultValues = { conclusionRecommendation, takeawaysSummary };
+  const defaultValues = {
+    conclusionRecommendation,
+    takeawaysSummary,
+    takeawaysQbrLearning,
+    takeawaysMetricGain,
+  };
+
   type DefaultValues = typeof defaultValues;
 
   const {
@@ -60,8 +70,16 @@ export const TakeawaysEditor = ({
     [setShowEditor],
   );
 
+  const [isQbrLearning, setIsQbrLearning] =
+    useState<boolean>(takeawaysQbrLearning);
+
+  const [isMetricGain, setIsMetricGain] =
+    useState<boolean>(takeawaysMetricGain);
+
   const handleSave = handleSubmit(async (data: DefaultValues) => {
     if (isLoading) return;
+    data.takeawaysQbrLearning = isQbrLearning;
+    data.takeawaysMetricGain = isMetricGain;
     await onSubmit(data);
   });
 
@@ -154,6 +172,32 @@ export const TakeawaysEditor = ({
                 {...formControlAttrs("takeawaysSummary")}
               />
               <FormErrors name="takeawaysSummary" />
+            </Form.Group>
+          </Form.Group>
+          <Form.Group as={Row} controlId="takeawaysQbrLearning">
+            <Form.Group data-testid="takeaways-qbr" className="ml-3">
+              <Form.Check
+                type="checkbox"
+                label="QBR Notable Learning"
+                defaultChecked={isQbrLearning ? isQbrLearning : false}
+                onChange={(e) => setIsQbrLearning(e.target.checked)}
+                onSubmit={handleSave}
+                id="takeawaysQbrLearning"
+                {...{ "data-testid": "takeawaysQbrLearning" }}
+              />
+            </Form.Group>
+          </Form.Group>
+          <Form.Group as={Row} controlId="takeawaysMetricGain">
+            <Form.Group data-testid="takeaways-metric" className="ml-3">
+              <Form.Check
+                type="checkbox"
+                label="Promising Metric Gains"
+                defaultChecked={isMetricGain ? isMetricGain : false}
+                onChange={(e) => setIsMetricGain(e.target.checked)}
+                onSubmit={handleSave}
+                id="takeawaysMetricGain"
+                {...{ "data-testid": "takeawaysMetricGain" }}
+              />
             </Form.Group>
           </Form.Group>
         </Form>
