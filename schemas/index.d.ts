@@ -58,8 +58,41 @@ export interface Outcome {
   metrics: string[];
   slug: string;
 }
-export interface SampleSizes {}
-export interface SizingByUserType {}
+/**
+ * `extra=Extra.allow` is needed for the pydantic2ts generation of
+ * typescript definitions. Without this, models with only a custom
+ * __root__ dictionary field will generate as empty types.
+ *
+ * See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
+ * for more info.
+ */
+export interface SampleSizes {
+  [k: string]: SizingByUserType;
+}
+/**
+ * `extra=Extra.allow` is needed for the pydantic2ts generation of
+ * typescript definitions. Without this, models with only a custom
+ * __root__ dictionary field will generate as empty types.
+ *
+ * See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
+ * for more info.
+ */
+export interface SizingByUserType {
+  [k: string]: SizingTarget;
+}
+export interface SizingTarget {
+  target_recipe: SizingRecipe;
+  sample_sizes: {
+    [k: string]: SizingDetails;
+  };
+}
+export interface SizingRecipe {
+  app_id: string;
+  channel: SizingReleaseChannel;
+  locale: string;
+  country: string;
+  new_or_existing: SizingUserType;
+}
 export interface SizingDetails {
   metrics: {
     [k: string]: SizingMetric;
@@ -74,19 +107,6 @@ export interface SizingMetric {
 export interface SizingParameters {
   power: number;
   effect_size: number;
-}
-export interface SizingRecipe {
-  app_id: string;
-  channel: SizingReleaseChannel;
-  locale: string;
-  country: string;
-  new_or_existing: SizingUserType;
-}
-export interface SizingTarget {
-  target_recipe: SizingRecipe;
-  sample_sizes: {
-    [k: string]: SizingDetails;
-  };
 }
 export interface Statistic {
   metric: string;

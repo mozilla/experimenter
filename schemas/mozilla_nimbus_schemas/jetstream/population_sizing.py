@@ -1,7 +1,7 @@
 from enum import Enum
 
 from polyfactory.factories.pydantic_factory import ModelFactory
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class SizingMetricName(str, Enum):
@@ -51,12 +51,30 @@ class SizingTarget(BaseModel):
     sample_sizes: dict[str, SizingDetails]
 
 
-class SizingByUserType(BaseModel):
+class SizingByUserType(BaseModel, extra=Extra.allow):
+    """
+    `extra=Extra.allow` is needed for the pydantic2ts generation of
+    typescript definitions. Without this, models with only a custom
+    __root__ dictionary field will generate as empty types.
+
+    See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
+    for more info.
+    """
+
     __root__: dict[SizingUserType, SizingTarget]
 
 
-class SampleSizes(BaseModel):
-    # dynamic key representing the target for easy lookup
+class SampleSizes(BaseModel, extra=Extra.allow):
+    """
+    `extra=Extra.allow` is needed for the pydantic2ts generation of
+    typescript definitions. Without this, models with only a custom
+    __root__ dictionary field will generate as empty types.
+
+    See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
+    for more info.
+    """
+
+    # dynamic str key represents the concatenation of target recipe values
     __root__: dict[str, SizingByUserType]
 
 
