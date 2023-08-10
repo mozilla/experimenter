@@ -284,5 +284,5 @@ schemas_deploy_npm: schemas_build_npm
 	cd schemas; yarn publish --new-version ${SCHEMAS_VERSION} --access public;
 
 schemas_version:
-	npm --prefix schemas version ${SCHEMAS_VERSION};
+	npm --prefix schemas version --allow-same-version ${SCHEMAS_VERSION};
 	poetry --directory=schemas version ${SCHEMAS_VERSION};
