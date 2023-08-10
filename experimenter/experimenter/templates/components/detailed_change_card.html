@@ -1,0 +1,14 @@
+<div class="flex flex-col flex-wrap  space-y-1 md:space-y-0 justify-center items-start md:flex-row md:items-center md:justify-between  space-x-2 px-2 py-1 border border-dashed border-lenurple rounded-md">
+    <div class="flex flex-col flex-wrap space-y-1 md:space-y-0 items-start md:flex-row md:items-center space-x-2">
+        <span class="px-2 flex items-center py-0.5 space-x-1 font-medium tracking-wide text-indigo-500 bg-indigo-50 rounded-full"> 
+            <i class="fa-solid fa-pen-to-square text-rythm text-xs"></i>
+        </span>
+        <p class="text-neutral-600">
+            {{ change.event_message }} 
+        </p>
+        <button  @click="openModal; oldData = {{change.old_value}}; newData = {{change.new_value}}" >
+            <i class="fa-solid fa-expand text-xs"></i>
+        </button>
+    </div>
+    <span class="text-xs text-rythm flex-nowrap">{{change.timestamp}}</span>
+  </div>

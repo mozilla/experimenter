@@ -11,8 +11,9 @@
     {% tailwind_css %}
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
     <script defer src="{% static 'scripts/bundle.js' %}"></script>
+    <script defer src="{% static 'scripts/focus-trap.js' %}"></script>
 </head>
-<body x-data="dropdown" :class="{ 'overflow-hidden md:overflow-auto': open,  }" >
+<body x-data="sidebar" :class="{ 'overflow-hidden md:overflow-auto': open,  }" >
     {% include "common/header.html"%}
     <div class="h-full min-h-screen w-full flex flex-col justify-start items-center">
         <div :class="{ 'hidden': !open, 'block': open }" class="fixed md:hidden inset-0 bg-black bg-opacity-50 z-20 transition-opacity"></div>

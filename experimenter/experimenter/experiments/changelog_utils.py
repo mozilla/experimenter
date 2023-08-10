@@ -1,5 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers
+import pprint
+import json
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
@@ -9,6 +11,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusFeatureConfig,
 )
+from experimenter.base.models import Country, Language, Locale
 
 
 class NimbusFeatureConfigChangeLogSerializer(serializers.ModelSerializer):
@@ -98,8 +101,8 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
         else field_name
     )
 
-    old_value = field_diff["old_value"]
-    new_value = field_diff["new_value"]
+    old_value = json.dumps(pprint.pformat(field_diff["old_value"], width=40, indent=2))
+    new_value = json.dumps(pprint.pformat(field_diff["new_value"], width=40, indent=2))
 
     if event.value == "LIST" or event.value == "DETAILED":
         change = {
