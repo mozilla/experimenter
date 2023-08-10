@@ -58,7 +58,9 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
     def with_owner_features(self):
         return (
             self.get_queryset()
-            .prefetch_related("owner", "feature_configs", "projects")
+            .prefetch_related(
+                "owner", "feature_configs", "feature_configs__schemas", "projects"
+            )
             .order_by("-_updated_date_time")
         )
 
