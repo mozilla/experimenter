@@ -1,6 +1,9 @@
 import datetime as dt
 
-from mozilla_nimbus_schemas.jetstream import Metadata
+import pytest
+from pydantic import ValidationError
+
+from mozilla_nimbus_schemas.jetstream import Metadata, MetadataFactory
 
 """
 Test cases for metadata schemas:
@@ -63,3 +66,16 @@ def test_parse_metadata():
     assert metadata.analysis_start_time == dt.datetime(
         2023, 5, 1, 1, 2, 3, tzinfo=dt.timezone.utc
     )
+
+
+def test_metadata_factory():
+    metadata = MetadataFactory.build()
+    Metadata.validate(metadata)
+
+
+def test_metadata_invalid():
+    metadata_dict = MetadataFactory.build().dict()
+    print(metadata_dict)
+    metadata_dict["schema_version"] = "not a number"
+    with pytest.raises(ValidationError):
+        Metadata.parse_obj(metadata_dict)
