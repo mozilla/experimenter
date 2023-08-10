@@ -25,3 +25,20 @@ services:
       context: cirrus/server/
       dockerfile: Dockerfile
     working_dir: /cirrus
+
+
+
+  demo-app-server:
+    build:
+      context: ./demo-app/server
+      dockerfile: Dockerfile
+    ports:
+      - '3002:3002'
+    restart: always
+  demo-app-frontend:
+    build:
+      context: ./demo-app/frontend
+      dockerfile: Dockerfile
+    ports:
+      - '8080:80'
+    restart: always
