@@ -220,7 +220,9 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         )
         self.assertEqual(experiment_data["hypothesis"], experiment.hypothesis)
 
-    def test_experiments_with_no_branches_returns_empty_reference_treatment_values(self):
+    def test_experiments_with_no_branches_returns_empty_reference_treatment_values(
+        self,
+    ):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
@@ -483,7 +485,8 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
 
         for country in Country.objects.all():
             self.assertIn(
-                {"code": country.code, "name": country.name}, experiment_data["countries"]
+                {"code": country.code, "name": country.name},
+                experiment_data["countries"],
             )
 
         for language in Language.objects.all():
@@ -1423,7 +1426,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
-            experiment_data["reviewRequest"]["changedBy"]["email"], experiment.owner.email
+            experiment_data["reviewRequest"]["changedBy"]["email"],
+            experiment.owner.email,
         )
 
     def test_experiment_without_timeout_returns_none(self):
@@ -2423,7 +2427,8 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         assertChoices(config["types"], NimbusExperiment.Type)
         assertChoices(config["channels"], NimbusExperiment.Channel)
         assertChoices(
-            config["conclusionRecommendations"], NimbusExperiment.ConclusionRecommendation
+            config["conclusionRecommendations"],
+            NimbusExperiment.ConclusionRecommendation,
         )
 
         self.assertEqual(
