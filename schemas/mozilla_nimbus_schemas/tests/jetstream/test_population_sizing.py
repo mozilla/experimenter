@@ -15,6 +15,8 @@ Test cases for population sizing schemas.
 
 
 class TestPopulationSizing(TestCase):
+    maxDiff = None
+
     def test_parse_population_sizing(self):
         """Test against known good data."""
         sizing_test_data = """

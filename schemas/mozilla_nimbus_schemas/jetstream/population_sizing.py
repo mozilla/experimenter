@@ -1,22 +1,7 @@
 from enum import Enum
-from typing import Type, TypedDict
 
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel, Extra
-
-
-def enum_map(keys: Type[Enum], value_type: type) -> Type[TypedDict]:
-    """
-    This is a helper function to force the generated typescript type
-    to require enum values for pydantic dicts. See
-    https://github.com/phillipdupuis/pydantic-to-typescript/issues/17#issuecomment-1212341586
-    for more info.
-    """
-    return TypedDict(
-        f"Map{keys.__name__}To{value_type.__name__.title()}",
-        {k.value: value_type for k in keys},
-        total=False,
-    )
 
 
 class SizingMetricName(str, Enum):
@@ -49,7 +34,7 @@ class SizingParameters(BaseModel):
 
 
 class SizingDetails(BaseModel):
-    metrics: enum_map(SizingMetricName, SizingMetric)
+    metrics: dict[SizingMetricName, SizingMetric]
     parameters: SizingParameters
 
 
@@ -66,8 +51,20 @@ class SizingTarget(BaseModel):
     sample_sizes: dict[str, SizingDetails]
 
 
-class SizingByUserType(BaseModel, extra=Extra.forbid):
-    __root__: enum_map(SizingUserType, SizingTarget)
+class SizingByUserType(BaseModel, extra=Extra.allow):
+    """
+    `extra=Extra.allow` is needed for the pydantic2ts generation of
+    typescript definitions. Without this, models with only a custom
+    __root__ dictionary field will generate as empty types.
+
+    See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
+    and https://github.com/phillipdupuis/pydantic-to-typescript/issues/39
+    for more info.
+
+    If this is fixed we should remove `extra=Extra.allow`.
+    """
+
+    __root__: dict[SizingUserType, SizingTarget]
 
 
 class SampleSizes(BaseModel, extra=Extra.allow):
@@ -77,7 +74,10 @@ class SampleSizes(BaseModel, extra=Extra.allow):
     __root__ dictionary field will generate as empty types.
 
     See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
+    and https://github.com/phillipdupuis/pydantic-to-typescript/issues/39
     for more info.
+
+    If this is fixed we should remove `extra=Extra.allow`.
     """
 
     # dynamic str key represents the concatenation of target recipe values
