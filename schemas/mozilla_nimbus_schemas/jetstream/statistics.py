@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Optional
 
+from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel, Field
 
 SCHEMA_VERSION = 4
@@ -29,3 +30,7 @@ class Statistic(BaseModel):
 
 class Statistics(BaseModel):
     __root__: list[Statistic]
+
+
+class StatisticsFactory(ModelFactory[Statistics]):
+    __model__ = Statistics

@@ -5,6 +5,7 @@ from mozilla_nimbus_schemas.jetstream import (
     AnalysisBasis,
     AnalysisError,
     AnalysisErrors,
+    AnalysisErrorsFactory,
 )
 
 """
@@ -128,3 +129,16 @@ def test_parse_analysis_errors_fails():
     """
     with pytest.raises(ValidationError):
         AnalysisErrors.parse_raw(error_json)
+
+
+def test_analysis_errors_factory():
+    analysis_errors = AnalysisErrorsFactory.build()
+    AnalysisErrors.validate(analysis_errors)
+
+
+def test_analysis_errors_invalid():
+    analysis_errors_dict = AnalysisErrorsFactory.build().dict()
+    print(analysis_errors_dict)
+    analysis_errors_dict["__root__"][0]["timestamp"] = "not a date!"
+    with pytest.raises(ValidationError):
+        AnalysisErrors.parse_obj(analysis_errors_dict)
