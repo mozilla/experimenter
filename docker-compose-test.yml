@@ -26,8 +26,6 @@ services:
       dockerfile: Dockerfile
     working_dir: /cirrus
 
-
-
   demo-app-server:
     build:
       context: ./demo-app/server

@@ -3,7 +3,7 @@ const http = require('http');
 const server = http.createServer((req, res) => {
   // Allow CORS by setting appropriate headers
  res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080'); // Replace with your frontend's URL
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
     res.setHeader('Access-Control-Allow-Methods', 'GET');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 

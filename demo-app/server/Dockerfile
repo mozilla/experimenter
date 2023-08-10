@@ -1,10 +1,9 @@
-# demo-app/server/Dockerfile.server
 FROM node:14
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-COPY index.js ./    
+COPY index.js ./
 
 EXPOSE 3001
 
