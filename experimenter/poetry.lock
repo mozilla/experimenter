@@ -1402,16 +1402,17 @@ test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
 name = "mozilla-nimbus-schemas"
-version = "2023.7.1"
+version = "2023.8.2"
 description = "Schemas used by Mozilla Nimbus and related projects."
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "mozilla_nimbus_schemas-2023.7.1-py3-none-any.whl", hash = "sha256:5297638f5ef9ac0e1bce31243c0658f55ac04345d2b3908ed338ccf3249f001e"},
-    {file = "mozilla_nimbus_schemas-2023.7.1.tar.gz", hash = "sha256:14e0dcaecf509c4e22a31b56230cf3d239b5427e86a2a4a83c36cb5610ed3dde"},
+    {file = "mozilla_nimbus_schemas-2023.8.2-py3-none-any.whl", hash = "sha256:e00e26604cec961ef143be6b657cf49f2065223ba95bd711ac82445e80e500d9"},
+    {file = "mozilla_nimbus_schemas-2023.8.2.tar.gz", hash = "sha256:3845ccc324ed63f48d882b9b287ca556d44e5f37ca015cd6176a1a94ac7de9d1"},
 ]
 
 [package.dependencies]
+polyfactory = ">=2.7.2,<3.0.0"
 pydantic = ">=1.10.7,<2.0.0"
 
 [[package]]
@@ -1680,6 +1681,29 @@ files = [
 
 [package.extras]
 dev = ["pre-commit", "tox"]
+
+[[package]]
+name = "polyfactory"
+version = "2.7.2"
+description = "Mock data generation factories"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "polyfactory-2.7.2-py3-none-any.whl", hash = "sha256:4e61d504527368a90bc51423670ba3528304d20ae0fb9705464ee99a40a711ca"},
+    {file = "polyfactory-2.7.2.tar.gz", hash = "sha256:ec919ccca990987134ff8f7b400983feb54285f832b743aa7012be35f998ccd4"},
+]
+
+[package.dependencies]
+faker = "*"
+typing-extensions = "*"
+
+[package.extras]
+attrs = ["attrs"]
+beanie = ["beanie", "pydantic[email]"]
+full = ["attrs", "beanie", "msgspec", "odmantic", "pydantic[email]"]
+msgspec = ["msgspec"]
+odmantic = ["odmantic", "pydantic[email]"]
+pydantic = ["pydantic[email]"]
 
 [[package]]
 name = "promise"
@@ -2810,4 +2834,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "274e440f8dc54d4cd67c7a131a79f239b49bbf532de971dc902d86829ba87bab"
+content-hash = "8bef0c9f9bb277852ca109634a7a1cb74290d5b6ff050fb7e3c612475a579708"
