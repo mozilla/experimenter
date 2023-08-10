@@ -10,6 +10,7 @@ packages = [{include = "mozilla_nimbus_schemas"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 pydantic = "^1.10.7"
+polyfactory = "^2.7.2"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.269"
