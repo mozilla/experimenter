@@ -51,6 +51,7 @@ FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/fi
 FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
 FEATURE_MANIFEST_FOCUS_ANDROID = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/focus-android/app/.experimenter.yaml
 FEATURE_MANIFEST_FOCUS_IOS = https://raw.githubusercontent.com/mozilla-mobile/focus-ios/main/.experimenter.yaml
+FEATURE_MANIFEST_MONITOR = https://raw.githubusercontent.com/mozilla/blurts-server/main/config/nimbus.yaml
 
 ssl: nginx/key.pem nginx/cert.pem
 
@@ -79,6 +80,7 @@ feature_manifests:
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
+	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/monitor-web.yaml $(FEATURE_MANIFEST_MONITOR)
 	cat experimenter/experimenter/features/manifests/firefox-desktop.yaml | grep path: | \
 	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
 	while read -r url; do \
