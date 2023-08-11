@@ -2081,6 +2081,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.branches.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
+        self.assertIsNone(child.takeaways_gain_amount)
         self.assertIsNone(child.takeaways_summary)
 
     def test_clone_completed_experiment(self):
@@ -2145,6 +2146,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.enrollment_start_date, None)
         self.assertEqual(child.published_dto, None)
         self.assertEqual(child.results_data, None)
+        self.assertEqual(child.takeaways_gain_amount, None)
         self.assertEqual(child.takeaways_metric_gain, False)
         self.assertEqual(child.takeaways_qbr_learning, False)
         self.assertEqual(child.takeaways_summary, None)

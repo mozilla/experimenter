@@ -262,6 +262,7 @@ export interface ExperimentInput {
   status?: NimbusExperimentStatusEnum | null;
   statusNext?: NimbusExperimentStatusEnum | null;
   takeawaysMetricGain?: boolean | null;
+  takeawaysGainAmount?: string | null;
   takeawaysQbrLearning?: boolean | null;
   takeawaysSummary?: string | null;
   targetingConfigSlug?: string | null;
