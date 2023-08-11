@@ -15,6 +15,8 @@ Test cases for population sizing schemas.
 
 
 class TestPopulationSizing(TestCase):
+    maxDiff = None
+
     def test_parse_population_sizing(self):
         """Test against known good data."""
         sizing_test_data = """
@@ -99,7 +101,7 @@ class TestPopulationSizing(TestCase):
         SampleSizes.validate(sample_sizes)
 
     def test_parse_population_sizing_factory_invalid(self):
-        sample_sizes_dict = SampleSizesFactory.build().dict()
+        sample_sizes_dict = SampleSizesFactory.build().dict()["__root__"]
         first_key = list(sample_sizes_dict.keys())[0]
         sample_sizes_dict[first_key]["BAD"] = {}
         with pytest.raises(ValidationError):
