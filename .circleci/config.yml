@@ -555,7 +555,7 @@ jobs:
       - run:
           name: Create the PyPI distribution files
           command: |
-            make schemas_build
+            make schemas_build_pypi
       - run:
           name: Upload to PyPI
           command: |
@@ -564,10 +564,6 @@ jobs:
             # For more on twine, see:
             #   https://twine.readthedocs.io/en/latest/
             make schemas_deploy_pypi
-      - run:
-          name: Create the NPM distribution files
-          command: |
-            make schemas_build_npm
       - run:
           name: NPM Authentication
           command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
