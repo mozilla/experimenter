@@ -19,6 +19,7 @@ export const takeawaysEditorFieldNames = [
   "takeawaysSummary",
   "takeawaysQbrLearning",
   "takeawaysMetricGain",
+  "takeawaysGainAmount",
 ] as const;
 
 type TakeawaysEditorFieldName = typeof takeawaysEditorFieldNames[number];
@@ -35,6 +36,7 @@ export const TakeawaysEditor = ({
   takeawaysSummary,
   takeawaysQbrLearning,
   takeawaysMetricGain,
+  takeawaysGainAmount,
   setShowEditor,
   onSubmit,
   submitErrors,
@@ -46,6 +48,7 @@ export const TakeawaysEditor = ({
     takeawaysSummary,
     takeawaysQbrLearning,
     takeawaysMetricGain,
+    takeawaysGainAmount,
   };
 
   type DefaultValues = typeof defaultValues;
@@ -191,7 +194,7 @@ export const TakeawaysEditor = ({
             <Form.Group data-testid="takeaways-metric" className="ml-3">
               <Form.Check
                 type="checkbox"
-                label="Promising Metric Gains"
+                label="Statistically Significant DAU Gain"
                 defaultChecked={isMetricGain ? isMetricGain : false}
                 onChange={(e) => setIsMetricGain(e.target.checked)}
                 onSubmit={handleSave}
@@ -199,6 +202,15 @@ export const TakeawaysEditor = ({
                 {...{ "data-testid": "takeawaysMetricGain" }}
               />
             </Form.Group>
+          </Form.Group>
+          <Form.Group as={Row} controlId="takeaways-gain" className="ml-1">
+            <Form.Label className="font-weight-bold">Gain Amount:</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={5}
+              placeholder="Examples: 0.5% gain in retention, or 0.5% gain in days of use"
+              {...formControlAttrs("takeawaysGainAmount")}
+            />
           </Form.Group>
         </Form>
       </FormProvider>
