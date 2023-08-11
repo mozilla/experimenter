@@ -271,7 +271,9 @@ schemas_check: schemas_install schemas_black schemas_ruff schemas_test
 schemas_code_format:
 	(cd schemas && poetry run black . && poetry run ruff --fix .)
 
-schemas_build:
+schemas_build: schemas_install schemas_build_pypi schemas_build_npm
+
+schemas_build_pypi:
 	(cd schemas && poetry build)
 
 schemas_deploy_pypi: schemas_install schemas_build
