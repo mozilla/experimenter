@@ -513,14 +513,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         PUBLISH_STATUS = ("STATE", "Publish status")
         IS_PAUSED = ("BOOLEAN", "Pause enrollment flag")
         IS_ARCHIVED = ("BOOLEAN", "Archive experiment flag")
-        POPULATION_PERCENTAGE = ("DYNAMIC", "Population percentage")
+        POPULATION_PERCENT = ("DYNAMIC", "Population percentage")
         RESULTS_DATA = ("DETAILED", "Results")
         FEATURE_CONFIGS = ("DETAILED", "Experiment's feature configuration")
         IS_ROLLOUT = ("BOOLEAN", "isRollout flag")
         PUBLIC_DESCRIPTION = ("GENERAL", "Experiment's description")
         PROPOSED_DURATION = ("GENERAL", "Experiment's expected duration")
-        PROPOSED_ENROLLMENT = ("GENERAL", "Expected number of enrolled clients")
-        TOTAL_ENROLLED_CLIENTS = ("GENERAL", "Total number of enrolled clients")
+        PROPOSED_ENROLLMENT = ("GENERAL", "Enrollment period")
+        TOTAL_ENROLLED_CLIENTS = ("GENERAL", "Expected number of clients")
         FIREFOX_MIN_VERSION = ("GENERAL", "Minimum firefox version")
         FIREFOX_MAX_VERSION = ("GENERAL", "Maximum firefox version")
         APPLICATION = ("GENERAL", "Application type")
@@ -551,6 +551,25 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         PREVENT_PREF_CONFLICTS = ("BOOLEAN", "Prevent preference conflicts flag")
         HYPOTHESIS = ("GENERAL", "Experiment's hypothesis")
         BRANCHES = ("LIST", "Experiment's branches")
+        _UPDATED_DATE_TIME = ("DATE_TIME", "Last updated at")
+        PUBLISHED_DTO = ("DETAILED", "Published DTO")
+        IS_STICKY = ("BOOLEAN", "Is sticky enrollent flag")
+        NIMBUSEXPERIMENT = ("GENERAL", "Nimbus Experiment")
+        REQUIRED_BY = ("LIST", "List of dependant experiments")
+        EXCLUDED_BY = ("LIST", "List of independant experiments")
+        DOCUMENTATION_LINKS = ("LIST", "Documentation links")
+        BUCKET_RANGE = ("LIST", "Bucket range")
+        CHANGES = ("LIST", "Experiment changelogs")
+        EMAILS = ("LIST", "Experiment emails")
+        ID = ("GENERAL", "Experiment's id")
+        NAME = ("GENERAL", "Experiment's name")
+        SLUG = ("GENERAL", "Experiment's slug")
+        OWNER = ("GENERAL", "Experiment's owner")
+        PARENT = ("GENERAL", "Experiment's parent")
+        IS_ROLLOUT_DIRTY = ("BOOLEAN", "Are changes approved flag")
+        STATUS_NEXT = ("STATE", "Next status")
+        RISK_MITIGATION_LINK = ("GENERAL", "Risk mitigation link")
+        WARN_FEATURE_SCHEMA = ("BOOLEAN", "Warn about feature schema flag")
 
         def __init__(self, event, display_name):
             self._value_ = event
@@ -562,3 +581,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
                 return cls[key]
             except KeyError:
                 return cls.TRIVIAL
+
+        @classmethod
+        def list(cls):
+            return [c.name for c in cls][1:]

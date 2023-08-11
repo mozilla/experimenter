@@ -104,6 +104,11 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
     old_value = json.dumps(pprint.pformat(field_diff["old_value"], width=40, indent=2))
     new_value = json.dumps(pprint.pformat(field_diff["new_value"], width=40, indent=2))
 
+    if event.value == "DATE_TIME":
+        if old_value is not None:
+            old_value = old_value.strftime("%B %d, %Y")
+        new_value = new_value.strftime("%B %d, %Y")
+
     if event.value == "LIST" or event.value == "DETAILED":
         change = {
             "event": event.value,
