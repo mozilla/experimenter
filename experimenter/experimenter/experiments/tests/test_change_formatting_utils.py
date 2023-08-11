@@ -1,3 +1,6 @@
+import json
+import pprint
+
 import pytest
 from django.test import TestCase
 from django.utils import timezone
@@ -319,8 +322,10 @@ class TestChangeFormattingMethod(TestCase):
             ),
             "changed_by": user.get_full_name(),
             "timestamp": timestamp,
-            "old_value": [],
-            "new_value": [country_ca, country_us],
+            "old_value": json.dumps(pprint.pformat([], width=40, indent=2)),
+            "new_value": json.dumps(
+                pprint.pformat([country_ca, country_us], width=40, indent=2)
+            ),
         }
 
         self.assertDictEqual(change, expected_change)
