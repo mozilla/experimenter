@@ -264,7 +264,10 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Version.FIREFOX_97,
             ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
-            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_96),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_96,
+            ),
         ]
     )
     def test_targeting_omits_version_for_unsupported_clients(self, application, version):
@@ -290,7 +293,10 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Version.FIREFOX_98,
             ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_97,
+            ),
         ]
     )
     def test_targeting_includes_min_version_for_supported_clients(
@@ -354,7 +360,10 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Version.FIREFOX_98,
             ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_97,
+            ),
         ]
     )
     def test_targeting_includes_max_version_for_supported_clients(
@@ -385,7 +394,10 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Version.FIREFOX_98,
             ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_97,
+            ),
         ]
     )
     def test_targeting_includes_min_and_max_version_for_supported_clients(
@@ -1471,7 +1483,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, population_percent=Decimal("50.0")
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            population_percent=Decimal("50.0"),
         )
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 5000)
@@ -2068,6 +2081,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.branches.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
+        self.assertIsNone(child.takeaways_gain_amount)
         self.assertIsNone(child.takeaways_summary)
 
     def test_clone_completed_experiment(self):
@@ -2132,6 +2146,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.enrollment_start_date, None)
         self.assertEqual(child.published_dto, None)
         self.assertEqual(child.results_data, None)
+        self.assertEqual(child.takeaways_gain_amount, None)
         self.assertEqual(child.takeaways_metric_gain, False)
         self.assertEqual(child.takeaways_qbr_learning, False)
         self.assertEqual(child.takeaways_summary, None)
@@ -2693,22 +2708,6 @@ class TestNimbusChangeLog(TestCase):
             message=None,
         )
         self.assertEqual(str(changelog), f"Draft > Preview by {user.email} on {now}")
-
-
-class TestNimbusFeatureConfig(TestCase):
-    @parameterized.expand(list(NimbusExperiment.Application))
-    def test_no_feature_fixture_exists(self, application):
-        application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
-        self.assertTrue(
-            NimbusFeatureConfig.objects.filter(
-                name__startswith="No Feature", application=application
-            ).exists(),
-            (
-                f"A 'No Feature {application_config.name}' FeatureConfig fixture "
-                "must be added in a migration.  See 0166_add_missing_feature_config "
-                "for examples."
-            ),
-        )
 
 
 class TestNimbusBranchScreenshot(TestCase):

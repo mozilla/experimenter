@@ -1,7 +1,8 @@
-from .analysis_errors import AnalysisError, AnalysisErrors
-from .metadata import ExternalConfig, Metadata, Metric, Outcome
+from .analysis_errors import AnalysisError, AnalysisErrors, AnalysisErrorsFactory
+from .metadata import ExternalConfig, Metadata, MetadataFactory, Metric, Outcome
 from .population_sizing import (
     SampleSizes,
+    SampleSizesFactory,
     SizingByUserType,
     SizingDetails,
     SizingMetric,
@@ -12,7 +13,7 @@ from .population_sizing import (
     SizingTarget,
     SizingUserType,
 )
-from .statistics import AnalysisBasis, Statistic, Statistics
+from .statistics import AnalysisBasis, Statistic, Statistics, StatisticsFactory
 
 __all__ = [
     "AnalysisBasis",
@@ -34,4 +35,8 @@ __all__ = [
     "SizingUserType",
     "Statistic",
     "Statistics",
+    "AnalysisErrorsFactory",
+    "MetadataFactory",
+    "SampleSizesFactory",
+    "StatisticsFactory",
 ]

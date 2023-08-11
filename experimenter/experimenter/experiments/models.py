@@ -58,7 +58,9 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
     def with_owner_features(self):
         return (
             self.get_queryset()
-            .prefetch_related("owner", "feature_configs", "projects")
+            .prefetch_related(
+                "owner", "feature_configs", "feature_configs__schemas", "projects"
+            )
             .order_by("-_updated_date_time")
         )
 
@@ -200,6 +202,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         null=True,
     )
     takeaways_metric_gain = models.BooleanField(default=False, blank=False, null=False)
+    takeaways_gain_amount = models.TextField(blank=True, null=True)
     takeaways_qbr_learning = models.BooleanField(default=False, blank=False, null=False)
     takeaways_summary = models.TextField(blank=True, null=True)
     _updated_date_time = models.DateTimeField(auto_now=True)
@@ -793,6 +796,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.takeaways_summary = None
         cloned.conclusion_recommendation = None
         cloned.takeaways_metric_gain = False
+        cloned.takeaways_gain_amount = None
         cloned.takeaways_qbr_learning = False
         cloned._start_date = None
         cloned._end_date = None

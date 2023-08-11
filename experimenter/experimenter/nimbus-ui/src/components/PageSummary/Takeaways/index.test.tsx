@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from "@apollo/client/testing";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import {
   act as hookAct,
   renderHook,
@@ -30,6 +36,7 @@ const { experiment } = mockExperimentQuery("demo-slug", {
   takeawaysSummary: "old content",
   takeawaysQbrLearning: true,
   takeawaysMetricGain: false,
+  takeawaysGainAmount: null,
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.RERUN,
 });
 
@@ -40,9 +47,10 @@ const Subject = ({
   <BaseSubject {...{ onSubmit, ...props }} />
 );
 
-const takeawaysSummary = "sample *exciting* content";
-const takeawaysQbrLearning = true;
+const takeawaysGainAmount = "sick gains all around";
 const takeawaysMetricGain = false;
+const takeawaysQbrLearning = true;
+const takeawaysSummary = "sample *exciting* content";
 const conclusionRecommendation =
   NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE;
 const expectedConclusionRecommendationLabel = "Change course";
@@ -56,10 +64,20 @@ describe("Takeaways", () => {
       screen.queryByTestId("conclusion-recommendation-status"),
     ).not.toBeInTheDocument();
     expect(screen.queryByTestId("edit-takeaways")).toBeInTheDocument();
+
     expect(
       screen.queryByTestId("takeaways-summary-rendered"),
     ).not.toBeInTheDocument();
-    expect(screen.queryByTestId("not-set")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("summary")).queryByTestId("not-set"),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByTestId("takeaways-gain-amount-rendered"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("gain-amount")).queryByTestId("not-set"),
+    ).toBeInTheDocument();
   });
 
   it("renders as expected with content", () => {
@@ -69,6 +87,7 @@ describe("Takeaways", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -82,7 +101,9 @@ describe("Takeaways", () => {
       "<p>sample <em>exciting</em> content</p>",
     );
     expect(screen.queryByTestId("edit-takeaways")).toBeInTheDocument();
-    expect(screen.queryByTestId("not-set")).not.toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("gain-amount")).queryByTestId("not-set"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders takeaways without edit button when experiment is archived", () => {
@@ -91,6 +112,8 @@ describe("Takeaways", () => {
         {...{
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
           isArchived: true,
         }}
@@ -117,6 +140,7 @@ describe("Takeaways", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -142,6 +166,7 @@ describe("TakeawaysEditor", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -152,6 +177,7 @@ describe("TakeawaysEditor", () => {
     const editorForm = screen.getByTestId("FormTakeaways");
     expect(editorForm).toHaveFormValues({
       takeawaysSummary,
+      takeawaysGainAmount,
       conclusionRecommendation,
     });
     expect(screen.queryByTestId("takeaways-qbr")).toBeInTheDocument();
@@ -169,6 +195,7 @@ describe("TakeawaysEditor", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
         }}
       />,
@@ -183,6 +210,7 @@ describe("TakeawaysEditor", () => {
 
   it("submits form data when save is clicked", async () => {
     const expected = {
+      takeawaysGainAmount: takeawaysGainAmount,
       takeawaysMetricGain: takeawaysMetricGain,
       takeawaysQbrLearning: takeawaysQbrLearning,
       takeawaysSummary: takeawaysSummary,
@@ -195,6 +223,7 @@ describe("TakeawaysEditor", () => {
           onSubmit,
           showEditor: true,
           takeawaysSummary,
+          takeawaysGainAmount,
           takeawaysMetricGain,
           takeawaysQbrLearning,
           conclusionRecommendation,
@@ -204,13 +233,18 @@ describe("TakeawaysEditor", () => {
     await act(async () => {
       fireEvent.click(screen.getByText("Save"));
     });
+
+    const result = onSubmit.mock.calls[0][0];
+
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
-    expect(onSubmit.mock.calls[0][0]).toEqual(expected);
-    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
-    expect(onSubmit.mock.calls[0][0].takeawaysMetricGain).toEqual(false);
+
+    expect(result).toEqual(expected);
+    expect(result.takeawaysGainAmount).toEqual(takeawaysGainAmount);
+    expect(result.takeawaysMetricGain).toEqual(takeawaysMetricGain);
+    expect(result.takeawaysQbrLearning).toEqual(takeawaysQbrLearning);
   });
 
-  it("updates qbr learning checkbox and saves", async () => {
+  it("updates takeaways checkboxes and saves as expected", async () => {
     const onSubmit = jest.fn();
     render(
       <Subject
@@ -218,6 +252,7 @@ describe("TakeawaysEditor", () => {
           onSubmit,
           showEditor: true,
           takeawaysSummary,
+          takeawaysGainAmount,
           takeawaysMetricGain: false,
           takeawaysQbrLearning: false,
           conclusionRecommendation,
@@ -259,32 +294,6 @@ describe("TakeawaysEditor", () => {
     expect(result2.takeawaysMetricGain).toEqual(true);
   });
 
-  it("submits takeaway checkbox values even if value not changed", async () => {
-    const onSubmit = jest.fn();
-    render(
-      <Subject
-        {...{
-          onSubmit,
-          showEditor: true,
-          takeawaysSummary,
-          takeawaysQbrLearning,
-          takeawaysMetricGain,
-          conclusionRecommendation,
-        }}
-      />,
-    );
-    expect(screen.getByTestId("takeawaysQbrLearning")).toBeChecked();
-    expect(screen.getByTestId("takeawaysMetricGain")).not.toBeChecked();
-
-    await act(async () => {
-      fireEvent.click(screen.getByText("Save"));
-    });
-
-    expect(onSubmit).toHaveBeenCalled();
-    expect(onSubmit.mock.calls[0][0].takeawaysQbrLearning).toEqual(true);
-    expect(onSubmit.mock.calls[0][0].takeawaysMetricGain).toEqual(false);
-  });
-
   it("hides the editor when cancel is clicked", async () => {
     const setShowEditor = jest.fn();
     render(
@@ -294,6 +303,8 @@ describe("TakeawaysEditor", () => {
           showEditor: true,
           takeawaysSummary,
           takeawaysQbrLearning,
+          takeawaysGainAmount,
+          takeawaysMetricGain,
           conclusionRecommendation,
         }}
       />,
@@ -317,6 +328,7 @@ describe("TakeawaysEditor", () => {
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
           conclusionRecommendation,
           isServerValid: false,
           submitErrors,
@@ -342,6 +354,7 @@ describe("useTakeaways", () => {
     takeawaysSummary: "super exciting results",
     takeawaysQbrLearning: true,
     takeawaysMetricGain: false,
+    takeawaysGainAmount: "lots of sick gains",
     conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.STOP,
   };
   const mutationVariables = {
@@ -349,6 +362,7 @@ describe("useTakeaways", () => {
     takeawaysSummary: submitData.takeawaysSummary,
     takeawaysQbrLearning: submitData.takeawaysQbrLearning,
     takeawaysMetricGain: submitData.takeawaysMetricGain,
+    takeawaysGainAmount: submitData.takeawaysGainAmount,
     conclusionRecommendation: submitData.conclusionRecommendation,
     changelogMessage: CHANGELOG_MESSAGES.UPDATED_TAKEAWAYS,
   };
@@ -363,6 +377,8 @@ describe("useTakeaways", () => {
     const props = result.current;
     expect(props).toMatchObject({
       id: experiment.id,
+      takeawaysGainAmount: experiment.takeawaysGainAmount,
+      takeawaysMetricGain: experiment.takeawaysMetricGain,
       takeawaysSummary: experiment.takeawaysSummary,
       conclusionRecommendation: experiment.conclusionRecommendation,
       showEditor: false,

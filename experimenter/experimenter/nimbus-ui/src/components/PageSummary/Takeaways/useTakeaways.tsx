@@ -24,6 +24,7 @@ export type UseTakeawaysExperimentSubset = Pick<
   | "takeawaysSummary"
   | "takeawaysQbrLearning"
   | "takeawaysMetricGain"
+  | "takeawaysGainAmount"
   | "isArchived"
 >;
 
@@ -58,6 +59,7 @@ export const useTakeaways = (
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
+          takeawaysGainAmount,
         } = data;
 
         try {
@@ -69,6 +71,7 @@ export const useTakeaways = (
               takeawaysSummary,
               takeawaysQbrLearning: takeawaysQbrLearning,
               takeawaysMetricGain: takeawaysMetricGain,
+              takeawaysGainAmount: takeawaysGainAmount,
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_TAKEAWAYS,
             },
           };
