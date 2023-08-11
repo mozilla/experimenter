@@ -21,7 +21,7 @@ from experimenter.openidc.tests.factories import UserFactory
         (NimbusConstants.ChangeEvent.PUBLISH_STATUS, "STATE"),
         (NimbusConstants.ChangeEvent.IS_PAUSED, "BOOLEAN"),
         (NimbusConstants.ChangeEvent.IS_ARCHIVED, "BOOLEAN"),
-        (NimbusConstants.ChangeEvent.POPULATION_PERCENTAGE, "DYNAMIC"),
+        (NimbusConstants.ChangeEvent.POPULATION_PERCENT, "DYNAMIC"),
         (NimbusConstants.ChangeEvent.RESULTS_DATA, "DETAILED"),
         (NimbusConstants.ChangeEvent.FEATURE_CONFIGS, "DETAILED"),
         (NimbusConstants.ChangeEvent.IS_ROLLOUT, "BOOLEAN"),
@@ -58,6 +58,26 @@ from experimenter.openidc.tests.factories import UserFactory
         (NimbusConstants.ChangeEvent.IS_LOCALIZED, "BOOLEAN"),
         (NimbusConstants.ChangeEvent.PREVENT_PREF_CONFLICTS, "BOOLEAN"),
         (NimbusConstants.ChangeEvent.HYPOTHESIS, "GENERAL"),
+        (NimbusConstants.ChangeEvent.BRANCHES, "LIST"),
+        (NimbusConstants.ChangeEvent._UPDATED_DATE_TIME, "DATE_TIME"),
+        (NimbusConstants.ChangeEvent.PUBLISHED_DTO, "DETAILED"),
+        (NimbusConstants.ChangeEvent.IS_STICKY, "BOOLEAN"),
+        (NimbusConstants.ChangeEvent.NIMBUSEXPERIMENT, "GENERAL"),
+        (NimbusConstants.ChangeEvent.REQUIRED_BY, "LIST"),
+        (NimbusConstants.ChangeEvent.EXCLUDED_BY, "LIST"),
+        (NimbusConstants.ChangeEvent.DOCUMENTATION_LINKS, "LIST"),
+        (NimbusConstants.ChangeEvent.BUCKET_RANGE, "LIST"),
+        (NimbusConstants.ChangeEvent.CHANGES, "LIST"),
+        (NimbusConstants.ChangeEvent.EMAILS, "LIST"),
+        (NimbusConstants.ChangeEvent.ID, "GENERAL"),
+        (NimbusConstants.ChangeEvent.NAME, "GENERAL"),
+        (NimbusConstants.ChangeEvent.SLUG, "GENERAL"),
+        (NimbusConstants.ChangeEvent.OWNER, "GENERAL"),
+        (NimbusConstants.ChangeEvent.PARENT, "GENERAL"),
+        (NimbusConstants.ChangeEvent.IS_ROLLOUT_DIRTY, "BOOLEAN"),
+        (NimbusConstants.ChangeEvent.STATUS_NEXT, "STATE"),
+        (NimbusConstants.ChangeEvent.RISK_MITIGATION_LINK, "GENERAL"),
+        (NimbusConstants.ChangeEvent.WARN_FEATURE_SCHEMA, "BOOLEAN"),
     ],
 )
 def test_enum_values(event, value):
@@ -72,7 +92,7 @@ def test_enum_values(event, value):
         (NimbusConstants.ChangeEvent.PUBLISH_STATUS, "Publish status"),
         (NimbusConstants.ChangeEvent.IS_PAUSED, "Pause enrollment flag"),
         (NimbusConstants.ChangeEvent.IS_ARCHIVED, "Archive experiment flag"),
-        (NimbusConstants.ChangeEvent.POPULATION_PERCENTAGE, "Population percentage"),
+        (NimbusConstants.ChangeEvent.POPULATION_PERCENT, "Population percentage"),
         (NimbusConstants.ChangeEvent.RESULTS_DATA, "Results"),
         (
             NimbusConstants.ChangeEvent.FEATURE_CONFIGS,
@@ -86,11 +106,11 @@ def test_enum_values(event, value):
         ),
         (
             NimbusConstants.ChangeEvent.PROPOSED_ENROLLMENT,
-            "Expected number of enrolled clients",
+            "Enrollment period",
         ),
         (
             NimbusConstants.ChangeEvent.TOTAL_ENROLLED_CLIENTS,
-            "Total number of enrolled clients",
+            "Expected number of clients",
         ),
         (NimbusConstants.ChangeEvent.FIREFOX_MIN_VERSION, "Minimum firefox version"),
         (NimbusConstants.ChangeEvent.FIREFOX_MAX_VERSION, "Maximum firefox version"),
@@ -151,6 +171,29 @@ def test_enum_values(event, value):
             "Prevent preference conflicts flag",
         ),
         (NimbusConstants.ChangeEvent.HYPOTHESIS, "Experiment's hypothesis"),
+        (NimbusConstants.ChangeEvent.BRANCHES, "Experiment's branches"),
+        (NimbusConstants.ChangeEvent._UPDATED_DATE_TIME, "Last updated at"),
+        (NimbusConstants.ChangeEvent.PUBLISHED_DTO, "Published DTO"),
+        (NimbusConstants.ChangeEvent.IS_STICKY, "Is sticky enrollent flag"),
+        (NimbusConstants.ChangeEvent.NIMBUSEXPERIMENT, "Nimbus Experiment"),
+        (NimbusConstants.ChangeEvent.REQUIRED_BY, "List of dependant experiments"),
+        (NimbusConstants.ChangeEvent.EXCLUDED_BY, "List of independant experiments"),
+        (NimbusConstants.ChangeEvent.DOCUMENTATION_LINKS, "Documentation links"),
+        (NimbusConstants.ChangeEvent.BUCKET_RANGE, "Bucket range"),
+        (NimbusConstants.ChangeEvent.CHANGES, "Experiment changelogs"),
+        (NimbusConstants.ChangeEvent.EMAILS, "Experiment emails"),
+        (NimbusConstants.ChangeEvent.ID, "Experiment's id"),
+        (NimbusConstants.ChangeEvent.NAME, "Experiment's name"),
+        (NimbusConstants.ChangeEvent.SLUG, "Experiment's slug"),
+        (NimbusConstants.ChangeEvent.OWNER, "Experiment's owner"),
+        (NimbusConstants.ChangeEvent.PARENT, "Experiment's parent"),
+        (NimbusConstants.ChangeEvent.IS_ROLLOUT_DIRTY, "Are changes approved flag"),
+        (NimbusConstants.ChangeEvent.STATUS_NEXT, "Next status"),
+        (NimbusConstants.ChangeEvent.RISK_MITIGATION_LINK, "Risk mitigation link"),
+        (
+            NimbusConstants.ChangeEvent.WARN_FEATURE_SCHEMA,
+            "Warn about feature schema flag",
+        ),
     ],
 )
 def test_display_name(event, display_name):
@@ -163,6 +206,11 @@ class TestChangeEventUtils(TestCase):
             NimbusConstants.ChangeEvent.find_enum_by_key("INVALID_KEY"),
             NimbusConstants.ChangeEvent.TRIVIAL,
         )
+
+    def test_all_values(self):
+        all_fields = [field.name.upper() for field in NimbusExperiment._meta.get_fields()]
+        all_enums = NimbusConstants.ChangeEvent.list()
+        self.assertEqual(sorted(all_fields), sorted(all_enums))
 
 
 class TestChangeFormattingMethod(TestCase):
@@ -322,6 +370,127 @@ class TestChangeFormattingMethod(TestCase):
                 f"{user.get_full_name()} "
                 f"set the {NimbusConstants.ChangeEvent.IS_ARCHIVED.display_name} "
                 f"as True"
+            ),
+            "changed_by": user.get_full_name(),
+            "timestamp": timestamp,
+        }
+
+        self.assertDictEqual(change, expected_change)
+
+    def test_get_first_date_time_formatted_change_object(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment-1",
+            published_dto={"id": "experiment", "test": False},
+        )
+        user = UserFactory.create()
+        time_format = "%I:%M:%S %p"
+        current_date = timezone.now().date()
+
+        timestamp_1 = timezone.make_aware(
+            timezone.datetime.combine(current_date, timezone.datetime.min.time())
+        )
+        timestamp_1.strftime(time_format)
+
+        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
+        timestamp_2.strftime(time_format)
+
+        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+
+        experiment.proposed_release_date = current_date
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, user, "set proposed end date", timestamp_2)
+
+        changelogs = list(
+            experiment.changes.order_by("-changed_on").prefetch_related("changed_by")
+        )
+
+        date_format = "%B %d, %Y"
+        old_value = None
+        new_value = current_date.strftime(date_format)
+
+        comparison_log = changelogs[0]
+        field_name = "proposed_release_date"
+        field_diff = {"old_value": old_value, "new_value": current_date}
+        timestamp = comparison_log.changed_on.strftime(time_format)
+
+        change = get_formatted_change_object(
+            field_name, field_diff, comparison_log, timestamp
+        )
+
+        expected_change = {
+            "event": NimbusConstants.ChangeEvent.PROPOSED_RELEASE_DATE.value,
+            "event_message": (
+                f"{user.get_full_name()} "
+                f"changed value of "
+                f"{NimbusConstants.ChangeEvent.PROPOSED_RELEASE_DATE.display_name} from "
+                f"{old_value} to {new_value}"
+            ),
+            "changed_by": user.get_full_name(),
+            "timestamp": timestamp,
+        }
+
+        self.assertDictEqual(change, expected_change)
+
+    def test_get_date_time_formatted_change_object(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment-1",
+            published_dto={"id": "experiment", "test": False},
+        )
+        user = UserFactory.create()
+        time_format = "%I:%M:%S %p"
+        current_date = timezone.now().date()
+        seven_days_later = current_date + timezone.timedelta(days=7)
+
+        timestamp_1 = timezone.make_aware(
+            timezone.datetime.combine(current_date, timezone.datetime.min.time())
+        )
+        timestamp_1.strftime(time_format)
+
+        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
+        timestamp_2.strftime(time_format)
+
+        timestamp_3 = timestamp_2 + timezone.timedelta(hours=2)
+        timestamp_3.strftime(time_format)
+
+        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+
+        experiment.proposed_release_date = current_date
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, user, "set proposed end date", timestamp_2)
+
+        experiment.proposed_release_date = seven_days_later
+        experiment.save()
+
+        generate_nimbus_changelog(
+            experiment, user, "changed proposed end date", timestamp_3
+        )
+
+        changelogs = list(
+            experiment.changes.order_by("-changed_on").prefetch_related("changed_by")
+        )
+
+        date_format = "%B %d, %Y"
+        old_value = current_date.strftime(date_format)
+        new_value = seven_days_later.strftime(date_format)
+
+        comparison_log = changelogs[0]
+        field_name = "proposed_release_date"
+        field_diff = {"old_value": current_date, "new_value": seven_days_later}
+        timestamp = comparison_log.changed_on.strftime(time_format)
+
+        change = get_formatted_change_object(
+            field_name, field_diff, comparison_log, timestamp
+        )
+
+        expected_change = {
+            "event": NimbusConstants.ChangeEvent.PROPOSED_RELEASE_DATE.value,
+            "event_message": (
+                f"{user.get_full_name()} "
+                f"changed value of "
+                f"{NimbusConstants.ChangeEvent.PROPOSED_RELEASE_DATE.display_name} from "
+                f"{old_value} to {new_value}"
             ),
             "changed_by": user.get_full_name(),
             "timestamp": timestamp,

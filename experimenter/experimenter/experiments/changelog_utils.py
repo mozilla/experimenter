@@ -101,6 +101,11 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
     old_value = field_diff["old_value"]
     new_value = field_diff["new_value"]
 
+    if event.value == "DATE_TIME":
+        if old_value is not None:
+            old_value = old_value.strftime("%B %d, %Y")
+        new_value = new_value.strftime("%B %d, %Y")
+
     if event.value == "LIST" or event.value == "DETAILED":
         change = {
             "event": event.value,
