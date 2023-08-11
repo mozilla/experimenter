@@ -252,6 +252,12 @@ cirrus_typecheck_createstub: cirrus_build
 cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
+build_demo_app:
+	$(COMPOSE) build demo-app-frontend demo-app-server
+
+run_demo_app: build_demo_app
+	$(COMPOSE) up demo-app-frontend demo-app-server
+
 # nimbus schemas package
 SCHEMAS_VERSION_FILE := schemas/VERSION
 SCHEMAS_VERSION := $(shell cat ${SCHEMAS_VERSION_FILE})
