@@ -267,6 +267,9 @@ schemas_test:
 	(cd schemas && poetry run pytest)
 
 schemas_check: schemas_install schemas_black schemas_ruff schemas_test
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output ./test_index.d.ts --json2ts-cmd "yarn json2ts")
+	diff schemas/test_index.d.ts schemas/index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;rm schemas/test_index.d.ts;exit 1)
+	rm schemas/test_index.d.ts && echo "Done. No problems with schemas."
 
 schemas_code_format:
 	(cd schemas && poetry run black . && poetry run ruff --fix .)
