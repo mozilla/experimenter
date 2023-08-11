@@ -133,10 +133,42 @@ export const TakeawaysEditor = ({
               {submitErrors["*"]}
             </Alert>
           )}
+
+          <Form.Group
+            as={Row}
+            controlId="takeawaysQbrLearning"
+            className="mb-0 pl-1"
+          >
+            <Form.Group data-testid="takeaways-qbr" className="ml-3">
+              <Form.Check
+                type="checkbox"
+                label="QBR Notable Learning"
+                defaultChecked={isQbrLearning ? isQbrLearning : false}
+                onChange={(e) => setIsQbrLearning(e.target.checked)}
+                onSubmit={handleSave}
+                id="takeawaysQbrLearning"
+                {...{ "data-testid": "takeawaysQbrLearning" }}
+              />
+            </Form.Group>
+          </Form.Group>
+          <Form.Group as={Row} controlId="takeawaysMetricGain" className="pl-1">
+            <Form.Group data-testid="takeaways-metric" className="ml-3">
+              <Form.Check
+                type="checkbox"
+                label="Statistically Significant DAU Gain"
+                defaultChecked={isMetricGain ? isMetricGain : false}
+                onChange={(e) => setIsMetricGain(e.target.checked)}
+                onSubmit={handleSave}
+                id="takeawaysMetricGain"
+                {...{ "data-testid": "takeawaysMetricGain" }}
+              />
+            </Form.Group>
+          </Form.Group>
+
           <Form.Group as={Row}>
             <Form.Group
               as={Col}
-              className="flex-grow-0"
+              className="col-sm-2 col-md-2 ml-1"
               controlId="conclusionRecommendation"
             >
               <Form.Label
@@ -177,32 +209,7 @@ export const TakeawaysEditor = ({
               <FormErrors name="takeawaysSummary" />
             </Form.Group>
           </Form.Group>
-          <Form.Group as={Row} controlId="takeawaysQbrLearning">
-            <Form.Group data-testid="takeaways-qbr" className="ml-3">
-              <Form.Check
-                type="checkbox"
-                label="QBR Notable Learning"
-                defaultChecked={isQbrLearning ? isQbrLearning : false}
-                onChange={(e) => setIsQbrLearning(e.target.checked)}
-                onSubmit={handleSave}
-                id="takeawaysQbrLearning"
-                {...{ "data-testid": "takeawaysQbrLearning" }}
-              />
-            </Form.Group>
-          </Form.Group>
-          <Form.Group as={Row} controlId="takeawaysMetricGain">
-            <Form.Group data-testid="takeaways-metric" className="ml-3">
-              <Form.Check
-                type="checkbox"
-                label="Statistically Significant DAU Gain"
-                defaultChecked={isMetricGain ? isMetricGain : false}
-                onChange={(e) => setIsMetricGain(e.target.checked)}
-                onSubmit={handleSave}
-                id="takeawaysMetricGain"
-                {...{ "data-testid": "takeawaysMetricGain" }}
-              />
-            </Form.Group>
-          </Form.Group>
+
           <Form.Group as={Row} controlId="takeaways-gain" className="ml-1">
             <Form.Label className="font-weight-bold">Gain Amount:</Form.Label>
             <Form.Control
