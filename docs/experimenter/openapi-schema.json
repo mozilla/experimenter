@@ -3627,7 +3627,8 @@
               "release",
               "esr",
               "testflight",
-              "aurora"
+              "aurora",
+              "developer"
             ],
             "type": "string"
           },
