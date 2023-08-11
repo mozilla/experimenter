@@ -15,6 +15,7 @@ class Channel(models.TextChoices):
     ESR = "esr"
     TESTFLIGHT = "testflight"
     AURORA = "aurora"
+    DEVELOPER = "developer"
 
 
 class BucketRandomizationUnit(models.TextChoices):
@@ -68,6 +69,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     slug="ios",
     app_name="firefox_ios",
     channel_app_id={
+        Channel.DEVELOPER: "org.mozilla.ios.Fennec",
         Channel.NIGHTLY: "org.mozilla.ios.Fennec",
         Channel.BETA: "org.mozilla.ios.FirefoxBeta",
         Channel.RELEASE: "org.mozilla.ios.Firefox",
