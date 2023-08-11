@@ -35,6 +35,7 @@ def nimbus_check_kinto_push_queue():
     for collection in (
         settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
         settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+        settings.KINTO_COLLECTION_NIMBUS_WEB,
     ):
         nimbus_check_kinto_push_queue_by_collection.delay(collection)
 

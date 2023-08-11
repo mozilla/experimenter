@@ -15,6 +15,7 @@ export enum NimbusExperimentApplicationEnum {
   IOS = "IOS",
   KLAR_ANDROID = "KLAR_ANDROID",
   KLAR_IOS = "KLAR_IOS",
+  MONITOR = "MONITOR",
 }
 
 export enum NimbusExperimentChannelEnum {
@@ -73,6 +74,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_115_0_2 = "FIREFOX_115_0_2",
   FIREFOX_116 = "FIREFOX_116",
   FIREFOX_116_0_1 = "FIREFOX_116_0_1",
+  FIREFOX_116_2_0 = "FIREFOX_116_2_0",
   FIREFOX_117 = "FIREFOX_117",
   FIREFOX_118 = "FIREFOX_118",
   FIREFOX_119 = "FIREFOX_119",
