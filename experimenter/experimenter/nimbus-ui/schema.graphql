@@ -266,6 +266,7 @@ enum NimbusExperimentChannelEnum {
   ESR
   TESTFLIGHT
   AURORA
+  DEVELOPER
 }
 
 type NimbusLocaleType {
