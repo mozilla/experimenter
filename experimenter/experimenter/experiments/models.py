@@ -106,14 +106,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     parent = models.ForeignKey["NimbusExperiment"](
         "experiments.NimbusExperiment", models.SET_NULL, blank=True, null=True
     )
-    is_rollout = models.BooleanField(default=False)
-    is_archived = models.BooleanField(default=False)
+    is_rollout = models.BooleanField("Is Experiment a rollout flag", default=False)
+    is_archived = models.BooleanField("Is Experiment archived flag", default=False)
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="owned_nimbusexperiments",
     )
     status = models.CharField(
+        "Status",
         max_length=255,
         default=NimbusConstants.Status.DRAFT,
         choices=NimbusConstants.Status.choices,
@@ -125,103 +126,153 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         choices=NimbusConstants.Status.choices,
     )
     publish_status = models.CharField(
+        "Publish status",
         max_length=255,
         default=NimbusConstants.PublishStatus.IDLE,
         choices=NimbusConstants.PublishStatus.choices,
     )
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, unique=True)
-    public_description = models.TextField(default="")
-    risk_mitigation_link = models.URLField(max_length=255, blank=True)
-    is_paused = models.BooleanField(default=False)
-    is_rollout_dirty = models.BooleanField(blank=False, null=False, default=False)
+    public_description = models.TextField("Experiment's description", default="")
+    risk_mitigation_link = models.URLField(
+        "Risk mitigation link", max_length=255, blank=True
+    )
+    is_paused = models.BooleanField("Is enrollment paused flag", default=False)
+    is_rollout_dirty = models.BooleanField(
+        "Approved changes flag", blank=False, null=False, default=False
+    )
     proposed_duration = models.PositiveIntegerField(
+        "Experiment's expected duration",
         default=NimbusConstants.DEFAULT_PROPOSED_DURATION,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
     proposed_enrollment = models.PositiveIntegerField(
+        "Enrollment duration",
         default=NimbusConstants.DEFAULT_PROPOSED_ENROLLMENT,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
     population_percent = models.DecimalField[Decimal](
-        max_digits=7, decimal_places=4, default=0.0
+        "Population percent", max_digits=7, decimal_places=4, default=0.0
     )
-    total_enrolled_clients = models.PositiveIntegerField(default=0)
+    total_enrolled_clients = models.PositiveIntegerField(
+        "Expected number of clients", default=0
+    )
     firefox_min_version = models.CharField(
+        "Minimum firefox version",
         max_length=255,
         default=NimbusConstants.Version.NO_VERSION,
         blank=True,
     )
     firefox_max_version = models.CharField(
+        "Maximum firefox version",
         max_length=255,
         default=NimbusConstants.Version.NO_VERSION,
         blank=True,
     )
     application = models.CharField(
+        "Application type",
         max_length=255,
         choices=NimbusConstants.Application.choices,
     )
     channel = models.CharField(
+        "Channel type",
         max_length=255,
         choices=NimbusConstants.Channel.choices,
     )
-    locales = models.ManyToManyField[Locale](Locale, blank=True)
-    countries = models.ManyToManyField[Country](Country, blank=True)
-    languages = models.ManyToManyField[Language](Language, blank=True)
-    is_sticky = models.BooleanField(default=False)
-    projects = models.ManyToManyField[Project](Project, blank=True)
-    hypothesis = models.TextField(default=NimbusConstants.HYPOTHESIS_DEFAULT)
-    primary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
-    secondary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
-    feature_configs = models.ManyToManyField["NimbusFeatureConfig"](
-        "NimbusFeatureConfig",
-        blank=True,
+    locales = models.ManyToManyField[Locale](
+        Locale, blank=True, verbose_name="Supported locales"
     )
-    warn_feature_schema = models.BooleanField(default=False)
+    countries = models.ManyToManyField[Country](
+        Country, blank=True, verbose_name="Supported countries"
+    )
+    languages = models.ManyToManyField[Language](
+        Language, blank=True, verbose_name="Supported languages"
+    )
+    is_sticky = models.BooleanField("Sticky enrollment flag", default=False)
+    projects = models.ManyToManyField[Project](
+        Project, blank=True, verbose_name="Supported projects"
+    )
+    hypothesis = models.TextField(
+        "Experiment's hypothesis", default=NimbusConstants.HYPOTHESIS_DEFAULT
+    )
+    primary_outcomes = ArrayField(
+        models.CharField(max_length=255),
+        default=list,
+        verbose_name="Experiment's primary outcomes",
+    )
+    secondary_outcomes = ArrayField(
+        models.CharField(max_length=255),
+        default=list,
+        verbose_name="Experiment's secondary outcomes",
+    )
+    feature_configs = models.ManyToManyField["NimbusFeatureConfig"](
+        "NimbusFeatureConfig", blank=True, verbose_name="Feature configurations"
+    )
+    warn_feature_schema = models.BooleanField("Feature schema warning", default=False)
     targeting_config_slug = models.CharField(
+        "Targeting configuration slug",
         max_length=255,
         default=TargetingConstants.TargetingConfig.NO_TARGETING,
     )
     reference_branch = models.OneToOneField["NimbusBranch"](
-        "NimbusBranch", blank=True, null=True, on_delete=models.SET_NULL
+        "NimbusBranch",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name="Reference branch",
     )
     published_dto = models.JSONField[Dict[str, Any]](
-        encoder=DjangoJSONEncoder, blank=True, null=True
+        "Published DTO", encoder=DjangoJSONEncoder, blank=True, null=True
     )
     results_data = models.JSONField[Dict[str, Any]](
-        encoder=DjangoJSONEncoder, blank=True, null=True
+        "Results data", encoder=DjangoJSONEncoder, blank=True, null=True
     )
-    risk_partner_related = models.BooleanField(default=None, blank=True, null=True)
-    risk_revenue = models.BooleanField(default=None, blank=True, null=True)
-    risk_brand = models.BooleanField(default=None, blank=True, null=True)
+    risk_partner_related = models.BooleanField(
+        "Is a partner related risk flag", default=None, blank=True, null=True
+    )
+    risk_revenue = models.BooleanField(
+        "Is a revenue risk flag", default=None, blank=True, null=True
+    )
+    risk_brand = models.BooleanField(
+        "Is a brand risk flag", default=None, blank=True, null=True
+    )
     conclusion_recommendation = models.CharField(
+        "Recommended conclusion",
         max_length=255,
         blank=True,
         null=True,
     )
-    takeaways_summary = models.TextField(blank=True, null=True)
+    takeaways_summary = models.TextField("Takeaways summary", blank=True, null=True)
     _updated_date_time = models.DateTimeField(auto_now=True)
-    is_first_run = models.BooleanField(default=False)
-    is_client_schema_disabled = models.BooleanField(default=False)
+    is_first_run = models.BooleanField("Is experiment's first run flag", default=False)
+    is_client_schema_disabled = models.BooleanField(
+        "Is client schema disabled flag", default=False
+    )
 
-    _start_date = models.DateField(blank=True, null=True)
-    _enrollment_end_date = models.DateField(blank=True, null=True)
-    _end_date = models.DateField(blank=True, null=True)
-    prevent_pref_conflicts = models.BooleanField(blank=True, null=True, default=False)
-    proposed_release_date = models.DateField(blank=True, null=True)
+    _start_date = models.DateField("Experiment's start date", blank=True, null=True)
+    _enrollment_end_date = models.DateField("Enrollment end date", blank=True, null=True)
+    _end_date = models.DateField("Experiment's end date", blank=True, null=True)
+    prevent_pref_conflicts = models.BooleanField(
+        "Prevent preference conflicts flag", blank=True, null=True, default=False
+    )
+    proposed_release_date = models.DateField(
+        "Expected release date", blank=True, null=True
+    )
 
-    is_localized = models.BooleanField(default=False)
-    localizations = models.TextField(blank=True, null=True)
+    is_localized = models.BooleanField("Is localized flag", default=False)
+    localizations = models.TextField("Localizations", blank=True, null=True)
 
     required_experiments = models.ManyToManyField["NimbusExperiment"](
         "NimbusExperiment",
         related_name="required_by",
         blank=True,
+        verbose_name="Required experiments",
     )
     excluded_experiments = models.ManyToManyField["NimbusExperiment"](
         "NimbusExperiment",
         related_name="excluded_by",
         blank=True,
+        verbose_name="Excluded experiments",
     )
 
     objects = NimbusExperimentManager()

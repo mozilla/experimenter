@@ -2357,7 +2357,7 @@ class TestNimbusExperiment(TestCase):
                     "date": current_date,
                     "changes": [
                         {
-                            "event": NimbusConstants.ChangeEvent.STATUS.value,
+                            "event": "STATE",
                             "event_message": (
                                 f"{user.get_full_name()} "
                                 f"changed value of Status from "
@@ -2365,9 +2365,11 @@ class TestNimbusExperiment(TestCase):
                             ),
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_3,
+                            "old_value": "Draft",
+                            "new_value": "Preview",
                         },
                         {
-                            "event": NimbusConstants.ChangeEvent.PUBLISH_STATUS.value,
+                            "event": "STATE",
                             "event_message": (
                                 f"{user.get_full_name()} "
                                 f"changed value of Publish status from "
@@ -2375,6 +2377,8 @@ class TestNimbusExperiment(TestCase):
                             ),
                             "changed_by": user.get_full_name(),
                             "timestamp": formatted_timestamp_2,
+                            "old_value": "Idle",
+                            "new_value": "Review",
                         },
                         {
                             "event": "CREATION",

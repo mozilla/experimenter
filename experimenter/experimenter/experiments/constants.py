@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Dict
 
 from django.conf import settings
@@ -506,82 +505,3 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_MULTIFEATURE_TOO_MANY_FEATURES = (
         "Multi-feature experiments can only support up to 20 different features."
     )
-
-    class ChangeEvent(Enum):
-        TRIVIAL = ("TRIVIAL", "Trivial Change")
-        STATUS = ("STATE", "Status")
-        PUBLISH_STATUS = ("STATE", "Publish status")
-        IS_PAUSED = ("BOOLEAN", "Pause enrollment flag")
-        IS_ARCHIVED = ("BOOLEAN", "Archive experiment flag")
-        POPULATION_PERCENT = ("DYNAMIC", "Population percentage")
-        RESULTS_DATA = ("DETAILED", "Results")
-        FEATURE_CONFIGS = ("DETAILED", "Experiment's feature configuration")
-        IS_ROLLOUT = ("BOOLEAN", "isRollout flag")
-        PUBLIC_DESCRIPTION = ("GENERAL", "Experiment's description")
-        PROPOSED_DURATION = ("GENERAL", "Experiment's expected duration")
-        PROPOSED_ENROLLMENT = ("GENERAL", "Enrollment period")
-        TOTAL_ENROLLED_CLIENTS = ("GENERAL", "Expected number of clients")
-        FIREFOX_MIN_VERSION = ("GENERAL", "Minimum firefox version")
-        FIREFOX_MAX_VERSION = ("GENERAL", "Maximum firefox version")
-        APPLICATION = ("GENERAL", "Application type")
-        CHANNEL = ("GENERAL", "Channel type")
-        LOCALES = ("LIST", "Supported locales")
-        COUNTRIES = ("LIST", "Supported countries")
-        LANGUAGES = ("LIST", "Supported languages")
-        PROJECTS = ("LIST", "Supported projects")
-        PRIMARY_OUTCOMES = ("LIST", "Experiment's primary outcomes")
-        SECONDARY_OUTCOMES = ("LIST", "Experiment's secondary outcomes")
-        _START_DATE = ("DATE_TIME", "Experiment's start date")
-        _END_DATE = ("DATE_TIME", "Experiment's end date")
-        _ENROLLMENT_END_DATE = ("DATE_TIME", "Last date for Enrollment")
-        PROPOSED_RELEASE_DATE = ("DATE_TIME", "Expected experiment release date")
-        REQUIRED_EXPERIMENTS = ("LIST", "List of required experiments")
-        EXCLUDED_EXPERIMENTS = ("LIST", "List of excluded experiments")
-        REFERENCE_BRANCH = ("DETAILED", "Experiment's reference branch")
-        TARGETING_CONFIG_SLUG = ("GENERAL", "Experiment's targeting")
-        RISK_BRAND = ("BOOLEAN", "Is a brand risk flag")
-        RISK_REVENUE = ("BOOLEAN", "Is a revenue risk flag")
-        RISK_PARTNER_RELATED = ("BOOLEAN", "Is a Brand risk flag")
-        CONCLUSION_RECOMMENDATION = ("GENERAL", "Experiment's conclusion")
-        TAKEAWAYS_SUMMARY = ("GENERAL", "Experiment's takeaways")
-        IS_FIRST_RUN = ("BOOLEAN", "Is first run flag")
-        IS_CLIENT_SCHEMA_DISABLED = ("BOOLEAN", "Is client schema disabled flag")
-        LOCALIZATIONS = ("GENERAL", "Experiment's localizations")
-        IS_LOCALIZED = ("BOOLEAN", "Is experiment localized flag")
-        PREVENT_PREF_CONFLICTS = ("BOOLEAN", "Prevent preference conflicts flag")
-        HYPOTHESIS = ("GENERAL", "Experiment's hypothesis")
-        BRANCHES = ("LIST", "Experiment's branches")
-        _UPDATED_DATE_TIME = ("DATE_TIME", "Last updated at")
-        PUBLISHED_DTO = ("DETAILED", "Published DTO")
-        IS_STICKY = ("BOOLEAN", "Is sticky enrollent flag")
-        NIMBUSEXPERIMENT = ("GENERAL", "Nimbus Experiment")
-        REQUIRED_BY = ("LIST", "List of dependant experiments")
-        EXCLUDED_BY = ("LIST", "List of independant experiments")
-        DOCUMENTATION_LINKS = ("LIST", "Documentation links")
-        BUCKET_RANGE = ("LIST", "Bucket range")
-        CHANGES = ("LIST", "Experiment changelogs")
-        EMAILS = ("LIST", "Experiment emails")
-        ID = ("GENERAL", "Experiment's id")
-        NAME = ("GENERAL", "Experiment's name")
-        SLUG = ("GENERAL", "Experiment's slug")
-        OWNER = ("GENERAL", "Experiment's owner")
-        PARENT = ("GENERAL", "Experiment's parent")
-        IS_ROLLOUT_DIRTY = ("BOOLEAN", "Are changes approved flag")
-        STATUS_NEXT = ("STATE", "Next status")
-        RISK_MITIGATION_LINK = ("GENERAL", "Risk mitigation link")
-        WARN_FEATURE_SCHEMA = ("BOOLEAN", "Warn about feature schema flag")
-
-        def __init__(self, event, display_name):
-            self._value_ = event
-            self.display_name = display_name
-
-        @classmethod
-        def find_enum_by_key(cls, key):
-            try:
-                return cls[key]
-            except KeyError:
-                return cls.TRIVIAL
-
-        @classmethod
-        def list(cls):
-            return [c.name for c in cls][1:]

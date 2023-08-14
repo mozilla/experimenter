@@ -1,7 +1,11 @@
+import json
+import pprint
+
+from django.contrib.postgres.fields import ArrayField
+from django.db import models
 from django.utils import timezone
 from rest_framework import serializers
 
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -91,54 +95,84 @@ def generate_nimbus_changelog(experiment, changed_by, message, changed_on=None):
 
 
 def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
-    event = NimbusConstants.ChangeEvent.find_enum_by_key(field_name.upper())
+    event_name = "GENERAL"
+    field_instance = NimbusExperiment._meta.get_field(field_name)
     field_display_name = (
-        event.display_name
-        if event.value != NimbusConstants.ChangeEvent.TRIVIAL.value
+        field_instance.verbose_name
+        if hasattr(field_instance, "verbose_name")
         else field_name
     )
 
     old_value = field_diff["old_value"]
     new_value = field_diff["new_value"]
 
-    if event.value == "DATE_TIME":
+    if isinstance(
+        field_instance,
+        (models.ManyToManyField, models.OneToOneField, models.ManyToOneRel),
+    ):
+        event_name = "DETAILED"
+        if field_name in ["countries", "locales", "languages"]:
+            field_model = field_instance.related_model
+            data = field_model.objects.all()
+            values = list(data.filter(pk__in=old_value).values_list("name", flat=True))
+            old_value = values if values else old_value
+            values = list(data.filter(pk__in=new_value).values_list("name", flat=True))
+            new_value = values if values else new_value
+            old_value = json.dumps(pprint.pformat(old_value, width=40, indent=2))
+            new_value = json.dumps(pprint.pformat(new_value, width=40, indent=2))
+
+        elif field_name in [
+            "feature_configs",
+            "reference_branch",
+            "branches",
+            "required_experiments",
+            "excluded_experiments",
+            "projects",
+        ]:
+            old_value = [json.dumps(config, indent=4) for config in old_value]
+            new_value = [json.dumps(config, indent=4) for config in new_value]
+
+    if isinstance(field_instance, ArrayField):
+        event_name = "DETAILED"
+        old_value = json.dumps(pprint.pformat(old_value, width=40, indent=2))
+        new_value = json.dumps(pprint.pformat(new_value, width=40, indent=2))
+
+    if isinstance(field_instance, models.JSONField):
+        event_name = "DETAILED"
         if old_value is not None:
-            old_value = old_value.strftime("%B %d, %Y")
-        new_value = new_value.strftime("%B %d, %Y")
+            old_value = json.dumps(old_value, indent=4)
+        if new_value is not None:
+            new_value = json.dumps(new_value, indent=4)
 
-    if event.value == "LIST" or event.value == "DETAILED":
-        change = {
-            "event": event.value,
-            "event_message": (
-                f"{changelog.changed_by.get_full_name()} "
-                f"changed value of {field_display_name}"
-            ),
-            "changed_by": changelog.changed_by.get_full_name(),
-            "timestamp": timestamp,
-            "old_value": old_value,
-            "new_value": new_value,
-        }
-    elif event.value == "BOOLEAN":
-        change = {
-            "event": event.value,
-            "event_message": (
-                f"{changelog.changed_by.get_full_name()} "
-                f"set the {field_display_name} "
-                f"as {new_value}"
-            ),
-            "changed_by": changelog.changed_by.get_full_name(),
-            "timestamp": timestamp,
-        }
+    if isinstance(field_instance, models.BooleanField):
+        event_name = "BOOLEAN"
+
+    if field_name in ["status", "publish_status"]:
+        event_name = "STATE"
+
+    if event_name == "DETAILED":
+        change_message = (
+            f"{changelog.changed_by.get_full_name()} "
+            f"changed value of {field_display_name}"
+        )
+    elif event_name == "BOOLEAN":
+        change_message = (
+            f"{changelog.changed_by.get_full_name()} "
+            f"set the {field_display_name} "
+            f"as {new_value}"
+        )
     else:
-        change = {
-            "event": event.value,
-            "event_message": (
-                f"{changelog.changed_by.get_full_name()} "
-                f"changed value of {field_display_name} from "
-                f"{old_value} to {new_value}"
-            ),
-            "changed_by": changelog.changed_by.get_full_name(),
-            "timestamp": timestamp,
-        }
+        change_message = (
+            f"{changelog.changed_by.get_full_name()} "
+            f"changed value of {field_display_name} from "
+            f"{old_value} to {new_value}"
+        )
 
-    return change
+    return {
+        "event": event_name,
+        "event_message": change_message,
+        "changed_by": changelog.changed_by.get_full_name(),
+        "timestamp": timestamp,
+        "old_value": old_value,
+        "new_value": new_value,
+    }
