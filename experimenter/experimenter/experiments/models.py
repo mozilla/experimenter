@@ -850,7 +850,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def get_changelogs_by_date(self):
         changes_by_date = defaultdict(list)
-        date_option = "%I:%M:%S %p"
+        date_option = "%I:%M %p %Z"
         changelogs = list(
             self.changes.order_by("-changed_on").prefetch_related("changed_by")
         )
@@ -858,7 +858,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for index, changelog in enumerate(changelogs[:-1]):
             current_data = changelog.experiment_data
             previous_data = changelogs[index + 1].experiment_data
-            timestamp = changelog.changed_on.strftime(date_option)
+            local_timestamp = timezone.localtime(changelog.changed_on)
+            timestamp = local_timestamp.strftime(date_option)
 
             diff_fields = {
                 field: {
@@ -877,11 +878,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 change = {
                     "event": "GENERAL",
                     "event_message": (
-                        f"{changelog.changed_by.get_full_name()} "
+                        f"{changelog.changed_by} "
                         f"changed value of {field} from "
                         f"{field_diff['old_value']} to {field_diff['new_value']}"
                     ),
-                    "changed_by": changelog.changed_by.get_full_name(),
+                    "changed_by": changelog.changed_by,
                     "timestamp": timestamp,
                 }
 
@@ -889,14 +890,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if changelogs:
             creation_log = changelogs[-1]
-            first_timestamp = creation_log.changed_on.strftime(date_option)
+            first_local_timestamp = timezone.localtime(creation_log.changed_on)
+            first_timestamp = first_local_timestamp.strftime(date_option)
             change = {
                 "event": "CREATION",
-                "event_message": (
-                    f"{creation_log.changed_by.get_full_name()} "
-                    f"created this experiment"
-                ),
-                "changed_by": creation_log.changed_by.get_full_name(),
+                "event_message": (f"{creation_log.changed_by} created this experiment"),
+                "changed_by": creation_log.changed_by,
                 "timestamp": first_timestamp,
             }
             changes_by_date[creation_log.changed_on.date()].append(change)
