@@ -23,7 +23,7 @@ from django.utils.text import slugify
 
 from experimenter.base import UploadsStorage
 from experimenter.base.models import Country, Language, Locale
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants import ChangeEventType, NimbusConstants
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
@@ -911,7 +911,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         from experimenter.experiments.changelog_utils import get_formatted_change_object
 
         changes_by_date = defaultdict(list)
-        date_option = "%I:%M:%S %p"
+        date_option = "%I:%M %p %Z"
         changelogs = list(
             self.changes.order_by("-changed_on").prefetch_related("changed_by")
         )
@@ -919,7 +919,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for index, changelog in enumerate(changelogs[:-1]):
             current_data = changelog.experiment_data
             previous_data = changelogs[index + 1].experiment_data
-            timestamp = changelog.changed_on.strftime(date_option)
+            local_timestamp = timezone.localtime(changelog.changed_on)
+            timestamp = local_timestamp.strftime(date_option)
 
             diff_fields = {
                 field: {
@@ -944,21 +945,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if changelogs:
             creation_log = changelogs[-1]
+            first_local_timestamp = timezone.localtime(creation_log.changed_on)
+            first_timestamp = first_local_timestamp.strftime(date_option)
             if self.parent:
                 message = (
-                    f"{creation_log.changed_by.get_full_name()} "
+                    f"{creation_log.changed_by} "
                     f"cloned this experiment from {self.parent.name}"
                 )
             else:
-                message = (
-                    f"{creation_log.changed_by.get_full_name()} "
-                    f"created this experiment"
-                )
-            first_timestamp = creation_log.changed_on.strftime(date_option)
+                message = f"{creation_log.changed_by} created this experiment"
             change = {
-                "event": "CREATION",
+                "event": ChangeEventType.CREATION,
                 "event_message": message,
-                "changed_by": creation_log.changed_by.get_full_name(),
+                "changed_by": creation_log.changed_by,
                 "timestamp": first_timestamp,
             }
             changes_by_date[creation_log.changed_on.date()].append(change)

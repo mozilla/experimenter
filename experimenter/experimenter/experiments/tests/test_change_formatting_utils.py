@@ -1,3 +1,4 @@
+import datetime
 import json
 import pprint
 
@@ -9,6 +10,7 @@ from experimenter.experiments.changelog_utils import (
     generate_nimbus_changelog,
     get_formatted_change_object,
 )
+from experimenter.experiments.constants import ChangeEventType
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
@@ -18,27 +20,33 @@ from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestChangeFormattingMethod(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory.create()
+        cls.current_date = timezone.now().date()
+        cls.time_format = "%I:%M %p %Z"
+
+    def setUp(self):
+        self.first_timestamp = timezone.make_aware(
+            datetime.datetime.combine(self.current_date, datetime.datetime.min.time())
+        )
+
+    def _create_timestamp(self, hours):
+        return self.first_timestamp + timezone.timedelta(hours=hours)
+
+    def _create_formatted_timestamp(self, timestamp):
+        local_timestamp = timezone.localtime(timestamp)
+        return local_timestamp.strftime(self.time_format)
+
     def test_get_default_formatted_change_object(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment-1",
             published_dto={"id": "experiment", "test": False},
         )
-        user = UserFactory.create()
-        time_format = "%I:%M:%S %p"
-        current_date = timezone.now().date()
+        timestamp_2 = self._create_timestamp(2)
+        timestamp_3 = self._create_timestamp(4)
 
-        timestamp_1 = timezone.make_aware(
-            timezone.datetime.combine(current_date, timezone.datetime.min.time())
-        )
-        timestamp_1.strftime(time_format)
-
-        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
-        timestamp_2.strftime(time_format)
-
-        timestamp_3 = timestamp_2 + timezone.timedelta(hours=2)
-        timestamp_3.strftime(time_format)
-
-        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+        generate_nimbus_changelog(experiment, self.user, "created", self.first_timestamp)
 
         new_value = NimbusExperiment.PublishStatus.IDLE
         old_value = NimbusExperiment.PublishStatus.REVIEW
@@ -46,12 +54,16 @@ class TestChangeFormattingMethod(TestCase):
         experiment.publish_status = old_value
         experiment.save()
 
-        generate_nimbus_changelog(experiment, user, "publish_status change", timestamp_2)
+        generate_nimbus_changelog(
+            experiment, self.user, "publish_status change", timestamp_2
+        )
 
         experiment.publish_status = new_value
         experiment.save()
 
-        generate_nimbus_changelog(experiment, user, "status_next change", timestamp_3)
+        generate_nimbus_changelog(
+            experiment, self.user, "status_next change", timestamp_3
+        )
 
         changelogs = list(
             experiment.changes.order_by("-changed_on").prefetch_related("changed_by")
@@ -60,7 +72,7 @@ class TestChangeFormattingMethod(TestCase):
         comparison_log = changelogs[0]
         field_name = "publish_status"
         field_diff = {"old_value": old_value, "new_value": new_value}
-        timestamp = comparison_log.changed_on.strftime(time_format)
+        change_timestamp = self._create_formatted_timestamp(comparison_log.changed_on)
         field_instance = NimbusExperiment._meta.get_field(field_name)
         field_display_name = (
             field_instance.verbose_name
@@ -69,18 +81,17 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         change = get_formatted_change_object(
-            field_name, field_diff, comparison_log, timestamp
+            field_name, field_diff, comparison_log, change_timestamp
         )
 
         expected_change = {
-            "event": "STATE",
+            "event": ChangeEventType.STATUS,
             "event_message": (
-                f"{user.get_full_name()} "
-                f"changed value of {field_display_name} from "
+                f"{self.user} changed value of {field_display_name} from "
                 f"{old_value} to {new_value}"
             ),
-            "changed_by": user.get_full_name(),
-            "timestamp": timestamp,
+            "changed_by": self.user,
+            "timestamp": change_timestamp,
             "old_value": old_value,
             "new_value": new_value,
         }
@@ -92,21 +103,12 @@ class TestChangeFormattingMethod(TestCase):
             slug="experiment-1",
             published_dto={"id": "experiment", "test": False},
         )
-        user = UserFactory.create()
-        time_format = "%I:%M:%S %p"
-        current_date = timezone.now().date()
+        timestamp_2 = self._create_timestamp(2)
+
         country_ca = CountryFactory.create(code="CA")
         country_us = CountryFactory.create(code="US")
 
-        timestamp_1 = timezone.make_aware(
-            timezone.datetime.combine(current_date, timezone.datetime.min.time())
-        )
-        timestamp_1.strftime(time_format)
-
-        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
-        timestamp_2.strftime(time_format)
-
-        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+        generate_nimbus_changelog(experiment, self.user, "created", self.first_timestamp)
 
         old_value = []
         new_value = [country_us.pk, country_ca.pk]
@@ -115,7 +117,9 @@ class TestChangeFormattingMethod(TestCase):
         experiment.countries.set(new_value)
         experiment.save()
 
-        generate_nimbus_changelog(experiment, user, "countries were added", timestamp_2)
+        generate_nimbus_changelog(
+            experiment, self.user, "countries were added", timestamp_2
+        )
 
         changelogs = list(
             experiment.changes.order_by("-changed_on").prefetch_related("changed_by")
@@ -124,7 +128,7 @@ class TestChangeFormattingMethod(TestCase):
         comparison_log = changelogs[0]
         field_name = "countries"
         field_diff = {"old_value": old_value, "new_value": new_value}
-        timestamp = comparison_log.changed_on.strftime(time_format)
+        change_timestamp = self._create_formatted_timestamp(comparison_log.changed_on)
         field_instance = NimbusExperiment._meta.get_field(field_name)
         field_display_name = (
             field_instance.verbose_name
@@ -133,16 +137,14 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         change = get_formatted_change_object(
-            field_name, field_diff, comparison_log, timestamp
+            field_name, field_diff, comparison_log, change_timestamp
         )
 
         expected_change = {
-            "event": "DETAILED",
-            "event_message": (
-                f"{user.get_full_name()} " f"changed value of {field_display_name}"
-            ),
-            "changed_by": user.get_full_name(),
-            "timestamp": timestamp,
+            "event": ChangeEventType.DETAILED,
+            "event_message": f"{self.user} changed value of {field_display_name}",
+            "changed_by": self.user,
+            "timestamp": change_timestamp,
             "old_value": json.dumps(pprint.pformat(old_value, width=40, indent=2)),
             "new_value": json.dumps(
                 pprint.pformat(transformed_value, width=40, indent=2)
@@ -156,9 +158,7 @@ class TestChangeFormattingMethod(TestCase):
             slug="experiment-1",
             published_dto={"id": "experiment", "test": False},
         )
-        user = UserFactory.create()
-        time_format = "%I:%M:%S %p"
-        current_date = timezone.now().date()
+        timestamp_2 = self._create_timestamp(2)
         feature = NimbusFeatureConfigFactory(slug="feature")
         fields = feature._meta.fields
 
@@ -171,15 +171,7 @@ class TestChangeFormattingMethod(TestCase):
             field_value = getattr(feature, field_name)
             feature_dict[field_name] = field_value
 
-        timestamp_1 = timezone.make_aware(
-            timezone.datetime.combine(current_date, timezone.datetime.min.time())
-        )
-        timestamp_1.strftime(time_format)
-
-        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
-        timestamp_2.strftime(time_format)
-
-        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+        generate_nimbus_changelog(experiment, self.user, "created", self.first_timestamp)
 
         old_value = []
         new_value = [feature_dict]
@@ -187,7 +179,9 @@ class TestChangeFormattingMethod(TestCase):
         experiment.feature_configs.set([feature])
         experiment.save()
 
-        generate_nimbus_changelog(experiment, user, "features were added", timestamp_2)
+        generate_nimbus_changelog(
+            experiment, self.user, "features were added", timestamp_2
+        )
 
         changelogs = list(
             experiment.changes.order_by("-changed_on").prefetch_related("changed_by")
@@ -196,7 +190,7 @@ class TestChangeFormattingMethod(TestCase):
         comparison_log = changelogs[0]
         field_name = "feature_configs"
         field_diff = {"old_value": old_value, "new_value": new_value}
-        timestamp = comparison_log.changed_on.strftime(time_format)
+        change_timestamp = self._create_formatted_timestamp(comparison_log.changed_on)
         field_instance = NimbusExperiment._meta.get_field(field_name)
         field_display_name = (
             field_instance.verbose_name
@@ -205,16 +199,14 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         change = get_formatted_change_object(
-            field_name, field_diff, comparison_log, timestamp
+            field_name, field_diff, comparison_log, change_timestamp
         )
 
         expected_change = {
-            "event": "DETAILED",
-            "event_message": (
-                f"{user.get_full_name()} " f"changed value of {field_display_name}"
-            ),
-            "changed_by": user.get_full_name(),
-            "timestamp": timestamp,
+            "event": ChangeEventType.DETAILED,
+            "event_message": f"{self.user} changed value of {field_display_name}",
+            "changed_by": self.user,
+            "timestamp": change_timestamp,
             "old_value": [json.dumps(config, indent=4) for config in old_value],
             "new_value": [json.dumps(config, indent=4) for config in new_value],
         }
@@ -226,19 +218,9 @@ class TestChangeFormattingMethod(TestCase):
             slug="experiment-1",
             published_dto={"id": "experiment", "test": False},
         )
-        user = UserFactory.create()
-        time_format = "%I:%M:%S %p"
-        current_date = timezone.now().date()
+        timestamp_2 = self._create_timestamp(2)
 
-        timestamp_1 = timezone.make_aware(
-            timezone.datetime.combine(current_date, timezone.datetime.min.time())
-        )
-        timestamp_1.strftime(time_format)
-
-        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
-        timestamp_2.strftime(time_format)
-
-        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+        generate_nimbus_changelog(experiment, self.user, "created", self.first_timestamp)
 
         old_value = []
         new_value = ["test-outcome"]
@@ -247,7 +229,7 @@ class TestChangeFormattingMethod(TestCase):
         experiment.save()
 
         generate_nimbus_changelog(
-            experiment, user, "primary outcomes were added", timestamp_2
+            experiment, self.user, "primary outcomes were added", timestamp_2
         )
 
         changelogs = list(
@@ -257,7 +239,7 @@ class TestChangeFormattingMethod(TestCase):
         comparison_log = changelogs[0]
         field_name = "primary_outcomes"
         field_diff = {"old_value": old_value, "new_value": new_value}
-        timestamp = comparison_log.changed_on.strftime(time_format)
+        change_timestamp = self._create_formatted_timestamp(comparison_log.changed_on)
         field_instance = NimbusExperiment._meta.get_field(field_name)
         field_display_name = (
             field_instance.verbose_name
@@ -266,16 +248,14 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         change = get_formatted_change_object(
-            field_name, field_diff, comparison_log, timestamp
+            field_name, field_diff, comparison_log, change_timestamp
         )
 
         expected_change = {
-            "event": "DETAILED",
-            "event_message": (
-                f"{user.get_full_name()} " f"changed value of {field_display_name}"
-            ),
-            "changed_by": user.get_full_name(),
-            "timestamp": timestamp,
+            "event": ChangeEventType.DETAILED,
+            "event_message": f"{self.user} changed value of {field_display_name}",
+            "changed_by": self.user,
+            "timestamp": change_timestamp,
             "old_value": json.dumps(pprint.pformat(old_value, width=40, indent=2)),
             "new_value": json.dumps(pprint.pformat(new_value, width=40, indent=2)),
         }
@@ -287,28 +267,18 @@ class TestChangeFormattingMethod(TestCase):
             slug="experiment-1",
             published_dto={"id": "experiment", "test": False},
         )
-        user = UserFactory.create()
-        time_format = "%I:%M:%S %p"
-        current_date = timezone.now().date()
+        timestamp_2 = self._create_timestamp(2)
 
         old_value = {}
         new_value = {"v2": {"overall": {"enrollments": {"all": {}}}}}
 
-        timestamp_1 = timezone.make_aware(
-            timezone.datetime.combine(current_date, timezone.datetime.min.time())
-        )
-        timestamp_1.strftime(time_format)
-
-        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
-        timestamp_2.strftime(time_format)
-
-        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+        generate_nimbus_changelog(experiment, self.user, "created", self.first_timestamp)
 
         experiment.results_data = new_value
         experiment.save()
 
         generate_nimbus_changelog(
-            experiment, user, "primary outcomes were added", timestamp_2
+            experiment, self.user, "primary outcomes were added", timestamp_2
         )
 
         changelogs = list(
@@ -318,7 +288,7 @@ class TestChangeFormattingMethod(TestCase):
         comparison_log = changelogs[0]
         field_name = "results_data"
         field_diff = {"old_value": old_value, "new_value": new_value}
-        timestamp = comparison_log.changed_on.strftime(time_format)
+        change_timestamp = self._create_formatted_timestamp(comparison_log.changed_on)
         field_instance = NimbusExperiment._meta.get_field(field_name)
         field_display_name = (
             field_instance.verbose_name
@@ -327,16 +297,14 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         change = get_formatted_change_object(
-            field_name, field_diff, comparison_log, timestamp
+            field_name, field_diff, comparison_log, change_timestamp
         )
 
         expected_change = {
-            "event": "DETAILED",
-            "event_message": (
-                f"{user.get_full_name()} " f"changed value of {field_display_name}"
-            ),
-            "changed_by": user.get_full_name(),
-            "timestamp": timestamp,
+            "event": ChangeEventType.DETAILED,
+            "event_message": f"{self.user} changed value of {field_display_name}",
+            "changed_by": self.user,
+            "timestamp": change_timestamp,
             "old_value": json.dumps(old_value, indent=4),
             "new_value": json.dumps(new_value, indent=4),
         }
@@ -348,19 +316,9 @@ class TestChangeFormattingMethod(TestCase):
             slug="experiment-1",
             published_dto={"id": "experiment", "test": False},
         )
-        user = UserFactory.create()
-        time_format = "%I:%M:%S %p"
-        current_date = timezone.now().date()
+        timestamp_2 = self._create_timestamp(2)
 
-        timestamp_1 = timezone.make_aware(
-            timezone.datetime.combine(current_date, timezone.datetime.min.time())
-        )
-        timestamp_1.strftime(time_format)
-
-        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
-        timestamp_2.strftime(time_format)
-
-        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+        generate_nimbus_changelog(experiment, self.user, "created", self.first_timestamp)
 
         old_value = False
         new_value = True
@@ -369,7 +327,7 @@ class TestChangeFormattingMethod(TestCase):
         experiment.save()
 
         generate_nimbus_changelog(
-            experiment, user, "experiment was archived", timestamp_2
+            experiment, self.user, "experiment was archived", timestamp_2
         )
 
         changelogs = list(
@@ -379,7 +337,7 @@ class TestChangeFormattingMethod(TestCase):
         comparison_log = changelogs[0]
         field_name = "is_archived"
         field_diff = {"old_value": old_value, "new_value": new_value}
-        timestamp = comparison_log.changed_on.strftime(time_format)
+        change_timestamp = self._create_formatted_timestamp(comparison_log.changed_on)
         field_instance = NimbusExperiment._meta.get_field(field_name)
         field_display_name = (
             field_instance.verbose_name
@@ -388,18 +346,14 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         change = get_formatted_change_object(
-            field_name, field_diff, comparison_log, timestamp
+            field_name, field_diff, comparison_log, change_timestamp
         )
 
         expected_change = {
-            "event": "BOOLEAN",
-            "event_message": (
-                f"{user.get_full_name()} "
-                f"set the {field_display_name} "
-                f"as {new_value}"
-            ),
-            "changed_by": user.get_full_name(),
-            "timestamp": timestamp,
+            "event": ChangeEventType.BOOLEAN,
+            "event_message": f"{self.user} set the {field_display_name} as {new_value}",
+            "changed_by": self.user,
+            "timestamp": change_timestamp,
             "old_value": old_value,
             "new_value": new_value,
         }

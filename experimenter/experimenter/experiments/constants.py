@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Dict
 
 from django.conf import settings
@@ -16,6 +17,14 @@ class Channel(models.TextChoices):
     TESTFLIGHT = "testflight"
     AURORA = "aurora"
     DEVELOPER = "developer"
+
+
+class ChangeEventType(Enum):
+    GENERAL = "GENERAL"
+    CREATION = "CREATION"
+    DETAILED = "DETAILED"
+    STATUS = "STATE"
+    BOOLEAN = "BOOLEAN"
 
 
 class BucketRandomizationUnit(models.TextChoices):

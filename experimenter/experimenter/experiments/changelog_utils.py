@@ -6,6 +6,7 @@ from django.db import models
 from django.utils import timezone
 from rest_framework import serializers
 
+from experimenter.experiments.constants import ChangeEventType
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -95,7 +96,7 @@ def generate_nimbus_changelog(experiment, changed_by, message, changed_on=None):
 
 
 def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
-    event_name = "GENERAL"
+    event_name = ChangeEventType.GENERAL
     field_instance = NimbusExperiment._meta.get_field(field_name)
     field_display_name = (
         field_instance.verbose_name
@@ -110,7 +111,7 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
         field_instance,
         (models.ManyToManyField, models.OneToOneField, models.ManyToOneRel),
     ):
-        event_name = "DETAILED"
+        event_name = ChangeEventType.DETAILED
         if field_name in ["countries", "locales", "languages"]:
             field_model = field_instance.related_model
             data = field_model.objects.all()
@@ -133,45 +134,39 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
             new_value = [json.dumps(config, indent=4) for config in new_value]
 
     if isinstance(field_instance, ArrayField):
-        event_name = "DETAILED"
+        event_name = ChangeEventType.DETAILED
         old_value = json.dumps(pprint.pformat(old_value, width=40, indent=2))
         new_value = json.dumps(pprint.pformat(new_value, width=40, indent=2))
 
     if isinstance(field_instance, models.JSONField):
-        event_name = "DETAILED"
+        event_name = ChangeEventType.DETAILED
         if old_value is not None:
             old_value = json.dumps(old_value, indent=4)
         if new_value is not None:
             new_value = json.dumps(new_value, indent=4)
 
     if isinstance(field_instance, models.BooleanField):
-        event_name = "BOOLEAN"
+        event_name = ChangeEventType.BOOLEAN
 
     if field_name in ["status", "publish_status"]:
-        event_name = "STATE"
+        event_name = ChangeEventType.STATUS
 
-    if event_name == "DETAILED":
+    if event_name == ChangeEventType.DETAILED:
+        change_message = f"{changelog.changed_by} changed value of {field_display_name}"
+    elif event_name == ChangeEventType.BOOLEAN:
         change_message = (
-            f"{changelog.changed_by.get_full_name()} "
-            f"changed value of {field_display_name}"
-        )
-    elif event_name == "BOOLEAN":
-        change_message = (
-            f"{changelog.changed_by.get_full_name()} "
-            f"set the {field_display_name} "
-            f"as {new_value}"
+            f"{changelog.changed_by} set the {field_display_name} as {new_value}"
         )
     else:
         change_message = (
-            f"{changelog.changed_by.get_full_name()} "
-            f"changed value of {field_display_name} from "
+            f"{changelog.changed_by} changed value of {field_display_name} from "
             f"{old_value} to {new_value}"
         )
 
     return {
         "event": event_name,
         "event_message": change_message,
-        "changed_by": changelog.changed_by.get_full_name(),
+        "changed_by": changelog.changed_by,
         "timestamp": timestamp,
         "old_value": old_value,
         "new_value": new_value,
