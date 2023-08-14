@@ -912,6 +912,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         changes_by_date = defaultdict(list)
         date_option = "%I:%M %p %Z"
+        date_option = "%I:%M %p %Z"
         changelogs = list(
             self.changes.order_by("-changed_on").prefetch_related("changed_by")
         )
@@ -919,6 +920,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for index, changelog in enumerate(changelogs[:-1]):
             current_data = changelog.experiment_data
             previous_data = changelogs[index + 1].experiment_data
+            local_timestamp = timezone.localtime(changelog.changed_on)
+            timestamp = local_timestamp.strftime(date_option)
             local_timestamp = timezone.localtime(changelog.changed_on)
             timestamp = local_timestamp.strftime(date_option)
 

@@ -2272,6 +2272,13 @@ class TestNimbusExperiment(TestCase):
         time_format = "%I:%M %p %Z"
         local_timestamp = timezone.localtime(timestamp)
         formatted_timestamp = local_timestamp.strftime(time_format)
+        current_datetime = datetime.datetime(2021, 1, 1).date()
+        timestamp = timezone.make_aware(
+            datetime.datetime.combine(current_datetime, datetime.datetime.min.time())
+        )
+        time_format = "%I:%M %p %Z"
+        local_timestamp = timezone.localtime(timestamp)
+        formatted_timestamp = local_timestamp.strftime(time_format)
 
         experiment_changelogs = experiment.get_changelogs_by_date()
 
@@ -2285,6 +2292,7 @@ class TestNimbusExperiment(TestCase):
                         {
                             "event": ChangeEventType.CREATION,
                             "event_message": (
+                                f"{experiment.owner} created this experiment"
                                 f"{experiment.owner} created this experiment"
                             ),
                             "changed_by": experiment.owner,
@@ -2343,19 +2351,27 @@ class TestNimbusExperiment(TestCase):
         )
         user = UserFactory.create()
         time_format = "%I:%M %p %Z"
+        time_format = "%I:%M %p %Z"
         current_date = timezone.now().date()
 
         timestamp_1 = timezone.make_aware(
             datetime.datetime.combine(current_date, datetime.datetime.min.time())
+            datetime.datetime.combine(current_date, datetime.datetime.min.time())
         )
+        local_timestamp_1 = timezone.localtime(timestamp_1)
+        formatted_timestamp_1 = local_timestamp_1.strftime(time_format)
         local_timestamp_1 = timezone.localtime(timestamp_1)
         formatted_timestamp_1 = local_timestamp_1.strftime(time_format)
 
         timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
         local_timestamp_2 = timezone.localtime(timestamp_2)
         formatted_timestamp_2 = local_timestamp_2.strftime(time_format)
+        local_timestamp_2 = timezone.localtime(timestamp_2)
+        formatted_timestamp_2 = local_timestamp_2.strftime(time_format)
 
         timestamp_3 = timestamp_2 + timezone.timedelta(hours=2)
+        local_timestamp_3 = timezone.localtime(timestamp_3)
+        formatted_timestamp_3 = local_timestamp_3.strftime(time_format)
         local_timestamp_3 = timezone.localtime(timestamp_3)
         formatted_timestamp_3 = local_timestamp_3.strftime(time_format)
 
@@ -2388,6 +2404,7 @@ class TestNimbusExperiment(TestCase):
                                 f"Draft to Preview"
                             ),
                             "changed_by": user,
+                            "changed_by": user,
                             "timestamp": formatted_timestamp_3,
                             "old_value": "Draft",
                             "new_value": "Preview",
@@ -2398,6 +2415,7 @@ class TestNimbusExperiment(TestCase):
                                 f"{user} changed value of Publish status from "
                                 f"Idle to Review"
                             ),
+                            "changed_by": user,
                             "changed_by": user,
                             "timestamp": formatted_timestamp_2,
                             "old_value": "Idle",
