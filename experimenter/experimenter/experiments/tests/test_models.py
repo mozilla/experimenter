@@ -2265,9 +2265,13 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
         )
-        current_datetime = timezone.datetime(2021, 1, 1).date()
-        time_format = "%I:%M:%S %p"
-        formatted_timestamp = current_datetime.strftime(time_format)
+        current_datetime = datetime.datetime(2021, 1, 1).date()
+        timestamp = timezone.make_aware(
+            datetime.datetime.combine(current_datetime, datetime.datetime.min.time())
+        )
+        time_format = "%I:%M %p %Z"
+        local_timestamp = timezone.localtime(timestamp)
+        formatted_timestamp = local_timestamp.strftime(time_format)
 
         experiment_changelogs = experiment.get_changelogs_by_date()
 
@@ -2281,10 +2285,9 @@ class TestNimbusExperiment(TestCase):
                         {
                             "event": "CREATION",
                             "event_message": (
-                                f"{experiment.owner.get_full_name()} "
-                                f"created this experiment"
+                                f"{experiment.owner} created this experiment"
                             ),
-                            "changed_by": experiment.owner.get_full_name(),
+                            "changed_by": experiment.owner,
                             "timestamp": formatted_timestamp,
                         },
                     ],
@@ -2298,19 +2301,22 @@ class TestNimbusExperiment(TestCase):
             published_dto={"id": "experiment", "test": False},
         )
         user = UserFactory.create()
-        time_format = "%I:%M:%S %p"
+        time_format = "%I:%M %p %Z"
         current_date = timezone.now().date()
 
         timestamp_1 = timezone.make_aware(
-            timezone.datetime.combine(current_date, timezone.datetime.min.time())
+            datetime.datetime.combine(current_date, datetime.datetime.min.time())
         )
-        formatted_timestamp_1 = timestamp_1.strftime(time_format)
+        local_timestamp_1 = timezone.localtime(timestamp_1)
+        formatted_timestamp_1 = local_timestamp_1.strftime(time_format)
 
         timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
-        formatted_timestamp_2 = timestamp_2.strftime(time_format)
+        local_timestamp_2 = timezone.localtime(timestamp_2)
+        formatted_timestamp_2 = local_timestamp_2.strftime(time_format)
 
         timestamp_3 = timestamp_2 + timezone.timedelta(hours=2)
-        formatted_timestamp_3 = timestamp_3.strftime(time_format)
+        local_timestamp_3 = timezone.localtime(timestamp_3)
+        formatted_timestamp_3 = local_timestamp_3.strftime(time_format)
 
         generate_nimbus_changelog(experiment, user, "created", timestamp_1)
 
@@ -2337,29 +2343,27 @@ class TestNimbusExperiment(TestCase):
                         {
                             "event": "GENERAL",
                             "event_message": (
-                                f"{user.get_full_name()} "
+                                f"{user} "
                                 f"changed value of status_next from "
                                 f"None to Live"
                             ),
-                            "changed_by": user.get_full_name(),
+                            "changed_by": user,
                             "timestamp": formatted_timestamp_3,
                         },
                         {
                             "event": "GENERAL",
                             "event_message": (
-                                f"{user.get_full_name()} "
+                                f"{user} "
                                 f"changed value of publish_status from "
                                 f"Idle to Review"
                             ),
-                            "changed_by": user.get_full_name(),
+                            "changed_by": user,
                             "timestamp": formatted_timestamp_2,
                         },
                         {
                             "event": "CREATION",
-                            "event_message": (
-                                f"{user.get_full_name()} " f"created this experiment"
-                            ),
-                            "changed_by": user.get_full_name(),
+                            "event_message": (f"{user} created this experiment"),
+                            "changed_by": user,
                             "timestamp": formatted_timestamp_1,
                         },
                     ],
