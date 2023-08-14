@@ -1,7 +1,13 @@
 import json
 from unittest import TestCase
 
-from mozilla_nimbus_schemas.jetstream import SampleSizes
+import pytest
+from pydantic import ValidationError
+
+from mozilla_nimbus_schemas.jetstream import (
+    SampleSizes,
+    SampleSizesFactory,
+)
 
 """
 Test cases for population sizing schemas.
@@ -9,19 +15,20 @@ Test cases for population sizing schemas.
 
 
 class TestPopulationSizing(TestCase):
+    maxDiff = None
+
     def test_parse_population_sizing(self):
         """Test against known good data."""
         sizing_test_data = """
         {
-            "firefox_desktop:release:['EN-US']:US:108": {
+            "firefox_desktop:release:['EN-US']:US": {
                 "new": {
                     "target_recipe": {
                         "app_id": "firefox_desktop",
                         "channel": "release",
                         "locale": "('EN-US')",
                         "country": "US",
-                        "new_or_existing": "new",
-                        "minimum_version": "108"
+                        "new_or_existing": "new"
                     },
                     "sample_sizes": {
                         "Power0.8EffectSize0.05": {
@@ -55,8 +62,7 @@ class TestPopulationSizing(TestCase):
                         "channel": "release",
                         "locale": "('EN-US')",
                         "country": "US",
-                        "new_or_existing": "existing",
-                        "minimum_version": "108"
+                        "new_or_existing": "existing"
                     },
                     "sample_sizes": {
                         "Power0.8EffectSize0.05": {
@@ -89,3 +95,14 @@ class TestPopulationSizing(TestCase):
         """
         sample_sizes = SampleSizes.parse_raw(sizing_test_data)
         self.assertEqual(json.dumps(json.loads(sizing_test_data)), sample_sizes.json())
+
+    def test_parse_population_sizing_factory(self):
+        sample_sizes = SampleSizesFactory.build()
+        SampleSizes.validate(sample_sizes)
+
+    def test_parse_population_sizing_factory_invalid(self):
+        sample_sizes_dict = SampleSizesFactory.build().dict()["__root__"]
+        first_key = list(sample_sizes_dict.keys())[0]
+        sample_sizes_dict[first_key]["BAD"] = {}
+        with pytest.raises(ValidationError):
+            SampleSizes.parse_obj(sample_sizes_dict)

@@ -15,11 +15,13 @@ class Channel(models.TextChoices):
     ESR = "esr"
     TESTFLIGHT = "testflight"
     AURORA = "aurora"
+    DEVELOPER = "developer"
 
 
 class BucketRandomizationUnit(models.TextChoices):
     NORMANDY = "normandy_id"
     NIMBUS = "nimbus_id"
+    USER_ID = "user_id"
 
 
 @dataclass
@@ -67,6 +69,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     slug="ios",
     app_name="firefox_ios",
     channel_app_id={
+        Channel.DEVELOPER: "org.mozilla.ios.Fennec",
         Channel.NIGHTLY: "org.mozilla.ios.Fennec",
         Channel.BETA: "org.mozilla.ios.FirefoxBeta",
         Channel.RELEASE: "org.mozilla.ios.Firefox",
@@ -124,6 +127,19 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
+APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
+    name="Monitor Web",
+    slug="monitor-web",
+    app_name="monitor_web",
+    channel_app_id={
+        Channel.BETA: "monitor-beta",
+        Channel.RELEASE: "monitor-release",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+)
+
+
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
     "no-feature-klar-ios",
@@ -132,6 +148,7 @@ NO_FEATURE_SLUG = [
     "no-feature-ios",
     "no-feature-fenix",
     "no-feature-firefox-desktop",
+    "no-feature-monitor",
 ]
 
 
@@ -154,6 +171,10 @@ class Application(models.TextChoices):
     KLAR_IOS = (
         APPLICATION_CONFIG_KLAR_IOS.slug,
         APPLICATION_CONFIG_KLAR_IOS.name,
+    )
+    MONITOR = (
+        APPLICATION_CONFIG_MONITOR_WEB.slug,
+        APPLICATION_CONFIG_MONITOR_WEB.name,
     )
 
     @staticmethod
@@ -207,6 +228,7 @@ class NimbusConstants(object):
         Application.KLAR_ANDROID: APPLICATION_CONFIG_KLAR_ANDROID,
         Application.FOCUS_IOS: APPLICATION_CONFIG_FOCUS_IOS,
         Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
+        Application.MONITOR: APPLICATION_CONFIG_MONITOR_WEB,
     }
 
     Channel = Channel
@@ -344,6 +366,8 @@ class NimbusConstants(object):
         FIREFOX_115 = "115.!"
         FIREFOX_115_0_2 = "115.0.2"
         FIREFOX_116 = "116.!"
+        FIREFOX_116_0_1 = "116.0.1"
+        FIREFOX_116_2_0 = "116.2.0"
         FIREFOX_117 = "117.!"
         FIREFOX_118 = "118.!"
         FIREFOX_119 = "119.!"

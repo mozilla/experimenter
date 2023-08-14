@@ -2,6 +2,7 @@ import datetime as dt
 import json
 from typing import Optional
 
+from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel, HttpUrl, validator
 
 from mozilla_nimbus_schemas.jetstream.statistics import SCHEMA_VERSION, AnalysisBasis
@@ -55,3 +56,7 @@ class Metadata(BaseModel):
     class Config:
         # override json_loads because `description` field in Metric may contain \n
         json_loads = nonstrict_json_loads
+
+
+class MetadataFactory(ModelFactory[Metadata]):
+    __model__ = Metadata

@@ -1,6 +1,7 @@
 from enum import Enum
 
-from pydantic import BaseModel
+from polyfactory.factories.pydantic_factory import ModelFactory
+from pydantic import BaseModel, Extra
 
 
 class SizingMetricName(str, Enum):
@@ -43,7 +44,6 @@ class SizingRecipe(BaseModel):
     locale: str
     country: str
     new_or_existing: SizingUserType
-    minimum_version: str
 
 
 class SizingTarget(BaseModel):
@@ -51,10 +51,38 @@ class SizingTarget(BaseModel):
     sample_sizes: dict[str, SizingDetails]
 
 
-class SizingByUserType(BaseModel):
+class SizingByUserType(BaseModel, extra=Extra.allow):
+    """
+    `extra=Extra.allow` is needed for the pydantic2ts generation of
+    typescript definitions. Without this, models with only a custom
+    __root__ dictionary field will generate as empty types.
+
+    See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
+    and https://github.com/phillipdupuis/pydantic-to-typescript/issues/39
+    for more info.
+
+    If this is fixed we should remove `extra=Extra.allow`.
+    """
+
     __root__: dict[SizingUserType, SizingTarget]
 
 
-class SampleSizes(BaseModel):
-    # dynamic key representing the target for easy lookup
+class SampleSizes(BaseModel, extra=Extra.allow):
+    """
+    `extra=Extra.allow` is needed for the pydantic2ts generation of
+    typescript definitions. Without this, models with only a custom
+    __root__ dictionary field will generate as empty types.
+
+    See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
+    and https://github.com/phillipdupuis/pydantic-to-typescript/issues/39
+    for more info.
+
+    If this is fixed we should remove `extra=Extra.allow`.
+    """
+
+    # dynamic str key represents the concatenation of target recipe values
     __root__: dict[str, SizingByUserType]
+
+
+class SampleSizesFactory(ModelFactory[SampleSizes]):
+    __model__ = SampleSizes

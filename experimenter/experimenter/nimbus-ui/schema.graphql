@@ -50,6 +50,9 @@ type NimbusExperimentType {
   riskRevenue: Boolean
   riskBrand: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
+  takeawaysMetricGain: Boolean!
+  takeawaysGainAmount: String
+  takeawaysQbrLearning: Boolean!
   takeawaysSummary: String
   isFirstRun: Boolean!
   preventPrefConflicts: Boolean
@@ -235,6 +238,8 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_115
   FIREFOX_115_0_2
   FIREFOX_116
+  FIREFOX_116_0_1
+  FIREFOX_116_2_0
   FIREFOX_117
   FIREFOX_118
   FIREFOX_119
@@ -249,6 +254,7 @@ enum NimbusExperimentApplicationEnum {
   KLAR_ANDROID
   FOCUS_IOS
   KLAR_IOS
+  MONITOR
 }
 
 enum NimbusExperimentChannelEnum {
@@ -260,6 +266,7 @@ enum NimbusExperimentChannelEnum {
   ESR
   TESTFLIGHT
   AURORA
+  DEVELOPER
 }
 
 type NimbusLocaleType {
@@ -501,6 +508,9 @@ input ExperimentInput {
   secondaryOutcomes: [String]
   status: NimbusExperimentStatusEnum
   statusNext: NimbusExperimentStatusEnum
+  takeawaysMetricGain: Boolean
+  takeawaysGainAmount: String
+  takeawaysQbrLearning: Boolean
   takeawaysSummary: String
   targetingConfigSlug: String
   totalEnrolledClients: Int

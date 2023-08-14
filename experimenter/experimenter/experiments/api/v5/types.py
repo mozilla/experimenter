@@ -3,7 +3,6 @@ import json
 import graphene
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db.models import Prefetch
 from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
@@ -22,7 +21,6 @@ from experimenter.experiments.models import (
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
-    NimbusVersionedSchema,
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
@@ -159,19 +157,15 @@ class NimbusFeatureConfigType(DjangoObjectType):
             "enabled",
         )
 
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return queryset.prefetch_related(
-            Prefetch(
-                "schemas", queryset=NimbusVersionedSchema.objects.filter(version=None)
-            )
-        )
-
     def resolve_sets_prefs(self, info):
-        return bool(self.schemas.get().sets_prefs)
+        for schema in self.schemas.all():
+            if schema.version is None:
+                return bool(schema.sets_prefs)
 
     def resolve_schema(self, info):
-        return self.schemas.get().schema
+        for schema in self.schemas.all():
+            if schema.version is None:
+                return schema.schema
 
 
 class NimbusBranchScreenshotType(DjangoObjectType):
@@ -342,7 +336,9 @@ class NimbusConfigurationType(graphene.ObjectType):
         return configs
 
     def resolve_all_feature_configs(self, info):
-        return NimbusFeatureConfig.objects.all().order_by("name")
+        return (
+            NimbusFeatureConfig.objects.all().prefetch_related("schemas").order_by("name")
+        )
 
     def resolve_firefox_versions(self, info):
         return NimbusConfigurationType.sort_version_choices(NimbusExperiment.Version)
@@ -579,6 +575,9 @@ class NimbusExperimentType(DjangoObjectType):
             "start_date",
             "status_next",
             "status",
+            "takeaways_metric_gain",
+            "takeaways_gain_amount",
+            "takeaways_qbr_learning",
             "takeaways_summary",
             "targeting_config_slug",
             "targeting_config",

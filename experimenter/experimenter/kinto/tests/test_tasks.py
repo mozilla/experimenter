@@ -31,6 +31,7 @@ class TestNimbusCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         for collection in (
             settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+            settings.KINTO_COLLECTION_NIMBUS_WEB,
         ):
             self.mock_dispatchee_task.assert_any_call(collection)
 
@@ -568,7 +569,9 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             ).exists()
         )
 
-    def test_check_with_approved_update_sets_experiment_to_idle_saves_published_dto(self):
+    def test_check_with_approved_update_sets_experiment_to_idle_saves_published_dto(
+        self,
+    ):
         updated_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
@@ -906,7 +909,9 @@ class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
 
 
 class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestCase):
-    def test_publishes_preview_experiments_and_unpublishes_non_preview_experiments(self):
+    def test_publishes_preview_experiments_and_unpublishes_non_preview_experiments(
+        self,
+    ):
         should_publish_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PREVIEW,
         )

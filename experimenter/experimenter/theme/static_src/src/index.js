@@ -8,6 +8,12 @@ Alpine.data("dropdown", () => ({
   },
 }));
 
+Alpine.data("redirect", () => ({
+  redirectToReactRoute(slug, pageSlug) {
+    window.location.href = `/nimbus/${slug}/edit/${pageSlug}`;
+  },
+}));
+
 window.Alpine = Alpine;
 
 Alpine.start();
