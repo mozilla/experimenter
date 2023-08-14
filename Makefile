@@ -51,6 +51,7 @@ FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/fi
 FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
 FEATURE_MANIFEST_FOCUS_ANDROID = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/focus-android/app/.experimenter.yaml
 FEATURE_MANIFEST_FOCUS_IOS = https://raw.githubusercontent.com/mozilla-mobile/focus-ios/main/.experimenter.yaml
+FEATURE_MANIFEST_MONITOR = https://raw.githubusercontent.com/mozilla/blurts-server/main/config/nimbus.yaml
 
 ssl: nginx/key.pem nginx/cert.pem
 
@@ -79,6 +80,7 @@ feature_manifests:
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
+	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/monitor-web.yaml $(FEATURE_MANIFEST_MONITOR)
 	cat experimenter/experimenter/features/manifests/firefox-desktop.yaml | grep path: | \
 	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
 	while read -r url; do \
@@ -250,8 +252,18 @@ cirrus_typecheck_createstub: cirrus_build
 cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
+build_demo_app:
+	$(COMPOSE) build demo-app-frontend demo-app-server
+
+run_demo_app: build_demo_app
+	$(COMPOSE) up demo-app-frontend demo-app-server
+
+# nimbus schemas package
+SCHEMAS_VERSION_FILE := schemas/VERSION
+SCHEMAS_VERSION := $(shell cat ${SCHEMAS_VERSION_FILE})
+
 schemas_install:
-	(cd schemas && poetry install)
+	(cd schemas && poetry install && yarn install)
 
 schemas_black:
 	(cd schemas && poetry run black --check --diff .)
@@ -263,12 +275,27 @@ schemas_test:
 	(cd schemas && poetry run pytest)
 
 schemas_check: schemas_install schemas_black schemas_ruff schemas_test
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output /tmp/test_index.d.ts --json2ts-cmd "yarn json2ts")
+	diff /tmp/test_index.d.ts schemas/index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1)
+	echo "Done. No problems found in schemas."
 
 schemas_code_format:
 	(cd schemas && poetry run black . && poetry run ruff --fix .)
 
-schemas_build:
+schemas_build: schemas_install schemas_build_pypi schemas_build_npm
+
+schemas_build_pypi:
 	(cd schemas && poetry build)
 
-schemas_deploy_pypi: schemas_install schemas_build
+schemas_deploy_pypi: schemas_install schemas_build_pypi
 	cd schemas; poetry run twine upload --skip-existing dist/*;
+
+schemas_build_npm: schemas_install
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output ./index.d.ts --json2ts-cmd "yarn json2ts")
+
+schemas_deploy_npm: schemas_build_npm
+	cd schemas; yarn publish --new-version ${SCHEMAS_VERSION} --access public;
+
+schemas_version:
+	npm --prefix schemas version --allow-same-version ${SCHEMAS_VERSION};
+	poetry --directory=schemas version ${SCHEMAS_VERSION};

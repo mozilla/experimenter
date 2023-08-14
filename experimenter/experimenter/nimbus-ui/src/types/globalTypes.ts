@@ -21,6 +21,7 @@ export enum NimbusExperimentApplicationEnum {
 export enum NimbusExperimentChannelEnum {
   AURORA = "AURORA",
   BETA = "BETA",
+  DEVELOPER = "DEVELOPER",
   ESR = "ESR",
   NIGHTLY = "NIGHTLY",
   NO_CHANNEL = "NO_CHANNEL",
@@ -262,6 +263,7 @@ export interface ExperimentInput {
   status?: NimbusExperimentStatusEnum | null;
   statusNext?: NimbusExperimentStatusEnum | null;
   takeawaysMetricGain?: boolean | null;
+  takeawaysGainAmount?: string | null;
   takeawaysQbrLearning?: boolean | null;
   takeawaysSummary?: string | null;
   targetingConfigSlug?: string | null;

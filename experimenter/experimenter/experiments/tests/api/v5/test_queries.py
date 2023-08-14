@@ -665,6 +665,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     publicDescription
 
                     conclusionRecommendation
+                    takeawaysGainAmount
                     takeawaysMetricGain
                     takeawaysQbrLearning
                     takeawaysSummary
@@ -1012,6 +1013,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     if experiment.status_next is not None
                     else None
                 ),
+                "takeawaysGainAmount": experiment.takeaways_gain_amount,
                 "takeawaysMetricGain": experiment.takeaways_metric_gain,
                 "takeawaysQbrLearning": experiment.takeaways_qbr_learning,
                 "takeawaysSummary": experiment.takeaways_summary,
