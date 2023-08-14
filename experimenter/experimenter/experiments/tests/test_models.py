@@ -2263,9 +2263,9 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
         )
-        current_datetime = timezone.datetime(2021, 1, 1).date()
+        current_datetime = datetime.datetime(2021, 1, 1).date()
         timestamp = timezone.make_aware(
-            timezone.datetime.combine(current_datetime, timezone.datetime.min.time())
+            datetime.datetime.combine(current_datetime, datetime.datetime.min.time())
         )
         time_format = "%I:%M %p %Z"
         local_timestamp = timezone.localtime(timestamp)
@@ -2283,7 +2283,7 @@ class TestNimbusExperiment(TestCase):
                         {
                             "event": "CREATION",
                             "event_message": (
-                                f"{experiment.owner} " f"created this experiment"
+                                f"{experiment.owner} created this experiment"
                             ),
                             "changed_by": experiment.owner,
                             "timestamp": formatted_timestamp,
@@ -2303,7 +2303,7 @@ class TestNimbusExperiment(TestCase):
         current_date = timezone.now().date()
 
         timestamp_1 = timezone.make_aware(
-            timezone.datetime.combine(current_date, timezone.datetime.min.time())
+            datetime.datetime.combine(current_date, datetime.datetime.min.time())
         )
         local_timestamp_1 = timezone.localtime(timestamp_1)
         formatted_timestamp_1 = local_timestamp_1.strftime(time_format)
@@ -2360,7 +2360,7 @@ class TestNimbusExperiment(TestCase):
                         },
                         {
                             "event": "CREATION",
-                            "event_message": (f"{user} " f"created this experiment"),
+                            "event_message": (f"{user} created this experiment"),
                             "changed_by": user,
                             "timestamp": formatted_timestamp_1,
                         },

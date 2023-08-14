@@ -892,9 +892,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             first_timestamp = first_local_timestamp.strftime(date_option)
             change = {
                 "event": "CREATION",
-                "event_message": (
-                    f"{creation_log.changed_by} " f"created this experiment"
-                ),
+                "event_message": (f"{creation_log.changed_by} created this experiment"),
                 "changed_by": creation_log.changed_by,
                 "timestamp": first_timestamp,
             }
