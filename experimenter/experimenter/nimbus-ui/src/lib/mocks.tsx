@@ -98,6 +98,9 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
         "status_next",
         "status",
         "takeaways_summary",
+        "takeaways_qbr_learning",
+        "takeaways_metric_gain",
+        "takeaways_gain_amount",
         "conclusion_recommendation",
       ],
       experiments: [],
@@ -655,6 +658,9 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   localizations: null,
   requiredExperiments: [],
   excludedExperiments: [],
+  takeawaysQbrLearning: false,
+  takeawaysMetricGain: false,
+  takeawaysGainAmount: null,
 };
 
 export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
