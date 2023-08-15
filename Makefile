@@ -93,7 +93,7 @@ feature_manifests:
 convert_feature_manifests:
 	cd experimenter/experimenter/features/manifests/;\
 	curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y;\
-	source "$HOME/.cargo/env";\
+	source "$$HOME/.cargo/env";\
 	git clone git@github.com:mozilla/application-services.git;\
 	cd application-services;\
 	git submodule init;\
