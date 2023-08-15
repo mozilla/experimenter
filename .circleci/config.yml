@@ -601,6 +601,11 @@ workflows:
 
   build:
     jobs:
+      - update_external_configs:
+          filters:
+            branches:
+              ignore:
+                - main
       - check_experimenter_branch:
           name: Check Experimenter (Branch)
           filters:
