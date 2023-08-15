@@ -80,7 +80,7 @@ feature_manifests:
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
 	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/monitor-web.yaml $(FEATURE_MANIFEST_MONITOR)
+	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/monitor-web.fml.yaml $(FEATURE_MANIFEST_MONITOR)
 	cat experimenter/experimenter/features/manifests/firefox-desktop.yaml | grep path: | \
 	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
 	while read -r url; do \
@@ -90,8 +90,19 @@ feature_manifests:
 		curl $$url -o $$file; \
 	done
 
+convert_feature_manifests:
+	cd experimenter/experimenter/features/manifests/;\
+	curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y;\
+	source "$HOME/.cargo/env";\
+	git clone git@github.com:mozilla/application-services.git;\
+	cd application-services;\
+	git submodule init;\
+	git submodule update --recursive;\
+	cd components/support/nimbus-fml;\
+	cargo build;\
+	cargo run "../../../../monitor-web.fml.yaml" experimenter --output "../../../../monitor-web.yaml" --channel developer;
 
-fetch_external_resources: jetstream_config feature_manifests
+fetch_external_resources: jetstream_config feature_manifests convert_feature_manifests
 	echo "External Resources Fetched"
 
 update_kinto:
