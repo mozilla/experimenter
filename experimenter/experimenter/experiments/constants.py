@@ -217,7 +217,7 @@ class NimbusConstants(object):
 
     class Takeaways(models.TextChoices):
         QBR_LEARNING = "QBR Learning"
-        METRIC_GAIN = "Metric Gain"
+        DAU_GAIN = "DAU Gain"
 
     ARCHIVE_UPDATE_EXEMPT_FIELDS = (
         "is_archived",

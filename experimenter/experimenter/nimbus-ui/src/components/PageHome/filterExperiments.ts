@@ -86,7 +86,7 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
   takeaways: (option, experiment) => {
     return (
       (experiment.takeawaysQbrLearning && option.value === "QBR_LEARNING") ||
-      (experiment.takeawaysMetricGain && option.value === "METRIC_GAIN")
+      (experiment.takeawaysMetricGain && option.value === "DAU_GAIN")
     );
   },
 };
