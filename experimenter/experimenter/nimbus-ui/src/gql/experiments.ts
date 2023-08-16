@@ -284,6 +284,8 @@ export const GET_EXPERIMENTS_QUERY = gql`
         name
       }
       hypothesis
+      takeawaysMetricGain
+      takeawaysQbrLearning
     }
   }
 `;

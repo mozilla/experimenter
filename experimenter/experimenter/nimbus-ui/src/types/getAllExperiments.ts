@@ -72,6 +72,8 @@ export interface getAllExperiments_experiments {
   populationPercent: string | null;
   projects: (getAllExperiments_experiments_projects | null)[] | null;
   hypothesis: string | null;
+  takeawaysMetricGain: boolean;
+  takeawaysQbrLearning: boolean;
 }
 
 export interface getAllExperiments {

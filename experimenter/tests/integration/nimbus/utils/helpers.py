@@ -114,6 +114,10 @@ def load_config_data():
                             id
                             name
                         }
+                        takeaways {
+                            label
+                            value
+                        }
                         types {
                             label
                             value
