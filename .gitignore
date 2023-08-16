@@ -110,3 +110,6 @@ experimenter/experimenter/outcomes/metric-hub.zip
 
 # Cirrus
 cirrus/server/app/__pycache__
+
+# Application Services for processing FML files
+experimenter/experimenter/features/manifests/application-services/
