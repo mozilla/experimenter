@@ -19,7 +19,6 @@ from experimenter.settings import SIZING_DATA_KEY
 
 
 @override_settings(
-    FEATURE_ANALYSIS=False,
     CACHES={
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

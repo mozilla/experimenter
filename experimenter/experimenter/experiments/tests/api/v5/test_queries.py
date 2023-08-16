@@ -40,23 +40,9 @@ def camelize(snake_str):
     return "".join([first.lower(), *map(str.title, others)])
 
 
-@override_settings(
-    FEATURE_ANALYSIS=False,
-    CACHES={
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        },
-    },
-)
 class TestNimbusExperimentsQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
-
-    def setUp(self):
-        super().setUp()
-        cache.delete(SIZING_DATA_KEY)
-        sizing_test_data = SampleSizesFactory.build()
-        cache.set(SIZING_DATA_KEY, sizing_test_data)
 
     @parameterized.expand(
         [(lifecycle,) for lifecycle in NimbusExperimentFactory.Lifecycles]
@@ -2316,8 +2302,21 @@ class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
             )
 
 
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        },
+    },
+)
 class TestNimbusConfigQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
+
+    def setUp(self):
+        super().setUp()
+        cache.delete(SIZING_DATA_KEY)
+        sizing_test_data = SampleSizesFactory.build()
+        cache.set(SIZING_DATA_KEY, sizing_test_data)
 
     def test_nimbus_config(self):
         user_email = "user@example.com"
