@@ -213,7 +213,7 @@ class NimbusConfigurationDataClass:
     targetingConfigs: typing.List[TargetingConfigDataClass]
     conclusionRecommendations: typing.List[LabelValueDataClass]
     types: typing.List[LabelValueDataClass]
-    population_sizing_data: SampleSizes
+    population_sizing_data: str
     hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
@@ -300,7 +300,7 @@ class NimbusConfigurationDataClass:
 
     def _get_population_sizing_data(self):
         sizing_data = cache.get(SIZING_DATA_KEY)
-        return sizing_data if sizing_data else "Sizing data not available."
+        return sizing_data.json() if sizing_data else "Sizing data not available."
 
     def _get_owners(self):
         owners = (

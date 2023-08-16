@@ -350,9 +350,7 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_population_sizing_data(self, info):
         sizing_data = cache.get(SIZING_DATA_KEY)
-        if sizing_data:
-            return sizing_data.json()
-        return "Sizing data not available."
+        return sizing_data.json() if sizing_data else "Sizing data not available."
 
     @staticmethod
     def sort_version_choices(choices):
