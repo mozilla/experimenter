@@ -118,6 +118,11 @@ export interface getConfig_nimbusConfig_statusUpdateExemptFields {
   rollouts: (string | null)[] | null;
 }
 
+export interface getConfig_nimbusConfig_takeaways {
+  label: string | null;
+  value: string | null;
+}
+
 export interface getConfig_nimbusConfig {
   applications: (getConfig_nimbusConfig_applications | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
@@ -138,6 +143,7 @@ export interface getConfig_nimbusConfig {
   types: (getConfig_nimbusConfig_types | null)[] | null;
   statusUpdateExemptFields: (getConfig_nimbusConfig_statusUpdateExemptFields | null)[] | null;
   populationSizingData: string | null;
+  takeaways: (getConfig_nimbusConfig_takeaways | null)[] | null;
 }
 
 export interface getConfig {

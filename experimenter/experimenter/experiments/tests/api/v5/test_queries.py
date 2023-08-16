@@ -2419,6 +2419,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         id
                         name
                     }
+                    takeaways {
+                        label
+                        value
+                    }
                     types {
                         label
                         value
@@ -2445,6 +2449,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                 self.assertEqual(data[index]["value"], name)
 
         assertChoices(config["applications"], NimbusExperiment.Application)
+        assertChoices(config["takeaways"], NimbusExperiment.Takeaways)
         assertChoices(config["types"], NimbusExperiment.Type)
         assertChoices(config["channels"], NimbusExperiment.Channel)
         assertChoices(

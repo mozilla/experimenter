@@ -3553,6 +3553,24 @@
               ]
             }
           },
+          "takeaways": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
           "types": {
             "type": "array",
             "items": {
@@ -3597,7 +3615,8 @@
           "targetingConfigs",
           "conclusionRecommendations",
           "types",
-          "populationSizingData"
+          "populationSizingData",
+          "takeaways"
         ]
       },
       "NimbusExperiment": {

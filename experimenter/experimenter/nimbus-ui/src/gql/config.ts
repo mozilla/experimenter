@@ -96,6 +96,10 @@ export const GET_CONFIG_QUERY = gql`
         rollouts
       }
       populationSizingData
+      takeaways {
+        label
+        value
+      }
     }
   }
 `;

@@ -215,6 +215,10 @@ class NimbusConstants(object):
         EXPERIMENT = "Experiment"
         ROLLOUT = "Rollout"
 
+    class Takeaways(models.TextChoices):
+        QBR_LEARNING = "QBR Learning"
+        DAU_GAIN = "DAU Gain"
+
     ARCHIVE_UPDATE_EXEMPT_FIELDS = (
         "is_archived",
         "changelog_message",
