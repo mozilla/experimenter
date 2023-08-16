@@ -201,8 +201,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
     )
-    takeaways_metric_gain = models.BooleanField(default=False, blank=False, null=False)
     takeaways_gain_amount = models.TextField(blank=True, null=True)
+    takeaways_metric_gain = models.BooleanField(default=False, blank=False, null=False)
     takeaways_qbr_learning = models.BooleanField(default=False, blank=False, null=False)
     takeaways_summary = models.TextField(blank=True, null=True)
     _updated_date_time = models.DateTimeField(auto_now=True)

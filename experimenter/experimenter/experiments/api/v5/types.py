@@ -298,6 +298,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     owners = graphene.List(NimbusUserType)
     targeting_configs = graphene.List(NimbusExperimentTargetingConfigType)
     conclusion_recommendations = graphene.List(NimbusLabelValueType)
+    takeaways = graphene.List(NimbusLabelValueType)
     types = graphene.List(NimbusLabelValueType)
     status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
 
@@ -412,6 +413,9 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_types(self, info):
         return self._text_choices_to_label_value_list(NimbusExperiment.Type)
+
+    def resolve_takeaways(self, info):
+        return self._text_choices_to_label_value_list(NimbusExperiment.Takeaways)
 
     def resolve_status_update_exempt_fields(self, info):
         return [
