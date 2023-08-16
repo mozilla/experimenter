@@ -87,7 +87,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   takeaways: [
-    { label: "Metric Gain", value: "METRIC_GAIN" },
+    { label: "DAU Gain", value: "DAU_GAIN" },
     { label: "QBR Learning", value: "QBR_LEARNING" },
   ],
   types: [
