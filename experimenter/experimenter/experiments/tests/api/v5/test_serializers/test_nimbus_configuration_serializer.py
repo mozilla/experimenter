@@ -13,7 +13,6 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
-from experimenter.settings import SIZING_DATA_KEY
 
 
 class TestNimbusConfigurationSerializer(TestCase):
