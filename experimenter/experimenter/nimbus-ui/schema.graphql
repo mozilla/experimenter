@@ -50,8 +50,8 @@ type NimbusExperimentType {
   riskRevenue: Boolean
   riskBrand: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
-  takeawaysMetricGain: Boolean!
   takeawaysGainAmount: String
+  takeawaysMetricGain: Boolean!
   takeawaysQbrLearning: Boolean!
   takeawaysSummary: String
   isFirstRun: Boolean!
@@ -415,6 +415,7 @@ type NimbusConfigurationType {
   owners: [NimbusUserType]
   targetingConfigs: [NimbusExperimentTargetingConfigType]
   conclusionRecommendations: [NimbusLabelValueType]
+  takeaways: [NimbusLabelValueType]
   types: [NimbusLabelValueType]
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
 }
