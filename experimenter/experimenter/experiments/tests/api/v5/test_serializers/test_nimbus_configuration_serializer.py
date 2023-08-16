@@ -1,4 +1,6 @@
-from django.test import TestCase
+from django.core.cache import cache
+from django.test import TestCase, override_settings
+from mozilla_nimbus_schemas.jetstream import SampleSizesFactory
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v5.serializers import (
@@ -13,9 +15,24 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
+from experimenter.settings import SIZING_DATA_KEY
 
 
+@override_settings(
+    FEATURE_ANALYSIS=False,
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        },
+    },
+)
 class TestNimbusConfigurationSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        cache.delete(SIZING_DATA_KEY)
+        sizing_test_data = SampleSizesFactory.build()
+        cache.set(SIZING_DATA_KEY, sizing_test_data)
+
     def test_expected_output(self):
         feature_configs = NimbusFeatureConfigFactory.create_batch(8)
         feature_configs.append(
@@ -72,6 +89,9 @@ class TestNimbusConfigurationSerializer(TestCase):
             )
 
         self.assertEqual(config["owners"], [{"username": experiment.owner.username}])
+
+        pop_sizing_data = cache.get(SIZING_DATA_KEY)
+        self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
 
         for outcome in Outcomes.all():
             self.assertIn(

@@ -137,6 +137,7 @@ export interface getConfig_nimbusConfig {
   projects: (getConfig_nimbusConfig_projects | null)[] | null;
   types: (getConfig_nimbusConfig_types | null)[] | null;
   statusUpdateExemptFields: (getConfig_nimbusConfig_statusUpdateExemptFields | null)[] | null;
+  populationSizingData: string | null;
 }
 
 export interface getConfig {

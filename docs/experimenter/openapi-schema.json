@@ -3559,6 +3559,9 @@
               ]
             }
           },
+          "populationSizingData": {
+            "type": "string"
+          },
           "hypothesisDefault": {
             "type": "string"
           },
@@ -3581,7 +3584,8 @@
           "owners",
           "targetingConfigs",
           "conclusionRecommendations",
-          "types"
+          "types",
+          "populationSizingData"
         ]
       },
       "NimbusExperiment": {

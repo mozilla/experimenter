@@ -2,8 +2,11 @@ import datetime
 import json
 
 from django.conf import settings
+from django.core.cache import cache
+from django.test import override_settings
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
+from mozilla_nimbus_schemas.jetstream import SampleSizesFactory
 from parameterized import parameterized
 
 from experimenter.base.models import Country, Language, Locale
@@ -29,6 +32,7 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 from experimenter.projects.tests.factories import ProjectFactory
+from experimenter.settings import SIZING_DATA_KEY
 
 
 def camelize(snake_str):
@@ -36,9 +40,23 @@ def camelize(snake_str):
     return "".join([first.lower(), *map(str.title, others)])
 
 
+@override_settings(
+    FEATURE_ANALYSIS=False,
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        },
+    },
+)
 class TestNimbusExperimentsQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+        cache.delete(SIZING_DATA_KEY)
+        sizing_test_data = SampleSizesFactory.build()
+        cache.set(SIZING_DATA_KEY, sizing_test_data)
 
     @parameterized.expand(
         [(lifecycle,) for lifecycle in NimbusExperimentFactory.Lifecycles]
@@ -2433,6 +2451,9 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             config["conclusionRecommendations"],
             NimbusExperiment.ConclusionRecommendation,
         )
+
+        pop_sizing_data = cache.get(SIZING_DATA_KEY)
+        self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
 
         self.assertEqual(
             len(config["firefoxVersions"]), len(NimbusExperiment.Version.names)
