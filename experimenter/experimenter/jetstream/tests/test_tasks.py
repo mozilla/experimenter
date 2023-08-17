@@ -7,7 +7,6 @@ from django.test import TestCase, override_settings
 from mozilla_nimbus_schemas.jetstream import SampleSizesFactory
 from parameterized import parameterized
 
-from experimenter.experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
@@ -18,6 +17,7 @@ from experimenter.jetstream.tests.constants import (
     NonePointJetstreamTestData,
     ZeroJetstreamTestData,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.outcomes import Outcomes
 from experimenter.settings import SIZING_DATA_KEY
 

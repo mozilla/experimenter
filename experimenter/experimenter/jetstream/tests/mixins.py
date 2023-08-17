@@ -1,5 +1,5 @@
 from django.core.cache import cache
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from mozilla_nimbus_schemas.jetstream import SampleSizesFactory
 
 from experimenter.settings import SIZING_DATA_KEY
@@ -12,7 +12,7 @@ from experimenter.settings import SIZING_DATA_KEY
         },
     },
 )
-class MockSizingDataMixin:
+class MockSizingDataMixin(TestCase):
     sizing_test_data = None
 
     def setUp(self):

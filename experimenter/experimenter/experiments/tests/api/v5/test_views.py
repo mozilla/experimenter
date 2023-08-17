@@ -4,7 +4,6 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
-from experimenter.experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.experiments.api.v5.serializers import (
     NimbusConfigurationDataClass,
     NimbusConfigurationSerializer,
@@ -16,6 +15,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 
 
 class TestNimbusExperimentCsvListView(TestCase):

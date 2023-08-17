@@ -12,7 +12,6 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.experiments.api.v5.serializers import (
     NimbusReviewSerializer,
     TransitionConstants,
@@ -26,6 +25,7 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
     NimbusVersionedSchemaFactory,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project

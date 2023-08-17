@@ -1,7 +1,6 @@
 from django.test import TestCase
 
 from experimenter.base.models import Country, Language, Locale
-from experimenter.experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.experiments.api.v5.serializers import (
     NimbusConfigurationDataClass,
     NimbusConfigurationSerializer,
@@ -12,6 +11,7 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
     NimbusVersionedSchemaFactory,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 
