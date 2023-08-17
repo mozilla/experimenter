@@ -2,11 +2,8 @@ import datetime
 import json
 
 from django.conf import settings
-from django.core.cache import cache
-from django.test import override_settings
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
-from mozilla_nimbus_schemas.jetstream import SampleSizesFactory
 from parameterized import parameterized
 
 from experimenter.base.models import Country, Language, Locale
@@ -32,7 +29,7 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 from experimenter.projects.tests.factories import ProjectFactory
-from experimenter.settings import SIZING_DATA_KEY
+from experimenter.tests.mixins import LocalDjangoCacheMixin
 
 
 def camelize(snake_str):
@@ -2302,21 +2299,8 @@ class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
             )
 
 
-@override_settings(
-    CACHES={
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        },
-    },
-)
-class TestNimbusConfigQuery(GraphQLTestCase):
+class TestNimbusConfigQuery(LocalDjangoCacheMixin, GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
-
-    def setUp(self):
-        super().setUp()
-        cache.delete(SIZING_DATA_KEY)
-        sizing_test_data = SampleSizesFactory.build()
-        cache.set(SIZING_DATA_KEY, sizing_test_data)
 
     def test_nimbus_config(self):
         user_email = "user@example.com"
@@ -2456,7 +2440,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             NimbusExperiment.ConclusionRecommendation,
         )
 
-        pop_sizing_data = cache.get(SIZING_DATA_KEY)
+        pop_sizing_data = self.get_cache_sizing()
         self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
 
         self.assertEqual(
