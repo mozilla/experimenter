@@ -253,10 +253,8 @@ cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
 build_demo_app:
-	$(COMPOSE) build demo-app-frontend demo-app-server
+	$(COMPOSE_INTEGRATION) build demo-app-frontend demo-app-server
 
-run_demo_app: build_demo_app
-	$(COMPOSE) up demo-app-frontend demo-app-server
 
 
 

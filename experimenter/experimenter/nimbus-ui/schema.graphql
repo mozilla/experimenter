@@ -255,6 +255,7 @@ enum NimbusExperimentApplicationEnum {
   FOCUS_IOS
   KLAR_IOS
   MONITOR
+  DEMO_APP
 }
 
 enum NimbusExperimentChannelEnum {

@@ -287,7 +287,8 @@ class NimbusConfigurationDataClass:
             for f in NimbusFeatureConfig.objects.all()
             .prefetch_related(
                 Prefetch(
-                    "schemas", queryset=NimbusVersionedSchema.objects.filter(version=None)
+                    "schemas",
+                    queryset=NimbusVersionedSchema.objects.filter(version=None),
                 )
             )
             .order_by("name")
@@ -1478,6 +1479,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         max_version = data.get("firefox_max_version", "")
         is_rollout = data.get("is_rollout")
         application = data.get("application")
+
+        if NimbusExperiment.Application.is_web(application):
+            return data
 
         if min_version == "":
             raise serializers.ValidationError(
