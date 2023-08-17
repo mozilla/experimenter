@@ -97,6 +97,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
   const filterValue = getFilterValueFromParams(config, searchParams);
   const onFilterChange = (newFilterValue: FilterValue) =>
     updateParamsFromFilterValue(updateSearchParams, newFilterValue);
+
   const filterOptions: FilterOptions = {
     applications: config!.applications!,
     allFeatureConfigs: config!.allFeatureConfigs!,
@@ -106,10 +107,13 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     types: config!.types,
     projects: config!.projects!,
     targetingConfigs: config!.targetingConfigs,
+    takeaways: config!.takeaways,
   };
+
   const { data, loading, error, refetch } = useQuery<{
     experiments: getAllExperiments_experiments[];
   }>(GET_EXPERIMENTS_QUERY, { fetchPolicy: "network-only" });
+
   const [searchedData, setSearchedData] =
     useState<getAllExperiments_experiments[]>();
 

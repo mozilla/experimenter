@@ -85,7 +85,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
-            "event": ChangeEventType.STATUS,
+            "event": ChangeEventType.STATE.name,
             "event_message": (
                 f"{self.user} changed value of {field_display_name} from "
                 f"{old_value} to {new_value}"
@@ -141,7 +141,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
-            "event": ChangeEventType.DETAILED,
+            "event": ChangeEventType.DETAILED.name,
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
             "timestamp": change_timestamp,
@@ -203,7 +203,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
-            "event": ChangeEventType.DETAILED,
+            "event": ChangeEventType.DETAILED.name,
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
             "timestamp": change_timestamp,
@@ -252,7 +252,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
-            "event": ChangeEventType.DETAILED,
+            "event": ChangeEventType.DETAILED.name,
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
             "timestamp": change_timestamp,
@@ -301,7 +301,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
-            "event": ChangeEventType.DETAILED,
+            "event": ChangeEventType.DETAILED.name,
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
             "timestamp": change_timestamp,
@@ -350,7 +350,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
-            "event": ChangeEventType.BOOLEAN,
+            "event": ChangeEventType.BOOLEAN.name,
             "event_message": f"{self.user} set the {field_display_name} as {new_value}",
             "changed_by": self.user,
             "timestamp": change_timestamp,

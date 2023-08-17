@@ -415,6 +415,7 @@ type NimbusConfigurationType {
   owners: [NimbusUserType]
   targetingConfigs: [NimbusExperimentTargetingConfigType]
   conclusionRecommendations: [NimbusLabelValueType]
+  takeaways: [NimbusLabelValueType]
   types: [NimbusLabelValueType]
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
 }

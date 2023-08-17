@@ -6,7 +6,7 @@ from django.db import models
 from django.utils import timezone
 from rest_framework import serializers
 
-from experimenter.experiments.constants import ChangeEventType
+from experimenter.experiments.constants import ChangeEventType, RelationalFields
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -96,7 +96,7 @@ def generate_nimbus_changelog(experiment, changed_by, message, changed_on=None):
 
 
 def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
-    event_name = ChangeEventType.GENERAL
+    event_name = ChangeEventType.GENERAL.name
     field_instance = NimbusExperiment._meta.get_field(field_name)
     field_display_name = (
         field_instance.verbose_name
@@ -111,8 +111,8 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
         field_instance,
         (models.ManyToManyField, models.OneToOneField, models.ManyToOneRel),
     ):
-        event_name = ChangeEventType.DETAILED
-        if field_name in ["countries", "locales", "languages"]:
+        event_name = ChangeEventType.DETAILED.name
+        if field_name in RelationalFields.NATIVE_MODELS:
             field_model = field_instance.related_model
             data = field_model.objects.all()
             values = list(data.filter(pk__in=old_value).values_list("name", flat=True))
@@ -122,38 +122,31 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
             old_value = json.dumps(pprint.pformat(old_value, width=40, indent=2))
             new_value = json.dumps(pprint.pformat(new_value, width=40, indent=2))
 
-        elif field_name in [
-            "feature_configs",
-            "reference_branch",
-            "branches",
-            "required_experiments",
-            "excluded_experiments",
-            "projects",
-        ]:
+        elif field_name in RelationalFields.CUSTOM_MODELS:
             old_value = [json.dumps(config, indent=4) for config in old_value]
             new_value = [json.dumps(config, indent=4) for config in new_value]
 
     if isinstance(field_instance, ArrayField):
-        event_name = ChangeEventType.DETAILED
+        event_name = ChangeEventType.DETAILED.name
         old_value = json.dumps(pprint.pformat(old_value, width=40, indent=2))
         new_value = json.dumps(pprint.pformat(new_value, width=40, indent=2))
 
     if isinstance(field_instance, models.JSONField):
-        event_name = ChangeEventType.DETAILED
+        event_name = ChangeEventType.DETAILED.name
         if old_value is not None:
             old_value = json.dumps(old_value, indent=4)
         if new_value is not None:
             new_value = json.dumps(new_value, indent=4)
 
     if isinstance(field_instance, models.BooleanField):
-        event_name = ChangeEventType.BOOLEAN
+        event_name = ChangeEventType.BOOLEAN.name
 
     if field_name in ["status", "publish_status"]:
-        event_name = ChangeEventType.STATUS
+        event_name = ChangeEventType.STATE.name
 
-    if event_name == ChangeEventType.DETAILED:
+    if event_name == ChangeEventType.DETAILED.name:
         change_message = f"{changelog.changed_by} changed value of {field_display_name}"
-    elif event_name == ChangeEventType.BOOLEAN:
+    elif event_name == ChangeEventType.BOOLEAN.name:
         change_message = (
             f"{changelog.changed_by} set the {field_display_name} as {new_value}"
         )

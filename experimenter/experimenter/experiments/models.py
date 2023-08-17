@@ -958,7 +958,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             else:
                 message = f"{creation_log.changed_by} created this experiment"
             change = {
-                "event": ChangeEventType.CREATION,
+                "event": ChangeEventType.CREATION.name,
                 "event_message": message,
                 "changed_by": creation_log.changed_by,
                 "timestamp": first_timestamp,

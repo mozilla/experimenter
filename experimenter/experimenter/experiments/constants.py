@@ -23,8 +23,20 @@ class ChangeEventType(Enum):
     GENERAL = "GENERAL"
     CREATION = "CREATION"
     DETAILED = "DETAILED"
-    STATUS = "STATE"
+    STATE = "STATE"
     BOOLEAN = "BOOLEAN"
+
+
+class RelationalFields:
+    NATIVE_MODELS = [
+        "countries",
+        "locales",
+        "languages",
+        "required_experiments",
+        "excluded_experiments",
+        "projects",
+    ]
+    CUSTOM_MODELS = ["feature_configs", "reference_branch", "branches"]
 
 
 class BucketRandomizationUnit(models.TextChoices):
@@ -223,6 +235,10 @@ class NimbusConstants(object):
     class Type(models.TextChoices):
         EXPERIMENT = "Experiment"
         ROLLOUT = "Rollout"
+
+    class Takeaways(models.TextChoices):
+        QBR_LEARNING = "QBR Learning"
+        DAU_GAIN = "DAU Gain"
 
     ARCHIVE_UPDATE_EXEMPT_FIELDS = (
         "is_archived",

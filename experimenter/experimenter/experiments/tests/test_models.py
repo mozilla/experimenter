@@ -2283,7 +2283,7 @@ class TestNimbusExperiment(TestCase):
                     "date": current_datetime,
                     "changes": [
                         {
-                            "event": ChangeEventType.CREATION,
+                            "event": ChangeEventType.CREATION.name,
                             "event_message": (
                                 f"{experiment.owner} created this experiment"
                             ),
@@ -2323,7 +2323,7 @@ class TestNimbusExperiment(TestCase):
                     "date": current_date,
                     "changes": [
                         {
-                            "event": ChangeEventType.CREATION,
+                            "event": ChangeEventType.CREATION.name,
                             "event_message": (
                                 f"{user} cloned this experiment from "
                                 f"{cloned_experiment.parent.name}"
@@ -2382,7 +2382,7 @@ class TestNimbusExperiment(TestCase):
                     "date": current_date,
                     "changes": [
                         {
-                            "event": ChangeEventType.STATUS,
+                            "event": ChangeEventType.STATE.name,
                             "event_message": (
                                 f"{user} changed value of Status from "
                                 f"Draft to Preview"
@@ -2393,7 +2393,7 @@ class TestNimbusExperiment(TestCase):
                             "new_value": "Preview",
                         },
                         {
-                            "event": ChangeEventType.STATUS,
+                            "event": ChangeEventType.STATE.name,
                             "event_message": (
                                 f"{user} changed value of Publish status from "
                                 f"Idle to Review"
@@ -2404,7 +2404,7 @@ class TestNimbusExperiment(TestCase):
                             "new_value": "Review",
                         },
                         {
-                            "event": ChangeEventType.CREATION,
+                            "event": ChangeEventType.CREATION.name,
                             "event_message": f"{user} created this experiment",
                             "changed_by": user,
                             "timestamp": formatted_timestamp_1,

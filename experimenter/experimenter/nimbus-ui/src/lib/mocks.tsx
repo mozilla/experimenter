@@ -86,6 +86,10 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: NimbusExperimentApplicationEnum.FENIX,
     },
   ],
+  takeaways: [
+    { label: "DAU Gain", value: "DAU_GAIN" },
+    { label: "QBR Learning", value: "QBR_LEARNING" },
+  ],
   types: [
     { label: "Experiment", value: "EXPERIMENT" },
     { label: "Rollout", value: "ROLLOUT" },
@@ -953,6 +957,8 @@ export function mockSingleDirectoryExperiment(
     resultsExpectedDate: new Date(expectedResultsTime).toISOString(),
     resultsReady: false,
     showResultsUrl: false,
+    takeawaysMetricGain: true,
+    takeawaysQbrLearning: false,
     projects: [MOCK_CONFIG.projects![0]],
     hypothesis: "test hypothesis",
     ...overrides,
