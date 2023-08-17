@@ -1,0 +1,12 @@
+---
+example-feature:
+  description: An example feature
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: If the feature is enabled
+    something:
+      type: string
+      description: Another variable

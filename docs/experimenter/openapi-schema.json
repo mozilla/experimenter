@@ -3541,6 +3541,24 @@
               ]
             }
           },
+          "takeaways": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
           "types": {
             "type": "array",
             "items": {
@@ -3581,6 +3599,7 @@
           "owners",
           "targetingConfigs",
           "conclusionRecommendations",
+          "takeaways",
           "types"
         ]
       },
@@ -3627,7 +3646,8 @@
               "release",
               "esr",
               "testflight",
-              "aurora"
+              "aurora",
+              "developer"
             ],
             "type": "string"
           },
