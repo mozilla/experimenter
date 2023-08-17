@@ -1,7 +1,8 @@
 import datetime
 
 from django.conf import settings
-from django.test import TestCase
+from django.core.cache import cache
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from experimenter.experiments.api.v5.serializers import (
@@ -101,7 +102,18 @@ class TestNimbusExperimentCsvListView(TestCase):
         self.assertEqual(csv_data, expected_csv_data)
 
 
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        },
+    },
+)
 class TestNimbusConfigurationView(TestCase):
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+
     def test_nimbus_configuration_view_returns_config_data(self):
         user_email = "user@example.com"
         response = self.client.get(
