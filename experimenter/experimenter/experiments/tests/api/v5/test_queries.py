@@ -12,6 +12,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.experiments.api.v5.serializers import (
     NimbusReviewSerializer,
     TransitionConstants,
@@ -29,7 +30,6 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 from experimenter.projects.tests.factories import ProjectFactory
-from experimenter.tests.mixins import LocalDjangoCacheMixin
 
 
 def camelize(snake_str):
@@ -2299,10 +2299,11 @@ class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
             )
 
 
-class TestNimbusConfigQuery(LocalDjangoCacheMixin, GraphQLTestCase):
+class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
 
     def test_nimbus_config(self):
+        self.setup_cached_sizing_data()
         user_email = "user@example.com"
         feature_configs = NimbusFeatureConfigFactory.create_batch(10)
         application = NimbusExperiment.Application.DESKTOP
@@ -2440,7 +2441,7 @@ class TestNimbusConfigQuery(LocalDjangoCacheMixin, GraphQLTestCase):
             NimbusExperiment.ConclusionRecommendation,
         )
 
-        pop_sizing_data = self.get_cache_sizing()
+        pop_sizing_data = self.get_cached_sizing_data()
         self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
 
         self.assertEqual(

@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from experimenter.base.models import Country, Language, Locale
+from experimenter.experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.experiments.api.v5.serializers import (
     NimbusConfigurationDataClass,
     NimbusConfigurationSerializer,
@@ -13,11 +14,11 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
-from experimenter.tests.mixins import LocalDjangoCacheMixin
 
 
-class TestNimbusConfigurationSerializer(LocalDjangoCacheMixin, TestCase):
+class TestNimbusConfigurationSerializer(MockSizingDataMixin, TestCase):
     def test_expected_output(self):
+        self.setup_cached_sizing_data()
         feature_configs = NimbusFeatureConfigFactory.create_batch(8)
         feature_configs.append(
             NimbusFeatureConfigFactory.create(
@@ -75,7 +76,7 @@ class TestNimbusConfigurationSerializer(LocalDjangoCacheMixin, TestCase):
 
         self.assertEqual(config["owners"], [{"username": experiment.owner.username}])
 
-        pop_sizing_data = self.get_cache_sizing()
+        pop_sizing_data = self.get_cached_sizing_data()
         self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
 
         for outcome in Outcomes.all():
