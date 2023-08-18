@@ -2424,16 +2424,19 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
+        if NimbusExperiment.Application.is_web(application):
+            self.assertTrue(serializer.is_valid())
+        else:
+            self.assertFalse(serializer.is_valid())
 
-        self.assertFalse(serializer.is_valid())
-        self.assertEquals(
-            serializer.errors,
-            {
-                "firefox_min_version": [
-                    NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MIN_VERSION
-                ],
-            },
-        )
+            self.assertEquals(
+                serializer.errors,
+                {
+                    "firefox_min_version": [
+                        NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MIN_VERSION
+                    ],
+                },
+            )
 
     def test_targeting_exclude_require_mutally_exclusive(self):
         other = NimbusExperimentFactory.create_with_lifecycle(
@@ -3023,7 +3026,11 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     def test_minimum_version(self, application, firefox_min_version):
         valid_version = NimbusExperiment.Version.parse(
             firefox_min_version
-        ) >= NimbusExperiment.Version.parse(NimbusExperiment.MIN_REQUIRED_VERSION)
+        ) >= NimbusExperiment.Version.parse(
+            NimbusExperiment.MIN_REQUIRED_VERSION
+        ) or NimbusExperiment.Application.is_web(
+            application
+        )
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
