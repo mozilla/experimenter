@@ -136,6 +136,7 @@ docker_prune:
 	docker container prune -f
 	docker image prune -f
 	docker volume prune -f
+	docker volume rm $$(docker volume ls -qf dangling=true) || true
 
 static_rm:
 	rm -Rf experimenter/node_modules
