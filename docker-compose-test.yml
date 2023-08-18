@@ -20,7 +20,7 @@ services:
       POSTGRES_PASSWORD: postgres
 
   cirrus:
-    env_file: .env.sample
+    env_file: .env.test
     build:
       context: cirrus/server/
       dockerfile: Dockerfile
