@@ -99,7 +99,7 @@ convert_feature_manifests:
 	git submodule init;\
 	git submodule update --recursive;\
 	cd components/support/nimbus-fml;\
-	cargo run "../../../../monitor-web.fml.yaml" experimenter --output "../../../../monitor-web.yaml" --channel developer;
+	cargo run generate-experimenter --channel beta "../../../../monitor-web.fml.yaml" "../../../../monitor-web.yaml";
 
 fetch_external_resources: jetstream_config feature_manifests convert_feature_manifests
 	echo "External Resources Fetched"
