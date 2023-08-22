@@ -125,9 +125,9 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
     if isinstance(field_instance, (models.JSONField, ArrayField)):
         event_name = ChangeEventType.DETAILED.name
         if old_value is not None:
-            old_value = json.dumps(old_value, indent=4)
+            old_value = json.dumps(old_value, indent=2)
         if new_value is not None:
-            new_value = json.dumps(new_value, indent=4)
+            new_value = json.dumps(new_value, indent=2)
 
     if isinstance(field_instance, models.BooleanField):
         event_name = ChangeEventType.BOOLEAN.name
