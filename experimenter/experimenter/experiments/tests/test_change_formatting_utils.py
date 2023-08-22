@@ -302,8 +302,8 @@ class TestChangeFormattingMethod(TestCase):
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
             "timestamp": change_timestamp,
-            "old_value": json.dumps(old_value, indent=4),
-            "new_value": json.dumps(new_value, indent=4),
+            "old_value": json.dumps(old_value, indent=2),
+            "new_value": json.dumps(new_value, indent=2),
         }
 
         self.assertDictEqual(change, expected_change)
