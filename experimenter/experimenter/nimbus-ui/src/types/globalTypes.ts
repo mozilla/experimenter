@@ -8,6 +8,7 @@
 //==============================================================
 
 export enum NimbusExperimentApplicationEnum {
+  DEMO_APP = "DEMO_APP",
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
   FOCUS_ANDROID = "FOCUS_ANDROID",
@@ -76,6 +77,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_116 = "FIREFOX_116",
   FIREFOX_116_0_1 = "FIREFOX_116_0_1",
   FIREFOX_116_2_0 = "FIREFOX_116_2_0",
+  FIREFOX_116_3_0 = "FIREFOX_116_3_0",
   FIREFOX_117 = "FIREFOX_117",
   FIREFOX_118 = "FIREFOX_118",
   FIREFOX_119 = "FIREFOX_119",

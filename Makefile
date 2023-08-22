@@ -99,7 +99,7 @@ convert_feature_manifests:
 	git submodule init;\
 	git submodule update --recursive;\
 	cd components/support/nimbus-fml;\
-	cargo run "../../../../monitor-web.fml.yaml" experimenter --output "../../../../monitor-web.yaml" --channel developer;
+	cargo run generate-experimenter --channel beta "../../../../monitor-web.fml.yaml" "../../../../monitor-web.yaml";
 
 fetch_external_resources: jetstream_config feature_manifests convert_feature_manifests
 	echo "External Resources Fetched"
@@ -136,6 +136,7 @@ docker_prune:
 	docker container prune -f
 	docker image prune -f
 	docker volume prune -f
+	docker volume rm $$(docker volume ls -qf dangling=true) || true
 
 static_rm:
 	rm -Rf experimenter/node_modules
@@ -263,10 +264,8 @@ cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
 build_demo_app:
-	$(COMPOSE) build demo-app-frontend demo-app-server
+	$(COMPOSE_INTEGRATION) build demo-app-frontend demo-app-server
 
-run_demo_app: build_demo_app
-	$(COMPOSE) up demo-app-frontend demo-app-server
 
 # nimbus schemas package
 SCHEMAS_VERSION_FILE := schemas/VERSION

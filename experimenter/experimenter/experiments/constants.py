@@ -160,6 +160,18 @@ APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.USER_ID,
 )
 
+APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
+    name="Demo App",
+    slug="demo-app",
+    app_name="demo_app",
+    channel_app_id={
+        Channel.BETA: "demo-app-beta",
+        Channel.RELEASE: "demo-app-release",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+)
+
 
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
@@ -197,6 +209,7 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_MONITOR_WEB.slug,
         APPLICATION_CONFIG_MONITOR_WEB.name,
     )
+    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
     def is_mobile(application):
@@ -207,6 +220,13 @@ class Application(models.TextChoices):
             Application.KLAR_ANDROID,
             Application.FOCUS_IOS,
             Application.KLAR_IOS,
+        )
+
+    @staticmethod
+    def is_web(application):
+        return application in (
+            Application.DEMO_APP,
+            Application.MONITOR,
         )
 
 
@@ -254,6 +274,7 @@ class NimbusConstants(object):
         Application.FOCUS_IOS: APPLICATION_CONFIG_FOCUS_IOS,
         Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
         Application.MONITOR: APPLICATION_CONFIG_MONITOR_WEB,
+        Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
     }
 
     Channel = Channel
@@ -393,6 +414,7 @@ class NimbusConstants(object):
         FIREFOX_116 = "116.!"
         FIREFOX_116_0_1 = "116.0.1"
         FIREFOX_116_2_0 = "116.2.0"
+        FIREFOX_116_3_0 = "116.3.0"
         FIREFOX_117 = "117.!"
         FIREFOX_118 = "118.!"
         FIREFOX_119 = "119.!"

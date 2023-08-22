@@ -117,6 +117,8 @@ services:
       context: cirrus/server/
       dockerfile: Dockerfile
     env_file: .env
+    links:
+      - kinto
     volumes:
       - ./cirrus/server/:/cirrus
     working_dir: /cirrus
@@ -129,6 +131,11 @@ services:
     ports:
       - '3002:3002'
     restart: always
+    links:
+      - cirrus
+    environment:
+      - CIRRUS=http://cirrus:8001
+
 
   demo-app-frontend:
     build:
