@@ -1,5 +1,4 @@
 import json
-import pprint
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -119,19 +118,11 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
             old_value = values if values else old_value
             values = list(data.filter(pk__in=new_value).values_list("name", flat=True))
             new_value = values if values else new_value
-            old_value = json.dumps(pprint.pformat(old_value, width=40, indent=2))
-            new_value = json.dumps(pprint.pformat(new_value, width=40, indent=2))
 
-        elif field_name in RelationalFields.CUSTOM_MODELS:
-            old_value = [json.dumps(config, indent=4) for config in old_value]
-            new_value = [json.dumps(config, indent=4) for config in new_value]
+        old_value = json.dumps(old_value, indent=2)
+        new_value = json.dumps(new_value, indent=2)
 
-    if isinstance(field_instance, ArrayField):
-        event_name = ChangeEventType.DETAILED.name
-        old_value = json.dumps(pprint.pformat(old_value, width=40, indent=2))
-        new_value = json.dumps(pprint.pformat(new_value, width=40, indent=2))
-
-    if isinstance(field_instance, models.JSONField):
+    if isinstance(field_instance, (models.JSONField, ArrayField)):
         event_name = ChangeEventType.DETAILED.name
         if old_value is not None:
             old_value = json.dumps(old_value, indent=4)
@@ -141,7 +132,7 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
     if isinstance(field_instance, models.BooleanField):
         event_name = ChangeEventType.BOOLEAN.name
 
-    if field_name in ["status", "publish_status"]:
+    if field_name == "status" or field_name == "publish_status":
         event_name = ChangeEventType.STATE.name
 
     if event_name == ChangeEventType.DETAILED.name:

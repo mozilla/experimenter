@@ -1,6 +1,5 @@
 import datetime
 import json
-import pprint
 
 from django.test import TestCase
 from django.utils import timezone
@@ -145,10 +144,8 @@ class TestChangeFormattingMethod(TestCase):
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
             "timestamp": change_timestamp,
-            "old_value": json.dumps(pprint.pformat(old_value, width=40, indent=2)),
-            "new_value": json.dumps(
-                pprint.pformat(transformed_value, width=40, indent=2)
-            ),
+            "old_value": json.dumps(old_value, indent=2),
+            "new_value": json.dumps(transformed_value, indent=2),
         }
 
         self.assertDictEqual(change, expected_change)
@@ -207,8 +204,8 @@ class TestChangeFormattingMethod(TestCase):
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
             "timestamp": change_timestamp,
-            "old_value": [json.dumps(config, indent=4) for config in old_value],
-            "new_value": [json.dumps(config, indent=4) for config in new_value],
+            "old_value": json.dumps(old_value, indent=2),
+            "new_value": json.dumps(new_value, indent=2),
         }
 
         self.assertDictEqual(change, expected_change)
@@ -256,8 +253,8 @@ class TestChangeFormattingMethod(TestCase):
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
             "timestamp": change_timestamp,
-            "old_value": json.dumps(pprint.pformat(old_value, width=40, indent=2)),
-            "new_value": json.dumps(pprint.pformat(new_value, width=40, indent=2)),
+            "old_value": json.dumps(old_value, indent=2),
+            "new_value": json.dumps(new_value, indent=2),
         }
 
         self.assertDictEqual(change, expected_change)
