@@ -7,6 +7,7 @@ module.exports = {
         lenurple: "#b590d4",
         darkSlateBlue: "#4C4893ff",
         rythm: "#7D68A7ff",
+        azure: "#007bff"
       },
     },
   },
