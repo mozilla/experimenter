@@ -714,18 +714,22 @@ unicodecsv = "*"
 
 [[package]]
 name = "djangorestframework-dataclasses"
-version = "1.2.0"
+version = "1.3.0"
 description = "A dataclasses serializer for Django REST Framework"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "djangorestframework-dataclasses-1.2.0.tar.gz", hash = "sha256:4fa8d93a19a3e256487674e9c654b45992bc76de155bd097eced6fe4af4100a2"},
-    {file = "djangorestframework_dataclasses-1.2.0-py3-none-any.whl", hash = "sha256:e4f54a2a21b6dfdb07ba657f91b5a97a41d03c6760203e8a6c3749276d3f129c"},
+    {file = "djangorestframework-dataclasses-1.3.0.tar.gz", hash = "sha256:b061ef12f23394e91107f9b915dec38fb0a69d97a0ac9e62207aa90908375211"},
+    {file = "djangorestframework_dataclasses-1.3.0-py3-none-any.whl", hash = "sha256:802300f812a96715079209f8dabecbab0b9716ae34a770db61f51a6897916abf"},
 ]
 
 [package.dependencies]
 django = ">=2.0"
 djangorestframework = ">=3.9"
+
+[package.extras]
+dev = ["django-stubs", "djangorestframework-stubs", "mypy (>=1.5.1,<1.6.0)"]
+test = ["coverage[toml]", "tox"]
 
 [[package]]
 name = "dockerflow"
@@ -2834,4 +2838,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "3eada28637b21acd4e112ccc7df64e09926a9eded48b872a556b60fc6a238b90"
+content-hash = "8195a87f11a5ae5877fcc789e8a809fceeafb8b815b9e6381568553cb57f3513"
