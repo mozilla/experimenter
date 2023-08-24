@@ -11,12 +11,14 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
     NimbusVersionedSchemaFactory,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 
 
-class TestNimbusConfigurationSerializer(TestCase):
+class TestNimbusConfigurationSerializer(MockSizingDataMixin, TestCase):
     def test_expected_output(self):
+        self.setup_cached_sizing_data()
         feature_configs = NimbusFeatureConfigFactory.create_batch(8)
         feature_configs.append(
             NimbusFeatureConfigFactory.create(
@@ -73,6 +75,9 @@ class TestNimbusConfigurationSerializer(TestCase):
             )
 
         self.assertEqual(config["owners"], [{"username": experiment.owner.username}])
+
+        pop_sizing_data = self.get_cached_sizing_data()
+        self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
 
         for outcome in Outcomes.all():
             self.assertIn(
