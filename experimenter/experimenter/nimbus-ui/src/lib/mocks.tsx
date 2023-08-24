@@ -445,6 +445,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       id: "3",
     },
   ],
+  populationSizingData: "{}",
 };
 
 // Disabling this rule for now because we'll eventually

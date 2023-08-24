@@ -15,6 +15,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 
 
 class TestNimbusExperimentCsvListView(TestCase):
@@ -101,7 +102,7 @@ class TestNimbusExperimentCsvListView(TestCase):
         self.assertEqual(csv_data, expected_csv_data)
 
 
-class TestNimbusConfigurationView(TestCase):
+class TestNimbusConfigurationView(MockSizingDataMixin, TestCase):
     def test_nimbus_configuration_view_returns_config_data(self):
         user_email = "user@example.com"
         response = self.client.get(

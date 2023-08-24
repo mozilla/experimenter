@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import jsonschema
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import models, transaction
 from django.db.models import Prefetch
 from django.utils.text import slugify
@@ -37,6 +38,7 @@ from experimenter.kinto.tasks import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
+from experimenter.settings import SIZING_DATA_KEY
 
 
 class TransitionConstants:
@@ -211,6 +213,7 @@ class NimbusConfigurationDataClass:
     conclusionRecommendations: typing.List[LabelValueDataClass]
     takeaways: typing.List[LabelValueDataClass]
     types: typing.List[LabelValueDataClass]
+    populationSizingData: str
     hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
@@ -240,6 +243,7 @@ class NimbusConfigurationDataClass:
             NimbusExperiment.ConclusionRecommendation
         )
         self.types = self._enum_to_label_value(NimbusExperiment.Type)
+        self.populationSizingData = self._get_population_sizing_data()
         self.takeaways = self._enum_to_label_value(NimbusExperiment.Takeaways)
 
     def _geo_model_to_dataclass(self, queryset):
@@ -295,6 +299,10 @@ class NimbusConfigurationDataClass:
             )
             .order_by("name")
         ]
+
+    def _get_population_sizing_data(self):
+        sizing_data = cache.get(SIZING_DATA_KEY)
+        return sizing_data.json() if sizing_data else "{}"
 
     def _get_owners(self):
         owners = (
