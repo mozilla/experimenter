@@ -28,6 +28,10 @@ class ChangeEventType(Enum):
 
 
 class RelationalFields:
+
+    # This is a list of models whose field values are stored as reference keys
+    # instead of actual values in the NimbusChangelog
+
     NATIVE_MODELS = [
         "countries",
         "locales",
@@ -36,7 +40,6 @@ class RelationalFields:
         "excluded_experiments",
         "projects",
     ]
-    CUSTOM_MODELS = ["feature_configs", "reference_branch", "branches"]
 
 
 class BucketRandomizationUnit(models.TextChoices):
