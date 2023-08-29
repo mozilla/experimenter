@@ -6,6 +6,7 @@
 */
 
 export type AnalysisBasis = "enrollments" | "exposures";
+export type LogSource = "jetstream" | "sizing" | "jetstream-preview";
 export type AnalysisErrors = AnalysisError[];
 export type SizingReleaseChannel = "release" | "beta" | "nightly";
 export type SizingUserType = "new" | "existing";
@@ -13,6 +14,7 @@ export type Statistics = Statistic[];
 
 export interface AnalysisError {
   analysis_basis?: AnalysisBasis;
+  source?: LogSource;
   exception?: string;
   exception_type?: string;
   experiment?: string;
