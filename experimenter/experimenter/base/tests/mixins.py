@@ -1,9 +1,9 @@
-import mock
+from unittest import mock
 
 from experimenter.openidc.tests.factories import UserFactory
 
 
-class MockRequestMixin(object):
+class MockRequestMixin:
     def setUp(self):
         super().setUp()
 
