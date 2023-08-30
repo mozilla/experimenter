@@ -74,6 +74,7 @@ def test_parse_analysis_errors():
                 "message": "experiment-test-slug -> Experiment has not finished.",
                 "metric": null,
                 "segment": null,
+                "source": "jetstream",
                 "statistic": null,
                 "timestamp": "2023-05-17T06:42:31+00:00"
             },
@@ -87,6 +88,7 @@ def test_parse_analysis_errors():
                 "message": "experiment-test-slug -> Experiment has not finished.",
                 "metric": null,
                 "segment": null,
+                "source": "jetstream",
                 "statistic": null,
                 "timestamp": "2023-05-17T06:42:31+00:00"
             },
@@ -100,6 +102,7 @@ def test_parse_analysis_errors():
                 "message": "experiment-test-slug -> Experiment has not finished.",
                 "metric": null,
                 "segment": null,
+                "source": "jetstream",
                 "statistic": null,
                 "timestamp": "2023-05-17T06:42:31+00:00"
             }
@@ -123,6 +126,7 @@ def test_parse_analysis_errors_fails():
             "message": "experiment-test-slug -> Experiment has not finished.",
             "metric": null,
             "segment": null,
+            "source": "jetstream",
             "statistic": null,
             "timestamp": "2023-05-17T06:42:31+00:00"
         }
