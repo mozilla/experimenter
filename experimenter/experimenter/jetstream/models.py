@@ -188,7 +188,7 @@ class MetricData(BaseModel):
 
 class ResultsObjectModelBase(BaseModel):
     def __init__(self, result_metrics, data, experiment, window="overall"):
-        super(ResultsObjectModelBase, self).__init__()
+        super().__init__()
 
         for jetstream_data_point in data:
             metric = jetstream_data_point.metric

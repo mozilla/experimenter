@@ -209,7 +209,7 @@ class Application(models.TextChoices):
         )
 
 
-class NimbusConstants(object):
+class NimbusConstants:
     class Status(models.TextChoices):
         DRAFT = "Draft"
         PREVIEW = "Preview"

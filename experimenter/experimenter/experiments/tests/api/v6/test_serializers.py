@@ -228,7 +228,7 @@ class TestNimbusExperimentSerializer(TestCase):
         feature_value.save()
         serializer = NimbusExperimentSerializer(experiment)
         branch_slug = serializer.data["referenceBranch"]
-        branch = [x for x in serializer.data["branches"] if x["slug"] == branch_slug][0]
+        branch = next(x for x in serializer.data["branches"] if x["slug"] == branch_slug)
         self.assertEqual(branch["features"][0]["value"], {})
 
     @parameterized.expand(
@@ -305,9 +305,7 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
 
         self.assertIn("localizations", serializer.data)
-        self.assertEquals(
-            serializer.data["localizations"], json.loads(TEST_LOCALIZATIONS)
-        )
+        self.assertEqual(serializer.data["localizations"], json.loads(TEST_LOCALIZATIONS))
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_multiple_locales(self):

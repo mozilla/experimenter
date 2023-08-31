@@ -124,7 +124,7 @@ def test_check_telemetry_enrollment_unenrollment(
     while not control:
         control = telemetry_event_check(experiment_slug, "enroll")
         if time.time() > timeout:
-            assert False, "Experiment enrollment was never seen in ping Data"
+            raise AssertionError("Experiment enrollment was never seen in ping Data")
     # check experiment exists, this means it is enrolled
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
@@ -151,7 +151,7 @@ def test_check_telemetry_enrollment_unenrollment(
     while not control:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
-            assert False, "Experiment enrollment was never seen in ping Data"
+            raise AssertionError("Experiment enrollment was never seen in ping Data")
 
 
 @pytest.mark.desktop_enrollment
@@ -215,7 +215,7 @@ def test_check_telemetry_pref_flip(
     while not control:
         control = telemetry_event_check(experiment_slug, "enroll")
         if time.time() > timeout:
-            assert False, "Experiment enrollment was never seen in ping Data"
+            raise AssertionError("Experiment enrollment was never seen in ping Data")
     # check experiment exists, this means it is enrolled
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
@@ -239,7 +239,7 @@ def test_check_telemetry_pref_flip(
     while not control:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
-            assert False, "Experiment unenrollment was never seen in ping Data"
+            raise AssertionError("Experiment unenrollment was never seen in ping Data")
 
     about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
@@ -305,7 +305,7 @@ def test_check_telemetry_sticky_targeting(
     while not control:
         control = telemetry_event_check(experiment_slug, "enroll")
         if time.time() > timeout:
-            assert False, "Experiment enrollment was never seen in ping Data"
+            raise AssertionError("Experiment enrollment was never seen in ping Data")
     # check experiment exists, this means it is enrolled
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
@@ -324,7 +324,7 @@ def test_check_telemetry_sticky_targeting(
     while not control and time.time() < timeout:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if control:
-            assert False, "Experiment unenrolled when it shouldn't have"
+            raise AssertionError("Experiment unenrolled when it shouldn't have")
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
     # unenroll
@@ -343,7 +343,7 @@ def test_check_telemetry_sticky_targeting(
     while not control:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
-            assert False, "Experiment unenrollment was never seen in ping Data"
+            raise AssertionError("Experiment unenrollment was never seen in ping Data")
 
     # check pref still matches user change
     assert about_config.get_pref_value(pref_name) == "false"

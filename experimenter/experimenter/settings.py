@@ -367,9 +367,7 @@ CACHES = {
 SIZING_DATA_KEY = "population_sizing"
 
 # Celery
-CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
-    host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB
-)
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
 CELERY_BEAT_SCHEDULE = {
     "experiment_status_ready_to_ship_task": {
         "task": "experimenter.legacy.normandy.tasks.update_recipe_ids_to_experiments",
