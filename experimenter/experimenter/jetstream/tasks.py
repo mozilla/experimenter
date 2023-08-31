@@ -63,7 +63,7 @@ def fetch_jetstream_data():
                 metrics.incr("fetch_jetstream_data.skipped")
                 logger.info(
                     f"Skipping cache refresh for old experiment {experiment.name}"
-                    + f" ({experiment.slug})"
+                    f" ({experiment.slug})"
                 )
 
     except Exception as e:

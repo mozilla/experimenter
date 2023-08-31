@@ -1,7 +1,7 @@
 import datetime
 from decimal import Decimal
+from unittest import mock
 
-import mock
 from django.test import TestCase
 from django.utils.text import slugify
 from parameterized import parameterized
@@ -1460,7 +1460,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
-        self.assertEquals(experiment.proposed_release_date, release_date)
+        self.assertEqual(experiment.proposed_release_date, release_date)
 
     def test_can_set_empty_proposed_release_date(self):
         release_date = datetime.date.today()
@@ -1496,7 +1496,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
         self.assertIsNone(experiment.published_dto)
-        self.assertEquals(experiment.proposed_release_date, None)
+        self.assertEqual(experiment.proposed_release_date, None)
 
     def test_can_set_excluded_required_experiments(self):
         excluded = NimbusExperimentFactory.create_with_lifecycle(
