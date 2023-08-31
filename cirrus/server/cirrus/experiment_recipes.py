@@ -47,9 +47,9 @@ class RemoteSettings:
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to fetch recipes: {e}")
             raise e
-
-        if data := response.json().get("data", []):
+        data = response.json().get("data")
+        if data is not None:
             self.update_recipes({"data": data})
-            logger.info("Fetched resources")
+            logger.info(f"Fetched resources: {data}")
         else:
             logger.warning("No recipes found in the response")

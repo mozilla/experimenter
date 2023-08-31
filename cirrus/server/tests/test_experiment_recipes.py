@@ -73,7 +73,17 @@ def test_empty_data_key_with_non_empty_recipes(mock_get, remote_settings):
 
     remote_settings.update_recipes({"data": [{"experiment1": True}]})
     remote_settings.fetch_recipes()
-    assert remote_settings.get_recipes() == {"data": [{"experiment1": True}]}
+    assert remote_settings.get_recipes() == {"data": []}
+
+
+@patch("cirrus.experiment_recipes.requests.get")
+def test_non_data_key_recipes(mock_get, remote_settings):
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {}
+    mock_get.return_value = mock_response
+    remote_settings.fetch_recipes()
+    assert remote_settings.get_recipes() == {"data": []}
 
 
 @pytest.mark.parametrize(
