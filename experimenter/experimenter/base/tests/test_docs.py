@@ -1,6 +1,6 @@
 import os
+from unittest import mock
 
-import mock
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase
