@@ -47,11 +47,22 @@ PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
 MOZILLA_CENTRAL_ROOT = https://hg.mozilla.org/mozilla-central/raw-file/tip
 FEATURE_MANIFEST_DESKTOP_URL = ${MOZILLA_CENTRAL_ROOT}/toolkit/components/nimbus/FeatureManifest.yaml
-FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/fenix/app/.experimenter.yaml
-FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
-FEATURE_MANIFEST_FOCUS_ANDROID = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/focus-android/app/.experimenter.yaml
-FEATURE_MANIFEST_FOCUS_IOS = https://raw.githubusercontent.com/mozilla-mobile/focus-ios/main/.experimenter.yaml
-FEATURE_MANIFEST_MONITOR = https://raw.githubusercontent.com/mozilla/blurts-server/main/config/nimbus.yaml
+
+FIREFOX_ANDROID_REPO = @mozilla-mobile/firefox-android
+FIREFOX_IOS_REPO     = @mozilla-mobile/firefox-ios
+FOCUS_IOS_REPO       = @mozilla-mobile/focus-ios
+MONITOR_REPO         = @mozilla/blurts-server
+
+FEATURE_MANIFEST_FENIX = $(FIREFOX_ANDROID_REPO)/fenix/app/nimbus.fml.yaml
+FEATURE_MANIFEST_FXIOS = $(FIREFOX_IOS_REPO)/nimbus.fml.yaml
+FEATURE_MANIFEST_FOCUS_ANDROID = $(FIREFOX_ANDROID_REPO)/focus-android/app/nimbus.fml.yaml
+FEATURE_MANIFEST_FOCUS_IOS = $(FOCUS_IOS_REPO)/nimbus.fml.yaml
+FEATURE_MANIFEST_MONITOR = $(MONITOR_REPO)/config/nimbus.yaml
+
+MANIFESTS_DIR = experimenter/experimenter/features/manifests
+CLI_DIR = experimenter/experimenter/features/manifests/application-services
+CLI_INSTALLER = $(CLI_DIR)/install-nimbus-cli.sh
+NIMBUS_CLI = $(CLI_DIR)/nimbus-cli
 
 ssl: nginx/key.pem nginx/cert.pem
 
@@ -75,13 +86,16 @@ jetstream_config:
 	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
 
 feature_manifests:
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/fenix.yaml $(FEATURE_MANIFEST_FENIX_URL)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/monitor-web.fml.yaml $(FEATURE_MANIFEST_MONITOR)
-	cat experimenter/experimenter/features/manifests/firefox-desktop.yaml | grep path: | \
+	mkdir -p $(MANIFESTS_DIR)
+
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FENIX) "$(MANIFESTS_DIR)/fenix.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FXIOS) "$(MANIFESTS_DIR)/ios.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_ANDROID) "$(MANIFESTS_DIR)/focus-android.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_IOS) "$(MANIFESTS_DIR)/focus-ios.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_MONITOR) "$(MANIFESTS_DIR)/monitor-web.yaml"
+
+	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
+	cat $(MANIFESTS_DIR)/firefox-desktop.yaml | grep path: | \
 	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
 	while read -r url; do \
 		file=$$(echo $$url | sed 's|$(MOZILLA_CENTRAL_ROOT)/||'); \
@@ -90,18 +104,12 @@ feature_manifests:
 		curl $$url -o $$file; \
 	done
 
-convert_feature_manifests:
-	cd experimenter/experimenter/features/manifests/;\
-	curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y;\
-	source "$$HOME/.cargo/env";\
-	git clone git@github.com:mozilla/application-services.git;\
-	cd application-services;\
-	git submodule init;\
-	git submodule update --recursive;\
-	cd components/support/nimbus-fml;\
-	cargo run generate-experimenter --channel beta "../../../../monitor-web.fml.yaml" "../../../../monitor-web.yaml";
+install_nimbus_cli:
+	mkdir -p $(CLI_DIR)
+	curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh > "$(CLI_INSTALLER)"
+	$(SHELL) $(CLI_INSTALLER) --directory "$(CLI_DIR)"
 
-fetch_external_resources: jetstream_config feature_manifests convert_feature_manifests
+fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests
 	echo "External Resources Fetched"
 
 update_kinto:
