@@ -369,7 +369,6 @@ pre_treatments = ['remove_nulls']
 [metrics.quic_successful_connections_ech_real.statistics.empirical_cdf]
 pre_treatments = ['remove_nulls']
 
-# this outcome can only be used on nightly otherwise it processes too much data
 
 [data_sources.main]
 from_expression = """(
@@ -378,7 +377,6 @@ from_expression = """(
         DATE(submission_timestamp) AS submission_date,
         environment.experiments
     FROM `moz-fx-data-shared-prod.telemetry_stable.main_v4`
-    WHERE normalized_channel = 'nightly'
 )"""
 experiments_column_type = "native"
 
