@@ -13,6 +13,7 @@ import { ReactComponent as Cog } from "src/components/AppLayoutWithSidebar/cog.s
 import "src/components/AppLayoutWithSidebar/index.scss";
 import { ReactComponent as Layers } from "src/components/AppLayoutWithSidebar/layers.svg";
 import { ReactComponent as Person } from "src/components/AppLayoutWithSidebar/person.svg";
+import { ReactComponent as Timeline } from "src/components/AppLayoutWithSidebar/timeline.svg";
 import { LinkNav } from "src/components/LinkNav";
 import LinkNavSummary from "src/components/LinkNavSummary";
 import SidebarActions from "src/components/SidebarActions";
@@ -126,6 +127,21 @@ export const AppLayoutWithSidebar = ({
                   {page.name}
                 </LinkNav>
               ))}
+
+              <p className="edit-divider position-relative small my-2">
+                <span className="position-relative bg-light pl-1 pr-2 text-muted">
+                  History
+                </span>
+              </p>
+
+              <LinkNav
+                route={`/history/${slug}`}
+                testid={`history-page-${slug}`}
+                isExternalRoute={true}
+              >
+                <Timeline className="sidebar-icon" />
+                Changelogs
+              </LinkNav>
 
               <SidebarActions {...{ experiment, refetch, status }} />
             </Nav>
