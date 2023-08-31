@@ -292,9 +292,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def experiment_url(self):
-        return urljoin(
-            "https://{host}".format(host=settings.HOSTNAME), self.get_absolute_url()
-        )
+        return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
 
     def _get_targeting_min_version(self):
         expressions = []
@@ -997,6 +995,9 @@ class NimbusBranchScreenshot(models.Model):
     class Meta:
         ordering = ["id"]
 
+    def __str__(self):  # pragma: no cover
+        return f"{self.branch}: {self.description}"
+
     def delete(self, *args, **kwargs):
         old_image_name = self.image.name if self.image and self.image.name else None
         super().delete(*args, **kwargs)
@@ -1182,7 +1183,7 @@ class NimbusVersionedSchema(models.Model):
         verbose_name_plural = "Nimbus Versioned Schemas"
         unique_together = ("feature_config", "version")
 
-    def __repr__(self):  # pragma: no cover
+    def __str__(self):  # pragma: no cover
         return (
             f"<NimbusVersionedSchema(feature_config_id={self.feature_config_id}, "
             f"version={self.version!r})>"

@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.test import TestCase, override_settings
@@ -44,7 +45,7 @@ class TestAppVersion(TestCase):
             "builtins.open",
             mock.mock_open(read_data=version_json),
         ) as mf:
-            mf.side_effect = IOError()
+            mf.side_effect = OSError()
             version = app_version()
             mf.assert_called_once_with(settings.APP_VERSION_JSON_PATH)
             self.assertEqual(version, "")

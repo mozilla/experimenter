@@ -43,7 +43,7 @@ class Outcomes:
                 if not outcome_name.endswith(".example"):
                     outcome_path = os.path.join(app_path, outcome_name)
 
-                    with open(outcome_path, "r") as outcome_file:
+                    with open(outcome_path) as outcome_file:
                         outcome_toml = outcome_file.read()
                         outcome_data = toml.loads(outcome_toml)
 

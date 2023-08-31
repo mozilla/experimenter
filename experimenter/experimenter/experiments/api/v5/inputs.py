@@ -72,7 +72,6 @@ class ExperimentInput(graphene.InputObjectType):
     reference_branch = graphene.Field(BranchInput)
     required_experiments = graphene.List(graphene.NonNull(graphene.Int))
     risk_brand = graphene.Boolean()
-    risk_brand = graphene.Boolean()
     risk_mitigation_link = graphene.String()
     risk_partner_related = graphene.Boolean()
     risk_revenue = graphene.Boolean()
