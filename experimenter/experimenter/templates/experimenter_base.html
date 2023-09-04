@@ -15,6 +15,7 @@
 <body x-data="sidebar" :class="{ 'overflow-hidden md:overflow-auto': open,  }">
     {% include "common/header.html"%}
     <div class="h-full min-h-screen w-full flex flex-col justify-start items-center">
+        <!-- This is a overlay that renders when the sidebar is open -->
         <div :class="{ 'hidden': !open, 'block': open }" class="fixed md:hidden inset-0 bg-black bg-opacity-50 z-20 transition-opacity"></div>
         {% block content %}
         {% endblock %}

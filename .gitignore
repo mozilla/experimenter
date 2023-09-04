@@ -76,7 +76,7 @@ target/
 **/.vscode/*
 
 # Hosted assets
-experimenter/experimenter/static/scripts/bundle.js
+experimenter/experimenter/static/scripts/
 experimenter/experimenter/served/
 experimenter/experimenter/legacy/legacy-ui/assets/
 experimenter/experimenter/reporting/reporting-ui/assets/
