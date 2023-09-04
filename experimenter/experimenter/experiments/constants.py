@@ -38,7 +38,6 @@ class RelationalFields:
         "languages",
         "required_experiments",
         "excluded_experiments",
-        "projects",
     ]
 
 
