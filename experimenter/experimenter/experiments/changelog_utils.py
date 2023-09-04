@@ -94,14 +94,18 @@ def generate_nimbus_changelog(experiment, changed_by, message, changed_on=None):
     )
 
 
+# This method generates a formatted change dictionary based on the provided field name,
+# field difference, changelog, and timestamp. It determines the event type based on the
+# field type and generates an appropriate event message.
+
+# Depending on the field type, the method may perform additional processing to obtain
+# human-readable values for relational fields, JSON fields, and arrays.
+
+
 def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
     event_name = ChangeEventType.GENERAL.name
     field_instance = NimbusExperiment._meta.get_field(field_name)
-    field_display_name = (
-        field_instance.verbose_name
-        if hasattr(field_instance, "verbose_name")
-        else field_name
-    )
+    field_display_name = getattr(field_instance, "verbose_name", field_name)
 
     old_value = field_diff["old_value"]
     new_value = field_diff["new_value"]
@@ -111,25 +115,31 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
         (models.ManyToManyField, models.OneToOneField, models.ManyToOneRel),
     ):
         event_name = ChangeEventType.DETAILED.name
+
+        # Values of some fields are stored in the form of reference keys in
+        # NimbusChangeLog and the NATIVE_MODELS here is a list of the
+        # database models to which those fields belong to. We use this list
+        # to query the actual values of those fields using the reference keys
+
         if field_name in RelationalFields.NATIVE_MODELS:
             field_model = field_instance.related_model
             data = field_model.objects.all()
             values = list(data.filter(pk__in=old_value).values_list("name", flat=True))
-            old_value = values if values else old_value
+            old_value = values
             values = list(data.filter(pk__in=new_value).values_list("name", flat=True))
-            new_value = values if values else new_value
+            new_value = values
 
         old_value = json.dumps(old_value, indent=2)
         new_value = json.dumps(new_value, indent=2)
 
-    if isinstance(field_instance, (models.JSONField, ArrayField)):
+    elif isinstance(field_instance, (models.JSONField, ArrayField)):
         event_name = ChangeEventType.DETAILED.name
         if old_value is not None:
             old_value = json.dumps(old_value, indent=2)
         if new_value is not None:
             new_value = json.dumps(new_value, indent=2)
 
-    if isinstance(field_instance, models.BooleanField):
+    elif isinstance(field_instance, models.BooleanField):
         event_name = ChangeEventType.BOOLEAN.name
 
     if field_name == "status" or field_name == "publish_status":

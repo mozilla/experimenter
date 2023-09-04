@@ -2395,7 +2395,7 @@ class TestNimbusExperiment(TestCase):
                         {
                             "event": ChangeEventType.STATE.name,
                             "event_message": (
-                                f"{user} changed value of Publish status from "
+                                f"{user} changed value of Publish Status from "
                                 f"Idle to Review"
                             ),
                             "changed_by": user,
