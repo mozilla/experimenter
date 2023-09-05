@@ -59,6 +59,7 @@
     "vega-lite": "^4.17.0"
   },
   "devDependencies": {
+    "@mozilla/nimbus-schemas": "^2023.9.1",
     "@rescripts/cli": "^0.0.16",
     "@testing-library/dom": "^8.20.0",
     "@testing-library/jest-dom": "^5.17.0",
@@ -94,7 +95,7 @@
     "prettier": "^2.8.0",
     "prettier-plugin-organize-imports": "^2.3.2",
     "react-select-event": "^5.5.0",
-    "sass": "^1.65.1",
+    "sass": "^1.66.1",
     "stylelint": "^13.13.1",
     "stylelint-config-prettier": "^8.0.2"
   },

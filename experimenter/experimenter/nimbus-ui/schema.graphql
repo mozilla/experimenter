@@ -420,6 +420,7 @@ type NimbusConfigurationType {
   takeaways: [NimbusLabelValueType]
   types: [NimbusLabelValueType]
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
+  populationSizingData: String
 }
 
 type NimbusExperimentApplicationConfigType {

@@ -2,8 +2,8 @@ import datetime
 import os.path
 from decimal import Decimal
 from itertools import product
+from unittest import mock
 
-import mock
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
@@ -706,7 +706,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            ("(app_version|versionCompare('101.*') <= 0) " f"&& {sticky_expression}"),
+            f"(app_version|versionCompare('101.*') <= 0) && {sticky_expression}",
         )
         JEXLParser().parse(experiment.targeting)
 

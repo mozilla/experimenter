@@ -72,11 +72,11 @@ class AboutConfig(Page):
                 actual_row = (By.CSS_SELECTOR, "table > tr")
                 new_pref_locator = (By.CSS_SELECTOR, "th > span")
                 elements = self.find_elements(*actual_row)
-                el = [
+                el = next(
                     element
                     for element in elements
                     if pref in element.find_element(*new_pref_locator).text
-                ][0]
+                )
                 el.find_element(By.CSS_SELECTOR, ".cell-edit").click()
             except Exception as e:
                 error = e
@@ -96,9 +96,9 @@ class AboutConfig(Page):
         actual_row = (By.CSS_SELECTOR, "table > tr")
         new_pref_locator = (By.CSS_SELECTOR, "th > span")
         elements = self.find_elements(*actual_row)
-        el = [
+        el = next(
             element
             for element in elements
             if pref in element.find_element(*new_pref_locator).text
-        ][0]
+        )
         return el.find_element(By.CSS_SELECTOR, ".cell-value").text

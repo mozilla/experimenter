@@ -17,26 +17,19 @@ from experimenter.jetstream.tests.constants import (
     NonePointJetstreamTestData,
     ZeroJetstreamTestData,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.outcomes import Outcomes
 from experimenter.settings import SIZING_DATA_KEY
 
 
 @mock_valid_outcomes
-@override_settings(
-    FEATURE_ANALYSIS=False,
-    CACHES={
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        },
-    },
-)
-class TestFetchJetstreamDataTask(TestCase):
+@override_settings(FEATURE_ANALYSIS=False)
+class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
     maxDiff = None
 
     def setUp(self):
         super().setUp()
         Outcomes.clear_cache()
-        cache.delete(SIZING_DATA_KEY)
 
     @parameterized.expand(
         [

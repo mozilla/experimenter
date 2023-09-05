@@ -113,6 +113,18 @@ search:
       type: boolean
       setPref: browser.search.serpEventTelemetry.enabled
       description: Whether the Glean SERP event telemetry is enabled.
+    trendingEnabled:
+      type: boolean
+      setPref: browser.urlbar.trending.featureGate
+      description: Feature gate that controls whether trending suggestions are enabled.
+    trendingRequireSearchMode:
+      type: boolean
+      setPref: browser.urlbar.trending.requireSearchMode
+      description: Controls whether trending suggestions are only shown in search mode or not.
+    trendingMaxResultsNoSearchMode:
+      type: boolean
+      setPref: browser.urlbar.trending.maxResultsNoSearchMode
+      description: The maximum number of trending results mode outside search mode.
 
 # `searchConfiguration` is for search experiment features for items that require
 # isEarlyStartup to be true. These items may require a reload of the search
@@ -913,6 +925,17 @@ fullPageTranslation:
       type: boolean
       setPref: browser.translations.enable
 
+fullPageTranslationAutomaticPopup:
+  description: Controls whether the popup automatically shows for translations.
+  owner: gtatum@mozilla.com
+  hasExposure: false
+  isEarlyStartup: true
+  variables:
+    boolean:
+      description: Set to true to automatically popup, and false to only show the button.
+      type: boolean
+      setPref: browser.translations.automaticallyPopup
+
 # fxms-message-* placeholder feature ids
 #
 # https://docs.google.com/spreadsheets/d/119YbeKStLL0Fg2QkK-yN93mrtD1rlneGZGTl_jAwtyw/edit#gid=1903378504
@@ -1121,7 +1144,7 @@ glean:
         A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric.
         This variable is intended for interacting with the Glean data-control-plane via the Server Knobs functionality
         to remotely configure metrics to be enabled or disabled.
-       
+
 gleanInternalSdk:
   description: "The Glean internal SDK feature intended only for internal Glean Team use"
   hasExposure: false
@@ -1139,7 +1162,7 @@ gleanInternalSdk:
       type: int
       description: >-
         Maximum number of pings that can be sent in a 60 second interval
-        
+
 majorRelease2022:
   description: Major Release 2022
   owner: firefoxview@mozilla.com
@@ -1150,14 +1173,6 @@ majorRelease2022:
       type: boolean
       fallbackPref: "browser.theme.dark-private-windows"
       description: "Use dark theme variant for PBM windows. This is only supported if the theme sets darkTheme data."
-    feltPrivacyPBMNewIndicator:
-      type: boolean
-      fallbackPref: "browser.privatebrowsing.enable-new-indicator"
-      description: "Enables the new private browsing indicator."
-    feltPrivacyPBMNewLogo:
-      type: boolean
-      fallbackPref: "browser.privatebrowsing.enable-new-logo"
-      description: "Enables the new about:privatebrowsing logo."
     feltPrivacyShowPreferencesSection:
       type: boolean
       fallbackPref: "browser.privacySegmentation.preferences.show"
@@ -1622,6 +1637,10 @@ shopping2023:
       description: True if the experience is enabled
       type: boolean
       fallbackPref: browser.shopping.experience2023.enabled
+    adsEnabled:
+      description: True if showing recommended products is enabled
+      type: boolean
+      setPref: browser.shopping.experience2023.ads.enabled
 shoppingOHTTP:
   description: Prefs to control the OHTTP URLs used for shopping.
   owner: gijs@mozilla.com
@@ -1739,3 +1758,14 @@ backgroundUpdate:
         directory can be written.
       type: boolean
       fallbackPref: app.update.background.allowUpdatesForUnelevatedInstallations
+
+bookmarks:
+  description: Prefs to control aspects of the bookmarks system.
+  owner: omc@mozilla.com
+  hasExposure: false
+  isEarlyStartup: true
+  variables:
+    enableBookmarksToolbar:
+      type: string
+      setPref: browser.toolbars.bookmarks.visibility
+      description: If the bookmarks toolbar should never, always, or only show on newtab.

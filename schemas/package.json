@@ -1,8 +1,8 @@
 {
   "name": "@mozilla/nimbus-schemas",
-  "version": "2023.8.3",
+  "version": "2023.9.1",
   "description": "Schemas used by Mozilla Nimbus and related projects.",
-  "main": "index.ts",
+  "main": "index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mozilla/experimenter.git"
@@ -18,6 +18,6 @@
     "typescript": "^5.1.6"
   },
   "files": [
-    "index.ts"
+    "index.d.ts"
   ]
 }

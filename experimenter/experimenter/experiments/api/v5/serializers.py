@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import jsonschema
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import models, transaction
 from django.db.models import Prefetch
 from django.utils.text import slugify
@@ -37,6 +38,7 @@ from experimenter.kinto.tasks import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
+from experimenter.settings import SIZING_DATA_KEY
 
 
 class TransitionConstants:
@@ -211,6 +213,7 @@ class NimbusConfigurationDataClass:
     conclusionRecommendations: typing.List[LabelValueDataClass]
     takeaways: typing.List[LabelValueDataClass]
     types: typing.List[LabelValueDataClass]
+    populationSizingData: str
     hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
@@ -240,6 +243,7 @@ class NimbusConfigurationDataClass:
             NimbusExperiment.ConclusionRecommendation
         )
         self.types = self._enum_to_label_value(NimbusExperiment.Type)
+        self.populationSizingData = self._get_population_sizing_data()
         self.takeaways = self._enum_to_label_value(NimbusExperiment.Takeaways)
 
     def _geo_model_to_dataclass(self, queryset):
@@ -295,6 +299,10 @@ class NimbusConfigurationDataClass:
             )
             .order_by("name")
         ]
+
+    def _get_population_sizing_data(self):
+        sizing_data = cache.get(SIZING_DATA_KEY)
+        return sizing_data.json() if sizing_data else "{}"
 
     def _get_owners(self):
         owners = (
@@ -399,7 +407,6 @@ class NimbusBranchFeatureValueListSerializer(serializers.ListSerializer):
 
         This enforces that the serialized data is ordered by the feature config ID.
         """
-        super().to_representation
         iterable = data.all() if isinstance(data, models.Manager) else data
 
         return [
@@ -674,7 +681,7 @@ class NimbusStatusValidationMixin:
                     )
 
             for status_field in restrictive_statuses:
-                current_status = getattr(self.instance, "status")
+                current_status = self.instance.status
                 is_locked = current_status not in restrictive_statuses
                 modifying_fields = set(data.keys()) - exempt_fields
                 is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
@@ -1095,11 +1102,13 @@ class NimbusExperimentSerializer(
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["user"],
-                "channel": list(
-                    NimbusExperiment.APPLICATION_CONFIGS[
-                        validated_data["application"]
-                    ].channel_app_id.keys()
-                )[0],
+                "channel": next(
+                    iter(
+                        NimbusExperiment.APPLICATION_CONFIGS[
+                            validated_data["application"]
+                        ].channel_app_id.keys()
+                    )
+                ),
             }
         )
         self.changelog_message = validated_data.pop("changelog_message")

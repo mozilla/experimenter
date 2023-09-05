@@ -82,9 +82,9 @@ class TestNimbusStatusValidationMixin(TestCase):
             context={"user": self.user},
         )
 
-        self.assertEquals(field_to_change in fields, field_valid)
-        self.assertEquals(status in status_allowed, status_valid)
-        self.assertEquals(serializer.is_valid(), serializer_valid)
+        self.assertEqual(field_to_change in fields, field_valid)
+        self.assertEqual(status in status_allowed, status_valid)
+        self.assertEqual(serializer.is_valid(), serializer_valid)
 
     @parameterized.expand(
         [
@@ -120,7 +120,7 @@ class TestNimbusStatusValidationMixin(TestCase):
             },
             context={"user": self.user},
         )
-        self.assertEquals(serializer.is_valid(), valid)
+        self.assertEqual(serializer.is_valid(), valid)
 
     @parameterized.expand(
         [
@@ -152,7 +152,7 @@ class TestNimbusStatusValidationMixin(TestCase):
             },
             context={"user": self.user},
         )
-        self.assertEquals(serializer.is_valid(), valid)
+        self.assertEqual(serializer.is_valid(), valid)
 
     @parameterized.expand(
         [
@@ -186,7 +186,7 @@ class TestNimbusStatusValidationMixin(TestCase):
             },
             context={"user": self.user},
         )
-        self.assertEquals(serializer.is_valid(), valid)
+        self.assertEqual(serializer.is_valid(), valid)
 
     @parameterized.expand(
         [
@@ -220,4 +220,4 @@ class TestNimbusStatusValidationMixin(TestCase):
             },
             context={"user": self.user},
         )
-        self.assertEquals(serializer.is_valid(), valid)
+        self.assertEqual(serializer.is_valid(), valid)

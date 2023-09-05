@@ -25,6 +25,7 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
     NimbusVersionedSchemaFactory,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
@@ -398,7 +399,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED
         )
         documentation_links = experiment.documentation_links.all()
-        self.assert_(len(documentation_links) > 0)
+        self.assertTrue(len(documentation_links) > 0)
 
         response = self.query(
             """
@@ -2298,10 +2299,11 @@ class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
             )
 
 
-class TestNimbusConfigQuery(GraphQLTestCase):
+class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
 
     def test_nimbus_config(self):
+        self.setup_cached_sizing_data()
         user_email = "user@example.com"
         feature_configs = NimbusFeatureConfigFactory.create_batch(10)
         application = NimbusExperiment.Application.DESKTOP
@@ -2414,6 +2416,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         experiments
                         rollouts
                     }
+                    populationSizingData
                 }
             }
             """,
@@ -2438,6 +2441,9 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             NimbusExperiment.ConclusionRecommendation,
         )
 
+        pop_sizing_data = self.get_cached_sizing_data()
+        self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
+
         self.assertEqual(
             len(config["firefoxVersions"]), len(NimbusExperiment.Version.names)
         )
@@ -2445,7 +2451,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS,
             config["statusUpdateExemptFields"][0],
         )
-        for index, name in enumerate(NimbusExperiment.Version.names):
+        for _index, name in enumerate(NimbusExperiment.Version.names):
             self.assertIn(
                 {"label": NimbusExperiment.Version[name].label, "value": name},
                 config["firefoxVersions"],
