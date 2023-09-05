@@ -1454,6 +1454,17 @@ TEST_MOBILE_FIRST_RUN_TARGETING_CRITERIA_IOS = NimbusTargetingConfig(
     ),
 )
 
+CORE_USER_FULLY_ACTIVE = NimbusTargetingConfig(
+    name="Core user (Active Every Day)",
+    slug="core_user_active_every_day",
+    description="Active every day in the past 28 days",
+    targeting=f"{PROFILE28DAYS} && userMonthlyActivity|length >= 28",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
