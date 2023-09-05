@@ -1465,6 +1465,23 @@ CORE_USER_FULLY_ACTIVE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EARLY_DAY_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR = NimbusTargetingConfig(
+    name="Early Day User (Hasn't changed bookmarks toolbar behavior)",
+    slug="early_day_user_bookmarks_toolbar_unchanged",
+    description=(
+        "Users with profiles < 28 days old who have not edited the default bookmarks "
+        "toolbar behavior"
+    ),
+    targeting=(
+        f"{PROFILELESSTHAN28DAYS} &&"
+        " !('browser.toolbars.bookmarks.visibility'|preferenceIsUserSet)"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
