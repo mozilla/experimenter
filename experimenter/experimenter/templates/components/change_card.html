@@ -1,0 +1,79 @@
+ <!-- Styling of some of the components here updates based on the 'expand' alpine state 
+      which is responsible to show detailed changes -->
+<div x-data="{expand:false}" :class="{'bg-white border border-gray-100 shadow-md rounded-md': expand }"  class="p-2">
+    <div :class="{'mb-2': expand }" class="grid grid-cols-12 gap-2 px-3">
+        <div class="col-span-12 lg:col-span-8 xl:col-span-9 flex  space-y-1 md:space-y-0 items-center space-x-2">
+            <span class="flex items-center py-0.5"> 
+                <i class="fa-solid fa-circle-dot  text-blue-400 fa-xs"></i>
+            </span>
+            <p class="text-neutral-600">
+                {{ change.event_message }} 
+            </p>
+        </div>
+        <div class=" col-span-6 lg:col-span-2 xl:col-span-2 flex justify-start lg:justify-end items-center">
+            {% if isDetailed %}
+                <button  type="button" class="px-2 py-1 flex items-center justify-center space-x-1 border border-blue-400 rounded-md"  @click="expand = !expand">
+                    <i x-show="!expand" class="text-blue-400 fa-solid fa-circle-plus"></i>
+                    <i x-show="expand" class="text-blue-400 fa-solid fa-circle-minus"></i>
+                    <span   x-text="expand ? 'hide details': 'show details'" class="text-xs text-blue-400">
+                    </span>
+                </button>
+            {% endif %}
+        </div>
+        <div class=" col-span-6 lg:col-span-2 xl:col-span-1 flex justify-end  items-center">
+            <span class="text-xs text-rythm flex-nowrap">{{change.timestamp}}</span>
+        </div>
+    </div>
+    {% if isDetailed %}
+        <grid :class="{ 'hidden max-h-0': !expand, 'lg:grid max-h-[500px] hidden': expand }"
+        class=" grid-cols-12 gap-4 w-full overflow-hidden transition-all bg-white h-full  duration-700" x-ref="container1">
+            <div class="col-span-6">
+                <p class="text-center text-gray-500 bg-blue-50 rounded-md mb-1">Old Value</p>
+                <div class="h-full sunken p-2 rounded-md max-h-[468px] overflow-scroll">
+                    <pre>
+                        <code class="json">{{ change.old_value}}</code>
+                    </pre>
+                </div>
+            </div>
+            <div class="col-span-6">
+                <p class="text-center text-gray-500 bg-blue-50 rounded-md mb-1">New Value</p>
+                <div class="h-full sunken p-2 rounded-md max-h-[468px] overflow-scroll">
+                    <pre>
+                        <code class="json">{{ change.new_value}}</code>
+                    </pre>
+                </div>
+            </div>
+        </grid>
+        <div
+        x-cloak
+        x-show="expand"
+        x-transition:enter="transition ease-out duration-150"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        x-data="slider()" class="mt-2 mb-6 lg:hidden overflow-y-auto max-w-xl max-h-96">
+            <article class="relative w-full h-full" x-ref="slider" data-interval="6000">
+              <nav class="sticky top-0 bg-white z-10 w-full" role="tablist">
+                  <div class="flex items-center justify-around w-full">
+                      <li class="w-full  flex justify-center items-center" :class="{ 'border-b-4 border-blue-300': tab == 0 }"><a href="#" role="tab">Old Value</a></li>
+                      <li class="w-full  flex justify-center items-center" :class="{ 'border-b-4 border-blue-300': tab == 1 }"><a href="#" role="tab">New Value</a></li>
+                  </div>
+              </nav>
+              <div class="p-4 w-full h-full grid sunken overflow-x-auto overflow-y-hidden">
+                  <div class="data-tab" x-show="tab == 0" x-cloak>
+                    <pre class="whitespace-pre-line">
+                        <code class="json">{{ change.old_value}}</code>
+                    </pre>
+                  </div>
+                  <div class="data-tab" x-show="tab == 1" x-cloak>
+                    <pre class="whitespace-pre-line">
+                        <code class="json">{{ change.new_value}}</code>
+                    </pre>
+                  </div>
+               </div>
+            </article>
+        </div>
+    {% endif %}
+</div>
