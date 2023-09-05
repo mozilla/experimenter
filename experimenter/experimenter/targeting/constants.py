@@ -1458,7 +1458,7 @@ CORE_USER_FULLY_ACTIVE = NimbusTargetingConfig(
     name="Core user (Active Every Day)",
     slug="core_user_active_every_day",
     description="Active every day in the past 28 days",
-    targeting=f"{PROFILE28DAYS.targeting} && userMonthlyActivity|length >= 28",
+    targeting=f"{PROFILE28DAYS} && userMonthlyActivity|length >= 28",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
