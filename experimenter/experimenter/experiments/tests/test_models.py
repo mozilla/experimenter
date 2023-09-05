@@ -20,7 +20,7 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants import ChangeEventType, NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
@@ -2283,11 +2283,52 @@ class TestNimbusExperiment(TestCase):
                     "date": current_datetime,
                     "changes": [
                         {
-                            "event": "CREATION",
+                            "event": ChangeEventType.CREATION.name,
                             "event_message": (
                                 f"{experiment.owner} created this experiment"
                             ),
                             "changed_by": experiment.owner,
+                            "timestamp": formatted_timestamp,
+                        },
+                    ],
+                }
+            ],
+        )
+
+    def test_initial_log_of_cloned_experiment(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="test-experiment",
+            published_dto={"id": "experiment", "test": False},
+        )
+        user = UserFactory.create()
+        current_date = timezone.now().date()
+        timestamp = timezone.make_aware(
+            datetime.datetime.combine(current_date, datetime.datetime.min.time())
+        )
+        time_format = "%I:%M %p %Z"
+        local_timestamp = timezone.localtime(timestamp)
+        formatted_timestamp = local_timestamp.strftime(time_format)
+
+        cloned_experiment = experiment.clone(
+            "test experiment clone", user, changed_on=timestamp
+        )
+
+        experiment_changelogs = cloned_experiment.get_changelogs_by_date()
+
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 1)
+        self.assertEqual(
+            experiment_changelogs,
+            [
+                {
+                    "date": current_date,
+                    "changes": [
+                        {
+                            "event": ChangeEventType.CREATION.name,
+                            "event_message": (
+                                f"{user} cloned this experiment from "
+                                f"{cloned_experiment.parent.name}"
+                            ),
+                            "changed_by": user,
                             "timestamp": formatted_timestamp,
                         },
                     ],
@@ -2325,7 +2366,7 @@ class TestNimbusExperiment(TestCase):
 
         generate_nimbus_changelog(experiment, user, "publish_status change", timestamp_2)
 
-        experiment.status_next = NimbusExperiment.Status.LIVE
+        experiment.status = NimbusExperiment.Status.PREVIEW
         experiment.save()
 
         generate_nimbus_changelog(experiment, user, "status_next change", timestamp_3)
@@ -2341,28 +2382,30 @@ class TestNimbusExperiment(TestCase):
                     "date": current_date,
                     "changes": [
                         {
-                            "event": "GENERAL",
+                            "event": ChangeEventType.STATE.name,
                             "event_message": (
-                                f"{user} "
-                                f"changed value of status_next from "
-                                f"None to Live"
+                                f"{user} changed value of Status from "
+                                f"Draft to Preview"
                             ),
                             "changed_by": user,
                             "timestamp": formatted_timestamp_3,
+                            "old_value": "Draft",
+                            "new_value": "Preview",
                         },
                         {
-                            "event": "GENERAL",
+                            "event": ChangeEventType.STATE.name,
                             "event_message": (
-                                f"{user} "
-                                f"changed value of publish_status from "
+                                f"{user} changed value of Publish Status from "
                                 f"Idle to Review"
                             ),
                             "changed_by": user,
                             "timestamp": formatted_timestamp_2,
+                            "old_value": "Idle",
+                            "new_value": "Review",
                         },
                         {
-                            "event": "CREATION",
-                            "event_message": (f"{user} created this experiment"),
+                            "event": ChangeEventType.CREATION.name,
+                            "event_message": f"{user} created this experiment",
                             "changed_by": user,
                             "timestamp": formatted_timestamp_1,
                         },
