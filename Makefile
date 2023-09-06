@@ -292,7 +292,7 @@ schemas_test:
 	(cd schemas && poetry run pytest)
 
 schemas_check: schemas_install schemas_black schemas_ruff schemas_test
-	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output /tmp/test_index.d.ts --json2ts-cmd "yarn json2ts")
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output /tmp/test_index.d.ts --json2ts-cmd "yarn json2ts")
 	diff /tmp/test_index.d.ts schemas/index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1)
 	echo "Done. No problems found in schemas."
 
@@ -308,7 +308,7 @@ schemas_deploy_pypi: schemas_install schemas_build_pypi
 	cd schemas; poetry run twine upload --skip-existing dist/*;
 
 schemas_build_npm: schemas_install
-	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output ./index.d.ts --json2ts-cmd "yarn json2ts")
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output ./index.d.ts --json2ts-cmd "yarn json2ts")
 
 schemas_deploy_npm: schemas_build_npm
 	cd schemas; yarn publish --new-version ${SCHEMAS_VERSION} --access public;
