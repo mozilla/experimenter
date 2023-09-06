@@ -1,0 +1,102 @@
+{
+  "appId": "firefox-desktop",
+  "appName": "firefox_desktop",
+  "branches": [
+    {
+      "feature": {
+        "featureId": "privatebrowsing",
+        "value": {
+          "promoLinkUrl": "https://vpn.mozilla.org/?utm_campaign=private-browsing-vpn-link&entrypoint_experiment=firefox-vpn-test-1629&entrypoint_variation=control"
+        }
+      },
+      "features": [
+        {
+          "featureId": "privatebrowsing",
+          "value": {
+            "promoLinkUrl": "https://vpn.mozilla.org/?utm_campaign=private-browsing-vpn-link&entrypoint_experiment=firefox-vpn-test-1629&entrypoint_variation=control"
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "control"
+    },
+    {
+      "feature": {
+        "featureId": "privatebrowsing",
+        "value": {
+          "promoLinkUrl": "https://vpn.mozilla.org/?utm_campaign=private-browsing-vpn-link&entrypoint_experiment=firefox-vpn-test-1629&entrypoint_variation=control"
+        }
+      },
+      "features": [
+        {
+          "featureId": "privatebrowsing",
+          "value": {
+            "infoBody": "Firefox clears your search and browsing history when you close all private windows, but this doesn't make you anonymous.",
+            "infoLinkText": "Learn more",
+            "infoTitle": "You’re in a private window",
+            "infoTitleEnabled": true,
+            "promoHeader": "Hide your activity and location, everywhere you browse",
+            "promoLinkText": "Stay private with Mozilla VPN",
+            "promoLinkType": "button",
+            "promoLinkUrl": "https://vpn.mozilla.org/?utm_campaign=private-browsing-vpn-link&entrypoint_experiment=firefox-vpn-test-1629&entrypoint_variation=var1",
+            "promoSectionStyle": "bottom",
+            "promoTitleEnabled": false
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "var1"
+    },
+    {
+      "feature": {
+        "featureId": "privatebrowsing",
+        "value": {
+          "promoLinkUrl": "https://vpn.mozilla.org/?utm_campaign=private-browsing-vpn-link&entrypoint_experiment=firefox-vpn-test-1629&entrypoint_variation=control"
+        }
+      },
+      "features": [
+        {
+          "featureId": "privatebrowsing",
+          "value": {
+            "infoBody": "Private window: Firefox clears your search and browsing history when you close all private windows. This doesn’t make you anonymous.",
+            "infoLinkText": "Learn more",
+            "infoTitle": "You’re in a private window",
+            "infoTitleEnabled": false,
+            "promoHeader": "Get privacy protection everywhere you browse",
+            "promoImageLarge": "chrome://browser/content/assets/moz-vpn.svg",
+            "promoLinkText": "Stay private with Mozilla VPN",
+            "promoLinkType": "button",
+            "promoLinkUrl": "https://vpn.mozilla.org/?utm_campaign=private-browsing-vpn-link&entrypoint_experiment=firefox-vpn-test-1629&entrypoint_variation=var2",
+            "promoSectionStyle": "below-search",
+            "promoTitle": "Hide browsing activity and location with Mozilla’s VPN. One tap creates a secure connection, even on public Wi-FI.",
+            "promoTitleEnabled": true
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "var2"
+    }
+  ],
+  "bucketConfig": {
+    "count": 100,
+    "namespace": "privatebrowsing-1",
+    "randomizationUnit": "normandy_id",
+    "start": 2000,
+    "total": 10000
+  },
+  "channel": "release",
+  "endDate": null,
+  "featureIds": ["privatebrowsing"],
+  "id": "firefox-vpn-test-1629",
+  "isEnrollmentPaused": true,
+  "outcomes": [],
+  "proposedDuration": 45,
+  "proposedEnrollment": 7,
+  "referenceBranch": "control",
+  "schemaVersion": "2.0.0",
+  "slug": "firefox-vpn-test-1629",
+  "startDate": "2021-07-27",
+  "targeting": "browserSettings.update.channel == \"release\" && version|versionCompare('90.!') >= 0 && 'app.shield.optoutstudies.enabled'|preferenceValue && !hasActiveEnterprisePolicies && locale in ['en-CA', 'en-GB', 'en-US'] && region in ['US']",
+  "userFacingDescription": "Testing out the private browsing page with different images and copy.",
+  "userFacingName": "firefox vpn test 1629"
+}

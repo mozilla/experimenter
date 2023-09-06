@@ -1,0 +1,87 @@
+{
+  "appId": "firefox-desktop",
+  "appName": "firefox_desktop",
+  "application": "firefox-desktop",
+  "arguments": {},
+  "branches": [
+    {
+      "feature": {
+        "featureId": "unused-feature-id-for-legacy-support",
+        "enabled": false,
+        "value": {}
+      },
+      "features": [
+        {
+          "featureId": "nimbus-qa-1",
+          "value": {
+            "value": {
+              "$l10n": {
+                "id": "control-text",
+                "text": "English text",
+                "comment": "Text for the control branch."
+              }
+            }
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "control"
+    },
+    {
+      "feature": {
+        "featureId": "unused-feature-id-for-legacy-support",
+        "enabled": false,
+        "value": {}
+      },
+      "features": [
+        {
+          "featureId": "nimbus-qa-1",
+          "value": {
+            "value": {
+              "$l10n": {
+                "id": "treatment-text",
+                "text": "More English text",
+                "comment": "Text for the treatment branch."
+              }
+            }
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "treatment"
+    }
+  ],
+  "bucketConfig": {
+    "count": 10000,
+    "namespace": "firefox-desktop-localization-test",
+    "randomizationUnit": "normandy_id",
+    "start": 0,
+    "total": 10000
+  },
+  "channel": "nightly",
+  "endDate": null,
+  "featureIds": ["nimbus-qa-1"],
+  "id": "firefox-desktop-localization-test",
+  "isEnrollmentPaused": false,
+  "outcomes": [],
+  "probeSets": [],
+  "proposedDuration": 63,
+  "proposedEnrollment": 7,
+  "referenceBranch": "control",
+  "schemaVersion": "1.7.1",
+  "slug": "firefox-desktop-localization-test",
+  "startDate": "2021-10-26",
+  "targeting": "true",
+  "userFacingDescription": "Test data for a localized experiment",
+  "userFacingName": "MR2 Upgrade Spotlight Holdback",
+  "localizations": {
+    "en-US": {
+      "control-text": "English text",
+      "treatment-test": "More English text"
+    },
+    "fr": {
+      "control-text": "Texte en français",
+      "treatment-text": "Plus de texte en français"
+    }
+  }
+}

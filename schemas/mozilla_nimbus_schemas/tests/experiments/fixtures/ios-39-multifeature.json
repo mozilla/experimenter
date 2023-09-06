@@ -1,0 +1,84 @@
+{
+  "appId": "org.mozilla.ios.Firefox",
+  "appName": "firefox_ios",
+  "application": "org.mozilla.ios.Firefox",
+  "arguments": {},
+  "branches": [
+    {
+      "features": [
+        {
+          "enabled": true,
+          "featureId": "onboarding-default-browser",
+          "value": {
+            "should-hide-title-image": false
+          }
+        },
+        {
+          "enabled": true,
+          "featureId": "homescreen",
+          "value": {
+            "sections-enabled": {
+              "jumpBackIn": false,
+              "libraryShortcuts": true,
+              "recentlySaved": false
+            }
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "control"
+    },
+    {
+      "features": [
+        {
+          "enabled": true,
+          "featureId": "onboarding-default-browser",
+          "value": {
+            "should-hide-title-image": true
+          }
+        },
+        {
+          "enabled": true,
+          "featureId": "homescreen",
+          "value": {
+            "sections-enabled": {
+              "jumpBackIn": true,
+              "libraryShortcuts": false,
+              "recentlySaved": true
+            }
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "treatment"
+    }
+  ],
+  "bucketConfig": {
+    "count": 10000,
+    "namespace": "firefox-ios-multifeature-test",
+    "randomizationUnit": "nimbus_id",
+    "start": 0,
+    "total": 10000
+  },
+  "channel": "release",
+  "endDate": null,
+  "featureIds": ["onboarding-default-browser", "homescreen"],
+  "id": "firefox-ios-multifeature-test",
+  "isEnrollmentPaused": false,
+  "outcomes": [
+    {
+      "priority": "secondary",
+      "slug": "default_browser"
+    }
+  ],
+  "probeSets": [],
+  "proposedDuration": 28,
+  "proposedEnrollment": 7,
+  "referenceBranch": "control",
+  "schemaVersion": "1.6.2",
+  "slug": "firefox-ios-multifeature-test",
+  "startDate": "2021-11-01",
+  "targeting": "true",
+  "userFacingDescription": "firefox-ios-multifeature-test",
+  "userFacingName": "firefox-ios-multifeature-test"
+}
