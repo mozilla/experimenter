@@ -407,7 +407,6 @@ class NimbusBranchFeatureValueListSerializer(serializers.ListSerializer):
 
         This enforces that the serialized data is ordered by the feature config ID.
         """
-        super().to_representation
         iterable = data.all() if isinstance(data, models.Manager) else data
 
         return [
@@ -682,7 +681,7 @@ class NimbusStatusValidationMixin:
                     )
 
             for status_field in restrictive_statuses:
-                current_status = getattr(self.instance, "status")
+                current_status = self.instance.status
                 is_locked = current_status not in restrictive_statuses
                 modifying_fields = set(data.keys()) - exempt_fields
                 is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
@@ -1103,11 +1102,13 @@ class NimbusExperimentSerializer(
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["user"],
-                "channel": list(
-                    NimbusExperiment.APPLICATION_CONFIGS[
-                        validated_data["application"]
-                    ].channel_app_id.keys()
-                )[0],
+                "channel": next(
+                    iter(
+                        NimbusExperiment.APPLICATION_CONFIGS[
+                            validated_data["application"]
+                        ].channel_app_id.keys()
+                    )
+                ),
             }
         )
         self.changelog_message = validated_data.pop("changelog_message")

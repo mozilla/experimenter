@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Dict
 
 from django.conf import settings
@@ -16,6 +17,28 @@ class Channel(models.TextChoices):
     TESTFLIGHT = "testflight"
     AURORA = "aurora"
     DEVELOPER = "developer"
+
+
+class ChangeEventType(Enum):
+    GENERAL = "GENERAL"
+    CREATION = "CREATION"
+    DETAILED = "DETAILED"
+    STATE = "STATE"
+    BOOLEAN = "BOOLEAN"
+
+
+class RelationalFields:
+
+    # This is a list of models whose field values are stored as reference keys
+    # instead of actual values in the NimbusChangelog
+
+    NATIVE_MODELS = [
+        "countries",
+        "locales",
+        "languages",
+        "required_experiments",
+        "excluded_experiments",
+    ]
 
 
 class BucketRandomizationUnit(models.TextChoices):
@@ -209,7 +232,7 @@ class Application(models.TextChoices):
         )
 
 
-class NimbusConstants(object):
+class NimbusConstants:
     class Status(models.TextChoices):
         DRAFT = "Draft"
         PREVIEW = "Preview"

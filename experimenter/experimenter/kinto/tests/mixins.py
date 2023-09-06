@@ -1,9 +1,9 @@
-import mock
+from unittest import mock
 
 from experimenter.kinto.client import KINTO_REJECTED_STATUS, KINTO_REVIEW_STATUS
 
 
-class MockKintoClientMixin(object):
+class MockKintoClientMixin:
     def setUp(self):
         super().setUp()
 

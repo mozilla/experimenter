@@ -33,4 +33,4 @@ class TestLanguageSerializer(TestCase):
         self.assertEqual(
             str(language), f"{serializer.data['name']} ({serializer.data['code']})"
         )
-        self.assertEquals(serializer.data, {"code": language.code, "name": language.name})
+        self.assertEqual(serializer.data, {"code": language.code, "name": language.name})
