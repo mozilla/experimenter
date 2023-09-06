@@ -10,15 +10,32 @@ root.render(
 
 function App() {
   const [message, setMessage] = useState({});
+  const [clientId, setClientId] = useState('');
+  const [context, setContext] = useState('');
+  const [apiCallTriggered, setApiCallTriggered] = useState(false);
 
   useEffect(() => {
-    fetch('/api/data')
-      .then(response => response.json())
-      .then(data => {
-        setMessage(data);
+    if (apiCallTriggered) {
+      const apiUrl = '/api/data';
+
+      fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'x-client-id': clientId,
+          'x-context': context,
+        },
       })
-      .catch(error => console.error('Error fetching data:', error));
-  }, []);
+        .then((response) => response.json())
+        .then((data) => {
+          setMessage(data);
+          setApiCallTriggered(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+          setApiCallTriggered(false);
+        });
+    }
+  }, [apiCallTriggered, clientId, context]);
 
   const displayText = message && message['example-feature'] && message['example-feature']['something']
     ? message['example-feature']['something']
@@ -27,6 +44,22 @@ function App() {
   return (
     <div className="App">
       <h1>{displayText}</h1>
+      <div>
+        <input
+          type="text"
+          placeholder="Client ID"
+          value={clientId}
+          onChange={(e) => setClientId(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Context"
+          value={context}
+          onChange={(e) => setContext(e.target.value)}
+        />
+        <button onClick={() => setApiCallTriggered(true)}>Send My Details</button>
+      </div>
     </div>
   );
 }
+
