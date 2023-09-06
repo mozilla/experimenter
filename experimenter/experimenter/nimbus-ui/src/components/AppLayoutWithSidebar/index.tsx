@@ -96,6 +96,16 @@ export const AppLayoutWithSidebar = ({
                 canReview={experiment.canReview}
               />
 
+              <LinkNav
+                route={`/history/${slug}`}
+                testid={`history-page-${slug}`}
+                relativeToRoot
+                useButton
+              >
+                <Timeline className="sidebar-icon" />
+                History
+              </LinkNav>
+
               {hasMissingDetails && (
                 <div className="mx-1 mb-2 d-flex text-muted font-weight-normal">
                   <div className="sidebar-icon"></div>
@@ -127,21 +137,6 @@ export const AppLayoutWithSidebar = ({
                   {page.name}
                 </LinkNav>
               ))}
-
-              <p className="edit-divider position-relative small my-2">
-                <span className="position-relative bg-light pl-1 pr-2 text-muted">
-                  History
-                </span>
-              </p>
-
-              <LinkNav
-                route={`/history/${slug}`}
-                testid={`history-page-${slug}`}
-                isExternalRoute={true}
-              >
-                <Timeline className="sidebar-icon" />
-                Changelogs
-              </LinkNav>
 
               <SidebarActions {...{ experiment, refetch, status }} />
             </Nav>

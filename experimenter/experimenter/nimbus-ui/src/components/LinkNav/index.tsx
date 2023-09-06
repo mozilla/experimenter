@@ -19,7 +19,7 @@ type LinkNavProps = {
   title?: string;
   onClick?: () => void;
   useButton?: boolean;
-  isExternalRoute?: boolean;
+  relativeToRoot?: boolean;
 };
 
 export const LinkNav = ({
@@ -32,11 +32,11 @@ export const LinkNav = ({
   title,
   onClick,
   useButton = false,
-  isExternalRoute = false,
+  relativeToRoot = false,
 }: LinkNavProps) => {
   const location = useLocation();
   const to = route
-    ? isExternalRoute
+    ? relativeToRoot
       ? `${route}`
       : `${BASE_PATH}/${route}`
     : BASE_PATH;
@@ -61,20 +61,7 @@ export const LinkNav = ({
         <Button
           {...{ title }}
           variant="link"
-          className={classNames(
-            textColor,
-            "d-flex font-weight-semibold m-0 p-0 b-0 align-items-center",
-          )}
-          data-testid={testid}
-          onClick={onClick}
-        >
-          {children}
-        </Button>
-      ) : isExternalRoute ? (
-        <Button
-          {...{ title }}
-          variant="link"
-          href={to}
+          href={relativeToRoot ? to : ""}
           className={classNames(
             textColor,
             "d-flex font-weight-semibold m-0 p-0 b-0 align-items-center",

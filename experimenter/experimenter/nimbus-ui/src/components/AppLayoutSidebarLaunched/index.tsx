@@ -193,6 +193,16 @@ export const AppLayoutSidebarLaunched = ({
                 canReview={experiment.canReview}
               />
 
+              <LinkNav
+                route={`/history/${slug}`}
+                testid={`history-page-${slug}`}
+                relativeToRoot
+                useButton
+              >
+                <Timeline className="sidebar-icon" />
+                History
+              </LinkNav>
+
               {experiment.isRollout &&
                 experiment.status !== "COMPLETE" &&
                 editPages.map((page, idx) => (
@@ -237,21 +247,6 @@ export const AppLayoutSidebarLaunched = ({
                   )}
                 </DisabledItem>
               )}
-
-              <p className="edit-divider position-relative small my-2">
-                <span className="position-relative bg-light pl-1 pr-2 text-muted">
-                  History
-                </span>
-              </p>
-
-              <LinkNav
-                route={`/history/${slug}`}
-                testid={`history-page-${slug}`}
-                isExternalRoute={true}
-              >
-                <Timeline className="sidebar-icon" />
-                Changelogs
-              </LinkNav>
 
               <SidebarActions {...{ experiment, refetch, status, analysis }} />
             </Nav>
