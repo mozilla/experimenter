@@ -53,6 +53,7 @@ export function useCommonFormMethods<FieldNames extends string>(
     const fieldName = prefix ? `${prefix}.${name}` : name;
     const hasReviewMessage = (reviewMessages[snakeCaseName] || []).length > 0;
     const hasReviewWarning = (reviewWarnings[snakeCaseName] || []).length > 0;
+
     return {
       "data-testid": fieldName,
       name: fieldName,
