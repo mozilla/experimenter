@@ -1,3 +1,4 @@
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 
 from nimbus.pages.experimenter.base import ExperimenterBase
@@ -15,7 +16,7 @@ class BranchesPage(ExperimenterBase):
     )
     _reference_branch_value_locator = (
         By.CSS_SELECTOR,
-        "#referenceBranch\\.featureValues\\[0\\]-value",
+        "#referenceBranch\\.featureValues\\[0\\]\\.value",
     )
     _treatment_branch_name_locator = (By.CSS_SELECTOR, "#treatmentBranches\\[0\\]-name")
     _treatment_branch_description_locator = (
@@ -24,7 +25,7 @@ class BranchesPage(ExperimenterBase):
     )
     _treatment_branch_value_locator = (
         By.CSS_SELECTOR,
-        "#treatmentBranches\\[0\\]\\.featureValues\\[0\\]-value",
+        "#treatmentBranches\\[0\\]\\.featureValues\\[0\\]\\.value",
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
     _feature_select_locator = (By.CSS_SELECTOR, '[aria-label="Features"]')
@@ -65,15 +66,20 @@ class BranchesPage(ExperimenterBase):
 
     @property
     def reference_branch_value(self):
-        return self.wait_for_and_find_element(
-            *self._reference_branch_value_locator, "reference branch value"
-        ).text
+        return self._get_feature_value(
+            self.wait_for_and_find_element(
+                *self._reference_branch_value_locator, "reference branch value"
+            )
+        )
 
     @reference_branch_value.setter
-    def reference_branch_value(self, text=None):
-        self.wait_for_and_find_element(
-            *self._reference_branch_value_locator, "reference branch value"
-        ).send_keys(f"{text}")
+    def reference_branch_value(self, text):
+        self._set_feature_value(
+            self.wait_for_and_find_element(
+                *self._reference_branch_value_locator, "reference branch value"
+            ),
+            text,
+        )
 
     @property
     def treatment_branch_name(self):
@@ -101,15 +107,20 @@ class BranchesPage(ExperimenterBase):
 
     @property
     def treatment_branch_value(self):
-        return self.wait_for_and_find_element(
-            *self._treatment_branch_value_locator, "treatment branch value"
-        ).text
+        return self._get_feature_value(
+            self.wait_for_and_find_element(
+                *self._treatment_branch_value_locator, "treatment branch value"
+            )
+        )
 
     @treatment_branch_value.setter
-    def treatment_branch_value(self, text=None):
-        self.wait_for_and_find_element(
-            *self._treatment_branch_value_locator, "treatment branch value"
-        ).send_keys(f"{text}")
+    def treatment_branch_value(self, text):
+        self._set_feature_value(
+            self.wait_for_and_find_element(
+                *self._treatment_branch_value_locator, "treatment branch value"
+            ),
+            text,
+        )
 
     def remove_branch(self):
         self.wait_for_and_find_element(
@@ -152,6 +163,23 @@ class BranchesPage(ExperimenterBase):
             *self._add_screenshot_buttons_locator,
             "branch add screenshot button",
         )
+
+    def _get_feature_value(self, editor_element):
+        return "\n".join(
+            line.text
+            for line in editor_element.find_elements(By.CSS_SELECTOR, ".cm-line")
+        )
+
+    def _set_feature_value(self, editor_element, text):
+        line = editor_element.find_elements(By.CSS_SELECTOR, ".cm-line")[-1]
+        line.click()
+
+        actions = ActionChains(self.driver)
+        actions.send_keys(text)
+        actions.perform()
+
+        # Click outside the editor, which causes the form data to update.
+        self.find_element(By.CSS_SELECTOR, "#PageEditBranches").click()
 
     def screenshot_description_field(self, branch="referenceBranch", screenshot_idx=0):
         selector = (

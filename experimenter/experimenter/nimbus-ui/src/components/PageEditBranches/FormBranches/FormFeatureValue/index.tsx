@@ -1,41 +1,35 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { FieldError } from "react-hook-form";
+import FeatureValueEditor from "src/components/PageEditBranches/FormBranches/FormFeatureValue/FeatureValueEditor";
+import { FormFeatureValueProps } from "src/components/PageEditBranches/FormBranches/FormFeatureValue/props";
 import { useCommonNestedForm, useConfig } from "src/hooks";
+
+export type { FormFeatureValueProps };
 
 export const featureValueFieldNames = ["featureConfig", "value"] as const;
 
 type FeatureValueFieldName = typeof featureValueFieldNames[number];
 
-export type FormFeatureValueProps = {
-  defaultValues: Record<string, any>;
-  errors: Record<string, FieldError>;
-  featureId: number;
-  fieldNamePrefix: string;
-  reviewErrors: SerializerSet;
-  reviewWarnings: SerializerSet;
-  setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-  submitErrors: { [x: string]: SerializerMessage };
-  touched: Record<string, boolean>;
-};
-
 export const FormFeatureValue = ({
-  defaultValues,
-  errors,
-  fieldNamePrefix,
   featureId,
-  reviewErrors,
-  reviewWarnings,
-  setSubmitErrors,
-  submitErrors,
-  touched,
+  ...commonProps
 }: FormFeatureValueProps) => {
+  const {
+    defaultValues,
+    errors,
+    fieldNamePrefix,
+    reviewErrors,
+    reviewWarnings,
+    setSubmitErrors,
+    submitErrors,
+    touched,
+  } = commonProps;
+
   const { allFeatureConfigs } = useConfig();
   const { FormErrors, formControlAttrs } =
     useCommonNestedForm<FeatureValueFieldName>(
@@ -49,23 +43,23 @@ export const FormFeatureValue = ({
       reviewWarnings,
     );
 
-  const featureSlug = allFeatureConfigs?.find(
+  const featureConfig = allFeatureConfigs?.find(
     (feature) => feature?.id === featureId,
-  )?.slug;
-
+  );
+  const fieldName = `${fieldNamePrefix}.value`;
   return (
     <Form.Group data-testid="FormFeatureValue">
       <Form.Control {...formControlAttrs("featureConfig")} hidden />
 
-      <Form.Group controlId={`${fieldNamePrefix}-value`}>
+      <Form.Group id={fieldName} controlId={fieldName}>
         <Form.Label className="w-100">
           <Row className="w-100">
             <Col>
-              <span className="text-monospace">{featureSlug}</span>
+              <span className="text-monospace">{featureConfig?.slug}</span>
             </Col>
           </Row>
         </Form.Label>
-        <Form.Control {...formControlAttrs("value")} as="textarea" rows={4} />
+        <FeatureValueEditor featureConfig={featureConfig!} {...commonProps} />
         <FormErrors name="value" />
       </Form.Group>
     </Form.Group>
