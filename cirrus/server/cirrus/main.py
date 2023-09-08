@@ -3,6 +3,7 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, List, NamedTuple
+import sentry_sdk
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
@@ -23,6 +24,7 @@ from .settings import (
     metrics_path,
     pings_path,
     remote_setting_refresh_rate_in_seconds,
+    cirrus_sentry_dsn,
 )
 
 logger = logging.getLogger(__name__)
@@ -35,6 +37,7 @@ class FeatureRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    initialize_sentry()
     app.state.fml = create_fml()
     app.state.sdk = create_sdk(app.state.fml.get_coenrolling_feature_ids())
     app.state.remote_setting = RemoteSettings(app.state.sdk)
@@ -46,6 +49,21 @@ async def lifespan(app: FastAPI):
     if app.state.scheduler:
         app.state.scheduler.shutdown()
     Glean.shutdown()
+
+
+def initialize_sentry():
+    if cirrus_sentry_dsn:
+        sentry_sdk.init(
+            dsn=cirrus_sentry_dsn,
+            # Set traces_sample_rate to 1.0 to capture 100%
+            # of transactions for performance monitoring.
+            # We recommend adjusting this value in production.
+            traces_sample_rate=1.0,
+            # Set profiles_sample_rate to 1.0 to profile 100%
+            # of sampled transactions.
+            # We recommend adjusting this value in production.
+            profiles_sample_rate=1.0,
+        )
 
 
 def create_fml():
