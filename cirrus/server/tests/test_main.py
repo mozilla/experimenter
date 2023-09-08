@@ -12,6 +12,7 @@ from cirrus.main import (
     create_scheduler,
     create_sdk,
     fetch_schedule_recipes,
+    initialize_sentry,
 )
 
 
@@ -96,7 +97,7 @@ def test_get_features_with_required_field(client):
                             "key2": {"key2.1": "value2", "key2.2": "value3"},
                         }
                     },
-                    "url": "https://errors.pydantic.dev/2.1/v/missing",
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
                 }
             ],
         ),
@@ -114,7 +115,7 @@ def test_get_features_with_required_field(client):
                     "loc": ["body", "context"],
                     "msg": "Field required",
                     "input": {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
-                    "url": "https://errors.pydantic.dev/2.1/v/missing",
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
                 }
             ],
         ),
@@ -127,14 +128,14 @@ def test_get_features_with_required_field(client):
                     "loc": ["body", "client_id"],
                     "msg": "Field required",
                     "input": {},
-                    "url": "https://errors.pydantic.dev/2.1/v/missing",
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
                 },
                 {
                     "type": "missing",
                     "loc": ["body", "context"],
                     "msg": "Field required",
                     "input": {},
-                    "url": "https://errors.pydantic.dev/2.1/v/missing",
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
                 },
             ],
         ),

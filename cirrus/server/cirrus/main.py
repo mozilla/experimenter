@@ -3,8 +3,8 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, List, NamedTuple
-import sentry_sdk
 
+import sentry_sdk
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
 from fastapi import FastAPI, HTTPException, status
@@ -18,13 +18,13 @@ from .sdk import SDK
 from .settings import (
     app_id,
     channel,
+    cirrus_sentry_dsn,
     context,
     fml_path,
     metrics_config,
     metrics_path,
     pings_path,
     remote_setting_refresh_rate_in_seconds,
-    cirrus_sentry_dsn,
 )
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
 
 
 def initialize_sentry():
-    if cirrus_sentry_dsn:
+    if cirrus_sentry_dsn:  # pragma: no cover
         sentry_sdk.init(
             dsn=cirrus_sentry_dsn,
             # Set traces_sample_rate to 1.0 to capture 100%
