@@ -12,7 +12,6 @@ from cirrus.main import (
     create_scheduler,
     create_sdk,
     fetch_schedule_recipes,
-    initialize_sentry,
 )
 
 
