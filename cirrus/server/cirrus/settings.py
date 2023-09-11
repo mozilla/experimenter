@@ -25,6 +25,8 @@ fml_path: str = cast(str, config("CIRRUS_FML_PATH", default=""))
 pings_path: str = "./telemetry/pings.yaml"
 metrics_path: str = "./telemetry/metrics.yaml"
 
+cirrus_sentry_dsn: str = cast(str, config("CIRRUS_SENTRY_DSN", default=""))
+
 
 @dataclass
 class MetricsConfiguration:
