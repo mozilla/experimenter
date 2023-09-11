@@ -23,6 +23,7 @@ To set up the Cirrus environment, follow these steps:
    APP_NAME=test_app_name
    CHANNEL=developer
    CIRRUS_FML_PATH=./feature_manifest/sample.fml.yaml
+   CIRRUS_SENTRY_DSN=dsn_url
    ```
 
    Here's what each variable represents:
@@ -33,6 +34,7 @@ To set up the Cirrus environment, follow these steps:
    - `APP_NAME`: Replace `test_app_name` with the desired name for your application for example `firefox_desktop`.
    - `CHANNEL`: Replace `developer` with the channel like `beta`, `release` etc.
    - `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.fml.yaml` or specify the correct path to your feature manifest file.
+   - `CIRRUS_SENTRY_DSN`: Replace `dsn_url` with the appropriate DSN value.
 
    Adjust the values of these variables according to your specific configuration requirements.
 
