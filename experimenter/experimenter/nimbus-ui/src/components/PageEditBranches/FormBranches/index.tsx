@@ -339,7 +339,7 @@ export const FormBranches = ({
         ))}
 
         <Form.Group>
-          <Row>
+          <Row className={selectIsWarning ? "is-warning" : ""}>
             <Col>
               <Select<FeatureConfigOption, true>
                 isMulti
@@ -351,8 +351,6 @@ export const FormBranches = ({
                 instanceId="feature-configs"
                 classNames={{
                   control: () => classNames({ "is-valid": selectValid }),
-                  container: () =>
-                    classNames({ "is-warning": selectIsWarning }),
                 }}
                 classNamePrefix="react-select"
                 getOptionLabel={(option: FeatureConfigOption) =>
