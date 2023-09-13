@@ -101,7 +101,7 @@ export function schemaLinter(schema: Record<string, unknown>) {
       rootNode = jsonToAst(text);
     } catch (e: unknown) {
       const err = parseError.parse(e);
-      const pos = documentPosition(view.state.doc, err.line, err.column);
+      const pos = documentPosition(view.state.doc, err.line, err.column - 1);
 
       return [
         {
