@@ -393,42 +393,51 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       name: "Acholi",
       id: "1",
+      code: "Ac",
     },
     {
       name: "Afrikaans",
       id: "2",
+      code: "Af",
     },
     {
       name: "Albanian",
       id: "3",
+      code: "Al",
     },
   ],
   countries: [
     {
       name: "Eritrea",
       id: "1",
+      code: "Er",
     },
     {
       name: "Estonia",
       id: "2",
+      code: "Es",
     },
     {
       name: "Eswatini",
       id: "3",
+      code: "Es",
     },
   ],
   languages: [
     {
       name: "German",
       id: "1",
+      code: "Ge",
     },
     {
       name: "English",
       id: "2",
+      code: "En",
     },
     {
       name: "Fijian",
       id: "3",
+      code: "Fi",
     },
   ],
   projects: [
@@ -655,9 +664,9 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   riskPartnerRelated: false,
   reviewUrl:
     "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
-  locales: [{ name: "Quebecois", id: "1" }],
-  countries: [{ name: "Canada", id: "1" }],
-  languages: [{ name: "English", id: "1" }],
+  locales: [{ name: "Quebecois", id: "1", code: "Qu" }],
+  countries: [{ name: "Canada", id: "1", code: "Ca" }],
+  languages: [{ name: "English", id: "1", code: "En" }],
   projects: [{ name: "Pocket", id: "1" }],
   isLocalized: false,
   localizations: null,
@@ -766,9 +775,9 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   riskPartnerRelated: false,
   reviewUrl:
     "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
-  locales: [{ name: "Quebecois", id: "1" }],
-  countries: [{ name: "Canada", id: "1" }],
-  languages: [{ name: "English", id: "1" }],
+  locales: [{ name: "Quebecois", id: "1", code: "Qu" }],
+  countries: [{ name: "Canada", id: "1", code: "Ca" }],
+  languages: [{ name: "English", id: "1", code: "En" }],
   projects: [{ name: "Pocket", id: "1" }],
   requiredExperiments: [],
   excludedExperiments: [],

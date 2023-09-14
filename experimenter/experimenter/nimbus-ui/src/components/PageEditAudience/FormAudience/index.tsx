@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useQuery } from "@apollo/client";
+import { SampleSizes, SizingTarget } from "@mozilla/nimbus-schemas";
 import React, { useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
@@ -11,6 +12,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Select, { createFilter, FormatOptionLabelMeta } from "react-select";
 import ReactTooltip from "react-tooltip";
 import LinkExternal from "src/components/LinkExternal";
+import PopulationSizing from "src/components/PageEditAudience/PopulationSizing";
 import { GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY } from "src/gql/experiments";
 import { useCommonForm, useConfig, useReviewCheck } from "src/hooks";
 import { ReactComponent as Info } from "src/images/info.svg";
@@ -341,6 +343,92 @@ export const FormAudience = ({
     setisFirstRunRequiredRequiredWarning(!!checkRequired?.isFirstRunRequired);
     setPopulationPercent(populationPercent);
   };
+
+  const getTargetPopulation = (sizingData: SizingTarget) => {
+    const firstSizingKey = Object.keys(sizingData.sample_sizes)[0];
+    const firstSizingMetrics = sizingData.sample_sizes[firstSizingKey].metrics;
+    const firstMetricKey = Object.keys(firstSizingMetrics)[0];
+
+    return firstSizingMetrics[firstMetricKey].number_of_clients_targeted;
+  };
+
+  const buildSizingKey = (
+    appId: string | undefined,
+    channel: string | undefined,
+    locales: string[] | undefined,
+    countries: string[] | undefined,
+  ): string | null => {
+    if (
+      !(
+        appId &&
+        channel &&
+        locales &&
+        locales.length > 0 &&
+        countries &&
+        countries.length > 0
+      )
+    ) {
+      return null;
+    }
+    let localesString = "[";
+    locales.sort((a, b) => a.localeCompare(b));
+    locales.forEach((locale, idx) => {
+      localesString += `'${locale}'`;
+      if (idx < locales.length - 1) {
+        localesString += ",";
+      }
+    });
+    localesString += "]";
+
+    let countriesString = countries[0];
+    if (countries.length > 1) {
+      countriesString = "[";
+      countries.sort((a, b) => a.localeCompare(b));
+      countries.forEach((country, idx) => {
+        countriesString += `'${country}'`;
+        if (idx < countries.length - 1) {
+          countriesString += ", ";
+        }
+      });
+      countriesString += "]";
+    }
+
+    return `firefox_${appId}:${channel}:${localesString}:${countriesString}`;
+  };
+
+  const getSizingFromAudienceConfig = useMemo((): SizingTarget | false => {
+    const { populationSizingData } = config;
+    const sizingJson: SampleSizes = JSON.parse(populationSizingData || "{}");
+    if (Object.keys(sizingJson).length < 1) {
+      return false; // no sizing data available
+    }
+    const channel = formControlAttrs("channel").defaultValue.toLowerCase();
+
+    const appName = experiment.application?.toLowerCase();
+    const isNotUndefined = (val: string | undefined): val is string =>
+      val !== undefined;
+    const localeNames = locales
+      .map((l) =>
+        config!.locales!.find((el) => el!.id === l)?.code.toUpperCase(),
+      )
+      .filter(isNotUndefined);
+    const countryNames = countries
+      .map((c) =>
+        config!.countries!.find((el) => el!.id === c)?.code.toUpperCase(),
+      )
+      .filter(isNotUndefined);
+    const sizingKey = buildSizingKey(
+      appName,
+      channel,
+      localeNames,
+      countryNames,
+    );
+    if (sizingKey !== null && sizingJson.hasOwnProperty(sizingKey)) {
+      const newOrExisting = isFirstRun ? "new" : "existing";
+      return sizingJson[sizingKey][newOrExisting];
+    }
+    return false;
+  }, [config, countries, experiment, formControlAttrs, isFirstRun, locales]);
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
@@ -712,6 +800,16 @@ export const FormAudience = ({
             </InputGroup>
           </Form.Group>
         </Form.Row>
+
+        {getSizingFromAudienceConfig && (
+          <>
+            <hr />
+            <PopulationSizing
+              sizingData={getSizingFromAudienceConfig}
+              totalClients={getTargetPopulation(getSizingFromAudienceConfig)}
+            />
+          </>
+        )}
       </Form.Group>
 
       <div className="d-flex flex-row-reverse bd-highlight">
