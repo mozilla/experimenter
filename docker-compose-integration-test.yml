@@ -37,13 +37,13 @@ services:
   ping-server:
     build: experimenter/tests/integration/nimbus/utils/ping_server
     ports:
-      - "5000:5000"
+      - "5050:5050"
 
   cirrus:
     build:
       context: cirrus/server/
       dockerfile: Dockerfile
-    env_file: .env
+    env_file: .env.integration-tests
     links:
       - kinto
     volumes:

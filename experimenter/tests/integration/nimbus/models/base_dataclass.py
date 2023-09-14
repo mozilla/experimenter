@@ -4,11 +4,12 @@ from typing import List, Optional
 
 
 class BaseExperimentApplications(Enum):
-    FIREFOX_DESKTOP = "DESKTOP"
-    FENIX = "FENIX"
-    IOS = "IOS"
-    FOCUS_ANDROID = "FOCUS_ANDROID"
-    FOCUS_IOS = "FOCUS_IOS"
+    # FIREFOX_DESKTOP = "DESKTOP"
+    # FENIX = "FENIX"
+    # IOS = "IOS"
+    # FOCUS_ANDROID = "FOCUS_ANDROID"
+    # FOCUS_IOS = "FOCUS_IOS"
+    DEMO_APP = "DEMO_APP"
 
 
 class BaseExperimentAudienceChannels(Enum):
