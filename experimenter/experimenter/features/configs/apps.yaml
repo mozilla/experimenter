@@ -1,0 +1,24 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+---
+fenix:
+  repo: @mozilla-mobile/firefox-android
+  fml_path: fenix/app/nimbus.fml.yaml
+  major_release_branch: "releases_v{major}"
+  minor_release_tag: "fenix-v{major}.{minor}.{patch}"
+firefox_ios:
+  repo: @mozilla-mobile/firefox-ios
+  fml_path: nimbus.fml.yaml
+  major_release_branch: "release/v{major}"
+  minor_release_tag: "v{major}.{minor}"
+focus_android:
+  repo: @mozilla-mobile/firefox-android
+  fml_path: focus-android/app/nimbus.fml.yaml
+  major_release_branch: "releases_v{major}"
+  minor_release_tag: "focus-v{major}.{minor}.{patch}"
+focus_ios:
+  repo: @mozilla-mobile/focus-ios
+  fml_path: nimbus.fml.yaml
+  major_release_branch: "releases_v{major}"
+  minor_release_tag: "v{major}.{minor}"

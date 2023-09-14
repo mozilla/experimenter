@@ -1524,10 +1524,22 @@ mixedContentUpgrading:
   owner: fbraun@mozilla.com
   hasExposure: false
   variables:
-    boolean:
+    enabled:
       description: True if the mixed content upgrading pref is enabled
       type: boolean
       setPref: security.mixed_content.upgrade_display_content
+    image:
+      description: True if the mixed content upgrading is enabled for images
+      type: boolean
+      setPref: security.mixed_content.upgrade_display_content.image
+    audio:
+      description: True if the mixed content upgrading is enabled for audio
+      type: boolean
+      setPref: security.mixed_content.upgrade_display_content.audio
+    video:
+      description: True if the mixed content upgrading is enabled for videos
+      type: boolean
+      setPref: security.mixed_content.upgrade_display_content.video
 
 jsParallelParsing:
   description: Pref to toggle JS parallel parsing.
@@ -1739,6 +1751,10 @@ firefoxViewNext:
       type: boolean
       fallbackPref: "browser.tabs.firefox-view-next"
       description: "Whether or not to enable the new Firefox View"
+    newIcon:
+      type: boolean
+      fallbackPref: "browser.tabs.firefox-view-newIcon"
+      description: "Whether or not use the new icon"
 
 backgroundUpdate:
   description: Prefs to control aspects of the background update process.
@@ -1769,3 +1785,38 @@ bookmarks:
       type: string
       setPref: browser.toolbars.bookmarks.visibility
       description: If the bookmarks toolbar should never, always, or only show on newtab.
+
+cookieBannerHandling:
+  description: Automatically handle cookie banners on the user's behalf.
+  owner: pbz@mozilla.com
+  hasExposure: false
+  variables:
+    modeNormalBrowsing:
+      type: int
+      setPref: cookiebanners.service.mode
+      description: >-
+        Controls the cookie banner handling mode in normal browsing.
+        Values: 0 - disabled, 1 - reject all, 2 - reject all with accept all fallback.
+    modePrivateBrowsing:
+      type: int
+      setPref: cookiebanners.service.mode.privateBrowsing
+      description: >-
+        Controls the cookie banner handling mode in private browsing.
+        Values: 0 - disabled, 1 - reject all, 2 - reject all with accept all fallback.
+    enableGlobalRules:
+      type: boolean
+      setPref: cookiebanners.service.enableGlobalRules
+      description: >-
+        Enables use of global CookieBannerRules, which apply to all sites.
+        This enables handling of CMPs across sites without the use of site-specific rules.
+    enableDetectOnly:
+      type: boolean
+      setPref: cookiebanners.service.detectOnly
+      description: >-
+        When set to true, cookie banners are detected and detection events are
+        dispatched, but they will not be handled.
+        This pref applies to both normal and private browsing windows.
+    enableFirefoxDesktopUI:
+      type: boolean
+      setPref: cookiebanners.ui.desktop.enabled
+      description: Enables the cookie banner desktop UI.

@@ -609,13 +609,13 @@ hiredis = ["redis[hiredis] (>=3,!=4.0.0,!=4.0.1)"]
 
 [[package]]
 name = "django-storages"
-version = "1.13.1"
+version = "1.14"
 description = "Support for many storage backends in Django"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "django-storages-1.13.1.tar.gz", hash = "sha256:b3d98ecc09f1b1627c2b2cf430964322ce4e08617dbf9b4236c16a32875a1e0b"},
-    {file = "django_storages-1.13.1-py3-none-any.whl", hash = "sha256:3540b45618b04be2c867c0982e8d2bd8e34f84dae922267fcebe4691fb93daf0"},
+    {file = "django-storages-1.14.tar.gz", hash = "sha256:6c97e5faad829c923a1262206281742c484d76d43b332a196ddcc242b909c551"},
+    {file = "django_storages-1.14-py3-none-any.whl", hash = "sha256:11280a883b13812df548f3cfe9c10280afc0d4727c8babdee369a75e71158f16"},
 ]
 
 [package.dependencies]
@@ -627,7 +627,8 @@ boto3 = ["boto3 (>=1.4.4)"]
 dropbox = ["dropbox (>=7.2.1)"]
 google = ["google-cloud-storage (>=1.27.0)"]
 libcloud = ["apache-libcloud"]
-sftp = ["paramiko"]
+s3 = ["boto3 (>=1.4.4)"]
+sftp = ["paramiko (>=1.15.0)"]
 
 [[package]]
 name = "django-tailwind"
@@ -2839,4 +2840,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1f20838f9fbe25a952e91e84d2c6715e101bae413f1230fd63bd8ba28fc410e3"
+content-hash = "ae26fd5f3954c85d6395c8532517a72f9caf139ede46b296424e2c3619abddfd"

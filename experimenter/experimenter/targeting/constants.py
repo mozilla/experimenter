@@ -1482,6 +1482,17 @@ EARLY_DAY_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+ANDROID_8_OR_HIGHER_USERS = NimbusTargetingConfig(
+    name="Android Version 8.0+ Users",
+    slug="android_8_or_higher_users",
+    description="Users on Android version 8.0 or higher",
+    targeting="(android_sdk_version|versionCompare('26') >= 0)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
