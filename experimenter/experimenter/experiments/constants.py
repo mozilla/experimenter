@@ -28,7 +28,6 @@ class ChangeEventType(Enum):
 
 
 class RelationalFields:
-
     # This is a list of models whose field values are stored as reference keys
     # instead of actual values in the NimbusChangelog
 
@@ -153,10 +152,10 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
 APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     name="Monitor Web",
     slug="monitor-web",
-    app_name="monitor_web",
+    app_name="monitor_cirrus",
     channel_app_id={
-        Channel.BETA: "monitor-beta",
-        Channel.RELEASE: "monitor-release",
+        Channel.BETA: "monitor.cirrus",
+        Channel.RELEASE: "monitor.cirrus",
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
@@ -487,7 +486,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     # Serializer validation errors
     ERROR_DUPLICATE_BRANCH_NAME = "Branch names must be unique."
-    ERROR_SINGLE_BRANCH_FOR_ROLLOUT = "A rollout may have only a single reference branch"
+    ERROR_SINGLE_BRANCH_FOR_ROLLOUT = (
+        "A rollout may have only a single reference branch"
+    )
     ERROR_DUPLICATE_BRANCH_FEATURE_VALUE = (
         "A branch can not have multiple configurations for the same feature"
     )
@@ -496,10 +497,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_REQUIRED_FEATURE_CONFIG = (
         "You must select a feature configuration from the drop down."
     )
-    ERROR_LAUNCHING_DISABLED = (
-        "Launching experiments has been temporarily disabled by the site administrators."
+    ERROR_LAUNCHING_DISABLED = "Launching experiments has been temporarily disabled by the site administrators."
+    ERROR_POPULATION_PERCENT_MIN = (
+        "Ensure this value is greater than or equal to 0.0001."
     )
-    ERROR_POPULATION_PERCENT_MIN = "Ensure this value is greater than or equal to 0.0001."
     ERROR_FIREFOX_VERSION_MIN = (
         "Ensure this value is less than or equal to the maximum version"
     )
