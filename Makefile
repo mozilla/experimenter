@@ -88,18 +88,18 @@ jetstream_config:
 feature_manifests:
 	mkdir -p $(MANIFESTS_DIR)
 
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FENIX) "$(MANIFESTS_DIR)/fenix.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FXIOS) "$(MANIFESTS_DIR)/ios.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_ANDROID) "$(MANIFESTS_DIR)/focus-android.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_IOS) "$(MANIFESTS_DIR)/focus-ios.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_MONITOR) "$(MANIFESTS_DIR)/monitor-web.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FENIX) "$(MANIFESTS_DIR)/fenix/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FXIOS) "$(MANIFESTS_DIR)/ios/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_ANDROID) "$(MANIFESTS_DIR)/focus-android/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_IOS) "$(MANIFESTS_DIR)/focus-ios/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_MONITOR) "$(MANIFESTS_DIR)/monitor-web/experimenter.yaml"
 
-	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
-	cat $(MANIFESTS_DIR)/firefox-desktop.yaml | grep path: | \
+	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
+	cat $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml | grep path: | \
 	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
 	while read -r url; do \
 		file=$$(echo $$url | sed 's|$(MOZILLA_CENTRAL_ROOT)/||'); \
-		file="experimenter/experimenter/features/manifests/schemas/$$file"; \
+		file="experimenter/experimenter/features/manifests/firefox-desktop/schemas/$$file"; \
 		mkdir -p $$(dirname $$file); \
 		curl $$url -o $$file; \
 	done
