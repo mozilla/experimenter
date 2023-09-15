@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useQuery } from "@apollo/client";
-import { SampleSizes, SizingTarget } from "@mozilla/nimbus-schemas";
+import { SampleSizes, SizingByUserType, SizingTarget } from "@mozilla/nimbus-schemas";
 import React, { useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
@@ -270,6 +270,7 @@ export const FormAudience = ({
     isValid,
     handleSubmit,
     isSubmitted,
+    watch,
   } = useCommonForm<AudienceFieldName>(
     defaultValues,
     isServerValid,
@@ -344,7 +345,7 @@ export const FormAudience = ({
     setPopulationPercent(populationPercent);
   };
 
-  const getTargetPopulation = (sizingData: SizingTarget) => {
+  const getTargetPopulationSize = (sizingData: SizingTarget) => {
     const firstSizingKey = Object.keys(sizingData.sample_sizes)[0];
     const firstSizingMetrics = sizingData.sample_sizes[firstSizingKey].metrics;
     const firstMetricKey = Object.keys(firstSizingMetrics)[0];
@@ -396,13 +397,22 @@ export const FormAudience = ({
     return `firefox_${appId}:${channel}:${localesString}:${countriesString}`;
   };
 
-  const getSizingFromAudienceConfig = useMemo((): SizingTarget | false => {
+  const NEW_USER_TARGETING_CONFIG_SLUGS = [
+    "first_run",
+    "first_run_new_profile",
+  ];
+  const EXISTING_USER_TARGETING_CONFIG_SLUGS = [
+    ""
+  ]
+
+  const getSizingFromAudienceConfig = useMemo((): SizingByUserType | false => {
     const { populationSizingData } = config;
     const sizingJson: SampleSizes = JSON.parse(populationSizingData || "{}");
     if (Object.keys(sizingJson).length < 1) {
       return false; // no sizing data available
     }
-    const channel = formControlAttrs("channel").defaultValue.toLowerCase();
+
+    const channel = watch("channel")?.toLowerCase();
 
     const appName = experiment.application?.toLowerCase();
     const isNotUndefined = (val: string | undefined): val is string =>
@@ -424,11 +434,10 @@ export const FormAudience = ({
       countryNames,
     );
     if (sizingKey !== null && sizingJson.hasOwnProperty(sizingKey)) {
-      const newOrExisting = isFirstRun ? "new" : "existing";
-      return sizingJson[sizingKey][newOrExisting];
+      return sizingJson[sizingKey];
     }
     return false;
-  }, [config, countries, experiment, formControlAttrs, isFirstRun, locales]);
+  }, [config, countries, experiment, locales, watch]);
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
@@ -806,7 +815,8 @@ export const FormAudience = ({
             <hr />
             <PopulationSizing
               sizingData={getSizingFromAudienceConfig}
-              totalClients={getTargetPopulation(getSizingFromAudienceConfig)}
+              totalNewClients={getTargetPopulationSize(getSizingFromAudienceConfig.new)}
+              totalExistingClients={getTargetPopulationSize(getSizingFromAudienceConfig.existing)}
             />
           </>
         )}
