@@ -488,9 +488,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     # Serializer validation errors
     ERROR_DUPLICATE_BRANCH_NAME = "Branch names must be unique."
-    ERROR_SINGLE_BRANCH_FOR_ROLLOUT = (
-        "A rollout may have only a single reference branch"
-    )
+    ERROR_SINGLE_BRANCH_FOR_ROLLOUT = "A rollout may have only a single reference branch"
     ERROR_DUPLICATE_BRANCH_FEATURE_VALUE = (
         "A branch can not have multiple configurations for the same feature"
     )
@@ -499,10 +497,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_REQUIRED_FEATURE_CONFIG = (
         "You must select a feature configuration from the drop down."
     )
-    ERROR_LAUNCHING_DISABLED = "Launching experiments has been temporarily disabled by the site administrators."
-    ERROR_POPULATION_PERCENT_MIN = (
-        "Ensure this value is greater than or equal to 0.0001."
+    ERROR_LAUNCHING_DISABLED = (
+        "Launching experiments has been temporarily disabled by the site administrators."
     )
+    ERROR_POPULATION_PERCENT_MIN = "Ensure this value is greater than or equal to 0.0001."
     ERROR_FIREFOX_VERSION_MIN = (
         "Ensure this value is less than or equal to the maximum version"
     )

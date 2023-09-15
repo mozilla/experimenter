@@ -26,7 +26,9 @@ export enum NimbusExperimentChannelEnum {
   ESR = "ESR",
   NIGHTLY = "NIGHTLY",
   NO_CHANNEL = "NO_CHANNEL",
+  PRODUCTION = "PRODUCTION",
   RELEASE = "RELEASE",
+  STAGING = "STAGING",
   TESTFLIGHT = "TESTFLIGHT",
   UNBRANDED = "UNBRANDED",
 }
