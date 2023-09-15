@@ -19,23 +19,45 @@ commands:
                 echo "No changes in << parameters.paths >>. Skipping tests and linting."
                 circleci-agent step halt
             fi
+  setup_docker:
+    description: "Setup Docker with Hydrobuild"
+    steps:
+      - run: |
+          mkdir -vp ~/.docker/cli-plugins/
+          ARCH=amd64
+          BUILDX_URL=$(curl -s https://raw.githubusercontent.com/docker/actions-toolkit/main/.github/buildx-lab-releases.json | jq -r ".latest.assets[] | select(endswith(\"linux-$ARCH\"))")
+          curl --silent -L --output ~/.docker/cli-plugins/docker-buildx $BUILDX_URL
+          curl --silent -L --output ~/.docker/cli-plugins/docker-compose https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-x86_64
+          chmod a+x ~/.docker/cli-plugins/docker-buildx
+          chmod a+x ~/.docker/cli-plugins/docker-compose
+          echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+          docker buildx create --use --driver cloud "mozilla/default"
 jobs:
-  check_experimenter_branch:
+  build_docker_images:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
+      - run:
+          name: Run tests and linting
+          command: |
+            cp .env.sample .env
+            make build_dev build_test build_ui build_prod cirrus_build
+  check_experimenter_branch:
+    machine:
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+    resource_class: large
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run tests and linting
           command: |
@@ -45,17 +67,11 @@ jobs:
   check_experimenter_main:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
       - checkout
+      - setup_docker
       - run:
           name: Run tests and linting
           command: |
@@ -65,7 +81,6 @@ jobs:
   integration_nimbus_desktop_release_targeting:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -76,6 +91,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -87,7 +103,6 @@ jobs:
   integration_nimbus_desktop_beta_targeting:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -98,6 +113,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -109,7 +125,6 @@ jobs:
   integration_nimbus_desktop_nightly_targeting:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -120,6 +135,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -131,7 +147,6 @@ jobs:
   integration_nimbus_desktop_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -141,6 +156,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -152,7 +168,6 @@ jobs:
   integration_nimbus_fenix_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
@@ -162,6 +177,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -173,7 +189,6 @@ jobs:
   integration_nimbus_ios_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
@@ -183,6 +198,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -194,7 +210,6 @@ jobs:
   integration_nimbus_focus_android_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
@@ -204,6 +219,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -215,7 +231,6 @@ jobs:
   integration_nimbus_focus_ios_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
@@ -225,6 +240,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -236,7 +252,6 @@ jobs:
   integration_nimbus_desktop_enrollment:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
     environment:
@@ -247,6 +262,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -259,7 +275,6 @@ jobs:
   integration_nimbus_desktop_ui:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -269,6 +284,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -280,23 +296,13 @@ jobs:
   integration_nimbus_sdk_targeting:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
-      - run:
-          name: Check file paths
-          command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
-              then
-                echo "Continuing"
-              else
-                echo "No targeting changes, skipping"
-                circleci-agent step halt
-            fi
+      - setup_docker
       - run:
           name: Run rust integration tests
           command: |
@@ -308,21 +314,15 @@ jobs:
   integration_legacy:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
     steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -335,32 +335,24 @@ jobs:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     steps:
       - checkout
+      - setup_docker
       - deploy:
           name: Deploy to latest
           command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            make build_dev build_test build_ui
             ./scripts/store_git_info.sh
             make build_prod
-            docker tag experimenter:dev ${DOCKERHUB_REPO}:build_dev
-            docker tag experimenter:test ${DOCKERHUB_REPO}:build_test
-            docker tag experimenter:ui ${DOCKERHUB_REPO}:build_ui
             docker tag experimenter:deploy ${DOCKERHUB_REPO}:latest
-            docker push ${DOCKERHUB_REPO}:build_dev
-            docker push ${DOCKERHUB_REPO}:build_test
-            docker push ${DOCKERHUB_REPO}:build_ui
             docker push ${DOCKERHUB_REPO}:latest
 
   deploy_cirrus:
     working_directory: ~/cirrus
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     steps:
       - checkout
+      - setup_docker
       - deploy:
           name: Deploy to latest
           command: |
@@ -373,7 +365,6 @@ jobs:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -413,7 +404,6 @@ jobs:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     steps:
       - checkout
       - run:
@@ -471,9 +461,9 @@ jobs:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     steps:
       - checkout
+      - setup_docker
       - run:
           name: Check for tag change
           command: |
@@ -498,7 +488,7 @@ jobs:
             AS_VERSION=$(git -c 'versionsort.suffix=-' \
               ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/mozilla/application-services.git \
               '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3)
-            docker build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f experimenter/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
+            docker buildx build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f experimenter/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
             docker_id=$(docker run -t -d --name nimbus-rust-image ${DOCKERHUB_REPO}:nimbus-rust-image)
             docker cp /home/circleci/experimenter/application-services-current.txt nimbus-rust-image:/code/application-services-old.txt
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-rust-image
@@ -507,19 +497,13 @@ jobs:
   check_cirrus:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
     resource_class: large
     working_directory: ~/cirrus
     steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
       - checkout
       - check_file_paths:
           paths: "cirrus/"
+      - setup_docker
       - run:
           name: Run Cirrus tests and linting
           command: |
@@ -601,25 +585,131 @@ workflows:
 
   build:
     jobs:
+      - build_docker_images:
+          name: Build Docker Images
       - check_experimenter_branch:
           name: Check Experimenter (Branch)
           filters:
             branches:
               ignore:
                 - main
+          requires:
+            - Build Docker Images
       - check_experimenter_main:
           name: Check Experimenter (Main)
           filters:
             branches:
               only: main
+          requires:
+            - Build Docker Images
       - check_cirrus:
           name: Check Cirrus
+          requires:
+            - Build Docker Images
       - check_schemas:
           name: Check Schemas
           filters:
             branches:
               ignore:
                 - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_desktop_release_targeting:
+          name: Test Desktop Targeting (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_desktop_beta_targeting:
+          name: Test Desktop Targeting (Beta Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_desktop_nightly_targeting:
+          name: Test Desktop Targeting (Nightly Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_desktop_ui:
+          name: Test Desktop Nimbus UI (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_desktop_remote_settings:
+          name: Test Desktop and Remote Settings (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_fenix_remote_settings:
+          name: Test Fenix and Remote Settings (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_ios_remote_settings:
+          name: Test iOS and Remote Settings (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_focus_android_remote_settings:
+          name: Test Focus Android and Remote Settings (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_focus_ios_remote_settings:
+          name: Test Focus iOS and Remote Settings (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_desktop_enrollment:
+          name: Test Desktop Enrollment (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_nimbus_sdk_targeting:
+          name: Test SDK Targeting (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
+      - integration_legacy:
+          name: Test Legacy Desktop (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - Build Docker Images
       - deploy_experimenter:
           name: Deploy Experimenter
           filters:
@@ -634,78 +724,6 @@ workflows:
               only: main
           requires:
             - Check Cirrus
-      - integration_nimbus_desktop_release_targeting:
-          name: Test Desktop Targeting (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_desktop_beta_targeting:
-          name: Test Desktop Targeting (Beta Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_desktop_nightly_targeting:
-          name: Test Desktop Targeting (Nightly Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_desktop_ui:
-          name: Test Desktop Nimbus UI (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_desktop_remote_settings:
-          name: Test Desktop and Remote Settings (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_fenix_remote_settings:
-          name: Test Fenix and Remote Settings (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_ios_remote_settings:
-          name: Test iOS and Remote Settings (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_focus_android_remote_settings:
-          name: Test Focus Android and Remote Settings (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_focus_ios_remote_settings:
-          name: Test Focus iOS and Remote Settings (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_desktop_enrollment:
-          name: Test Desktop Enrollment (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_sdk_targeting:
-          name: Test SDK Targeting (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_legacy:
-          name: Test Legacy Desktop (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
   deploy_schemas:
     jobs:
       - schemas_deploy:
