@@ -5,21 +5,32 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import PopulationSizing from "src/components/PageEditAudience/PopulationSizing";
-import { mockSizingData } from "src/lib/visualization/mocks";
+import { MOCK_SIZING_DATA } from "src/lib/visualization/mocks";
 
 describe("PopulationSizing", () => {
   it("renders errors as expected", () => {
-    const sizingData = mockSizingData();
-    const totalClients = 10000;
+    const sizingData = MOCK_SIZING_DATA;
+    const totalNewClients = 10000;
+    const totalExistingClients = 100000;
     render(
-      <PopulationSizing sizingData={sizingData} totalClients={totalClients} />,
+      <PopulationSizing
+        sizingData={sizingData}
+        totalNewClients={totalNewClients}
+        totalExistingClients={totalExistingClients}
+      />,
     );
 
     expect(screen.getByText("Pre-computed population sizing data"));
-    expect(
-      screen.getByText(`${totalClients} total clients for given parameters`),
+    expect(screen.getByTestId("new-total-clients-label")).toHaveTextContent(
+      `${totalNewClients} total`,
     );
+    expect(
+      screen.getByTestId("existing-total-clients-label"),
+    ).toHaveTextContent(`${totalExistingClients} total`);
 
-    expect(screen.getAllByText("Clients per branch")).toHaveLength(6);
+    expect(screen.getAllByText("Clients per branch (new)")).toHaveLength(6);
+    expect(screen.getAllByText("Clients per branch (existing)")).toHaveLength(
+      6,
+    );
   });
 });

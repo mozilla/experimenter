@@ -25,7 +25,7 @@ import { ReviewCheck } from "src/hooks";
 import { ResultsContext } from "src/lib/contexts";
 import { getStatus } from "src/lib/experiment";
 import { OutcomesList, OutcomeSlugs } from "src/lib/types";
-import { mockAnalysis } from "src/lib/visualization/mocks";
+import { mockAnalysis, MOCK_SIZING } from "src/lib/visualization/mocks";
 import { AnalysisData } from "src/lib/visualization/types";
 import { getSortedBranchNames } from "src/lib/visualization/utils";
 import { cacheConfig } from "src/services/apollo";
@@ -454,7 +454,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       id: "3",
     },
   ],
-  populationSizingData: "{}",
+  populationSizingData: JSON.stringify(MOCK_SIZING),
 };
 
 // Disabling this rule for now because we'll eventually

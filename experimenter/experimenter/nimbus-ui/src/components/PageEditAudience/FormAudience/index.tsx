@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useQuery } from "@apollo/client";
-import { SampleSizes, SizingByUserType, SizingTarget } from "@mozilla/nimbus-schemas";
+import {
+  SampleSizes,
+  SizingByUserType,
+  SizingTarget,
+} from "@mozilla/nimbus-schemas";
 import React, { useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
@@ -388,7 +392,7 @@ export const FormAudience = ({
       countries.forEach((country, idx) => {
         countriesString += `'${country}'`;
         if (idx < countries.length - 1) {
-          countriesString += ", ";
+          countriesString += ",";
         }
       });
       countriesString += "]";
@@ -396,14 +400,6 @@ export const FormAudience = ({
 
     return `firefox_${appId}:${channel}:${localesString}:${countriesString}`;
   };
-
-  const NEW_USER_TARGETING_CONFIG_SLUGS = [
-    "first_run",
-    "first_run_new_profile",
-  ];
-  const EXISTING_USER_TARGETING_CONFIG_SLUGS = [
-    ""
-  ]
 
   const getSizingFromAudienceConfig = useMemo((): SizingByUserType | false => {
     const { populationSizingData } = config;
@@ -417,12 +413,12 @@ export const FormAudience = ({
     const appName = experiment.application?.toLowerCase();
     const isNotUndefined = (val: string | undefined): val is string =>
       val !== undefined;
-    const localeNames = locales
+    const localeCodes = locales
       .map((l) =>
         config!.locales!.find((el) => el!.id === l)?.code.toUpperCase(),
       )
       .filter(isNotUndefined);
-    const countryNames = countries
+    const countryCodes = countries
       .map((c) =>
         config!.countries!.find((el) => el!.id === c)?.code.toUpperCase(),
       )
@@ -430,8 +426,8 @@ export const FormAudience = ({
     const sizingKey = buildSizingKey(
       appName,
       channel,
-      localeNames,
-      countryNames,
+      localeCodes,
+      countryCodes,
     );
     if (sizingKey !== null && sizingJson.hasOwnProperty(sizingKey)) {
       return sizingJson[sizingKey];
@@ -814,9 +810,14 @@ export const FormAudience = ({
           <>
             <hr />
             <PopulationSizing
+              data-testid="population-sizing-precomputed-values"
               sizingData={getSizingFromAudienceConfig}
-              totalNewClients={getTargetPopulationSize(getSizingFromAudienceConfig.new)}
-              totalExistingClients={getTargetPopulationSize(getSizingFromAudienceConfig.existing)}
+              totalNewClients={getTargetPopulationSize(
+                getSizingFromAudienceConfig.new,
+              )}
+              totalExistingClients={getTargetPopulationSize(
+                getSizingFromAudienceConfig.existing,
+              )}
             />
           </>
         )}

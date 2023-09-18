@@ -26,10 +26,16 @@ const PopulationSizing = ({
 }: PopulationSizingProps) => {
   const newUserSizing = sizingData.new;
   const existingUserSizing = sizingData.existing;
-  const targetingParameters = JSON.stringify(newUserSizing.target_recipe, (k, v) => k === "new_or_existing" ? undefined : v);
+  const targetingParameters = JSON.stringify(
+    newUserSizing.target_recipe,
+    (k, v) => (k === "new_or_existing" ? undefined : v),
+  );
   return (
     <>
-      <Form.Label className="d-flex align-items-center">
+      <Form.Label
+        className="d-flex align-items-center"
+        data-testid="population-sizing-precomputed-values"
+      >
         Pre-computed population sizing data
         <Info
           data-tip
@@ -59,17 +65,37 @@ const PopulationSizing = ({
         </Form.Label>
         <Code codeString={targetingParameters} />
       </Form.Group>
-      <Form.Label className="d-flex align-items-center">
-        {totalNewClients} total <span style={{ fontWeight: 700, marginLeft: "0.3em", marginRight: "0.3em" }}>new</span> clients for given parameters
+      <Form.Label
+        className="d-flex align-items-center"
+        data-testid="new-total-clients-label"
+      >
+        {totalNewClients} total{" "}
+        <span
+          style={{ fontWeight: 700, marginLeft: "0.3em", marginRight: "0.3em" }}
+        >
+          new
+        </span>{" "}
+        clients for given parameters
       </Form.Label>
-      <Form.Label className="d-flex align-items-center">
-        {totalExistingClients} total <span style={{ fontWeight: 700, marginLeft: "0.3em", marginRight: "0.3em" }}>existing</span> clients for given parameters
+      <Form.Label
+        className="d-flex align-items-center"
+        data-testid="existing-total-clients-label"
+      >
+        {totalExistingClients} total{" "}
+        <span
+          style={{ fontWeight: 700, marginLeft: "0.3em", marginRight: "0.3em" }}
+        >
+          existing
+        </span>{" "}
+        clients for given parameters
       </Form.Label>
       <p>
         {Object.keys(newUserSizing.sample_sizes).map((powerKey) => {
           // powerKey is the same for new and existing so we can look both up with the same key
-          const newUserMetrics = newUserSizing.sample_sizes[powerKey]["metrics"];
-          const existingUserMetrics = existingUserSizing.sample_sizes[powerKey]["metrics"];
+          const newUserMetrics =
+            newUserSizing.sample_sizes[powerKey]["metrics"];
+          const existingUserMetrics =
+            existingUserSizing.sample_sizes[powerKey]["metrics"];
           // parameters are the same for new and existing so we only need to get one
           const parameters = newUserSizing.sample_sizes[powerKey]["parameters"];
           return (
@@ -99,11 +125,16 @@ const PopulationSizing = ({
                     </th>
                     {Object.keys(newUserMetrics).map((metricKey) => (
                       <td className="align-middle" key={`${metricKey}-sizing`}>
-                        <div className="text-secondary">Clients per branch (new)</div>
-                        {newUserMetrics[metricKey].sample_size_per_branch.toFixed(2)} (
-                        {newUserMetrics[metricKey].population_percent_per_branch.toFixed(
-                          2,
-                        )}
+                        <div className="text-secondary">
+                          Clients per branch (new)
+                        </div>
+                        {newUserMetrics[
+                          metricKey
+                        ].sample_size_per_branch.toFixed(2)}{" "}
+                        (
+                        {newUserMetrics[
+                          metricKey
+                        ].population_percent_per_branch.toFixed(2)}
                         %)
                       </td>
                     ))}
@@ -114,11 +145,16 @@ const PopulationSizing = ({
                     </th>
                     {Object.keys(existingUserMetrics).map((metricKey) => (
                       <td className="align-middle" key={`${metricKey}-sizing`}>
-                        <div className="text-secondary">Clients per branch (existing)</div>
-                        {existingUserMetrics[metricKey].sample_size_per_branch.toFixed(2)} (
-                        {existingUserMetrics[metricKey].population_percent_per_branch.toFixed(
-                          2,
-                        )}
+                        <div className="text-secondary">
+                          Clients per branch (existing)
+                        </div>
+                        {existingUserMetrics[
+                          metricKey
+                        ].sample_size_per_branch.toFixed(2)}{" "}
+                        (
+                        {existingUserMetrics[
+                          metricKey
+                        ].population_percent_per_branch.toFixed(2)}
                         %)
                       </td>
                     ))}
@@ -131,6 +167,6 @@ const PopulationSizing = ({
       </p>
     </>
   );
-}
+};
 
 export default React.memo(PopulationSizing);

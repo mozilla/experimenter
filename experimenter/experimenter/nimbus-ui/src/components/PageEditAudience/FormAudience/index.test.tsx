@@ -1268,6 +1268,204 @@ describe("FormAudience", () => {
     expect((slider as HTMLInputElement).value).toEqual("50");
   });
 
+  it("renders the pre-computed population sizing values", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.RELEASE,
+          countries: [
+            {
+              name: "United States of America",
+              id: "1",
+              code: "US",
+            },
+            {
+              name: "Canada",
+              id: "2",
+              code: "CA",
+            },
+          ],
+          locales: [
+            {
+              name: "English (US)",
+              id: "1",
+              code: "EN-US",
+            },
+            {
+              name: "English (CA)",
+              id: "2",
+              code: "EN-CA",
+            },
+          ],
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          applicationConfigs: [
+            {
+              application: NimbusExperimentApplicationEnum.DESKTOP,
+              channels: [{ label: "Release", value: "RELEASE" }],
+            },
+          ],
+          channels: [{ label: "Release", value: "RELEASE" }],
+          countries: [
+            {
+              name: "United States of America",
+              id: "1",
+              code: "US",
+            },
+            {
+              name: "Canada",
+              id: "2",
+              code: "CA",
+            },
+          ],
+          locales: [
+            {
+              name: "English (US)",
+              id: "1",
+              code: "EN-US",
+            },
+            {
+              name: "English (CA)",
+              id: "2",
+              code: "EN-CA",
+            },
+          ],
+        }}
+      />,
+    );
+    await screen.findByTestId("FormAudience");
+    expect(
+      screen.getByText("Pre-computed population sizing data"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("10000 total", {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryAllByText("Clients per branch (new)")).toHaveLength(6);
+    expect(screen.queryAllByText("Clients per branch (existing)")).toHaveLength(
+      6,
+    );
+  });
+
+  it("does not render the pre-computed population sizing values when no match found", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.BETA,
+          countries: [
+            {
+              name: "United States of America",
+              id: "1",
+              code: "US",
+            },
+          ],
+          locales: [
+            {
+              name: "English (US)",
+              id: "1",
+              code: "EN-US",
+            },
+          ],
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          applicationConfigs: [
+            {
+              application: NimbusExperimentApplicationEnum.DESKTOP,
+              channels: [
+                { label: "Release", value: "RELEASE" },
+                { label: "Beta", value: "BETA" },
+              ],
+            },
+          ],
+          channels: [
+            { label: "Release", value: "RELEASE" },
+            { label: "Beta", value: "BETA" },
+          ],
+          countries: [
+            {
+              name: "United States of America",
+              id: "1",
+              code: "US",
+            },
+          ],
+          locales: [
+            {
+              name: "English (US)",
+              id: "1",
+              code: "EN-US",
+            },
+          ],
+        }}
+      />,
+    );
+    await screen.findByTestId("FormAudience");
+    expect(
+      screen.queryByText("Pre-computed population sizing data"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not render the pre-computed population sizing values when no sizing data is available", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.RELEASE,
+          countries: [
+            {
+              name: "United States of America",
+              id: "1",
+              code: "US",
+            },
+          ],
+          locales: [
+            {
+              name: "English (US)",
+              id: "1",
+              code: "EN-US",
+            },
+          ],
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          applicationConfigs: [
+            {
+              application: NimbusExperimentApplicationEnum.DESKTOP,
+              channels: [{ label: "Release", value: "RELEASE" }],
+            },
+          ],
+          channels: [{ label: "Release", value: "RELEASE" }],
+          countries: [
+            {
+              name: "United States of America",
+              id: "1",
+              code: "US",
+            },
+          ],
+          locales: [
+            {
+              name: "English (US)",
+              id: "1",
+              code: "EN-US",
+            },
+          ],
+          populationSizingData: "{}",
+        }}
+      />,
+    );
+    await screen.findByTestId("FormAudience");
+    expect(
+      screen.queryByText("Pre-computed population sizing data"),
+    ).not.toBeInTheDocument();
+  });
+
   it("requires positive numbers in numeric fields (EXP-956)", async () => {
     const onSubmit = jest.fn();
     const { container } = render(<Subject {...{ onSubmit }} />);
