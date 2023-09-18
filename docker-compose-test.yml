@@ -25,3 +25,11 @@ services:
       context: cirrus/server/
       dockerfile: Dockerfile
     working_dir: /cirrus
+
+  schemas:
+    build:
+      context: schemas/
+      dockerfile: Dockerfile
+    working_dir: /schemas
+    volumes:
+      - ./schemas:/schemas

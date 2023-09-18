@@ -263,16 +263,16 @@ SCHEMAS_VERSION_FILE := schemas/VERSION
 SCHEMAS_VERSION := $(shell cat ${SCHEMAS_VERSION_FILE})
 
 schemas_install:
-	(cd schemas && poetry install && yarn install)
+	$(COMPOSE_TEST) run schemas sh -c "poetry install && yarn install"
 
 schemas_black:
-	(cd schemas && poetry run black --check --diff .)
+	$(COMPOSE_TEST) run schemas sh -c "poetry run black --check --diff ."
 
 schemas_ruff:
-	(cd schemas && poetry run ruff .)
+	$(COMPOSE_TEST) run schemas sh -c "poetry run ruff ."
 
 schemas_test:
-	(cd schemas && poetry run pytest)
+	$(COMPOSE_TEST) run schemas sh -c "poetry run pytest"
 
 schemas_check: schemas_install schemas_black schemas_ruff schemas_test
 	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output /tmp/test_index.d.ts --json2ts-cmd "yarn json2ts")
@@ -280,15 +280,15 @@ schemas_check: schemas_install schemas_black schemas_ruff schemas_test
 	echo "Done. No problems found in schemas."
 
 schemas_code_format:
-	(cd schemas && poetry run black . && poetry run ruff --fix .)
+	$(COMPOSE_TEST) run schemas sh -c "poetry run black . && poetry run ruff --fix ."
 
 schemas_build: schemas_install schemas_build_pypi schemas_build_npm
 
-schemas_build_pypi:
-	(cd schemas && poetry build)
+schemas_build:
+	$(COMPOSE_TEST) run schemas sh -c "poetry build"
 
-schemas_deploy_pypi: schemas_install schemas_build_pypi
-	cd schemas; poetry run twine upload --skip-existing dist/*;
+schemas_deploy_pypi: schemas_install schemas_build
+	$(COMPOSE_TEST) run schemas sh -c "poetry run twine upload --skip-existing dist/*"
 
 schemas_build_npm: schemas_install
 	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output ./index.d.ts --json2ts-cmd "yarn json2ts")
@@ -299,3 +299,4 @@ schemas_deploy_npm: schemas_build_npm
 schemas_version:
 	npm --prefix schemas version --allow-same-version ${SCHEMAS_VERSION};
 	poetry --directory=schemas version ${SCHEMAS_VERSION};
+
