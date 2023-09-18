@@ -28,7 +28,6 @@ class ChangeEventType(Enum):
 
 
 class RelationalFields:
-
     # This is a list of models whose field values are stored as reference keys
     # instead of actual values in the NimbusChangelog
 
@@ -153,10 +152,10 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
 APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     name="Monitor Web",
     slug="monitor-web",
-    app_name="monitor_web",
+    app_name="monitor_cirrus",
     channel_app_id={
-        Channel.BETA: "monitor-beta",
-        Channel.RELEASE: "monitor-release",
+        Channel.BETA: "monitor.cirrus",
+        Channel.RELEASE: "monitor.cirrus",
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,

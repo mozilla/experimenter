@@ -1,0 +1,106 @@
+friendly_name = "Upload, Download Performance"
+description = "HTTP upload and download performance metrics"
+
+[metrics.networking_download_throughput_http_1]
+select_expression = '{{agg_histogram_mean("payload.histograms.networking_download_throughput_http_1")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.networking_download_throughput_http_1.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.networking_download_throughput_http_1.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.networking_download_throughput_http_1.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.networking_download_throughput_http_2]
+select_expression = '{{agg_histogram_mean("payload.histograms.networking_download_throughput_http_2")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.networking_download_throughput_http_2.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.networking_download_throughput_http_2.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.networking_download_throughput_http_2.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.networking_download_throughput_http_3]
+select_expression = '{{agg_histogram_mean("payload.histograms.networking_download_throughput_http_3")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.networking_download_throughput_http_3.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.networking_download_throughput_http_3.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.networking_download_throughput_http_3.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.networking_upload_throughput_http_1]
+select_expression = """{{agg_histogram_mean("mozfun.map.get_key(payload.keyed_histograms.http_upload_bandwidth_mbps,'http/1.1')")}}"""
+
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.networking_upload_throughput_http_1.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.networking_upload_throughput_http_1.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.networking_upload_throughput_http_1.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.networking_upload_throughput_http_2]
+select_expression = """{{agg_histogram_mean("mozfun.map.get_key(payload.keyed_histograms.http_upload_bandwidth_mbps,'h2')")}}"""
+
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.networking_upload_throughput_http_2.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.networking_upload_throughput_http_2.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.networking_upload_throughput_http_2.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.networking_upload_throughput_http_3]
+select_expression = """{{agg_histogram_mean("mozfun.map.get_key(payload.keyed_histograms.http_upload_bandwidth_mbps,'h3')")}}"""
+
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.networking_upload_throughput_http_3.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.networking_upload_throughput_http_3.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.networking_upload_throughput_http_3.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
