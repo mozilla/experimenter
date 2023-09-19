@@ -486,6 +486,7 @@ export const MOCK_SIZING: SampleSizes = {
   "firefox_desktop:release:['EN-US']:US": MOCK_SIZING_DATA,
   "firefox_desktop:nightly:['EN-US']:US": MOCK_SIZING_DATA,
   "firefox_desktop:release:['EN-CA','EN-US']:['CA','US']": MOCK_SIZING_DATA,
+  "firefox_ios:release:['EN-CA','EN-US']:['CA','US']": MOCK_SIZING_DATA,
 };
 
 export const weeklyMockAnalysis = (modifications = {}) =>

@@ -1351,6 +1351,89 @@ describe("FormAudience", () => {
     );
   });
 
+  it("renders the pre-computed population sizing values for mobile", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.IOS,
+          channel: NimbusExperimentChannelEnum.RELEASE,
+          countries: [
+            {
+              name: "United States of America",
+              id: "1",
+              code: "US",
+            },
+            {
+              name: "Canada",
+              id: "2",
+              code: "CA",
+            },
+          ],
+          languages: [
+            {
+              name: "English (US)",
+              id: "1",
+              code: "EN-US",
+            },
+            {
+              name: "English (CA)",
+              id: "2",
+              code: "EN-CA",
+            },
+          ],
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          applicationConfigs: [
+            {
+              application: NimbusExperimentApplicationEnum.IOS,
+              channels: [{ label: "Release", value: "RELEASE" }],
+            },
+          ],
+          channels: [{ label: "Release", value: "RELEASE" }],
+          countries: [
+            {
+              name: "United States of America",
+              id: "1",
+              code: "US",
+            },
+            {
+              name: "Canada",
+              id: "2",
+              code: "CA",
+            },
+          ],
+          languages: [
+            {
+              name: "English (US)",
+              id: "1",
+              code: "EN-US",
+            },
+            {
+              name: "English (CA)",
+              id: "2",
+              code: "EN-CA",
+            },
+          ],
+        }}
+      />,
+    );
+    await screen.findByTestId("FormAudience");
+    expect(
+      screen.getByText("Pre-computed population sizing data"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("10000 total", {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryAllByText("Clients per branch (new)")).toHaveLength(6);
+    expect(screen.queryAllByText("Clients per branch (existing)")).toHaveLength(
+      6,
+    );
+  });
+
   it("does not render the pre-computed population sizing values when no match found", async () => {
     render(
       <Subject

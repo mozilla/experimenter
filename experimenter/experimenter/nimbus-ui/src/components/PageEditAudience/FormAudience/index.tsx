@@ -360,30 +360,30 @@ export const FormAudience = ({
   const buildSizingKey = (
     appId: string | undefined,
     channel: string | undefined,
-    locales: string[] | undefined,
+    localesOrLanguages: string[] | undefined,
     countries: string[] | undefined,
   ): string | null => {
     if (
       !(
         appId &&
         channel &&
-        locales &&
-        locales.length > 0 &&
+        localesOrLanguages &&
+        localesOrLanguages.length > 0 &&
         countries &&
         countries.length > 0
       )
     ) {
       return null;
     }
-    let localesString = "[";
-    locales.sort((a, b) => a.localeCompare(b));
-    locales.forEach((locale, idx) => {
-      localesString += `'${locale}'`;
-      if (idx < locales.length - 1) {
-        localesString += ",";
+    let localesOrLanguagesString = "[";
+    localesOrLanguages.sort((a, b) => a.localeCompare(b));
+    localesOrLanguages.forEach((locale, idx) => {
+      localesOrLanguagesString += `'${locale}'`;
+      if (idx < localesOrLanguages.length - 1) {
+        localesOrLanguagesString += ",";
       }
     });
-    localesString += "]";
+    localesOrLanguagesString += "]";
 
     let countriesString = countries[0];
     if (countries.length > 1) {
@@ -398,7 +398,7 @@ export const FormAudience = ({
       countriesString += "]";
     }
 
-    return `firefox_${appId}:${channel}:${localesString}:${countriesString}`;
+    return `firefox_${appId}:${channel}:${localesOrLanguagesString}:${countriesString}`;
   };
 
   const getSizingFromAudienceConfig = useMemo((): SizingByUserType | false => {
@@ -411,11 +411,17 @@ export const FormAudience = ({
     const channel = watch("channel")?.toLowerCase();
 
     const appName = experiment.application?.toLowerCase();
+
     const isNotUndefined = (val: string | undefined): val is string =>
       val !== undefined;
     const localeCodes = locales
       .map((l) =>
         config!.locales!.find((el) => el!.id === l)?.code.toUpperCase(),
+      )
+      .filter(isNotUndefined);
+    const languageCodes = languages
+      .map((l) =>
+        config!.languages!.find((el) => el!.id === l)?.code.toUpperCase(),
       )
       .filter(isNotUndefined);
     const countryCodes = countries
@@ -426,14 +432,16 @@ export const FormAudience = ({
     const sizingKey = buildSizingKey(
       appName,
       channel,
-      localeCodes,
+      experiment.application === NimbusExperimentApplicationEnum.DESKTOP
+        ? localeCodes
+        : languageCodes,
       countryCodes,
     );
     if (sizingKey !== null && sizingJson.hasOwnProperty(sizingKey)) {
       return sizingJson[sizingKey];
     }
     return false;
-  }, [config, countries, experiment, locales, watch]);
+  }, [config, countries, experiment, languages, locales, watch]);
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
