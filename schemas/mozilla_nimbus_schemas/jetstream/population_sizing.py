@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel, Extra
@@ -41,7 +42,8 @@ class SizingDetails(BaseModel):
 class SizingRecipe(BaseModel):
     app_id: str
     channel: SizingReleaseChannel
-    locale: str
+    locale: Optional[str] = None
+    language: Optional[str] = None
     country: str
     new_or_existing: SizingUserType
 
