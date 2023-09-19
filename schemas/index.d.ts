@@ -163,7 +163,8 @@ export interface SizingTarget {
 export interface SizingRecipe {
   app_id: string;
   channel: SizingReleaseChannel;
-  locale: string;
+  locale?: string;
+  language?: string;
   country: string;
   new_or_existing: SizingUserType;
 }
