@@ -17,6 +17,8 @@ class Channel(models.TextChoices):
     TESTFLIGHT = "testflight"
     AURORA = "aurora"
     DEVELOPER = "developer"
+    STAGING = "staging"
+    PRODUCTION = "production"
 
 
 class ChangeEventType(Enum):
@@ -154,8 +156,8 @@ APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     slug="monitor-web",
     app_name="monitor_cirrus",
     channel_app_id={
-        Channel.BETA: "monitor.cirrus",
-        Channel.RELEASE: "monitor.cirrus",
+        Channel.STAGING: "monitor.cirrus",
+        Channel.PRODUCTION: "monitor.cirrus",
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
