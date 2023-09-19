@@ -92,7 +92,7 @@ feature_manifests:
 	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FXIOS) "$(MANIFESTS_DIR)/ios/experimenter.yaml"
 	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_ANDROID) "$(MANIFESTS_DIR)/focus-android/experimenter.yaml"
 	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_IOS) "$(MANIFESTS_DIR)/focus-ios/experimenter.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_MONITOR) "$(MANIFESTS_DIR)/monitor-web/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel production $(FEATURE_MANIFEST_MONITOR) "$(MANIFESTS_DIR)/monitor-web/experimenter.yaml"
 
 	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
 	cat $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml | grep path: | \
