@@ -3651,7 +3651,9 @@
               "esr",
               "testflight",
               "aurora",
-              "developer"
+              "developer",
+              "staging",
+              "production"
             ],
             "type": "string"
           },

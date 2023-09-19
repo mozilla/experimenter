@@ -269,6 +269,8 @@ enum NimbusExperimentChannelEnum {
   TESTFLIGHT
   AURORA
   DEVELOPER
+  STAGING
+  PRODUCTION
 }
 
 type NimbusLocaleType {
