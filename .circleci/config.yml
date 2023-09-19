@@ -30,7 +30,7 @@ commands:
           curl --silent -L --output ~/.docker/cli-plugins/docker-compose https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-x86_64
           chmod a+x ~/.docker/cli-plugins/docker-buildx
           chmod a+x ~/.docker/cli-plugins/docker-compose
-          if [ -n "$DOCKER_USER" ]; then
+          if [ -n "$DOCKER_USER" -a -n "$DOCKER_PASS" ]; then
             echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
             docker buildx create --use --driver cloud "mozilla/default"
           else
