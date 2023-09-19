@@ -30,27 +30,18 @@ commands:
           curl --silent -L --output ~/.docker/cli-plugins/docker-compose https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-x86_64
           chmod a+x ~/.docker/cli-plugins/docker-buildx
           chmod a+x ~/.docker/cli-plugins/docker-compose
-          echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
-          docker buildx create --use --driver cloud "mozilla/default"
+          if [ -n "$DOCKER_USER" ]; then
+            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+            docker buildx create --use --driver cloud "mozilla/default"
+          else
+            echo "DOCKER_USER is empty, skipping docker login"
+          fi
+
 jobs:
-  build_docker_images:
-    machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-    resource_class: large
-    working_directory: ~/experimenter
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/"
-      - setup_docker
-      - run:
-          name: Run tests and linting
-          command: |
-            cp .env.sample .env
-            make build_dev build_test build_ui build_prod cirrus_build
   check_experimenter_branch:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     steps:
@@ -67,6 +58,7 @@ jobs:
   check_experimenter_main:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     steps:
@@ -81,6 +73,7 @@ jobs:
   integration_nimbus_desktop_release_targeting:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -103,6 +96,7 @@ jobs:
   integration_nimbus_desktop_beta_targeting:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -125,6 +119,7 @@ jobs:
   integration_nimbus_desktop_nightly_targeting:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -147,6 +142,7 @@ jobs:
   integration_nimbus_desktop_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -168,6 +164,7 @@ jobs:
   integration_nimbus_fenix_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
@@ -189,6 +186,7 @@ jobs:
   integration_nimbus_ios_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
@@ -210,6 +208,7 @@ jobs:
   integration_nimbus_focus_android_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
@@ -231,6 +230,7 @@ jobs:
   integration_nimbus_focus_ios_remote_settings:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
@@ -252,6 +252,7 @@ jobs:
   integration_nimbus_desktop_enrollment:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
     environment:
@@ -275,6 +276,7 @@ jobs:
   integration_nimbus_desktop_ui:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -296,6 +298,7 @@ jobs:
   integration_nimbus_sdk_targeting:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     steps:
@@ -314,6 +317,7 @@ jobs:
   integration_legacy:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
@@ -335,6 +339,7 @@ jobs:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     steps:
       - checkout
       - setup_docker
@@ -350,6 +355,7 @@ jobs:
     working_directory: ~/cirrus
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     steps:
       - checkout
       - setup_docker
@@ -365,6 +371,7 @@ jobs:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -404,6 +411,7 @@ jobs:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     steps:
       - checkout
       - run:
@@ -461,6 +469,7 @@ jobs:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     steps:
       - checkout
       - setup_docker
@@ -497,6 +506,7 @@ jobs:
   check_cirrus:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/cirrus
     steps:
@@ -585,131 +595,97 @@ workflows:
 
   build:
     jobs:
-      - build_docker_images:
-          name: Build Docker Images
       - check_experimenter_branch:
           name: Check Experimenter (Branch)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - check_experimenter_main:
           name: Check Experimenter (Main)
           filters:
             branches:
               only: main
-          requires:
-            - Build Docker Images
       - check_cirrus:
           name: Check Cirrus
-          requires:
-            - Build Docker Images
       - check_schemas:
           name: Check Schemas
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_desktop_beta_targeting:
           name: Test Desktop Targeting (Beta Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_desktop_nightly_targeting:
           name: Test Desktop Targeting (Nightly Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_desktop_remote_settings:
           name: Test Desktop and Remote Settings (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_fenix_remote_settings:
           name: Test Fenix and Remote Settings (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_ios_remote_settings:
           name: Test iOS and Remote Settings (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_focus_android_remote_settings:
           name: Test Focus Android and Remote Settings (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_focus_ios_remote_settings:
           name: Test Focus iOS and Remote Settings (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_desktop_enrollment:
           name: Test Desktop Enrollment (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_nimbus_sdk_targeting:
           name: Test SDK Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - integration_legacy:
           name: Test Legacy Desktop (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - Build Docker Images
       - deploy_experimenter:
           name: Deploy Experimenter
           filters:
