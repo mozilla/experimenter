@@ -17,7 +17,7 @@ type PopulationSizingProps = {
 };
 
 const popSizingHelpMarkdown =
-  "Pre-computed sizing is computed with the [auto-sizing](https://github.com/mozilla/auto-sizing) tool. This assumes a power requirement of 0.8 and is based on Application, Channel, Locale, and Country (and is only available for some common combinations of these).";
+  "Pre-computed sizing is computed with the [auto-sizing](https://github.com/mozilla/auto-sizing) tool. This assumes a power requirement of 0.8 and is based on Application, Channel, Locale (or Language), and Country (and is only available for some common combinations of these).";
 
 const PopulationSizing = ({
   sizingData,
