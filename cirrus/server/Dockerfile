@@ -3,8 +3,6 @@ FROM rust:buster AS rust-builder
 
 ARG as_version
 
-RUN rustup target add x86_64-unknown-linux-musl
-RUN apt update && apt install -y musl-tools musl-dev
 RUN update-ca-certificates
 
 RUN apt-get update -qqy \
@@ -28,8 +26,7 @@ RUN git submodule init
 RUN git submodule update --recursive
 
 RUN cargo build --manifest-path megazords/cirrus/Cargo.toml --release
-RUN cargo uniffi-bindgen generate components/nimbus/src/cirrus.udl --language python
-RUN cargo uniffi-bindgen generate components/support/nimbus-fml/src/fml.udl --language python
+RUN cargo uniffi-bindgen generate --library target/release/libcirrus.so --language python --out-dir .
 
 # Second stage: Build Python environment with dependencies
 FROM python:3.11.2-slim-buster as python-builder
@@ -37,7 +34,7 @@ FROM python:3.11.2-slim-buster as python-builder
 # Set working directory for the container
 WORKDIR /cirrus
 
-# Install curl and bash utilities
+# Install curl and bash utilities to build Glean
 RUN apt-get update && \
     apt-get -y install curl bash build-essential && \
     rm -rf /var/lib/apt/lists/*
@@ -65,9 +62,9 @@ FROM python:3.11.2-slim-buster as deploy
 WORKDIR /cirrus
 
 # Copy specific Rust components
-COPY --from=rust-builder /application-services/components/nimbus/src/cirrus.py /application-services/cirrus_sdk.py
 COPY --from=rust-builder /application-services/target/release/libcirrus.so /application-services/libcirrus.so
-COPY --from=rust-builder /application-services/components/support/nimbus-fml/src/fml.py /application-services/fml_sdk.py
+COPY --from=rust-builder /application-services/cirrus.py /application-services/cirrus_sdk.py
+COPY --from=rust-builder /application-services/fml.py /application-services/fml_sdk.py
 
 # Copy Python site packages and scripts
 COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages

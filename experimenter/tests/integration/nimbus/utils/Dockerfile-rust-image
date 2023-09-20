@@ -32,17 +32,22 @@ RUN git submodule init
 RUN git submodule update --recursive
 RUN ./libs/verify-desktop-environment.sh
 
+RUN mkdir -p /application-services/megazord
 RUN cargo build
 
-RUN cargo build --manifest-path megazords/full/Cargo.toml --release
-RUN cargo uniffi-bindgen generate components/nimbus/src/nimbus.udl --language python
+RUN cargo build --manifest-path megazords/nimbus-experimenter/Cargo.toml --release
+RUN cargo uniffi-bindgen generate --library target/release/libnimbus_experimenter.so  --language python --out-dir /application-services/megazord
 
-RUN mv components/nimbus/src/nimbus.py components/nimbus/src/nimbus_rust.py
-RUN mv target/release/libmegazord.so components/nimbus/src/libuniffi_nimbus.so
+RUN mv megazord/nimbus.py megazord/nimbus_rust.py
+# This should be called libnimbus_experimenter.so; once all uniffi-bindgen calls in this repo have moved to --library, we
+# can move this libnimbus_experimenter.so
+RUN mv target/release/libnimbus_experimenter.so megazord/libcirrus.so
+
 
 FROM python:3.11-buster
 
-COPY --from=builder /application-services /application-services
+COPY --from=builder /application-services/megazord /application-services/megazord
+ENV PYTHON_PATH=$PYTHON_PATH:/application-services/megazord
 
 RUN apt-get update -qqy \
   && apt-get -qqy install \

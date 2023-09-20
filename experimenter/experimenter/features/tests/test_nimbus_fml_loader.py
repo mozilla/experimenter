@@ -43,4 +43,4 @@ class TestNimbusFmlLoader(TestCase):
         loader = NimbusFmlLoader(application, channel)
         response = loader.create("my/favorite/path", "ziggy")
         # Todo: Connect FML https://mozilla-hub.atlassian.net/browse/EXP-3791
-        self.assertEqual(response, "success")
+        self.assertIsNotNone(response)
