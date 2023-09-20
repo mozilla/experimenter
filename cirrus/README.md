@@ -48,10 +48,6 @@ The following are the available commands for working with Cirrus:
 
   - Usage: `make cirrus_build`
 
-- **cirrus_build_test**: Builds the Cirrus container for testing.
-
-  - Usage: `make cirrus_build_test`
-
 - **cirrus_up**: Starts the Cirrus container.
 
   - Usage: `make cirrus_up`
