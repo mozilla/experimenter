@@ -347,6 +347,9 @@ jobs:
           name: Deploy to latest
           command: |
             ./scripts/store_git_info.sh
+            # Build all images for arm64 and amd64 to hydrate build cache
+            make BUILD_MULTIPLATFORM=1 build_dev build_test build_ui build_prod
+            # Pull amd64 and tag to dockerhub for deploy
             make build_prod
             docker tag experimenter:deploy ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest
@@ -362,8 +365,10 @@ jobs:
       - deploy:
           name: Deploy to latest
           command: |
-            docker login -u $DOCKERHUB_CIRRUS_USER -p $DOCKERHUB_CIRRUS_PASS
-            make cirrus_build_prod
+            # Build all images for arm64 and amd64 to hydrate build cache
+            make BUILD_MULTIPLATFORM=1 cirrus_build
+            # Pull amd64 and tag to dockerhub for deploy
+            make cirrus_build
             docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
             docker push ${DOCKERHUB_CIRRUS_REPO}:latest
 
