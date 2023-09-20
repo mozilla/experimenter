@@ -365,6 +365,7 @@ jobs:
       - deploy:
           name: Deploy to latest
           command: |
+            docker login -u $DOCKERHUB_CIRRUS_USER -p $DOCKERHUB_CIRRUS_PASS
             # Build all images for arm64 and amd64 to hydrate build cache
             make BUILD_MULTIPLATFORM=1 cirrus_build
             # Pull amd64 and tag to dockerhub for deploy
