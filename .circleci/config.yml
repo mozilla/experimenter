@@ -19,6 +19,24 @@ commands:
                 echo "No changes in << parameters.paths >>. Skipping tests and linting."
                 circleci-agent step halt
             fi
+  setup_docker:
+    description: "Setup Docker with Hydrobuild"
+    steps:
+      - run: |
+          mkdir -vp ~/.docker/cli-plugins/
+          ARCH=amd64
+          BUILDX_URL=$(curl -s https://raw.githubusercontent.com/docker/actions-toolkit/main/.github/buildx-lab-releases.json | jq -r ".latest.assets[] | select(endswith(\"linux-$ARCH\"))")
+          curl --silent -L --output ~/.docker/cli-plugins/docker-buildx $BUILDX_URL
+          curl --silent -L --output ~/.docker/cli-plugins/docker-compose https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-x86_64
+          chmod a+x ~/.docker/cli-plugins/docker-buildx
+          chmod a+x ~/.docker/cli-plugins/docker-compose
+          if [ -n "$DOCKER_USER" -a -n "$DOCKER_PASS" ]; then
+            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+            docker buildx create --use --driver cloud "mozilla/default"
+          else
+            echo "DOCKER_USER is empty, skipping docker login"
+          fi
+
 jobs:
   check_experimenter_branch:
     machine:
@@ -27,15 +45,10 @@ jobs:
     resource_class: large
     working_directory: ~/experimenter
     steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run tests and linting
           command: |
@@ -49,13 +62,8 @@ jobs:
     resource_class: large
     working_directory: ~/experimenter
     steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
       - checkout
+      - setup_docker
       - run:
           name: Run tests and linting
           command: |
@@ -76,6 +84,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -98,6 +107,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -120,6 +130,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -141,6 +152,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -162,6 +174,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -183,6 +196,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -204,6 +218,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -225,6 +240,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -247,6 +263,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -269,6 +286,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -287,16 +305,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
-      - run:
-          name: Check file paths
-          command: |
-            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
-              then
-                echo "Continuing"
-              else
-                echo "No targeting changes, skipping"
-                circleci-agent step halt
-            fi
+      - setup_docker
       - run:
           name: Run rust integration tests
           command: |
@@ -314,15 +323,10 @@ jobs:
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
     steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - setup_docker
       - run:
           name: Run integration tests
           command: |
@@ -338,20 +342,16 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - setup_docker
       - deploy:
           name: Deploy to latest
           command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            make build_dev build_test build_ui
             ./scripts/store_git_info.sh
+            # Build all images for arm64 and amd64 to hydrate build cache
+            make BUILD_MULTIPLATFORM=1 build_dev build_test build_ui build_prod
+            # Pull amd64 and tag to dockerhub for deploy
             make build_prod
-            docker tag experimenter:dev ${DOCKERHUB_REPO}:build_dev
-            docker tag experimenter:test ${DOCKERHUB_REPO}:build_test
-            docker tag experimenter:ui ${DOCKERHUB_REPO}:build_ui
             docker tag experimenter:deploy ${DOCKERHUB_REPO}:latest
-            docker push ${DOCKERHUB_REPO}:build_dev
-            docker push ${DOCKERHUB_REPO}:build_test
-            docker push ${DOCKERHUB_REPO}:build_ui
             docker push ${DOCKERHUB_REPO}:latest
 
   deploy_cirrus:
@@ -361,11 +361,14 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - setup_docker
       - deploy:
           name: Deploy to latest
           command: |
-            docker login -u $DOCKERHUB_CIRRUS_USER -p $DOCKERHUB_CIRRUS_PASS
-            make cirrus_build_prod
+            # Build all images for arm64 and amd64 to hydrate build cache
+            make BUILD_MULTIPLATFORM=1 cirrus_build
+            # Pull amd64 and tag to dockerhub for deploy
+            make cirrus_build
             docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
             docker push ${DOCKERHUB_CIRRUS_REPO}:latest
 
@@ -474,6 +477,7 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - setup_docker
       - run:
           name: Check for tag change
           command: |
@@ -498,7 +502,7 @@ jobs:
             AS_VERSION=$(git -c 'versionsort.suffix=-' \
               ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/mozilla/application-services.git \
               '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3)
-            docker build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f experimenter/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
+            docker buildx build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f experimenter/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
             docker_id=$(docker run -t -d --name nimbus-rust-image ${DOCKERHUB_REPO}:nimbus-rust-image)
             docker cp /home/circleci/experimenter/application-services-current.txt nimbus-rust-image:/code/application-services-old.txt
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-rust-image
@@ -511,15 +515,10 @@ jobs:
     resource_class: large
     working_directory: ~/cirrus
     steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
       - checkout
       - check_file_paths:
           paths: "cirrus/"
+      - setup_docker
       - run:
           name: Run Cirrus tests and linting
           command: |
@@ -620,20 +619,6 @@ workflows:
             branches:
               ignore:
                 - main
-      - deploy_experimenter:
-          name: Deploy Experimenter
-          filters:
-            branches:
-              only: main
-          requires:
-            - Check Experimenter (Main)
-      - deploy_cirrus:
-          name: Deploy Cirrus
-          filters:
-            branches:
-              only: main
-          requires:
-            - Check Cirrus
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
@@ -706,6 +691,20 @@ workflows:
             branches:
               ignore:
                 - main
+      - deploy_experimenter:
+          name: Deploy Experimenter
+          filters:
+            branches:
+              only: main
+          requires:
+            - Check Experimenter (Main)
+      - deploy_cirrus:
+          name: Deploy Cirrus
+          filters:
+            branches:
+              only: main
+          requires:
+            - Check Cirrus
   deploy_schemas:
     jobs:
       - schemas_deploy:

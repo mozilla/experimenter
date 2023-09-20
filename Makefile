@@ -3,11 +3,12 @@ SHELL = /bin/bash
 WAIT_FOR_DB = /experimenter/bin/wait-for-it.sh -t 30 db:5432 &&
 WAIT_FOR_RUNSERVER = /experimenter/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
-COMPOSE = docker-compose -f docker-compose.yml
+COMPOSE = docker compose -f docker-compose.yml
 COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
-COMPOSE_TEST = docker-compose -f docker-compose-test.yml
-COMPOSE_PROD = docker-compose -f docker-compose-prod.yml
+COMPOSE_TEST = docker compose -f docker-compose-test.yml
+COMPOSE_PROD = docker compose -f docker-compose-prod.yml
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
+DOCKER_BUILD = docker buildx build $$( [ $$BUILD_MULTIPLATFORM  ] && echo "--platform linux/amd64,linux/arm64 --output type=cacheonly" )
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
@@ -88,18 +89,18 @@ jetstream_config:
 feature_manifests:
 	mkdir -p $(MANIFESTS_DIR)
 
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FENIX) "$(MANIFESTS_DIR)/fenix.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FXIOS) "$(MANIFESTS_DIR)/ios.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_ANDROID) "$(MANIFESTS_DIR)/focus-android.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_IOS) "$(MANIFESTS_DIR)/focus-ios.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_MONITOR) "$(MANIFESTS_DIR)/monitor-web.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FENIX) "$(MANIFESTS_DIR)/fenix/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FXIOS) "$(MANIFESTS_DIR)/ios/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_ANDROID) "$(MANIFESTS_DIR)/focus-android/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_IOS) "$(MANIFESTS_DIR)/focus-ios/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel production $(FEATURE_MANIFEST_MONITOR) "$(MANIFESTS_DIR)/monitor-web/experimenter.yaml"
 
-	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
-	cat $(MANIFESTS_DIR)/firefox-desktop.yaml | grep path: | \
+	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
+	cat $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml | grep path: | \
 	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
 	while read -r url; do \
 		file=$$(echo $$url | sed 's|$(MOZILLA_CENTRAL_ROOT)/||'); \
-		file="experimenter/experimenter/features/manifests/schemas/$$file"; \
+		file="experimenter/experimenter/features/manifests/firefox-desktop/schemas/$$file"; \
 		mkdir -p $$(dirname $$file); \
 		curl $$url -o $$file; \
 	done
@@ -116,19 +117,19 @@ update_kinto:
 	docker pull mozilla/kinto-dist:latest
 
 compose_build:
-	$(COMPOSE)  build
+	$(COMPOSE) build
 
 build_dev: ssl
-	DOCKER_BUILDKIT=1 docker build --target dev -f experimenter/Dockerfile -t experimenter:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
 build_test: ssl
-	DOCKER_BUILDKIT=1 docker build --target test -f experimenter/Dockerfile -t experimenter:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
 build_ui: ssl
-	DOCKER_BUILDKIT=1 docker build --target ui -f experimenter/Dockerfile -t experimenter:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
 
-build_prod: build_ui ssl
-	DOCKER_BUILDKIT=1 docker build --target deploy -f experimenter/Dockerfile -t experimenter:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+build_prod: ssl
+	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
 	$(COMPOSE) kill || true
@@ -242,13 +243,7 @@ CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
 cirrus_build:
-	$(COMPOSE) build cirrus
-
-cirrus_build_test:
-	$(COMPOSE_TEST) build cirrus
-
-cirrus_build_prod:
-	DOCKER_BUILDKIT=1 docker build --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-arg BUILDKIT_INLINE_CACHE=1 cirrus/server/
+	$(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
 cirrus_up: cirrus_build
 	$(COMPOSE) up cirrus
@@ -256,10 +251,10 @@ cirrus_up: cirrus_build
 cirrus_down: cirrus_build
 	$(COMPOSE) down cirrus
 
-cirrus_test: cirrus_build_test
+cirrus_test: cirrus_build
 	$(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
 
-cirrus_check: cirrus_build_test
+cirrus_check: cirrus_build
 	$(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format: cirrus_build
@@ -292,7 +287,7 @@ schemas_test:
 	(cd schemas && poetry run pytest)
 
 schemas_check: schemas_install schemas_black schemas_ruff schemas_test
-	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output /tmp/test_index.d.ts --json2ts-cmd "yarn json2ts")
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output /tmp/test_index.d.ts --json2ts-cmd "yarn json2ts")
 	diff /tmp/test_index.d.ts schemas/index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1)
 	echo "Done. No problems found in schemas."
 
@@ -308,7 +303,7 @@ schemas_deploy_pypi: schemas_install schemas_build_pypi
 	cd schemas; poetry run twine upload --skip-existing dist/*;
 
 schemas_build_npm: schemas_install
-	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.jetstream --output ./index.d.ts --json2ts-cmd "yarn json2ts")
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output ./index.d.ts --json2ts-cmd "yarn json2ts")
 
 schemas_deploy_npm: schemas_build_npm
 	cd schemas; yarn publish --new-version ${SCHEMAS_VERSION} --access public;

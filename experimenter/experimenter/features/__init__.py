@@ -56,7 +56,9 @@ class Feature(BaseModel):
     def load_remote_jsonschema(self):
         if self.schema_paths:
             schema_path = os.path.join(
-                settings.FEATURE_SCHEMAS_PATH,
+                settings.FEATURE_MANIFESTS_PATH,
+                self.applicationSlug,
+                "schemas",
                 self.schema_paths.path,
             )
 
@@ -106,7 +108,7 @@ class Features:
 
         for application in NimbusConstants.APPLICATION_CONFIGS.values():
             application_yaml_path = os.path.join(
-                settings.FEATURE_MANIFESTS_PATH, f"{application.slug}.yaml"
+                settings.FEATURE_MANIFESTS_PATH, application.slug, "experimenter.yaml"
             )
 
             if os.path.exists(application_yaml_path):

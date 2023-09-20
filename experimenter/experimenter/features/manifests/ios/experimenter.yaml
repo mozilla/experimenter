@@ -1,12 +1,4 @@
 ---
-autopush-feature:
-  description: This property defines the autopush feature configuration
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    use-new-autopush-client:
-      type: boolean
-      description: "If true, the autopush client based on the Rust component will be used"
 contextual-hint-feature:
   description: This set holds all features pertaining to contextual hints.
   hasExposure: true
@@ -15,6 +7,14 @@ contextual-hint-feature:
     features-enabled:
       type: json
       description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+credential-autofill-coordinator-refactor:
+  description: "This feature manages the roll out of the credential autofill coordinator as part of the coordinator refactor.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 credit-card-autofill:
   description: This property defines the credit card autofill feature
   hasExposure: true
@@ -23,22 +23,11 @@ credit-card-autofill:
     credit-card-autofill-status:
       type: boolean
       description: "If true, we will allow user to use the credit autofill feature"
-etp-coordinator-refactor:
-  description: "This feature is for managing the roll out of the ETP coordinator code as part of the changes on the navigation in the app\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 general-app-features:
   description: The feature that contains feature flags for the entire application
   hasExposure: true
   exposureDescription: ""
   variables:
-    pull-to-refresh:
-      type: json
-      description: This property defines whether or not the feature is enabled
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
@@ -87,17 +76,6 @@ messaging:
     triggers:
       type: json
       description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
-onboarding-feature:
-  description: The feature that controls whether to show or not Upgrade onboarding
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    first-run-flow:
-      type: boolean
-      description: "If true, we show the new Onboarding screen when the user for v106 version.\n"
-    upgrade-flow:
-      type: boolean
-      description: "If true, we show the Upgrade onboarding screen when the user upgrades the version.\n"
 onboarding-framework-feature:
   description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
   hasExposure: true
@@ -112,6 +90,14 @@ onboarding-framework-feature:
     dismissable:
       type: boolean
       description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
+private-browsing:
+  description: Private Browsing Mode
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    felt-privacy-enabled:
+      type: boolean
+      description: "If true, enable felt privacy related UI"
 redux-integration-feature:
   description: "This feature is for managing the roll out of the Redux integration feature\n"
   hasExposure: true
@@ -136,14 +122,6 @@ search-term-groups-feature:
     grouping-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given grouping should be enabled.
-settings-coordinator-refactor:
-  description: "This feature is for managing the roll out of the settings coordinator code as part of the changes on the navigation in the app\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 share-extension-coordinator-refactor:
   description: "This feature is for managing the roll out of the share extension coordinator as part of the changes to the navigation in the app\n"
   hasExposure: true
@@ -191,18 +169,14 @@ spotlight-search:
     searchable-content:
       type: string
       description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
-start-at-home-feature:
-  description: The controls for Start at Home feature
+tab-tray-refactor-feature:
+  description: "This feature is for managing the roll out of the Tab Tray refactor feature\n"
   hasExposure: true
   exposureDescription: ""
   variables:
-    setting:
-      type: string
-      description: This property provides a default setting for the startAtHomeFeature
-      enum:
-        - after-four-hours
-        - always
-        - disabled
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 tabTrayFeature:
   description: The tab tray screen that the user goes to when they open the tab tray.
   hasExposure: true

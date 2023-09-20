@@ -60,6 +60,72 @@ export interface Outcome {
   metrics: string[];
   slug: string;
 }
+export interface NimbusExperiment {
+  schemaVersion: string;
+  slug: string;
+  id: string;
+  appName: string;
+  appId: string;
+  channel: string;
+  userFacingName: string;
+  userFacingDescription: string;
+  isEnrollmentPaused: boolean;
+  isRollout?: boolean;
+  bucketConfig: ExperimentBucketConfig;
+  outcomes?: ExperimentOutcome[];
+  featureIds: string[];
+  branches: (
+    | ExperimentSingleFeatureBranch
+    | ExperimentMultiFeatureDesktopBranch
+    | ExperimentMultiFeatureMobileBranch
+  )[];
+  targeting?: string;
+  startDate?: string;
+  enrollmentEndDate?: string;
+  endDate?: string;
+  proposedDuration?: number;
+  proposedEnrollment?: number;
+  referenceBranch?: string;
+  featureValidationOptOut?: boolean;
+  localizations?: {
+    [k: string]: unknown;
+  };
+  locales?: string[];
+}
+export interface ExperimentBucketConfig {
+  randomizationUnit: string;
+  namespace: string;
+  start: number;
+  count: number;
+  total: number;
+}
+export interface ExperimentOutcome {
+  slug: string;
+  priority: string;
+}
+export interface ExperimentSingleFeatureBranch {
+  slug: string;
+  ratio: number;
+  feature: ExperimentFeatureConfig;
+}
+export interface ExperimentFeatureConfig {
+  featureId: string;
+  enabled?: boolean;
+  value: {
+    [k: string]: unknown;
+  };
+}
+export interface ExperimentMultiFeatureDesktopBranch {
+  slug: string;
+  ratio: number;
+  feature: ExperimentFeatureConfig;
+  features: ExperimentFeatureConfig[];
+}
+export interface ExperimentMultiFeatureMobileBranch {
+  slug: string;
+  ratio: number;
+  features: ExperimentFeatureConfig[];
+}
 /**
  * `extra=Extra.allow` is needed for the pydantic2ts generation of
  * typescript definitions. Without this, models with only a custom
@@ -97,7 +163,8 @@ export interface SizingTarget {
 export interface SizingRecipe {
   app_id: string;
   channel: SizingReleaseChannel;
-  locale: string;
+  locale?: string;
+  language?: string;
   country: string;
   new_or_existing: SizingUserType;
 }
