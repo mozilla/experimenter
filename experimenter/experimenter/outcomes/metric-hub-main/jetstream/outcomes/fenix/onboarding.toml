@@ -1,0 +1,8 @@
+friendly_name = "Onboarding"
+description = "Metrics relevant to onboarding (default browser rate)"
+
+
+[metrics.turn_on_notifications_ctr_onboarding.statistics.binomial]
+[metrics.set_to_default_ctr_onboarding.statistics.binomial]
+[metrics.sign_in_ctr_onboarding.statistics.binomial]
+[metrics.at_least_1_cta_ctr_onboarding.statistics.binomial]

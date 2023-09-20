@@ -3,10 +3,10 @@ SHELL = /bin/bash
 WAIT_FOR_DB = /experimenter/bin/wait-for-it.sh -t 30 db:5432 &&
 WAIT_FOR_RUNSERVER = /experimenter/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
-COMPOSE = docker-compose -f docker-compose.yml
+COMPOSE = docker compose -f docker-compose.yml
 COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
-COMPOSE_TEST = docker-compose -f docker-compose-test.yml
-COMPOSE_PROD = docker-compose -f docker-compose-prod.yml
+COMPOSE_TEST = docker compose -f docker-compose-test.yml
+COMPOSE_PROD = docker compose -f docker-compose-prod.yml
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
 
 JOBS = 4
@@ -47,10 +47,22 @@ PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
 MOZILLA_CENTRAL_ROOT = https://hg.mozilla.org/mozilla-central/raw-file/tip
 FEATURE_MANIFEST_DESKTOP_URL = ${MOZILLA_CENTRAL_ROOT}/toolkit/components/nimbus/FeatureManifest.yaml
-FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/fenix/app/.experimenter.yaml
-FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
-FEATURE_MANIFEST_FOCUS_ANDROID = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/focus-android/app/.experimenter.yaml
-FEATURE_MANIFEST_FOCUS_IOS = https://raw.githubusercontent.com/mozilla-mobile/focus-ios/main/.experimenter.yaml
+
+FIREFOX_ANDROID_REPO = @mozilla-mobile/firefox-android
+FIREFOX_IOS_REPO     = @mozilla-mobile/firefox-ios
+FOCUS_IOS_REPO       = @mozilla-mobile/focus-ios
+MONITOR_REPO         = @mozilla/blurts-server
+
+FEATURE_MANIFEST_FENIX = $(FIREFOX_ANDROID_REPO)/fenix/app/nimbus.fml.yaml
+FEATURE_MANIFEST_FXIOS = $(FIREFOX_IOS_REPO)/nimbus.fml.yaml
+FEATURE_MANIFEST_FOCUS_ANDROID = $(FIREFOX_ANDROID_REPO)/focus-android/app/nimbus.fml.yaml
+FEATURE_MANIFEST_FOCUS_IOS = $(FOCUS_IOS_REPO)/nimbus.fml.yaml
+FEATURE_MANIFEST_MONITOR = $(MONITOR_REPO)/config/nimbus.yaml
+
+MANIFESTS_DIR = experimenter/experimenter/features/manifests
+CLI_DIR = experimenter/experimenter/features/manifests/application-services
+CLI_INSTALLER = $(CLI_DIR)/install-nimbus-cli.sh
+NIMBUS_CLI = $(CLI_DIR)/nimbus-cli
 
 ssl: nginx/key.pem nginx/cert.pem
 
@@ -74,41 +86,49 @@ jetstream_config:
 	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
 
 feature_manifests:
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/fenix.yaml $(FEATURE_MANIFEST_FENIX_URL)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
-	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
-	cat experimenter/experimenter/features/manifests/firefox-desktop.yaml | grep path: | \
+	mkdir -p $(MANIFESTS_DIR)
+
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FENIX) "$(MANIFESTS_DIR)/fenix/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FXIOS) "$(MANIFESTS_DIR)/ios/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_ANDROID) "$(MANIFESTS_DIR)/focus-android/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_IOS) "$(MANIFESTS_DIR)/focus-ios/experimenter.yaml"
+	$(NIMBUS_CLI) fml -- generate-experimenter --channel production $(FEATURE_MANIFEST_MONITOR) "$(MANIFESTS_DIR)/monitor-web/experimenter.yaml"
+
+	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
+	cat $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml | grep path: | \
 	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
 	while read -r url; do \
 		file=$$(echo $$url | sed 's|$(MOZILLA_CENTRAL_ROOT)/||'); \
-		file="experimenter/experimenter/features/manifests/schemas/$$file"; \
+		file="experimenter/experimenter/features/manifests/firefox-desktop/schemas/$$file"; \
 		mkdir -p $$(dirname $$file); \
 		curl $$url -o $$file; \
 	done
 
+install_nimbus_cli:
+	mkdir -p $(CLI_DIR)
+	curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh > "$(CLI_INSTALLER)"
+	$(SHELL) $(CLI_INSTALLER) --directory "$(CLI_DIR)"
 
-fetch_external_resources: jetstream_config feature_manifests
+fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests
 	echo "External Resources Fetched"
 
 update_kinto:
 	docker pull mozilla/kinto-dist:latest
 
 compose_build:
-	$(COMPOSE)  build
+	$(COMPOSE) build
 
 build_dev: ssl
-	DOCKER_BUILDKIT=1 docker build --target dev -f experimenter/Dockerfile -t experimenter:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	docker buildx build --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
 build_test: ssl
-	DOCKER_BUILDKIT=1 docker build --target test -f experimenter/Dockerfile -t experimenter:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	docker buildx build --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
 build_ui: ssl
-	DOCKER_BUILDKIT=1 docker build --target ui -f experimenter/Dockerfile -t experimenter:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	docker buildx build --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
 
 build_prod: build_ui ssl
-	DOCKER_BUILDKIT=1 docker build --target deploy -f experimenter/Dockerfile -t experimenter:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	docker buildx build --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
 	$(COMPOSE) kill || true
@@ -124,6 +144,7 @@ docker_prune:
 	docker container prune -f
 	docker image prune -f
 	docker volume prune -f
+	docker volume rm $$(docker volume ls -qf dangling=true) || true
 
 static_rm:
 	rm -Rf experimenter/node_modules
@@ -185,7 +206,8 @@ refresh: kill build_dev compose_build
 
 dependabot_approve:
 	echo "Install and configure the Github CLI https://github.com/cli/cli"
-	gh pr list --author experimenter/dependabot | awk '{print $$1}' | xargs -n1 gh pr review -a -b "@dependabot squash and merge"
+	gh pr list | grep "dependabot/" |  awk '{print $$1}' | xargs -n1 gh pr review -a -b "@dependabot squash and merge"
+	gh pr list | grep "dependabot/" |  awk '{print $$1}' | xargs -n1 gh pr merge
 
 # integration tests
 integration_shell:
@@ -225,6 +247,9 @@ cirrus_build:
 cirrus_build_test:
 	$(COMPOSE_TEST) build cirrus
 
+cirrus_build_prod:
+	docker buildx build --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
+
 cirrus_up: cirrus_build
 	$(COMPOSE) up cirrus
 
@@ -246,8 +271,16 @@ cirrus_typecheck_createstub: cirrus_build
 cirrus_generate_docs: cirrus_build
 	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
+build_demo_app:
+	$(COMPOSE_INTEGRATION) build demo-app-frontend demo-app-server
+
+
+# nimbus schemas package
+SCHEMAS_VERSION_FILE := schemas/VERSION
+SCHEMAS_VERSION := $(shell cat ${SCHEMAS_VERSION_FILE})
+
 schemas_install:
-	(cd schemas && poetry install)
+	(cd schemas && poetry install && yarn install)
 
 schemas_black:
 	(cd schemas && poetry run black --check --diff .)
@@ -259,12 +292,27 @@ schemas_test:
 	(cd schemas && poetry run pytest)
 
 schemas_check: schemas_install schemas_black schemas_ruff schemas_test
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output /tmp/test_index.d.ts --json2ts-cmd "yarn json2ts")
+	diff /tmp/test_index.d.ts schemas/index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1)
+	echo "Done. No problems found in schemas."
 
 schemas_code_format:
 	(cd schemas && poetry run black . && poetry run ruff --fix .)
 
-schemas_build:
+schemas_build: schemas_install schemas_build_pypi schemas_build_npm
+
+schemas_build_pypi:
 	(cd schemas && poetry build)
 
-schemas_deploy_pypi: schemas_install schemas_build
+schemas_deploy_pypi: schemas_install schemas_build_pypi
 	cd schemas; poetry run twine upload --skip-existing dist/*;
+
+schemas_build_npm: schemas_install
+	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output ./index.d.ts --json2ts-cmd "yarn json2ts")
+
+schemas_deploy_npm: schemas_build_npm
+	cd schemas; yarn publish --new-version ${SCHEMAS_VERSION} --access public;
+
+schemas_version:
+	npm --prefix schemas version --allow-same-version ${SCHEMAS_VERSION};
+	poetry --directory=schemas version ${SCHEMAS_VERSION};

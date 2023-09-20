@@ -11,6 +11,7 @@ import {
   within,
 } from "@testing-library/react";
 import React from "react";
+import selectEvent from "react-select-event";
 import { filterAndSortTargetingConfigs } from "src/components/PageEditAudience/FormAudience";
 import {
   MOCK_EXPERIMENT,
@@ -23,7 +24,7 @@ import {
   FIELD_MESSAGES,
   TOOLTIP_DURATION,
 } from "src/lib/constants";
-import { MOCK_CONFIG } from "src/lib/mocks";
+import { MOCK_CONFIG, MOCK_EXPERIMENTS_BY_APPLICATION } from "src/lib/mocks";
 import { assertSerializerMessages } from "src/lib/test-utils";
 import {
   NimbusExperimentApplicationEnum,
@@ -909,8 +910,15 @@ describe("FormAudience", () => {
       languages: MOCK_EXPERIMENT.languages.map((v) => "" + v.id),
       isSticky: MOCK_EXPERIMENT.isSticky,
       isFirstRun: MOCK_EXPERIMENT.isFirstRun,
+      excludedExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[0].id],
+      requiredExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1].id],
     };
-    render(<Subject {...{ onSubmit }} />);
+    const experiment = {
+      ...MOCK_EXPERIMENT,
+      excludedExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[0]],
+      requiredExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1]],
+    };
+    render(<Subject {...{ experiment, onSubmit }} />);
     await screen.findByTestId("FormAudience");
     const submitButton = screen.getByTestId("submit-button");
     const nextButton = screen.getByTestId("next-button");
@@ -1516,6 +1524,104 @@ describe("FormAudience", () => {
       channel: ["Underneath the electric stars."],
       countries: ["Just come with me"],
       locales: ["We can shake it loose right away"],
+    });
+  });
+
+  describe("excluded and required experiments fields", () => {
+    const query = (field: string) =>
+      `#react-select-${field}-listbox .react-select__option`;
+
+    it("fields renders options", async () => {
+      const experiment = {
+        ...MOCK_EXPERIMENT,
+        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
+        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
+        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+      };
+
+      const { container } = render(<Subject experiment={experiment} />);
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+
+      let options = container.querySelectorAll(query("excludedExperiments"));
+      expect(options.length).toEqual(0);
+      await selectEvent.openMenu(excluded);
+      options = container.querySelectorAll(query("excludedExperiments"));
+      expect(options.length).toEqual(
+        MOCK_EXPERIMENTS_BY_APPLICATION.length - 1,
+      );
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${experiment.slug})`),
+        ),
+      ).toBeUndefined();
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      options = container.querySelectorAll(query("requiredExperiments"));
+      expect(options.length).toEqual(0);
+      await selectEvent.openMenu(required);
+      options = container.querySelectorAll(query("requiredExperiments"));
+      expect(options.length).toEqual(
+        MOCK_EXPERIMENTS_BY_APPLICATION.length - 1,
+      );
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${experiment.slug})`),
+        ),
+      ).toBeUndefined();
+    });
+
+    it("excludes selected required experiments from the exclude field options", async () => {
+      const experiment = {
+        ...MOCK_EXPERIMENT,
+        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
+        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
+        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+        excludedExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1]],
+      };
+
+      const { container } = render(<Subject experiment={experiment} />);
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+
+      await selectEvent.openMenu(required);
+
+      const options = container.querySelectorAll(query("requiredExperiments"));
+      expect(options.length).toEqual(
+        MOCK_EXPERIMENTS_BY_APPLICATION.length - 2,
+      );
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${MOCK_EXPERIMENTS_BY_APPLICATION[1].slug})`),
+        ),
+      ).toBeUndefined();
+    });
+
+    it("excludes selected excluded experiment from the required field options", async () => {
+      const experiment = {
+        ...MOCK_EXPERIMENT,
+        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
+        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
+        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+        requiredExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1]],
+      };
+
+      const { container } = render(<Subject experiment={experiment} />);
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+
+      await selectEvent.openMenu(excluded);
+
+      const options = container.querySelectorAll(query("excludedExperiments"));
+      expect(options.length).toEqual(
+        MOCK_EXPERIMENTS_BY_APPLICATION.length - 2,
+      );
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${MOCK_EXPERIMENTS_BY_APPLICATION[1].slug})`),
+        ),
+      ).toBeUndefined();
     });
   });
 });

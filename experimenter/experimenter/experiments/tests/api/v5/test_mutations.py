@@ -1,7 +1,7 @@
 import datetime
 import json
+from unittest import mock
 
-import mock
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
@@ -20,6 +20,7 @@ from experimenter.experiments.tests.factories import (
     TINY_PNG,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
@@ -319,7 +320,8 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_update_mobile_experiment_branches_with_feature_config(self):
         user_email = "user@example.com"
         feature = NimbusFeatureConfigFactory(
-            schema="{}", application=NimbusExperiment.Application.FENIX
+            application=NimbusExperiment.Application.FENIX,
+            schemas=[NimbusVersionedSchemaFactory.build(schema="{}", version=None)],
         )
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
@@ -622,7 +624,8 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_update_experiment_branches_with_screenshots(self):
         user_email = "user@example.com"
         feature = NimbusFeatureConfigFactory(
-            schema="{}", application=NimbusExperiment.Application.FENIX
+            application=NimbusExperiment.Application.FENIX,
+            schemas=[NimbusVersionedSchemaFactory.build(schema="{}", version=None)],
         )
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
@@ -1135,7 +1138,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(result["message"], "success")
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEquals(experiment.proposed_release_date, datetime.date(2023, 12, 12))
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 12, 12))
 
     def test_update_conclusion_recommendation_null(self):
         user_email = "user@example.com"
@@ -1168,7 +1171,12 @@ class TestUpdateExperimentMutationSingleFeature(
         user_email = "user@example.com"
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
-            sets_prefs=["foo.bar.baz"],
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    sets_prefs=["foo.bar.baz"],
+                ),
+            ],
         )
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
@@ -1202,11 +1210,13 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
 
     def test_update_experiment_branches_with_feature_configs(self):
         user_email = "user@example.com"
-        feature1 = NimbusFeatureConfigFactory(
-            schema="{}", application=NimbusExperiment.Application.FENIX
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.FENIX,
+            schemas=[NimbusVersionedSchemaFactory.build(schema="{}", version=None)],
         )
-        feature2 = NimbusFeatureConfigFactory(
-            schema="{}", application=NimbusExperiment.Application.FENIX
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.FENIX,
+            schemas=[NimbusVersionedSchemaFactory.build(schema="{}", version=None)],
         )
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,

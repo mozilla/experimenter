@@ -9,20 +9,35 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 
 
-class TestNimbusConfigurationSerializer(TestCase):
+class TestNimbusConfigurationSerializer(MockSizingDataMixin, TestCase):
     def test_expected_output(self):
+        self.setup_cached_sizing_data()
         feature_configs = NimbusFeatureConfigFactory.create_batch(8)
         feature_configs.append(
-            NimbusFeatureConfigFactory.create(sets_prefs=["foo.bar.baz"])
+            NimbusFeatureConfigFactory.create(
+                schemas=[
+                    NimbusVersionedSchemaFactory.build(
+                        version=None,
+                        sets_prefs=["foo.bar.baz"],
+                    )
+                ],
+            ),
         )
         feature_configs.append(
             NimbusFeatureConfigFactory.create(
-                sets_prefs=["qux.quux.corge", "grault.garply.waldo"]
+                schemas=[
+                    NimbusVersionedSchemaFactory.build(
+                        version=None,
+                        sets_prefs=["qux.quux.corge", "grault.garply.waldo"],
+                    )
+                ]
             )
         )
         experiment = NimbusExperimentFactory.create()
@@ -37,9 +52,11 @@ class TestNimbusConfigurationSerializer(TestCase):
 
         assertChoices(config["applications"], NimbusExperiment.Application)
         assertChoices(config["channels"], NimbusExperiment.Channel)
+        assertChoices(config["takeaways"], NimbusExperiment.Takeaways)
         assertChoices(config["types"], NimbusExperiment.Type)
         assertChoices(
-            config["conclusionRecommendations"], NimbusExperiment.ConclusionRecommendation
+            config["conclusionRecommendations"],
+            NimbusExperiment.ConclusionRecommendation,
         )
         assertChoices(config["firefoxVersions"], NimbusExperiment.Version)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
@@ -58,6 +75,9 @@ class TestNimbusConfigurationSerializer(TestCase):
             )
 
         self.assertEqual(config["owners"], [{"username": experiment.owner.username}])
+
+        pop_sizing_data = self.get_cached_sizing_data()
+        self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
 
         for outcome in Outcomes.all():
             self.assertIn(
@@ -90,8 +110,10 @@ class TestNimbusConfigurationSerializer(TestCase):
                         feature_config.application
                     ).name,
                     "ownerEmail": feature_config.owner_email,
-                    "schema": feature_config.schema,
-                    "setsPrefs": bool(feature_config.sets_prefs),
+                    "schema": feature_config.schemas.get(version=None).schema,
+                    "setsPrefs": bool(
+                        feature_config.schemas.get(version=None).sets_prefs
+                    ),
                     "enabled": bool(feature_config.enabled),
                 },
                 config["allFeatureConfigs"],

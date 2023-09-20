@@ -19,103 +19,7 @@ from experimenter.experiments.tests.factories import (
 class TestNimbusExperimentSerializer(TestCase):
     maxDiff = None
 
-    def test_expected_schema_with_desktop_single_feature(self):
-        locale_en_us = LocaleFactory.create(code="en-US")
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            channel=NimbusExperiment.Channel.NIGHTLY,
-            primary_outcomes=["foo", "bar", "baz"],
-            secondary_outcomes=["quux", "xyzzy"],
-            locales=[locale_en_us],
-        )
-
-        serializer = NimbusExperimentSerializer(experiment)
-        experiment_data = serializer.data.copy()
-        bucket_data = dict(experiment_data.pop("bucketConfig"))
-        branches_data = [dict(b) for b in experiment_data.pop("branches")]
-
-        assert experiment.start_date
-        assert experiment.computed_enrollment_end_date
-        assert experiment.end_date
-
-        self.assertDictEqual(
-            experiment_data,
-            {
-                "arguments": {},
-                "application": "firefox-desktop",
-                "appName": "firefox_desktop",
-                "appId": "firefox-desktop",
-                "channel": "nightly",
-                # DRF manually replaces the isoformat suffix so we have to do the same
-                "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
-                "enrollmentEndDate": (
-                    experiment.computed_enrollment_end_date.isoformat().replace(
-                        "+00:00", "Z"
-                    )
-                ),
-                "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
-                "id": experiment.slug,
-                "isEnrollmentPaused": True,
-                "isRollout": False,
-                "proposedDuration": experiment.proposed_duration,
-                "proposedEnrollment": experiment.proposed_enrollment,
-                "referenceBranch": experiment.reference_branch.slug,
-                "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
-                "slug": experiment.slug,
-                "targeting": (
-                    '(browserSettings.update.channel == "nightly") '
-                    "&& (version|versionCompare('94.!') >= 0) "
-                    "&& (locale in ['en-US'])"
-                ),
-                "userFacingDescription": experiment.public_description,
-                "userFacingName": experiment.name,
-                "probeSets": [],
-                "outcomes": [
-                    {"priority": "primary", "slug": "foo"},
-                    {"priority": "primary", "slug": "bar"},
-                    {"priority": "primary", "slug": "baz"},
-                    {"priority": "secondary", "slug": "quux"},
-                    {"priority": "secondary", "slug": "xyzzy"},
-                ],
-                "featureIds": [experiment.feature_configs.get().slug],
-                "featureValidationOptOut": experiment.is_client_schema_disabled,
-                "localizations": None,
-                "locales": ["en-US"],
-            },
-        )
-        self.assertEqual(
-            bucket_data,
-            {
-                "randomizationUnit": (
-                    experiment.bucket_range.isolation_group.randomization_unit
-                ),
-                "namespace": experiment.bucket_range.isolation_group.namespace,
-                "start": experiment.bucket_range.start,
-                "count": experiment.bucket_range.count,
-                "total": experiment.bucket_range.isolation_group.total,
-            },
-        )
-        self.assertEqual(len(branches_data), 2)
-        for branch in experiment.branches.all():
-            self.assertIn(
-                {
-                    "slug": branch.slug,
-                    "ratio": branch.ratio,
-                    "feature": {
-                        "featureId": experiment.feature_configs.get().slug,
-                        "enabled": True,
-                        "value": json.loads(branch.feature_values.get().value),
-                    },
-                },
-                branches_data,
-            )
-
-        check_schema("experiments/NimbusExperiment", serializer.data)
-
-    def test_expected_schema_with_desktop_multifeature(self):
+    def test_expected_schema_with_desktop(self):
         locale_en_us = LocaleFactory.create(code="en-US")
         application = NimbusExperiment.Application.DESKTOP
         feature1 = NimbusFeatureConfigFactory.create(application=application)
@@ -123,7 +27,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=application,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
@@ -141,6 +45,8 @@ class TestNimbusExperimentSerializer(TestCase):
         assert experiment.computed_enrollment_end_date
         assert experiment.end_date
 
+        min_required_version = NimbusExperiment.MIN_REQUIRED_VERSION
+
         self.assertDictEqual(
             experiment_data,
             {
@@ -166,9 +72,9 @@ class TestNimbusExperimentSerializer(TestCase):
                 "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
                 "slug": experiment.slug,
                 "targeting": (
-                    '(browserSettings.update.channel == "nightly") '
-                    "&& (version|versionCompare('95.!') >= 0) "
-                    "&& (locale in ['en-US'])"
+                    f'(browserSettings.update.channel == "nightly") '
+                    f"&& (version|versionCompare('{min_required_version}') >= 0) "
+                    f"&& (locale in ['en-US'])"
                 ),
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
@@ -232,13 +138,11 @@ class TestNimbusExperimentSerializer(TestCase):
         single_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
             feature_configs=[feature1],
         )
         multi_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
             feature_configs=[feature1, feature2],
         )
 
@@ -248,7 +152,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn(
             "feature", experiments_data[single_feature_experiment.slug]["branches"][0]
         )
-        self.assertNotIn(
+        self.assertIn(
             "features", experiments_data[single_feature_experiment.slug]["branches"][0]
         )
         self.assertIn(
@@ -263,7 +167,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=application,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
         )
         experiment.delete_branches()
         experiment.reference_branch = NimbusBranchFactory(
@@ -271,7 +174,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         experiment.save()
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(serializer.data["branches"][0]["feature"]["value"], {})
+        self.assertEqual(serializer.data["branches"][0]["features"], [])
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializers_with_empty_feature_value(self):
@@ -280,7 +183,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=application,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
             feature_configs=[feature_config],
         )
         experiment.delete_branches()
@@ -292,25 +194,13 @@ class TestNimbusExperimentSerializer(TestCase):
             branch=experiment.reference_branch, feature_config=feature_config, value=""
         )
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(serializer.data["branches"][0]["feature"]["value"], {})
+        self.assertEqual(serializer.data["branches"][0]["features"][0]["value"], {})
         check_schema("experiments/NimbusExperiment", serializer.data)
 
-    def test_serializer_with_branches_no_feature_94(self):
+    def test_serializer_with_branches_no_feature(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
-            feature_configs=[],
-        )
-        experiment.save()
-        serializer = NimbusExperimentSerializer(experiment)
-        self.assertIsNone(serializer.data["branches"][0]["feature"]["featureId"])
-
-    def test_serializer_with_branches_no_feature_95(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
             feature_configs=[],
         )
         experiment.save()
@@ -325,13 +215,12 @@ class TestNimbusExperimentSerializer(TestCase):
             [{"featureId": "", "enabled": True, "value": {}}],
         )
 
-    def test_serializer_with_branch_invalid_single_feature_value(self):
+    def test_serializer_with_branch_invalid_feature_value(self):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
             feature_configs=[feature_config],
         )
         feature_value = experiment.reference_branch.feature_values.get()
@@ -339,25 +228,8 @@ class TestNimbusExperimentSerializer(TestCase):
         feature_value.save()
         serializer = NimbusExperimentSerializer(experiment)
         branch_slug = serializer.data["referenceBranch"]
-        branch = [x for x in serializer.data["branches"] if x["slug"] == branch_slug][0]
-        self.assertEqual(branch["feature"]["value"], {})
-
-    def test_serializer_with_branch_invalid_multi_feature_value(self):
-        application = NimbusExperiment.Application.DESKTOP
-        feature_config = NimbusFeatureConfigFactory.create(application=application)
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
-            application=application,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
-            feature_configs=[feature_config],
-        )
-        feature_value = experiment.reference_branch.feature_values.get()
-        feature_value.value = "this is not json"
-        feature_value.save()
-        serializer = NimbusExperimentSerializer(experiment)
-        branch_slug = serializer.data["referenceBranch"]
-        branch = [x for x in serializer.data["branches"] if x["slug"] == branch_slug][0]
-        self.assertEqual(branch["feature"]["value"], {})
+        branch = next(x for x in serializer.data["branches"] if x["slug"] == branch_slug)
+        self.assertEqual(branch["features"][0]["value"], {})
 
     @parameterized.expand(
         [
@@ -377,7 +249,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=application,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
             channel=channel,
         )
 
@@ -395,7 +266,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
             targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
@@ -423,7 +293,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
@@ -436,9 +305,7 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
 
         self.assertIn("localizations", serializer.data)
-        self.assertEquals(
-            serializer.data["localizations"], json.loads(TEST_LOCALIZATIONS)
-        )
+        self.assertEqual(serializer.data["localizations"], json.loads(TEST_LOCALIZATIONS))
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_multiple_locales(self):

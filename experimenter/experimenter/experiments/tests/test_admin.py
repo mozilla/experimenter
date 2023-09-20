@@ -1,46 +1,31 @@
 from decimal import Decimal
+from unittest import mock
 
-import mock
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from import_export import fields
-from parameterized import parameterized
 
 from experimenter.experiments.admin import (
     DecimalWidget,
     NimbusBranchForeignKeyWidget,
     NimbusExperimentAdminForm,
     NimbusExperimentResource,
-    NimbusFeatureConfigAdmin,
 )
 from experimenter.experiments.changelog_utils import NimbusBranchChangeLogSerializer
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusChangeLog,
     NimbusExperiment,
-    NimbusFeatureConfig,
 )
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusChangeLogFactory,
     NimbusExperimentFactory,
-    NimbusFeatureConfigFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.settings import DEV_USER_EMAIL
-
-
-class TestNimbusFeatureConfigAdmin(TestCase):
-    @parameterized.expand(((True,), (False,)))
-    def test_read_only_permission_for_object(self, read_only):
-        feature_config = NimbusFeatureConfigFactory.create(read_only=read_only)
-        feature_config_admin = NimbusFeatureConfigAdmin(NimbusFeatureConfig, None)
-        self.assertEqual(
-            feature_config_admin.has_change_permission(None, feature_config),
-            not read_only,
-        )
 
 
 class TestNimbusExperimentAdminForm(TestCase):

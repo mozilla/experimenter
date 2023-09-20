@@ -1,17 +1,42 @@
-{% extends "experimenter_base.html" %}
+{% extends "layout/with_sidebar.html" %}
 
 {% block title %}
   History
 {% endblock %}
 
-{% block content %}
-    <h1>Changes Overview</h1>
-    <p>Experiment Slug: {{ experiment.slug }}</p>
-    {% for changelog in experiment.get_changelogs %}
-    <div>
-        <h2>{{ changelog.changed_on }}</h2>
-        <p><i class="fa-regular fa-pen-to-square"></i> : {{ changelog.message }}</p>  
-        <p><i class="fa-regular fa-user"></i> : {{ changelog.changed_by }}</p>
+
+{% block sidebar %}
+  {% include "common/experiment_details_sidebar.html" with experiment=experiment %}
+{% endblock %}
+
+{% block main_content %}
+  <div class="p-5 sm:p-8 space-y-4">
+    <div class="mb-6 space-y-1">
+      <h1 class="text-2xl sm:text-3xl text-gray-800 font-medium">Changes Overview</h1>
+      <p class="text-sm sm:text-base text-gray-500">{{ experiment.slug }}</p>
     </div>
-  {% endfor %}
+    <div class="flex justify-center max-w-screen-2xl w-full h-full  flex-col items-center px-2 sm:px-4">
+      <ol class="border-l-2 border-gray-800 w-full">
+        {% for changelog in experiment.get_changelogs_by_date  %}
+          <li class="mb-8">
+            <div class="flex-start flex items-center">
+              <div class="-ml-[16px] -mt-2 mr-3 flex  items-center justify-center rounded-full p-2 floating bg-white">
+                <i class="fa-regular  fa-calendar  text-azure"></i>
+              </div>
+              <h4 class="-mt-2 text-lg sm:text-xl font-semibold text-gray-600">{{ changelog.date }}</h4>
+            </div>
+            <div class="mt-2 space-y-3 p-2 ml-6 bg-slate-50 rounded-md">
+              {% for change in changelog.changes %}
+                {% if change.event == "DETAILED" %}
+                  {% include "components/change_card.html" with change=change isDetailed=True  %}
+                {% else %}
+                  {% include "components/change_card.html" with change=change isDetailed=False  %}
+                {% endif %}
+              {% endfor %}
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
 {% endblock %}

@@ -47,6 +47,9 @@ export const GET_EXPERIMENT_QUERY = gql`
       publicDescription
 
       conclusionRecommendation
+      takeawaysGainAmount
+      takeawaysMetricGain
+      takeawaysQbrLearning
       takeawaysSummary
 
       owner {
@@ -128,6 +131,16 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
       isSticky
       isFirstRun
+      excludedExperiments {
+        id
+        slug
+        name
+      }
+      requiredExperiments {
+        id
+        slug
+        name
+      }
       jexlTargetingExpression
 
       populationPercent
@@ -271,6 +284,21 @@ export const GET_EXPERIMENTS_QUERY = gql`
         name
       }
       hypothesis
+      takeawaysMetricGain
+      takeawaysQbrLearning
+    }
+  }
+`;
+
+export const GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY = gql`
+  query getAllExperimentsByApplication(
+    $application: NimbusExperimentApplicationEnum!
+  ) {
+    experimentsByApplication(application: $application) {
+      id
+      name
+      slug
+      publicDescription
     }
   }
 `;

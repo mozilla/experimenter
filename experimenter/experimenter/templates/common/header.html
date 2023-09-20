@@ -1,0 +1,18 @@
+{% load static %}
+
+<header class="w-full z-20 bg-white sticky top-0 left-0 px-8 py-2 flex justify-center items-center shadow-md shadow-blue-300">
+    <div class="max-w-screen-2xl w-full flex justify-between items-center space-x-4">
+        <div class=" flex justify-start items-center space-x-4">
+            <img class="w-12" src="{% static 'assets/logo.svg' %}" />
+            <h1 class="text-2xl hidden sm:block text-spaceCadet">Nimbus Experiments</h1>
+        </div>
+        <div class="md:flex text-spaceCadet justify-start space-x-6 items-center hidden">
+            <a href="https://experimenter.info/" target="_blank" rel="noreferrer">Docs</a>
+            <a href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&issuetype=10097" target="_blank" rel="noreferrer">Feedback</a>
+            <a href="https://mozilla.slack.com/?redir=%2Farchives%2FCF94YGE03" target="_blank" rel="noreferrer">Help</a> 
+        </div>
+        <div  x-on:click="toggle()" class="rounded-md md:hidden p-2 border-gray-200" >
+            <i  x-show="!open"  class="fa-solid fa-bars text-spaceCadet"></i>
+        </div>
+    </div>
+</header>

@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import classNames from "classnames";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
+import Row from "react-bootstrap/Row";
 import { FormProvider } from "react-hook-form";
 import Select, {
   components as SelectComponents,
@@ -49,7 +50,6 @@ type FormBranchesProps = {
     next: boolean,
   ) => void;
 };
-
 export const FormBranches = ({
   isLoading,
   experiment,
@@ -205,9 +205,6 @@ export const FormBranches = ({
     setIsSelectValid(newValue.length > 0);
     setSelectDirty(true);
 
-    // Limit to a single value until multi-feature support has been QA'd.
-    newValue = newValue.length > 0 ? [newValue[newValue.length - 1]] : newValue;
-
     return handleFeatureConfigsChange(
       newValue.map((value) => parseInt(value.value, 10)),
     );
@@ -310,6 +307,11 @@ export const FormBranches = ({
     [experimentFeatureConfigIds, featureConfigOptions],
   );
 
+  const optionDisabled = useCallback(
+    () => selectedFeatureConfigOptions.length >= 20,
+    [selectedFeatureConfigOptions.length],
+  );
+
   const selectIsWarning = !!(
     fieldMessages.feature_configs ??
     fieldWarnings.feature_configs ??
@@ -337,29 +339,36 @@ export const FormBranches = ({
         ))}
 
         <Form.Group>
-          <Select<FeatureConfigOption, true>
-            isMulti
-            placeholder="Features..."
-            options={featureConfigOptions}
-            onChange={onFeatureConfigsChanged}
-            value={selectedFeatureConfigOptions}
-            aria-label="Features"
-            instanceId="feature-configs"
-            classNames={{
-              control: () => classNames({ "is-valid": selectValid }),
-              container: () => classNames({ "is-warning": selectIsWarning }),
-            }}
-            classNamePrefix="react-select"
-            getOptionLabel={(option: FeatureConfigOption) =>
-              option.description
-                ? `${option.name} - ${option.description}`
-                : option.name
-            }
-            components={{
-              MultiValueLabel: FeatureConfigSelectLabel,
-              Option: FeatureConfigSelectOption,
-            }}
-          />
+          <Row className={selectIsWarning ? "is-warning" : ""}>
+            <Col>
+              <Select<FeatureConfigOption, true>
+                isMulti
+                placeholder="Features..."
+                options={featureConfigOptions}
+                onChange={onFeatureConfigsChanged}
+                value={selectedFeatureConfigOptions}
+                aria-label="Features"
+                instanceId="feature-configs"
+                classNames={{
+                  control: () => classNames({ "is-valid": selectValid }),
+                }}
+                classNamePrefix="react-select"
+                getOptionLabel={(option: FeatureConfigOption) =>
+                  option.description
+                    ? `${option.name} - ${option.description}`
+                    : option.name
+                }
+                isOptionDisabled={optionDisabled}
+                components={{
+                  MultiValueLabel: FeatureConfigSelectLabel,
+                  Option: FeatureConfigSelectOption,
+                }}
+              />
+            </Col>
+            <Col sm={1} className="align-self-center text-center text-nowrap">
+              {selectedFeatureConfigOptions.length} / 20
+            </Col>
+          </Row>
           {fieldMessages.feature_configs?.length && (
             // @ts-ignore This component doesn't technically support type="warning", but
             // all it's doing is using the string in a class, so we can safely override.

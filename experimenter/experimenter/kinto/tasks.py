@@ -35,6 +35,7 @@ def nimbus_check_kinto_push_queue():
     for collection in (
         settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
         settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+        settings.KINTO_COLLECTION_NIMBUS_WEB,
     ):
         nimbus_check_kinto_push_queue_by_collection.delay(collection)
 
@@ -388,8 +389,6 @@ def nimbus_synchronize_preview_experiments_in_kinto():
 
         for experiment in should_unpublish_experiments:
             kinto_client.delete_record(experiment.slug)
-            experiment.published_dto = None
-            experiment.save()
             logger.info(f"{experiment.slug} is being removed from preview")
 
         metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.completed")

@@ -45,7 +45,7 @@ export interface getAllExperiments_experiments {
   isRollout: boolean | null;
   name: string;
   owner: getAllExperiments_experiments_owner;
-  featureConfigs: (getAllExperiments_experiments_featureConfigs | null)[] | null;
+  featureConfigs: getAllExperiments_experiments_featureConfigs[] | null;
   targetingConfig: (getAllExperiments_experiments_targetingConfig | null)[] | null;
   slug: string;
   application: NimbusExperimentApplicationEnum | null;
@@ -72,6 +72,8 @@ export interface getAllExperiments_experiments {
   populationPercent: string | null;
   projects: (getAllExperiments_experiments_projects | null)[] | null;
   hypothesis: string | null;
+  takeawaysMetricGain: boolean;
+  takeawaysQbrLearning: boolean;
 }
 
 export interface getAllExperiments {

@@ -29,7 +29,7 @@ def test_create_sdk_with_error():
     with patch.object(sys, "exit") as mock_exit, patch("cirrus.main.SDK") as mock_sdk:
         mock_sdk.side_effect = NimbusError("Error occurred during SDK creation")
 
-        sdk = create_sdk()
+        sdk = create_sdk([])
 
         mock_exit.assert_called_once_with(1)  # Assert that sys.exit(1) was called
         assert sdk is None
@@ -87,9 +87,16 @@ def test_get_features_with_required_field(client):
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
                 {
+                    "type": "missing",
                     "loc": ["body", "client_id"],
-                    "msg": "field required",
-                    "type": "value_error.missing",
+                    "msg": "Field required",
+                    "input": {
+                        "context": {
+                            "key1": "value1",
+                            "key2": {"key2.1": "value2", "key2.2": "value3"},
+                        }
+                    },
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
                 }
             ],
         ),
@@ -103,9 +110,11 @@ def test_get_features_with_required_field(client):
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
                 {
+                    "type": "missing",
                     "loc": ["body", "context"],
-                    "msg": "field required",
-                    "type": "value_error.missing",
+                    "msg": "Field required",
+                    "input": {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
                 }
             ],
         ),
@@ -114,14 +123,18 @@ def test_get_features_with_required_field(client):
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
                 {
+                    "type": "missing",
                     "loc": ["body", "client_id"],
-                    "msg": "field required",
-                    "type": "value_error.missing",
+                    "msg": "Field required",
+                    "input": {},
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
                 },
                 {
+                    "type": "missing",
                     "loc": ["body", "context"],
-                    "msg": "field required",
-                    "type": "value_error.missing",
+                    "msg": "Field required",
+                    "input": {},
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
                 },
             ],
         ),

@@ -5,6 +5,7 @@ from mozilla_nimbus_schemas.jetstream import (
     AnalysisBasis,
     AnalysisError,
     AnalysisErrors,
+    AnalysisErrorsFactory,
 )
 
 """
@@ -73,6 +74,7 @@ def test_parse_analysis_errors():
                 "message": "experiment-test-slug -> Experiment has not finished.",
                 "metric": null,
                 "segment": null,
+                "source": "jetstream",
                 "statistic": null,
                 "timestamp": "2023-05-17T06:42:31+00:00"
             },
@@ -86,6 +88,7 @@ def test_parse_analysis_errors():
                 "message": "experiment-test-slug -> Experiment has not finished.",
                 "metric": null,
                 "segment": null,
+                "source": "jetstream",
                 "statistic": null,
                 "timestamp": "2023-05-17T06:42:31+00:00"
             },
@@ -99,6 +102,7 @@ def test_parse_analysis_errors():
                 "message": "experiment-test-slug -> Experiment has not finished.",
                 "metric": null,
                 "segment": null,
+                "source": "jetstream",
                 "statistic": null,
                 "timestamp": "2023-05-17T06:42:31+00:00"
             }
@@ -122,9 +126,23 @@ def test_parse_analysis_errors_fails():
             "message": "experiment-test-slug -> Experiment has not finished.",
             "metric": null,
             "segment": null,
+            "source": "jetstream",
             "statistic": null,
             "timestamp": "2023-05-17T06:42:31+00:00"
         }
     """
     with pytest.raises(ValidationError):
         AnalysisErrors.parse_raw(error_json)
+
+
+def test_analysis_errors_factory():
+    analysis_errors = AnalysisErrorsFactory.build()
+    AnalysisErrors.validate(analysis_errors)
+
+
+def test_analysis_errors_invalid():
+    analysis_errors_dict = AnalysisErrorsFactory.build().dict()
+    print(analysis_errors_dict)
+    analysis_errors_dict["__root__"][0]["timestamp"] = "not a date!"
+    with pytest.raises(ValidationError):
+        AnalysisErrors.parse_obj(analysis_errors_dict)

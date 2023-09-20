@@ -3,6 +3,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
+from cirrus.experiment_recipes import RecipeType
+
 
 def test_get_recipes_is_empty(remote_settings):
     assert remote_settings.get_recipes() == {"data": []}
@@ -71,4 +73,31 @@ def test_empty_data_key_with_non_empty_recipes(mock_get, remote_settings):
 
     remote_settings.update_recipes({"data": [{"experiment1": True}]})
     remote_settings.fetch_recipes()
-    assert remote_settings.get_recipes() == {"data": [{"experiment1": True}]}
+    assert remote_settings.get_recipes() == {"data": []}
+
+
+@patch("cirrus.experiment_recipes.requests.get")
+def test_non_data_key_recipes(mock_get, remote_settings):
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {}
+    mock_get.return_value = mock_response
+    remote_settings.fetch_recipes()
+    assert remote_settings.get_recipes() == {"data": []}
+
+
+@pytest.mark.parametrize(
+    "slug, expected_type",
+    [
+        ("cirrus-test-1", RecipeType.ROLLOUT.value),
+        ("cirrus-test-2", RecipeType.EXPERIMENT.value),
+        ("non-existent-slug", RecipeType.EMPTY.value),
+    ],
+)
+def test_get_recipe_type_with_actual_recipes(
+    remote_settings, recipes, slug, expected_type
+):
+    remote_settings.update_recipes(recipes)
+
+    experiment_type = remote_settings.get_recipe_type(slug)
+    assert experiment_type == expected_type

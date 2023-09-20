@@ -1,0 +1,23 @@
+{% extends "experimenter_base.html" %}
+{% load static %}
+
+{% block content %}
+ <!-- Styling of some of the components here updates based on the 'open' alpine state 
+      which is responsible for the visibility of the sidebar  -->
+    <div class="w-full max-w-screen-2xl h-full md:grid md:grid-cols-12 flex flex-col justify-start items-center">
+        <div :class="{ 'hidden md:block': !open, 'fixed md:static': open }" class="md:w-full w-11/12 sm:w-9/12 bg-white h-full md:col-span-4 lg:col-span-3 xl:col-span-2 border-r left-0 top-0 z-20 md:z-0">
+            <div  x-show="open" x-on:click="toggle()" class="flex justify-between items-center px-8 py-2 mb-2" >
+                <img class="w-12" src="{% static 'assets/logo.svg' %}" />
+                <i  class="fa-solid fa-xmark fa-xl text-gray-800 hover:text-gray-500"></i>
+            </div>
+            <div class="p-2 md:px-2 md:pt-8">
+                {% block sidebar %}
+                {% endblock %}
+            </div>
+        </div>
+        <div class="w-full h-full md:col-span-8 lg:col-span-9 xl:col-span-10">
+            {% block main_content %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

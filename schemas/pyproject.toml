@@ -1,30 +1,30 @@
 [tool.poetry]
 name = "mozilla-nimbus-schemas"
-version = "2023.6.6"
+version = "2023.9.3"
 description = "Schemas used by Mozilla Nimbus and related projects."
 authors = ["mikewilli"]
 license = "MPL 2.0"
 readme = "README.md"
-packages = [{include = "mozilla_nimbus_schemas"}]
+packages = [{ include = "mozilla_nimbus_schemas" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 pydantic = "^1.10.7"
+polyfactory = "^2.7.2"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.269"
 black = "^23.3.0"
 pytest = "^7.3.1"
 twine = "^4.0.2"
+pydantic-to-typescript = "^1.0.10"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = [
-    "--import-mode=importlib",
-]
+addopts = ["--import-mode=importlib"]
 
 [tool.ruff]
 # # Enable Pyflakes `E` and `F` codes by default.
@@ -44,6 +44,7 @@ ignore = [
     "RET505",
     "SIM102",
 ]
+line-length = 90
 [tool.ruff.pep8-naming]
 classmethod-decorators = ["classmethod", "pydantic.validator"]
 

@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+[x-cloak] {
+    display: none !important;
+}
+
+a[role=tab] {
+    border-bottom: 1px solid transparent;
+    transition: all var(--transition);
+    min-width: 120px;
+    text-align: center;
+    user-select: none;
+    width: 100%;
+    padding: 4px;
+    color: #938f8f;
+}
+a[role=tab].active {
+    color: #3d3d3d ;
+    border-radius: 0;
+}
+a[role=tab]:focus {
+    background: transparent;
+}
+.data-tab {
+    min-height: 200px;
+    animation-duration: 0.45s;
+    animation-fill-mode: both;
+    animation-name: slideIn;
+}
+@keyframes slideIn {
+    0% {
+        transform: translateY(1rem);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0rem);
+        opacity: 1;
+    }
+    0% {
+        transform: translateY(1rem);
+        opacity: 0;
+    }
+}
+.sunken {
+	box-shadow: rgb(173,216,230) 0px 0px 6px 1px inset;
+	background-color: rgba(232, 244, 248, 0.25);
+}
+.floating {
+  box-shadow:
+    0px 3px 5px -1px rgba(0, 0, 0, 0.2),
+    0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 18px 0px rgba(0,0,0,.12);
+}

@@ -2,6 +2,7 @@ import json
 
 import graphene
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
@@ -23,6 +24,7 @@ from experimenter.experiments.models import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
+from experimenter.settings import SIZING_DATA_KEY
 
 
 class NimbusExperimentStatusEnum(graphene.Enum):
@@ -141,6 +143,7 @@ class NimbusFeatureConfigType(DjangoObjectType):
     id = graphene.Int()
     application = NimbusExperimentApplicationEnum()
     sets_prefs = graphene.Boolean()
+    schema = graphene.String()
 
     class Meta:
         model = NimbusFeatureConfig
@@ -150,14 +153,19 @@ class NimbusFeatureConfigType(DjangoObjectType):
             "id",
             "name",
             "owner_email",
-            "sets_prefs",
-            "schema",
             "slug",
             "enabled",
         )
 
     def resolve_sets_prefs(self, info):
-        return bool(self.sets_prefs)
+        for schema in self.schemas.all():
+            if schema.version is None:
+                return bool(schema.sets_prefs)
+
+    def resolve_schema(self, info):
+        for schema in self.schemas.all():
+            if schema.version is None:
+                return schema.schema
 
 
 class NimbusBranchScreenshotType(DjangoObjectType):
@@ -281,7 +289,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     channels = graphene.List(NimbusLabelValueType)
     countries = graphene.List(NimbusCountryType)
     documentation_link = graphene.List(NimbusLabelValueType)
-    all_feature_configs = graphene.List(NimbusFeatureConfigType)
+    all_feature_configs = DjangoListField(NimbusFeatureConfigType)
     firefox_versions = graphene.List(NimbusLabelValueType)
     hypothesis_default = graphene.String()
     locales = graphene.List(NimbusLocaleType)
@@ -292,8 +300,10 @@ class NimbusConfigurationType(graphene.ObjectType):
     owners = graphene.List(NimbusUserType)
     targeting_configs = graphene.List(NimbusExperimentTargetingConfigType)
     conclusion_recommendations = graphene.List(NimbusLabelValueType)
+    takeaways = graphene.List(NimbusLabelValueType)
     types = graphene.List(NimbusLabelValueType)
     status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
+    population_sizing_data = graphene.String()
 
     def _text_choices_to_label_value_list(self, text_choices):
         return [
@@ -327,7 +337,9 @@ class NimbusConfigurationType(graphene.ObjectType):
         return configs
 
     def resolve_all_feature_configs(self, info):
-        return NimbusFeatureConfig.objects.all().order_by("name")
+        return (
+            NimbusFeatureConfig.objects.all().prefetch_related("schemas").order_by("name")
+        )
 
     def resolve_firefox_versions(self, info):
         return NimbusConfigurationType.sort_version_choices(NimbusExperiment.Version)
@@ -336,6 +348,10 @@ class NimbusConfigurationType(graphene.ObjectType):
         return self._text_choices_to_label_value_list(
             NimbusExperiment.ConclusionRecommendation
         )
+
+    def resolve_population_sizing_data(self, info):
+        sizing_data = cache.get(SIZING_DATA_KEY)
+        return sizing_data.json() if sizing_data else "{}"
 
     @staticmethod
     def sort_version_choices(choices):
@@ -405,6 +421,9 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_types(self, info):
         return self._text_choices_to_label_value_list(NimbusExperiment.Type)
 
+    def resolve_takeaways(self, info):
+        return self._text_choices_to_label_value_list(NimbusExperiment.Takeaways)
+
     def resolve_status_update_exempt_fields(self, info):
         return [
             NimbusStatusUpdateExemptFieldsType(
@@ -434,11 +453,14 @@ class NimbusExperimentType(DjangoObjectType):
     countries = graphene.List(graphene.NonNull(NimbusCountryType), required=True)
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     enrollment_end_date = graphene.DateTime()
-    feature_configs = graphene.List(NimbusFeatureConfigType)
+    excluded_experiments = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
+    )
+    feature_configs = DjangoListField(NimbusFeatureConfigType)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
     hypothesis = graphene.String()
-    id = graphene.Int()
+    id = graphene.Int(required=True)
     is_archived = graphene.Boolean()
     is_rollout_dirty = graphene.NonNull(graphene.Boolean)
     is_enrollment_pause_pending = graphene.Boolean()
@@ -465,6 +487,9 @@ class NimbusExperimentType(DjangoObjectType):
     recipe_json = graphene.String()
     reference_branch = graphene.Field(NimbusBranchType)
     rejection = graphene.Field(NimbusChangeLogType)
+    required_experiments = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
+    )
     results_expected_date = graphene.DateTime()
     results_ready = graphene.Boolean()
     review_request = graphene.Field(NimbusChangeLogType)
@@ -485,6 +510,7 @@ class NimbusExperimentType(DjangoObjectType):
     warn_feature_schema = graphene.Boolean()
 
     class Meta:
+        name = "NimbusExperimentType"
         model = NimbusExperiment
         fields = (
             "application",
@@ -551,6 +577,9 @@ class NimbusExperimentType(DjangoObjectType):
             "start_date",
             "status_next",
             "status",
+            "takeaways_metric_gain",
+            "takeaways_gain_amount",
+            "takeaways_qbr_learning",
             "takeaways_summary",
             "targeting_config_slug",
             "targeting_config",
@@ -662,3 +691,9 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_changes(self, info):
         return self.changes.all().order_by("changed_on")
+
+    def resolve_excluded_experiments(self, info):
+        return self.excluded_experiments.only("id", "slug", "name", "public_description")
+
+    def resolve_required_experiments(self, info):
+        return self.required_experiments.only("id", "slug", "name", "public_description")

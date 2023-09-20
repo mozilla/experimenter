@@ -28,6 +28,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
+    NimbusVersionedSchema,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -84,10 +85,38 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.Application)).value
     )
     owner_email = factory.LazyAttribute(lambda o: faker.email())
-    schema = FAKER_JSON_SCHEMA
+
+    @factory.post_generation
+    def schemas(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if isinstance(extracted, Iterable):
+            for instance in extracted:
+                instance.feature_config = self
+                instance.save()
+        elif self.schemas.count() == 0:
+            self.schemas.add(
+                NimbusVersionedSchemaFactory.create(
+                    feature_config=self,
+                    version=None,
+                )
+            )
 
     class Meta:
         model = NimbusFeatureConfig
+
+
+class NimbusVersionedSchemaFactory(factory.django.DjangoModelFactory):
+    feature_config = factory.SubFactory(NimbusFeatureConfigFactory)
+    version = factory.LazyAttribute(
+        lambda o: random.choice(list(NimbusExperiment.Version)[1:]).value
+    )
+    schema = factory.LazyAttribute(lambda o: FAKER_JSON_SCHEMA)
+    sets_prefs = factory.LazyAttribute(lambda o: [])
+
+    class Meta:
+        model = NimbusVersionedSchema
 
 
 class LifecycleStates(Enum):
@@ -242,84 +271,90 @@ class LifecycleStates(Enum):
 
 class Lifecycles(Enum):
     CREATED = (LifecycleStates.DRAFT_IDLE,)
-    PREVIEW = CREATED + (LifecycleStates.PREVIEW_IDLE,)
+    PREVIEW = (*CREATED, LifecycleStates.PREVIEW_IDLE)
 
-    LAUNCH_REVIEW_REQUESTED = CREATED + (LifecycleStates.DRAFT_REVIEW,)
-    LAUNCH_REJECT = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_IDLE,)
-    LAUNCH_APPROVE = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
-    LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
-    LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
-    LAUNCH_APPROVE_REJECT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_IDLE,)
-    LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
-    LAUNCH_REJECT_MANUAL_ROLLBACK = LAUNCH_APPROVE_REJECT + (LifecycleStates.DRAFT_IDLE,)
+    LAUNCH_REVIEW_REQUESTED = (*CREATED, LifecycleStates.DRAFT_REVIEW)
+    LAUNCH_REJECT = (*LAUNCH_REVIEW_REQUESTED, LifecycleStates.DRAFT_IDLE)
+    LAUNCH_APPROVE = (*LAUNCH_REVIEW_REQUESTED, LifecycleStates.DRAFT_APPROVED)
+    LAUNCH_APPROVE_WAITING = (*LAUNCH_APPROVE, LifecycleStates.DRAFT_WAITING)
+    LAUNCH_APPROVE_APPROVE = (*LAUNCH_APPROVE_WAITING, LifecycleStates.LIVE_IDLE)
+    LAUNCH_APPROVE_REJECT = (*LAUNCH_APPROVE_WAITING, LifecycleStates.DRAFT_IDLE)
+    LAUNCH_APPROVE_TIMEOUT = (*LAUNCH_APPROVE_WAITING, LifecycleStates.DRAFT_REVIEW)
+    LAUNCH_REJECT_MANUAL_ROLLBACK = (*LAUNCH_APPROVE_REJECT, LifecycleStates.DRAFT_IDLE)
 
-    LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE,)
-    LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
+    LIVE_ENROLLING = (*LAUNCH_APPROVE_APPROVE, LifecycleStates.LIVE_IDLE)
+    LIVE_PAUSED = (*LIVE_ENROLLING, LifecycleStates.LIVE_IDLE_PAUSED)
 
-    LIVE_DIRTY = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_DIRTY,)
-    LIVE_REVIEW_REQUESTED = LIVE_DIRTY + (LifecycleStates.LIVE_REVIEW,)
-    LIVE_REJECT = LIVE_REVIEW_REQUESTED + (LifecycleStates.LIVE_DIRTY,)
-    LIVE_APPROVE = LIVE_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED,)
-    LIVE_APPROVE_WAITING = LIVE_APPROVE + (LifecycleStates.LIVE_APPROVED_WAITING,)
-    LIVE_APPROVE_APPROVE = LIVE_APPROVE_WAITING + (
+    LIVE_DIRTY = (*LAUNCH_APPROVE_APPROVE, LifecycleStates.LIVE_DIRTY)
+    LIVE_REVIEW_REQUESTED = (*LIVE_DIRTY, LifecycleStates.LIVE_REVIEW)
+    LIVE_REJECT = (*LIVE_REVIEW_REQUESTED, LifecycleStates.LIVE_DIRTY)
+    LIVE_APPROVE = (*LIVE_REVIEW_REQUESTED, LifecycleStates.LIVE_APPROVED)
+    LIVE_APPROVE_WAITING = (*LIVE_APPROVE, LifecycleStates.LIVE_APPROVED_WAITING)
+    LIVE_APPROVE_APPROVE = (
+        *LIVE_APPROVE_WAITING,
         LifecycleStates.LIVE_DIRTY_APPROVE_APPROVE,
     )
-    LIVE_APPROVE_REJECT = LIVE_APPROVE_WAITING + (LifecycleStates.LIVE_DIRTY,)
-    LIVE_APPROVE_TIMEOUT = LIVE_APPROVE_WAITING + (LifecycleStates.LIVE_DIRTY,)
-    LIVE_REJECT_MANUAL_ROLLBACK = LIVE_APPROVE_REJECT + (LifecycleStates.LIVE_DIRTY,)
+    LIVE_APPROVE_REJECT = (*LIVE_APPROVE_WAITING, LifecycleStates.LIVE_DIRTY)
+    LIVE_APPROVE_TIMEOUT = (*LIVE_APPROVE_WAITING, LifecycleStates.LIVE_DIRTY)
+    LIVE_REJECT_MANUAL_ROLLBACK = (*LIVE_APPROVE_REJECT, LifecycleStates.LIVE_DIRTY)
 
-    LIVE_DIRTY_ENDING_REVIEW_REQUESTED = LIVE_DIRTY + (
-        LifecycleStates.LIVE_REVIEW_ENDING,
-    )
-    LIVE_DIRTY_ENDING_APPROVE = LIVE_DIRTY_ENDING_REVIEW_REQUESTED + (
+    LIVE_DIRTY_ENDING_REVIEW_REQUESTED = (*LIVE_DIRTY, LifecycleStates.LIVE_REVIEW_ENDING)
+    LIVE_DIRTY_ENDING_APPROVE = (
+        *LIVE_DIRTY_ENDING_REVIEW_REQUESTED,
         LifecycleStates.LIVE_APPROVED_ENDING,
     )
-    LIVE_DIRTY_ENDING_REJECT = LIVE_DIRTY_ENDING_REVIEW_REQUESTED + (
+    LIVE_DIRTY_ENDING_REJECT = (
+        *LIVE_DIRTY_ENDING_REVIEW_REQUESTED,
         LifecycleStates.LIVE_DIRTY_REJECT,
     )
-    LIVE_DIRTY_ENDING_APPROVE_WAITING = LIVE_DIRTY_ENDING_APPROVE + (
+    LIVE_DIRTY_ENDING_APPROVE_WAITING = (
+        *LIVE_DIRTY_ENDING_APPROVE,
         LifecycleStates.LIVE_WAITING_ENDING,
     )
-    LIVE_DIRTY_ENDING_APPROVE_APPROVE = LIVE_DIRTY_ENDING_APPROVE_WAITING + (
+    LIVE_DIRTY_ENDING_APPROVE_APPROVE = (
+        *LIVE_DIRTY_ENDING_APPROVE_WAITING,
         LifecycleStates.LIVE_DIRTY_COMPLETE_IDLE,
     )
-    LIVE_DIRTY_ENDING_APPROVE_REJECT = LIVE_DIRTY_ENDING_APPROVE + (
+    LIVE_DIRTY_ENDING_APPROVE_REJECT = (
+        *LIVE_DIRTY_ENDING_APPROVE,
         LifecycleStates.LIVE_DIRTY_REJECT,
     )
-    LIVE_DIRTY_ENDING_APPROVE_TIMEOUT = LIVE_DIRTY_ENDING_APPROVE_WAITING + (
+    LIVE_DIRTY_ENDING_APPROVE_TIMEOUT = (
+        *LIVE_DIRTY_ENDING_APPROVE_WAITING,
         LifecycleStates.LIVE_REVIEW_ENDING,
     )
-    LIVE_DIRTY_ENDING_REJECT_MANUAL_ROLLBACK = LIVE_DIRTY_ENDING_APPROVE_REJECT + (
+    LIVE_DIRTY_ENDING_REJECT_MANUAL_ROLLBACK = (
+        *LIVE_DIRTY_ENDING_APPROVE_REJECT,
         LifecycleStates.LIVE_REVIEW_ENDING,
     )
 
-    PAUSING_REVIEW_REQUESTED = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
-    PAUSING_REJECT = PAUSING_REVIEW_REQUESTED + (
+    PAUSING_REVIEW_REQUESTED = (*LIVE_ENROLLING, LifecycleStates.LIVE_REVIEW_PAUSING)
+    PAUSING_REJECT = (*PAUSING_REVIEW_REQUESTED, LifecycleStates.LIVE_IDLE_REJECT_PAUSING)
+    PAUSING_APPROVE = (*PAUSING_REVIEW_REQUESTED, LifecycleStates.LIVE_APPROVED_PAUSING)
+    PAUSING_APPROVE_WAITING = (*PAUSING_APPROVE, LifecycleStates.LIVE_WAITING_PAUSING)
+    PAUSING_APPROVE_APPROVE = (*PAUSING_APPROVE_WAITING, LifecycleStates.LIVE_IDLE)
+    PAUSING_APPROVE_REJECT = (
+        *PAUSING_APPROVE_WAITING,
         LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
     )
-    PAUSING_APPROVE = PAUSING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_PAUSING,)
-    PAUSING_APPROVE_WAITING = PAUSING_APPROVE + (LifecycleStates.LIVE_WAITING_PAUSING,)
-    PAUSING_APPROVE_APPROVE = PAUSING_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
-    PAUSING_APPROVE_REJECT = PAUSING_APPROVE_WAITING + (
-        LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
-    )
-    PAUSING_APPROVE_TIMEOUT = PAUSING_APPROVE_WAITING + (
+    PAUSING_APPROVE_TIMEOUT = (
+        *PAUSING_APPROVE_WAITING,
         LifecycleStates.LIVE_REVIEW_PAUSING,
     )
 
-    ENDING_REVIEW_REQUESTED = LIVE_PAUSED + (LifecycleStates.LIVE_REVIEW_ENDING,)
-    ENDING_REJECT = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_IDLE_REJECT,)
-    ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
-    ENDING_APPROVE_WAITING = ENDING_APPROVE + (LifecycleStates.LIVE_WAITING_ENDING,)
-    ENDING_APPROVE_APPROVE = ENDING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
-    ENDING_APPROVE_REJECT = ENDING_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE_REJECT,)
-    ENDING_APPROVE_TIMEOUT = ENDING_APPROVE_WAITING + (
-        LifecycleStates.LIVE_REVIEW_ENDING,
-    )
-    ENDING_REJECT_MANUAL_ROLLBACK = ENDING_APPROVE_REJECT + (
+    ENDING_REVIEW_REQUESTED = (*LIVE_PAUSED, LifecycleStates.LIVE_REVIEW_ENDING)
+    ENDING_REJECT = (*ENDING_REVIEW_REQUESTED, LifecycleStates.LIVE_IDLE_REJECT)
+    ENDING_APPROVE = (*ENDING_REVIEW_REQUESTED, LifecycleStates.LIVE_APPROVED_ENDING)
+    ENDING_APPROVE_WAITING = (*ENDING_APPROVE, LifecycleStates.LIVE_WAITING_ENDING)
+    ENDING_APPROVE_APPROVE = (*ENDING_APPROVE_WAITING, LifecycleStates.COMPLETE_IDLE)
+    ENDING_APPROVE_REJECT = (*ENDING_APPROVE_WAITING, LifecycleStates.LIVE_IDLE_REJECT)
+    ENDING_APPROVE_TIMEOUT = (*ENDING_APPROVE_WAITING, LifecycleStates.LIVE_REVIEW_ENDING)
+    ENDING_REJECT_MANUAL_ROLLBACK = (
+        *ENDING_APPROVE_REJECT,
         LifecycleStates.LIVE_IDLE_REJECT,
     )
-    ENDING_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
+    ENDING_APPROVE_APPROVE_WITHOUT_PAUSE = (
+        *LIVE_ENROLLING,
         LifecycleStates.LIVE_REVIEW_ENDING,
         LifecycleStates.LIVE_APPROVED_ENDING,
         LifecycleStates.LIVE_WAITING_ENDING,
@@ -461,8 +496,16 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             self.languages.add(*extracted)
 
     @classmethod
-    def create(cls, branches=None, feature_configs=None, *args, **kwargs):
-        experiment = super(NimbusExperimentFactory, cls).create(*args, **kwargs)
+    def create(
+        cls,
+        branches=None,
+        feature_configs=None,
+        excluded_experiments=None,
+        required_experiments=None,
+        *args,
+        **kwargs,
+    ):
+        experiment = super().create(*args, **kwargs)
 
         if branches is not None:
             raise factory.FactoryError(
@@ -470,6 +513,12 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 "please modify the branches that are created or delete them and add "
                 "new ones."
             )
+
+        if excluded_experiments is not None:
+            experiment.excluded_experiments.add(*excluded_experiments)
+
+        if required_experiments is not None:
+            experiment.required_experiments.add(*required_experiments)
 
         # FeatureConfigs must be set on the experiment before branches are created
         if feature_configs is not None:

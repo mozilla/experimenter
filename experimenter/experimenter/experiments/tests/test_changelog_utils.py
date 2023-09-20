@@ -91,6 +91,9 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": "",
                 "status": NimbusExperiment.Status.DRAFT,
                 "status_next": None,
+                "takeaways_gain_amount": None,
+                "takeaways_metric_gain": False,
+                "takeaways_qbr_learning": False,
                 "takeaways_summary": None,
                 "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
                 "total_enrolled_clients": 0,
@@ -178,6 +181,9 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": experiment.slug,
                 "status": experiment.status,
                 "status_next": experiment.status_next,
+                "takeaways_gain_amount": None,
+                "takeaways_metric_gain": False,
+                "takeaways_qbr_learning": False,
                 "takeaways_summary": None,
                 "targeting_config_slug": experiment.targeting_config_slug,
                 "total_enrolled_clients": experiment.total_enrolled_clients,
@@ -190,17 +196,17 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             dict(NimbusExperimentSerializer(experiment).data).keys(),
         )
 
-        for feature_config in experiment.feature_configs.all():
+        for feature_config in experiment.feature_configs.all().prefetch_related(
+            "schemas"
+        ):
             self.assertIn(
                 {
                     "application": feature_config.application,
                     "description": feature_config.description,
                     "name": feature_config.name,
                     "owner_email": feature_config.owner_email,
-                    "read_only": feature_config.read_only,
-                    "schema": feature_config.schema,
+                    "schema": feature_config.schemas.get(version=None).schema,
                     "slug": feature_config.slug,
-                    "sets_prefs": feature_config.sets_prefs,
                     "enabled": feature_config.enabled,
                 },
                 feature_configs_data,

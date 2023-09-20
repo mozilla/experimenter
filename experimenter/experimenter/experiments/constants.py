@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Dict
 
 from django.conf import settings
@@ -15,11 +16,36 @@ class Channel(models.TextChoices):
     ESR = "esr"
     TESTFLIGHT = "testflight"
     AURORA = "aurora"
+    DEVELOPER = "developer"
+    STAGING = "staging"
+    PRODUCTION = "production"
+
+
+class ChangeEventType(Enum):
+    GENERAL = "GENERAL"
+    CREATION = "CREATION"
+    DETAILED = "DETAILED"
+    STATE = "STATE"
+    BOOLEAN = "BOOLEAN"
+
+
+class RelationalFields:
+    # This is a list of models whose field values are stored as reference keys
+    # instead of actual values in the NimbusChangelog
+
+    NATIVE_MODELS = [
+        "countries",
+        "locales",
+        "languages",
+        "required_experiments",
+        "excluded_experiments",
+    ]
 
 
 class BucketRandomizationUnit(models.TextChoices):
     NORMANDY = "normandy_id"
     NIMBUS = "nimbus_id"
+    USER_ID = "user_id"
 
 
 @dataclass
@@ -67,6 +93,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     slug="ios",
     app_name="firefox_ios",
     channel_app_id={
+        Channel.DEVELOPER: "org.mozilla.ios.Fennec",
         Channel.NIGHTLY: "org.mozilla.ios.Fennec",
         Channel.BETA: "org.mozilla.ios.FirefoxBeta",
         Channel.RELEASE: "org.mozilla.ios.Firefox",
@@ -124,6 +151,31 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
+APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
+    name="Monitor Web",
+    slug="monitor-web",
+    app_name="monitor_cirrus",
+    channel_app_id={
+        Channel.STAGING: "monitor.cirrus",
+        Channel.PRODUCTION: "monitor.cirrus",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+)
+
+APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
+    name="Demo App",
+    slug="demo-app",
+    app_name="demo_app",
+    channel_app_id={
+        Channel.BETA: "demo-app-beta",
+        Channel.RELEASE: "demo-app-release",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+)
+
+
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
     "no-feature-klar-ios",
@@ -132,6 +184,7 @@ NO_FEATURE_SLUG = [
     "no-feature-ios",
     "no-feature-fenix",
     "no-feature-firefox-desktop",
+    "no-feature-monitor",
 ]
 
 
@@ -155,9 +208,32 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_KLAR_IOS.slug,
         APPLICATION_CONFIG_KLAR_IOS.name,
     )
+    MONITOR = (
+        APPLICATION_CONFIG_MONITOR_WEB.slug,
+        APPLICATION_CONFIG_MONITOR_WEB.name,
+    )
+    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
+
+    @staticmethod
+    def is_mobile(application):
+        return application in (
+            Application.FENIX,
+            Application.IOS,
+            Application.FOCUS_ANDROID,
+            Application.KLAR_ANDROID,
+            Application.FOCUS_IOS,
+            Application.KLAR_IOS,
+        )
+
+    @staticmethod
+    def is_web(application):
+        return application in (
+            Application.DEMO_APP,
+            Application.MONITOR,
+        )
 
 
-class NimbusConstants(object):
+class NimbusConstants:
     class Status(models.TextChoices):
         DRAFT = "Draft"
         PREVIEW = "Preview"
@@ -183,6 +259,10 @@ class NimbusConstants(object):
         EXPERIMENT = "Experiment"
         ROLLOUT = "Rollout"
 
+    class Takeaways(models.TextChoices):
+        QBR_LEARNING = "QBR Learning"
+        DAU_GAIN = "DAU Gain"
+
     ARCHIVE_UPDATE_EXEMPT_FIELDS = (
         "is_archived",
         "changelog_message",
@@ -196,6 +276,8 @@ class NimbusConstants(object):
         Application.KLAR_ANDROID: APPLICATION_CONFIG_KLAR_ANDROID,
         Application.FOCUS_IOS: APPLICATION_CONFIG_FOCUS_IOS,
         Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
+        Application.MONITOR: APPLICATION_CONFIG_MONITOR_WEB,
+        Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
     }
 
     Channel = Channel
@@ -331,7 +413,11 @@ class NimbusConstants(object):
         FIREFOX_114 = "114.!"
         FIREFOX_114_3_0 = "114.3.0"
         FIREFOX_115 = "115.!"
+        FIREFOX_115_0_2 = "115.0.2"
         FIREFOX_116 = "116.!"
+        FIREFOX_116_0_1 = "116.0.1"
+        FIREFOX_116_2_0 = "116.2.0"
+        FIREFOX_116_3_0 = "116.3.0"
         FIREFOX_117 = "117.!"
         FIREFOX_118 = "118.!"
         FIREFOX_119 = "119.!"
@@ -359,7 +445,13 @@ class NimbusConstants(object):
     }
 
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
-    DESKTOP_ROLLOUT_MIN_SUPPORTED_VERSION = Version.FIREFOX_114
+    ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_115,
+        Application.FENIX: Version.FIREFOX_116,
+        Application.FOCUS_ANDROID: Version.FIREFOX_116,
+        Application.IOS: Version.FIREFOX_116,
+        Application.FOCUS_IOS: Version.FIREFOX_116,
+    }
 
     ROLLOUT_SUPPORT_VERSION = {
         Application.DESKTOP: Version.FIREFOX_105,
@@ -425,9 +517,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         will be enrolled in one and not the other and \
         you will not be able to adjust the sizing for this rollout."
 
-    ERROR_DESKTOP_ROLLOUT_VERSION = "WARNING: Decreasing the population size while the \
-        rollout is live is not supported for Desktop versions under 114. You will still \
-        be able to increase the population size."
+    ERROR_ROLLOUT_VERSION = (
+        "WARNING: Adjusting the population size while the"
+        "rollout is live is not supported for {application} versions under {version}."
+    )
 
     ERROR_DESKTOP_LOCALIZATION_VERSION = (
         "Firefox version must be at least 113 for localized experiments."
@@ -436,6 +529,29 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIRST_RUN_RELEASE_DATE = (
         "This field is for first run experiments only. "
         "Are you missing your first run targeting?"
+    )
+
+    ERROR_NO_FLOATS_IN_FEATURE_VALUE = (
+        "Feature values can not contain floats (ie numbers with decimal points)."
+    )
+
+    ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE = (
+        "An experiment appears in both the list of required experiments and excluded "
+        "experiments"
+    )
+
+    ERROR_EXCLUDED_REQUIRED_INCLUDES_SELF = (
+        "This experiment cannot be included in the list of required or excluded "
+        "experiments"
+    )
+
+    ERROR_EXCLUDED_REQUIRED_DIFFERENT_APPLICATION = (
+        "'{slug}' is for a different application and cannot be required or excluded"
+    )
+
+    ERROR_EXCLUDED_REQUIRED_MIN_VERSION = (
+        "Firefox version must be at least 116 for requiring or excluding other "
+        "experiments"
     )
 
     # Analysis can be computed starting the week after enrollment
@@ -455,3 +571,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     L10N_MIN_STRING_ID_LEN = 9
 
     MIN_REQUIRED_VERSION = Version.FIREFOX_96
+
+    EXCLUDED_REQUIRED_MIN_VERSION = Version.FIREFOX_116
+
+    MULTIFEATURE_MAX_FEATURES = 20
+    ERROR_MULTIFEATURE_TOO_MANY_FEATURES = (
+        "Multi-feature experiments can only support up to 20 different features."
+    )

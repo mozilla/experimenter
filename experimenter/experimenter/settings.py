@@ -101,9 +101,12 @@ INSTALLED_APPS = [
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
-    # fontawesome
     "fontawesomefree",
+    "tailwind",
+    "experimenter.theme",
 ]
+
+TAILWIND_APP_NAME = "theme"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -220,6 +223,7 @@ STATICFILES_DIRS = [
     ("scripts", os.path.join(BASE_DIR, "legacy", "legacy-ui", "scripts")),
     ("imgs", os.path.join(BASE_DIR, "legacy", "legacy-ui", "imgs")),
     ("nimbus", os.path.join(BASE_DIR, "nimbus-ui", "build")),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -363,9 +367,7 @@ CACHES = {
 SIZING_DATA_KEY = "population_sizing"
 
 # Celery
-CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
-    host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB
-)
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
 CELERY_BEAT_SCHEDULE = {
     "experiment_status_ready_to_ship_task": {
         "task": "experimenter.legacy.normandy.tasks.update_recipe_ids_to_experiments",
@@ -472,6 +474,7 @@ KINTO_BUCKET_WORKSPACE = "main-workspace"
 KINTO_BUCKET_MAIN = "main"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
+KINTO_COLLECTION_NIMBUS_WEB = "nimbus-web-experiments"
 KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
 KINTO_ADMIN_URL = config("KINTO_ADMIN_URL", default=urljoin(KINTO_HOST, "/admin/"))
 KINTO_REVIEW_TIMEOUT = config("KINTO_REVIEW_TIMEOUT", cast=int)
@@ -500,7 +503,6 @@ JETSTREAM_CONFIG_OUTCOMES_PATH = os.path.join(
 
 # Feature Manifest path
 FEATURE_MANIFESTS_PATH = os.path.join(BASE_DIR, "features", "manifests")
-FEATURE_SCHEMAS_PATH = os.path.join(FEATURE_MANIFESTS_PATH, "schemas")
 
 SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
     "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False, cast=bool

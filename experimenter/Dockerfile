@@ -61,6 +61,10 @@ COPY --from=file-loader /experimenter/yarn.lock /experimenter/yarn.lock
 COPY --from=file-loader /experimenter/experimenter/legacy/legacy-ui/core/package.json /experimenter/experimenter/legacy/legacy-ui/core/package.json
 RUN yarn install --frozen-lockfile
 
+COPY --from=file-loader /experimenter/experimenter/theme/static_src/package.json /experimenter/experimenter/theme/static_src/package.json
+COPY --from=file-loader /experimenter/experimenter/theme/static_src/yarn.lock /experimenter/experimenter/theme/static_src/yarn.lock
+RUN yarn install --frozen-lockfile --cwd /experimenter/experimenter/theme/static_src
+
 COPY --from=file-loader /experimenter/experimenter/nimbus-ui/package.json /experimenter/experimenter/nimbus-ui/package.json
 RUN yarn install --frozen-lockfile
 
@@ -80,6 +84,9 @@ COPY --from=file-loader /experimenter/experimenter/legacy/legacy-ui/ /experiment
 RUN yarn workspace @experimenter/core build
 COPY --from=file-loader /experimenter/experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/nimbus-ui build
+COPY --from=file-loader /experimenter/experimenter/theme/ /experimenter/experimenter/theme/ 
+COPY --from=file-loader /experimenter/experimenter/templates/ /experimenter/experimenter/templates/ 
+RUN yarn --cwd /experimenter/experimenter/theme/static_src build
 
 # Deploy image
 FROM python:3.11.1-slim AS deploy
@@ -108,3 +115,5 @@ COPY --from=file-loader /experimenter/manage.py /experimenter/manage.py
 COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
 COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
+COPY --from=ui /experimenter/experimenter/theme/static/ /experimenter/experimenter/theme/static/
+COPY --from=ui /experimenter/experimenter/static/scripts/ /experimenter/experimenter/static/scripts/

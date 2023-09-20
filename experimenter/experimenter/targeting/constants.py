@@ -133,9 +133,7 @@ FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
         "First start-up users (e.g. for about:welcome) who download Firefox "
         "from Chrome"
     ),
-    targeting="{first_run} && attributionData.ua == 'chrome'".format(
-        first_run=FIRST_RUN.targeting
-    ),
+    targeting=f"{FIRST_RUN.targeting} && attributionData.ua == 'chrome'",
     desktop_telemetry=(
         "{first_run} AND environment.settings.attribution.ua = 'chrome'"
     ).format(first_run=FIRST_RUN.desktop_telemetry),
@@ -148,9 +146,7 @@ FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     name="First start-up users on Windows 10 1903 (build 18362) or newer",
     slug="first_run_win1903",
     description="First start-up users (e.g. for about:welcome) on Windows 1903+",
-    targeting="{first_run} && os.windowsBuildNumber >= 18362".format(
-        first_run=FIRST_RUN.targeting
-    ),
+    targeting=f"{FIRST_RUN.targeting} && os.windowsBuildNumber >= 18362",
     desktop_telemetry=(
         "{first_run} AND environment.system.os.windows_build_number >= 18362"
     ).format(first_run=FIRST_RUN.desktop_telemetry),
@@ -170,10 +166,7 @@ FIRST_RUN_NEW_PROFILE_WINDOWS_1903_NEWER = NimbusTargetingConfig(
         "new profile, on Windows 1903+"
     ),
     targeting=(
-        "{first_run} && os.windowsBuildNumber >= 18362 && {new_profile}".format(
-            first_run=FIRST_RUN.targeting,
-            new_profile=NEW_PROFILE,
-        )
+        f"{FIRST_RUN.targeting} && os.windowsBuildNumber >= 18362 && {NEW_PROFILE}"
     ),
     desktop_telemetry=(
         "{first_run} AND environment.system.os.windows_build_number >= 18362 "
@@ -195,12 +188,8 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
         "with a new profile, needing default"
     ),
     targeting=(
-        "{first_run} && os.windowsBuildNumber >= 18362 && {new_profile} && "
-        "{need_default}".format(
-            first_run=FIRST_RUN.targeting,
-            new_profile=NEW_PROFILE,
-            need_default=NEED_DEFAULT,
-        )
+        f"{FIRST_RUN.targeting} && os.windowsBuildNumber >= 18362 && {NEW_PROFILE} && "
+        f"{NEED_DEFAULT}"
     ),
     desktop_telemetry=(
         "{first_run} AND environment.system.os.windows_build_number >= 18362 AND "
@@ -247,9 +236,7 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_NEED_PIN_WINDOWS_1903 = NimbusTargetingConfig
         "with a new profile, needing default & pin"
     ),
     targeting=(
-        "{first_run} && doesAppNeedPin".format(
-            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
-        )
+        f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting} && doesAppNeedPin"
     ),
     desktop_telemetry=(
         "{first_run} AND doesAppNeedPin".format(
@@ -272,10 +259,7 @@ FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
         "with a new profile, needing default w/ pin"
     ),
     targeting=(
-        "{first_run} && {has_pin}".format(
-            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
-            has_pin=HAS_PIN,
-        )
+        f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting} && {HAS_PIN}"
     ),
     desktop_telemetry=(
         "{first_run} AND {has_pin}".format(
@@ -363,10 +347,7 @@ NOT_TCP_STUDY_FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users excluding TCP revenue study",
     slug="not_tcp_study_first_run",
     description="First start-up users excluding certain search codes",
-    targeting="{first_run} && {not_tcp_study}".format(
-        first_run=FIRST_RUN.targeting,
-        not_tcp_study=NOT_TCP_STUDY.targeting,
-    ),
+    targeting=f"{FIRST_RUN.targeting} && {NOT_TCP_STUDY.targeting}",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -393,10 +374,7 @@ WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
         "First start-up users (e.g. for about:welcome) on Windows with "
         "UserChoice support (version 1809+/build ID 17763+)"
     ),
-    targeting="{first_run} && {user_choice}".format(
-        first_run=FIRST_RUN.targeting,
-        user_choice=WINDOWS_WITH_USERCHOICE.targeting,
-    ),
+    targeting=f"{FIRST_RUN.targeting} && {WINDOWS_WITH_USERCHOICE.targeting}",
     desktop_telemetry=("{first_run} AND {user_choice}").format(
         first_run=FIRST_RUN.desktop_telemetry,
         user_choice=WINDOWS_WITH_USERCHOICE.desktop_telemetry,
@@ -553,6 +531,17 @@ NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_AUTOFILL_ADDRESSES = NimbusTargetingConfig(
+    name="No autofill addresses saved",
+    slug="no_autofill_addresses",
+    description="Only users who have 0 autofill addresses.",
+    targeting="(addressesSaved == 0)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 RELAY_USER = NimbusTargetingConfig(
     name="Relay user",
     slug="relay_user",
@@ -569,6 +558,17 @@ NOT_RELAY_USER = NimbusTargetingConfig(
     slug="not_relay_user",
     description="Excludes users who have Relay",
     targeting=f"!({RELAY_USER.targeting}) && isFxAEnabled && usesFirefoxSync",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NOT_RELAY_USER_WITH_NO_AUTOFILL_ADDRESSES = NimbusTargetingConfig(
+    name="FXA user without Relay & no autofill addresses saved",
+    slug="not_relay_user_no_autofill_addresses",
+    description="FXA user without Relay & no autofill addresses saved",
+    targeting=f"{NOT_RELAY_USER.targeting} && {NO_AUTOFILL_ADDRESSES.targeting}",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -599,6 +599,27 @@ EXISTING_USER_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
         "(!os.isWindows || os.windowsBuildNumber >= 18362) && "
         "userMonthlyActivity|length >= 1 && "
         "!('e6eb0d1e856335fc' in attachedFxAOAuthClients|mapToProperty('id'))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+EXISTING_USER_NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig(
+    name=(
+        "Existing users, no enterprise or past VPN use, hasn't disabled "
+        "'Recommend extensions/features'"
+    ),
+    slug="existing_user_no_vpn_has_not_disabled_recommend_features",
+    description=(
+        "Exclude users who have used Mozilla VPN, are enterprise users, or have"
+        " disabled 'Recommend extensions/features'"
+    ),
+    targeting=(
+        f"{EXISTING_USER_NO_ENTERPRISE_OR_PAST_VPN.targeting} && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
     ),
     desktop_telemetry="",
     sticky_required=False,
@@ -1442,6 +1463,45 @@ TEST_MOBILE_FIRST_RUN_TARGETING_CRITERIA_IOS = NimbusTargetingConfig(
         Application.FENIX.name,
         Application.IOS.name,
     ),
+)
+
+CORE_USER_FULLY_ACTIVE = NimbusTargetingConfig(
+    name="Core user (Active Every Day)",
+    slug="core_user_active_every_day",
+    description="Active every day in the past 28 days",
+    targeting=f"{PROFILE28DAYS} && userMonthlyActivity|length >= 28",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR = NimbusTargetingConfig(
+    name="Early Day User (Hasn't changed bookmarks toolbar behavior)",
+    slug="early_day_user_bookmarks_toolbar_unchanged",
+    description=(
+        "Users with profiles < 28 days old who have not edited the default bookmarks "
+        "toolbar behavior"
+    ),
+    targeting=(
+        f"{PROFILELESSTHAN28DAYS} &&"
+        " !('browser.toolbars.bookmarks.visibility'|preferenceIsUserSet)"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+ANDROID_8_OR_HIGHER_USERS = NimbusTargetingConfig(
+    name="Android Version 8.0+ Users",
+    slug="android_8_or_higher_users",
+    description="Users on Android version 8.0 or higher",
+    targeting="(android_sdk_version|versionCompare('26') >= 0)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
 )
 
 

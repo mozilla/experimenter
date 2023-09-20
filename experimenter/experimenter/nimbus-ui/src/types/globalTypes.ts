@@ -8,6 +8,7 @@
 //==============================================================
 
 export enum NimbusExperimentApplicationEnum {
+  DEMO_APP = "DEMO_APP",
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
   FOCUS_ANDROID = "FOCUS_ANDROID",
@@ -15,15 +16,19 @@ export enum NimbusExperimentApplicationEnum {
   IOS = "IOS",
   KLAR_ANDROID = "KLAR_ANDROID",
   KLAR_IOS = "KLAR_IOS",
+  MONITOR = "MONITOR",
 }
 
 export enum NimbusExperimentChannelEnum {
   AURORA = "AURORA",
   BETA = "BETA",
+  DEVELOPER = "DEVELOPER",
   ESR = "ESR",
   NIGHTLY = "NIGHTLY",
   NO_CHANNEL = "NO_CHANNEL",
+  PRODUCTION = "PRODUCTION",
   RELEASE = "RELEASE",
+  STAGING = "STAGING",
   TESTFLIGHT = "TESTFLIGHT",
   UNBRANDED = "UNBRANDED",
 }
@@ -70,7 +75,11 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_114 = "FIREFOX_114",
   FIREFOX_114_3_0 = "FIREFOX_114_3_0",
   FIREFOX_115 = "FIREFOX_115",
+  FIREFOX_115_0_2 = "FIREFOX_115_0_2",
   FIREFOX_116 = "FIREFOX_116",
+  FIREFOX_116_0_1 = "FIREFOX_116_0_1",
+  FIREFOX_116_2_0 = "FIREFOX_116_2_0",
+  FIREFOX_116_3_0 = "FIREFOX_116_3_0",
   FIREFOX_117 = "FIREFOX_117",
   FIREFOX_118 = "FIREFOX_118",
   FIREFOX_119 = "FIREFOX_119",
@@ -223,6 +232,7 @@ export interface ExperimentInput {
   conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   countries?: (string | null)[] | null;
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
+  excludedExperiments?: number[] | null;
   featureConfigIds?: (number | null)[] | null;
   firefoxMaxVersion?: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;
@@ -248,6 +258,7 @@ export interface ExperimentInput {
   publicDescription?: string | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
   referenceBranch?: BranchInput | null;
+  requiredExperiments?: number[] | null;
   riskBrand?: boolean | null;
   riskMitigationLink?: string | null;
   riskPartnerRelated?: boolean | null;
@@ -255,6 +266,9 @@ export interface ExperimentInput {
   secondaryOutcomes?: (string | null)[] | null;
   status?: NimbusExperimentStatusEnum | null;
   statusNext?: NimbusExperimentStatusEnum | null;
+  takeawaysMetricGain?: boolean | null;
+  takeawaysGainAmount?: string | null;
+  takeawaysQbrLearning?: boolean | null;
   takeawaysSummary?: string | null;
   targetingConfigSlug?: string | null;
   totalEnrolledClients?: number | null;

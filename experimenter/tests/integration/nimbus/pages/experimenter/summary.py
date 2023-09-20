@@ -80,6 +80,26 @@ class SummaryPage(ExperimenterBase):
         By.CSS_SELECTOR,
         'span[data-testid="conclusion-recommendation-status"]',
     )
+    _audience_section_locator = (
+        By.CSS_SELECTOR,
+        "#audience",
+    )
+    _audience_is_first_run_locator = (
+        By.CSS_SELECTOR,
+        '[data-testid="experiment-is-first-run"]',
+    )
+    _audience_proposed_release_date_locator = (
+        By.CSS_SELECTOR,
+        '[data-testid="experiment-release-date"]',
+    )
+    _timeline_locator = (
+        By.CSS_SELECTOR,
+        '[data-testid="summary-timeline"]',
+    )
+    _timeline_proposed_release_date_locator = (
+        By.CSS_SELECTOR,
+        '[data-testid="label-release-date"]',
+    )
 
     def wait_for_archive_label_visible(self):
         self.wait.until(
@@ -320,3 +340,48 @@ class SummaryPage(ExperimenterBase):
         return self.wait_for_and_find_elements(
             *self._branch_screenshot_image_locator, "branch screenshot image"
         )[0]
+
+    @property
+    def audience_table(self):
+        return self.wait_for_and_find_element(
+            *self._audience_section_locator, "audience table"
+        )
+
+    @property
+    def first_run(self):
+        return self.wait_for_and_find_elements(
+            *self._audience_is_first_run_locator, "audience table first run"
+        )[0].text
+
+    @property
+    def proposed_release_date(self):
+        return self.wait_for_and_find_elements(
+            *self._audience_proposed_release_date_locator,
+            "audience table proposed release date",
+        )[0].text
+
+    def wait_for_timeline_visible(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._timeline_locator),
+            message="Summary Page: could not find timeline",
+        )
+
+    def wait_for_timeline_release_date(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(
+                self._timeline_proposed_release_date_locator
+            ),
+            message="Summary Page: could not find release date on timeline",
+        )
+
+    def wait_until_audience_section_release_date_not_found(self):
+        self.wait.until_not(
+            EC.presence_of_element_located(self._audience_proposed_release_date_locator),
+            message="Summary Page: could not find release date in Audience section",
+        )
+
+    def wait_until_timeline_release_date_not_found(self):
+        self.wait.until_not(
+            EC.presence_of_element_located(self._audience_proposed_release_date_locator),
+            message="Summary Page: could not find release date on timeline",
+        )

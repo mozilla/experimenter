@@ -5,12 +5,15 @@ type Query {
   """Retrieve a Nimbus experiment by its slug."""
   experimentBySlug(slug: String!): NimbusExperimentType
 
+  """List Nimbus Experiments by application."""
+  experimentsByApplication(application: NimbusExperimentApplicationEnum!): [NimbusExperimentType!]!
+
   """Nimbus Configuration Data for front-end usage."""
   nimbusConfig: NimbusConfigurationType
 }
 
 type NimbusExperimentType {
-  id: Int
+  id: Int!
   parent: NimbusExperimentType
   isRollout: Boolean
   isArchived: Boolean
@@ -39,7 +42,7 @@ type NimbusExperimentType {
   hypothesis: String
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
-  featureConfigs: [NimbusFeatureConfigType]
+  featureConfigs: [NimbusFeatureConfigType!]
   warnFeatureSchema: Boolean
   targetingConfigSlug: String
   referenceBranch: NimbusBranchType
@@ -47,6 +50,9 @@ type NimbusExperimentType {
   riskRevenue: Boolean
   riskBrand: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
+  takeawaysMetricGain: Boolean!
+  takeawaysGainAmount: String
+  takeawaysQbrLearning: Boolean!
   takeawaysSummary: String
   isFirstRun: Boolean!
   preventPrefConflicts: Boolean
@@ -63,6 +69,7 @@ type NimbusExperimentType {
   computedEnrollmentDays: Int
   computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
+  excludedExperiments: [NimbusExperimentType!]!
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
   jexlTargetingExpression: String
@@ -70,6 +77,7 @@ type NimbusExperimentType {
   readyForReview: NimbusReviewType
   recipeJson: String
   rejection: NimbusChangeLogType
+  requiredExperiments: [NimbusExperimentType!]!
   resultsExpectedDate: DateTime
   resultsReady: Boolean
   reviewRequest: NimbusChangeLogType
@@ -228,7 +236,11 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_114
   FIREFOX_114_3_0
   FIREFOX_115
+  FIREFOX_115_0_2
   FIREFOX_116
+  FIREFOX_116_0_1
+  FIREFOX_116_2_0
+  FIREFOX_116_3_0
   FIREFOX_117
   FIREFOX_118
   FIREFOX_119
@@ -243,6 +255,8 @@ enum NimbusExperimentApplicationEnum {
   KLAR_ANDROID
   FOCUS_IOS
   KLAR_IOS
+  MONITOR
+  DEMO_APP
 }
 
 enum NimbusExperimentChannelEnum {
@@ -254,6 +268,9 @@ enum NimbusExperimentChannelEnum {
   ESR
   TESTFLIGHT
   AURORA
+  DEVELOPER
+  STAGING
+  PRODUCTION
 }
 
 type NimbusLocaleType {
@@ -288,9 +305,9 @@ type NimbusFeatureConfigType {
   description: String
   application: NimbusExperimentApplicationEnum
   ownerEmail: String
-  schema: String
-  setsPrefs: Boolean
   enabled: Boolean!
+  setsPrefs: Boolean
+  schema: String
 }
 
 type NimbusBranchType {
@@ -391,7 +408,7 @@ type NimbusConfigurationType {
   channels: [NimbusLabelValueType]
   countries: [NimbusCountryType]
   documentationLink: [NimbusLabelValueType]
-  allFeatureConfigs: [NimbusFeatureConfigType]
+  allFeatureConfigs: [NimbusFeatureConfigType!]
   firefoxVersions: [NimbusLabelValueType]
   hypothesisDefault: String
   locales: [NimbusLocaleType]
@@ -402,8 +419,10 @@ type NimbusConfigurationType {
   owners: [NimbusUserType]
   targetingConfigs: [NimbusExperimentTargetingConfigType]
   conclusionRecommendations: [NimbusLabelValueType]
+  takeaways: [NimbusLabelValueType]
   types: [NimbusLabelValueType]
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
+  populationSizingData: String
 }
 
 type NimbusExperimentApplicationConfigType {
@@ -460,6 +479,7 @@ input ExperimentInput {
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   countries: [String]
   documentationLinks: [DocumentationLinkInput]
+  excludedExperiments: [Int!]
   featureConfigIds: [Int]
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
@@ -485,6 +505,7 @@ input ExperimentInput {
   publicDescription: String
   publishStatus: NimbusExperimentPublishStatusEnum
   referenceBranch: BranchInput = null
+  requiredExperiments: [Int!]
   riskBrand: Boolean
   riskMitigationLink: String
   riskPartnerRelated: Boolean
@@ -492,6 +513,9 @@ input ExperimentInput {
   secondaryOutcomes: [String]
   status: NimbusExperimentStatusEnum
   statusNext: NimbusExperimentStatusEnum
+  takeawaysMetricGain: Boolean
+  takeawaysGainAmount: String
+  takeawaysQbrLearning: Boolean
   takeawaysSummary: String
   targetingConfigSlug: String
   totalEnrolledClients: Int

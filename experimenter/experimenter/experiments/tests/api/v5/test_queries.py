@@ -23,7 +23,9 @@ from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
+from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
@@ -108,6 +110,14 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         name
                     }
                     hypothesis
+                    excludedExperiments {
+                        id
+                        slug
+                    }
+                    requiredExperiments {
+                        id
+                        slug
+                    }
                 }
             }
             """,
@@ -142,7 +152,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         "id": feature_config.id,
                         "name": feature_config.name,
                         "ownerEmail": feature_config.owner_email,
-                        "schema": feature_config.schema,
+                        "schema": feature_config.schemas.get(version=None).schema,
                         "slug": feature_config.slug,
                     }
                 ],
@@ -205,11 +215,15 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 ],
                 "projects": [{"id": str(project.id), "name": project.name}],
                 "hypothesis": experiment.hypothesis,
+                "requiredExperiments": [],
+                "excludedExperiments": [],
             },
         )
         self.assertEqual(experiment_data["hypothesis"], experiment.hypothesis)
 
-    def test_experiments_with_no_branches_returns_empty_reference_treatment_values(self):
+    def test_experiments_with_no_branches_returns_empty_reference_treatment_values(
+        self,
+    ):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
@@ -385,7 +399,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED
         )
         documentation_links = experiment.documentation_links.all()
-        self.assert_(len(documentation_links) > 0)
+        self.assertTrue(len(documentation_links) > 0)
 
         response = self.query(
             """
@@ -472,7 +486,8 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
 
         for country in Country.objects.all():
             self.assertIn(
-                {"code": country.code, "name": country.name}, experiment_data["countries"]
+                {"code": country.code, "name": country.name},
+                experiment_data["countries"],
             )
 
         for language in Language.objects.all():
@@ -508,6 +523,83 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 {"slug": project.slug, "name": project.name},
                 experiment_data["projects"],
             )
+
+    def test_query_excluded_required_experiments(self):
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            excluded_experiments=[excluded],
+            required_experiments=[required],
+        )
+
+        response = self.query(
+            """
+            query getAllExperiments {
+                experiments {
+                    id
+                    excludedExperiments {
+                        id
+                        slug
+                    }
+                    requiredExperiments {
+                        id
+                        slug
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+
+        experiments = content["data"]["experiments"]
+
+        self.assertEqual(len(experiments), 3)
+
+        self.assertIn(
+            {
+                "id": excluded.id,
+                "excludedExperiments": [],
+                "requiredExperiments": [],
+            },
+            experiments,
+        )
+        self.assertIn(
+            {
+                "id": required.id,
+                "excludedExperiments": [],
+                "requiredExperiments": [],
+            },
+            experiments,
+        )
+        self.assertIn(
+            {
+                "id": experiment.id,
+                "excludedExperiments": [
+                    {
+                        "id": excluded.id,
+                        "slug": excluded.slug,
+                    }
+                ],
+                "requiredExperiments": [
+                    {
+                        "id": required.id,
+                        "slug": required.slug,
+                    },
+                ],
+            },
+            experiments,
+        )
 
 
 class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
@@ -574,6 +666,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     publicDescription
 
                     conclusionRecommendation
+                    takeawaysGainAmount
+                    takeawaysMetricGain
+                    takeawaysQbrLearning
                     takeawaysSummary
 
                     owner {
@@ -635,6 +730,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         application
                         ownerEmail
                         schema
+                        setsPrefs
                     }
 
                     primaryOutcomes
@@ -793,7 +889,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         "id": feature_config.id,
                         "name": feature_config.name,
                         "ownerEmail": feature_config.owner_email,
-                        "schema": feature_config.schema,
+                        "schema": feature_config.schemas.get(version=None).schema,
+                        "setsPrefs": bool(
+                            feature_config.schemas.get(version=None).sets_prefs
+                        ),
                         "slug": feature_config.slug,
                     }
                 ],
@@ -915,6 +1014,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     if experiment.status_next is not None
                     else None
                 ),
+                "takeawaysGainAmount": experiment.takeaways_gain_amount,
+                "takeawaysMetricGain": experiment.takeaways_metric_gain,
+                "takeawaysQbrLearning": experiment.takeaways_qbr_learning,
                 "takeawaysSummary": experiment.takeaways_summary,
                 "targetingConfig": [
                     {
@@ -1327,7 +1429,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
-            experiment_data["reviewRequest"]["changedBy"]["email"], experiment.owner.email
+            experiment_data["reviewRequest"]["changedBy"]["email"],
+            experiment.owner.email,
         )
 
     def test_experiment_without_timeout_returns_none(self):
@@ -1864,7 +1967,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
-            sets_prefs=["foo.bar.baz"],
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    sets_prefs=["foo.bar.baz"],
+                ),
+            ],
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2138,10 +2246,64 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         )
 
 
-class TestNimbusConfigQuery(GraphQLTestCase):
+class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
+    GRAPHQL_URL = reverse("nimbus-api-graphql")
+
+    @property
+    def default_headers(self):
+        return {settings.OPENIDC_EMAIL_HEADER: "user@example.com"}
+
+    def test_query_excludes_other_applications(self):
+        experiments_by_application = {
+            application.value: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                application=application,
+            )
+            for application in list(NimbusExperiment.Application)
+        }
+
+        for application in list(NimbusExperiment.Application):
+            response = self.query(
+                """
+                query getAllExperimentsByApplication(
+                    $application: NimbusExperimentApplicationEnum!
+                ) {
+                    experimentsByApplication(application: $application) {
+                        id
+                        name
+                        slug
+                        publicDescription
+                    }
+                }
+                """,
+                variables={
+                    "application": application.name,
+                },
+                headers=self.default_headers,
+            )
+
+            self.assertEqual(response.status_code, 200, response.content)
+            content = json.loads(response.content)
+            experiments = content["data"]["experimentsByApplication"]
+
+            experiment = experiments_by_application[application.value]
+            self.assertEqual(len(experiments), 1)
+            self.assertIn(
+                {
+                    "id": experiment.id,
+                    "name": experiment.name,
+                    "slug": experiment.slug,
+                    "publicDescription": experiment.public_description,
+                },
+                experiments,
+            )
+
+
+class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
 
     def test_nimbus_config(self):
+        self.setup_cached_sizing_data()
         user_email = "user@example.com"
         feature_configs = NimbusFeatureConfigFactory.create_batch(10)
         application = NimbusExperiment.Application.DESKTOP
@@ -2241,6 +2403,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         id
                         name
                     }
+                    takeaways {
+                        label
+                        value
+                    }
                     types {
                         label
                         value
@@ -2250,6 +2416,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         experiments
                         rollouts
                     }
+                    populationSizingData
                 }
             }
             """,
@@ -2266,11 +2433,16 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                 self.assertEqual(data[index]["value"], name)
 
         assertChoices(config["applications"], NimbusExperiment.Application)
+        assertChoices(config["takeaways"], NimbusExperiment.Takeaways)
         assertChoices(config["types"], NimbusExperiment.Type)
         assertChoices(config["channels"], NimbusExperiment.Channel)
         assertChoices(
-            config["conclusionRecommendations"], NimbusExperiment.ConclusionRecommendation
+            config["conclusionRecommendations"],
+            NimbusExperiment.ConclusionRecommendation,
         )
+
+        pop_sizing_data = self.get_cached_sizing_data()
+        self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
 
         self.assertEqual(
             len(config["firefoxVersions"]), len(NimbusExperiment.Version.names)
@@ -2279,7 +2451,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS,
             config["statusUpdateExemptFields"][0],
         )
-        for index, name in enumerate(NimbusExperiment.Version.names):
+        for _index, name in enumerate(NimbusExperiment.Version.names):
             self.assertIn(
                 {"label": NimbusExperiment.Version[name].label, "value": name},
                 config["firefoxVersions"],
@@ -2344,8 +2516,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         feature_config.application
                     ).name,
                     "ownerEmail": feature_config.owner_email,
-                    "schema": feature_config.schema,
-                    "setsPrefs": bool(feature_config.sets_prefs),
+                    "schema": feature_config.schemas.get(version=None).schema,
+                    "setsPrefs": bool(
+                        feature_config.schemas.get(version=None).sets_prefs
+                    ),
                 },
                 config["allFeatureConfigs"],
             )

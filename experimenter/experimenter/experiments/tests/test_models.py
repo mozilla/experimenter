@@ -1,13 +1,15 @@
 import datetime
 import os.path
 from decimal import Decimal
+from itertools import product
+from unittest import mock
 
-import mock
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db.models import Q
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
@@ -18,7 +20,7 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants import ChangeEventType, NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
@@ -262,7 +264,10 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Version.FIREFOX_97,
             ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
-            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_96),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_96,
+            ),
         ]
     )
     def test_targeting_omits_version_for_unsupported_clients(self, application, version):
@@ -288,7 +293,10 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Version.FIREFOX_98,
             ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_97,
+            ),
         ]
     )
     def test_targeting_includes_min_version_for_supported_clients(
@@ -352,7 +360,10 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Version.FIREFOX_98,
             ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_97,
+            ),
         ]
     )
     def test_targeting_includes_max_version_for_supported_clients(
@@ -383,7 +394,10 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Version.FIREFOX_98,
             ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_97,
+            ),
         ]
     )
     def test_targeting_includes_min_and_max_version_for_supported_clients(
@@ -563,7 +577,6 @@ class TestNimbusExperiment(TestCase):
         JEXLParser().parse(experiment.targeting)
 
     def test_targeting_with_projects(self):
-
         project_mdn = ProjectFactory.create(slug="mdn")
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -693,7 +706,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            ("(app_version|versionCompare('101.*') <= 0) " f"&& {sticky_expression}"),
+            f"(app_version|versionCompare('101.*') <= 0) && {sticky_expression}",
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -784,6 +797,55 @@ class TestNimbusExperiment(TestCase):
             ('(browserSettings.update.channel == "release")'),
         )
         JEXLParser().parse(experiment.targeting)
+
+    @parameterized.expand(
+        [
+            (application, require, exclude, expected_targeting)
+            for (application, (require, exclude, expected_targeting)) in product(
+                list(NimbusExperiment.Application),
+                [
+                    ([], [], "true"),
+                    (["foo"], [], "('foo' in enrollments)"),
+                    ([], ["bar"], "(('bar' in enrollments) == false)"),
+                    (
+                        ["foo", "bar"],
+                        ["baz"],
+                        (
+                            "(('baz' in enrollments) == false) && "
+                            "('foo' in enrollments) && "
+                            "('bar' in enrollments)"
+                        ),
+                    ),
+                ],
+            )
+        ]
+    )
+    def test_targeting_excluded_required_experiments(
+        self, application, require, exclude, expected_targeting
+    ):
+        experiments = {
+            slug: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                application=application,
+                slug=slug,
+                firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            )
+            for slug in ("foo", "bar", "baz")
+        }
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            slug="slug",
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            required_experiments=[experiments[slug] for slug in require],
+            excluded_experiments=[experiments[slug] for slug in exclude],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        self.assertEqual(experiment.targeting, expected_targeting)
 
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"
@@ -1421,7 +1483,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, population_percent=Decimal("50.0")
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            population_percent=Decimal("50.0"),
         )
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 5000)
@@ -1967,6 +2030,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_clone_created_experiment(self):
         owner = UserFactory.create()
+        required_experiment = NimbusExperimentFactory.create()
+        excluded_experiment = NimbusExperimentFactory.create()
         parent = NimbusExperiment.objects.create(
             owner=owner,
             name="Parent Experiment",
@@ -1975,6 +2040,8 @@ class TestNimbusExperiment(TestCase):
             conclusion_recommendation="RERUN",
             takeaways_summary="takeaway",
         )
+        parent.required_experiments.add(required_experiment)
+        parent.excluded_experiments.add(excluded_experiment)
         child = self._clone_experiment_and_assert_common_expectations(parent)
 
         # Specifically assert default values for a clone of a newly-created experiment
@@ -2005,6 +2072,8 @@ class TestNimbusExperiment(TestCase):
         self.assertFalse(child.risk_brand)
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
         self.assertFalse(child.is_rollout_dirty)
+        self.assertFalse(child.takeaways_metric_gain)
+        self.assertFalse(child.takeaways_qbr_learning)
         self.assertEqual(child.locales.all().count(), 0)
         self.assertEqual(child.countries.all().count(), 0)
         self.assertEqual(child.languages.all().count(), 0)
@@ -2012,6 +2081,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.branches.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
+        self.assertIsNone(child.takeaways_gain_amount)
         self.assertIsNone(child.takeaways_summary)
 
     def test_clone_completed_experiment(self):
@@ -2076,6 +2146,9 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.enrollment_start_date, None)
         self.assertEqual(child.published_dto, None)
         self.assertEqual(child.results_data, None)
+        self.assertEqual(child.takeaways_gain_amount, None)
+        self.assertEqual(child.takeaways_metric_gain, False)
+        self.assertEqual(child.takeaways_qbr_learning, False)
         self.assertEqual(child.takeaways_summary, None)
         self.assertEqual(child.conclusion_recommendation, None)
         self.assertEqual(child._start_date, None)
@@ -2124,6 +2197,15 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(child.is_rollout, parent.is_rollout)
+
+        self.assertEqual(
+            set(parent.required_experiments.all().values_list("slug", flat=True)),
+            set(child.required_experiments.all().values_list("slug", flat=True)),
+        )
+        self.assertEqual(
+            set(parent.excluded_experiments.all().values_list("slug", flat=True)),
+            set(child.excluded_experiments.all().values_list("slug", flat=True)),
+        )
 
         for parent_link in parent.documentation_links.all():
             child_link = child.documentation_links.get(title=parent_link.title)
@@ -2179,11 +2261,158 @@ class TestNimbusExperiment(TestCase):
                 )
         return child
 
+    def test_get_changelogs_without_prior_change(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        current_datetime = datetime.datetime(2021, 1, 1).date()
+        timestamp = timezone.make_aware(
+            datetime.datetime.combine(current_datetime, datetime.datetime.min.time())
+        )
+        time_format = "%I:%M %p %Z"
+        local_timestamp = timezone.localtime(timestamp)
+        formatted_timestamp = local_timestamp.strftime(time_format)
+
+        experiment_changelogs = experiment.get_changelogs_by_date()
+
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 1)
+        self.assertEqual(
+            experiment_changelogs,
+            [
+                {
+                    "date": current_datetime,
+                    "changes": [
+                        {
+                            "event": ChangeEventType.CREATION.name,
+                            "event_message": (
+                                f"{experiment.owner} created this experiment"
+                            ),
+                            "changed_by": experiment.owner,
+                            "timestamp": formatted_timestamp,
+                        },
+                    ],
+                }
+            ],
+        )
+
+    def test_initial_log_of_cloned_experiment(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="test-experiment",
+            published_dto={"id": "experiment", "test": False},
+        )
+        user = UserFactory.create()
+        current_date = timezone.now().date()
+        timestamp = timezone.make_aware(
+            datetime.datetime.combine(current_date, datetime.datetime.min.time())
+        )
+        time_format = "%I:%M %p %Z"
+        local_timestamp = timezone.localtime(timestamp)
+        formatted_timestamp = local_timestamp.strftime(time_format)
+
+        cloned_experiment = experiment.clone(
+            "test experiment clone", user, changed_on=timestamp
+        )
+
+        experiment_changelogs = cloned_experiment.get_changelogs_by_date()
+
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 1)
+        self.assertEqual(
+            experiment_changelogs,
+            [
+                {
+                    "date": current_date,
+                    "changes": [
+                        {
+                            "event": ChangeEventType.CREATION.name,
+                            "event_message": (
+                                f"{user} cloned this experiment from "
+                                f"{cloned_experiment.parent.name}"
+                            ),
+                            "changed_by": user,
+                            "timestamp": formatted_timestamp,
+                        },
+                    ],
+                }
+            ],
+        )
+
     def test_get_changelogs(self):
-        experiment = NimbusExperimentFactory.create(slug="experiment-1")
-        generate_nimbus_changelog(experiment, experiment.owner, "Test message")
-        experiment_changelogs = experiment.get_changelogs()
-        self.assertEqual(experiment_changelogs[0].message, "Test message")
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment-1",
+            published_dto={"id": "experiment", "test": False},
+        )
+        user = UserFactory.create()
+        time_format = "%I:%M %p %Z"
+        current_date = timezone.now().date()
+
+        timestamp_1 = timezone.make_aware(
+            datetime.datetime.combine(current_date, datetime.datetime.min.time())
+        )
+        local_timestamp_1 = timezone.localtime(timestamp_1)
+        formatted_timestamp_1 = local_timestamp_1.strftime(time_format)
+
+        timestamp_2 = timestamp_1 + timezone.timedelta(hours=2)
+        local_timestamp_2 = timezone.localtime(timestamp_2)
+        formatted_timestamp_2 = local_timestamp_2.strftime(time_format)
+
+        timestamp_3 = timestamp_2 + timezone.timedelta(hours=2)
+        local_timestamp_3 = timezone.localtime(timestamp_3)
+        formatted_timestamp_3 = local_timestamp_3.strftime(time_format)
+
+        generate_nimbus_changelog(experiment, user, "created", timestamp_1)
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, user, "publish_status change", timestamp_2)
+
+        experiment.status = NimbusExperiment.Status.PREVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, user, "status_next change", timestamp_3)
+
+        experiment_changelogs = experiment.get_changelogs_by_date()
+
+        self.assertEqual(len(experiment_changelogs[0]["changes"]), 3)
+
+        self.assertEqual(
+            experiment_changelogs,
+            [
+                {
+                    "date": current_date,
+                    "changes": [
+                        {
+                            "event": ChangeEventType.STATE.name,
+                            "event_message": (
+                                f"{user} changed value of Status from "
+                                f"Draft to Preview"
+                            ),
+                            "changed_by": user,
+                            "timestamp": formatted_timestamp_3,
+                            "old_value": "Draft",
+                            "new_value": "Preview",
+                        },
+                        {
+                            "event": ChangeEventType.STATE.name,
+                            "event_message": (
+                                f"{user} changed value of Publish Status from "
+                                f"Idle to Review"
+                            ),
+                            "changed_by": user,
+                            "timestamp": formatted_timestamp_2,
+                            "old_value": "Idle",
+                            "new_value": "Review",
+                        },
+                        {
+                            "event": ChangeEventType.CREATION.name,
+                            "event_message": f"{user} created this experiment",
+                            "changed_by": user,
+                            "timestamp": formatted_timestamp_1,
+                        },
+                    ],
+                }
+            ],
+        )
 
 
 class TestNimbusBranch(TestCase):
@@ -2526,22 +2755,6 @@ class TestNimbusChangeLog(TestCase):
             message=None,
         )
         self.assertEqual(str(changelog), f"Draft > Preview by {user.email} on {now}")
-
-
-class TestNimbusFeatureConfig(TestCase):
-    @parameterized.expand(list(NimbusExperiment.Application))
-    def test_no_feature_fixture_exists(self, application):
-        application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
-        self.assertTrue(
-            NimbusFeatureConfig.objects.filter(
-                name__startswith="No Feature", application=application
-            ).exists(),
-            (
-                f"A 'No Feature {application_config.name}' FeatureConfig fixture "
-                "must be added in a migration.  See 0166_add_missing_feature_config "
-                "for examples."
-            ),
-        )
 
 
 class TestNimbusBranchScreenshot(TestCase):

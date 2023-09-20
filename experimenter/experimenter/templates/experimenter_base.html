@@ -1,4 +1,5 @@
 {% load static %}
+{% load static tailwind_tags %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,10 +8,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
+    {% tailwind_css %}
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+    <script defer src="{% static 'scripts/bundle.js' %}"></script>
 </head>
-<body>
-    {% block content %}
-    {% endblock %}
+<body x-data="sidebar" :class="{ 'overflow-hidden md:overflow-auto': open,  }">
+    {% include "common/header.html"%}
+    <div class="h-full min-h-screen w-full flex flex-col justify-start items-center">
+        <!-- This is a overlay that renders when the sidebar is open -->
+        <div :class="{ 'hidden': !open, 'block': open }" class="fixed md:hidden inset-0 bg-black bg-opacity-50 z-20 transition-opacity"></div>
+        {% block content %}
+        {% endblock %}
+    </div>
+    {% include "common/footer.html"%}
 </body>
 </html>

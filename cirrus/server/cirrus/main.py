@@ -1,54 +1,83 @@
 import logging
 import sys
 from contextlib import asynccontextmanager
-from typing import Any, Dict
+from pathlib import Path
+from typing import Any, List, NamedTuple
 
+import sentry_sdk
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
 from fastapi import FastAPI, HTTPException, status
 from fml_sdk import FmlError  # type: ignore
+from glean import Configuration, Glean, load_metrics, load_pings  # type: ignore
 from pydantic import BaseModel
 
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
 from .sdk import SDK
-from .settings import channel, context, fml_path, remote_setting_refresh_rate_in_seconds
+from .settings import (
+    app_id,
+    channel,
+    cirrus_sentry_dsn,
+    context,
+    fml_path,
+    metrics_config,
+    metrics_path,
+    pings_path,
+    remote_setting_refresh_rate_in_seconds,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class FeatureRequest(BaseModel):
     client_id: str
-    context: Dict[str, Any]
+    context: dict[str, Any]
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.sdk = create_sdk()
-    app.state.remote_setting = RemoteSettings(app.state.sdk)
+    initialize_sentry()
     app.state.fml = create_fml()
+    app.state.sdk = create_sdk(app.state.fml.get_coenrolling_feature_ids())
+    app.state.remote_setting = RemoteSettings(app.state.sdk)
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
+    app.state.pings, app.state.metrics = initialize_glean()
 
     yield
     if app.state.scheduler:
         app.state.scheduler.shutdown()
+    Glean.shutdown()
+
+
+def initialize_sentry():
+    if cirrus_sentry_dsn:  # pragma: no cover
+        sentry_sdk.init(
+            dsn=cirrus_sentry_dsn,
+            # Set traces_sample_rate to 1.0 to capture 100%
+            # of transactions for performance monitoring.
+            # We recommend adjusting this value in production.
+            traces_sample_rate=0.1,
+            # Set profiles_sample_rate to 1.0 to profile 100%
+            # of sampled transactions.
+            # We recommend adjusting this value in production.
+            profiles_sample_rate=0.1,
+        )
 
 
 def create_fml():
     try:
-        fml = FML(fml_path=fml_path, channel=channel)
-        return fml
-    except FmlError as e:
+        return FML(fml_path=fml_path, channel=channel)
+    except FmlError as e:  # type: ignore
         logger.error(f"Error occurred during FML creation: {e}")
         sys.exit(1)
 
 
-def create_sdk():
+def create_sdk(coenrolling_feature_ids: List[str]):
     try:
-        sdk = SDK(context=context)
-        return sdk
-    except NimbusError as e:
+        return SDK(context=context, coenrolling_feature_ids=coenrolling_feature_ids)
+    except NimbusError as e:  # type: ignore
         logger.error(f"Error occurred during SDK creation: {e}")
         sys.exit(1)
 
@@ -73,6 +102,73 @@ def start_and_set_initial_job():
     )
 
 
+def initialize_glean():
+    pings = load_pings(pings_path)
+    metrics = load_metrics(metrics_path)
+
+    data_dir_path = Path(metrics_config.data_dir)
+
+    config = Configuration(
+        channel=metrics_config.channel,
+        max_events=metrics_config.max_events_buffer,
+        server_endpoint=metrics_config.server_endpoint,
+    )
+
+    Glean.initialize(
+        application_build_id=metrics_config.build,
+        application_id=metrics_config.app_id,
+        application_version=metrics_config.version,
+        configuration=config,
+        data_dir=data_dir_path,
+        log_level=int(metrics_config.log_level),
+        upload_enabled=metrics_config.upload_enabled,
+    )
+    return pings, metrics
+
+
+class EnrollmentMetricData(NamedTuple):
+    experiment_slug: str
+    branch_slug: str
+    experiment_type: str
+
+
+def collate_enrollment_metric_data(
+    enrolled_partial_configuration: dict[str, Any]
+) -> list[EnrollmentMetricData]:
+    events: list[dict[str, Any]] = enrolled_partial_configuration.get("events", [])
+    data: list[EnrollmentMetricData] = []
+    for event in events:
+        if event.get("change") == "Enrollment":
+            experiment_slug = event.get("experiment_slug", "")
+            branch_slug = event.get("branch_slug", "")
+            experiment_type = app.state.remote_setting.get_recipe_type(experiment_slug)
+            data.append(
+                EnrollmentMetricData(
+                    experiment_slug=experiment_slug,
+                    branch_slug=branch_slug,
+                    experiment_type=experiment_type,
+                )
+            )
+    return data
+
+
+def record_metrics(enrolled_partial_configuration: dict[str, Any], client_id: str):
+    metrics = collate_enrollment_metric_data(
+        enrolled_partial_configuration=enrolled_partial_configuration
+    )
+    for experiment_slug, branch_slug, experiment_type in metrics:
+        app.state.metrics.cirrus_events.enrollment.record(
+            app.state.metrics.cirrus_events.EnrollmentExtra(
+                user_id=client_id,
+                app_id=app_id,
+                experiment=experiment_slug,
+                branch=branch_slug,
+                experiment_type=experiment_type,
+            )
+        )
+    app.state.pings.enrollment.submit()
+
+
 app = FastAPI(lifespan=lifespan)
 
 
@@ -94,16 +190,23 @@ async def compute_features(request_data: FeatureRequest):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Context value is missing or empty",
         )
-    targeting_context: Dict[str, Any] = {
+    targeting_context: dict[str, Any] = {
         "clientId": request_data.client_id,
         "requestContext": request_data.context,
     }
-    enrolled_partial_configuration: Dict[str, Any] = app.state.sdk.compute_enrollments(
+    enrolled_partial_configuration: dict[str, Any] = app.state.sdk.compute_enrollments(
         targeting_context
     )
-    client_feature_configuration: Dict[
+
+    client_feature_configuration: dict[
         str, Any
     ] = app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
+
+    record_metrics(
+        enrolled_partial_configuration=enrolled_partial_configuration,
+        client_id=request_data.client_id,
+    )
+
     return client_feature_configuration
 
 
