@@ -2,11 +2,9 @@ import logging
 import os
 
 import yaml
+from rust_fml import FmlClient
 
 from experimenter.settings import BASE_DIR
-
-# Todo: Connect FML https://mozilla-hub.atlassian.net/browse/EXP-3791
-# from nimbus-experimenter import Fml
 
 logger = logging.getLogger()
 
@@ -34,7 +32,7 @@ class NimbusFmlLoader:
         else:
             logger.error("Failed to find fml path for application: " + application)
 
-    def create(self, path: str, channel: str):
-        return "success"
-        # Todo: Connect FML https://mozilla-hub.atlassian.net/browse/EXP-3791
-        # return Fml.new(path, channel)
+    def create(self, path: str, channel: str) -> FmlClient:
+        return FmlClient.new_with_ref(
+            "@mozilla-mobile/firefox-android/fenix/app/nimbus.fml.yaml", "release", "main"
+        )
