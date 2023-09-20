@@ -1259,6 +1259,17 @@ NEW_ANDROID_13_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+EXISTING_USER = NimbusTargetingConfig(
+    name="Existing user",
+    slug="existing_user",
+    description="Users with profiles older than 28 days",
+    targeting=f"{PROFILE28DAYS}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name="Existing user (has default, need pin)",
     slug="existing_user_has_default_need_pin",
