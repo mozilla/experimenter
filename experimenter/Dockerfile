@@ -42,7 +42,41 @@ RUN apt-get update
 RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client yarn parallel
 
 
+# Rust packages
+# This is temporary while megazord packaging is pending.
+WORKDIR /application-services
+ARG as_version
+
+RUN git clone https://github.com/mozilla/application-services.git .
+RUN if [[ -z "${as_version}" ]] ; then \
+    echo "No application-services version supplied, using latest commit." ; \
+    else \
+    git fetch ; \
+    fi
+
+RUN git submodule init
+RUN git submodule update --recursive
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y --profile minimal
+ENV PATH "/root/.cargo/bin:$PATH"
+RUN mkdir -p /application-services/megazord
+
+RUN cargo build --manifest-path /application-services/megazords/nimbus-experimenter/Cargo.toml --release
+RUN cargo uniffi-bindgen generate --library /application-services/target/release/libnimbus_experimenter.so --language python --out-dir /application-services/megazord
+
+RUN mv /application-services/megazord/fml.py /application-services/megazord/rust_fml.py
+RUN mv /application-services/megazord/nimbus.py /application-services/megazord/rust_sdk.py
+RUN mv /application-services/megazord/errorsupport.py /application-services/megazord/rust_errorsupport.py
+RUN mv /application-services/megazord/remote_settings.py /application-services/megazord/rust_remote_settings.py
+
+# The uniffi.toml file setting cdylib_name is set to "cirrus", which means the generated python is expecting
+# the library to be called libcirrus.so.
+RUN cp /application-services/target/release/libnimbus_experimenter.so /application-services/megazord/libcirrus.so
+# RUN cp /application-services/target/release/libnimbus_experimenter.so /application-services/megazord/libnimbus_experimenter.so
+ENV PYTHONPATH=$PYTHONPATH:/application-services/megazord
+
 # Python packages
+WORKDIR /experimenter
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH "/root/.local/bin:$PATH"
 RUN poetry config virtualenvs.create false
@@ -84,8 +118,8 @@ COPY --from=file-loader /experimenter/experimenter/legacy/legacy-ui/ /experiment
 RUN yarn workspace @experimenter/core build
 COPY --from=file-loader /experimenter/experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/nimbus-ui build
-COPY --from=file-loader /experimenter/experimenter/theme/ /experimenter/experimenter/theme/ 
-COPY --from=file-loader /experimenter/experimenter/templates/ /experimenter/experimenter/templates/ 
+COPY --from=file-loader /experimenter/experimenter/theme/ /experimenter/experimenter/theme/
+COPY --from=file-loader /experimenter/experimenter/templates/ /experimenter/experimenter/templates/
 RUN yarn --cwd /experimenter/experimenter/theme/static_src build
 
 # Deploy image
