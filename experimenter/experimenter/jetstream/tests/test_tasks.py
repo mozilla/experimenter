@@ -1137,7 +1137,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         tasks.fetch_population_sizing_data()
         sizing_results = cache.get(SIZING_DATA_KEY)
 
-        self.assertEqual(json.dumps(json.loads(sizing_test_data)), sizing_results.json())
+        self.assertEqual(
+            json.dumps(json.loads(sizing_test_data)),
+            sizing_results.json(exclude_unset=True),
+        )
 
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
