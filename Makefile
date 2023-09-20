@@ -8,6 +8,7 @@ COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker compose -f docker-compose-test.yml
 COMPOSE_PROD = docker compose -f docker-compose-prod.yml
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
+DOCKER_BUILD = docker buildx build $$( [ $$BUILD_MULTIPLATFORM  ] && echo "--platform linux/amd64,linux/arm64 --output type=cacheonly" )
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
@@ -41,7 +42,7 @@ LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.js
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_projects
-PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
+PYTHON_PATH_SDK = PYTHONPATH=/application-services/megazord
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
@@ -119,16 +120,16 @@ compose_build:
 	$(COMPOSE) build
 
 build_dev: ssl
-	docker buildx build --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
+	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
 build_test: ssl
-	docker buildx build --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
+	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
 build_ui: ssl
-	docker buildx build --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
+	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
 
-build_prod: build_ui ssl
-	docker buildx build --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
+build_prod: ssl
+	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
 	$(COMPOSE) kill || true
@@ -242,13 +243,7 @@ CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
 cirrus_build:
-	$(COMPOSE) build cirrus
-
-cirrus_build_test:
-	$(COMPOSE_TEST) build cirrus
-
-cirrus_build_prod:
-	docker buildx build --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
+	$(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
 cirrus_up: cirrus_build
 	$(COMPOSE) up cirrus
@@ -256,10 +251,10 @@ cirrus_up: cirrus_build
 cirrus_down: cirrus_build
 	$(COMPOSE) down cirrus
 
-cirrus_test: cirrus_build_test
+cirrus_test: cirrus_build
 	$(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
 
-cirrus_check: cirrus_build_test
+cirrus_check: cirrus_build
 	$(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format: cirrus_build

@@ -1357,6 +1357,10 @@ networking:
       description: Whether the Necko predictor is enabled
       type: boolean
       setPref: "network.predictor.enabled"
+    http3CCalgorithm:
+      description: The congestion control algorithm with which to configure neqo. 0 for NewReno, 1 for Cubic
+      type: int
+      setPref: "network.http.http3.cc_algorithm"
 
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
@@ -1837,3 +1841,16 @@ cookieBannerHandling:
       type: boolean
       setPref: cookiebanners.ui.desktop.enabled
       description: Enables the cookie banner desktop UI.
+
+feltPrivacy:
+  description: Prefs for Felt Privacy v1 experiments
+  owner: cmeador@mozilla.com
+  hasExposure: true
+  exposureDescription: Exposure when user opens a private browsing window. 
+  variables:
+    feltPrivacy:
+      type: boolean
+      setPref: browser.privatebrowsing.felt-privacy-v1 
+      description: >-
+        When true, new styles and copy enabled on about:privatebrowsing. When true, 
+        a toggle for showing or hiding quick suggestions appears in about:preferences.
