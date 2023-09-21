@@ -19,6 +19,7 @@ type LinkNavProps = {
   title?: string;
   onClick?: () => void;
   useButton?: boolean;
+  relativeToRoot?: boolean;
 };
 
 export const LinkNav = ({
@@ -31,9 +32,14 @@ export const LinkNav = ({
   title,
   onClick,
   useButton = false,
+  relativeToRoot = false,
 }: LinkNavProps) => {
   const location = useLocation();
-  const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
+  const to = route
+    ? relativeToRoot
+      ? `${route}`
+      : `${BASE_PATH}/${route}`
+    : BASE_PATH;
   const isCurrentPage = location.pathname === to;
 
   // If we supplied a text color, use it. Otherwise use current page colors
@@ -55,6 +61,7 @@ export const LinkNav = ({
         <Button
           {...{ title }}
           variant="link"
+          href={relativeToRoot ? to : ""}
           className={classNames(
             textColor,
             "d-flex font-weight-semibold m-0 p-0 b-0 align-items-center",
