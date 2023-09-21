@@ -77,7 +77,9 @@ class TestNimbusConfigurationSerializer(MockSizingDataMixin, TestCase):
         self.assertEqual(config["owners"], [{"username": experiment.owner.username}])
 
         pop_sizing_data = self.get_cached_sizing_data()
-        self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
+        self.assertEqual(
+            config["populationSizingData"], pop_sizing_data.json(exclude_unset=True)
+        )
 
         for outcome in Outcomes.all():
             self.assertIn(
