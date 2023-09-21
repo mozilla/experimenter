@@ -118,19 +118,17 @@ Example output:
 
 ```json
 {
-  "features": {
-    "Feature1": {
-      "Variable1.1": "valueA",
-      "Variable1.2": "valueB"
-    },
-    "Feature2": {
-      "Variable2.1": "valueC",
-      "Variable2.2": "valueD"
-    },
-    "FeatureN": {
-      "VariableN.1": "valueX",
-      "VariableN.2": "valueY"
-    }
+  "Feature1": {
+    "Variable1.1": "valueA",
+    "Variable1.2": "valueB"
+  },
+  "Feature2": {
+    "Variable2.1": "valueC",
+    "Variable2.2": "valueD"
+  },
+  "FeatureN": {
+    "VariableN.1": "valueX",
+    "VariableN.2": "valueY"
   }
 }
 ```
