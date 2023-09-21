@@ -34,6 +34,9 @@ describe("AppLayoutWithSidebar", () => {
         "href",
         `${BASE_PATH}/my-special-slug/edit/audience`,
       );
+      expect(
+        screen.getByTestId("history-page-my-special-slug"),
+      ).toHaveAttribute("href", `/history/my-special-slug`);
     });
 
     it("renders information about missing experiment details", async () => {

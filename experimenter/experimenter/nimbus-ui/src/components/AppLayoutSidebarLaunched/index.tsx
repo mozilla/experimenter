@@ -10,6 +10,7 @@ import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import { ReactComponent as BarChart } from "src/components/AppLayoutSidebarLaunched/bar-chart.svg";
 import { ReactComponent as Person } from "src/components/AppLayoutWithSidebar/person.svg";
+import { ReactComponent as Timeline } from "src/components/AppLayoutWithSidebar/timeline.svg";
 import { DisabledItem } from "src/components/DisabledItem";
 import LinkExternal from "src/components/LinkExternal";
 import { LinkNav } from "src/components/LinkNav";
@@ -192,6 +193,16 @@ export const AppLayoutSidebarLaunched = ({
                 canReview={experiment.canReview}
               />
 
+              <LinkNav
+                route={`/history/${slug}`}
+                testid={`history-page-${slug}`}
+                relativeToRoot
+                useButton
+              >
+                <Timeline className="sidebar-icon" />
+                History
+              </LinkNav>
+
               {experiment.isRollout &&
                 experiment.status !== "COMPLETE" &&
                 editPages.map((page, idx) => (
@@ -236,6 +247,7 @@ export const AppLayoutSidebarLaunched = ({
                   )}
                 </DisabledItem>
               )}
+
               <SidebarActions {...{ experiment, refetch, status, analysis }} />
             </Nav>
           </nav>
