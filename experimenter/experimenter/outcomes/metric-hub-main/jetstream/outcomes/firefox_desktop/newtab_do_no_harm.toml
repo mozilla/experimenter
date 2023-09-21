@@ -12,3 +12,9 @@ Guardrail metrics for the New Tab. Includes user experience and revenue-related 
 
 [metrics.newtab_homepage_enabled.statistics.binomial]
 [metrics.newtab_engagement.statistics.binomial]
+
+[metrics.newtab_organic_topsite_clicks.statistics.bootstrap_mean]
+[metrics.newtab_organic_topsite_clicks.statistics.deciles]
+
+[metrics.newtab_organic_topsite_impressions.statistics.bootstrap_mean]
+[metrics.newtab_organic_topsite_impressions.statistics.deciles]
