@@ -22,3 +22,6 @@ focus_ios:
   fml_path: "nimbus.fml.yaml"
   major_release_branch: "releases_v{major}"
   minor_release_tag: "v{major}.{minor}"
+monitor_cirrus:
+  repo: "mozilla/blurts-server"
+  fml_path: "config/nimbus.yaml"
