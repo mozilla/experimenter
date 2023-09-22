@@ -29,6 +29,7 @@ class Command(BaseCommand):
                 defaults={
                     "name": feature.slug,
                     "description": feature.description,
+                    "enabled": True,
                 },
             )
 
