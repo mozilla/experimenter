@@ -12,13 +12,24 @@ commands:
       - run:
           name: Check file paths
           command: |
-            if git diff --name-only main HEAD | grep -E '<< parameters.paths >>'
+            # Check if CIRCLE_BRANCH is "main" and skip the check
+            if [ "$CIRCLE_BRANCH" == "main" ]; then
+                echo "On main branch. Skipping path checks."
+                exit 0
+            fi
+
+            diff_output=$(git diff --name-only main HEAD)
+            echo "Changed files:"
+            echo "$diff_output"
+
+            if echo "$diff_output" | grep -E '<< parameters.paths >>|^[^/]+$|^.circleci/'
               then
-                echo "Changes detected in << parameters.paths >> directory. Running tests and linting."
+                echo "Changes detected in << parameters.paths >> or .circleci or root directory. Running tests and linting."
               else
-                echo "No changes in << parameters.paths >>. Skipping tests and linting."
+                echo "No changes in << parameters.paths >> or .circleci or root directory. Skipping tests and linting."
                 circleci-agent step halt
             fi
+
   setup_docker:
     description: "Setup Docker with Hydrobuild"
     parameters:
@@ -26,13 +37,17 @@ commands:
         type: string
       password:
         type: string
+      buildx_url:
+        type: string
+        default: https://github.com/docker/buildx-desktop/releases/download/v0.11.2-desktop.4/buildx-v0.11.2-desktop.4.linux-amd64
+      compose_url:
+        type: string
+        default: https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-x86_64
     steps:
       - run: |
           mkdir -vp ~/.docker/cli-plugins/
-          ARCH=amd64
-          BUILDX_URL=$(curl -s https://raw.githubusercontent.com/docker/actions-toolkit/main/.github/buildx-lab-releases.json | jq -r ".latest.assets[] | select(endswith(\"linux-$ARCH\"))")
-          curl --silent -L --output ~/.docker/cli-plugins/docker-buildx $BUILDX_URL
-          curl --silent -L --output ~/.docker/cli-plugins/docker-compose https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-x86_64
+          curl --silent -L --output ~/.docker/cli-plugins/docker-buildx << parameters.buildx_url >>
+          curl --silent -L --output ~/.docker/cli-plugins/docker-compose << parameters.compose_url >>
           chmod a+x ~/.docker/cli-plugins/docker-buildx
           chmod a+x ~/.docker/cli-plugins/docker-compose
           if [ -n "<< parameters.username >>" -a -n "<< parameters.password >>" ]; then
@@ -43,7 +58,7 @@ commands:
           fi
 
 jobs:
-  check_experimenter_branch:
+  check_experimenter_x86_64:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
@@ -62,22 +77,76 @@ jobs:
             cp .env.sample .env
             make check
 
-  check_experimenter_main:
+  check_experimenter_aarch64:
     machine:
       image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
       docker_layer_caching: true
-    resource_class: large
+    resource_class: arm.large
     working_directory: ~/experimenter
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - setup_docker:
           username: $DOCKER_USER
           password: $DOCKER_PASS
+          buildx_url: https://github.com/docker/buildx-desktop/releases/download/v0.11.2-desktop.4/buildx-v0.11.2-desktop.4.linux-arm64
+          compose_url: https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-aarch64
       - run:
           name: Run tests and linting
           command: |
             cp .env.sample .env
             make check
+
+  check_cirrus_x86_64:
+    machine:
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
+    resource_class: large
+    working_directory: ~/cirrus
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "cirrus/"
+      - setup_docker:
+          username: $DOCKERHUB_CIRRUS_USER
+          password: $DOCKERHUB_CIRRUS_PASS
+      - run:
+          name: Run Cirrus tests and linting
+          command: |
+            make cirrus_check
+
+  check_cirrus_aarch64:
+    machine:
+      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      docker_layer_caching: true
+    resource_class: arm.large
+    working_directory: ~/cirrus
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "cirrus/"
+      - setup_docker:
+          username: $DOCKERHUB_CIRRUS_USER
+          password: $DOCKERHUB_CIRRUS_PASS
+          buildx_url: https://github.com/docker/buildx-desktop/releases/download/v0.11.2-desktop.4/buildx-v0.11.2-desktop.4.linux-arm64
+          compose_url: https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-aarch64
+      - run:
+          name: Run Cirrus tests and linting
+          command: |
+            make cirrus_check
+
+  check_schemas:
+    docker:
+      - image: cimg/python:3.10.8-node # poetry 1.2.2
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "schemas/"
+      - run:
+          name: Run Schemas tests and linting
+          command: |
+            make schemas_check
 
   integration_nimbus_desktop_release_targeting:
     machine:
@@ -382,9 +451,9 @@ jobs:
           name: Deploy to latest
           command: |
             ./scripts/store_git_info.sh
-            # Build all images for arm64 and amd64 to hydrate build cache
+            # Build all images for aarch64 and x86_64 to hydrate build cache
             make BUILD_MULTIPLATFORM=1 build_dev build_test build_ui build_prod
-            # Pull amd64 and tag to dockerhub for deploy
+            # Pull x86_64 and tag to dockerhub for deploy
             make build_prod
             docker tag experimenter:deploy ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest
@@ -402,12 +471,49 @@ jobs:
       - deploy:
           name: Deploy to latest
           command: |
-            # Build all images for arm64 and amd64 to hydrate build cache
+            # Build all images for aarch64 and x86_64 to hydrate build cache
             make BUILD_MULTIPLATFORM=1 cirrus_build
-            # Pull amd64 and tag to dockerhub for deploy
+            # Pull x86_64 and tag to dockerhub for deploy
             make cirrus_build
             docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
             docker push ${DOCKERHUB_CIRRUS_REPO}:latest
+
+  deploy_schemas:
+    docker:
+      - image: cimg/python:3.10.8-node # poetry 1.2.2
+    steps:
+      - checkout
+      - run:
+          name: Check for package version change in last commit before proceeding.
+          command: |
+            if git diff main HEAD~1 schemas/pyproject.toml | grep 'version'
+              then
+                echo "Found changes to package version dir, proceeding with deployment."
+              else
+                echo "No changes in package version. Skipping mozilla-nimbus-schemas deployment."
+                circleci-agent step halt
+            fi
+      - run:
+          name: Create the PyPI distribution files
+          command: |
+            make schemas_build_pypi
+      - run:
+          name: Upload to PyPI
+          command: |
+            # Relies on the TWINE_USERNAME and TWINE_PASSWORD environment variables configured at:
+            #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
+            # For more on twine, see:
+            #   https://twine.readthedocs.io/en/latest/
+            make schemas_deploy_pypi
+      - run:
+          name: NPM Authentication
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+      - run:
+          name: Upload to NPM
+          command: |
+            # Relies on the NPM_TOKEN environment variable configured at:
+            #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
+            make schemas_deploy_npm
 
   update_external_configs:
     working_directory: ~/experimenter
@@ -549,73 +655,6 @@ jobs:
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-rust-image
             docker push ${DOCKERHUB_REPO}:nimbus-rust-image
 
-  check_cirrus:
-    machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: ~/cirrus
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "cirrus/"
-      - setup_docker:
-          username: $DOCKERHUB_CIRRUS_USER
-          password: $DOCKERHUB_CIRRUS_PASS
-      - run:
-          name: Run Cirrus tests and linting
-          command: |
-            make cirrus_check
-
-  check_schemas:
-    docker:
-      - image: cimg/python:3.10.8-node # poetry 1.2.2
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "schemas/"
-      - run:
-          name: Run Schemas tests and linting
-          command: |
-            make schemas_check
-
-  schemas_deploy:
-    docker:
-      - image: cimg/python:3.10.8-node # poetry 1.2.2
-    steps:
-      - checkout
-      - run:
-          name: Check for package version change in last commit before proceeding.
-          command: |
-            if git diff main HEAD~1 schemas/pyproject.toml | grep 'version'
-              then
-                echo "Found changes to package version dir, proceeding with deployment."
-              else
-                echo "No changes in package version. Skipping mozilla-nimbus-schemas deployment."
-                circleci-agent step halt
-            fi
-      - run:
-          name: Create the PyPI distribution files
-          command: |
-            make schemas_build_pypi
-      - run:
-          name: Upload to PyPI
-          command: |
-            # Relies on the TWINE_USERNAME and TWINE_PASSWORD environment variables configured at:
-            #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
-            # For more on twine, see:
-            #   https://twine.readthedocs.io/en/latest/
-            make schemas_deploy_pypi
-      - run:
-          name: NPM Authentication
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-      - run:
-          name: Upload to NPM
-          command: |
-            # Relies on the NPM_TOKEN environment variable configured at:
-            #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
-            make schemas_deploy_npm
-
 workflows:
   version: 2
   weekly:
@@ -643,19 +682,14 @@ workflows:
 
   build:
     jobs:
-      - check_experimenter_branch:
-          name: Check Experimenter (Branch)
-          filters:
-            branches:
-              ignore:
-                - main
-      - check_experimenter_main:
-          name: Check Experimenter (Main)
-          filters:
-            branches:
-              only: main
-      - check_cirrus:
-          name: Check Cirrus
+      - check_experimenter_x86_64:
+          name: Check Experimenter x86_64
+      - check_experimenter_aarch64:
+          name: Check Experimenter aarch64
+      - check_cirrus_x86_64:
+          name: Check Cirrus x86_64
+      - check_cirrus_aarch64:
+          name: Check Cirrus aarch64
       - check_schemas:
           name: Check Schemas
           filters:
@@ -740,17 +774,18 @@ workflows:
             branches:
               only: main
           requires:
-            - Check Experimenter (Main)
+            - Check Experimenter x86_64
+            - Check Experimenter aarch64
       - deploy_cirrus:
           name: Deploy Cirrus
           filters:
             branches:
               only: main
           requires:
-            - Check Cirrus
-  deploy_schemas:
-    jobs:
-      - schemas_deploy:
+            - Check Cirrus x86_64
+            - Check Cirrus aarch64
+      - deploy_schemas:
           filters:
             branches:
               only: main
+
