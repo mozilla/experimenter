@@ -208,6 +208,24 @@ class TestLoadFeatureConfigs(TestCase):
         self.assertTrue(feature_desktop.enabled)
         self.assertFalse(feature_fenix.enabled)
 
+    def test_load_feature_sets_enabled_to_true_if_disabled_and_found_in_yaml(self):
+        NimbusFeatureConfigFactory.create(
+            slug="someFeature",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema="{}",
+                )
+            ],
+            enabled=False,
+        )
+
+        call_command("load_feature_configs")
+
+        feature_config = NimbusFeatureConfig.objects.get(slug="someFeature")
+        self.assertTrue(feature_config.enabled)
+
 
 @mock_invalid_remote_schema_features
 class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
@@ -235,7 +253,6 @@ class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
         self.assertEqual(feature_config.schemas.get(version=None).schema, schema)
 
     def test_load_feature_does_not_set_no_features_slug_enabled_to_false(self):
-
         call_command("load_feature_configs")
 
         feature_config = NimbusFeatureConfig.objects.get(slug="no-feature-fenix")
