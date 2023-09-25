@@ -7,7 +7,7 @@ import factory
 from django.conf import settings
 from django.utils import timezone
 from django.utils.text import slugify
-from faker import Factory as FakerFactory
+from faker import Faker
 
 from experimenter.base.models import Country, Locale
 from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
@@ -21,7 +21,7 @@ from experimenter.legacy.legacy_experiments.models import (
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
-faker = FakerFactory.create()
+faker = Faker()
 NORMANDY_STATUS_CHOICES = Experiment.STATUS_CHOICES[:-1]
 
 
@@ -30,7 +30,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
     analysis_owner = factory.SubFactory(UserFactory)
     engineering_owner = factory.LazyAttribute(lambda o: faker.name())
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    name = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
     slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
     archived = False
     short_description = factory.LazyAttribute(lambda o: faker.text(200))
@@ -73,7 +73,9 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     firefox_channel = factory.LazyAttribute(
         lambda o: random.choice(Experiment.CHANNEL_CHOICES[1:])[0]
     )
-    addon_experiment_id = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
+    addon_experiment_id = factory.LazyAttribute(
+        lambda o: slugify(faker.unique.catch_phrase())
+    )
     addon_release_url = factory.LazyAttribute(
         lambda o: "https://www.example.com/{}-release.xpi".format(o.addon_experiment_id)
     )
@@ -217,11 +219,11 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: faker.text())
     experiment = factory.SubFactory(ExperimentFactory)
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    name = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
-    message_targeting = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    message_threshold = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    message_triggers = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    message_targeting = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
+    message_threshold = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
+    message_triggers = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
 
     @factory.lazy_attribute
     def addon_release_url(self):
@@ -241,7 +243,7 @@ class ExperimentVariantFactory(BaseExperimentVariantFactory):
         if self.experiment.pref_type == Experiment.PREF_TYPE_INT:
             value = 10
         elif self.experiment.pref_type == Experiment.PREF_TYPE_STR:
-            value = slugify(faker.catch_phrase())
+            value = slugify(faker.unique.catch_phrase())
         return json.dumps(value)
 
 
@@ -251,7 +253,7 @@ class ExperimentControlFactory(ExperimentVariantFactory):
 
 class VariantPreferencesFactory(factory.django.DjangoModelFactory):
     variant = factory.SubFactory(ExperimentVariantFactory)
-    pref_name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    pref_name = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
     pref_type = "string"
     pref_branch = factory.LazyAttribute(
         lambda o: random.choice(Experiment.PREF_BRANCH_CHOICES[1:])[0]
@@ -263,7 +265,6 @@ class VariantPreferencesFactory(factory.django.DjangoModelFactory):
 
 
 class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
-
     experiment = factory.SubFactory(ExperimentFactory)
     changed_by = factory.SubFactory(UserFactory)
     old_status = factory.LazyAttribute(
