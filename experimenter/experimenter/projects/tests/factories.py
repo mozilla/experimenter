@@ -1,14 +1,14 @@
 import factory
 from django.utils.text import slugify
-from faker import Factory as FakerFactory
+from faker import Faker
 
 from experimenter.projects.models import Project
 
-faker = FakerFactory.create()
+faker = Faker()
 
 
 class ProjectFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    name = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
     slug = factory.LazyAttribute(lambda o: f"{slugify(o.name)}_")
 
     class Meta:
