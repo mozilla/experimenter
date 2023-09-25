@@ -1,9 +1,9 @@
 import factory
-from faker import Factory as FakerFactory
+from faker import Faker
 
 from experimenter.base.models import Country, Language, Locale
 
-faker = FakerFactory.create()
+faker = Faker()
 
 
 class CountryFactory(factory.django.DjangoModelFactory):

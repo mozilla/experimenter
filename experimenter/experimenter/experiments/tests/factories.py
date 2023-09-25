@@ -10,7 +10,7 @@ import factory
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from django.utils.text import slugify
-from faker import Factory as FakerFactory
+from faker import Faker
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -34,7 +34,7 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 
-faker = FakerFactory.create()
+faker = Faker()
 
 
 # TODO: assemble a directory of sample screenshot images?
@@ -76,7 +76,7 @@ TEST_LOCALIZATIONS = """\
 
 
 class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    name = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
     slug = factory.LazyAttribute(
         lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
     )
@@ -365,7 +365,7 @@ class Lifecycles(Enum):
 class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     publish_status = NimbusExperiment.PublishStatus.IDLE
     owner = factory.SubFactory(UserFactory)
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    name = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
     slug = factory.LazyAttribute(
         lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
     )
@@ -597,7 +597,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 class NimbusBranchFactory(factory.django.DjangoModelFactory):
     ratio = 1
     experiment = factory.SubFactory(NimbusExperimentFactory)
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    name = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
     slug = factory.LazyAttribute(
         lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
     )
@@ -672,7 +672,7 @@ class NimbusDocumentationLinkFactory(factory.django.DjangoModelFactory):
 
 
 class NimbusIsolationGroupFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
+    name = factory.LazyAttribute(lambda o: slugify(faker.unique.catch_phrase()))
     instance = factory.Sequence(lambda n: n)
 
     class Meta:
@@ -694,7 +694,7 @@ class NimbusChangeLogFactory(factory.django.DjangoModelFactory):
     changed_by = factory.SubFactory(UserFactory)
     old_status = NimbusExperiment.Status.DRAFT
     new_status = NimbusExperiment.Status.DRAFT
-    message = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    message = factory.LazyAttribute(lambda o: faker.unique.catch_phrase())
     experiment_data = factory.LazyAttribute(
         lambda o: dict(NimbusExperimentChangeLogSerializer(o.experiment).data)
     )
