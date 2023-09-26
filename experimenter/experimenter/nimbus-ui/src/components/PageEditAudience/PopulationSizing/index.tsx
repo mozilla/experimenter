@@ -130,23 +130,6 @@ const PopulationSizing = ({
                             <tr>
                               <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
                                 <span className="text-secondary">
-                                  Expected number of clients:{" "}
-                                </span>
-                              </td>
-                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
-                                <b>
-                                  {newUserMetrics[
-                                    metricKey
-                                  ].sample_size_per_branch.toFixed(2)}
-                                </b>
-                                <span className="text-secondary">
-                                  {" "}(per branch)
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
-                                <span className="text-secondary">
                                   Percent of clients:{" "}
                                 </span>
                               </td>
@@ -156,6 +139,23 @@ const PopulationSizing = ({
                                     metricKey
                                   ].population_percent_per_branch.toFixed(2)}
                                   %
+                                </b>
+                                <span className="text-secondary">
+                                  {" "}(per branch)
+                                </span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                                <span className="text-secondary">
+                                  Expected number of clients:{" "}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                                <b>
+                                  {newUserMetrics[
+                                    metricKey
+                                  ].sample_size_per_branch.toFixed(2)}
                                 </b>
                                 <span className="text-secondary">
                                   {" "}(per branch)
@@ -178,23 +178,6 @@ const PopulationSizing = ({
                             <tr>
                               <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
                                 <span className="text-secondary">
-                                  Expected number of clients:{" "}
-                                </span>
-                              </td>
-                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
-                                <b>
-                                  {existingUserMetrics[
-                                    metricKey
-                                  ].sample_size_per_branch.toFixed(2)}
-                                </b>
-                                <span className="text-secondary">
-                                  {" "}(per branch)
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
-                                <span className="text-secondary">
                                   Percent of clients:{" "}
                                 </span>
                               </td>
@@ -204,6 +187,23 @@ const PopulationSizing = ({
                                     metricKey
                                   ].population_percent_per_branch.toFixed(2)}
                                   %
+                                </b>
+                                <span className="text-secondary">
+                                  {" "}(per branch)
+                                </span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                                <span className="text-secondary">
+                                  Expected number of clients:{" "}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                                <b>
+                                  {existingUserMetrics[
+                                    metricKey
+                                  ].sample_size_per_branch.toFixed(2)}
                                 </b>
                                 <span className="text-secondary">
                                   {" "}(per branch)
