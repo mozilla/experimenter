@@ -1067,6 +1067,19 @@ RALLY_ATTENTION_STREAM_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
+    name="Review Checker Sidebar Recommendation",
+    slug="review_checker_sidebar_recommendation",
+    description="Exclude users who have the Fakespot extension installed, "
+    "or who have the CFR pref set to false",
+    targeting="addonsInfo.addons['{44df5123-f715-9146-bfaa-c6e8d4461d44}'] == null && "
+    "('browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BACKGROUND_TASK_NOTIFICATION = NimbusTargetingConfig(
     name="Background task notification",
     slug="Background_task_notification",
