@@ -121,41 +121,97 @@ const PopulationSizing = ({
                 <tbody>
                   <tr key={`${powerKey}-metrics`}>
                     <th className="align-middle" scope="row">
-                      New Users
+                      New Clients
                     </th>
                     {Object.keys(newUserMetrics).map((metricKey) => (
                       <td className="align-middle" key={`${metricKey}-sizing`}>
-                        <div className="text-secondary">
-                          Clients per branch (new)
-                        </div>
-                        {newUserMetrics[
-                          metricKey
-                        ].sample_size_per_branch.toFixed(2)}{" "}
-                        (
-                        {newUserMetrics[
-                          metricKey
-                        ].population_percent_per_branch.toFixed(2)}
-                        %)
+                        <table className="table-visualization-center-no-border" style={{ padding: 0, margin: 0 }}>
+                          <tbody>
+                            <tr>
+                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                                <span className="text-secondary">
+                                  Expected number of clients:{" "}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                                <b>
+                                  {newUserMetrics[
+                                    metricKey
+                                  ].sample_size_per_branch.toFixed(2)}
+                                </b>
+                                <span className="text-secondary">
+                                  {" "}(per branch)
+                                </span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                                <span className="text-secondary">
+                                  Percent of clients:{" "}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                                <b>
+                                  {newUserMetrics[
+                                    metricKey
+                                  ].population_percent_per_branch.toFixed(2)}
+                                  %
+                                </b>
+                                <span className="text-secondary">
+                                  {" "}(per branch)
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </td>
                     ))}
                   </tr>
                   <tr key={`${powerKey}-metrics`}>
                     <th className="align-middle" scope="row">
-                      Existing Users
+                      Existing Clients
                     </th>
                     {Object.keys(existingUserMetrics).map((metricKey) => (
                       <td className="align-middle" key={`${metricKey}-sizing`}>
-                        <div className="text-secondary">
-                          Clients per branch (existing)
-                        </div>
-                        {existingUserMetrics[
-                          metricKey
-                        ].sample_size_per_branch.toFixed(2)}{" "}
-                        (
-                        {existingUserMetrics[
-                          metricKey
-                        ].population_percent_per_branch.toFixed(2)}
-                        %)
+                        <table className="table-visualization-center-no-border" style={{ padding: 0, margin: 0 }}>
+                          <tbody>
+                            <tr>
+                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                                <span className="text-secondary">
+                                  Expected number of clients:{" "}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                                <b>
+                                  {existingUserMetrics[
+                                    metricKey
+                                  ].sample_size_per_branch.toFixed(2)}
+                                </b>
+                                <span className="text-secondary">
+                                  {" "}(per branch)
+                                </span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                                <span className="text-secondary">
+                                  Percent of clients:{" "}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                                <b>
+                                  {existingUserMetrics[
+                                    metricKey
+                                  ].population_percent_per_branch.toFixed(2)}
+                                  %
+                                </b>
+                                <span className="text-secondary">
+                                  {" "}(per branch)
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </td>
                     ))}
                   </tr>
