@@ -302,7 +302,7 @@ class NimbusConfigurationDataClass:
 
     def _get_population_sizing_data(self):
         sizing_data = cache.get(SIZING_DATA_KEY)
-        return sizing_data.json() if sizing_data else "{}"
+        return sizing_data.json(exclude_unset=True) if sizing_data else "{}"
 
     def _get_owners(self):
         owners = (

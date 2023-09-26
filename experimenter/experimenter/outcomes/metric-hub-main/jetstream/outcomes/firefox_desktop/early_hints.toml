@@ -1,0 +1,37 @@
+friendly_name = "Early Hints Performance"
+description = "Early Hints-specific metrics"
+
+## eh_perf_page_load_time_ms
+[metrics.eh_perf_page_load_time_ms_preconnect_]
+select_expression = """{{agg_histogram_mean("mozfun.map.get_key(payload.processes.content.keyed_histograms.eh_perf_page_load_time_ms, 'preconnect_')")}}"""
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.eh_perf_page_load_time_ms_preconnect_.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.eh_perf_page_load_time_ms_preconnect_.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.eh_perf_page_load_time_ms_preconnect_.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+## eh_perf_first_contentful_paint_ms
+[metrics.eh_perf_first_contentful_paint_ms_preconnect_]
+select_expression = """{{agg_histogram_mean("mozfun.map.get_key(payload.processes.content.keyed_histograms.eh_perf_first_contentful_paint_ms, 'preconnect_')")}}"""
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.eh_perf_first_contentful_paint_ms_preconnect_.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.eh_perf_first_contentful_paint_ms_preconnect_.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.eh_perf_first_contentful_paint_ms_preconnect_.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
