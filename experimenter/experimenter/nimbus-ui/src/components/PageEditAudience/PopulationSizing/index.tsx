@@ -125,15 +125,30 @@ const PopulationSizing = ({
                     </th>
                     {Object.keys(newUserMetrics).map((metricKey) => (
                       <td className="align-middle" key={`${metricKey}-sizing`}>
-                        <table className="table-visualization-center-no-border" style={{ padding: 0, margin: 0 }}>
+                        <table
+                          className="table-visualization-center-no-border"
+                          style={{ padding: 0, margin: 0 }}
+                        >
                           <tbody>
                             <tr>
-                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                              <td
+                                style={{
+                                  textAlign: "end",
+                                  border: "none",
+                                  padding: "0.25rem",
+                                }}
+                              >
                                 <span className="text-secondary">
                                   Percent of clients:{" "}
                                 </span>
                               </td>
-                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                              <td
+                                style={{
+                                  textAlign: "start",
+                                  border: "none",
+                                  padding: "0.25rem",
+                                }}
+                              >
                                 <b>
                                   {newUserMetrics[
                                     metricKey
@@ -141,24 +156,38 @@ const PopulationSizing = ({
                                   %
                                 </b>
                                 <span className="text-secondary">
-                                  {" "}(per branch)
+                                  {" "}
+                                  (per branch)
                                 </span>
                               </td>
                             </tr>
                             <tr>
-                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                              <td
+                                style={{
+                                  textAlign: "end",
+                                  border: "none",
+                                  padding: "0.25rem",
+                                }}
+                              >
                                 <span className="text-secondary">
                                   Expected number of clients:{" "}
                                 </span>
                               </td>
-                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                              <td
+                                style={{
+                                  textAlign: "start",
+                                  border: "none",
+                                  padding: "0.25rem",
+                                }}
+                              >
                                 <b>
                                   {newUserMetrics[
                                     metricKey
                                   ].sample_size_per_branch.toFixed(2)}
                                 </b>
                                 <span className="text-secondary">
-                                  {" "}(per branch)
+                                  {" "}
+                                  (per branch)
                                 </span>
                               </td>
                             </tr>
@@ -173,15 +202,30 @@ const PopulationSizing = ({
                     </th>
                     {Object.keys(existingUserMetrics).map((metricKey) => (
                       <td className="align-middle" key={`${metricKey}-sizing`}>
-                        <table className="table-visualization-center-no-border" style={{ padding: 0, margin: 0 }}>
+                        <table
+                          className="table-visualization-center-no-border"
+                          style={{ padding: 0, margin: 0 }}
+                        >
                           <tbody>
                             <tr>
-                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                              <td
+                                style={{
+                                  textAlign: "end",
+                                  border: "none",
+                                  padding: "0.25rem",
+                                }}
+                              >
                                 <span className="text-secondary">
                                   Percent of clients:{" "}
                                 </span>
                               </td>
-                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                              <td
+                                style={{
+                                  textAlign: "start",
+                                  border: "none",
+                                  padding: "0.25rem",
+                                }}
+                              >
                                 <b>
                                   {existingUserMetrics[
                                     metricKey
@@ -189,24 +233,38 @@ const PopulationSizing = ({
                                   %
                                 </b>
                                 <span className="text-secondary">
-                                  {" "}(per branch)
+                                  {" "}
+                                  (per branch)
                                 </span>
                               </td>
                             </tr>
                             <tr>
-                              <td style={{ textAlign: "end", border: "none", padding: "0.25rem" }}>
+                              <td
+                                style={{
+                                  textAlign: "end",
+                                  border: "none",
+                                  padding: "0.25rem",
+                                }}
+                              >
                                 <span className="text-secondary">
                                   Expected number of clients:{" "}
                                 </span>
                               </td>
-                              <td style={{ textAlign: "start", border: "none", padding: "0.25rem" }}>
+                              <td
+                                style={{
+                                  textAlign: "start",
+                                  border: "none",
+                                  padding: "0.25rem",
+                                }}
+                              >
                                 <b>
                                   {existingUserMetrics[
                                     metricKey
                                   ].sample_size_per_branch.toFixed(2)}
                                 </b>
                                 <span className="text-secondary">
-                                  {" "}(per branch)
+                                  {" "}
+                                  (per branch)
                                 </span>
                               </td>
                             </tr>
