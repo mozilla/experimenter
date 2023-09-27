@@ -375,28 +375,12 @@ export const FormAudience = ({
     ) {
       return null;
     }
-    let localesOrLanguagesString = "[";
-    localesOrLanguages.sort((a, b) => a.localeCompare(b));
-    localesOrLanguages.forEach((locale, idx) => {
-      localesOrLanguagesString += `'${locale}'`;
-      if (idx < localesOrLanguages.length - 1) {
-        localesOrLanguagesString += ",";
-      }
-    });
-    localesOrLanguagesString += "]";
 
-    let countriesString = countries[0];
-    if (countries.length > 1) {
-      countriesString = "[";
-      countries.sort((a, b) => a.localeCompare(b));
-      countries.forEach((country, idx) => {
-        countriesString += `'${country}'`;
-        if (idx < countries.length - 1) {
-          countriesString += ",";
-        }
-      });
-      countriesString += "]";
-    }
+    localesOrLanguages.sort((a, b) => a.localeCompare(b));
+    const localesOrLanguagesString = `[${localesOrLanguages.map(locale => `'${locale}'`).join(",")}]`;
+
+    countries.sort((a, b) => a.localeCompare(b));
+    const countriesString = countries.length > 1 ? `[${countries.map(country => `'${country}'`).join(",")}]` : countries[0];
 
     return `firefox_${appId}:${channel}:${localesOrLanguagesString}:${countriesString}`;
   };

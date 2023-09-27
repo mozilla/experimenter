@@ -121,6 +121,13 @@ select.form-control.is-warning {
 .table-visualization-center-no-border {
   @extend .table;
   @extend .text-center;
+  padding: 0px;
+  margin: 0px;
+}
+
+.table-visualization-center-no-border td {
+  border: none;
+  padding: 0.25rem;
 }
 
 .border-3 {
