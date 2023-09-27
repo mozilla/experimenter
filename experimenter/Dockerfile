@@ -127,6 +127,11 @@ COPY --from=rust-builder /application-services/megazord/remote_settings.py /appl
 COPY --from=rust-builder /application-services/target/release/libnimbus_experimenter.so /application-services/megazord/libcirrus.so
 ENV PYTHONPATH=$PYTHONPATH:/application-services/megazord
 
+# Install nimbus-cli
+
+RUN mkdir -p /application-services/bin/ && \
+    curl --proto '=https' --tlsv1.2 -sSf -o "/application-services/install-nimbus-cli.sh" "https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh" && \
+    bash /application-services/install-nimbus-cli.sh --directory /application-services/bin
 
 #-------------------------
 FROM dev AS test
