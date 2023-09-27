@@ -538,6 +538,7 @@ jobs:
           command: |
             git checkout main
             git pull origin main
+            cp .env.sample .env
             make fetch_external_resources
             if (($(git status --porcelain | wc -c) > 0))
               then
