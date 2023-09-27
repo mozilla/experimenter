@@ -1,6 +1,8 @@
 # .coveragerc to control coverage.py
 [run]
-source = experimenter
+source =
+    experimenter
+    manifesttool
 #branch = True
 omit =
     */tests/*
@@ -8,6 +10,7 @@ omit =
 [report]
 fail_under = 100
 omit =
+    bin/manifest-tool.py
     manage.py
     experimenter/wsgi.py
     *migrations*
