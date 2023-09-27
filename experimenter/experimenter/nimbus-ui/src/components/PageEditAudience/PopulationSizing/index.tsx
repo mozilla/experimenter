@@ -7,9 +7,9 @@ import React from "react";
 import { Form } from "react-bootstrap";
 import { Code } from "src/components/Code";
 import LinkExternal from "src/components/LinkExternal";
+import PopulationSizingCountTable from "src/components/PageEditAudience/PopulationSizing/PopulationSizingCountTable";
 import TooltipWithMarkdown from "src/components/PageResults/TooltipWithMarkdown";
 import { ReactComponent as Info } from "src/images/info.svg";
-import PopulationSizingCountTable from "./PopulationSizingCountTable";
 
 type PopulationSizingProps = {
   sizingData: SizingByUserType;
@@ -71,9 +71,7 @@ const PopulationSizing = ({
         data-testid="new-total-clients-label"
       >
         {totalNewClients} total
-        <strong>
-          &nbsp;new&nbsp;
-        </strong>
+        <strong>&nbsp;new&nbsp;</strong>
         clients for given parameters
       </Form.Label>
       <Form.Label
@@ -81,9 +79,7 @@ const PopulationSizing = ({
         data-testid="existing-total-clients-label"
       >
         {totalExistingClients} total
-        <strong>
-          &nbsp;existing&nbsp;
-        </strong>
+        <strong>&nbsp;existing&nbsp;</strong>
         clients for given parameters
       </Form.Label>
       <p>
@@ -123,8 +119,13 @@ const PopulationSizing = ({
                     {Object.keys(newUserMetrics).map((metricKey) => (
                       <td className="align-middle" key={`${metricKey}-sizing`}>
                         <PopulationSizingCountTable
-                          percent={newUserMetrics[metricKey].population_percent_per_branch}
-                          count={newUserMetrics[metricKey].sample_size_per_branch}
+                          percent={
+                            newUserMetrics[metricKey]
+                              .population_percent_per_branch
+                          }
+                          count={
+                            newUserMetrics[metricKey].sample_size_per_branch
+                          }
                         />
                       </td>
                     ))}
@@ -136,8 +137,14 @@ const PopulationSizing = ({
                     {Object.keys(existingUserMetrics).map((metricKey) => (
                       <td className="align-middle" key={`${metricKey}-sizing`}>
                         <PopulationSizingCountTable
-                          percent={existingUserMetrics[metricKey].population_percent_per_branch}
-                          count={existingUserMetrics[metricKey].sample_size_per_branch}
+                          percent={
+                            existingUserMetrics[metricKey]
+                              .population_percent_per_branch
+                          }
+                          count={
+                            existingUserMetrics[metricKey]
+                              .sample_size_per_branch
+                          }
                         />
                       </td>
                     ))}

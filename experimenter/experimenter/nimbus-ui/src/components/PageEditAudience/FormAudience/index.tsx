@@ -377,10 +377,15 @@ export const FormAudience = ({
     }
 
     localesOrLanguages.sort((a, b) => a.localeCompare(b));
-    const localesOrLanguagesString = `[${localesOrLanguages.map(locale => `'${locale}'`).join(",")}]`;
+    const localesOrLanguagesString = `[${localesOrLanguages
+      .map((locale) => `'${locale}'`)
+      .join(",")}]`;
 
     countries.sort((a, b) => a.localeCompare(b));
-    const countriesString = countries.length > 1 ? `[${countries.map(country => `'${country}'`).join(",")}]` : countries[0];
+    const countriesString =
+      countries.length > 1
+        ? `[${countries.map((country) => `'${country}'`).join(",")}]`
+        : countries[0];
 
     return `firefox_${appId}:${channel}:${localesOrLanguagesString}:${countriesString}`;
   };
