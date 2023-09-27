@@ -28,9 +28,9 @@ describe("PopulationSizing", () => {
       screen.getByTestId("existing-total-clients-label"),
     ).toHaveTextContent(`${totalExistingClients} total`);
 
-    expect(screen.getAllByText("Clients per branch (new)")).toHaveLength(6);
-    expect(screen.getAllByText("Clients per branch (existing)")).toHaveLength(
-      6,
+    expect(screen.getAllByText("Percent of clients:")).toHaveLength(12);
+    expect(screen.getAllByText("Expected number of clients")).toHaveLength(
+      12,
     );
   });
 });
