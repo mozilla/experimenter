@@ -1,0 +1,18 @@
+---
+version: 1.0.0
+about:
+  description: Nimbus Feature Manifest for Monitor Web testing
+channels:
+  - staging
+features:
+  example-feature:
+    description: An example feature
+    variables:
+      enabled:
+        description: If the feature is enabled
+        type: Boolean
+        default: true
+      something:
+        description: Another variable
+        type: Option<String>
+        default: ~
