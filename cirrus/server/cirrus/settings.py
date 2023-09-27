@@ -42,9 +42,7 @@ class MetricsConfiguration:
             cast(str, config("CIRRUS_METRICS_LOG_LEVEL", default="WARNING"))
         ),
     )
-    max_events_buffer: int = int(
-        config("CIRRUS_METRICS_MAX_EVENTS_BUFFER", default=500)
-    )
+    max_events_buffer: int = int(config("CIRRUS_METRICS_MAX_EVENTS_BUFFER", default=500))
     server_endpoint: Optional[str] = cast(
         Optional[str], config("CIRRUS_SERVER_ENDPOINT", default=None)
     )
