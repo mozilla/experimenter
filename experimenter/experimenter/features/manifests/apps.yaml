@@ -3,22 +3,35 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 ---
 fenix:
-  repo: \@mozilla-mobile/firefox-android
-  fml_path: fenix/app/nimbus.fml.yaml
+  slug: fenix
+  repo: "mozilla-mobile/firefox-android"
+  fml_path: "fenix/app/nimbus.fml.yaml"
+  channels: ["release", "beta", "nightly", "developer"]
   major_release_branch: "releases_v{major}"
   minor_release_tag: "fenix-v{major}.{minor}.{patch}"
 firefox_ios:
-  repo: \@mozilla-mobile/firefox-ios
-  fml_path: nimbus.fml.yaml
+  slug: ios
+  repo: "mozilla-mobile/firefox-ios"
+  fml_path: "nimbus.fml.yaml"
+  channels: ["release", "beta", "developer"]
   major_release_branch: "release/v{major}"
   minor_release_tag: "v{major}.{minor}"
 focus_android:
-  repo: \@mozilla-mobile/firefox-android
-  fml_path: focus-android/app/nimbus.fml.yaml
+  slug: focus-android
+  repo: "mozilla-mobile/firefox-android"
+  fml_path: "focus-android/app/nimbus.fml.yaml"
+  channels: ["release", "beta", "nightly", "debug"]
   major_release_branch: "releases_v{major}"
   minor_release_tag: "focus-v{major}.{minor}.{patch}"
 focus_ios:
-  repo: \@mozilla-mobile/focus-ios
-  fml_path: nimbus.fml.yaml
+  slug: focus-ios
+  repo: "mozilla-mobile/focus-ios"
+  fml_path: "nimbus.fml.yaml"
+  channels: ["release", "beta", "developer"]
   major_release_branch: "releases_v{major}"
   minor_release_tag: "v{major}.{minor}"
+monitor_cirrus:
+  slug: monitor-web
+  repo: "mozilla/blurts-server"
+  fml_path: "config/nimbus.yaml"
+  channels: ["production", "staging"]
