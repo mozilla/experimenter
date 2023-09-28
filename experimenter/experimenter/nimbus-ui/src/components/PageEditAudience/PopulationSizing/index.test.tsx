@@ -29,8 +29,6 @@ describe("PopulationSizing", () => {
     ).toHaveTextContent(`${totalExistingClients} total`);
 
     expect(screen.getAllByText("Percent of clients:")).toHaveLength(12);
-    expect(screen.getAllByText("Expected number of clients")).toHaveLength(
-      12,
-    );
+    expect(screen.getAllByText("Expected number of clients")).toHaveLength(12);
   });
 });
