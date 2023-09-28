@@ -189,8 +189,7 @@ NO_FEATURE_SLUG = [
 
 
 class Application(models.TextChoices):
-    DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug,
-               APPLICATION_CONFIG_DESKTOP.name)
+    DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
     FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)
     IOS = (APPLICATION_CONFIG_IOS.slug, APPLICATION_CONFIG_IOS.name)
     FOCUS_ANDROID = (
@@ -213,8 +212,7 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_MONITOR_WEB.slug,
         APPLICATION_CONFIG_MONITOR_WEB.name,
     )
-    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug,
-                APPLICATION_CONFIG_DEMO_APP.name)
+    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
     def is_mobile(application):
