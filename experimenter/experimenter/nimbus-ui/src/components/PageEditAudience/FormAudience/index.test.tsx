@@ -1345,9 +1345,9 @@ describe("FormAudience", () => {
         exact: false,
       }),
     ).toBeInTheDocument();
-    expect(screen.queryAllByText("Clients per branch (new)")).toHaveLength(6);
-    expect(screen.queryAllByText("Clients per branch (existing)")).toHaveLength(
-      6,
+    expect(screen.queryAllByText("Percent of clients:")).toHaveLength(12);
+    expect(screen.queryAllByText("Expected number of clients:")).toHaveLength(
+      12,
     );
   });
 
@@ -1428,9 +1428,9 @@ describe("FormAudience", () => {
         exact: false,
       }),
     ).toBeInTheDocument();
-    expect(screen.queryAllByText("Clients per branch (new)")).toHaveLength(6);
-    expect(screen.queryAllByText("Clients per branch (existing)")).toHaveLength(
-      6,
+    expect(screen.queryAllByText("Percent of clients:")).toHaveLength(12);
+    expect(screen.queryAllByText("Expected number of clients:")).toHaveLength(
+      12,
     );
   });
 
