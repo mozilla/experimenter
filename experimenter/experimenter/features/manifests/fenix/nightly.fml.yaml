@@ -32,6 +32,10 @@ features:
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
+      enable-event-timestamps:
+        description: Enables precise event timestamps for Glean events
+        type: Boolean
+        default: false
       metrics-enabled:
         description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
         type: "Map<String, Boolean>"
