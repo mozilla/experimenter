@@ -189,7 +189,8 @@ NO_FEATURE_SLUG = [
 
 
 class Application(models.TextChoices):
-    DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
+    DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug,
+               APPLICATION_CONFIG_DESKTOP.name)
     FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)
     IOS = (APPLICATION_CONFIG_IOS.slug, APPLICATION_CONFIG_IOS.name)
     FOCUS_ANDROID = (
@@ -212,7 +213,8 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_MONITOR_WEB.slug,
         APPLICATION_CONFIG_MONITOR_WEB.name,
     )
-    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
+    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug,
+                APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
     def is_mobile(application):
@@ -421,6 +423,7 @@ class NimbusConstants:
         FIREFOX_117 = "117.!"
         FIREFOX_118 = "118.!"
         FIREFOX_118_0_1 = "118.0.1"
+        FIREFOX_118_0_2 = "118.0.2"
         FIREFOX_119 = "119.!"
         FIREFOX_120 = "120.!"
 
