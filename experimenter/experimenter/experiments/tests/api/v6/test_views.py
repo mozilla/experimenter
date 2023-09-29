@@ -1,7 +1,10 @@
 import json
+from unittest import mock
 
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.response import Response
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
@@ -179,3 +182,89 @@ class TestNimbusExperimentFirstRunViewSet(TestCase):
         json_slugs = [d["id"] for d in json_data]
         expected_slugs = [e.slug for e in experiments]
         self.assertEqual(json_slugs, expected_slugs)
+
+
+class TestNimbusFmlDiagnosticsApi(TestCase):
+    maxDiff = None
+
+    # todo: replace the hardcoded return values with something parsable by the endpoint
+    fml_diagnostics = [
+        {
+            "line": 0,
+            "col": 0,
+            "message": "Incorrect value",
+            "highlight": "enabled",
+        },
+        {
+            "line": 1,
+            "col": 2,
+            "message": "Type not allowed",
+            "highlight": "record",
+        },
+    ]
+
+    @mock.patch("experimenter.experiments.api.v6.views.NimbusFmlDiagnosticsApi.post")
+    def test_get_fml_diagnostics(self, mock_fetch_fml_diagnostics):
+        test_blob = "hello world"
+        fml_response = Response()
+        fml_response.content = self.fml_diagnostics
+        fml_response.status_code = status.HTTP_201_CREATED
+
+        mock_fetch_fml_diagnostics.return_value = fml_response
+
+        response = self.client.post(
+            reverse("nimbus-fml-diagnostics-api"),
+            kwargs={
+                "application": "firefox_ios",
+                "channel": "release",
+                "blob": test_blob,
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        result = response.content.decode("utf-8")
+        self.assertIn(self.fml_diagnostics[0].get("message"), result)
+        self.assertIn(self.fml_diagnostics[1].get("message"), result)
+
+    @mock.patch("experimenter.experiments.api.v6.views.NimbusFmlDiagnosticsApi.post")
+    def test_fml_diagnostics_endpoint_send_correct_args(self, mock_fetch_fml_diagnostics):
+        test_blob = json.dumps(
+            {
+                "features": {
+                    "upgrade-message": {
+                        "description": "A message displayed when the user upgrades",
+                        "variables": {
+                            "hero-image": {
+                                "description": "A pre-bundled image",
+                                "type": "Image",
+                                "default": "ic_fox",
+                            },
+                            "message-content": {
+                                "description": "Text content to show the user",
+                                "default": "msg_thankyou",
+                            },
+                        },
+                    }
+                }
+            }
+        )
+        fml_response = Response()
+        fml_response.content = self.fml_diagnostics
+        fml_response.status_code = status.HTTP_201_CREATED
+
+        mock_fetch_fml_diagnostics.return_value = fml_response
+        kwargs = {
+            "application": "firefox_ios",
+            "channel": "release",
+            "blob": test_blob,
+        }
+        response = self.client.post(
+            reverse("nimbus-fml-diagnostics-api"),
+            kwargs=kwargs,
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+        mock_fetch_fml_diagnostics.assert_called()
+        self.assertIn(kwargs["application"], response.request["kwargs"]["application"])
+        self.assertIn(kwargs["channel"], response.request["kwargs"]["channel"])
+        self.assertIn(kwargs["blob"], response.request["kwargs"]["blob"])

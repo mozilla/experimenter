@@ -1625,6 +1625,39 @@
         ]
       }
     },
+    "/api/v6/nimbus-fml-diagnostics": {
+      "post": {
+        "operationId": "createNimbusFmlDiagnosticsApi",
+        "description": "",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {}
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {}
+            },
+            "multipart/form-data": {
+              "schema": {}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nimbus: Public"
+        ]
+      }
+    },
     "/api/v2/experiments/{slug}/intent-to-ship-email": {
       "put": {
         "operationId": "updateExperiment",
