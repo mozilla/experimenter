@@ -27,6 +27,13 @@ features:
         description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
         default: false
+  firefox-suggest-feature:
+    description: Configuration for the Firefox Suggest feature.
+    variables:
+      status:
+        description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
+        type: Boolean
+        default: false
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -101,6 +108,7 @@ features:
             trigger:
               - I_AM_NOT_DEFAULT_BROWSER
               - SUPPORTS_DEFAULT_BROWSER
+              - ON_FOURTH_LAUNCH_THIS_YEAR
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -146,6 +154,7 @@ features:
           NEVER: "false"
           NOT_INSTALLED_TODAY: days_since_install > 0
           NOT_LAUNCHED_YESTERDAY: "'app_cycle.foreground'|eventLastSeen('Days', 1) > 1"
+          ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
           SUPPORTS_DEFAULT_BROWSER: "os_version|versionCompare('14.!') >= 0"
           USER_DE_SPEAKER: "'de' in locale"
           USER_EN_SPEAKER: "'en' in locale"
