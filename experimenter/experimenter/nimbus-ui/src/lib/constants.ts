@@ -66,7 +66,7 @@ export const EXTERNAL_URLS = {
   LAUNCH_DOCUMENTATION:
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
-    "https://experimenter.info/rollouts-and-experiments#question-2",
+    "https://experimenter.info/rollouts/rollouts-bucketing-warning",
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
