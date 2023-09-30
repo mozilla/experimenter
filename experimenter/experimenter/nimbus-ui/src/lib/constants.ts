@@ -68,7 +68,7 @@ export const EXTERNAL_URLS = {
   BUCKET_WARNING_EXPLANATION:
     "https://experimenter.info/rollouts/rollouts-bucketing-warning",
   CUSTOM_AUDIENCES_EXPLANATION:
-    "https://experimenter.info/workflow/custom-audiences",
+    "https://experimenter.info/workflow/implementing/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
 };
 
