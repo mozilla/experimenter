@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 
 from manifesttool.appconfig import AppConfigs
-from manifesttool.nimbus_cli import download_single_file, generate_experimenter_yaml
+from manifesttool import nimbus_cli, github_api
 
 MANIFESTS_DIR = Path(__file__).parent.parent / "experimenter" / "features" / "manifests"
 
@@ -43,11 +43,19 @@ def fetch_latest(ctx: click.Context):
 
     for app_config in context.app_configs.__root__.values():
         context.manifest_dir.joinpath(app_config.slug).mkdir(exist_ok=True)
+
+        # We could operate against "main" for all these calls, but the
+        # repository state might change between subsequent calls. That would
+        # mean the generated single file manifests could differ because they
+        # were based on different commits.
+        ref = github_api.get_main_ref(app_config.repo)
+
         for channel in app_config.channels:
-            download_single_file(
+            nimbus_cli.download_single_file(
                 app_config,
                 channel,
                 context.manifest_dir,
+                ref,
             )
 
-        generate_experimenter_yaml(app_config, context.manifest_dir)
+        nimbus_cli.generate_experimenter_yaml(app_config, context.manifest_dir)

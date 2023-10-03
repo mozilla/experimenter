@@ -53,6 +53,7 @@ def mock_download_single_file(
     app_config: AppConfig,
     channel: str,
     manifests_dir: Path,
+    ref: str,
 ):
     """A mock version of `nimbus fml -- single file`."""
 
@@ -64,7 +65,8 @@ def mock_download_single_file(
 class FetchLatestTests(TestCase):
     """Tests for the fetch-latest subcommand."""
 
-    @patch.object(cli, "download_single_file", mock_download_single_file)
+    @patch.object(cli.github_api, "get_main_ref", lambda *args: "ref")
+    @patch.object(cli.nimbus_cli, "download_single_file", mock_download_single_file)
     def test_valid_manifest(self):
         """Test with a valid apps.yaml"""
 
