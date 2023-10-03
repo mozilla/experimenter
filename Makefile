@@ -86,7 +86,7 @@ jetstream_config:
 	unzip -o -d experimenter/experimenter/outcomes experimenter/experimenter/outcomes/metric-hub.zip
 	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
 
-feature_manifests:
+feature_manifests: build_dev
 	mkdir -p $(MANIFESTS_DIR)
 
 	$(COMPOSE) run experimenter /experimenter/bin/manifest-tool.py fetch-latest
