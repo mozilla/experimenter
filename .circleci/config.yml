@@ -50,12 +50,14 @@ commands:
           curl --silent -L --output ~/.docker/cli-plugins/docker-compose << parameters.compose_url >>
           chmod a+x ~/.docker/cli-plugins/docker-buildx
           chmod a+x ~/.docker/cli-plugins/docker-compose
-          if [ -n "<< parameters.username >>" -a -n "<< parameters.password >>" ]; then
-            echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
-            docker buildx create --use --driver cloud "mozilla/default"
-          else
-            echo "username and password are empty, skipping docker login"
-          fi
+          # TODO: https://github.com/mozilla/experimenter/issues/9536
+          # Disbled until Hydrobuild is functioning
+          # if [ -n "<< parameters.username >>" -a -n "<< parameters.password >>" ]; then
+          #   echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
+          #   docker buildx create --use --driver cloud "mozilla/default"
+          # else
+          #   echo "username and password are empty, skipping docker login"
+          # fi
 
 jobs:
   check_experimenter_x86_64:
