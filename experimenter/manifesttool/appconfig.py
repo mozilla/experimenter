@@ -9,7 +9,6 @@ class AppConfig(BaseModel):
     slug: str
     repo: str
     fml_path: str
-    channels: list[str]
     major_release_branch: Optional[str]
     minor_release_tag: Optional[str]
 

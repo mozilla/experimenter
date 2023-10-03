@@ -15,7 +15,6 @@ APP_CONFIG = AppConfig(
     slug="app-slug",
     repo="",
     fml_path="",
-    channels=["release"],
 )
 
 APP_CONFIGS = AppConfigs(
@@ -67,6 +66,7 @@ class FetchLatestTests(TestCase):
 
     @patch.object(cli.github_api, "get_main_ref", lambda *args: "ref")
     @patch.object(cli.nimbus_cli, "download_single_file", mock_download_single_file)
+    @patch.object(cli.nimbus_cli, "get_channels", lambda *args: ["release"])
     def test_valid_manifest(self):
         """Test with a valid apps.yaml"""
 
