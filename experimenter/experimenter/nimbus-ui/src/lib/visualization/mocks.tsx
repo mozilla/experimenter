@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { SampleSizes, SizingByUserType } from "@mozilla/nimbus-schemas";
+
 export const MOCK_UNAVAILABLE_ANALYSIS = {
   show_analysis: true,
   daily: null,
@@ -361,6 +363,130 @@ export const WEEKLY_IDENTITY = {
     all: [],
   },
   percent: 50,
+};
+
+export const MOCK_SIZING_DATA: SizingByUserType = {
+  new: {
+    target_recipe: {
+      app_id: "firefox_desktop",
+      channel: "release",
+      locale: "('EN-US')",
+      country: "US",
+      new_or_existing: "new",
+    },
+    sample_sizes: {
+      "Power0.8EffectSize0.05": {
+        metrics: {
+          active_hours: {
+            number_of_clients_targeted: 10000,
+            sample_size_per_branch: 1233.0,
+            population_percent_per_branch: 18.571428571,
+          },
+          search_count: {
+            number_of_clients_targeted: 10000,
+            sample_size_per_branch: 1235.0,
+            population_percent_per_branch: 114.285714285,
+          },
+          days_of_use: {
+            number_of_clients_targeted: 10000,
+            sample_size_per_branch: 12320.0,
+            population_percent_per_branch: 157.142857142,
+          },
+        },
+        parameters: {
+          power: 0.8,
+          effect_size: 0.05,
+        },
+      },
+      "Power0.8EffectSize0.01": {
+        metrics: {
+          active_hours: {
+            number_of_clients_targeted: 10000,
+            sample_size_per_branch: 1233.0,
+            population_percent_per_branch: 18.571428571,
+          },
+          search_count: {
+            number_of_clients_targeted: 10000,
+            sample_size_per_branch: 1235.0,
+            population_percent_per_branch: 114.285714285,
+          },
+          days_of_use: {
+            number_of_clients_targeted: 10000,
+            sample_size_per_branch: 12320.0,
+            population_percent_per_branch: 157.142857142,
+          },
+        },
+        parameters: {
+          power: 0.8,
+          effect_size: 0.01,
+        },
+      },
+    },
+  },
+  existing: {
+    target_recipe: {
+      app_id: "firefox_desktop",
+      channel: "release",
+      locale: "('EN-US')",
+      country: "US",
+      new_or_existing: "existing",
+    },
+    sample_sizes: {
+      "Power0.8EffectSize0.05": {
+        metrics: {
+          active_hours: {
+            number_of_clients_targeted: 100000,
+            sample_size_per_branch: 12343.0,
+            population_percent_per_branch: 8.571428571,
+          },
+          search_count: {
+            number_of_clients_targeted: 100000,
+            sample_size_per_branch: 12345.0,
+            population_percent_per_branch: 14.285714285,
+          },
+          days_of_use: {
+            number_of_clients_targeted: 100000,
+            sample_size_per_branch: 123420.0,
+            population_percent_per_branch: 57.142857142,
+          },
+        },
+        parameters: {
+          power: 0.8,
+          effect_size: 0.05,
+        },
+      },
+      "Power0.8EffectSize0.01": {
+        metrics: {
+          active_hours: {
+            number_of_clients_targeted: 100000,
+            sample_size_per_branch: 12343.0,
+            population_percent_per_branch: 8.571428571,
+          },
+          search_count: {
+            number_of_clients_targeted: 100000,
+            sample_size_per_branch: 12345.0,
+            population_percent_per_branch: 14.285714285,
+          },
+          days_of_use: {
+            number_of_clients_targeted: 100000,
+            sample_size_per_branch: 123420.0,
+            population_percent_per_branch: 57.142857142,
+          },
+        },
+        parameters: {
+          power: 0.8,
+          effect_size: 0.01,
+        },
+      },
+    },
+  },
+};
+
+export const MOCK_SIZING: SampleSizes = {
+  "firefox_desktop:release:['EN-US']:US": MOCK_SIZING_DATA,
+  "firefox_desktop:nightly:['EN-US']:US": MOCK_SIZING_DATA,
+  "firefox_desktop:release:['EN-CA','EN-US']:['CA','US']": MOCK_SIZING_DATA,
+  "firefox_ios:release:['EN-CA','EN-US']:['CA','US']": MOCK_SIZING_DATA,
 };
 
 export const weeklyMockAnalysis = (modifications = {}) =>
