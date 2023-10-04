@@ -76,7 +76,7 @@ class FetchLatestTests(TestCase):
                 yaml.dump(APP_CONFIGS.dict()["__root__"], f)
 
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
-            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             experimenter_manifest_path = Path(APP_CONFIG.slug, "experimenter.yaml")
             self.assertTrue(
