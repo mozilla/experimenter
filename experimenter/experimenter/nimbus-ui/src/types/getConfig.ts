@@ -90,16 +90,19 @@ export interface getConfig_nimbusConfig_documentationLink {
 export interface getConfig_nimbusConfig_locales {
   id: string;
   name: string;
+  code: string;
 }
 
 export interface getConfig_nimbusConfig_countries {
   id: string;
   name: string;
+  code: string;
 }
 
 export interface getConfig_nimbusConfig_languages {
   id: string;
   name: string;
+  code: string;
 }
 
 export interface getConfig_nimbusConfig_projects {

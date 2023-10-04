@@ -150,6 +150,57 @@ class TestChangeFormattingMethod(TestCase):
 
         self.assertDictEqual(change, expected_change)
 
+    def test_formatting_for_native_models_field_none_value(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment-1",
+            published_dto={"id": "experiment", "test": False},
+        )
+        timestamp_2 = self._create_timestamp(2)
+
+        country_ca = CountryFactory.create(code="CA")
+        country_us = CountryFactory.create(code="US")
+
+        generate_nimbus_changelog(experiment, self.user, "created", self.first_timestamp)
+        new_value = [country_us.pk, country_ca.pk]
+        transformed_value = sorted([country_ca.name, country_us.name])
+
+        experiment.countries.set(new_value)
+        experiment.save()
+
+        generate_nimbus_changelog(
+            experiment, self.user, "countries were added", timestamp_2
+        )
+
+        changelogs = list(
+            experiment.changes.order_by("-changed_on").prefetch_related("changed_by")
+        )
+
+        comparison_log = changelogs[0]
+        field_name = "countries"
+        field_diff = {"old_value": None, "new_value": new_value}
+        change_timestamp = self._create_formatted_timestamp(comparison_log.changed_on)
+        field_instance = NimbusExperiment._meta.get_field(field_name)
+        field_display_name = (
+            field_instance.verbose_name
+            if hasattr(field_instance, "verbose_name")
+            else field_name
+        )
+
+        change = get_formatted_change_object(
+            field_name, field_diff, comparison_log, change_timestamp
+        )
+
+        expected_change = {
+            "event": ChangeEventType.DETAILED.name,
+            "event_message": f"{self.user} changed value of {field_display_name}",
+            "changed_by": self.user,
+            "timestamp": change_timestamp,
+            "old_value": json.dumps([], indent=2),
+            "new_value": json.dumps(transformed_value, indent=2),
+        }
+
+        self.assertDictEqual(change, expected_change)
+
     def test_formatting_for_custom_models_field(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment-1",
