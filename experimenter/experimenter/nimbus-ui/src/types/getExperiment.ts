@@ -150,16 +150,19 @@ export interface getExperiment_experimentBySlug_timeout {
 export interface getExperiment_experimentBySlug_locales {
   id: string;
   name: string;
+  code: string;
 }
 
 export interface getExperiment_experimentBySlug_countries {
   id: string;
   name: string;
+  code: string;
 }
 
 export interface getExperiment_experimentBySlug_languages {
   id: string;
   name: string;
+  code: string;
 }
 
 export interface getExperiment_experimentBySlug_projects {

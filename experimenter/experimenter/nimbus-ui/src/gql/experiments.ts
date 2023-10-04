@@ -212,14 +212,17 @@ export const GET_EXPERIMENT_QUERY = gql`
       locales {
         id
         name
+        code
       }
       countries {
         id
         name
+        code
       }
       languages {
         id
         name
+        code
       }
       projects {
         id
