@@ -24,7 +24,7 @@ const TooltipWithMarkdown = ({
       delayHide={200}
       effect="solid"
     >
-      <ReactMarkdown source={markdown!} />
+      <ReactMarkdown>{markdown!}</ReactMarkdown>
     </ReactTooltip>
   );
 };
