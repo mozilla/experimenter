@@ -93,8 +93,9 @@ const PopulationSizing = ({
           const parameters = newUserSizing.sample_sizes[powerKey]["parameters"];
           return (
             <>
-              <Form.Label style={{ fontWeight: 700 }}>
-                Effect Size: {(parameters.effect_size * 100).toFixed(2)}%
+              <Form.Label>
+                Effect Size:&nbsp;
+                <strong>{(parameters.effect_size * 100).toFixed(2)}%</strong>
               </Form.Label>
               <table className="table-visualization-center border">
                 <thead>
