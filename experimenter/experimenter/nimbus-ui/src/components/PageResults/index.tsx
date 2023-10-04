@@ -30,6 +30,7 @@ import {
 import { GROUP, METRIC_TYPE } from "src/lib/visualization/constants";
 import { AnalysisBases, AnalysisError } from "src/lib/visualization/types";
 import { getSortedBranchNames } from "src/lib/visualization/utils";
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { experiment, analysis, useRedirectCondition, useAnalysisRequired } =
@@ -337,6 +338,10 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                 className="rounded-bottom mb-3 border-top-0"
                 analysisBasis={selectedAnalysisBasis}
                 segment={selectedSegment}
+                isDesktop={
+                  experiment.application ===
+                  NimbusExperimentApplicationEnum.DESKTOP
+                }
               />
             )}
 
@@ -348,6 +353,10 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                 Table={TableResultsWeekly}
                 analysisBasis={selectedAnalysisBasis}
                 segment={selectedSegment}
+                isDesktop={
+                  experiment.application ===
+                  NimbusExperimentApplicationEnum.DESKTOP
+                }
               />
             )}
         </div>

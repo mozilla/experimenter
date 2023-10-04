@@ -9,6 +9,8 @@ export const METRICS_TIPS = {
     "Total users in a variant and the % of users out of the entire experiment population",
   CONVERSION: "Percentage of users in the variant who used this feature",
   DAYS_OF_USE: "Average number of days each client sent a main ping",
+  QUALIFIED_CUMULATIVE_DAYS_OF_USE:
+    "Average number of days each client sent a main ping",
 };
 
 export const SEGMENT_TIPS = {
@@ -63,6 +65,7 @@ export const METRIC = {
   SEARCH: "search_count",
   DAYS_OF_USE: "days_of_use",
   USER_COUNT: "identity",
+  QUALIFIED_CUMULATIVE_DAYS_OF_USE: "qualified_cumulative_days_of_use",
 };
 
 export const METRIC_TYPE = {
@@ -130,11 +133,16 @@ const GROUPED_METRICS = [
   },
   {
     name: GROUP.OTHER,
-    metrics: ["retained", "identity", "days_of_use"],
+    metrics: [
+      "retained",
+      "identity",
+      "days_of_use",
+      "qualified_cumulative_days_of_use",
+    ],
   },
 ];
 
-const METRIC_TO_GROUP = GROUPED_METRICS.reduce((res, group) => {
+export const METRIC_TO_GROUP = GROUPED_METRICS.reduce((res, group) => {
   group.metrics.forEach((metric) => {
     res[metric] = group.name;
   });
