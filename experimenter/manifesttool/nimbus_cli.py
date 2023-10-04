@@ -25,7 +25,7 @@ def nimbus_cli(args: list[str], *, output: bool = False):
     )
 
 
-def get_channels(app_config: AppConfig, ref: str) -> list[str]:  # pragma: no cover
+def get_channels(app_config: AppConfig, ref: str) -> list[str]:
     """Get the list of channels supported by the application."""
 
     output = nimbus_cli(
@@ -57,7 +57,7 @@ def download_single_file(
     channel: str,
     manifests_dir: Path,
     ref: str,
-):  # pragma: no cover
+):
     """Download the single-file FML manifest for the app on the specified channel."""
 
     nimbus_cli(
