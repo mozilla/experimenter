@@ -52,7 +52,9 @@ class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
     branches = NimbusBranchChangeLogSerializer(many=True)
     feature_configs = NimbusFeatureConfigChangeLogSerializer(many=True)
     owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
-    projects = serializers.SlugRelatedField(many=True, read_only=True, slug_field="slug")
+    projects = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="slug"
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -107,8 +109,8 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
     field_instance = NimbusExperiment._meta.get_field(field_name)
     field_display_name = getattr(field_instance, "verbose_name", field_name)
 
-    old_value = field_diff["old_value"]
-    new_value = field_diff["new_value"]
+    old_value = field_diff.get("old_value")
+    new_value = field_diff.get("new_value")
 
     if isinstance(
         field_instance,
@@ -124,10 +126,21 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
         if field_name in RelationalFields.NATIVE_MODELS:
             field_model = field_instance.related_model
             data = field_model.objects.all()
-            values = list(data.filter(pk__in=old_value).values_list("name", flat=True))
-            old_value = values
-            values = list(data.filter(pk__in=new_value).values_list("name", flat=True))
-            new_value = values
+            if old_value is not None:
+                values = list(
+                    data.filter(pk__in=old_value).values_list("name", flat=True)
+                )
+                old_value = values
+            else:
+                old_value = []
+
+            if new_value is not None:
+                values = list(
+                    data.filter(pk__in=new_value).values_list("name", flat=True)
+                )
+                new_value = values
+            else:
+                new_value = []
 
         old_value = json.dumps(old_value, indent=2)
         new_value = json.dumps(new_value, indent=2)
