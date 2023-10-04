@@ -1127,6 +1127,42 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_ = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_AT_RISK_USER = NimbusTargetingConfig(
+    name="At risk user background task notification",
+    slug="background_task_notification_at_risk_user",
+    description=(
+        "Windows 10+ users with 20-28 days of activity in their past 28 days "
+        "who have lapsed 7-28 days, and who are running a background task"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            defaultProfile.userMonthlyActivity|length >= 20
+        )
+        &&
+        (
+            (
+                (7 <= ((currentDate|date - defaultProfile.currentDate|date) / 86400000))
+                &&
+                (((currentDate|date - defaultProfile.currentDate|date) / 86400000) < 28)
+            )
+        )
+        &&
+        isBackgroundTaskMode
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
