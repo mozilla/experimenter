@@ -64,10 +64,12 @@ def mock_download_single_file(
 class FetchLatestTests(TestCase):
     """Tests for the fetch-latest subcommand."""
 
-    @patch.object(cli.github_api, "get_main_ref", lambda *args: "ref")
-    @patch.object(cli.nimbus_cli, "download_single_file", mock_download_single_file)
-    @patch.object(cli.nimbus_cli, "get_channels", lambda *args: ["release"])
-    def test_valid_manifest(self):
+    @patch.object(cli.github_api, "get_main_ref", side_effect=lambda *args: "ref")
+    @patch.object(
+        cli.nimbus_cli, "download_single_file", side_effect=mock_download_single_file
+    )
+    @patch.object(cli.nimbus_cli, "get_channels", side_effect=lambda *args: ["release"])
+    def test_valid_manifest(self, get_channels, download_single_file, get_main_ref):
         """Test with a valid apps.yaml"""
 
         runner = CliRunner()
@@ -77,6 +79,12 @@ class FetchLatestTests(TestCase):
 
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+
+            get_main_ref.assert_called_with(APP_CONFIG.repo)
+            get_channels.assert_called_with(APP_CONFIG, "ref")
+            download_single_file.assert_called_with(
+                APP_CONFIG, "release", Path("."), "ref"
+            )
 
             experimenter_manifest_path = Path(APP_CONFIG.slug, "experimenter.yaml")
             self.assertTrue(
