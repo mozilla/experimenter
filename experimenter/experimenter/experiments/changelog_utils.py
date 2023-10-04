@@ -52,9 +52,7 @@ class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
     branches = NimbusBranchChangeLogSerializer(many=True)
     feature_configs = NimbusFeatureConfigChangeLogSerializer(many=True)
     owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
-    projects = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field="slug"
-    )
+    projects = serializers.SlugRelatedField(many=True, read_only=True, slug_field="slug")
 
     class Meta:
         model = NimbusExperiment
@@ -134,13 +132,8 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
             else:
                 old_value = []
 
-            if new_value is not None:
-                values = list(
-                    data.filter(pk__in=new_value).values_list("name", flat=True)
-                )
-                new_value = values
-            else:
-                new_value = []
+            values = list(data.filter(pk__in=new_value).values_list("name", flat=True))
+            new_value = values
 
         old_value = json.dumps(old_value, indent=2)
         new_value = json.dumps(new_value, indent=2)
