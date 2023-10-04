@@ -697,6 +697,7 @@ export const mockAnalysis = (modifications = {}) =>
                     },
                   },
                   days_of_use: CONTROL_NEUTRAL,
+                  qualified_cumulative_days_of_use: CONTROL_NEUTRAL,
                 },
                 search_metrics: {
                   search_count: {
@@ -989,6 +990,7 @@ export const mockAnalysis = (modifications = {}) =>
                   },
                   feature_c: TREATMENT_NEUTRAL,
                   days_of_use: TREATMENT_NEUTRAL,
+                  qualified_cumulative_days_of_use: TREATMENT_NEUTRAL,
                   feature_d: {
                     absolute: {
                       first: {
@@ -1333,6 +1335,7 @@ export const mockAnalysisWithSegments = mockAnalysis({
                 },
               },
               days_of_use: CONTROL_NEUTRAL,
+              qualified_cumulative_days_of_use: CONTROL_NEUTRAL,
             },
             search_metrics: {
               search_count: {
@@ -1625,6 +1628,7 @@ export const mockAnalysisWithSegments = mockAnalysis({
               },
               feature_c: TREATMENT_NEUTRAL,
               days_of_use: TREATMENT_NEUTRAL,
+              qualified_cumulative_days_of_use: TREATMENT_NEUTRAL,
               feature_d: {
                 absolute: {
                   first: {
@@ -1960,6 +1964,7 @@ export const mockAnalysisWithSegments = mockAnalysis({
                 },
               },
               days_of_use: CONTROL_NEUTRAL,
+              qualified_cumulative_days_of_use: CONTROL_NEUTRAL,
             },
             search_metrics: {
               search_count: {
@@ -2252,6 +2257,7 @@ export const mockAnalysisWithSegments = mockAnalysis({
               },
               feature_c: TREATMENT_NEUTRAL,
               days_of_use: TREATMENT_NEUTRAL,
+              qualified_cumulative_days_of_use: TREATMENT_NEUTRAL,
               feature_d: {
                 absolute: {
                   first: {
@@ -2594,6 +2600,7 @@ export const mockAnalysisWithExposures = mockAnalysis({
                 },
               },
               days_of_use: CONTROL_NEUTRAL,
+              qualified_cumulative_days_of_use: CONTROL_NEUTRAL,
             },
             search_metrics: {
               search_count: {
@@ -2886,6 +2893,7 @@ export const mockAnalysisWithExposures = mockAnalysis({
               },
               feature_c: TREATMENT_NEUTRAL,
               days_of_use: TREATMENT_NEUTRAL,
+              qualified_cumulative_days_of_use: TREATMENT_NEUTRAL,
               feature_d: {
                 absolute: {
                   first: {
@@ -3223,6 +3231,7 @@ export const mockAnalysisWithExposures = mockAnalysis({
                 },
               },
               days_of_use: CONTROL_NEUTRAL,
+              qualified_cumulative_days_of_use: CONTROL_NEUTRAL,
             },
             search_metrics: {
               search_count: {
@@ -3515,6 +3524,7 @@ export const mockAnalysisWithExposures = mockAnalysis({
               },
               feature_c: TREATMENT_NEUTRAL,
               days_of_use: TREATMENT_NEUTRAL,
+              qualified_cumulative_days_of_use: TREATMENT_NEUTRAL,
               feature_d: {
                 absolute: {
                   first: {
@@ -4717,6 +4727,7 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                     },
                   },
                   days_of_use: CONTROL_NEUTRAL,
+                  qualified_cumulative_days_of_use: CONTROL_NEUTRAL,
                 },
                 search_metrics: {
                   search_count: {
@@ -5009,6 +5020,7 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                   },
                   feature_c: TREATMENT_NEUTRAL,
                   days_of_use: TREATMENT_NEUTRAL,
+                  qualified_cumulative_days_of_use: TREATMENT_NEUTRAL,
                   feature_d: {
                     absolute: {
                       first: {
