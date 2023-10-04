@@ -23,6 +23,7 @@ export type TableWithTabComparisonProps = {
   className?: string;
   analysisBasis?: AnalysisBases;
   segment?: string;
+  isDesktop?: boolean;
 };
 
 export const TableWithTabComparison = ({
@@ -31,6 +32,7 @@ export const TableWithTabComparison = ({
   className = "rounded-bottom mb-5",
   analysisBasis = "enrollments",
   segment = "all",
+  isDesktop = false,
 }: TableWithTabComparisonProps) => (
   <Tabs defaultActiveKey={BRANCH_COMPARISON.UPLIFT} className="border-bottom-0">
     <Tab eventKey={BRANCH_COMPARISON.UPLIFT} title="Relative uplift comparison">
@@ -43,7 +45,11 @@ export const TableWithTabComparison = ({
           />
         ) : (
           /* @ts-ignore - TODO, assert Table is TablesWithoutExperiment if `experiment` not provided */
-          <Table analysisBasis={analysisBasis} segment={segment} />
+          <Table
+            analysisBasis={analysisBasis}
+            segment={segment}
+            isDesktop={isDesktop}
+          />
         )}
       </div>
     </Tab>
@@ -63,6 +69,7 @@ export const TableWithTabComparison = ({
               branchComparison={BRANCH_COMPARISON.ABSOLUTE}
               analysisBasis={analysisBasis}
               segment={segment}
+              isDesktop={isDesktop}
             />
           </>
         )}
