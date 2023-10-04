@@ -8,7 +8,7 @@ GITHUB_API_HEADERS = {
     "X-GitHub-Api-Version": "2022-11-28",
 }
 
-if bearer_token := os.getenv("GITHUB_BEARER_TOKEN"):
+if bearer_token := os.getenv("GITHUB_BEARER_TOKEN"):  # pragma: no cover
     GITHUB_API_HEADERS["Authorization"] = f"Bearer {bearer_token}"
 
 
