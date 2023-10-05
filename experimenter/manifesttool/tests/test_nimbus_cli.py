@@ -36,6 +36,17 @@ class NimbusCliTests(TestCase):
             ],
         )
 
+    @patch.object(
+        nimbus_cli.subprocess,
+        "check_output",
+        side_effect=lambda *args: "invalid json",
+    )
+    def test_get_channels_invalid(self):
+        "Testing get_channels handling of invalid JSON." ""
+
+        with self.assertRaises(json.decoder.JSONDecodeError):
+            nimbus_cli.get_channels(APP_CONFIG, "channel")
+
     @patch.object(nimbus_cli.subprocess, "check_call")
     def test_download_single_file(self, mock_cli):
         """Tesing download_single_file calls nimbus-cli with correct arguments."""

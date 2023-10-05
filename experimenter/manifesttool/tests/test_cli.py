@@ -1,4 +1,6 @@
+from contextlib import contextmanager
 from pathlib import Path
+from typing import ContextManager
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -61,22 +63,33 @@ def mock_download_single_file(
         yaml.dump(generate_fml(app_config, channel), f)
 
 
-class FetchLatestTests(TestCase):
-    """Tests for the fetch-latest subcommand."""
+@contextmanager
+def cli_runner(*, app_configs: AppConfigs = APP_CONFIGS, manifest_path: Path = Path(".")):
+    """Create a CliRunner with an isolated filesystem.
+
+    The given AppConfigs will be written to disk before yielding the runner.
+    """
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        with manifest_path.joinpath("apps.yaml").open("w") as f:
+            yaml.dump(app_configs.dict()["__root__"], f)
+
+        yield runner
+
+
+class CliTests(TestCase):
+    """Tests for the command-line interface."""
 
     @patch.object(cli.github_api, "get_main_ref", side_effect=lambda *args: "ref")
     @patch.object(
         cli.nimbus_cli, "download_single_file", side_effect=mock_download_single_file
     )
     @patch.object(cli.nimbus_cli, "get_channels", side_effect=lambda *args: ["release"])
-    def test_valid_manifest(self, get_channels, download_single_file, get_main_ref):
-        """Test with a valid apps.yaml"""
+    def test_fetch_latest(self, get_channels, download_single_file, get_main_ref):
+        """Testing the fetch-latest subcommand."""
 
-        runner = CliRunner()
-        with runner.isolated_filesystem():
-            with open("apps.yaml", "w") as f:
-                yaml.dump(APP_CONFIGS.dict()["__root__"], f)
-
+        with cli_runner() as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
@@ -109,4 +122,25 @@ class FetchLatestTests(TestCase):
                         },
                     },
                 },
+            )
+
+    @patch.object(cli.github_api, "get_main_ref", side_effect=lambda *args: "ref")
+    @patch.object(cli.nimbus_cli, "download_single_file")
+    @patch.object(cli.nimbus_cli, "generate_experimenter_yaml")
+    @patch.object(cli.nimbus_cli, "get_channels", side_effect=lambda *args: [])
+    def test_fetch_latest_no_channels(
+        self, generate_experimenter_yaml, download_single_file
+    ):
+        """Testing the fetch-latest subcommand when the app has no channels listed."""
+
+        with cli_runner() as runner:
+            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
+            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+
+            download_single_file.assert_not_called()
+            generate_experimenter_yaml.assert_not_called()
+
+            self.assertFalse(
+                Path(APP_CONFIG.slug, "experimenter.yaml").exists(),
+                "experimenter.yaml should not be created",
             )
