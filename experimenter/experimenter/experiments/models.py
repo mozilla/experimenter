@@ -1021,7 +1021,7 @@ class NimbusBranchFeatureValue(models.Model):
         NimbusBranch, related_name="feature_values", on_delete=models.CASCADE
     )
     feature_config = models.ForeignKey["NimbusFeatureConfig"](
-        "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
+        "NimbusFeatureConfig", on_delete=models.CASCADE
     )
     value = models.TextField(blank=True, default="")
 
