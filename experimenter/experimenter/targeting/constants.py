@@ -1567,7 +1567,7 @@ ANDROID_8_OR_HIGHER_USERS = NimbusTargetingConfig(
 WINDOWS_10_PLUS = NimbusTargetingConfig(
     name="Windows 10+",
     slug="windows_10_plus",
-    description="Windows users on version 10 or higher,
+    description="Windows users on version 10 or higher",
     targeting="(os.isWindows && os.windowsVersion >= 10)",
     desktop_telemetry="",
     sticky_required=False,
