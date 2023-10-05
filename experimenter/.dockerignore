@@ -5,6 +5,7 @@
 **/.mypy
 **/.pycache
 **/.pytest_cache
+**/.ruff_cache/
 **/.vscode
 **/.vscode/
 **/coverage/
