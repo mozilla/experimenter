@@ -12,10 +12,7 @@ def nimbus_cli(args: list[str], *, output: bool = False):
     """Run nimbus-cli with the given arguments."""
 
     print("nimbus-cli", " ".join(args))
-    if output:
-        method = subprocess.check_output
-    else:
-        method = subprocess.check_call
+    method = subprocess.check_output if output else subprocess.check_call
 
     return method(
         [

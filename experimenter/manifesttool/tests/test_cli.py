@@ -1,15 +1,13 @@
 from contextlib import contextmanager
 from pathlib import Path
-from typing import ContextManager
 from unittest import TestCase
 from unittest.mock import patch
 
-from click.testing import CliRunner
 import yaml
+from click.testing import CliRunner
 
 from manifesttool import cli
 from manifesttool.appconfig import AppConfig, AppConfigs
-
 
 # An AppConfig with a blank repo and fml_path so that the CLI cannot fetch
 # anything.

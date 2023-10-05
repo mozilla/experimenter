@@ -42,7 +42,7 @@ class NimbusCliTests(TestCase):
         side_effect=lambda *args: "invalid json",
     )
     def test_get_channels_invalid(self):
-        "Testing get_channels handling of invalid JSON." ""
+        "Testing get_channels handling of invalid JSON."
 
         with self.assertRaises(json.decoder.JSONDecodeError):
             nimbus_cli.get_channels(APP_CONFIG, "channel")

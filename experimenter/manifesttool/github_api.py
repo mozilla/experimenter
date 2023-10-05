@@ -1,6 +1,7 @@
-import requests
 import os
 from typing import Any
+
+import requests
 
 GITHUB_API_URL = "https://api.github.com"
 GITHUB_API_HEADERS = {
