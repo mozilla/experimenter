@@ -1564,6 +1564,17 @@ ANDROID_8_OR_HIGHER_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+WINDOWS_10_PLUS = NimbusTargetingConfig(
+    name="Windows 10+",
+    slug="windows_10_plus",
+    description="Windows users on version 10 or higher",
+    targeting="(os.isWindows && os.windowsVersion >= 10)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
