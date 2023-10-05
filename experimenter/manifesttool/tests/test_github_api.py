@@ -11,7 +11,6 @@ class GitHubApiTests(TestCase):
     @responses.activate
     def test_get_main_ref(self):
         """Testing get_main_ref."""
-
         responses.add(
             responses.Response(
                 method="GET",

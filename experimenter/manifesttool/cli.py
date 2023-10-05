@@ -26,7 +26,6 @@ class Context:
 @click.pass_context
 def main(ctx: click.Context, *, manifest_dir: Path):
     """manifest-tool - tools for working with manifests of Experimenter apps."""
-
     apps_yaml_path = manifest_dir / "apps.yaml"
     app_configs = AppConfigs.load_from_file(apps_yaml_path)
     ctx.obj = Context(
@@ -39,7 +38,6 @@ def main(ctx: click.Context, *, manifest_dir: Path):
 @click.pass_context
 def fetch_latest(ctx: click.Context):
     """Fetch the latest FML manifests and generate experimenter.yaml files."""
-
     context = ctx.find_object(Context)
 
     for app_name, app_config in context.app_configs.__root__.items():

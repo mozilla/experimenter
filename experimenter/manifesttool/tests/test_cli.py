@@ -67,7 +67,6 @@ def cli_runner(*, app_configs: AppConfigs = APP_CONFIGS, manifest_path: Path = P
 
     The given AppConfigs will be written to disk before yielding the runner.
     """
-
     runner = CliRunner()
     with runner.isolated_filesystem():
         with manifest_path.joinpath("apps.yaml").open("w") as f:
@@ -86,7 +85,6 @@ class CliTests(TestCase):
     @patch.object(cli.nimbus_cli, "get_channels", side_effect=lambda *args: ["release"])
     def test_fetch_latest(self, get_channels, download_single_file, get_main_ref):
         """Testing the fetch-latest subcommand."""
-
         with cli_runner() as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
@@ -130,7 +128,6 @@ class CliTests(TestCase):
         self, generate_experimenter_yaml, download_single_file
     ):
         """Testing the fetch-latest subcommand when the app has no channels listed."""
-
         with cli_runner() as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)

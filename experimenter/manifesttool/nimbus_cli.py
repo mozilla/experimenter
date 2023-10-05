@@ -10,7 +10,6 @@ NIMBUS_CLI_PATH = "/application-services/bin/nimbus-cli"
 
 def nimbus_cli(args: list[str], *, output: bool = False):
     """Run nimbus-cli with the given arguments."""
-
     print("nimbus-cli", " ".join(args))
     method = subprocess.check_output if output else subprocess.check_call
 
@@ -24,7 +23,6 @@ def nimbus_cli(args: list[str], *, output: bool = False):
 
 def get_channels(app_config: AppConfig, ref: str) -> list[str]:
     """Get the list of channels supported by the application."""
-
     output = nimbus_cli(
         [
             "fml",
@@ -56,7 +54,6 @@ def download_single_file(
     ref: str,
 ):
     """Download the single-file FML manifest for the app on the specified channel."""
-
     nimbus_cli(
         [
             "fml",
@@ -74,7 +71,6 @@ def download_single_file(
 
 def generate_experimenter_yaml(app_config: AppConfig, channel: str, manifests_dir: Path):
     """Generate an experimenter.yaml manifest from a single-file FML file."""
-
     nimbus_cli(
         [
             "fml",

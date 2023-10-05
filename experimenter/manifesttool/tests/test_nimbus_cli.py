@@ -19,7 +19,6 @@ class NimbusCliTests(TestCase):
     )
     def test_get_channels(self, mock_cli):
         """Testing get_channels calls nimbus-cli with correct arguments."""
-
         self.assertEqual(
             nimbus_cli.get_channels(APP_CONFIG, "0" * 40), ["staging", "prod"]
         )
@@ -43,14 +42,12 @@ class NimbusCliTests(TestCase):
     )
     def test_get_channels_invalid(self):
         "Testing get_channels handling of invalid JSON."
-
         with self.assertRaises(json.decoder.JSONDecodeError):
             nimbus_cli.get_channels(APP_CONFIG, "channel")
 
     @patch.object(nimbus_cli.subprocess, "check_call")
     def test_download_single_file(self, mock_cli):
         """Tesing download_single_file calls nimbus-cli with correct arguments."""
-
         nimbus_cli.download_single_file(APP_CONFIG, "channel", Path("."), "0" * 40)
 
         mock_cli.assert_called_with(
@@ -71,7 +68,6 @@ class NimbusCliTests(TestCase):
     @patch.object(nimbus_cli.subprocess, "check_call")
     def test_generate_experimenter_yaml(self, mock_cli):
         """Testing generate_experimenter_yaml calls nimbus-cli with correct arguments."""
-
         nimbus_cli.generate_experimenter_yaml(APP_CONFIG, "channel", Path("."))
 
         mock_cli.assert_called_with(
