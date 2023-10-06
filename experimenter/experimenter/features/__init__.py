@@ -113,9 +113,7 @@ class Features:
 
             if os.path.exists(application_yaml_path):
                 with open(application_yaml_path) as application_yaml_file:
-                    application_data = yaml.load(
-                        application_yaml_file.read(), Loader=yaml.Loader
-                    )
+                    application_data = yaml.safe_load(application_yaml_file)
                     for feature_slug in application_data:
                         feature_data = application_data[feature_slug]
                         feature_data["slug"] = feature_slug
