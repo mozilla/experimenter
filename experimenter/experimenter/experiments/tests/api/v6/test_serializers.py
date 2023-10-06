@@ -197,24 +197,6 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(serializer.data["branches"][0]["features"][0]["value"], {})
         check_schema("experiments/NimbusExperiment", serializer.data)
 
-    def test_serializer_with_branches_no_feature(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[],
-        )
-        experiment.save()
-        NimbusBranchFeatureValue.objects.create(
-            branch=experiment.reference_branch,
-            feature_config=None,
-            value="",
-        )
-        serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(
-            serializer.data["branches"][0]["features"],
-            [{"featureId": "", "enabled": True, "value": {}}],
-        )
-
     def test_serializer_with_branch_invalid_feature_value(self):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)

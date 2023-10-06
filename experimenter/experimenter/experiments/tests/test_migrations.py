@@ -10,57 +10,71 @@ from experimenter.experiments.constants import NimbusConstants
 class TestRemoveDirtyPublishStatusMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0237_alter_nimbusexperiment_experiment_targeting",
+        "0248_alter_nimbusexperiment_channel",
     )
     migrate_to = (
         "experiments",
-        "0238_set_draft_published_dto_to_none",
+        "0249_alter_nimbusbranchfeaturevalue_feature_config",
     )
 
     def prepare(self):
         """Prepare some data before the migration."""
         User = self.old_state.apps.get_model("auth", "User")
+        NimbusFeatureConfig = self.old_state.apps.get_model(
+            "experiments", "NimbusFeatureConfig"
+        )
         NimbusExperiment = self.old_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
+        NimbusBranch = self.old_state.apps.get_model("experiments", "NimbusBranch")
+        NimbusBranchFeatureValue = self.old_state.apps.get_model(
+            "experiments", "NimbusBranchFeatureValue"
+        )
         user = User.objects.create(email="test@example.com")
 
-        for status in NimbusConstants.Status:
-            NimbusExperiment.objects.create(
-                owner=user,
-                name=f"test experiment {status}",
-                slug=f"test-experiment-{status}",
-                application=NimbusConstants.Application.DESKTOP,
-                status=status,
-                publish_status=NimbusConstants.PublishStatus.IDLE,
-                published_dto="{}",
-            )
+        feature_config = NimbusFeatureConfig.objects.create(
+            slug="test-feature", application=NimbusConstants.Application.DESKTOP
+        )
+        experiment = NimbusExperiment.objects.create(
+            owner=user,
+            name="test experiment",
+            slug="test-experiment",
+            application=NimbusConstants.Application.DESKTOP,
+            status=NimbusConstants.Status.DRAFT,
+            publish_status=NimbusConstants.PublishStatus.IDLE,
+            published_dto="{}",
+        )
+        experiment.feature_configs.add(feature_config)
+        branch = NimbusBranch.objects.create(
+            experiment=experiment,
+            name="test branch",
+            slug="test-branch",
+        )
+        NimbusBranchFeatureValue.objects.create(
+            branch=branch, feature_config=None, value="{}"
+        )
+        NimbusBranchFeatureValue.objects.create(
+            branch=branch, feature_config=feature_config, value="{}"
+        )
 
     def test_migration(self):
         """Run the test itself."""
-        NimbusExperiment = self.new_state.apps.get_model(
-            "experiments", "NimbusExperiment"
+        NimbusFeatureConfig = self.new_state.apps.get_model(
+            "experiments", "NimbusFeatureConfig"
         )
+        NimbusBranchFeatureValue = self.new_state.apps.get_model(
+            "experiments", "NimbusBranchFeatureValue"
+        )
+        feature_config = NimbusFeatureConfig.objects.get(slug="test-feature")
 
         self.assertEqual(
-            set(
-                NimbusExperiment.objects.filter(published_dto__isnull=True).values_list(
-                    "status", flat=True
-                )
-            ),
-            {NimbusConstants.Status.DRAFT.value},
+            NimbusBranchFeatureValue.objects.filter(feature_config=None).count(), 0
         )
         self.assertEqual(
-            set(
-                NimbusExperiment.objects.filter(published_dto="{}").values_list(
-                    "status", flat=True
-                )
-            ),
-            {
-                NimbusConstants.Status.PREVIEW.value,
-                NimbusConstants.Status.LIVE.value,
-                NimbusConstants.Status.COMPLETE.value,
-            },
+            NimbusBranchFeatureValue.objects.filter(
+                feature_config=feature_config
+            ).count(),
+            1,
         )
 
 
