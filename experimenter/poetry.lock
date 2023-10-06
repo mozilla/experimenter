@@ -1300,23 +1300,19 @@ referencing = ">=0.28.0"
 
 [[package]]
 name = "kinto-http"
-version = "10.8.0"
+version = "11.0.1"
 description = "Kinto client"
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto-http-10.8.0.tar.gz", hash = "sha256:db5d622ce1d64f25acd3dd605c545e9ecd6f2252d1de101c09767083e9084eeb"},
-    {file = "kinto_http-10.8.0-py3-none-any.whl", hash = "sha256:8d9e052155792f2e173f651058ebc541a726147147be1cc872252e2b3a58ced1"},
+    {file = "kinto-http-11.0.1.tar.gz", hash = "sha256:baf213bf137b3b9819cf14b51e0fb798adf1040ded5f065f99b386943762d4f9"},
+    {file = "kinto_http-11.0.1-py3-none-any.whl", hash = "sha256:294ef42073a4accd577468525f5d8ed30003c6eaaaa1f091e46cd0993d6fceb6"},
 ]
 
 [package.dependencies]
-backoff = "1.11.1"
-certifi = "2021.10.8"
-charset-normalizer = "2.0.7"
-idna = "3.3"
-requests = "2.26.0"
-unidecode = "1.3.2"
-urllib3 = "1.26.7"
+backoff = "*"
+requests = "*"
+unidecode = "*"
 
 [[package]]
 name = "kombu"
@@ -2311,24 +2307,44 @@ files = [
 
 [[package]]
 name = "requests"
-version = "2.26.0"
+version = "2.31.0"
 description = "Python HTTP for Humans."
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
+python-versions = ">=3.7"
 files = [
-    {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},
-    {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
+    {file = "requests-2.31.0-py3-none-any.whl", hash = "sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"},
+    {file = "requests-2.31.0.tar.gz", hash = "sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1"},
 ]
 
 [package.dependencies]
 certifi = ">=2017.4.17"
-charset-normalizer = {version = ">=2.0.0,<2.1.0", markers = "python_version >= \"3\""}
-idna = {version = ">=2.5,<4", markers = "python_version >= \"3\""}
-urllib3 = ">=1.21.1,<1.27"
+charset-normalizer = ">=2,<4"
+idna = ">=2.5,<4"
+urllib3 = ">=1.21.1,<3"
 
 [package.extras]
-socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
-use-chardet-on-py3 = ["chardet (>=3.0.2,<5)"]
+socks = ["PySocks (>=1.5.6,!=1.5.7)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+
+[[package]]
+name = "responses"
+version = "0.23.3"
+description = "A utility library for mocking out the `requests` Python library."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "responses-0.23.3-py3-none-any.whl", hash = "sha256:e6fbcf5d82172fecc0aa1860fd91e58cbfd96cee5e96da5b63fa6eb3caa10dd3"},
+    {file = "responses-0.23.3.tar.gz", hash = "sha256:205029e1cb334c21cb4ec64fc7599be48b859a0fd381a42443cdd600bfe8b16a"},
+]
+
+[package.dependencies]
+pyyaml = "*"
+requests = ">=2.30.0,<3.0"
+types-PyYAML = "*"
+urllib3 = ">=1.25.10,<3.0"
+
+[package.extras]
+tests = ["coverage (>=6.0.0)", "flake8", "mypy", "pytest (>=7.0.0)", "pytest-asyncio", "pytest-cov", "pytest-httpserver", "tomli", "tomli-w", "types-requests"]
 
 [[package]]
 name = "rope"
@@ -2676,6 +2692,17 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=2.0)", "pre-commit", "pytest", "pytest-mock"]
 
 [[package]]
+name = "types-pyyaml"
+version = "6.0.12.12"
+description = "Typing stubs for PyYAML"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-PyYAML-6.0.12.12.tar.gz", hash = "sha256:334373d392fde0fdf95af5c3f1661885fa10c52167b14593eb856289e1855062"},
+    {file = "types_PyYAML-6.0.12.12-py3-none-any.whl", hash = "sha256:c05bc6c158facb0676674b7f11fe3960db4f389718e19e62bd2b84d6205cfd24"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -2851,4 +2878,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "509b3d7161455128cc04952282ab38e7cd1be0a998fa71297e7e4a05406a22b3"
+content-hash = "0221ea98ef071d4c19d6b26738b0e60f5762109f69765392e8cc8e32616dc24c"
