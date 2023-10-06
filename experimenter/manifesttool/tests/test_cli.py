@@ -120,16 +120,17 @@ class CliTests(TestCase):
                 },
             )
 
-    @patch.object(cli.github_api, "get_main_ref", side_effect=lambda *args: "ref")
+    @patch.object(cli.github_api, "get_main_ref", lambda *args: "ref")
     @patch.object(cli.nimbus_cli, "download_single_file")
     @patch.object(cli.nimbus_cli, "generate_experimenter_yaml")
-    @patch.object(cli.nimbus_cli, "get_channels", side_effect=lambda *args: [])
+    @patch.object(cli.nimbus_cli, "get_channels", lambda *args: [])
     def test_fetch_latest_no_channels(
         self, generate_experimenter_yaml, download_single_file
     ):
         """Testing the fetch-latest subcommand when the app has no channels listed."""
         with cli_runner() as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
+            print(result.stdout)
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             download_single_file.assert_not_called()

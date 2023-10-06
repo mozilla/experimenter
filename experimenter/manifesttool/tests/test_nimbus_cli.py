@@ -38,7 +38,7 @@ class NimbusCliTests(TestCase):
     @patch.object(
         nimbus_cli.subprocess,
         "check_output",
-        side_effect=lambda *args: "invalid json",
+        lambda *args: "invalid json",
     )
     def test_get_channels_invalid(self):
         "Testing get_channels handling of invalid JSON."
