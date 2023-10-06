@@ -3,10 +3,11 @@ import { EditorState, EditorStateConfig } from "@codemirror/state";
 import { basicSetup } from "codemirror";
 import {
   detectDraft,
+  fmlLinter,
   schemaAutocomplete,
   schemaLinter,
   simpleObjectSchema,
-} from "src/components/PageEditBranches/FormBranches/FormFeatureValue/schema";
+} from "src/components/PageEditBranches/FormBranches/FormFeatureValue/validators";
 import { z } from "zod";
 
 const SIMPLE_SCHEMA: z.infer<typeof simpleObjectSchema> = {
@@ -326,6 +327,40 @@ describe("detectDraft", () => {
       const detected = detectDraft(schema);
 
       expect(detected).toEqual(expected);
+    },
+  );
+});
+
+describe("fmlLinter", () => {
+  it.each(["", "   ", "\t", "\n", " \n \t "])(
+    "does not return fml errors for an empty document",
+    (doc) => {
+      const linter = fmlLinter();
+      const state = createEditorState({ doc: JSON.stringify(doc) });
+      const diagnostics = linter({ state });
+      expect(diagnostics).toEqual([]);
+    },
+  );
+
+  it.each([`{"foo": {"error"}`, `{"error": {"bingo"}`])(
+    "returns FML errors",
+    (doc) => {
+      const linter = fmlLinter();
+      const message = { message: "oh no!" };
+      const state = createEditorState({ doc: JSON.stringify(doc) });
+      const diagnostics = linter({ state });
+      expect(diagnostics).toContainEqual(expect.objectContaining(message));
+    },
+  );
+
+  it.each([`{"foo": {"bar"}`, `{"foo": {"mimsy"}`])(
+    "does not returns FML errors",
+    (doc) => {
+      const linter = fmlLinter();
+      const message = { message: "oh no!" };
+      const state = createEditorState({ doc: JSON.stringify(doc) });
+      const diagnostics = linter({ state });
+      expect(diagnostics).not.toContainEqual(expect.objectContaining(message));
     },
   );
 });
