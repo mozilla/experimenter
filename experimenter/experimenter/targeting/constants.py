@@ -1080,6 +1080,32 @@ REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EARLY_DAY_USER_REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
+    name="Early Day User Review Checker Sidebar Recommendation",
+    slug="early_day_user_review_checker_sidebar_recommendation",
+    description="Exclude early day users who have the Fakespot extension installed, "
+    "or who have the CFR pref set to false",
+    targeting=(
+        f"{PROFILELESSTHAN28DAYS} && {REVIEW_CHECKER_SIDEBAR_RECOMMENDATION.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
+    name="Existing User Review Checker Sidebar Recommendation",
+    slug="existing_user_review_checker_sidebar_recommendation",
+    description="Exclude existing users who have the Fakespot extension installed, "
+    "or who have the CFR pref set to false",
+    targeting=(f"{PROFILE28DAYS} && {REVIEW_CHECKER_SIDEBAR_RECOMMENDATION.targeting}"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BACKGROUND_TASK_NOTIFICATION = NimbusTargetingConfig(
     name="Background task notification",
     slug="Background_task_notification",
