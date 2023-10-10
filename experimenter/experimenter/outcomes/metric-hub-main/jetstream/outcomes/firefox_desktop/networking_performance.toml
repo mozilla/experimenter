@@ -1,0 +1,86 @@
+friendly_name = "Networking Performance"
+description = "Network layer performance metrics (subset of Networking outcome without tls and error metrics)"
+
+[metrics.dns_lookup_time]
+select_expression = '{{agg_histogram_mean("payload.histograms.dns_lookup_time")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.dns_lookup_time.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.dns_lookup_time.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.dns_lookup_time.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.http_page_tls_handshake]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.http_page_tls_handshake")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.http_page_tls_handshake.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.http_page_tls_handshake.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.http_page_tls_handshake.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.http_sub_tls_handshake]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.http_sub_tls_handshake")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.http_sub_tls_handshake.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.http_sub_tls_handshake.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.http_sub_tls_handshake.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.http_page_open_to_first_sent]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.http_page_open_to_first_sent")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.http_page_open_to_first_sent.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.http_page_open_to_first_sent.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.http_page_open_to_first_sent.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.time_to_response_start_ms]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.time_to_response_start_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.time_to_response_start_ms.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.time_to_response_start_ms.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.time_to_response_start_ms.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
