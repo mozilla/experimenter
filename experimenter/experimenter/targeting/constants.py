@@ -1189,6 +1189,39 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_AT_RISK_USER = NimbusTargetingConfi
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_NEW_NON_DEFAULT_USER = NimbusTargetingConfig(
+    name="New non-default user background task notification",
+    slug="background_task_notification_new_non_default_user",
+    description=(
+        "Windows 10+ users with this Firefox not the default browser "
+        "who created their profile exactly 7 days previously, "
+        "and who are running a background task"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        !isDefaultBrowser
+        &&
+        (
+            (7 <= ((currentDate|date - defaultProfile.profileAgeCreated|date) / 86400000))
+            &&
+            (((currentDate|date - defaultProfile.profileAgeCreated|date) / 86400000) < 8)
+        )
+        &&
+        isBackgroundTaskMode
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
