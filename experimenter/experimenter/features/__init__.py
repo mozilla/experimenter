@@ -1,6 +1,7 @@
 import json
 import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Union
 
 import yaml
@@ -36,17 +37,16 @@ class Feature:
 
     def load_remote_jsonschema(self):
         if self.model.json_schema is not None:
-            schema_path = os.path.join(
+            schema_path = Path(
                 settings.FEATURE_MANIFESTS_PATH,
                 self.application_slug,
                 "schemas",
                 self.model.json_schema.path,
             )
 
-            with open(schema_path) as schema_file:
-                schema_data = schema_file.read()
+            with schema_path.open() as f:
                 try:
-                    return json.dumps(json.loads(schema_data), indent=2)
+                    return json.dumps(json.load(f), indent=2)
                 except json.JSONDecodeError:
                     return None
 
