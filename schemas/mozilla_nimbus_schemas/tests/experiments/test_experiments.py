@@ -1,15 +1,12 @@
-import os
+from pathlib import Path
 
 import pytest
 
 from mozilla_nimbus_schemas.experiments import NimbusExperiment
 
-PATH = os.path.dirname(__file__)
-JSON_FILES = [
-    os.path.join(PATH, "fixtures", f) for f in os.listdir(os.path.join(PATH, "fixtures"))
-]
+FIXTURE_DIR = Path(__file__).parent / "fixtures" / "experiments"
 
 
-@pytest.mark.parametrize("experiment_file", JSON_FILES)
+@pytest.mark.parametrize("experiment_file", FIXTURE_DIR.iterdir())
 def test_experiment_fixtures_are_valid(experiment_file):
     NimbusExperiment.parse_file(experiment_file)
