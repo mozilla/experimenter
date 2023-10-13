@@ -616,6 +616,33 @@ EXISTING_USER_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
+
+NEW_USER_NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig(
+    name=(
+        "New users, no enterprise or past VPN use, hasn't disabled 'Recommend "
+        "extensions/features'"
+    ),
+    slug="new_user_no_vpn_has_not_disabled_recommend_features",
+    description=(
+        "Profiles younger than 28 days, excluding users who have used Mozilla "
+        "VPN, are enterprise users, or have disabled 'Recommend "
+        "extensions/features'"
+    ),
+    targeting=(
+        f"{NO_ENTERPRISE.targeting} && "
+        f"{PROFILELESSTHAN28DAYS} && "
+        "(!os.isWindows || os.windowsBuildNumber >= 18362) && "
+        "!('e6eb0d1e856335fc' in attachedFxAOAuthClients|mapToProperty('id')) && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USER_NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig(
     name=(
         "Existing users, no enterprise or past VPN use, hasn't disabled "
