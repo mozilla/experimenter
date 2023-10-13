@@ -262,6 +262,13 @@ features:
         description: "If true, enable felt privacy related UI"
         type: Boolean
         default: false
+  qr-code-coordinator-refactor:
+    description: "The feature for managing the roll out of the qrCode coordinator.\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   redux-integration-feature:
     description: "This feature is for managing the roll out of the Redux integration feature\n"
     variables:
@@ -279,7 +286,7 @@ features:
           position:
             is-bottom: true
             is-position-feature-enabled: true
-            is-toolbar-cfr-on: true
+            is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
   search-term-groups-feature:
