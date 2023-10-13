@@ -54,7 +54,6 @@ features:
         type: "Map<HomeScreenSection, Boolean>"
         default:
           jump-back-in: true
-          pocket: true
           recent-explorations: true
           recently-saved: true
           top-sites: true
@@ -411,8 +410,6 @@ enums:
     variants:
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
-      pocket:
-        description: The pocket section. This should only be available in the US.
       recent-explorations:
         description: The tab groups
       recently-saved:
