@@ -53,9 +53,7 @@ commands:
 
           if [ -n "<< parameters.username >>" -a -n "<< parameters.password >>" ]; then
             echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
-            # TODO: https://github.com/mozilla/experimenter/issues/9536
-            # Disbled until Hydrobuild is functioning
-            # docker buildx create --use --driver cloud "mozilla/default"
+            docker buildx create --use --driver cloud "mozilla/default"
           else
             echo "username and password are empty, skipping docker login"
           fi
@@ -453,10 +451,8 @@ jobs:
       - deploy:
           name: Deploy to latest
           command: |
-            # TODO: https://github.com/mozilla/experimenter/issues/9536
-            # Disbled until Hydrobuild is functioning
             # # Build all images for aarch64 and x86_64 to hydrate build cache
-            # make BUILD_MULTIPLATFORM=1 build_dev build_test build_ui build_prod
+            make BUILD_MULTIPLATFORM=1 build_dev build_test build_ui build_prod
             # Pull x86_64 and tag to dockerhub for deploy
             ./scripts/store_git_info.sh
             make build_prod
@@ -476,10 +472,8 @@ jobs:
       - deploy:
           name: Deploy to latest
           command: |
-            # TODO: https://github.com/mozilla/experimenter/issues/9536
-            # Disbled until Hydrobuild is functioning
             # Build all images for aarch64 and x86_64 to hydrate build cache
-            # make BUILD_MULTIPLATFORM=1 cirrus_build
+            make BUILD_MULTIPLATFORM=1 cirrus_build
             # Pull x86_64 and tag to dockerhub for deploy
             make cirrus_build
             docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
