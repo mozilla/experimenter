@@ -2374,10 +2374,10 @@
   dependencies:
     "@lezer/common" "^1.0.0"
 
-"@mozilla/nimbus-schemas@^2023.9.2":
-  version "2023.9.2"
-  resolved "https://registry.yarnpkg.com/@mozilla/nimbus-schemas/-/nimbus-schemas-2023.9.2.tgz#a5540d6678685277fe852d141f11cfad98aa775a"
-  integrity sha512-BBHgqXUQ18jt+znFZYxadjSMfm11mP6qcbuxWjSeIXNLuFtOCqDxRrLRJeVgOFKmps/M8MAaE7wzFGycYVh+ew==
+"@mozilla/nimbus-schemas@^2023.10.1":
+  version "2023.10.1"
+  resolved "https://registry.yarnpkg.com/@mozilla/nimbus-schemas/-/nimbus-schemas-2023.10.1.tgz#19fc58c8fb848b0b6d0309cd51802b599c844abc"
+  integrity sha512-MIW1UuOr1shYDtLOdGg31WnNkahJDHzZah622lp55nq3WeAm1H3bsc4nlIuGlLHYxvKfU5enJHVy4SFx+XahKQ==
 
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
