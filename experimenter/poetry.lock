@@ -1414,13 +1414,13 @@ test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
 name = "mozilla-nimbus-schemas"
-version = "2023.9.1"
+version = "2023.10.1"
 description = "Schemas used by Mozilla Nimbus and related projects."
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "mozilla_nimbus_schemas-2023.9.1-py3-none-any.whl", hash = "sha256:9f31867f8c578aab34f393e9ce0c8a0666ec4175b6a1ec2e049361d7a45d0054"},
-    {file = "mozilla_nimbus_schemas-2023.9.1.tar.gz", hash = "sha256:361a8c8cf66a966fe4f7372b57524291512a05034d5600467cbbeef6c42c1057"},
+    {file = "mozilla_nimbus_schemas-2023.10.1-py3-none-any.whl", hash = "sha256:39715dd0659e733447ffefd464f8035ff284e8e4abf691e22a2e371990b7bfda"},
+    {file = "mozilla_nimbus_schemas-2023.10.1.tar.gz", hash = "sha256:ea7dc0ea8d89a8825e27a08341d22c9d566d83f9eb09eedee5192bc7ad57490d"},
 ]
 
 [package.dependencies]
@@ -2878,4 +2878,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "46ba13b7f9bffbb0bff6a8b3ff04e8e9c4e2d36d0fe9aa2cdddb00051a8d1001"
+content-hash = "a312ccd6f562103fc267c1f95f8641b17fa773d6bc5340cf41ba804b8cb04eea"
