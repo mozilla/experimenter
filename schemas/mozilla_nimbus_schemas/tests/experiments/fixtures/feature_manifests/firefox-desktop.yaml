@@ -58,6 +58,7 @@ feature-with-exposure:
 feature-with-schema:
   variables: {}
   owner: nobody@example.com
+  hasExposure: false
   schema:
     uri: "resource://gre/foo/schema.json"
     path: "/toolkit/components/foo/schema.json"

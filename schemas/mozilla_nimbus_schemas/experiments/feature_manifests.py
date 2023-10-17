@@ -50,11 +50,17 @@ class FeatureWithExposure(BaseFeature):
 class FeatureWithoutExposure(BaseFeature):
     """A feature without exposure."""
 
-    has_exposure: Optional[Literal[False]] = Field(alias="hasExposure")
+    has_exposure: Literal[False] = Field(alias="hasExposure")
 
     @property
     def exposure_description(self):
         return None
+
+
+class Feature(BaseModel):
+    __root__: Union[FeatureWithExposure, FeatureWithoutExposure] = Field(
+        discriminator="has_exposure"
+    )
 
 
 # `extra=Extra.allow` is needed for the pydantic2ts generation of
@@ -67,4 +73,4 @@ class FeatureWithoutExposure(BaseFeature):
 #
 # If this is fixed we should remove `extra=Extra.allow`.
 class FeatureManifest(BaseModel, extra=Extra.allow):
-    __root__: dict[str, Union[FeatureWithExposure, FeatureWithoutExposure]]
+    __root__: dict[str, Feature]
