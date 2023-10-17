@@ -501,8 +501,15 @@ URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_DISABLED = NimbusTargetingConfig(
 URLBAR_FIREFOX_SUGGEST_SPONSORED_ENABLED = NimbusTargetingConfig(
     name="Urlbar (Firefox Suggest) - Sponsored Suggestions Enabled",
     slug="urlbar_firefox_suggest_sponsored_enabled",
-    description="Users with sponsored Firefox Suggest suggestions enabled",
-    targeting="'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue",
+    description=(
+        "Users with sponsored Firefox Suggest suggestions enabled "
+        "(IMPORTANT: You must restrict 'Locales' to one or more Suggest "
+        "locales when using this!)"
+    ),
+    targeting=(
+        "!('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) || "
+        "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
+    ),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
