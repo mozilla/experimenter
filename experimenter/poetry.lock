@@ -674,14 +674,17 @@ typing_extensions = ">=3.6,<5"
 
 [[package]]
 name = "django-types"
-version = "0.18.0"
+version = "0.19.1"
 description = "Type stubs for Django"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "django-types-0.18.0.tar.gz", hash = "sha256:b8e2334c810864d7abf11cd3cdb1da3b2015b67e7f1270007e33777ff1bd8654"},
-    {file = "django_types-0.18.0-py3-none-any.whl", hash = "sha256:7c28fefecfddec1fae7a3b7fec74a12862cf45b76fc891b220fbd42ccbc44808"},
+    {file = "django_types-0.19.1-py3-none-any.whl", hash = "sha256:b3f529de17f6374d41ca67232aa01330c531bbbaa3ac4097896f31ac33c96c30"},
+    {file = "django_types-0.19.1.tar.gz", hash = "sha256:5ae7988612cf6fbc357b018bbc3b3a878b65e04275cc46e0d35d66a708daff12"},
 ]
+
+[package.dependencies]
+types-psycopg2 = ">=2.9.21.13"
 
 [[package]]
 name = "django-widget-tweaks"
@@ -2692,6 +2695,17 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=2.0)", "pre-commit", "pytest", "pytest-mock"]
 
 [[package]]
+name = "types-psycopg2"
+version = "2.9.21.14"
+description = "Typing stubs for psycopg2"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-psycopg2-2.9.21.14.tar.gz", hash = "sha256:bf73a0ac4da4e278c89bf1b01fc596d5a5ac7a356cfe6ac0249f47b9e259f868"},
+    {file = "types_psycopg2-2.9.21.14-py3-none-any.whl", hash = "sha256:cd9c5350631f3bc6184ec8d48f2ed31d4ea660f89d0fffe78239450782f383c5"},
+]
+
+[[package]]
 name = "types-pyyaml"
 version = "6.0.12.12"
 description = "Typing stubs for PyYAML"
@@ -2878,4 +2892,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "5848accda392a7d547bb14fb7e7cb516809ee33bc8bdc5734f67bb7601fd20c5"
+content-hash = "9d8872f014cc194da1469504b188986870373631bf2b6493cb7926bf5b891929"
