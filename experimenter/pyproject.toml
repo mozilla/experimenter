@@ -72,7 +72,7 @@ mozilla-nimbus-schemas = "2023.10.1"
 django-redis = "^5.4.0"
 fontawesomefree = "6.4.0"
 django-tailwind = "^3.6.0"
-ruff = "^0.0.286"
+ruff = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
