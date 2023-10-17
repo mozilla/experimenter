@@ -6,7 +6,7 @@ authors = [""]
 
 [tool.poetry.dependencies]
 python = "^3.10.10"
-ruff = "^0.0.254"
+ruff = "^0.1.0"
 fastapi = "^0.103.0"
 uvicorn = "^0.23.1"
 pytest = "^7.2.2"
