@@ -8,6 +8,7 @@
 export type AnalysisBasis = "enrollments" | "exposures";
 export type LogSource = "jetstream" | "sizing" | "jetstream-preview";
 export type AnalysisErrors = AnalysisError[];
+export type Feature = FeatureWithExposure | FeatureWithoutExposure;
 export type FeatureVariableType = "int" | "string" | "boolean" | "json";
 export type SizingReleaseChannel = "release" | "beta" | "nightly";
 export type SizingUserType = "new" | "existing";
@@ -37,7 +38,7 @@ export interface ExternalConfig {
   url: string;
 }
 export interface FeatureManifest {
-  [k: string]: FeatureWithExposure | FeatureWithoutExposure;
+  [k: string]: Feature;
 }
 /**
  * A feature that has exposure.
@@ -73,7 +74,7 @@ export interface FeatureWithoutExposure {
     [k: string]: FeatureVariable;
   };
   schema?: NimbusFeatureSchema;
-  hasExposure?: false;
+  hasExposure: false;
 }
 export interface Metadata {
   analysis_start_time?: string;
