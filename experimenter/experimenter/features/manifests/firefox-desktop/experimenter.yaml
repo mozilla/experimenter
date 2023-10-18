@@ -514,7 +514,7 @@ windowsLaunchOnLogin:
   variables:
     enabled:
       type: boolean
-      fallbackPref: browser.startup.windowsLaunchOnLogin.enabled
+      setPref: browser.startup.windowsLaunchOnLogin.enabled
       description: Should users see the Windows launch on login checkbox.
 
 abouthomecache:
@@ -947,6 +947,16 @@ fullPageTranslationAutomaticPopup:
       description: Set to true to automatically popup, and false to only show the button.
       type: boolean
       setPref: browser.translations.automaticallyPopup
+
+addAnImageInPDF:
+  description: Add an image in an existing pdf.
+  owner: cdenizet@mozilla.com
+  hasExposure: false
+  variables:
+    boolean:
+      description: Set to true to enable the add-an-image feature
+      type: boolean
+      setPref: pdfjs.enableStampEditor
 
 # fxms-message-* placeholder feature ids
 #
@@ -1898,3 +1908,12 @@ feltPrivacy:
       setPref: browser.privatebrowsing.resetPBM.enabled
       description: >-
         Enables the reset PBM feature button and confirmation panel.
+
+attribution:
+  description: Prefs related to install attribution
+  hasExposure: false
+  variables:
+    macosEnabled:
+      type: boolean
+      description: Whether or not macOS attribution data will be processed and sent in Telemetry
+      fallbackPref: browser.attribution.macos.enabled
