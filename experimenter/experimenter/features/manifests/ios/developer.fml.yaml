@@ -55,7 +55,6 @@ features:
         default:
           jump-back-in: true
           recent-explorations: true
-          recently-saved: true
           top-sites: true
   library-coordinator-refactor:
     description: "This feature is for managing the roll out of the library coordinator code as part of the changes on the navigation in the app\n"
@@ -428,8 +427,6 @@ enums:
         description: The tabs the user was looking immediately before being interrupted.
       recent-explorations:
         description: The tab groups
-      recently-saved:
-        description: The sites the user has bookmarked recently.
       top-sites:
         description: The frecency and pinned sites.
   IconType:
