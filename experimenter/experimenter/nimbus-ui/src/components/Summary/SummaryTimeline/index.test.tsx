@@ -26,15 +26,15 @@ describe("SummaryTimeline", () => {
     ].forEach((set) => {
       render(<Subject {...set} />);
 
-      expect(screen.queryByTestId("label-not-launched")).toBeInTheDocument();
-      expect(screen.queryByTestId("label-start-date")).not.toBeInTheDocument();
-      expect(screen.queryByTestId("label-release-date")).toBeNull();
+      expect(screen.getByTestId("label-not-launched")).toBeInTheDocument();
+      expect(screen.getByTestId("label-start-date")).not.toBeInTheDocument();
+      expect(screen.getByTestId("label-release-date")).toBeNull();
       expect(
-        screen.queryByTestId("label-enrollment-end-date"),
+        screen.getByTestId("label-enrollment-end-date"),
       ).not.toBeInTheDocument();
-      expect(screen.queryByTestId("label-end-date")).not.toBeInTheDocument();
-      expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
-      expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
+      expect(screen.getByTestId("label-end-date")).not.toBeInTheDocument();
+      expect(screen.getByTestId("label-duration-days")).toBeInTheDocument();
+      expect(screen.getByTestId("label-enrollment-days")).toBeInTheDocument();
 
       cleanup();
     });
@@ -46,14 +46,14 @@ describe("SummaryTimeline", () => {
     expect(innerBar().classList).toContain("progress-bar-animated");
     expect(innerBar().classList).toContain("progress-bar-striped");
 
-    expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
+    expect(screen.getByTestId("label-not-launched")).not.toBeInTheDocument();
+    expect(screen.getByTestId("label-start-date")).toBeInTheDocument();
     expect(
-      screen.queryByTestId("label-enrollment-end-date"),
+      screen.getByTestId("label-enrollment-end-date"),
     ).toBeInTheDocument();
-    expect(screen.queryByTestId("label-end-date")).toBeInTheDocument();
-    expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
-    expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
+    expect(screen.getByTestId("label-end-date")).toBeInTheDocument();
+    expect(screen.getByTestId("label-duration-days")).toBeInTheDocument();
+    expect(screen.getByTestId("label-enrollment-days")).toBeInTheDocument();
     expect(
       await screen.findByTestId("tooltip-duration-summary"),
     ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
@@ -71,9 +71,9 @@ describe("SummaryTimeline", () => {
     expect(screen.getByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.getByTestId("label-duration-days")).toBeInTheDocument();
 
-    expect(screen.queryByTestId("label-not-launched")).toBeNull();
-    expect(screen.queryByTestId("label-enrollment-end-date")).toBeNull();
-    expect(screen.queryByTestId("label-enrollment-days")).toBeNull();
+    expect(screen.getByTestId("label-not-launched")).toBeNull();
+    expect(screen.getByTestId("label-enrollment-end-date")).toBeNull();
+    expect(screen.getByTestId("label-enrollment-days")).toBeNull();
     expect(
       await screen.findByTestId("tooltip-duration-summary"),
     ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
@@ -84,23 +84,23 @@ describe("SummaryTimeline", () => {
 
     expect(innerBar().classList).toContain("bg-success");
 
-    expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
+    expect(screen.getByTestId("label-not-launched")).not.toBeInTheDocument();
+    expect(screen.getByTestId("label-start-date")).toBeInTheDocument();
     expect(
-      screen.queryByTestId("label-enrollment-end-date"),
+      screen.getByTestId("label-enrollment-end-date"),
     ).toBeInTheDocument();
-    expect(screen.queryByTestId("label-end-date")).toBeInTheDocument();
-    expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
-    expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
+    expect(screen.getByTestId("label-end-date")).toBeInTheDocument();
+    expect(screen.getByTestId("label-duration-days")).toBeInTheDocument();
+    expect(screen.getByTestId("label-enrollment-days")).toBeInTheDocument();
   });
 
   it("renders 0 days properly", () => {
     render(<Subject computedDurationDays={0} computedEnrollmentDays={0} />);
 
-    expect(screen.queryByTestId("label-duration-days")).toHaveTextContent(
+    expect(screen.getByTestId("label-duration-days")).toHaveTextContent(
       "0 days",
     );
-    expect(screen.queryByTestId("label-enrollment-days")).toHaveTextContent(
+    expect(screen.getByTestId("label-enrollment-days")).toHaveTextContent(
       "0 days",
     );
   });
