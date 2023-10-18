@@ -47,6 +47,21 @@ class Outcomes:
                         outcome_toml = outcome_file.read()
                         outcome_data = toml.loads(outcome_toml)
 
+                        metrics = []
+                        if "metrics" in outcome_data:
+                            metrics = [
+                                Metric(
+                                    slug=metric,
+                                    friendly_name=outcome_data["metrics"][metric].get(
+                                        "friendly_name"
+                                    ),
+                                    description=outcome_data["metrics"][metric].get(
+                                        "description"
+                                    ),
+                                )
+                                for metric in outcome_data["metrics"]
+                            ]
+
                         outcomes.append(
                             Outcome(
                                 application=app_name_application_config[app_name].slug,
@@ -54,18 +69,7 @@ class Outcomes:
                                 friendly_name=outcome_data["friendly_name"],
                                 slug=os.path.splitext(outcome_name)[0],
                                 is_default=False,
-                                metrics=[
-                                    Metric(
-                                        slug=metric,
-                                        friendly_name=outcome_data["metrics"][metric].get(
-                                            "friendly_name"
-                                        ),
-                                        description=outcome_data["metrics"][metric].get(
-                                            "description"
-                                        ),
-                                    )
-                                    for metric in outcome_data["metrics"]
-                                ],
+                                metrics=metrics,
                             )
                         )
 
