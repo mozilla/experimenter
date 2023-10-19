@@ -2,13 +2,17 @@ import json
 
 from django.core.checks import Error
 from django.test import TestCase
+from mozilla_nimbus_schemas.experiments.feature_manifests import (
+    FeatureVariable,
+    FeatureVariableType,
+    FeatureWithExposure,
+    FeatureWithoutExposure,
+)
 
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.features import (
     Feature,
     Features,
-    FeatureVariable,
-    FeatureVariableType,
     check_features,
 )
 from experimenter.features.tests import (
@@ -33,51 +37,59 @@ class TestFeatures(TestCase):
         self.assertEqual(len(features), 4)
         self.assertIn(
             Feature(
-                applicationSlug="firefox-desktop",
-                description="Some Firefox Feature",
-                hasExposure=True,
-                exposureDescription="An exposure event",
-                isEarlyStartup=True,
                 slug="someFeature",
-                variables={
-                    "stringEnumProperty": FeatureVariable(
-                        description="String Property",
-                        enum=["v1", "v2"],
-                        fallbackPref="browser.somePref",
-                        type=FeatureVariableType.STRING,
-                    ),
-                    "boolProperty": FeatureVariable(
-                        description="Boolean Property",
-                        type="boolean",
-                    ),
-                    "intProperty": FeatureVariable(
-                        description="Integer Property",
-                        enum=[1, 2, 3],
-                        type="int",
-                    ),
-                    "jsonProperty": FeatureVariable(
-                        description="Arbitrary JSON Property",
-                        type="json",
-                    ),
-                },
+                application_slug="firefox-desktop",
+                model=FeatureWithExposure.parse_obj(
+                    {
+                        "description": "Some Firefox Feature",
+                        "hasExposure": True,
+                        "exposureDescription": "An exposure event",
+                        "isEarlyStartup": True,
+                        "variables": {
+                            "stringEnumProperty": FeatureVariable(
+                                description="String Property",
+                                enum=["v1", "v2"],
+                                fallbackPref="browser.somePref",
+                                type=FeatureVariableType.STRING,
+                            ),
+                            "boolProperty": FeatureVariable(
+                                description="Boolean Property",
+                                type="boolean",
+                            ),
+                            "intProperty": FeatureVariable(
+                                description="Integer Property",
+                                enum=[1, 2, 3],
+                                type="int",
+                            ),
+                            "jsonProperty": FeatureVariable(
+                                description="Arbitrary JSON Property",
+                                type="json",
+                            ),
+                        },
+                    }
+                ),
             ),
             features,
         )
 
         self.assertIn(
             Feature(
-                applicationSlug="fenix",
-                description="Default Android Browser",
-                exposureDescription=False,
-                isEarlyStartup=None,
                 slug="defaultBrowser",
-                variables={
-                    "default": FeatureVariable(
-                        description="Default browser setting",
-                        fallbackPref=None,
-                        type=FeatureVariableType.BOOLEAN,
-                    )
-                },
+                application_slug="fenix",
+                model=FeatureWithoutExposure.parse_obj(
+                    {
+                        "description": "Default Android Browser",
+                        "hasExposure": False,
+                        "isEarlyStartup": None,
+                        "variables": {
+                            "default": FeatureVariable(
+                                description="Default browser setting",
+                                fallbackPref=None,
+                                type=FeatureVariableType.BOOLEAN,
+                            )
+                        },
+                    }
+                ),
             ),
             features,
         )
@@ -87,32 +99,37 @@ class TestFeatures(TestCase):
         self.assertEqual(len(desktop_features), 3)
         self.assertIn(
             Feature(
-                applicationSlug="firefox-desktop",
-                description="Some Firefox Feature",
-                exposureDescription="An exposure event",
-                isEarlyStartup=True,
                 slug="someFeature",
-                variables={
-                    "stringEnumProperty": FeatureVariable(
-                        description="String Property",
-                        enum=["v1", "v2"],
-                        fallbackPref="browser.somePref",
-                        type=FeatureVariableType.STRING,
-                    ),
-                    "boolProperty": FeatureVariable(
-                        description="Boolean Property",
-                        type="boolean",
-                    ),
-                    "intProperty": FeatureVariable(
-                        description="Integer Property",
-                        type="int",
-                        enum=[1, 2, 3],
-                    ),
-                    "jsonProperty": FeatureVariable(
-                        description="Arbitrary JSON Property",
-                        type="json",
-                    ),
-                },
+                application_slug="firefox-desktop",
+                model=FeatureWithExposure.parse_obj(
+                    {
+                        "description": "Some Firefox Feature",
+                        "exposureDescription": "An exposure event",
+                        "hasExposure": True,
+                        "isEarlyStartup": True,
+                        "variables": {
+                            "stringEnumProperty": FeatureVariable(
+                                description="String Property",
+                                enum=["v1", "v2"],
+                                fallbackPref="browser.somePref",
+                                type=FeatureVariableType.STRING,
+                            ),
+                            "boolProperty": FeatureVariable(
+                                description="Boolean Property",
+                                type="boolean",
+                            ),
+                            "intProperty": FeatureVariable(
+                                description="Integer Property",
+                                type="int",
+                                enum=[1, 2, 3],
+                            ),
+                            "jsonProperty": FeatureVariable(
+                                description="Arbitrary JSON Property",
+                                type="json",
+                            ),
+                        },
+                    }
+                ),
             ),
             desktop_features,
         )
@@ -162,6 +179,8 @@ class TestRemoteSchemaFeatures(TestCase):
 
 
 class TestCheckFeatures(TestCase):
+    maxDiff = None
+
     def setUp(self):
         Features.clear_cache()
 
@@ -179,8 +198,9 @@ class TestCheckFeatures(TestCase):
                 Error(
                     msg=(
                         "Error loading feature data 1 validation error for "
-                        "Feature\nvariables -> fallbackPref\n  value is "
-                        "not a valid dict (type=type_error.dict)"
+                        "FeatureManifest\n__root__ -> readerMode -> __root__ -> "
+                        "FeatureWithoutExposure -> variables -> fallbackPref\n"
+                        "  value is not a valid dict (type=type_error.dict)"
                     )
                 )
             ],
