@@ -1,6 +1,6 @@
 defaultBrowser:
   description: Default Android Browser
-  exposureDescription: false
+  hasExposure: false
   variables:
     default:
       type: boolean

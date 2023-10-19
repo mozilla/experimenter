@@ -4,9 +4,16 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from manifesttool import nimbus_cli
-from manifesttool.appconfig import AppConfig
+from manifesttool.appconfig import AppConfig, Repository, RepositoryType
 
-APP_CONFIG = AppConfig(slug="slug", repo="owner/repo", fml_path="path")
+APP_CONFIG = AppConfig(
+    slug="slug",
+    repo=Repository(
+        type=RepositoryType.GITHUB,
+        name="owner/repo",
+    ),
+    fml_path="path",
+)
 
 
 class NimbusCliTests(TestCase):
