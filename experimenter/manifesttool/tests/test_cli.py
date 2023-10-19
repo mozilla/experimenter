@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 from click.testing import CliRunner
 
-from manifesttool import cli
+from manifesttool import cli, fetch
 from manifesttool.appconfig import AppConfig, AppConfigs, Repository, RepositoryType
 
 FML_APP_CONFIG = AppConfig(
@@ -144,11 +144,13 @@ def cli_runner(*, app_config: AppConfig, manifest_path: Path = Path(".")):
 class CliTests(TestCase):
     """Tests for the command-line interface."""
 
-    @patch.object(cli.github_api, "get_main_ref", side_effect=lambda *args: "ref")
+    maxDiff = None
+
+    @patch.object(fetch.github_api, "get_main_ref", side_effect=lambda *args: "ref")
     @patch.object(
-        cli.nimbus_cli, "download_single_file", side_effect=mock_download_single_file
+        fetch.nimbus_cli, "download_single_file", side_effect=mock_download_single_file
     )
-    @patch.object(cli.nimbus_cli, "get_channels", side_effect=lambda *args: ["release"])
+    @patch.object(fetch.nimbus_cli, "get_channels", side_effect=lambda *args: ["release"])
     def test_fetch_latest_fml(self, get_channels, download_single_file, get_main_ref):
         """Testing the fetch-latest subcommand with an FML app."""
         with cli_runner(app_config=FML_APP_CONFIG) as runner:
@@ -186,10 +188,10 @@ class CliTests(TestCase):
                 },
             )
 
-    @patch.object(cli.github_api, "get_main_ref", lambda *args: "ref")
-    @patch.object(cli.nimbus_cli, "download_single_file")
-    @patch.object(cli.nimbus_cli, "generate_experimenter_yaml")
-    @patch.object(cli.nimbus_cli, "get_channels", lambda *args: [])
+    @patch.object(fetch.github_api, "get_main_ref", lambda *args: "ref")
+    @patch.object(fetch.nimbus_cli, "download_single_file")
+    @patch.object(fetch.nimbus_cli, "generate_experimenter_yaml")
+    @patch.object(fetch.nimbus_cli, "get_channels", lambda *args: [])
     def test_fetch_latest_fml_no_channels(
         self, generate_experimenter_yaml, download_single_file
     ):
@@ -208,8 +210,20 @@ class CliTests(TestCase):
                 "experimenter.yaml should not be created",
             )
 
-    @patch.object(cli.hgmo_api, "get_tip_rev", lambda *args: "ref")
-    @patch.object(cli.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file())
+    @patch.object(
+        fetch.github_api, "get_main_ref", side_effect=Exception("Connection error")
+    )
+    def test_fetch_latest_fml_failure(self, get_main_ref):
+        with cli_runner(app_config=FML_APP_CONFIG) as runner:
+            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
+            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+
+            self.assertIn(
+                "SUMMARY:\n\n\nFAILURES:\n\nfml_app at main (None)\n", result.stdout
+            )
+
+    @patch.object(fetch.hgmo_api, "get_tip_rev", lambda *args: "ref")
+    @patch.object(fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file())
     def test_fetch_latest_legacy(self, fetch_file):
         """Testing the fetch-latest subcommand with a legacy app."""
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
@@ -234,9 +248,9 @@ class CliTests(TestCase):
             )
             self.assertEqual(fetch_file.call_count, 2)
 
-    @patch.object(cli.hgmo_api, "get_tip_rev", lambda *args: "ref")
+    @patch.object(fetch.hgmo_api, "get_tip_rev", lambda *args: "ref")
     @patch.object(
-        cli.hgmo_api,
+        fetch.hgmo_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(
             {
@@ -273,6 +287,19 @@ class CliTests(TestCase):
                 ]
             )
             self.assertEqual(fetch_file.call_count, 2)
+
+    @patch.object(
+        fetch.hgmo_api, "get_tip_rev", side_effect=Exception("Connection error")
+    )
+    def test_fetch_legacy_failure(self, get_tip_rev):
+        with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
+            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
+            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+
+            self.assertIn(
+                "SUMMARY:\n\n\nFAILURES:\n\nlegacy_app at tip (None)\n",
+                result.stdout,
+            )
 
     def test_fetch_legacy_github_unsupported(self):
         """Testing that the fetch-latest subcommand does not support a legacy
