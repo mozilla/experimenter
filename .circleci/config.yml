@@ -61,7 +61,7 @@ commands:
 jobs:
   check_experimenter_x86_64:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -80,7 +80,7 @@ jobs:
 
   check_experimenter_aarch64:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: arm.large
     working_directory: ~/experimenter
@@ -101,7 +101,7 @@ jobs:
 
   check_cirrus_x86_64:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/cirrus
@@ -119,7 +119,7 @@ jobs:
 
   check_cirrus_aarch64:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: arm.large
     working_directory: ~/cirrus
@@ -138,10 +138,14 @@ jobs:
             make cirrus_check
 
   check_schemas:
-    docker:
-      - image: cimg/python:3.10.8-node # poetry 1.2.2
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
     steps:
       - checkout
+      - setup_docker:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
       - check_file_paths:
           paths: "schemas/"
       - run:
@@ -151,7 +155,7 @@ jobs:
 
   integration_nimbus_desktop_release_targeting:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -176,7 +180,7 @@ jobs:
 
   integration_nimbus_desktop_beta_targeting:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -201,7 +205,7 @@ jobs:
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -226,7 +230,7 @@ jobs:
 
   integration_nimbus_desktop_remote_settings:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -250,7 +254,7 @@ jobs:
 
   integration_nimbus_fenix_remote_settings:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -274,7 +278,7 @@ jobs:
 
   integration_nimbus_ios_remote_settings:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -298,7 +302,7 @@ jobs:
 
   integration_nimbus_focus_android_remote_settings:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -322,7 +326,7 @@ jobs:
 
   integration_nimbus_focus_ios_remote_settings:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -346,7 +350,7 @@ jobs:
 
   integration_nimbus_desktop_enrollment:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
@@ -372,7 +376,7 @@ jobs:
 
   integration_nimbus_desktop_ui:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -396,7 +400,7 @@ jobs:
 
   integration_nimbus_sdk_targeting:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -417,7 +421,7 @@ jobs:
 
   integration_legacy:
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -441,7 +445,7 @@ jobs:
   deploy_experimenter:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -462,7 +466,7 @@ jobs:
   deploy_cirrus:
     working_directory: ~/cirrus
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -480,10 +484,14 @@ jobs:
             docker push ${DOCKERHUB_CIRRUS_REPO}:latest
 
   deploy_schemas:
-    docker:
-      - image: cimg/python:3.10.8-node # poetry 1.2.2
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
     steps:
       - checkout
+      - setup_docker:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
       - run:
           name: Check for package version change in last commit before proceeding.
           command: |
@@ -495,9 +503,9 @@ jobs:
                 circleci-agent step halt
             fi
       - run:
-          name: Create the PyPI distribution files
+          name: Create the distribution files
           command: |
-            make schemas_build_pypi
+            make schemas_dist
       - run:
           name: Upload to PyPI
           command: |
@@ -505,7 +513,7 @@ jobs:
             #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
             # For more on twine, see:
             #   https://twine.readthedocs.io/en/latest/
-            make schemas_deploy_pypi
+            make schemas_deploy_pypi SCHEMAS_ENV="-e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD}"
       - run:
           name: NPM Authentication
           command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
@@ -514,12 +522,12 @@ jobs:
           command: |
             # Relies on the NPM_TOKEN environment variable configured at:
             #   https://app.circleci.com/settings/project/github/mozilla/experimenter/environment-variables
-            make schemas_deploy_npm
+            make schemas_deploy_npm SCHEMAS_ENV="-e NPM_TOKEN=${NPM_TOKEN}"
 
   update_external_configs:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     steps:
       - add_ssh_keys:
@@ -560,7 +568,7 @@ jobs:
   build_firefox_versions:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -620,7 +628,7 @@ jobs:
   build_rust_image:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.04.2 # Ubuntu 20.04, Docker v20.10.24, Docker Compose v2.17.2
+      image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -787,6 +795,7 @@ workflows:
             - Check Cirrus x86_64
             - Check Cirrus aarch64
       - deploy_schemas:
+          name: Deploy Schemas
           filters:
             branches:
               only: main

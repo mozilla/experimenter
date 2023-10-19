@@ -1,0 +1,17 @@
+**/__pycache__
+**/.cache
+**/.coverage
+**/.DS_Store
+**/.mypy
+**/.pycache
+**/.pytest_cache
+**/.vscode
+**/.vscode/
+**/coverage/
+**/node_modules
+**/yarn-error.log
+docs
+experimenter/legacy/legacy-ui/assets
+experimenter/nimbus-ui/build
+experimenter/reporting/reporting-ui/assets/
+experimenter/served/
