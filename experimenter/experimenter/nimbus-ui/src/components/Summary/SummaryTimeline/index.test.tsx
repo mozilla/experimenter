@@ -49,7 +49,7 @@ describe("SummaryTimeline", () => {
     expect(screen.getByTestId("label-not-launched")).not.toBeInTheDocument();
     expect(screen.getByTestId("label-start-date")).toBeInTheDocument();
     expect(
-      screen.getByTestId("label-enrollment-end-date"),
+      screen.getByTestId("label-enrollment-end-date")
     ).toBeInTheDocument();
     expect(screen.getByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.getByTestId("label-duration-days")).toBeInTheDocument();
@@ -87,7 +87,7 @@ describe("SummaryTimeline", () => {
     expect(screen.getByTestId("label-not-launched")).not.toBeInTheDocument();
     expect(screen.getByTestId("label-start-date")).toBeInTheDocument();
     expect(
-      screen.getByTestId("label-enrollment-end-date"),
+      screen.getByTestId("label-enrollment-end-date")
     ).toBeInTheDocument();
     expect(screen.getByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.getByTestId("label-duration-days")).toBeInTheDocument();
