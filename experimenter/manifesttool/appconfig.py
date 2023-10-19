@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 
@@ -5,12 +6,23 @@ import yaml
 from pydantic import BaseModel
 
 
+class RepositoryType(Enum):
+    HGMO = "hgmo"  # hg.mozilla.org
+    GITHUB = "github"
+
+
+class Repository(BaseModel):
+    type: RepositoryType
+    name: str
+
+
 class AppConfig(BaseModel):
     """The configuration of a single app in apps.yaml."""
 
     slug: str
-    repo: str
-    fml_path: str
+    repo: Repository
+    fml_path: Optional[str]
+    experimenter_yaml_path: Optional[str]
     major_release_branch: Optional[str]
     minor_release_tag: Optional[str]
 
