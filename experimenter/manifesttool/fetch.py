@@ -43,7 +43,7 @@ def fetch_fml_app(
                 f"WARNING: Application {app_name} does not have any channels!",
                 file=sys.stderr,
             )
-            return
+            raise Exception("No channels found")
 
         for channel in channels:
             print(f"fetch-latest: {app_name}: download {channel} manifest")
