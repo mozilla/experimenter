@@ -120,8 +120,8 @@ services:
     links:
       - kinto
     volumes:
-      - ./cirrus/server/:/cirrus
-    working_dir: /cirrus
+      - ./cirrus/server/:/app
+    working_dir: /app
     ports:
       - "8001:8001"
   demo-app-server:
