@@ -46,21 +46,12 @@ PYTHON_PATH_SDK = PYTHONPATH=/application-services/megazord
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
-MOZILLA_CENTRAL_ROOT = https://hg.mozilla.org/mozilla-central/raw-file/tip
-FEATURE_MANIFEST_DESKTOP_URL = ${MOZILLA_CENTRAL_ROOT}/toolkit/components/nimbus/FeatureManifest.yaml
 
 FIREFOX_ANDROID_REPO = @mozilla-mobile/firefox-android
 FIREFOX_IOS_REPO     = @mozilla-mobile/firefox-ios
 FOCUS_IOS_REPO       = @mozilla-mobile/focus-ios
 MONITOR_REPO         = @mozilla/blurts-server
 
-FEATURE_MANIFEST_FENIX = $(FIREFOX_ANDROID_REPO)/fenix/app/nimbus.fml.yaml
-FEATURE_MANIFEST_FXIOS = $(FIREFOX_IOS_REPO)/nimbus.fml.yaml
-FEATURE_MANIFEST_FOCUS_ANDROID = $(FIREFOX_ANDROID_REPO)/focus-android/app/nimbus.fml.yaml
-FEATURE_MANIFEST_FOCUS_IOS = $(FOCUS_IOS_REPO)/nimbus.fml.yaml
-FEATURE_MANIFEST_MONITOR = $(MONITOR_REPO)/config/nimbus.yaml
-
-MANIFESTS_DIR = experimenter/experimenter/features/manifests
 CLI_DIR = experimenter/experimenter/features/manifests/application-services
 CLI_INSTALLER = $(CLI_DIR)/install-nimbus-cli.sh
 NIMBUS_CLI = $(CLI_DIR)/nimbus-cli
@@ -87,19 +78,7 @@ jetstream_config:
 	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
 
 feature_manifests: build_dev
-	mkdir -p $(MANIFESTS_DIR)
-
 	$(COMPOSE) run experimenter /experimenter/bin/manifest-tool.py fetch-latest
-
-	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
-	cat $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml | grep path: | \
-	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
-	while read -r url; do \
-		file=$$(echo $$url | sed 's|$(MOZILLA_CENTRAL_ROOT)/||'); \
-		file="experimenter/experimenter/features/manifests/firefox-desktop/schemas/$$file"; \
-		mkdir -p $$(dirname $$file); \
-		curl $$url -o $$file; \
-	done
 
 install_nimbus_cli:
 	mkdir -p $(CLI_DIR)
