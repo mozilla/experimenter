@@ -48,14 +48,12 @@ describe("SummaryTimeline", () => {
 
     expect(screen.getByTestId("label-not-launched")).not.toBeInTheDocument();
     expect(screen.getByTestId("label-start-date")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("label-enrollment-end-date")
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("label-enrollment-end-date")).toBeInTheDocument();
     expect(screen.getByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.getByTestId("label-duration-days")).toBeInTheDocument();
     expect(screen.getByTestId("label-enrollment-days")).toBeInTheDocument();
     expect(
-      await screen.findByTestId("tooltip-duration-summary")
+      await screen.findByTestId("tooltip-duration-summary"),
     ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
   });
 
@@ -75,7 +73,7 @@ describe("SummaryTimeline", () => {
     expect(screen.getByTestId("label-enrollment-end-date")).toBeNull();
     expect(screen.getByTestId("label-enrollment-days")).toBeNull();
     expect(
-      await screen.findByTestId("tooltip-duration-summary")
+      await screen.findByTestId("tooltip-duration-summary"),
     ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
   });
 
@@ -86,9 +84,7 @@ describe("SummaryTimeline", () => {
 
     expect(screen.getByTestId("label-not-launched")).not.toBeInTheDocument();
     expect(screen.getByTestId("label-start-date")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("label-enrollment-end-date")
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("label-enrollment-end-date")).toBeInTheDocument();
     expect(screen.getByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.getByTestId("label-duration-days")).toBeInTheDocument();
     expect(screen.getByTestId("label-enrollment-days")).toBeInTheDocument();
