@@ -514,7 +514,7 @@ windowsLaunchOnLogin:
   variables:
     enabled:
       type: boolean
-      fallbackPref: browser.startup.windowsLaunchOnLogin.enabled
+      setPref: browser.startup.windowsLaunchOnLogin.enabled
       description: Should users see the Windows launch on login checkbox.
 
 abouthomecache:
@@ -948,6 +948,16 @@ fullPageTranslationAutomaticPopup:
       type: boolean
       setPref: browser.translations.automaticallyPopup
 
+addAnImageInPDF:
+  description: Add an image in an existing pdf.
+  owner: cdenizet@mozilla.com
+  hasExposure: false
+  variables:
+    boolean:
+      description: Set to true to enable the add-an-image feature
+      type: boolean
+      setPref: pdfjs.enableStampEditor
+
 # fxms-message-* placeholder feature ids
 #
 # https://docs.google.com/spreadsheets/d/119YbeKStLL0Fg2QkK-yN93mrtD1rlneGZGTl_jAwtyw/edit#gid=1903378504
@@ -1366,6 +1376,19 @@ networking:
       description: The congestion control algorithm with which to configure neqo. 0 for NewReno, 1 for Cubic
       type: int
       setPref: "network.http.http3.cc_algorithm"
+    sendOnDataFinished:
+      description: Whether we can send OnDataFinished in the content process
+      type: boolean
+      setPref: "network.send_OnDataFinished"
+    sendOnDataFinishedToHtml5parser:
+      description: Whether we can send OnDataFinished to the html5parser in content process
+      type: boolean
+      setPref: "network.send_OnDataFinished.html5parser"
+    sendOnDataFinishedToCssLoader:
+      description: Whether we can send OnDataFinished to the cssLoader in content process
+      type: boolean
+      setPref: "network.send_OnDataFinished.cssLoader"
+
 
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
@@ -1898,3 +1921,24 @@ feltPrivacy:
       setPref: browser.privatebrowsing.resetPBM.enabled
       description: >-
         Enables the reset PBM feature button and confirmation panel.
+
+attribution:
+  description: Prefs related to install attribution
+  hasExposure: false
+  variables:
+    macosEnabled:
+      type: boolean
+      description: Whether or not macOS attribution data will be processed and sent in Telemetry
+      fallbackPref: browser.attribution.macos.enabled
+
+phc:
+  description: Prefs to control the Probabalistic Heap Checker (PHC)
+  owner: pbone@mozilla.com
+  hasExposure: false
+  isEarlyStartup: true
+  variables:
+    phcEnabled:
+      description: Whether to enable PHC
+      type: boolean
+      setPref: memory.phc.enabled
+
