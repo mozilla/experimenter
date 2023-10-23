@@ -1376,6 +1376,19 @@ networking:
       description: The congestion control algorithm with which to configure neqo. 0 for NewReno, 1 for Cubic
       type: int
       setPref: "network.http.http3.cc_algorithm"
+    sendOnDataFinished:
+      description: Whether we can send OnDataFinished in the content process
+      type: boolean
+      setPref: "network.send_OnDataFinished"
+    sendOnDataFinishedToHtml5parser:
+      description: Whether we can send OnDataFinished to the html5parser in content process
+      type: boolean
+      setPref: "network.send_OnDataFinished.html5parser"
+    sendOnDataFinishedToCssLoader:
+      description: Whether we can send OnDataFinished to the cssLoader in content process
+      type: boolean
+      setPref: "network.send_OnDataFinished.cssLoader"
+
 
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
@@ -1917,3 +1930,15 @@ attribution:
       type: boolean
       description: Whether or not macOS attribution data will be processed and sent in Telemetry
       fallbackPref: browser.attribution.macos.enabled
+
+phc:
+  description: Prefs to control the Probabalistic Heap Checker (PHC)
+  owner: pbone@mozilla.com
+  hasExposure: false
+  isEarlyStartup: true
+  variables:
+    phcEnabled:
+      description: Whether to enable PHC
+      type: boolean
+      setPref: memory.phc.enabled
+
