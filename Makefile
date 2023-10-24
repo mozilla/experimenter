@@ -249,17 +249,17 @@ build_demo_app:
 SCHEMAS_ENV ?=  # This is empty by default
 SCHEMAS_VERSION = \$$(cat VERSION)
 SCHEMAS_RUN = docker run -ti $(SCHEMAS_ENV) -v ./schemas:/schemas -v /schemas/node_modules schemas:dev sh -c
-SCHEMAS_BLACK = poetry run black --check --diff .
-SCHEMAS_RUFF = poetry run ruff .
+SCHEMAS_BLACK = black --check --diff .
+SCHEMAS_RUFF = ruff .
 SCHEMAS_DIFF_PYDANTIC = \
-	poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output /tmp/test_index.d.ts --json2ts-cmd 'yarn json2ts' &&\
+	pydantic2ts --module mozilla_nimbus_schemas.__init__ --output /tmp/test_index.d.ts --json2ts-cmd 'yarn json2ts' &&\
 	diff /tmp/test_index.d.ts index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1) &&\
 	echo 'Done. No problems found in schemas.'
 SCHEMAS_TEST = pytest
-SCHEMAS_FORMAT = poetry run ruff --fix . && poetry run black .
+SCHEMAS_FORMAT = ruff --fix . && black .
 SCHEMAS_DIST_PYPI = poetry build
-SCHEMAS_DIST_NPM = poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output ./index.d.ts --json2ts-cmd 'yarn json2ts'
-SCHEMAS_DEPLOY_PYPI = poetry run twine upload --skip-existing dist/*;
+SCHEMAS_DIST_NPM = pydantic2ts --module mozilla_nimbus_schemas.__init__ --output ./index.d.ts --json2ts-cmd 'yarn json2ts'
+SCHEMAS_DEPLOY_PYPI = twine upload --skip-existing dist/*;
 SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc;yarn publish --new-version ${SCHEMAS_VERSION} --access public;
 SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
 SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
