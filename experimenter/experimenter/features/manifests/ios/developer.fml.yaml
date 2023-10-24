@@ -71,6 +71,20 @@ features:
         default: true
   messaging:
     description: "The in-app messaging system\n"
+    documentation:
+      - name: User documentation
+        url: "https://experimenter.info/messaging/mobile-messaging"
+    contacts:
+      - jhugman@mozilla.com
+      - brennie@mozilla.com
+      - gbuciu@mozilla.com
+      - wteichmann@mozilla.com
+    events:
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_shown"
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_clicked"
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_expired"
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_dismissed"
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_malformed"
     variables:
       actions:
         description: A growable map of action URLs.
