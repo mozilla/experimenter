@@ -179,6 +179,7 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 COPY --from=dev /usr/local/bin/ /usr/local/bin/
 COPY --from=dev /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 COPY --from=dev /experimenter/bin/ /experimenter/bin/
+COPY --from=dev /application-services/megazord/ /application-services/megazord/
 COPY --from=file-loader /experimenter/manage.py /experimenter/manage.py
 COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
