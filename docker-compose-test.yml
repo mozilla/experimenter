@@ -24,4 +24,4 @@ services:
     build:
       context: cirrus/server/
       dockerfile: Dockerfile
-    working_dir: /app
+    working_dir: /cirrus
