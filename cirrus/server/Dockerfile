@@ -17,7 +17,7 @@ WORKDIR /application-services
 
 RUN git clone https://github.com/mozilla/application-services.git .
 RUN if [[ -z "${as_version}" ]] ; then \
-    echo "No application-services version supplied, using the latest commit." ; \
+    echo "No application-services version supplied, using latest commit." ; \
     else \
     git fetch ; \
     fi
@@ -59,7 +59,7 @@ RUN poetry config virtualenvs.create false && \
 # Third stage: Deploy stage
 FROM python:3.11.2-slim-buster as deploy
 
-WORKDIR /app
+WORKDIR /cirrus
 
 # Copy specific Rust components
 COPY --from=rust-builder /application-services/target/release/libcirrus.so /application-services/libcirrus.so
@@ -70,23 +70,10 @@ COPY --from=rust-builder /application-services/fml.py /application-services/fml_
 COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=python-builder /usr/local/bin /usr/local/bin
 
-# Set environment variables
 ENV PYTHONPATH=$PYTHONPATH:/application-services
-ENV PORT=8001
 
-# Create an app group with GID of 10001
-RUN groupadd -g 10001 app
-
-# Create an app user with UID of 10001 and make them a member of the app group
-RUN useradd -u 10001 -g 10001 -m -s /bin/sh app
-
-RUN chown -R app:app /app
-
-# Set the user to "app" and accept configuration through environment variables
-USER app
-
-# Copy all other files into the container's working directory (/app)
-COPY  . /app
+# Copy all other files into the container's working directory
+COPY . .
 
 # Start application with Uvicorn server
-CMD ["sh", "-c", "uvicorn cirrus.main:app --host 0.0.0.0 --port $PORT"]
+CMD ["uvicorn", "cirrus.main:app", "--host", "0.0.0.0", "--port", "8001"]
