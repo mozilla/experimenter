@@ -18,7 +18,7 @@ FROM python:3.11.1 AS system-builder
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN apt-get update
-RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client yarn parallel
+RUN apt-get --no-install-recommends install -y apt-utils ca-certificates yarn parallel
 
 # Install nvm with node and npm
 ENV NODE_VERSION=16.19.0
