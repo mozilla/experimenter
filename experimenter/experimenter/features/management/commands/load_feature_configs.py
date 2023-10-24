@@ -25,21 +25,24 @@ class Command(BaseCommand):
         for feature in Features.all():
             feature_config, created = NimbusFeatureConfig.objects.update_or_create(
                 slug=feature.slug,
-                application=feature.applicationSlug,
+                application=feature.application_slug,
                 defaults={
                     "name": feature.slug,
-                    "description": feature.description,
+                    "description": feature.model.description,
+                    "enabled": True,
                 },
             )
 
             if not created:
-                features_to_disable.discard((feature.applicationSlug, feature.slug))
+                features_to_disable.discard((feature.application_slug, feature.slug))
 
-            defaults = {"sets_prefs": []}
-            if feature.variables is not None:
-                defaults["sets_prefs"] = [
-                    v.setPref for v in feature.variables.values() if v.setPref is not None
+            defaults = {
+                "sets_prefs": [
+                    v.set_pref
+                    for v in feature.model.variables.values()
+                    if v.set_pref is not None
                 ]
+            }
             if (schema := feature.get_jsonschema()) is not None:
                 defaults["schema"] = schema
 
@@ -49,7 +52,7 @@ class Command(BaseCommand):
                 defaults=defaults,
             )
 
-            logger.info(f"Feature Loaded: {feature.applicationSlug}/{feature.slug}")
+            logger.info(f"Feature Loaded: {feature.application_slug}/{feature.slug}")
 
         for application_slug, feature_slug in features_to_disable:
             if feature_slug not in NO_FEATURE_SLUG:

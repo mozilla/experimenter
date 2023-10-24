@@ -17,22 +17,29 @@ To set up the Cirrus environment, follow these steps:
 3. Open the `.env` file and modify the values of the following environment variables:
 
    ```plaintext
-   REMOTE_SETTING_URL=https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/nimbus-web-experiments/records
-   REMOTE_SETTING_REFRESH_RATE_IN_SECONDS=10
-   APP_ID=test_app_id
-   APP_NAME=test_app_name
-   CHANNEL=developer
+   CIRRUS_REMOTE_SETTING_URL=https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/nimbus-web-experiments/records
+   CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS=10
+   CIRRUS_APP_ID=test_app_id
+   CIRRUS_APP_NAME=test_app_name
+   CIRRUS_CHANNEL=developer
    CIRRUS_FML_PATH=./feature_manifest/sample.fml.yaml
    CIRRUS_SENTRY_DSN=dsn_url
+   CIRRUS_METRICS_BUILD=
+   CIRRUS_METRICS_DATA_DIR=/var/glean
+   CIRRUS_METRICS_LOG_LEVEL=WARNING
+   CIRRUS_METRICS_MAX_EVENTS_BUFFER=500
+   CIRRUS_SERVER_ENDPOINT=
+   CIRRUS_METRICS_UPLOAD_ENABLED=True
+   CIRRUS_METRICS_VERSION=1.0
    ```
 
    Here's what each variable represents:
 
-   - `REMOTE_SETTING_URL`: The URL of the remote settings where the experiments data is stored. In this case, it points to the collection of nimbus web experiments.
-   - `REMOTE_SETTING_REFRESH_RATE_IN_SECONDS`: The refresh rate in seconds for fetching the experiments recipes from the remote settings. Set it to `10` to retrieve the latest data every 10 seconds.
-   - `APP_ID`: Replace `test_app_id` with the actual ID of your application for example `firefox-desktop`.
-   - `APP_NAME`: Replace `test_app_name` with the desired name for your application for example `firefox_desktop`.
-   - `CHANNEL`: Replace `developer` with the channel like `beta`, `release` etc.
+   - `CIRRUS_REMOTE_SETTING_URL`: The URL of the remote settings where the experiments data is stored. In this case, it points to the collection of nimbus web experiments.
+   - `CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS`: The refresh rate in seconds for fetching the experiments recipes from the remote settings. Set it to `10` to retrieve the latest data every 10 seconds.
+   - `CIRRUS_APP_ID`: Replace `test_app_id` with the actual ID of your application for example `firefox-desktop`.
+   - `CIRRUS_APP_NAME`: Replace `test_app_name` with the desired name for your application for example `firefox_desktop`.
+   - `CIRRUS_CHANNEL`: Replace `developer` with the channel like `beta`, `release` etc.
    - `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.fml.yaml` or specify the correct path to your feature manifest file.
    - `CIRRUS_SENTRY_DSN`: Replace `dsn_url` with the appropriate DSN value.
 
@@ -47,10 +54,6 @@ The following are the available commands for working with Cirrus:
 - **cirrus_build**: Builds the Cirrus container.
 
   - Usage: `make cirrus_build`
-
-- **cirrus_build_test**: Builds the Cirrus container for testing.
-
-  - Usage: `make cirrus_build_test`
 
 - **cirrus_up**: Starts the Cirrus container.
 
@@ -122,19 +125,17 @@ Example output:
 
 ```json
 {
-  "features": {
-    "Feature1": {
-      "Variable1.1": "valueA",
-      "Variable1.2": "valueB"
-    },
-    "Feature2": {
-      "Variable2.1": "valueC",
-      "Variable2.2": "valueD"
-    },
-    "FeatureN": {
-      "VariableN.1": "valueX",
-      "VariableN.2": "valueY"
-    }
+  "Feature1": {
+    "Variable1.1": "valueA",
+    "Variable1.2": "valueB"
+  },
+  "Feature2": {
+    "Variable2.1": "valueC",
+    "Variable2.2": "valueD"
+  },
+  "FeatureN": {
+    "VariableN.1": "valueX",
+    "VariableN.2": "valueY"
   }
 }
 ```

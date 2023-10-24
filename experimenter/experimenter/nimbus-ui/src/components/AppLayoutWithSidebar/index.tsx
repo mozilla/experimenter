@@ -13,6 +13,7 @@ import { ReactComponent as Cog } from "src/components/AppLayoutWithSidebar/cog.s
 import "src/components/AppLayoutWithSidebar/index.scss";
 import { ReactComponent as Layers } from "src/components/AppLayoutWithSidebar/layers.svg";
 import { ReactComponent as Person } from "src/components/AppLayoutWithSidebar/person.svg";
+import { ReactComponent as Timeline } from "src/components/AppLayoutWithSidebar/timeline.svg";
 import { LinkNav } from "src/components/LinkNav";
 import LinkNavSummary from "src/components/LinkNavSummary";
 import SidebarActions from "src/components/SidebarActions";
@@ -94,6 +95,16 @@ export const AppLayoutWithSidebar = ({
                 showSummaryAction={!hasMissingDetails}
                 canReview={experiment.canReview}
               />
+
+              <LinkNav
+                route={`/history/${slug}`}
+                testid={`history-page-${slug}`}
+                relativeToRoot
+                useButton
+              >
+                <Timeline className="sidebar-icon" />
+                History
+              </LinkNav>
 
               {hasMissingDetails && (
                 <div className="mx-1 mb-2 d-flex text-muted font-weight-normal">

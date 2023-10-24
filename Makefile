@@ -3,11 +3,12 @@ SHELL = /bin/bash
 WAIT_FOR_DB = /experimenter/bin/wait-for-it.sh -t 30 db:5432 &&
 WAIT_FOR_RUNSERVER = /experimenter/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
-COMPOSE = docker-compose -f docker-compose.yml
+COMPOSE = docker compose -f docker-compose.yml
 COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
-COMPOSE_TEST = docker-compose -f docker-compose-test.yml
-COMPOSE_PROD = docker-compose -f docker-compose-prod.yml
+COMPOSE_TEST = docker compose -f docker-compose-test.yml
+COMPOSE_PROD = docker compose -f docker-compose-prod.yml
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
+DOCKER_BUILD = docker buildx build $$( [ $$BUILD_MULTIPLATFORM  ] && echo "--platform linux/amd64,linux/arm64 --output type=cacheonly" )
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
@@ -41,25 +42,16 @@ LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.js
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_projects
-PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
+PYTHON_PATH_SDK = PYTHONPATH=/application-services/megazord
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
-MOZILLA_CENTRAL_ROOT = https://hg.mozilla.org/mozilla-central/raw-file/tip
-FEATURE_MANIFEST_DESKTOP_URL = ${MOZILLA_CENTRAL_ROOT}/toolkit/components/nimbus/FeatureManifest.yaml
 
 FIREFOX_ANDROID_REPO = @mozilla-mobile/firefox-android
 FIREFOX_IOS_REPO     = @mozilla-mobile/firefox-ios
 FOCUS_IOS_REPO       = @mozilla-mobile/focus-ios
 MONITOR_REPO         = @mozilla/blurts-server
 
-FEATURE_MANIFEST_FENIX = $(FIREFOX_ANDROID_REPO)/fenix/app/nimbus.fml.yaml
-FEATURE_MANIFEST_FXIOS = $(FIREFOX_IOS_REPO)/nimbus.fml.yaml
-FEATURE_MANIFEST_FOCUS_ANDROID = $(FIREFOX_ANDROID_REPO)/focus-android/app/nimbus.fml.yaml
-FEATURE_MANIFEST_FOCUS_IOS = $(FOCUS_IOS_REPO)/nimbus.fml.yaml
-FEATURE_MANIFEST_MONITOR = $(MONITOR_REPO)/config/nimbus.yaml
-
-MANIFESTS_DIR = experimenter/experimenter/features/manifests
 CLI_DIR = experimenter/experimenter/features/manifests/application-services
 CLI_INSTALLER = $(CLI_DIR)/install-nimbus-cli.sh
 NIMBUS_CLI = $(CLI_DIR)/nimbus-cli
@@ -85,24 +77,8 @@ jetstream_config:
 	unzip -o -d experimenter/experimenter/outcomes experimenter/experimenter/outcomes/metric-hub.zip
 	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
 
-feature_manifests:
-	mkdir -p $(MANIFESTS_DIR)
-
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FENIX) "$(MANIFESTS_DIR)/fenix.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FXIOS) "$(MANIFESTS_DIR)/ios.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_ANDROID) "$(MANIFESTS_DIR)/focus-android.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_FOCUS_IOS) "$(MANIFESTS_DIR)/focus-ios.yaml"
-	$(NIMBUS_CLI) fml -- generate-experimenter --channel release $(FEATURE_MANIFEST_MONITOR) "$(MANIFESTS_DIR)/monitor-web.yaml"
-
-	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
-	cat $(MANIFESTS_DIR)/firefox-desktop.yaml | grep path: | \
-	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
-	while read -r url; do \
-		file=$$(echo $$url | sed 's|$(MOZILLA_CENTRAL_ROOT)/||'); \
-		file="experimenter/experimenter/features/manifests/schemas/$$file"; \
-		mkdir -p $$(dirname $$file); \
-		curl $$url -o $$file; \
-	done
+feature_manifests: build_dev
+	$(COMPOSE) run experimenter /experimenter/bin/manifest-tool.py fetch-latest
 
 install_nimbus_cli:
 	mkdir -p $(CLI_DIR)
@@ -116,19 +92,19 @@ update_kinto:
 	docker pull mozilla/kinto-dist:latest
 
 compose_build:
-	$(COMPOSE)  build
+	$(COMPOSE) build
 
 build_dev: ssl
-	DOCKER_BUILDKIT=1 docker build --target dev -f experimenter/Dockerfile -t experimenter:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
 build_test: ssl
-	DOCKER_BUILDKIT=1 docker build --target test -f experimenter/Dockerfile -t experimenter:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
 build_ui: ssl
-	DOCKER_BUILDKIT=1 docker build --target ui -f experimenter/Dockerfile -t experimenter:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
 
-build_prod: build_ui ssl
-	DOCKER_BUILDKIT=1 docker build --target deploy -f experimenter/Dockerfile -t experimenter:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+build_prod: ssl
+	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
 	$(COMPOSE) kill || true
@@ -242,13 +218,7 @@ CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
 cirrus_build:
-	$(COMPOSE) build cirrus
-
-cirrus_build_test:
-	$(COMPOSE_TEST) build cirrus
-
-cirrus_build_prod:
-	DOCKER_BUILDKIT=1 docker build --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-arg BUILDKIT_INLINE_CACHE=1 cirrus/server/
+	$(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
 cirrus_up: cirrus_build
 	$(COMPOSE) up cirrus
@@ -256,10 +226,10 @@ cirrus_up: cirrus_build
 cirrus_down: cirrus_build
 	$(COMPOSE) down cirrus
 
-cirrus_test: cirrus_build_test
+cirrus_test: cirrus_build
 	$(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
 
-cirrus_check: cirrus_build_test
+cirrus_check: cirrus_build
 	$(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format: cirrus_build

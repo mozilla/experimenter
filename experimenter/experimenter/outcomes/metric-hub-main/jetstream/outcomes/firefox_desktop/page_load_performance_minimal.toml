@@ -1,0 +1,124 @@
+friendly_name = "Page Load Performance Minimal"
+description = "Page load related performance metrics -- minimal set" 
+
+
+## Performance
+[metrics.perf_page_load_time_ms]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.perf_page_load_time_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.perf_page_load_time_ms.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.perf_page_load_time_ms.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.perf_page_load_time_ms.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.perf_first_contentful_paint_ms]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.perf_first_contentful_paint_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.perf_first_contentful_paint_ms.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.perf_first_contentful_paint_ms.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.perf_first_contentful_paint_ms.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.time_to_response_start_ms]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.time_to_response_start_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.time_to_response_start_ms.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.time_to_response_start_ms.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.time_to_response_start_ms.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.time_to_first_interaction_ms]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.time_to_first_interaction_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.time_to_first_interaction_ms.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.time_to_first_interaction_ms.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.time_to_first_interaction_ms.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.input_event_response_ms]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.input_event_response_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.input_event_response_ms.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.input_event_response_ms.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.input_event_response_ms.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+[metrics.input_event_response_ms_parent]
+select_expression = '{{agg_histogram_mean("payload.histograms.input_event_response_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.input_event_response_ms_parent.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.input_event_response_ms_parent.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.input_event_response_ms_parent.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
+## Memory
+[metrics.memory_total]
+select_expression = '{{agg_histogram_mean("payload.histograms.memory_total")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.memory_total.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.memory_total.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.memory_total.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+

@@ -7,7 +7,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
-from faker import Factory as FakerFactory
+from faker import Faker
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.base.tests.mixins import MockRequestMixin
@@ -40,7 +40,7 @@ from experimenter.legacy.notifications.models import Notification
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
-faker = FakerFactory.create()
+faker = Faker()
 
 
 class TestJSONField(TestCase):
@@ -146,7 +146,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(change.new_status, new_status)
 
     def test_changelog_not_produced_when_no_change(self):
-
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_DRAFT
         )
@@ -442,7 +441,6 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
 
 class TestExperimentRisksForm(MockRequestMixin, TestCase):
-
     valid_data = {
         "risk_partner_related": RADIO_NO,
         "risk_brand": RADIO_YES,
@@ -522,7 +520,6 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
 
 class TestExperimentResultsForm(MockRequestMixin, TestCase):
-
     valid_data = {
         "results_url": "https://example.com",
         "results_initial": "Initially, all went well.",
@@ -962,7 +959,6 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
 
 class TestExperimentArchiveForm(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
     def test_form_flips_archive_bool(self):
-
         experiment = ExperimentFactory.create(archived=False)
 
         form = ExperimentArchiveForm(self.request, instance=experiment, data={})

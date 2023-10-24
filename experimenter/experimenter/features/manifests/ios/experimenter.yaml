@@ -1,12 +1,12 @@
 ---
-autopush-feature:
-  description: This property defines the autopush feature configuration
+address-autofill-feature:
+  description: This property defines the address card autofill feature
   hasExposure: true
   exposureDescription: ""
   variables:
-    use-new-autopush-client:
+    status:
       type: boolean
-      description: "If true, the autopush client based on the Rust component will be used"
+      description: "If true, we will allow user to use the address autofill feature"
 contextual-hint-feature:
   description: This set holds all features pertaining to contextual hints.
   hasExposure: true
@@ -15,6 +15,14 @@ contextual-hint-feature:
     features-enabled:
       type: json
       description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+credential-autofill-coordinator-refactor:
+  description: "This feature manages the roll out of the credential autofill coordinator as part of the coordinator refactor.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 credit-card-autofill:
   description: This property defines the credit card autofill feature
   hasExposure: true
@@ -23,22 +31,19 @@ credit-card-autofill:
     credit-card-autofill-status:
       type: boolean
       description: "If true, we will allow user to use the credit autofill feature"
-etp-coordinator-refactor:
-  description: "This feature is for managing the roll out of the ETP coordinator code as part of the changes on the navigation in the app\n"
+firefox-suggest-feature:
+  description: Configuration for the Firefox Suggest feature.
   hasExposure: true
   exposureDescription: ""
   variables:
-    enabled:
+    status:
       type: boolean
-      description: "Enables the feature\n"
+      description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
 general-app-features:
   description: The feature that contains feature flags for the entire application
   hasExposure: true
   exposureDescription: ""
   variables:
-    pull-to-refresh:
-      type: json
-      description: This property defines whether or not the feature is enabled
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
@@ -87,14 +92,6 @@ messaging:
     triggers:
       type: json
       description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
-onboarding-feature:
-  description: The feature that controls whether to show or not Upgrade onboarding
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    first-run-flow:
-      type: boolean
-      description: "If true, we show the new Onboarding screen when the user for v106 version.\n"
 onboarding-framework-feature:
   description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
   hasExposure: true
@@ -109,6 +106,22 @@ onboarding-framework-feature:
     dismissable:
       type: boolean
       description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
+private-browsing:
+  description: Private Browsing Mode
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    felt-privacy-enabled:
+      type: boolean
+      description: "If true, enable felt privacy related UI"
+qr-code-coordinator-refactor:
+  description: "The feature for managing the roll out of the qrCode coordinator.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 redux-integration-feature:
   description: "This feature is for managing the roll out of the Redux integration feature\n"
   hasExposure: true
@@ -160,6 +173,12 @@ shopping2023:
     config:
       type: json
       description: "A Map of website configurations\n"
+    product-recommendations:
+      type: boolean
+      description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
+    relay:
+      type: string
+      description: "Configurable relay URL for production environment\n"
     status:
       type: boolean
       description: "Whether the Fakespot feature is enabled or disabled\n"
@@ -180,18 +199,6 @@ spotlight-search:
     searchable-content:
       type: string
       description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
-start-at-home-feature:
-  description: The controls for Start at Home feature
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    setting:
-      type: string
-      description: This property provides a default setting for the startAtHomeFeature
-      enum:
-        - after-four-hours
-        - always
-        - disabled
 tab-tray-refactor-feature:
   description: "This feature is for managing the roll out of the Tab Tray refactor feature\n"
   hasExposure: true

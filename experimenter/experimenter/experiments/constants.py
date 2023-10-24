@@ -17,6 +17,8 @@ class Channel(models.TextChoices):
     TESTFLIGHT = "testflight"
     AURORA = "aurora"
     DEVELOPER = "developer"
+    STAGING = "staging"
+    PRODUCTION = "production"
 
 
 class ChangeEventType(Enum):
@@ -28,7 +30,6 @@ class ChangeEventType(Enum):
 
 
 class RelationalFields:
-
     # This is a list of models whose field values are stored as reference keys
     # instead of actual values in the NimbusChangelog
 
@@ -153,10 +154,10 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
 APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     name="Monitor Web",
     slug="monitor-web",
-    app_name="monitor_web",
+    app_name="monitor_cirrus",
     channel_app_id={
-        Channel.BETA: "monitor-beta",
-        Channel.RELEASE: "monitor-release",
+        Channel.STAGING: "monitor.cirrus",
+        Channel.PRODUCTION: "monitor.cirrus",
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
@@ -419,6 +420,8 @@ class NimbusConstants:
         FIREFOX_116_3_0 = "116.3.0"
         FIREFOX_117 = "117.!"
         FIREFOX_118 = "118.!"
+        FIREFOX_118_0_1 = "118.0.1"
+        FIREFOX_118_0_2 = "118.0.2"
         FIREFOX_119 = "119.!"
         FIREFOX_120 = "120.!"
 

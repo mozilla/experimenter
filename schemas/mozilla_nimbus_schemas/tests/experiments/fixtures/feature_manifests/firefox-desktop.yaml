@@ -1,0 +1,64 @@
+no-feature-firefox-desktop:
+  description: A dummy feature for experiments that target no feature.
+  owner: barret@mozilla.com
+  applications:
+    - firefox-desktop
+    - firefox-desktop-background-task
+  hasExposure: false
+  variables: {}
+
+testFeature:
+  description: Test only feature
+  owner: barret@mozilla.com
+  applications:
+    - firefox-desktop
+    - firefox-desktop-background-task
+  hasExposure: false
+  isEarlyStartup: true
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not this feature is enabled
+    testInt:
+      type: int
+      fallbackPref: nimbus.testing.testInt
+      description: Int pref used by platform API tests
+    testSetString:
+      type: string
+      setPref: nimbus.testing.testSetString
+      description: A string pref set by Nimbus tests
+
+nimbus-qa-1:
+  description: A feature for testing pref-setting on the default branch.
+  owner: barret@mozilla.com
+  hasExposure: false
+  variables:
+    value:
+      type: string
+      setPref: nimbus.qa.pref-1
+      description: The value to set for the pref.
+
+nimbus-qa-2:
+  description: A feature for testing pref-setting on the user branch.
+  owner: barret@mozilla.com
+  isEarlyStartup: true
+  hasExposure: false
+  variables:
+    value:
+      type: string
+      setPref: nimbus.qa.pref-2
+      description: The value to set for the pref.
+
+feature-with-exposure:
+  hasExposure: true
+  owner: nobody@example.com
+  exposureDescription: A description of the exposure event.
+  variables: {}
+
+feature-with-schema:
+  variables: {}
+  owner: nobody@example.com
+  hasExposure: false
+  schema:
+    uri: "resource://gre/foo/schema.json"
+    path: "/toolkit/components/foo/schema.json"

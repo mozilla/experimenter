@@ -8,6 +8,8 @@
 export type AnalysisBasis = "enrollments" | "exposures";
 export type LogSource = "jetstream" | "sizing" | "jetstream-preview";
 export type AnalysisErrors = AnalysisError[];
+export type Feature = FeatureWithExposure | FeatureWithoutExposure;
+export type FeatureVariableType = "int" | "string" | "boolean" | "json";
 export type SizingReleaseChannel = "release" | "beta" | "nightly";
 export type SizingUserType = "new" | "existing";
 export type Statistics = Statistic[];
@@ -34,6 +36,45 @@ export interface ExternalConfig {
   enrollment_period?: number;
   skip?: boolean;
   url: string;
+}
+export interface FeatureManifest {
+  [k: string]: Feature;
+}
+/**
+ * A feature that has exposure.
+ */
+export interface FeatureWithExposure {
+  description?: string;
+  isEarlyStartup?: boolean;
+  variables: {
+    [k: string]: FeatureVariable;
+  };
+  schema?: NimbusFeatureSchema;
+  hasExposure: true;
+  exposureDescription: string;
+}
+export interface FeatureVariable {
+  description?: string;
+  enum?: string[];
+  fallbackPref?: string;
+  type?: FeatureVariableType;
+  setPref?: string;
+}
+export interface NimbusFeatureSchema {
+  uri: string;
+  path: string;
+}
+/**
+ * A feature without exposure.
+ */
+export interface FeatureWithoutExposure {
+  description?: string;
+  isEarlyStartup?: boolean;
+  variables: {
+    [k: string]: FeatureVariable;
+  };
+  schema?: NimbusFeatureSchema;
+  hasExposure: false;
 }
 export interface Metadata {
   analysis_start_time?: string;
@@ -163,7 +204,8 @@ export interface SizingTarget {
 export interface SizingRecipe {
   app_id: string;
   channel: SizingReleaseChannel;
-  locale: string;
+  locale?: string;
+  language?: string;
   country: string;
   new_or_existing: SizingUserType;
 }

@@ -2442,7 +2442,9 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
         )
 
         pop_sizing_data = self.get_cached_sizing_data()
-        self.assertEqual(config["populationSizingData"], pop_sizing_data.json())
+        self.assertEqual(
+            config["populationSizingData"], pop_sizing_data.json(exclude_unset=True)
+        )
 
         self.assertEqual(
             len(config["firefoxVersions"]), len(NimbusExperiment.Version.names)

@@ -498,6 +498,24 @@ URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_DISABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+URLBAR_FIREFOX_SUGGEST_SPONSORED_ENABLED = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Sponsored Suggestions Enabled",
+    slug="urlbar_firefox_suggest_sponsored_enabled",
+    description=(
+        "Users with sponsored Firefox Suggest suggestions enabled "
+        "(IMPORTANT: You must restrict 'Locales' to one or more Suggest "
+        "locales when using this!)"
+    ),
+    targeting=(
+        "!('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) || "
+        "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 MAC_ONLY = NimbusTargetingConfig(
     name="Mac OS users only",
     slug="mac_only",
@@ -605,6 +623,33 @@ EXISTING_USER_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
+
+NEW_USER_NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig(
+    name=(
+        "New users, no enterprise or past VPN use, hasn't disabled 'Recommend "
+        "extensions/features'"
+    ),
+    slug="new_user_no_vpn_has_not_disabled_recommend_features",
+    description=(
+        "Profiles younger than 28 days, excluding users who have used Mozilla "
+        "VPN, are enterprise users, or have disabled 'Recommend "
+        "extensions/features'"
+    ),
+    targeting=(
+        f"{NO_ENTERPRISE.targeting} && "
+        f"{PROFILELESSTHAN28DAYS} && "
+        "(!os.isWindows || os.windowsBuildNumber >= 18362) && "
+        "!('e6eb0d1e856335fc' in attachedFxAOAuthClients|mapToProperty('id')) && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USER_NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig(
     name=(
         "Existing users, no enterprise or past VPN use, hasn't disabled "
@@ -1056,6 +1101,45 @@ RALLY_ATTENTION_STREAM_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
+    name="Review Checker Sidebar Recommendation",
+    slug="review_checker_sidebar_recommendation",
+    description="Exclude users who have the Fakespot extension installed, "
+    "or who have the CFR pref set to false",
+    targeting="addonsInfo.addons['{44df5123-f715-9146-bfaa-c6e8d4461d44}'] == null && "
+    "('browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER_REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
+    name="Early Day User Review Checker Sidebar Recommendation",
+    slug="early_day_user_review_checker_sidebar_recommendation",
+    description="Exclude early day users who have the Fakespot extension installed, "
+    "or who have the CFR pref set to false",
+    targeting=(
+        f"{PROFILELESSTHAN28DAYS} && {REVIEW_CHECKER_SIDEBAR_RECOMMENDATION.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
+    name="Existing User Review Checker Sidebar Recommendation",
+    slug="existing_user_review_checker_sidebar_recommendation",
+    description="Exclude existing users who have the Fakespot extension installed, "
+    "or who have the CFR pref set to false",
+    targeting=(f"{PROFILE28DAYS} && {REVIEW_CHECKER_SIDEBAR_RECOMMENDATION.targeting}"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BACKGROUND_TASK_NOTIFICATION = NimbusTargetingConfig(
     name="Background task notification",
     slug="Background_task_notification",
@@ -1092,6 +1176,75 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_ = NimbusTargetingConfig(
                 &&
                 (firefoxVersion > defaultProfile.firefoxVersion)
             )
+        )
+        &&
+        isBackgroundTaskMode
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_AT_RISK_USER = NimbusTargetingConfig(
+    name="At risk user background task notification",
+    slug="background_task_notification_at_risk_user",
+    description=(
+        "Windows 10+ users with 20-28 days of activity in their past 28 days "
+        "who have lapsed 7-28 days, and who are running a background task"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            defaultProfile.userMonthlyActivity|length >= 20
+        )
+        &&
+        (
+            (
+                (7 <= ((currentDate|date - defaultProfile.currentDate|date) / 86400000))
+                &&
+                (((currentDate|date - defaultProfile.currentDate|date) / 86400000) < 28)
+            )
+        )
+        &&
+        isBackgroundTaskMode
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_NEW_NON_DEFAULT_USER = NimbusTargetingConfig(
+    name="New non-default user background task notification",
+    slug="background_task_notification_new_non_default_user",
+    description=(
+        "Windows 10+ users with this Firefox not the default browser "
+        "who created their profile exactly 7 days previously, "
+        "and who are running a background task"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        !isDefaultBrowser
+        &&
+        (
+            (7 <= ((currentDate|date - defaultProfile.profileAgeCreated|date) / 86400000))
+            &&
+            (((currentDate|date - defaultProfile.profileAgeCreated|date) / 86400000) < 8)
         )
         &&
         isBackgroundTaskMode
@@ -1257,6 +1410,17 @@ NEW_ANDROID_13_USERS = NimbusTargetingConfig(
     sticky_required=True,
     is_first_run_required=True,
     application_choice_names=(Application.FENIX.name,),
+)
+
+EXISTING_USER = NimbusTargetingConfig(
+    name="Existing user",
+    slug="existing_user",
+    description="Users with profiles older than 28 days",
+    targeting=f"{PROFILE28DAYS}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
 )
 
 EXISTING_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
@@ -1478,6 +1642,28 @@ EARLY_DAY_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR = NimbusTargetingConfig(
     ),
     desktop_telemetry="",
     sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+ANDROID_8_OR_HIGHER_USERS = NimbusTargetingConfig(
+    name="Android Version 8.0+ Users",
+    slug="android_8_or_higher_users",
+    description="Users on Android version 8.0 or higher",
+    targeting="(android_sdk_version|versionCompare('26') >= 0)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+WINDOWS_10_PLUS = NimbusTargetingConfig(
+    name="Windows 10+",
+    slug="windows_10_plus",
+    description="Windows users on version 10 or higher",
+    targeting="(os.isWindows && os.windowsVersion >= 10)",
+    desktop_telemetry="",
+    sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
