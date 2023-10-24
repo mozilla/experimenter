@@ -25,3 +25,4 @@ services:
       context: cirrus/server/
       dockerfile: Dockerfile
     working_dir: /cirrus
+    
