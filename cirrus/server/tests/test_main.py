@@ -202,3 +202,15 @@ async def test_fetch_schedule_recipes_retry(
         max_instances=1,
         max_retries=3,
     )
+
+
+def test_lbheartbeat_endpoint(client):
+    response = client.get("/__lbheartbeat__")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
+def test_heartbeat_endpoint(client):
+    response = client.get("/__heartbeat__")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
