@@ -223,3 +223,13 @@ async def fetch_schedule_recipes() -> None:
             max_instances=1,
             max_retries=3,
         )
+
+
+@app.get("/__lbheartbeat__")
+async def health_check_lbheartbeat():
+    return {"status": "ok"}
+
+
+@app.get("/__heartbeat__")
+async def health_check_heartbeat():
+    return {"status": "ok"}
