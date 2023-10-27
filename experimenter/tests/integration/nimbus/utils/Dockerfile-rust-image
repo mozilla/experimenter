@@ -47,7 +47,7 @@ RUN mv target/release/libnimbus_experimenter.so megazord/libcirrus.so
 FROM python:3.11-buster
 
 COPY --from=builder /application-services/megazord /application-services/megazord
-ENV PYTHONPATH=$PYTHONPATH:/application-services/megazord
+ENV PYTHON_PATH=$PYTHON_PATH:/application-services/megazord
 
 RUN apt-get update -qqy \
   && apt-get -qqy install \
