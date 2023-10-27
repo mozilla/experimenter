@@ -1669,6 +1669,54 @@ WINDOWS_10_PLUS = NimbusTargetingConfig(
 )
 
 
+IOS_EARLY_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
+    name="Early day users iPhone only",
+    slug="ios_early_day_users_iphone_only",
+    description="Targeting users under 28 since install with iPhones",
+    targeting="is_phone && days_since_install < 28",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+
+IOS_LATER_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
+    name="Later day users iPhone only",
+    slug="ios_later_day_users_iphone_only",
+    description="Targeting users equal to or greater than 28 since install with iPhones",
+    targeting="is_phone && days_since_install >= 28",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+
+ANDROID_EARLY_DAY_USERS_ONLY = NimbusTargetingConfig(
+    name="Early day users only",
+    slug="android_early_day_users_only",
+    description="Targeting users under 28 since install",
+    targeting="days_since_install < 28",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+
+ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
+    name="Later day users only",
+    slug="android_later_day_users_only",
+    description="Targeting users equal to or greater than 28 since install",
+    targeting="days_since_install >= 28",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
     TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'
