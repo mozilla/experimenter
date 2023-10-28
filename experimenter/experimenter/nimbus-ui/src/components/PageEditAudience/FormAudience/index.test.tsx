@@ -2076,6 +2076,44 @@ it("enables save buttons when not archived", async () => {
   expect(screen.getByTestId("next-button")).toBeEnabled();
 });
 
+it("hides enrollment period when experiment is a rollout", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_ROLLOUT,
+        application: NimbusExperimentApplicationEnum.DESKTOP,
+        channel: NimbusExperimentChannelEnum.NIGHTLY,
+        status: NimbusExperimentStatusEnum.DRAFT,
+        isRollout: true,
+        firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_107,
+      }}
+    />,
+  );
+
+  await waitFor(() => {
+    expect(screen.queryByTestId("proposedEnrollment")).not.toBeInTheDocument();
+  });
+});
+
+it("shows enrollment period when experiment is not a rollout", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_ROLLOUT,
+        application: NimbusExperimentApplicationEnum.DESKTOP,
+        channel: NimbusExperimentChannelEnum.NIGHTLY,
+        status: NimbusExperimentStatusEnum.DRAFT,
+        isRollout: false,
+        firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_107,
+      }}
+    />,
+  );
+
+  await waitFor(() => {
+    expect(screen.queryByTestId("proposedEnrollment")).toBeInTheDocument();
+  });
+});
+
 describe("filterAndSortTargetingConfigSlug", () => {
   it("filters for experiment application and sorts them as expected", () => {
     const expectedNoTargetingLabel = "No Targeting";

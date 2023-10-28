@@ -745,35 +745,7 @@ export const FormAudience = ({
         </Form.Row>
 
         <Form.Row>
-          <Form.Group as={Col} className="mt-2" controlId="proposedEnrollment">
-            <Form.Label className="d-flex align-items-center">
-              Enrollment period
-            </Form.Label>
-            <InputGroup>
-              <Form.Control
-                {...formControlAttrs(
-                  "proposedEnrollment",
-                  POSITIVE_NUMBER_FIELD,
-                )}
-                type="number"
-                min="0"
-                aria-describedby="proposedEnrollment-unit"
-                disabled={isLocked!}
-              />
-              <InputGroup.Append>
-                <InputGroup.Text id="proposedEnrollment-unit">
-                  days
-                </InputGroup.Text>
-              </InputGroup.Append>
-              <FormErrors name="proposedEnrollment" />
-            </InputGroup>
-          </Form.Group>
-
-          <Form.Group
-            as={Col}
-            className="mx-5 pt-2"
-            controlId="proposedDuration"
-          >
+          <Form.Group as={Col} className="mt-2" controlId="proposedDuration">
             <Form.Label className="d-flex align-items-center">
               Experiment duration
               <Info
@@ -801,6 +773,38 @@ export const FormAudience = ({
               <FormErrors name="proposedDuration" />
             </InputGroup>
           </Form.Group>
+
+          {experiment.isRollout ? (
+            <div className="mt-2 mx-5" />
+          ) : (
+            <Form.Group
+              as={Col}
+              className="mt-2 mx-5"
+              controlId="proposedEnrollment"
+            >
+              <Form.Label className="d-flex align-items-center">
+                Enrollment period
+              </Form.Label>
+              <InputGroup>
+                <Form.Control
+                  {...formControlAttrs(
+                    "proposedEnrollment",
+                    POSITIVE_NUMBER_FIELD,
+                  )}
+                  type="number"
+                  min="0"
+                  aria-describedby="proposedEnrollment-unit"
+                  disabled={isLocked!}
+                />
+                <InputGroup.Append>
+                  <InputGroup.Text id="proposedEnrollment-unit">
+                    days
+                  </InputGroup.Text>
+                </InputGroup.Append>
+                <FormErrors name="proposedEnrollment" />
+              </InputGroup>
+            </Form.Group>
+          )}
         </Form.Row>
 
         {getSizingFromAudienceConfig && (
