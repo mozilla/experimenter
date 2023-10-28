@@ -46,21 +46,12 @@ PYTHON_PATH_SDK = PYTHONPATH=/application-services/megazord
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
-MOZILLA_CENTRAL_ROOT = https://hg.mozilla.org/mozilla-central/raw-file/tip
-FEATURE_MANIFEST_DESKTOP_URL = ${MOZILLA_CENTRAL_ROOT}/toolkit/components/nimbus/FeatureManifest.yaml
 
 FIREFOX_ANDROID_REPO = @mozilla-mobile/firefox-android
 FIREFOX_IOS_REPO     = @mozilla-mobile/firefox-ios
 FOCUS_IOS_REPO       = @mozilla-mobile/focus-ios
 MONITOR_REPO         = @mozilla/blurts-server
 
-FEATURE_MANIFEST_FENIX = $(FIREFOX_ANDROID_REPO)/fenix/app/nimbus.fml.yaml
-FEATURE_MANIFEST_FXIOS = $(FIREFOX_IOS_REPO)/nimbus.fml.yaml
-FEATURE_MANIFEST_FOCUS_ANDROID = $(FIREFOX_ANDROID_REPO)/focus-android/app/nimbus.fml.yaml
-FEATURE_MANIFEST_FOCUS_IOS = $(FOCUS_IOS_REPO)/nimbus.fml.yaml
-FEATURE_MANIFEST_MONITOR = $(MONITOR_REPO)/config/nimbus.yaml
-
-MANIFESTS_DIR = experimenter/experimenter/features/manifests
 CLI_DIR = experimenter/experimenter/features/manifests/application-services
 CLI_INSTALLER = $(CLI_DIR)/install-nimbus-cli.sh
 NIMBUS_CLI = $(CLI_DIR)/nimbus-cli
@@ -87,19 +78,7 @@ jetstream_config:
 	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
 
 feature_manifests: build_dev
-	mkdir -p $(MANIFESTS_DIR)
-
 	$(COMPOSE) run experimenter /experimenter/bin/manifest-tool.py fetch-latest
-
-	curl -LJ --create-dirs -o $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
-	cat $(MANIFESTS_DIR)/firefox-desktop/experimenter.yaml | grep path: | \
-	awk -F'"' '{print "$(MOZILLA_CENTRAL_ROOT)/" $$2}' | sort -u | \
-	while read -r url; do \
-		file=$$(echo $$url | sed 's|$(MOZILLA_CENTRAL_ROOT)/||'); \
-		file="experimenter/experimenter/features/manifests/firefox-desktop/schemas/$$file"; \
-		mkdir -p $$(dirname $$file); \
-		curl $$url -o $$file; \
-	done
 
 install_nimbus_cli:
 	mkdir -p $(CLI_DIR)
@@ -267,43 +246,54 @@ build_demo_app:
 
 
 # nimbus schemas package
-SCHEMAS_VERSION_FILE := schemas/VERSION
-SCHEMAS_VERSION := $(shell cat ${SCHEMAS_VERSION_FILE})
+SCHEMAS_ENV ?=  # This is empty by default
+SCHEMAS_VERSION = \$$(cat VERSION)
+SCHEMAS_RUN = docker run -ti $(SCHEMAS_ENV) -v ./schemas:/schemas -v /schemas/node_modules schemas:dev sh -c
+SCHEMAS_BLACK = black --check --diff .
+SCHEMAS_RUFF = ruff .
+SCHEMAS_DIFF_PYDANTIC = \
+	pydantic2ts --module mozilla_nimbus_schemas.__init__ --output /tmp/test_index.d.ts --json2ts-cmd 'yarn json2ts' &&\
+	diff /tmp/test_index.d.ts index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1) &&\
+	echo 'Done. No problems found in schemas.'
+SCHEMAS_TEST = pytest
+SCHEMAS_FORMAT = ruff --fix . && black .
+SCHEMAS_DIST_PYPI = poetry build
+SCHEMAS_DIST_NPM = pydantic2ts --module mozilla_nimbus_schemas.__init__ --output ./index.d.ts --json2ts-cmd 'yarn json2ts'
+SCHEMAS_DEPLOY_PYPI = twine upload --skip-existing dist/*;
+SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc;yarn publish --new-version ${SCHEMAS_VERSION} --access public;
+SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
+SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 
-schemas_install:
-	(cd schemas && poetry install && yarn install)
+schemas_build:
+	$(DOCKER_BUILD) --target dev -f schemas/Dockerfile -t schemas:dev schemas/
 
-schemas_black:
-	(cd schemas && poetry run black --check --diff .)
+schemas_bash: schemas_build
+	$(SCHEMAS_RUN) "bash"
 
-schemas_ruff:
-	(cd schemas && poetry run ruff .)
+schemas_format: schemas_build
+	$(SCHEMAS_RUN) "$(SCHEMAS_FORMAT)"
 
-schemas_test:
-	(cd schemas && poetry run pytest)
+schemas_check: schemas_build
+	$(SCHEMAS_RUN) "$(SCHEMAS_BLACK)&&$(SCHEMAS_RUFF)&&$(SCHEMAS_DIFF_PYDANTIC)&&$(SCHEMAS_TEST)"
 
-schemas_check: schemas_install schemas_black schemas_ruff schemas_test
-	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output /tmp/test_index.d.ts --json2ts-cmd "yarn json2ts")
-	diff /tmp/test_index.d.ts schemas/index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1)
-	echo "Done. No problems found in schemas."
+schemas_dist_pypi: schemas_build
+	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_PYPI)"
 
-schemas_code_format:
-	(cd schemas && poetry run black . && poetry run ruff --fix .)
+schemas_dist_npm: schemas_build
+	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_NPM)"
 
-schemas_build: schemas_install schemas_build_pypi schemas_build_npm
+schemas_dist: schemas_build schemas_dist_pypi schemas_dist_npm
 
-schemas_build_pypi:
-	(cd schemas && poetry build)
+schemas_deploy_pypi: schemas_build
+	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_PYPI)"
 
-schemas_deploy_pypi: schemas_install schemas_build_pypi
-	cd schemas; poetry run twine upload --skip-existing dist/*;
+schemas_deploy_npm: schemas_build
+	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_NPM)"
 
-schemas_build_npm: schemas_install
-	(cd schemas && poetry run pydantic2ts --module mozilla_nimbus_schemas.__init__ --output ./index.d.ts --json2ts-cmd "yarn json2ts")
+schemas_version_pypi: schemas_build
+	$(SCHEMAS_RUN) "$(SCHEMAS_VERSION_PYPI)"
 
-schemas_deploy_npm: schemas_build_npm
-	cd schemas; yarn publish --new-version ${SCHEMAS_VERSION} --access public;
+schemas_version_npm: schemas_build
+	$(SCHEMAS_RUN) "$(SCHEMAS_VERSION_NPM)"
 
-schemas_version:
-	npm --prefix schemas version --allow-same-version ${SCHEMAS_VERSION};
-	poetry --directory=schemas version ${SCHEMAS_VERSION};
+schemas_version: schemas_version_pypi schemas_version_npm

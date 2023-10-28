@@ -1,5 +1,6 @@
 someFeature:
   description: Some Firefox Feature
+  hasExposure: true
   exposureDescription: An exposure event
   isEarlyStartup: true
   variables:
@@ -25,10 +26,13 @@ someFeature:
       description: Arbitrary JSON Property
 missingVariables:
   description: Some Firefox Feature
+  hasExposure: true
   exposureDescription: An exposure event
   isEarlyStartup: true
+  variables: {}
 prefSettingFeature:
   description: A feature that sets prefs
+  hasExposure: true
   exposureDescription: An exposure event
   variables:
     string:
