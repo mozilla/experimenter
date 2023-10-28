@@ -775,7 +775,7 @@ export const FormAudience = ({
           </Form.Group>
 
           {experiment.isRollout ? (
-            <div className="mt-2 mx-5" />
+            <div className="mt-2 mx-5 col" />
           ) : (
             <Form.Group
               as={Col}
