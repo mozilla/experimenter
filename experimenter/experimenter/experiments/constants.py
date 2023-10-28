@@ -212,7 +212,8 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_MONITOR_WEB.slug,
         APPLICATION_CONFIG_MONITOR_WEB.name,
     )
-    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
+    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug,
+                APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
     def is_mobile(application):
@@ -423,6 +424,7 @@ class NimbusConstants:
         FIREFOX_118_0_1 = "118.0.1"
         FIREFOX_119 = "119.!"
         FIREFOX_120 = "120.!"
+        FIREFOX_121 = "121.!"
 
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
