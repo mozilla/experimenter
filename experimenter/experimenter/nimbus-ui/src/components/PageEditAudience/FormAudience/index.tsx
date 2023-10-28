@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useQuery } from "@apollo/client";
+import {
+  SampleSizes,
+  SizingByUserType,
+  SizingTarget,
+} from "@mozilla/nimbus-schemas";
 import React, { useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
@@ -11,6 +16,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Select, { createFilter, FormatOptionLabelMeta } from "react-select";
 import ReactTooltip from "react-tooltip";
 import LinkExternal from "src/components/LinkExternal";
+import PopulationSizing from "src/components/PageEditAudience/PopulationSizing";
 import { GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY } from "src/gql/experiments";
 import { useCommonForm, useConfig, useReviewCheck } from "src/hooks";
 import { ReactComponent as Info } from "src/images/info.svg";
@@ -268,6 +274,7 @@ export const FormAudience = ({
     isValid,
     handleSubmit,
     isSubmitted,
+    watch,
   } = useCommonForm<AudienceFieldName>(
     defaultValues,
     isServerValid,
@@ -341,6 +348,89 @@ export const FormAudience = ({
     setisFirstRunRequiredRequiredWarning(!!checkRequired?.isFirstRunRequired);
     setPopulationPercent(populationPercent);
   };
+
+  const getTargetPopulationSize = (sizingData: SizingTarget) => {
+    const firstSizingKey = Object.keys(sizingData.sample_sizes)[0];
+    const firstSizingMetrics = sizingData.sample_sizes[firstSizingKey].metrics;
+    const firstMetricKey = Object.keys(firstSizingMetrics)[0];
+
+    return firstSizingMetrics[firstMetricKey].number_of_clients_targeted;
+  };
+
+  const buildSizingKey = (
+    appId: string | undefined,
+    channel: string | undefined,
+    localesOrLanguages: string[] | undefined,
+    countries: string[] | undefined,
+  ): string | null => {
+    if (
+      !(
+        appId &&
+        channel &&
+        localesOrLanguages &&
+        localesOrLanguages.length > 0 &&
+        countries &&
+        countries.length > 0
+      )
+    ) {
+      return null;
+    }
+
+    localesOrLanguages.sort((a, b) => a.localeCompare(b));
+    const localesOrLanguagesString = `[${localesOrLanguages
+      .map((locale) => `'${locale}'`)
+      .join(",")}]`;
+
+    countries.sort((a, b) => a.localeCompare(b));
+    const countriesString =
+      countries.length > 1
+        ? `[${countries.map((country) => `'${country}'`).join(",")}]`
+        : countries[0];
+
+    return `firefox_${appId}:${channel}:${localesOrLanguagesString}:${countriesString}`;
+  };
+
+  const getSizingFromAudienceConfig = useMemo((): SizingByUserType | false => {
+    const { populationSizingData } = config;
+    const sizingJson: SampleSizes = JSON.parse(populationSizingData || "{}");
+    if (Object.keys(sizingJson).length < 1) {
+      return false; // no sizing data available
+    }
+
+    const channel = watch("channel")?.toLowerCase();
+
+    const appName = experiment.application?.toLowerCase();
+
+    const isNotUndefined = (val: string | undefined): val is string =>
+      val !== undefined;
+    const localeCodes = locales
+      .map((l) =>
+        config!.locales!.find((el) => el!.id === l)?.code.toUpperCase(),
+      )
+      .filter(isNotUndefined);
+    const languageCodes = languages
+      .map((l) =>
+        config!.languages!.find((el) => el!.id === l)?.code.toUpperCase(),
+      )
+      .filter(isNotUndefined);
+    const countryCodes = countries
+      .map((c) =>
+        config!.countries!.find((el) => el!.id === c)?.code.toUpperCase(),
+      )
+      .filter(isNotUndefined);
+    const sizingKey = buildSizingKey(
+      appName,
+      channel,
+      experiment.application === NimbusExperimentApplicationEnum.DESKTOP
+        ? localeCodes
+        : languageCodes,
+      countryCodes,
+    );
+    if (sizingKey !== null && sizingJson.hasOwnProperty(sizingKey)) {
+      return sizingJson[sizingKey];
+    }
+    return false;
+  }, [config, countries, experiment, languages, locales, watch]);
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
@@ -712,6 +802,22 @@ export const FormAudience = ({
             </InputGroup>
           </Form.Group>
         </Form.Row>
+
+        {getSizingFromAudienceConfig && (
+          <>
+            <hr />
+            <PopulationSizing
+              data-testid="population-sizing-precomputed-values"
+              sizingData={getSizingFromAudienceConfig}
+              totalNewClients={getTargetPopulationSize(
+                getSizingFromAudienceConfig.new,
+              )}
+              totalExistingClients={getTargetPopulationSize(
+                getSizingFromAudienceConfig.existing,
+              )}
+            />
+          </>
+        )}
       </Form.Group>
 
       <div className="d-flex flex-row-reverse bd-highlight">

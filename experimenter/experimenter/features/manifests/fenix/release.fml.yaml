@@ -12,8 +12,11 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<CookieBannersSection, Int>"
         default:
-          dialog-re-engage-time: 4
+          feature-setting-detect-only: 0
+          feature-setting-global-rules: 0
+          feature-setting-global-rules-sub-frames: 0
           feature-setting-value: 0
+          feature-setting-value-pbm: 0
           feature-ui: 0
   extensions-process:
     description: A feature to rollout the extensions process.
@@ -21,7 +24,7 @@ features:
       enabled:
         description: "If true, the extensions process is enabled."
         type: Boolean
-        default: false
+        default: true
   fx-suggest:
     description: A feature that provides Firefox Suggest search suggestions.
     variables:
@@ -32,6 +35,10 @@ features:
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
+      enable-event-timestamps:
+        description: Enables precise event timestamps for Glean events
+        type: Boolean
+        default: false
       metrics-enabled:
         description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
         type: "Map<String, Boolean>"
@@ -73,30 +80,30 @@ features:
             secondary-button-label: juno_onboarding_add_search_widget_negative_button
             title: juno_onboarding_add_search_widget_title
           default-browser:
-            body: juno_onboarding_default_browser_description_nimbus
+            body: juno_onboarding_default_browser_description_nimbus_2
             card-type: default-browser
             image-res: ic_onboarding_welcome
             link-text: juno_onboarding_default_browser_description_link_text
             ordering: 10
             primary-button-label: juno_onboarding_default_browser_positive_button
             secondary-button-label: juno_onboarding_default_browser_negative_button
-            title: juno_onboarding_default_browser_title_nimbus
+            title: juno_onboarding_default_browser_title_nimbus_2
           notification-permission:
-            body: juno_onboarding_enable_notifications_description_nimbus
+            body: juno_onboarding_enable_notifications_description_nimbus_2
             card-type: notification-permission
             image-res: ic_notification_permission
             ordering: 30
             primary-button-label: juno_onboarding_enable_notifications_positive_button
             secondary-button-label: juno_onboarding_enable_notifications_negative_button
-            title: juno_onboarding_enable_notifications_title_nimbus
+            title: juno_onboarding_enable_notifications_title_nimbus_2
           sync-sign-in:
-            body: juno_onboarding_sign_in_description
+            body: juno_onboarding_sign_in_description_2
             card-type: sync-sign-in
             image-res: ic_onboarding_sync
             ordering: 20
             primary-button-label: juno_onboarding_sign_in_positive_button
             secondary-button-label: juno_onboarding_sign_in_negative_button
-            title: juno_onboarding_sign_in_title
+            title: juno_onboarding_sign_in_title_2
   messaging:
     description: "The in-app messaging system.\n"
     variables:
@@ -384,9 +391,15 @@ enums:
   CookieBannersSection:
     description: The identifiers for the sections of the MR 2022.
     variants:
-      dialog-re-engage-time:
-        description: "An integer indicating the number of hours that needs to happen before the re-engagement dialog shows again since the last seen, for example if set to 4 that means if the users has seen the dialog, it will see it 4 hours later."
+      feature-setting-detect-only:
+        description: "An integer either 0 or 1 indicating if cookie banner detect only mode should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting."
+      feature-setting-global-rules:
+        description: "An integer either 0 or 1 indicating if cookie banner global rules should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting."
+      feature-setting-global-rules-sub-frames:
+        description: "An integer either 0 or 1 indicating if cookie banner global rules sub-frames should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting."
       feature-setting-value:
+        description: "An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all."
+      feature-setting-value-pbm:
         description: "An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all."
       feature-ui:
         description: "An integer either 0 or 1 indicating if the UI for cookie banner handling should be visible, 0 to hide the UI and 1 to show the UI. The actual UI is composed by cookie banner section in the settings page, the toolbar section and the re-engagement dialog."

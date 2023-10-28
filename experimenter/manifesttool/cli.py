@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 
 from manifesttool.appconfig import AppConfigs
-from manifesttool.nimbus_cli import download_single_file, generate_experimenter_yaml
+from manifesttool.fetch import fetch_fml_app, fetch_legacy_app, summarize_results
 
 MANIFESTS_DIR = Path(__file__).parent.parent / "experimenter" / "features" / "manifests"
 
@@ -25,7 +25,6 @@ class Context:
 @click.pass_context
 def main(ctx: click.Context, *, manifest_dir: Path):
     """manifest-tool - tools for working with manifests of Experimenter apps."""
-
     apps_yaml_path = manifest_dir / "apps.yaml"
     app_configs = AppConfigs.load_from_file(apps_yaml_path)
     ctx.obj = Context(
@@ -38,16 +37,18 @@ def main(ctx: click.Context, *, manifest_dir: Path):
 @click.pass_context
 def fetch_latest(ctx: click.Context):
     """Fetch the latest FML manifests and generate experimenter.yaml files."""
-
     context = ctx.find_object(Context)
 
-    for app_config in context.app_configs.__root__.values():
-        context.manifest_dir.joinpath(app_config.slug).mkdir(exist_ok=True)
-        for channel in app_config.channels:
-            download_single_file(
-                app_config,
-                channel,
-                context.manifest_dir,
-            )
+    results = []
 
-        generate_experimenter_yaml(app_config, context.manifest_dir)
+    for app_name, app_config in context.app_configs.__root__.items():
+        context.manifest_dir.joinpath(app_config.slug).mkdir(exist_ok=True)
+
+        if app_config.fml_path is not None:
+            results.append(fetch_fml_app(context.manifest_dir, app_name, app_config))
+        elif app_config.experimenter_yaml_path is not None:
+            results.append(fetch_legacy_app(context.manifest_dir, app_name, app_config))
+        else:  # pragma: no cover
+            assert False, "unreachable"
+
+    summarize_results(results)

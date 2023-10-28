@@ -118,6 +118,18 @@ select.form-control.is-warning {
   @extend .border-bottom;
 }
 
+.table-visualization-center-no-border {
+  @extend .table;
+  @extend .text-center;
+  padding: 0px;
+  margin: 0px;
+}
+
+.table-visualization-center-no-border td {
+  border: none;
+  padding: 0.25rem;
+}
+
 .border-3 {
   border-width: 3px !important;
 }

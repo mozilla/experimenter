@@ -1431,7 +1431,10 @@ class TestNimbusExperiment(TestCase):
         with override_settings(
             KINTO_ADMIN_URL="https://remote-settings.allizom.org/v1/admin/",
         ):
-            expected = "https://remote-settings.allizom.org/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
+            expected = (
+                "https://remote-settings.allizom.org/v1/admin/#/buckets/main-workspace"
+                "/collections/nimbus-desktop-experiments/simple-review"
+            )
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
                 application=NimbusExperiment.Application.DESKTOP,
@@ -1442,7 +1445,10 @@ class TestNimbusExperiment(TestCase):
         with override_settings(
             KINTO_ADMIN_URL="http://localhost:8888/v1/admin",
         ):
-            expected = "http://localhost:8888/v1/admin#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
+            expected = (
+                "http://localhost:8888/v1/admin#/buckets/main-workspace"
+                "/collections/nimbus-desktop-experiments/simple-review"
+            )
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
                 application=NimbusExperiment.Application.DESKTOP,
