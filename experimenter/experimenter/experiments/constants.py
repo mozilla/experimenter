@@ -212,8 +212,7 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_MONITOR_WEB.slug,
         APPLICATION_CONFIG_MONITOR_WEB.name,
     )
-    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug,
-                APPLICATION_CONFIG_DEMO_APP.name)
+    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
     def is_mobile(application):
