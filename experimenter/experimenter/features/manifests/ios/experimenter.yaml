@@ -1,4 +1,12 @@
 ---
+address-autofill-feature:
+  description: This property defines the address card autofill feature
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "If true, we will allow user to use the address autofill feature"
 contextual-hint-feature:
   description: This set holds all features pertaining to contextual hints.
   hasExposure: true
@@ -23,6 +31,14 @@ credit-card-autofill:
     credit-card-autofill-status:
       type: boolean
       description: "If true, we will allow user to use the credit autofill feature"
+firefox-suggest-feature:
+  description: Configuration for the Firefox Suggest feature.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
 general-app-features:
   description: The feature that contains feature flags for the entire application
   hasExposure: true
@@ -98,6 +114,14 @@ private-browsing:
     felt-privacy-enabled:
       type: boolean
       description: "If true, enable felt privacy related UI"
+qr-code-coordinator-refactor:
+  description: "The feature for managing the roll out of the qrCode coordinator.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 redux-integration-feature:
   description: "This feature is for managing the roll out of the Redux integration feature\n"
   hasExposure: true
@@ -149,6 +173,12 @@ shopping2023:
     config:
       type: json
       description: "A Map of website configurations\n"
+    product-recommendations:
+      type: boolean
+      description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
+    relay:
+      type: string
+      description: "Configurable relay URL for production environment\n"
     status:
       type: boolean
       description: "Whether the Fakespot feature is enabled or disabled\n"

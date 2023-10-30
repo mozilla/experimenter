@@ -9,6 +9,7 @@ import { mockExperimentQuery, MockResultsContextProvider } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
 import { BRANCH_COMPARISON } from "src/lib/visualization/constants";
 import { mockIncompleteAnalysis } from "src/lib/visualization/mocks";
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
@@ -18,6 +19,29 @@ describe("TableResults", () => {
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
           <TableResults {...{ experiment }} />
+        </MockResultsContextProvider>
+      </RouterSlugProvider>,
+    );
+    const EXPECTED_HEADINGS = [
+      "2-Week Browser Retention",
+      "Mean Searches Per User",
+      "Qualified Cumulative Days of Use",
+      "Total Users",
+    ];
+
+    EXPECTED_HEADINGS.forEach((heading) => {
+      expect(screen.getByText(heading)).toBeInTheDocument();
+    });
+  });
+
+  it("renders correct headings for non-desktop experiments", () => {
+    const { experiment: ios_experiment } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.IOS,
+    });
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <MockResultsContextProvider>
+          <TableResults experiment={ios_experiment} />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );

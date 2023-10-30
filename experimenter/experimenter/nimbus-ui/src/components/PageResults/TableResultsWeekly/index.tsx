@@ -13,6 +13,9 @@ import {
   BRANCH_COMPARISON,
   GENERAL_TIPS,
   HIGHLIGHTS_METRICS_LIST,
+  METRIC,
+  METRICS_TIPS,
+  METRIC_TO_GROUP,
 } from "src/lib/visualization/constants";
 import {
   AnalysisBases,
@@ -23,12 +26,34 @@ export type TableResultsWeeklyProps = {
   branchComparison?: BranchComparisonValues;
   analysisBasis?: AnalysisBases;
   segment?: string;
+  isDesktop?: boolean;
+};
+
+const getHighlightMetrics = (isDesktop = false) => {
+  // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
+  if (isDesktop) {
+    const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
+    return highlightMetricsList.map((highlightMetric) => {
+      if (highlightMetric.value === METRIC.DAYS_OF_USE) {
+        return {
+          value: METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
+          name: "Qualified Cumulative Days of Use",
+          tooltip: METRICS_TIPS.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
+          group: METRIC_TO_GROUP[METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE],
+        };
+      }
+      return highlightMetric;
+    });
+  }
+
+  return HIGHLIGHTS_METRICS_LIST;
 };
 
 const TableResultsWeekly = ({
   branchComparison = BRANCH_COMPARISON.UPLIFT,
   analysisBasis = "enrollments",
   segment = "all",
+  isDesktop = false,
 }: TableResultsWeeklyProps) => {
   const {
     analysis: { overall },
@@ -63,7 +88,7 @@ const TableResultsWeekly = ({
       </span>
       <Collapse in={open}>
         <div className="mt-2">
-          {HIGHLIGHTS_METRICS_LIST.map((metric, index) => {
+          {getHighlightMetrics(isDesktop).map((metric, index) => {
             return (
               <div key={`${metric.value}_weekly`}>
                 <h3

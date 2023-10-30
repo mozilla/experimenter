@@ -5,6 +5,13 @@ about:
 channels:
   - developer
 features:
+  address-autofill-feature:
+    description: This property defines the address card autofill feature
+    variables:
+      status:
+        description: "If true, we will allow user to use the address autofill feature"
+        type: Boolean
+        default: false
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
@@ -27,6 +34,13 @@ features:
         description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
         default: true
+  firefox-suggest-feature:
+    description: Configuration for the Firefox Suggest feature.
+    variables:
+      status:
+        description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
+        type: Boolean
+        default: true
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -47,10 +61,7 @@ features:
         type: "Map<HomeScreenSection, Boolean>"
         default:
           jump-back-in: true
-          pocket: true
           recent-explorations: true
-          recently-saved: true
-          top-sites: true
   library-coordinator-refactor:
     description: "This feature is for managing the roll out of the library coordinator code as part of the changes on the navigation in the app\n"
     variables:
@@ -60,6 +71,20 @@ features:
         default: true
   messaging:
     description: "The in-app messaging system\n"
+    documentation:
+      - name: User documentation
+        url: "https://experimenter.info/messaging/mobile-messaging"
+    contacts:
+      - jhugman@mozilla.com
+      - brennie@mozilla.com
+      - gbuciu@mozilla.com
+      - wteichmann@mozilla.com
+    events:
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_shown"
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_clicked"
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_expired"
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_dismissed"
+      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_malformed"
     variables:
       actions:
         description: A growable map of action URLs.
@@ -101,6 +126,7 @@ features:
             trigger:
               - I_AM_NOT_DEFAULT_BROWSER
               - SUPPORTS_DEFAULT_BROWSER
+              - ON_FOURTH_LAUNCH_THIS_YEAR
           survey-surface-message:
             action: "https://www.macrumors.com"
             button-label: ResearchSurface/PrimaryButton.Label.v112
@@ -154,6 +180,7 @@ features:
           NEVER: "false"
           NOT_INSTALLED_TODAY: days_since_install > 0
           NOT_LAUNCHED_YESTERDAY: "'app_cycle.foreground'|eventLastSeen('Days', 1) > 1"
+          ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
           SUPPORTS_DEFAULT_BROWSER: "os_version|versionCompare('14.!') >= 0"
           USER_DE_SPEAKER: "'de' in locale"
           USER_EN_SPEAKER: "'en' in locale"
@@ -261,6 +288,13 @@ features:
         description: "If true, enable felt privacy related UI"
         type: Boolean
         default: false
+  qr-code-coordinator-refactor:
+    description: "The feature for managing the roll out of the qrCode coordinator.\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   redux-integration-feature:
     description: "This feature is for managing the roll out of the Redux integration feature\n"
     variables:
@@ -278,7 +312,7 @@ features:
           position:
             is-bottom: false
             is-position-feature-enabled: true
-            is-toolbar-cfr-on: true
+            is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
   search-term-groups-feature:
@@ -327,6 +361,14 @@ features:
             productIdFromURLRegex: "\\\\/ip\\\\/(?:[A-Za-z0-9-]{1,320}\\\\/)?(?<productId>[0-9]{3,13})"
             validTLDs:
               - com
+      product-recommendations:
+        description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
+        type: Boolean
+        default: true
+      relay:
+        description: "Configurable relay URL for production environment\n"
+        type: String
+        default: "https://mozilla-ohttp-fakespot.fastly-edge.com/"
       status:
         description: "Whether the Fakespot feature is enabled or disabled\n"
         type: Boolean
@@ -403,14 +445,8 @@ enums:
     variants:
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
-      pocket:
-        description: The pocket section. This should only be available in the US.
       recent-explorations:
         description: The tab groups
-      recently-saved:
-        description: The sites the user has bookmarked recently.
-      top-sites:
-        description: The frecency and pinned sites.
   IconType:
     description: "The icon that will be added to the item in the device's search engine."
     variants:

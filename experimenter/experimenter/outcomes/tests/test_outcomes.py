@@ -15,7 +15,7 @@ class TestOutcomes(TestCase):
 
     def test_load_all_outcomes_and_ignore_examples(self):
         outcomes = Outcomes.all()
-        self.assertEqual(len(outcomes), 4)
+        self.assertEqual(len(outcomes), 5)
         self.assertIn(
             Outcome(
                 application=NimbusExperiment.Application.FENIX,
@@ -56,10 +56,21 @@ class TestOutcomes(TestCase):
                 ),
                 outcomes,
             )
+        self.assertIn(
+            Outcome(
+                application=NimbusExperiment.Application.DESKTOP,
+                description="a test outcome missing metrics",
+                friendly_name="test outcome",
+                slug="missing_metrics",
+                is_default=False,
+                metrics=[],
+            ),
+            outcomes,
+        )
 
     def test_load_outcomes_by_application(self):
         desktop_outcomes = Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
-        self.assertEqual(len(desktop_outcomes), 3)
+        self.assertEqual(len(desktop_outcomes), 4)
         for i in range(1, 4):
             self.assertIn(
                 Outcome(
@@ -83,6 +94,17 @@ class TestOutcomes(TestCase):
                 ),
                 desktop_outcomes,
             )
+        self.assertIn(
+            Outcome(
+                application=NimbusExperiment.Application.DESKTOP,
+                description="a test outcome missing metrics",
+                friendly_name="test outcome",
+                slug="missing_metrics",
+                is_default=False,
+                metrics=[],
+            ),
+            desktop_outcomes,
+        )
 
 
 class TestCheckOutcomeTOMLs(TestCase):

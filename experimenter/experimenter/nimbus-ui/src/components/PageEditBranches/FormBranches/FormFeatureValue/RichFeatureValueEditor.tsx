@@ -11,9 +11,12 @@ import React, { useCallback, useMemo, useRef } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { FeatureValueEditorProps } from "src/components/PageEditBranches/FormBranches/FormFeatureValue/props";
 import {
+  fmlLinter,
   schemaAutocomplete,
   schemaLinter,
-} from "src/components/PageEditBranches/FormBranches/FormFeatureValue/schema";
+} from "src/components/PageEditBranches/FormBranches/FormFeatureValue/validators";
+
+const allowFmlLinting = false;
 
 export default function RichFeatureValueEditor({
   featureConfig,
@@ -81,8 +84,11 @@ export default function RichFeatureValueEditor({
     ];
 
     if (schema) {
-      extensions.push(linter(schemaLinter(schema)));
-
+      if (allowFmlLinting) {
+        extensions.push(linter(fmlLinter()));
+      } else {
+        extensions.push(linter(schemaLinter(schema)));
+      }
       const completionSource = schemaAutocomplete(schema);
       if (completionSource) {
         extensions.push(
