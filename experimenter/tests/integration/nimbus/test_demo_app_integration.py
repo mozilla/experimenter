@@ -1,4 +1,5 @@
 import os
+
 from nimbus.pages.experimenter.home import HomePage
 import pytest
 
@@ -34,7 +35,7 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     home = HomePage(selenium, base_url).open()
     assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
-    selenium.get("http://localhost:8080/")
+    selenium.get("http://demo-app-frontend:3000/")
 
     # Example: Check if the "Send Details" button is present and clickable
     send_details_button = selenium.find_element_by_xpath(

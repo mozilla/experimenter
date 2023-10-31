@@ -31,7 +31,7 @@ APPLICATION_FEATURE_IDS = {
     # BaseExperimentApplications.IOS: "3",
     # BaseExperimentApplications.FOCUS_ANDROID: "4",
     # BaseExperimentApplications.FOCUS_IOS: "6",
-    BaseExperimentApplications.DEMO_APP: "129",
+    BaseExperimentApplications.DEMO_APP: "138",
 }
 
 APPLICATION_KINTO_REVIEW_PATH = {
