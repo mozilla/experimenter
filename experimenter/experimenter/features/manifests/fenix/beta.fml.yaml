@@ -104,6 +104,12 @@ features:
             primary-button-label: juno_onboarding_sign_in_positive_button
             secondary-button-label: juno_onboarding_sign_in_negative_button
             title: juno_onboarding_sign_in_title_2
+      conditions:
+        description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
+        type: "Map<String, String>"
+        default:
+          ALWAYS: "true"
+          NEVER: "false"
   messaging:
     description: "The in-app messaging system.\n"
     variables:
@@ -515,6 +521,11 @@ objects:
         description: The type of the card.
         type: OnboardingCardType
         default: default-browser
+      disqualifiers:
+        description: "A list of strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.\n"
+        type: List<String>
+        default:
+          - NEVER
       enabled:
         description: "If true, this card is shown to the user."
         type: Boolean
@@ -531,6 +542,11 @@ objects:
         description: Used to sequence the cards.
         type: Int
         default: 0
+      prerequisites:
+        description: "A list of strings corresponding to targeting expressions. The card will be shown if all expressions are `true` and if no expressions in the `disqualifiers` table are true, or if the `disqualifiers` table is empty.\n"
+        type: List<String>
+        default:
+          - ALWAYS
       primary-button-label:
         description: The text to display on the primary button.
         type: Text
