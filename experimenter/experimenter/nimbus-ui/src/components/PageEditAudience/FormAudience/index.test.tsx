@@ -2091,7 +2091,7 @@ it("hides enrollment period when experiment is a rollout", async () => {
   );
 
   await waitFor(() => {
-    expect(screen.queryByTestId("proposedEnrollment")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("proposedEnrollment")).toBeNull();
   });
 });
 
@@ -2110,7 +2110,7 @@ it("shows enrollment period when experiment is not a rollout", async () => {
   );
 
   await waitFor(() => {
-    expect(screen.queryByTestId("proposedEnrollment")).toBeInTheDocument();
+    screen.getByTestId("proposedEnrollment");
   });
 });
 
