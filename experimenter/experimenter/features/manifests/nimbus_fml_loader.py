@@ -21,10 +21,8 @@ class NimbusFmlLoader:
 
     @staticmethod
     def _get_application_data(application_name, file_location=BASE_PATH):
-        """
-        Fetch app data from local apps.yaml file to find application
-        names, github repos, fml paths within the repos, and release
-        versions.
+        """Fetch app data from local apps.yaml file to find application names, github
+        repos, fml paths within the repos, and release versions.
         """
         if Path.exists(file_location):
             with open(file_location) as application_yaml_file:
@@ -35,17 +33,15 @@ class NimbusFmlLoader:
                     return None
 
     def _get_local_file_path(self):
-        """
-        Get path to release feature manifest from experimenter (local).
-        """
+        """Get path to release feature manifest from experimenter (local)."""
         path = Path(self.MANIFEST_PATH) / f"{self.application}" / "release.fml.yaml"
         if Path.exists(path):
             return path
+        else:
+            return None
 
     def _get_remote_file_path(self):
-        """
-        Get path to the feature manifest from location defined in apps.yaml.
-        """
+        """Get path to the feature manifest from location defined in apps.yaml."""
         if not self.application_data:
             return None
         return (
@@ -55,9 +51,7 @@ class NimbusFmlLoader:
 
     # Todo: Add versioning https://mozilla-hub.atlassian.net/browse/EXP-3875
     def _get_version_refs(self, versions):
-        """
-        Get github refs for each version.
-        """
+        """Get github refs for each version."""
         if versions == []:
             return ["main"]
         refs = []
@@ -117,12 +111,12 @@ class NimbusFmlLoader:
 
     # Todo: Add versioning https://mozilla-hub.atlassian.net/browse/EXP-3875
     def get_fml_errors(self, blob: str, feature_id: str):
-        """
-        Fetch errors from the FML. This method creates FML clients, which are used by
-        `FmlFeatureInspector`s to fetch errors based on the blob of text and the
-        given feature.
+        """Fetch errors from the FML. This method creates FML clients, which are
+        used by `FmlFeatureInspector`s to fetch errors based on the blob of text and
+        the given feature.
 
-        returns A list of feature manifest errors.
+        Returns:
+            A list of feature manifest errors.
         """
         if clients := self._get_fml_clients([]):
             if inspectors := self._get_inspectors(clients, feature_id):

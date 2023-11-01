@@ -368,7 +368,7 @@ class NimbusFmlErrorDataClass:
 
 @dataclass
 class NimbusFmlErrorListDataClass:
-    errors: typing.List[typing.Optional[NimbusFmlErrorDataClass]]
+    errors: typing.List[NimbusFmlErrorDataClass]
 
     def __init__(self, errors):  # pragma: no cover
         return [
