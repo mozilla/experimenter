@@ -424,6 +424,7 @@ class NimbusConstants:
         FIREFOX_118_0_2 = "118.0.2"
         FIREFOX_119 = "119.!"
         FIREFOX_120 = "120.!"
+        FIREFOX_121 = "121.!"
 
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
