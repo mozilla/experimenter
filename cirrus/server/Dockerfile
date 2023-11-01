@@ -15,7 +15,8 @@ RUN apt-get update -qqy \
 
 WORKDIR /application-services
 
-RUN git clone https://github.com/mozilla/application-services.git .
+RUN git clone https://github.com/jeddai/application-services.git .
+RUN git fetch && git checkout add-enrollment-status-metric-for-cirrus
 RUN if [[ -z "${as_version}" ]] ; then \
     echo "No application-services version supplied, using latest commit." ; \
     else \

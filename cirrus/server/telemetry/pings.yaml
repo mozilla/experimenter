@@ -15,3 +15,18 @@ enrollment:
     - https://github.com/mozilla/experimenter/issues/8928
   data_reviews:
     - https://github.com/mozilla/experimenter/pull/9081#issuecomment-1625751843
+enrollment-status:
+  description: >
+    A ping to record enrollment statuses. The purpose of this data
+    gathering is to get the enrollment status telemetry for Cirrus
+  include_client_id: true
+  notification_emails:
+    - ykhurana@mozilla.com
+    - chumphreys@mozilla.com
+    - jkerim@mozilla.com
+    - project-nimbus@mozilla.com
+  bugs:
+    - https://mozilla-hub.atlassian.net/browse/EXP-3828
+    - https://github.com/mozilla/experimenter/issues/9649
+  data_reviews:
+    - https://github.com/mozilla/experimenter/pull/9657#issuecomment-1791427765
