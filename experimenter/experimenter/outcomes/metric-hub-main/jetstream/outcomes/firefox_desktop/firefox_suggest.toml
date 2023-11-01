@@ -12,3 +12,36 @@ statistics = { deciles = {}, bootstrap_mean = {} }
 [metrics.ad_click_rate.statistics.population_ratio]
 numerator = "ad_clicks"
 denominator = "search_count"
+
+[metrics.urlbar_clicks]
+select_expression = "COUNT(DISTINCT(CASE WHEN is_terminal and event_action = 'engaged' THEN event_id ELSE NULL END))"
+data_source = "urlbar_events"
+description = "Count of clicks on any result shown in the urlbar dropdown menu"
+friendly_name = "urlbar clicks"
+exposure_basis = ["exposures", "enrollments"]
+statistics = { deciles = {}, bootstrap_mean = {} }
+
+[metrics.urlbar_impressions]
+select_expression = "COUNT(DISTINCT(CASE WHEN is_terminal THEN event_id ELSE NULL END))"
+data_source = "urlbar_events"
+description = "The number of times a user exits the urlbar dropdown menu, either by abandoning the urlbar, engaging with a urlbar result, or selecting an annoyance signal that closes the urlbar dropdown menu"
+friendly_name = "urlbar impressions"
+exposure_basis = ["exposures", "enrollments"]
+statistics = { deciles = {}, bootstrap_mean = {} }
+
+[metrics.urlbar_ctr]
+description = "Count of urlbar clicks divided by count of urlbar impressions. This is a `population-ratio` metric, not a client-level metric."
+friendly_name = "urlbar click-through rate (ctr)"
+depends_on = ["urlbar_clicks", "urlbar_impressions"]
+
+[metrics.urlbar_ctr.statistics.population_ratio]
+numerator = "urlbar_clicks"
+denominator = "urlbar_impressions"
+
+[metrics.urlbar_annoyances]
+select_expression = "COUNT(DISTINCT(CASE WHEN event_action = 'annoyance' THEN event_id ELSE NULL END))"
+data_source = "urlbar_events"
+description = "Count of clicks on annoyance signals across all results shown in the urlbar dropdown menu"
+friendly_name = "urlbar annoyances"
+exposure_basis = ["exposures", "enrollments"]
+statistics = { deciles = {}, bootstrap_mean = {} }
