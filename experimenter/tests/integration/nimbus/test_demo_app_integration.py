@@ -37,7 +37,7 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     base_url,
     experiment_name,
 ):
-    # Launch a rollout 100% population
+    # Launch a rollout with 100% population
     reference_branch_value = '{"enabled": true, "something": "You are enrolled"}'
     create_experiment(
         selenium, is_rollout=True, reference_branch_value=reference_branch_value

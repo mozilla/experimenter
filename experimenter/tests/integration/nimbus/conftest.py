@@ -26,41 +26,41 @@ from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
 APPLICATION_FEATURE_IDS = {
-    # BaseExperimentApplications.FIREFOX_DESKTOP: "1",
-    # BaseExperimentApplications.FENIX: "2",
-    # BaseExperimentApplications.IOS: "3",
-    # BaseExperimentApplications.FOCUS_ANDROID: "4",
-    # BaseExperimentApplications.FOCUS_IOS: "6",
+    BaseExperimentApplications.FIREFOX_DESKTOP: "1",
+    BaseExperimentApplications.FENIX: "2",
+    BaseExperimentApplications.IOS: "3",
+    BaseExperimentApplications.FOCUS_ANDROID: "4",
+    BaseExperimentApplications.FOCUS_IOS: "6",
     BaseExperimentApplications.DEMO_APP: "138",
 }
 
 APPLICATION_KINTO_REVIEW_PATH = {
-    # BaseExperimentApplications.FIREFOX_DESKTOP: (
-    #     "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
-    # ),
-    # BaseExperimentApplications.FENIX: (
-    #     "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
-    # ),
-    # BaseExperimentApplications.IOS: (
-    #     "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
-    # ),
-    # BaseExperimentApplications.FOCUS_ANDROID: (
-    #     "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
-    # ),
-    # BaseExperimentApplications.FOCUS_IOS: (
-    #     "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
-    # ),
+    BaseExperimentApplications.FIREFOX_DESKTOP: (
+        "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
+    ),
+    BaseExperimentApplications.FENIX: (
+        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    ),
+    BaseExperimentApplications.IOS: (
+        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    ),
+    BaseExperimentApplications.FOCUS_ANDROID: (
+        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    ),
+    BaseExperimentApplications.FOCUS_IOS: (
+        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    ),
     BaseExperimentApplications.DEMO_APP: (
         "#/buckets/main-workspace/collections/nimbus-web-experiments/simple-review"
     ),
 }
 
 APPLICATION_KINTO_COLLECTION = {
-    # "DESKTOP": KINTO_COLLECTION_DESKTOP,
-    # "FENIX": KINTO_COLLECTION_MOBILE,
-    # "IOS": KINTO_COLLECTION_MOBILE,
-    # "FOCUS_ANDROID": KINTO_COLLECTION_MOBILE,
-    # "FOCUS_IOS": KINTO_COLLECTION_MOBILE,
+    "DESKTOP": KINTO_COLLECTION_DESKTOP,
+    "FENIX": KINTO_COLLECTION_MOBILE,
+    "IOS": KINTO_COLLECTION_MOBILE,
+    "FOCUS_ANDROID": KINTO_COLLECTION_MOBILE,
+    "FOCUS_IOS": KINTO_COLLECTION_MOBILE,
     "DEMO_APP": KINTO_COLLECTION_WEB,
 }
 

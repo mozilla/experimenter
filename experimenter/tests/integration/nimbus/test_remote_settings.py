@@ -261,9 +261,9 @@ def test_rollout_live_update_reject_on_experimenter(
 @pytest.mark.skipif(
     any(
         app in os.getenv("PYTEST_ARGS")
-        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID"]
+        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID", "DEMO_APP"]
     ),
-    reason="Only run for non-mobile applications",
+    reason="Only run for non-mobile applications and non desktop",
 )
 def test_summary_release_date_not_visible(
     selenium,
