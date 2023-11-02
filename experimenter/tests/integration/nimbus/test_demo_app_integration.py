@@ -80,7 +80,6 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     summary.end_and_approve()
     kinto_client.approve()
     summary = SummaryPage(selenium, experiment_url).open()
-    time.sleep(150)
     summary.wait_for_complete_status()
 
     # demo app frontend, default displays not enrolled
@@ -170,7 +169,6 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     summary.end_and_approve()
     kinto_client.approve()
     summary = SummaryPage(selenium, experiment_url).open()
-    time.sleep(150)
     summary.wait_for_complete_status()
 
     navigate_to_demo_app_frontend(selenium)
