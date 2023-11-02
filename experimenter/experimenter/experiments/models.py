@@ -611,6 +611,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
 
     @property
+    def actual_enrollment_end_date(self):
+        return self._enrollment_end_date or None
+
+    @property
     def computed_end_date(self):
         return self.end_date or self.proposed_end_date
 
