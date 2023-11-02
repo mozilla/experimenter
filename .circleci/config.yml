@@ -428,7 +428,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k 'not (FOCUS_IOS or DESKTOP or FENIX or FOCUS_ANDROID or IOS)'  -m demo_app -n 2 --reruns 1
+      PYTEST_ARGS: -k 'not (FOCUS_IOS or DESKTOP or FENIX or FOCUS_ANDROID or IOS)'  -m demo_app --reruns 1
     steps:
       - checkout
       - check_file_paths:
