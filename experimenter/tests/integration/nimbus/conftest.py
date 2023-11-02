@@ -241,7 +241,7 @@ def default_data(application, experiment_name, load_experiment_outcomes):
 
 @pytest.fixture
 def create_experiment(base_url, default_data):
-    def _create_experiment(selenium, is_rollout=False, reference_branch_value="{}"):
+    def _create_experiment(selenium, is_rollout=False, reference_branch_value="{}", treatment_branch_value = "{}"):
         home = HomePage(selenium, base_url).open()
         experiment = home.create_new_button()
         experiment.public_name = default_data.public_name
@@ -273,7 +273,7 @@ def create_experiment(base_url, default_data):
             branches.make_rollout()
         else:
             branches.treatment_branch_description = default_data.branches[1].description
-            branches.treatment_branch_value = "{}"
+            branches.treatment_branch_value = treatment_branch_value
 
         # Fill Metrics page
         metrics = branches.save_and_continue()
