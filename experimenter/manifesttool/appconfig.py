@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 
 class RepositoryType(Enum):
@@ -25,6 +25,19 @@ class AppConfig(BaseModel):
     experimenter_yaml_path: Optional[str]
     major_release_branch: Optional[str]
     minor_release_tag: Optional[str]
+
+    @root_validator(pre=True)
+    def validate_one_manifest_path(cls, values):
+        has_fml_path = values.get("fml_path") is not None
+        has_legacy_path = values.get("experimenter_yaml_path") is not None
+
+        if not has_fml_path and not has_legacy_path:
+            raise ValueError("one of fml_path and experimenter_yaml_path is required")
+
+        if has_fml_path and has_legacy_path:
+            raise ValueError("fml_path and experimenter_yaml_path are mutually exclusive")
+
+        return values
 
 
 class AppConfigs(BaseModel):
