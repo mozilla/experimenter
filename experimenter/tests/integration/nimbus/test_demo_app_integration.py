@@ -1,13 +1,16 @@
 import os
 import time
-from kinto_http.utils import urljoin
-from nimbus.pages.experimenter.home import HomePage
+
 import pytest
+
+from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
+
 
 def navigate_to_demo_app_frontend(selenium):
     demo_app_url = "http://demo-app-frontend:3000/"
     selenium.get(demo_app_url)
+
 
 def fill_and_send_form_data(selenium, client_id, context):
     client_id_input = selenium.find_element_by_xpath("//input[@placeholder='Client ID']")
@@ -16,10 +19,14 @@ def fill_and_send_form_data(selenium, client_id, context):
     client_id_input.send_keys(client_id)
     context_input.send_keys(context)
 
+
 def click_send_my_details(selenium):
-    send_details_button = selenium.find_element_by_xpath("//button[contains(text(), 'Send My Details')]")
+    send_details_button = selenium.find_element_by_xpath(
+        "//button[contains(text(), 'Send My Details')]"
+    )
     assert send_details_button.is_displayed() and send_details_button.is_enabled()
     send_details_button.click()
+
 
 @pytest.mark.demo_app
 @pytest.mark.skipif(
@@ -57,7 +64,8 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     )
     assert result_text_element.is_displayed()
 
-    # send client_id and context in a request to backend, backend will connect to cirrus and will return back the response
+    # send client_id and context in a request to backend, backend will connect to
+    # cirrus and will return back the response
     fill_and_send_form_data(selenium, "dummy_client_id", '{"test1":"test2"}')
     click_send_my_details(selenium)
 
@@ -113,7 +121,9 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     reference_branch_value = '{"enabled": true, "something": "Control branch"}'
     treatment_branch_value = '{"enabled": true, "something": "Treatment branch"}'
     create_experiment(
-        selenium, reference_branch_value=reference_branch_value, treatment_branch_value = treatment_branch_value
+        selenium,
+        reference_branch_value=reference_branch_value,
+        treatment_branch_value=treatment_branch_value,
     ).launch_and_approve()
 
     kinto_client.approve()
@@ -171,7 +181,9 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
         "//h1[contains(text(), 'Not Enrolled')]"
     )
     assert result_text_element.is_displayed()
-    fill_and_send_form_data(selenium, "example1", '{"test1":"test2"}') # previously enrolled in control branch
+    fill_and_send_form_data(
+        selenium, "example1", '{"test1":"test2"}'
+    )  # previously enrolled in control branch
     click_send_my_details(selenium)
     result_text_element = selenium.find_element_by_xpath(
         "//h1[contains(text(), 'wicked')]"
@@ -184,13 +196,11 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
         "//h1[contains(text(), 'Not Enrolled')]"
     )
     assert result_text_element.is_displayed()
-    fill_and_send_form_data(selenium, "test1", '{"test1":"test2"}') # previously enrolled in treatment branch
+    fill_and_send_form_data(
+        selenium, "test1", '{"test1":"test2"}'
+    )  # previously enrolled in treatment branch
     click_send_my_details(selenium)
     result_text_element = selenium.find_element_by_xpath(
         "//h1[contains(text(), 'wicked')]"
     )
     assert result_text_element.is_displayed()
-
-
-
-

@@ -112,10 +112,7 @@ def test_every_form_page_can_be_resaved(
 
 @pytest.mark.nimbus_ui
 @pytest.mark.skipif(
-    any(
-        app in os.getenv("PYTEST_ARGS")
-        for app in ["FIREFOX_DESKTOP", "DEMO_APP"]
-    ),
+    any(app in os.getenv("PYTEST_ARGS") for app in ["FIREFOX_DESKTOP", "DEMO_APP"]),
     reason="Only run for mobile applications",
 )
 def test_first_run_release_date(
@@ -177,10 +174,7 @@ def test_first_run_release_date(
 
 @pytest.mark.nimbus_ui
 @pytest.mark.skipif(
-    any(
-        app in os.getenv("PYTEST_ARGS")
-        for app in ["FIREFOX_DESKTOP", "DEMO_APP"]
-    ),
+    any(app in os.getenv("PYTEST_ARGS") for app in ["FIREFOX_DESKTOP", "DEMO_APP"]),
     reason="Only run for mobile applications",
 )
 def test_audience_page_release_date(
@@ -240,10 +234,7 @@ def test_audience_page_release_date(
 
 @pytest.mark.nimbus_ui
 @pytest.mark.skipif(
-    any(
-        app in os.getenv("PYTEST_ARGS")
-        for app in ["FIREFOX_DESKTOP", "DEMO_APP"]
-    ),
+    any(app in os.getenv("PYTEST_ARGS") for app in ["FIREFOX_DESKTOP", "DEMO_APP"]),
     reason="Only run for mobile applications",
 )
 def test_summary_timeline_release_date(

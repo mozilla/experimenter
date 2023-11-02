@@ -420,6 +420,30 @@ jobs:
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
+  integration_nimbus_demo_app:
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
+    resource_class: large
+    working_directory: ~/experimenter
+    environment:
+      FIREFOX_VERSION: nimbus-firefox-release
+      PYTEST_ARGS: -k DEMO_APP -m demo_app -n 2 --reruns 1
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "experimenter/"
+      - setup_docker:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+      - run:
+          name: Run integration tests
+          command: |
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+      - store_artifacts:
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+
   integration_legacy:
     machine:
       image: ubuntu-2004:2023.10.1
@@ -786,6 +810,13 @@ workflows:
             branches:
               ignore:
                 - main
+      - integration_nimbus_demo_app:
+        name: Test Demo app with Cirrus
+          filters:
+            branches:
+              ignore:
+                - main
+
       - integration_legacy:
           name: Test Legacy Desktop (Release Firefox)
           filters:
