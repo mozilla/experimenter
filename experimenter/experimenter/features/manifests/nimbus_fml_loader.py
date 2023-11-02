@@ -5,18 +5,21 @@ import yaml
 from packaging import version as version_packaging
 from rust_fml import FmlClient, FmlFeatureInspector
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.settings import BASE_DIR
 
 logger = logging.getLogger()
 
 
 class NimbusFmlLoader:
-    BASE_PATH = Path(BASE_DIR) / "features" / "manifests" / "apps.yaml"
-    MANIFEST_PATH = Path(BASE_DIR) / "features" / "manifests"
+    BASE_PATH = Path(BASE_DIR, "features", "manifests", "apps.yaml")
+    MANIFEST_PATH = Path(BASE_DIR, "features", "manifests")
 
     def __init__(self, application: str, channel: str, file_location=BASE_PATH):
-        self.application: str = application
-        self.channel: str = channel
+        self.application: str = (
+            application if application in NimbusConstants.Application else None
+        )
+        self.channel: str = channel if channel in NimbusConstants.Channel else None
         self.application_data = self._get_application_data(application, file_location)
 
     @staticmethod
@@ -34,19 +37,23 @@ class NimbusFmlLoader:
 
     def _get_local_file_path(self):
         """Get path to release feature manifest from experimenter (local)."""
-        path = Path(self.MANIFEST_PATH) / f"{self.application}" / "release.fml.yaml"
-        if Path.exists(path):
-            return path
+        if self.application is not None:
+            path = Path(self.MANIFEST_PATH, self.application, "release.fml.yaml")
+            if Path.exists(path):
+                return path
         else:
-            return None
+            logger.error(
+                "Nimbus FML Loader: Invalid application. Failed to get local "
+                "feature manifest."
+            )
+        return None
 
     def _get_remote_file_path(self):
         """Get path to the feature manifest from location defined in apps.yaml."""
         if not self.application_data:
             return None
-        return (
-            Path(self.application_data["repo"]["name"])
-            / self.application_data["fml_path"]
+        return Path(
+            self.application_data["repo"]["name"], self.application_data["fml_path"]
         )
 
     # Todo: Add versioning https://mozilla-hub.atlassian.net/browse/EXP-3875
@@ -84,18 +91,18 @@ class NimbusFmlLoader:
     # Todo: Add versioning https://mozilla-hub.atlassian.net/browse/EXP-3875
     def _get_fml_clients(self, versions: list[str]) -> list[FmlClient]:
         refs = self._get_version_refs(versions)
-        file_path = self._get_local_file_path()
         clients = []
-        for r in refs:
-            client = self._create_client(str(file_path), self.channel)
-            if client is not None:
-                clients.append(client)
-            else:
-                logger.info(
-                    "Nimbus FML Loader: "
-                    f"Failed to create FML clients for file path {file_path}, "
-                    f"channel {self.channel}, and ref {r}."
-                )
+        if file_path := self._get_local_file_path():
+            for r in refs:
+                client = self._create_client(str(file_path), self.channel)
+                if client is not None:
+                    clients.append(client)
+                else:
+                    logger.error(
+                        "Nimbus FML Loader: "
+                        f"Failed to create FML clients for file path {file_path}, "
+                        f"channel {self.channel}, and ref {r}."
+                    )
         return clients
 
     def _create_client(self, path: str, channel: str) -> FmlClient:
@@ -103,11 +110,18 @@ class NimbusFmlLoader:
 
     def _get_inspectors(
         self, clients: list[FmlClient], feature_id: str
-    ) -> list[FmlFeatureInspector]:  # pragma: no cover
-        return [client.get_feature_inspector(feature_id) for client in clients]
+    ) -> list[FmlFeatureInspector]:
+        return [
+            inspector
+            for inspector in (
+                client.get_feature_inspector(feature_id) for client in clients
+            )
+            if inspector is not None
+        ]
 
-    def _get_errors(self, inspector: FmlFeatureInspector, blob: str):
-        return inspector.get_errors(blob)  # pragma: no cover
+    @staticmethod
+    def _get_errors(inspector: FmlFeatureInspector, blob: str):
+        return inspector.get_errors(blob)
 
     # Todo: Add versioning https://mozilla-hub.atlassian.net/browse/EXP-3875
     def get_fml_errors(self, blob: str, feature_id: str):
@@ -118,15 +132,17 @@ class NimbusFmlLoader:
         Returns:
             A list of feature manifest errors.
         """
-        if clients := self._get_fml_clients([]):
-            if inspectors := self._get_inspectors(clients, feature_id):
-                errors = []
-                if inspectors != [None]:
-                    for inspector in inspectors:
-                        error = self._get_errors(inspector, blob)
-                        if error is not None:
-                            errors.extend(error)
-                        else:
-                            return None
-                return errors
-        return None
+        if self.application is not None:
+            errors = []
+            if clients := self._get_fml_clients([]):
+                if inspectors := self._get_inspectors(clients, feature_id):
+                    if inspectors != []:
+                        for inspector in inspectors:
+                            if error := self._get_errors(inspector, blob):
+                                errors.extend(error)
+            return errors
+        else:
+            logger.error(
+                "Nimbus FML Loader: Invalid application. Failed to fetch FML errors."
+            )
+            return []

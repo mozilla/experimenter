@@ -1440,15 +1440,12 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
     def _validate_with_fml(self, feature_config, channel, obj):
         loader = NimbusFmlLoader(feature_config.application, channel)
-        fml_errors = loader.get_fml_errors(obj, feature_config.slug)
-        if fml_errors is not None:
-            readable_errors = []
-            for e in fml_errors:
-                readable_errors.append(
-                    f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
-                    f"{e.message} at line {e.line+1} column {e.col}"
-                )
-            return readable_errors
+        if fml_errors := loader.get_fml_errors(obj, feature_config.slug):
+            return [
+                f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
+                f"{e.message} at line {e.line+1} column {e.col}"
+                for e in fml_errors
+            ]
         return None
 
     def _validate_schema(self, obj, schema):
@@ -1476,11 +1473,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         else:
             localizations = None
 
+        application = data.get("application")
         reference_branch_errors = []
+
         for feature_value_data in data.get("reference_branch", {}).get(
             "feature_values", []
         ):
-            if data.get("application") == NimbusExperiment.Application.DESKTOP:
+            if application == NimbusExperiment.Application.DESKTOP:
                 if schema_errors := self._validate_feature_value_against_schema(
                     feature_value_data["feature_config"],
                     feature_value_data["value"],
@@ -1488,7 +1487,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 ):
                     reference_branch_errors.append({"value": schema_errors})
                     continue
-
             elif fml_errors := self._validate_with_fml(
                 feature_value_data["feature_config"],
                 data.get("channel"),
@@ -1508,7 +1506,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             treatment_branch_errors = []
 
             for feature_value_data in treatment_branch_data["feature_values"]:
-                if data.get("application") == NimbusExperiment.Application.DESKTOP:
+                if application == NimbusExperiment.Application.DESKTOP:
                     if schema_errors := self._validate_feature_value_against_schema(
                         feature_value_data["feature_config"],
                         feature_value_data["value"],

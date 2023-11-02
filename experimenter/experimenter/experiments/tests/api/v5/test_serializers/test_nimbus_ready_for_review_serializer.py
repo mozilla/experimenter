@@ -1386,14 +1386,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
-        reference_feature_value.value = """\
-            {
-            "bar": {
-                "baz": "baz",
-                "qux": 123
-            }
-            }
-        """.strip()
+        reference_feature_value.value = json.dumps({"bar": {"baz": "baz", "qux": 123}})
+
         reference_feature_value.save()
 
         serializer = NimbusReviewSerializer(
@@ -1442,14 +1436,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
-        reference_feature_value.value = """\
-            {
-            "bar": {
-                "baz": "baz",
-                "qux": 123
-            }
-            }
-        """.strip()
+        reference_feature_value.value = json.dumps({"bar": {"baz": "baz", "qux": 123}})
         reference_feature_value.save()
 
         serializer = NimbusReviewSerializer(
@@ -1501,14 +1488,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
-        reference_feature_value.value = """\
-            {
-            "bar": {
-                "baz": "baz",
-                "qux": 123
-            }
-            }
-        """.strip()
+        reference_feature_value.value = json.dumps({"bar": {"baz": "baz", "qux": 123}})
         reference_feature_value.save()
 
         serializer = NimbusReviewSerializer(
@@ -1570,14 +1550,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
-        treatment_feature_value.value = """\
-            {
-            "bar": {
-                "baz": "baz",
-                "qux": 123
-            }
-            }
-        """.strip()
+        treatment_feature_value.value = json.dumps({"bang": {"bong": "boom"}})
         treatment_feature_value.save()
 
         serializer = NimbusReviewSerializer(
@@ -1626,14 +1599,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
-        treatment_feature_value.value = """\
-            {
-            "bar": {
-                "baz": "baz",
-                "qux": 123
-            }
-            }
-        """.strip()
+        treatment_feature_value.value = json.dumps({"bing": {"bang": "bong"}})
         treatment_feature_value.save()
 
         serializer = NimbusReviewSerializer(
@@ -1671,14 +1637,9 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
-        reference_feature_value.value = """\
-            {
-            "bar": {
-                "baz": "baz",
-                "qux": 123
-            }
-            }
-        """.strip()
+        reference_feature_value.value = json.dumps(
+            {"bang": {"bong": "boom", "bing": "blang"}}
+        )
         reference_feature_value.save()
 
         serializer = NimbusReviewSerializer(
