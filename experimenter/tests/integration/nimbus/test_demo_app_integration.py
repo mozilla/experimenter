@@ -28,13 +28,6 @@ def click_send_my_details(selenium):
 
 
 @pytest.mark.demo_app
-@pytest.mark.skipif(
-    any(
-        app in os.getenv("PYTEST_ARGS")
-        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID", "FIREFOX_DESKTOP"]
-    ),
-    reason="Only run for cirrus applications",
-)
 def test_create_new_rollout_approve_remote_settings_demo_app(
     selenium,
     experiment_url,
@@ -100,13 +93,6 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
 
 
 @pytest.mark.demo_app
-@pytest.mark.skipif(
-    any(
-        app in os.getenv("PYTEST_ARGS")
-        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID", "FIREFOX_DESKTOP"]
-    ),
-    reason="Only run for cirrus applications",
-)
 def test_create_new_experiment_approve_remote_settings_demo_app(
     selenium,
     experiment_url,
