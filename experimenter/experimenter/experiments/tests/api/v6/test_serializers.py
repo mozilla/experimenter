@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.conf import settings
@@ -34,6 +35,7 @@ class TestNimbusExperimentSerializer(TestCase):
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
             locales=[locale_en_us],
+            _enrollment_end_date=datetime.date(2022, 1, 5),
         )
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
@@ -42,7 +44,7 @@ class TestNimbusExperimentSerializer(TestCase):
         feature_ids_data = experiment_data.pop("featureIds")
 
         assert experiment.start_date
-        assert experiment.computed_enrollment_end_date
+        assert experiment.actual_enrollment_end_date
         assert experiment.end_date
 
         min_required_version = NimbusExperiment.MIN_REQUIRED_VERSION
@@ -58,7 +60,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 # DRF manually replaces the isoformat suffix so we have to do the same
                 "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
                 "enrollmentEndDate": (
-                    experiment.computed_enrollment_end_date.isoformat().replace(
+                    experiment.actual_enrollment_end_date.isoformat().replace(
                         "+00:00", "Z"
                     )
                 ),
@@ -131,6 +133,34 @@ class TestNimbusExperimentSerializer(TestCase):
             )
 
         check_schema("experiments/NimbusExperiment", serializer.data)
+
+    def test_enrollment_end_date_none_while_live_enrolling(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        application = NimbusExperiment.Application.DESKTOP
+        feature1 = NimbusFeatureConfigFactory.create(application=application)
+        feature2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+            feature_configs=[feature1, feature2],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+            primary_outcomes=["foo", "bar", "baz"],
+            secondary_outcomes=["quux", "xyzzy"],
+            locales=[locale_en_us],
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        experiment_data = serializer.data.copy()
+
+        assert experiment.start_date
+        self.assertIsNone(experiment.actual_enrollment_end_date)
+        self.assertIsNone(experiment.end_date)
+
+        self.assertEqual(
+            experiment_data.get("enrollmentEndDate"),
+            experiment.actual_enrollment_end_date,
+        )
 
     def test_list_includes_single_and_multi_feature_schemas(self):
         feature1 = NimbusFeatureConfigFactory.create()
