@@ -423,12 +423,12 @@ jobs:
   integration_nimbus_demo_app:
     machine:
       image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
+      docker_layer_caching: false
     resource_class: large
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k DEMO_APP -n 2 --reruns 1
+      PYTEST_ARGS: -k DEMO_APP -m demo_app -n 2 --reruns 1
     steps:
       - checkout
       - check_file_paths:
