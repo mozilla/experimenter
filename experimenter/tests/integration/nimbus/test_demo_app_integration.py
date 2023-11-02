@@ -125,7 +125,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     # pass client id and context
     fill_and_send_form_data(selenium, "test", '{"test1":"test2"}')
     click_send_my_details(selenium)
-    
+
     # Refresh page, and try passing new client
     selenium.refresh()
 
