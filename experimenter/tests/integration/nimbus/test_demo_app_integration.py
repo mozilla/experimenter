@@ -155,6 +155,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     summary.wait_for_complete_status()
 
     navigate_to_demo_app_frontend(selenium)
+    selenium.refresh()
 
     # once experiment is ended, it should display default values
 
