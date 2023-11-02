@@ -811,7 +811,7 @@ workflows:
               ignore:
                 - main
       - integration_nimbus_demo_app:
-        name: Test Demo app with Cirrus
+          name: Test Demo app with Cirrus
           filters:
             branches:
               ignore:
