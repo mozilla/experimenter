@@ -123,7 +123,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     assert result_text_element.is_displayed()
 
     # pass client id and context
-    fill_and_send_form_data(selenium, "test1", '{"test1":"test2"}')
+    fill_and_send_form_data(selenium, "test", '{"test1":"test2"}')
     click_send_my_details(selenium)
 
     # user should be enrolled in control branch
@@ -179,7 +179,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     )
     assert result_text_element.is_displayed()
     fill_and_send_form_data(
-        selenium, "test1", '{"test1":"test2"}'
+        selenium, "test", '{"test1":"test2"}'
     )  # previously enrolled in treatment branch
     click_send_my_details(selenium)
     result_text_element = selenium.find_element_by_xpath(
