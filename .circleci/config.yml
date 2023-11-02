@@ -816,7 +816,6 @@ workflows:
             branches:
               ignore:
                 - main
-
       - integration_legacy:
           name: Test Legacy Desktop (Release Firefox)
           filters:
