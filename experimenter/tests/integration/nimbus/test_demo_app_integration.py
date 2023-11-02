@@ -123,7 +123,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     assert result_text_element.is_displayed()
 
     # pass client id and context
-    fill_and_send_form_data(selenium, "example1", '{"test1":"test2"}')
+    fill_and_send_form_data(selenium, "test1", '{"test1":"test2"}')
     click_send_my_details(selenium)
 
     # user should be enrolled in control branch
@@ -138,7 +138,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
         "//h1[contains(text(), 'Not Enrolled')]"
     )
     assert result_text_element.is_displayed()
-    fill_and_send_form_data(selenium, "test1", '{"test1":"test2"}')
+    fill_and_send_form_data(selenium, "example1", '{"test1":"test2"}')
     click_send_my_details(selenium)
 
     # user should be enrolled in control branch
