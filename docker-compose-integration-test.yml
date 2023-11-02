@@ -15,6 +15,7 @@ services:
       - nginx
       - kinto
       - ping-server
+      - demo-app-frontend
     expose:
       - "4444"
     ports:
