@@ -1,5 +1,3 @@
-import os
-
 import pytest
 
 from nimbus.pages.experimenter.home import HomePage
