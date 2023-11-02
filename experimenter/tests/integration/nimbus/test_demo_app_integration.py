@@ -132,6 +132,9 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
 
     # demo app frontend, by default returns not enrolled message
     navigate_to_demo_app_frontend(selenium)
+     # Refresh page, and try passing new client
+    selenium.refresh()
+    
     result_text_element = WebDriverWait(selenium, 10).until(
         EC.presence_of_element_located(
             (By.XPATH, "//h1[contains(text(), 'Not Enrolled')]")
@@ -143,8 +146,6 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     fill_and_send_form_data(selenium, "test", '{"test1":"test2"}')
     click_send_my_details(selenium)
 
-    # Refresh page, and try passing new client
-    selenium.refresh()
 
     # user should be enrolled in control branch
     result_text_element = WebDriverWait(selenium, 10).until(
