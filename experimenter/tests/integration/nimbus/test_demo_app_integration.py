@@ -1,4 +1,7 @@
 import pytest
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
@@ -10,16 +13,22 @@ def navigate_to_demo_app_frontend(selenium):
 
 
 def fill_and_send_form_data(selenium, client_id, context):
-    client_id_input = selenium.find_element_by_xpath("//input[@placeholder='Client ID']")
-    context_input = selenium.find_element_by_xpath("//input[@placeholder='Context']")
+    client_id_input = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located((By.XPATH, "//input[@placeholder='Client ID']"))
+    )
+    context_input = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located((By.XPATH, "//input[@placeholder='Context']"))
+    )
 
     client_id_input.send_keys(client_id)
     context_input.send_keys(context)
 
 
 def click_send_my_details(selenium):
-    send_details_button = selenium.find_element_by_xpath(
-        "//button[contains(text(), 'Send My Details')]"
+    send_details_button = WebDriverWait(selenium, 10).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(text(), 'Send My Details')]")
+        )
     )
     assert send_details_button.is_displayed() and send_details_button.is_enabled()
     send_details_button.click()
@@ -49,8 +58,10 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
 
     # demo app frontend, default displays not enrolled
     navigate_to_demo_app_frontend(selenium)
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'Not Enrolled')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'Not Enrolled')]")
+        )
     )
     assert result_text_element.is_displayed()
 
@@ -60,8 +71,10 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     click_send_my_details(selenium)
 
     # it should render "You are enrolled", reference branch value
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'You are enrolled')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'You are enrolled')]")
+        )
     )
     assert result_text_element.is_displayed()
 
@@ -74,8 +87,10 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
 
     # demo app frontend, default displays not enrolled
     navigate_to_demo_app_frontend(selenium)
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'Not Enrolled')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'Not Enrolled')]")
+        )
     )
     assert result_text_element.is_displayed()
 
@@ -84,8 +99,8 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     click_send_my_details(selenium)
 
     # returns the default value
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'wicked')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located((By.XPATH, "//h1[contains(text(), 'wicked')]"))
     )
     assert result_text_element.is_displayed()
 
@@ -117,12 +132,14 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
 
     # demo app frontend, by default returns not enrolled message
     navigate_to_demo_app_frontend(selenium)
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'Not Enrolled')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'Not Enrolled')]")
+        )
     )
     assert result_text_element.is_displayed()
 
-    # pass client id and context
+    # pass client_id and context
     fill_and_send_form_data(selenium, "test", '{"test1":"test2"}')
     click_send_my_details(selenium)
 
@@ -130,23 +147,29 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     selenium.refresh()
 
     # user should be enrolled in control branch
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'Control branch')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'Control branch')]")
+        )
     )
     assert result_text_element.is_displayed()
 
     # Refresh page, and try passing new client
     selenium.refresh()
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'Not Enrolled')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'Not Enrolled')]")
+        )
     )
     assert result_text_element.is_displayed()
     fill_and_send_form_data(selenium, "example1", '{"test1":"test2"}')
     click_send_my_details(selenium)
 
-    # user should be enrolled in control branch
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'Treatment branch')]"
+    # user should be enrolled in treatment branch
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'Treatment branch')]")
+        )
     )
     assert result_text_element.is_displayed()
 
@@ -162,30 +185,34 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
 
     # once experiment is ended, it should display default values
 
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'Not Enrolled')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'Not Enrolled')]")
+        )
     )
     assert result_text_element.is_displayed()
     fill_and_send_form_data(
         selenium, "example1", '{"test1":"test2"}'
     )  # previously enrolled in control branch
     click_send_my_details(selenium)
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'wicked')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located((By.XPATH, "//h1[contains(text(), 'wicked')]"))
     )
     assert result_text_element.is_displayed()
 
     # check another client id
     selenium.refresh()
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'Not Enrolled')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'Not Enrolled')]")
+        )
     )
     assert result_text_element.is_displayed()
     fill_and_send_form_data(
         selenium, "test", '{"test1":"test2"}'
     )  # previously enrolled in treatment branch
     click_send_my_details(selenium)
-    result_text_element = selenium.find_element_by_xpath(
-        "//h1[contains(text(), 'wicked')]"
+    result_text_element = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located((By.XPATH, "//h1[contains(text(), 'wicked')]"))
     )
     assert result_text_element.is_displayed()
