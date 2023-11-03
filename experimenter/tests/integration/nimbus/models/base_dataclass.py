@@ -9,6 +9,7 @@ class BaseExperimentApplications(Enum):
     IOS = "IOS"
     FOCUS_ANDROID = "FOCUS_ANDROID"
     FOCUS_IOS = "FOCUS_IOS"
+    DEMO_APP = "DEMO_APP"
 
 
 class BaseExperimentAudienceChannels(Enum):

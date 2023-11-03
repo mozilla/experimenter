@@ -11,6 +11,7 @@ from requests.packages.urllib3.util.retry import Retry
 from nimbus.kinto.client import (
     KINTO_COLLECTION_DESKTOP,
     KINTO_COLLECTION_MOBILE,
+    KINTO_COLLECTION_WEB,
     KintoClient,
 )
 from nimbus.models.base_dataclass import (
@@ -30,6 +31,7 @@ APPLICATION_FEATURE_IDS = {
     BaseExperimentApplications.IOS: "3",
     BaseExperimentApplications.FOCUS_ANDROID: "4",
     BaseExperimentApplications.FOCUS_IOS: "6",
+    BaseExperimentApplications.DEMO_APP: "138",
 }
 
 APPLICATION_KINTO_REVIEW_PATH = {
@@ -48,6 +50,9 @@ APPLICATION_KINTO_REVIEW_PATH = {
     BaseExperimentApplications.FOCUS_IOS: (
         "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
     ),
+    BaseExperimentApplications.DEMO_APP: (
+        "#/buckets/main-workspace/collections/nimbus-web-experiments/simple-review"
+    ),
 }
 
 APPLICATION_KINTO_COLLECTION = {
@@ -56,6 +61,7 @@ APPLICATION_KINTO_COLLECTION = {
     "IOS": KINTO_COLLECTION_MOBILE,
     "FOCUS_ANDROID": KINTO_COLLECTION_MOBILE,
     "FOCUS_IOS": KINTO_COLLECTION_MOBILE,
+    "DEMO_APP": KINTO_COLLECTION_WEB,
 }
 
 
@@ -197,6 +203,9 @@ def default_data(application, experiment_name, load_experiment_outcomes):
         "focus_android": BaseExperimentMetricsDataClass(
             primary_outcomes=[], secondary_outcomes=[]
         ),
+        "demo_app": BaseExperimentMetricsDataClass(
+            primary_outcomes=[], secondary_outcomes=[]
+        ),
     }
 
     return BaseExperimentDataClass(
@@ -232,7 +241,12 @@ def default_data(application, experiment_name, load_experiment_outcomes):
 
 @pytest.fixture
 def create_experiment(base_url, default_data):
-    def _create_experiment(selenium, is_rollout=False):
+    def _create_experiment(
+        selenium,
+        is_rollout=False,
+        reference_branch_value="{}",
+        treatment_branch_value="{}",
+    ):
         home = HomePage(selenium, base_url).open()
         experiment = home.create_new_button()
         experiment.public_name = default_data.public_name
@@ -258,13 +272,13 @@ def create_experiment(base_url, default_data):
         branches = overview.save_and_continue()
         branches.feature_config = default_data.feature_config_id
         branches.reference_branch_description = default_data.branches[0].description
-        branches.reference_branch_value = "{}"
+        branches.reference_branch_value = reference_branch_value
 
         if is_rollout:
             branches.make_rollout()
         else:
             branches.treatment_branch_description = default_data.branches[1].description
-            branches.treatment_branch_value = "{}"
+            branches.treatment_branch_value = treatment_branch_value
 
         # Fill Metrics page
         metrics = branches.save_and_continue()
@@ -281,16 +295,19 @@ def create_experiment(base_url, default_data):
         # Fill Audience page
         audience = metrics.save_and_continue()
         audience.channel = default_data.audience.channel.value
-        audience.min_version = default_data.audience.min_version
 
-        audience.targeting = default_data.audience.targeting
-        audience.percentage = default_data.audience.percentage
+        audience.targeting = "no_targeting"
+        audience.percentage = "100"
         audience.expected_clients = default_data.audience.expected_clients
-        audience.countries = ["Canada"]
-        if default_data.application.value != "DESKTOP":
-            audience.languages = ["English"]
-        else:
-            audience.locales = ["English (US)"]
+        if default_data.application.value != "DEMO_APP":
+            audience.min_version = default_data.audience.min_version
+            audience.percentage = default_data.audience.percentage
+            audience.targeting = default_data.audience.targeting
+            audience.countries = ["Canada"]
+            if default_data.application.value != "DESKTOP":
+                audience.languages = ["English"]
+            else:
+                audience.locales = ["English (US)"]
         return audience.save_and_continue()
 
     return _create_experiment

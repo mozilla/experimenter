@@ -112,7 +112,7 @@ def test_every_form_page_can_be_resaved(
 
 @pytest.mark.nimbus_ui
 @pytest.mark.skipif(
-    "FIREFOX_DESKTOP" in os.getenv("PYTEST_ARGS"),
+    any(app in os.getenv("PYTEST_ARGS") for app in ["FIREFOX_DESKTOP", "DEMO_APP"]),
     reason="Only run for mobile applications",
 )
 def test_first_run_release_date(
@@ -174,7 +174,7 @@ def test_first_run_release_date(
 
 @pytest.mark.nimbus_ui
 @pytest.mark.skipif(
-    "FIREFOX_DESKTOP" in os.getenv("PYTEST_ARGS"),
+    any(app in os.getenv("PYTEST_ARGS") for app in ["FIREFOX_DESKTOP", "DEMO_APP"]),
     reason="Only run for mobile applications",
 )
 def test_audience_page_release_date(
@@ -234,7 +234,7 @@ def test_audience_page_release_date(
 
 @pytest.mark.nimbus_ui
 @pytest.mark.skipif(
-    "FIREFOX_DESKTOP" in os.getenv("PYTEST_ARGS"),
+    any(app in os.getenv("PYTEST_ARGS") for app in ["FIREFOX_DESKTOP", "DEMO_APP"]),
     reason="Only run for mobile applications",
 )
 def test_summary_timeline_release_date(
@@ -298,9 +298,9 @@ def test_summary_timeline_release_date(
 @pytest.mark.skipif(
     any(
         app in os.getenv("PYTEST_ARGS")
-        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID"]
+        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID", "DEMO_APP"]
     ),
-    reason="Only run for non-mobile applications",
+    reason="Only run for non-mobile applications and non desktop",
 )
 def test_audience_page_release_date_not_visible(
     selenium,
