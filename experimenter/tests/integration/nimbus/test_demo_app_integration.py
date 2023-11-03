@@ -94,7 +94,7 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     )
     assert result_text_element.is_displayed()
 
-    # Send the same client_id and context after the rollout has ended; the backend may return different variations
+    # Send the same client_id and context after the rollout has ended
     fill_and_send_form_data(selenium, "dummy_client_id", '{"test1":"test2"}')
     click_send_my_details(selenium)
 
@@ -152,7 +152,8 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
         EC.presence_of_element_located(
             (
                 By.XPATH,
-                "//h1[contains(text(), 'Control branch')] | //h1[contains(text(), 'Treatment branch')]",
+                "//h1[contains(text(), 'Control branch')] | "
+                "//h1[contains(text(), 'Treatment branch')]",
             )
         )
     )
@@ -178,7 +179,8 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
         EC.presence_of_element_located(
             (
                 By.XPATH,
-                "//h1[contains(text(), 'Control branch')] | //h1[contains(text(), 'Treatment branch')]",
+                "//h1[contains(text(), 'Control branch')] | "
+                "//h1[contains(text(), 'Treatment branch')]",
             )
         )
     )
