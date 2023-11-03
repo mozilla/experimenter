@@ -1,3 +1,6 @@
+import threading
+import time
+
 from pypom import Page
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,6 +22,11 @@ class Base(Page):
                 self.wait_for_page_to_load()
                 selenium.find_element(*locator)
             except NoSuchElementException:
+                sleep_thread = threading.Thread(
+                    target=self.non_blocking_sleep, args=(10,)
+                )
+                sleep_thread.start()
+                sleep_thread.join()  # Wait for the thread to finish sleeping
                 selenium.refresh()
                 return False
             else:
@@ -41,3 +49,6 @@ class Base(Page):
     def wait_for_and_find_elements(self, strategy, locator, description=None):
         self.wait_for_locator((strategy, locator), description)
         return self.find_elements(strategy, locator)
+
+    def non_blocking_sleep(self, seconds):
+        time.sleep(seconds)
