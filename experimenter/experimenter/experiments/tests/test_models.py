@@ -1237,6 +1237,28 @@ class TestNimbusExperiment(TestCase):
 
         self.assertIsNone(experiment.computed_enrollment_end_date)
 
+    def test_actual_enrollment_end_date_returns_none_before_enrollment_end(self):
+        start_date = datetime.date(2022, 1, 1)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            start_date=start_date,
+            proposed_enrollment=2,
+        )
+
+        self.assertIsNone(experiment.actual_enrollment_end_date)
+
+    def test_actual_enrollment_end_date_returns_date_after_enrollment_end(self):
+        start_date = datetime.date(2022, 1, 1)
+        enrollment_end_date = datetime.date(2022, 1, 5)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            start_date=start_date,
+            proposed_enrollment=2,
+            _enrollment_end_date=enrollment_end_date,
+        )
+
+        self.assertEqual(experiment.actual_enrollment_end_date, enrollment_end_date)
+
     def test_computed_duration_days_returns_end_date_minus_start_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,

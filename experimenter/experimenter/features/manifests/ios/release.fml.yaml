@@ -337,6 +337,10 @@ features:
   shopping2023:
     description: "The configuration setting for the status of the Fakespot feature\n"
     variables:
+      back_in_stock_reporting:
+        description: "If true, enables for users the reporting feature for products back in stock.\n"
+        type: Boolean
+        default: false
       config:
         description: "A Map of website configurations\n"
         type: "Map<String, WebsiteConfig>"
