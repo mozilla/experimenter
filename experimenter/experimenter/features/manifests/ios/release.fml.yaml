@@ -20,13 +20,6 @@ features:
         type: "Map<ContextualHint, Boolean>"
         default:
           toolbar-hint: true
-  credential-autofill-coordinator-refactor:
-    description: "This feature manages the roll out of the credential autofill coordinator as part of the coordinator refactor.\n"
-    variables:
-      enabled:
-        description: "Enables the feature\n"
-        type: Boolean
-        default: true
   credit-card-autofill:
     description: This property defines the credit card autofill feature
     variables:
