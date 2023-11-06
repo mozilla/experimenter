@@ -33,7 +33,7 @@ RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 ENV PYTHONDONTWRITEBYTECODE 1
 
 # Python packages
-RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.6.0
 ENV PATH "/root/.local/bin:$PATH"
 RUN poetry config virtualenvs.create false
 
