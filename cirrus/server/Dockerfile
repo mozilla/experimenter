@@ -43,7 +43,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y
 ENV PATH=$PATH:/root/.cargo/bin
 
 # Install poetry package management tool
-RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.6.0
 
 # Add poetry to PATH environment variable
 ENV PATH "/root/.local/bin:$PATH"
