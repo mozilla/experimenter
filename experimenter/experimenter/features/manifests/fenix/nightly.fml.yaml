@@ -313,6 +313,17 @@ features:
         description: "if true, enable felt privacy related UI"
         type: Boolean
         default: false
+  query-parameter-stripping:
+    description: Features for query parameter stripping.
+    variables:
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled.
+        type: "Map<QueryParameterStrippingSection, String>"
+        default:
+          query-parameter-stripping: "0"
+          query-parameter-stripping-allow-list: ""
+          query-parameter-stripping-pmb: "0"
+          query-parameter-stripping-strip-list: ""
   re-engagement-notification:
     description: A feature that shows the re-engagement notification if the user is inactive.
     variables:
@@ -463,6 +474,17 @@ enums:
         description: The themes onboarding panel where users pick themes
       toolbar-placement:
         description: The onboarding panel where users choose their toolbar placement (bottom or top)
+  QueryParameterStrippingSection:
+    description: The identifiers for the options for the Query Parameter Stripping feature.
+    variants:
+      query-parameter-stripping:
+        description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in normal mode. 0 for setting to be disabled, and 1 for enabling the setting."
+      query-parameter-stripping-allow-list:
+        description: An string separated by commas indicating the sites where should from query stripping should be exempted.
+      query-parameter-stripping-pmb:
+        description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in private mode. 0 for setting to be disabled, and 1 for enabling the setting."
+      query-parameter-stripping-strip-list:
+        description: An string separated by commas indicating the list of query params to be stripped from URIs. This list will be merged with records coming from RemoteSettings.
 objects:
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
