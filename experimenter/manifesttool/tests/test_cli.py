@@ -2,51 +2,16 @@ import json
 from contextlib import contextmanager
 from pathlib import Path
 from unittest import TestCase
-from unittest.mock import call, patch
-from typing import Any
+from unittest.mock import patch
 
 import yaml
 from click.testing import CliRunner
 
-from manifesttool import cli, fetch
-from manifesttool.appconfig import AppConfig, AppConfigs, Repository, RepositoryType
-
-FML_APP_CONFIG = AppConfig(
-    slug="fml-app",
-    repo=Repository(
-        type=RepositoryType.GITHUB,
-        name="fml-repo",
-    ),
-    fml_path="nimbus.fml.yaml",
-)
-
-
-LEGACY_APP_CONFIG = AppConfig(
-    slug="legacy-app",
-    repo=Repository(
-        type=RepositoryType.HGMO,
-        name="legacy-repo",
-    ),
-    experimenter_yaml_path="experimenter.yaml",
-)
-
-FEATURE_JSON_SCHEMA_PATH = "feature.schema.json"
-
-LEGACY_MANIFEST_PATH = "experimenter.yaml"
-
-LEGACY_MANIFEST = {
-    "feature": {
-        "description": "Feature",
-        "hasExposure": False,
-        "variables": {},
-        "schema": {
-            "path": FEATURE_JSON_SCHEMA_PATH,
-            "uri": "resource://schema.json",
-        },
-    },
-}
-
-FEATURE_JSON_SCHEMA = {"type": "object", "additionalProperties": False}
+from manifesttool import cli
+from manifesttool.appconfig import AppConfig, AppConfigs
+from manifesttool.fetch import FetchResult
+from manifesttool.repository import Ref
+from manifesttool.tests.test_fetch import FML_APP_CONFIG, LEGACY_APP_CONFIG
 
 
 def make_app_configs(app_config: AppConfig) -> AppConfigs:
@@ -56,70 +21,6 @@ def make_app_configs(app_config: AppConfig) -> AppConfigs:
             app_config.slug.replace("-", "_"): app_config,
         }
     )
-
-
-def generate_fml(app_config: AppConfig, channel: str) -> dict[str, Any]:
-    """Generate a FML manifest for the given app and channel."""
-    return {
-        "version": "1.0.0",
-        "about": {
-            "description": f"Generated manifest for {app_config.slug} {channel}",
-        },
-        "channels": [channel],
-        "features": {
-            "generated": {
-                "description": "Generated feature",
-                "variables": {
-                    "enabled": {
-                        "description": "Is this feature enabled?",
-                        "type": "Boolean",
-                        "default": False,
-                    },
-                },
-            },
-        },
-    }
-
-
-def mock_download_single_file(
-    app_config: AppConfig,
-    channel: str,
-    manifests_dir: Path,
-    ref: str,
-):
-    """A mock version of `nimbus fml -- single file`."""
-
-    filename = manifests_dir / app_config.slug / f"{channel}.fml.yaml"
-    with filename.open("w") as f:
-        yaml.dump(generate_fml(app_config, channel), f)
-
-
-def make_mock_fetch_file(paths=None):
-    if paths is None:
-        paths = {
-            LEGACY_MANIFEST_PATH: LEGACY_MANIFEST,
-            FEATURE_JSON_SCHEMA_PATH: FEATURE_JSON_SCHEMA,
-        }
-
-    def mock_fetch_file(
-        repo: str,
-        file_path: str,
-        rev: str,
-        download_path: Path,
-    ):
-        """A mock version of hgmo_api.fetch_file."""
-
-        try:
-            content = paths[file_path]
-        except KeyError as e:
-            raise Exception(
-                f"Unexpected file path ({file_path}) passed to hgmo_api.fetch_file"
-            ) from e
-
-        with download_path.open("w", newline="\n") as f:
-            json.dump(content, f)
-
-    return mock_fetch_file
 
 
 @contextmanager
@@ -146,157 +47,73 @@ class CliTests(TestCase):
 
     maxDiff = None
 
-    @patch.object(fetch.github_api, "get_main_ref", side_effect=lambda *args: "ref")
     @patch.object(
-        fetch.nimbus_cli, "download_single_file", side_effect=mock_download_single_file
+        cli,
+        "fetch_fml_app",
+        side_effect=lambda *args: FetchResult("fml_app", Ref("main", "resolved")),
     )
-    @patch.object(fetch.nimbus_cli, "get_channels", side_effect=lambda *args: ["release"])
-    def test_fetch_latest_fml(self, get_channels, download_single_file, get_main_ref):
-        """Testing the fetch-latest subcommand with an FML app."""
+    def test_fetch_latest_fml(self, fetch_fml_app):
         with cli_runner(app_config=FML_APP_CONFIG) as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            get_main_ref.assert_called_with(FML_APP_CONFIG.repo.name)
-            get_channels.assert_called_with(FML_APP_CONFIG, "ref")
-            download_single_file.assert_called_with(
-                FML_APP_CONFIG, "release", Path("."), "ref"
+            fetch_fml_app.assert_called_with(
+                Path("."),
+                "fml_app",
+                FML_APP_CONFIG,
             )
-
-            experimenter_manifest_path = Path(FML_APP_CONFIG.slug, "experimenter.yaml")
-            self.assertTrue(
-                experimenter_manifest_path.exists(), "experimenter.yaml should exist"
-            )
-
-            with experimenter_manifest_path.open() as f:
-                experimenter_manifest = yaml.safe_load(f)
-
-            self.assertEqual(
-                experimenter_manifest,
-                {
-                    "generated": {
-                        "description": "Generated feature",
-                        "hasExposure": True,
-                        "exposureDescription": "",
-                        "variables": {
-                            "enabled": {
-                                "description": "Is this feature enabled?",
-                                "type": "boolean",
-                            },
-                        },
-                    },
-                },
-            )
-
-    @patch.object(fetch.github_api, "get_main_ref", lambda *args: "ref")
-    @patch.object(fetch.nimbus_cli, "download_single_file")
-    @patch.object(fetch.nimbus_cli, "generate_experimenter_yaml")
-    @patch.object(fetch.nimbus_cli, "get_channels", lambda *args: [])
-    def test_fetch_latest_fml_no_channels(
-        self, generate_experimenter_yaml, download_single_file
-    ):
-        """Testing the fetch-latest subcommand with an FML app that has no channels
-        listed.
-        """
-        with cli_runner(app_config=FML_APP_CONFIG) as runner:
-            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
-            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
-
-            download_single_file.assert_not_called()
-            generate_experimenter_yaml.assert_not_called()
-
-            self.assertFalse(
-                Path(FML_APP_CONFIG.slug, "experimenter.yaml").exists(),
-                "experimenter.yaml should not be created",
-            )
-
-    @patch.object(
-        fetch.github_api, "get_main_ref", side_effect=Exception("Connection error")
-    )
-    def test_fetch_latest_fml_failure(self, get_main_ref):
-        with cli_runner(app_config=FML_APP_CONFIG) as runner:
-            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
-            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             self.assertIn(
-                "SUMMARY:\n\n\nFAILURES:\n\nfml_app at main (None)\n", result.stdout
+                "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved)\n", result.stdout
             )
 
-    @patch.object(fetch.hgmo_api, "get_tip_rev", lambda *args: "ref")
-    @patch.object(fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file())
-    def test_fetch_latest_legacy(self, fetch_file):
-        """Testing the fetch-latest subcommand with a legacy app."""
-        with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
-            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
-            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
-
-            fetch_file.assert_has_calls(
-                [
-                    call(
-                        LEGACY_APP_CONFIG.repo.name,
-                        LEGACY_MANIFEST_PATH,
-                        "ref",
-                        Path(LEGACY_APP_CONFIG.slug, "experimenter.yaml"),
-                    ),
-                    call(
-                        LEGACY_APP_CONFIG.repo.name,
-                        FEATURE_JSON_SCHEMA_PATH,
-                        "ref",
-                        Path(LEGACY_APP_CONFIG.slug, "schemas", FEATURE_JSON_SCHEMA_PATH),
-                    ),
-                ]
-            )
-            self.assertEqual(fetch_file.call_count, 2)
-
-    @patch.object(fetch.hgmo_api, "get_tip_rev", lambda *args: "ref")
     @patch.object(
-        fetch.hgmo_api,
-        "fetch_file",
-        side_effect=make_mock_fetch_file(
-            {
-                LEGACY_MANIFEST_PATH: {
-                    "feature": LEGACY_MANIFEST["feature"],
-                    "feature-2": LEGACY_MANIFEST["feature"],
-                },
-                FEATURE_JSON_SCHEMA_PATH: FEATURE_JSON_SCHEMA,
-            }
+        cli,
+        "fetch_fml_app",
+        lambda *args: FetchResult(
+            "fml_app", Ref("main"), exc=Exception("Connection error")
         ),
     )
-    def test_fetch_legacy_repeated_schema(self, fetch_file):
-        """Testing that the fetch-latest subcommand for a legacy app does not
-        fetch the same schema twice.
-        """
+    def test_fetch_latest_fml_failure(self):
+        with cli_runner(app_config=FML_APP_CONFIG) as runner:
+            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
+            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+
+            self.assertIn("SUMMARY:\n\nFAILURES:\n\nfml_app at main\n", result.stdout)
+
+    @patch.object(
+        cli,
+        "fetch_legacy_app",
+        side_effect=lambda *args: FetchResult("legacy_app", Ref("tip", "resolved")),
+    )
+    def fetch_latest_legacy_success(self, fetch_legacy_app):
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            fetch_file.assert_has_calls(
-                [
-                    call(
-                        LEGACY_APP_CONFIG.repo.name,
-                        LEGACY_MANIFEST_PATH,
-                        "ref",
-                        Path(LEGACY_APP_CONFIG.slug, "experimenter.yaml"),
-                    ),
-                    call(
-                        LEGACY_APP_CONFIG.repo.name,
-                        FEATURE_JSON_SCHEMA_PATH,
-                        "ref",
-                        Path(LEGACY_APP_CONFIG.slug, "schemas", FEATURE_JSON_SCHEMA_PATH),
-                    ),
-                ]
+            fetch_legacy_app.assert_called_with(
+                Path("."),
+                "legacy_app",
+                LEGACY_APP_CONFIG,
             )
-            self.assertEqual(fetch_file.call_count, 2)
+
+            self.assertIn(
+                "SUMMARY:\n\nSUCCESS:\n\nlegacy_app at tip (resolved)\n", result.stdout
+            )
 
     @patch.object(
-        fetch.hgmo_api, "get_tip_rev", side_effect=Exception("Connection error")
+        cli,
+        "fetch_legacy_app",
+        lambda *args: FetchResult(
+            "legacy_app", Ref("tip"), exc=Exception("Connection error")
+        ),
     )
-    def test_fetch_legacy_failure(self, get_tip_rev):
+    def test_fetch_legacy_failure(self):
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             self.assertIn(
-                "SUMMARY:\n\n\nFAILURES:\n\nlegacy_app at tip (None)\n",
+                "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip\n",
                 result.stdout,
             )

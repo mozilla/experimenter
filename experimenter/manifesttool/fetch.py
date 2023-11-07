@@ -1,8 +1,8 @@
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 from traceback import print_exception
+from typing import Optional
 
 import yaml
 from mozilla_nimbus_schemas import FeatureManifest
@@ -26,7 +26,7 @@ def fetch_fml_app(
         raise Exception("FML-based apps on hg.mozilla.org are not supported.")
 
     if ref is not None and not ref.is_resolved:
-        raise ValueError(f"fetch_fml_app: ref {ref.name} is not resolved")
+        raise ValueError(f"fetch_fml_app: ref `{ref.name}` is not resolved")
 
     result = FetchResult(app_name=app_name, ref=ref or Ref("main"))
 
@@ -156,11 +156,12 @@ def summarize_results(results: list[FetchResult]):
         print("SUCCESS:\n")
         for result in results:
             if result.exc is None:
-                print(f"{result.app_name} at {result.ref_name} ({result.ref})")
+                print(f"{result.app_name} at {result.ref}")
 
-    print("")
+        print("")
+
     if any(result.exc is not None for result in results):
         print("FAILURES:\n")
         for result in results:
             if result.exc is not None:
-                print(f"{result.app_name} at {result.ref_name} ({result.ref})")
+                print(f"{result.app_name} at {result.ref}")
