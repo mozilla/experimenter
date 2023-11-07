@@ -1,8 +1,6 @@
 # First stage: Build the Rust components
 FROM rust:buster AS rust-builder
 
-ARG as_version
-
 RUN update-ca-certificates
 
 RUN apt-get update -qqy \
@@ -15,12 +13,9 @@ RUN apt-get update -qqy \
 
 WORKDIR /application-services
 
+# Checkout application services at a locked commit
 RUN git clone https://github.com/mozilla/application-services.git .
-RUN if [[ -z "${as_version}" ]] ; then \
-    echo "No application-services version supplied, using latest commit." ; \
-    else \
-    git fetch ; \
-    fi
+RUN git fetch && git checkout da9301f829de67149d50dce5b709aed42f1bfe1b
 
 RUN git submodule init
 RUN git submodule update --recursive
