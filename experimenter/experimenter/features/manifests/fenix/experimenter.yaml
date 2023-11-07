@@ -166,6 +166,14 @@ private-browsing:
     felt-privacy-enabled:
       type: boolean
       description: "if true, enable felt privacy related UI"
+query-parameter-stripping:
+  description: Features for query parameter stripping.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    sections-enabled:
+      type: json
+      description: This property provides a lookup table of whether or not the given section should be enabled.
 re-engagement-notification:
   description: A feature that shows the re-engagement notification if the user is inactive.
   hasExposure: true
