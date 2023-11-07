@@ -468,7 +468,7 @@ class NimbusExperimentType(DjangoObjectType):
     is_localized = graphene.Boolean()
     is_rollout = graphene.Boolean()
     is_sticky = graphene.Boolean()
-    is_web = graphene.Boolean()
+    is_web = graphene.NonNull(graphene.Boolean())
     jexl_targeting_expression = graphene.String()
     languages = graphene.List(graphene.NonNull(NimbusLanguageType), required=True)
     locales = graphene.List(graphene.NonNull(NimbusLocaleType), required=True)
