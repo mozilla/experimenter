@@ -256,6 +256,7 @@ def test_rollout_live_update_reject_on_experimenter(
     summary_page.submit_rejection()
     summary_page.wait_for_rejection_notice_visible()
 
+# x = 1
 
 @pytest.mark.remote_settings
 @pytest.mark.skipif(
