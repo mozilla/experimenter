@@ -9,13 +9,13 @@ from mozilla_nimbus_schemas import FeatureManifest
 
 from manifesttool import github_api, hgmo_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, RepositoryType
+from manifesttool.repository import Ref
 
 
 @dataclass
 class FetchResult:
     app_name: str
-    ref_name: str
-    ref: Optional[str] = None
+    ref: Ref
     exc: Optional[Exception] = None
 
 
@@ -25,7 +25,7 @@ def fetch_fml_app(
     if app_config.repo.type == RepositoryType.HGMO:
         raise Exception("FML-based apps on hg.mozilla.org are not supported.")
 
-    result = FetchResult(app_name=app_name, ref_name="main")
+    result = FetchResult(app_name=app_name, ref=Ref("main"))
 
     try:
         # We could operate against "main" for all these calls, but the repository
@@ -33,9 +33,9 @@ def fetch_fml_app(
         # single file manifests could differ because they were based on different
         # commits.
         ref = result.ref = github_api.get_main_ref(app_config.repo.name)
-        print(f"fetch-latest: {app_name}: main is {ref}")
+        print(f"fetch-latest: {app_name} at {ref}")
 
-        channels = nimbus_cli.get_channels(app_config, ref)
+        channels = nimbus_cli.get_channels(app_config, ref.resolved)
         print(f"fetch-latest: {app_name}: channels are {', '.join(channels)}")
 
         if not channels:
@@ -51,7 +51,7 @@ def fetch_fml_app(
                 app_config,
                 channel,
                 manifest_dir,
-                ref,
+                ref.resolved,
             )
 
         print(f"fetch-latest: {app_name}: generate experimenter.yaml")
@@ -75,22 +75,22 @@ def fetch_legacy_app(
     if app_config.repo.type == RepositoryType.GITHUB:
         raise Exception("Legacy experimenter.yaml apps on GitHub are not supported.")
 
-    result = FetchResult(app_name=app_name, ref_name="tip")
+    result = FetchResult(app_name=app_name, ref=Ref("tip"))
 
     try:
         # We could operate against "main" for all these calls, but the repository
         # state might change between subsequent calls. That would mean the fetched
         # feature schemas could differ or not be present if they were removed in a
         # subsequent commit.
-        rev = result.ref = hgmo_api.get_tip_rev(app_config.repo.name)
-        print(f"fetch-latest: {app_name}: tip is {rev}")
+        ref = result.ref = hgmo_api.get_tip_rev(app_config.repo.name)
+        print(f"fetch-latest: {app_name} at {ref}")
 
         manifest_path = manifest_dir / app_config.slug / "experimenter.yaml"
         print(f"fetch-latest: {app_name}: downloading experimenter.yaml")
         hgmo_api.fetch_file(
             app_config.repo.name,
             app_config.experimenter_yaml_path,
-            rev,
+            ref.resolved,
             manifest_dir / app_config.slug / "experimenter.yaml",
         )
 
@@ -127,7 +127,7 @@ def fetch_legacy_app(
                 hgmo_api.fetch_file(
                     app_config.repo.name,
                     feature.json_schema.path,
-                    rev,
+                    ref.resolved,
                     schema_path,
                 )
 

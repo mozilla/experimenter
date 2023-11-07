@@ -5,6 +5,7 @@ from unittest import TestCase
 import responses
 
 from manifesttool import hgmo_api
+from manifesttool.repository import Ref
 
 
 class HgMoApiTests(TestCase):
@@ -25,7 +26,7 @@ class HgMoApiTests(TestCase):
 
         result = hgmo_api.get_tip_rev("repo")
 
-        self.assertEqual(result, "0" * 40)
+        self.assertEqual(result, Ref("tip", "0" * 40))
 
     @responses.activate
     def test_fetch_file(self):

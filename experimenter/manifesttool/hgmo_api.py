@@ -4,6 +4,8 @@ from typing import Any
 
 import requests
 
+from manifesttool.repository import Ref
+
 HGMO_URL = "https://hg.mozilla.org"
 
 
@@ -12,7 +14,7 @@ def api_request(path: str, **kwargs) -> dict[str, Any]:
     return requests.get(f"{HGMO_URL}/{path}", **kwargs).json()
 
 
-def get_tip_rev(repo: str) -> str:
+def get_tip_rev(repo: str) -> Ref:
     """Get the revision of the current repository tip.
 
     Args:
@@ -20,7 +22,7 @@ def get_tip_rev(repo: str) -> str:
             The repository name.
     """
     rsp = api_request(f"{repo}/json-log?rev=tip:tip")
-    return rsp["node"]
+    return Ref("tip", rsp["node"])
 
 
 def fetch_file(
