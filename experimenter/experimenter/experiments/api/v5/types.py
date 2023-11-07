@@ -468,6 +468,7 @@ class NimbusExperimentType(DjangoObjectType):
     is_localized = graphene.Boolean()
     is_rollout = graphene.Boolean()
     is_sticky = graphene.Boolean()
+    is_web = graphene.Boolean()
     jexl_targeting_expression = graphene.String()
     languages = graphene.List(graphene.NonNull(NimbusLanguageType), required=True)
     locales = graphene.List(graphene.NonNull(NimbusLocaleType), required=True)
@@ -540,6 +541,7 @@ class NimbusExperimentType(DjangoObjectType):
             "is_localized",
             "is_rollout",
             "is_sticky",
+            "is_web",
             "jexl_targeting_expression",
             "languages",
             "locales",
@@ -651,6 +653,9 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_is_enrollment_paused(self, info):
         return self.is_paused_published
+
+    def resolve_is_web(self, info):
+        return NimbusExperiment.APPLICATION_CONFIGS[self.application].is_web
 
     def resolve_enrollment_end_date(self, info):
         return self.proposed_enrollment_end_date

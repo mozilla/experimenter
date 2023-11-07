@@ -72,6 +72,7 @@ type NimbusExperimentType {
   excludedExperiments: [NimbusExperimentType!]!
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
+  isWeb: Boolean
   jexlTargetingExpression: String
   monitoringDashboardUrl: String
   readyForReview: NimbusReviewType

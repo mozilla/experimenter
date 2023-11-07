@@ -835,6 +835,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
 
                     isLocalized
                     localizations
+                    isWeb
                 }
             }
             """,
@@ -912,6 +913,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "isLocalized": experiment.is_localized,
                 "isRollout": experiment.is_rollout,
                 "isSticky": experiment.is_sticky,
+                "isWeb": NimbusExperiment.APPLICATION_CONFIGS[
+                    experiment.application
+                ].is_web,
                 "jexlTargetingExpression": experiment.targeting,
                 "languages": [{"id": str(language.id), "name": language.name}],
                 "locales": [{"id": str(locale.id), "name": locale.name}],
