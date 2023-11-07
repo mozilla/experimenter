@@ -753,7 +753,7 @@ export const FormAudience = ({
                 <>
                   <Info
                     data-tip={TOOLTIP_DISABLED}
-                    data-testid="tooltip-duration-audience"
+                    data-testid="tooltip-disabled"
                     width="20"
                     height="20"
                     className="ml-1"
@@ -773,13 +773,11 @@ export const FormAudience = ({
                 aria-describedby="proposedEnrollment-unit"
                 disabled={isLocked! || !!experiment.isRollout}
               />
-
               <InputGroup.Append>
                 <InputGroup.Text id="proposedEnrollment-unit">
                   days
                 </InputGroup.Text>
               </InputGroup.Append>
-
               <FormErrors name="proposedEnrollment" />
             </InputGroup>
           </Form.Group>

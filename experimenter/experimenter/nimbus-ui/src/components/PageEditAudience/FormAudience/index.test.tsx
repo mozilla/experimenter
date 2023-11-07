@@ -2076,7 +2076,7 @@ it("enables save buttons when not archived", async () => {
   expect(screen.getByTestId("next-button")).toBeEnabled();
 });
 
-it("hides enrollment period when experiment is a rollout", async () => {
+it("disable enrollment period when experiment is a rollout", async () => {
   render(
     <Subject
       experiment={{
@@ -2091,11 +2091,12 @@ it("hides enrollment period when experiment is a rollout", async () => {
   );
 
   await waitFor(() => {
-    expect(screen.queryByTestId("proposedEnrollment")).toBeNull();
+    expect(screen.queryByTestId("proposedEnrollment")).toBeDisabled();
+    screen.getByTestId("tooltip-disabled");
   });
 });
 
-it("shows enrollment period when experiment is not a rollout", async () => {
+it("enrollment period is not diabled when experiment is not a rollout", async () => {
   render(
     <Subject
       experiment={{
@@ -2108,9 +2109,9 @@ it("shows enrollment period when experiment is not a rollout", async () => {
       }}
     />,
   );
-
   await waitFor(() => {
-    screen.getByTestId("proposedEnrollment");
+    expect(screen.getByTestId("proposedEnrollment")).not.toBeDisabled();
+    expect(screen.queryByTestId("tooltip-disabled")).toBeNull();
   });
 });
 
