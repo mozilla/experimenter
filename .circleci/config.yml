@@ -31,33 +31,18 @@ commands:
                 circleci-agent step halt
             fi
 
-  setup_docker:
-    description: "Setup Docker with Hydrobuild"
+  docker_login:
+    description: "Login to Docker"
     parameters:
       username:
         type: string
       password:
         type: string
-      buildx_url:
-        type: string
-        default: https://github.com/docker/buildx-desktop/releases/download/v0.11.2-desktop.4/buildx-v0.11.2-desktop.4.linux-amd64
-      compose_url:
-        type: string
-        default: https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-x86_64
     steps:
       - run: |
-          mkdir -vp ~/.docker/cli-plugins/
-          curl --silent -L --output ~/.docker/cli-plugins/docker-buildx << parameters.buildx_url >>
-          curl --silent -L --output ~/.docker/cli-plugins/docker-compose << parameters.compose_url >>
-          chmod a+x ~/.docker/cli-plugins/docker-buildx
-          chmod a+x ~/.docker/cli-plugins/docker-compose
+          echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
+          docker buildx create --use --driver cloud "mozilla/default"
 
-          if [ -n "<< parameters.username >>" -a -n "<< parameters.password >>" ]; then
-            echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
-            docker buildx create --use --driver cloud "mozilla/default"
-          else
-            echo "username and password are empty, skipping docker login"
-          fi
 
 jobs:
   check_experimenter_x86_64:
@@ -70,9 +55,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run tests and linting
           command: |
@@ -89,11 +71,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-          buildx_url: https://github.com/docker/buildx-desktop/releases/download/v0.11.2-desktop.4/buildx-v0.11.2-desktop.4.linux-arm64
-          compose_url: https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-aarch64
       - run:
           name: Run tests and linting
           command: |
@@ -110,9 +87,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "cirrus/"
-      - setup_docker:
-          username: $DOCKERHUB_CIRRUS_USER
-          password: $DOCKERHUB_CIRRUS_PASS
       - run:
           name: Run Cirrus tests and linting
           command: |
@@ -128,11 +102,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "cirrus/"
-      - setup_docker:
-          username: $DOCKERHUB_CIRRUS_USER
-          password: $DOCKERHUB_CIRRUS_PASS
-          buildx_url: https://github.com/docker/buildx-desktop/releases/download/v0.11.2-desktop.4/buildx-v0.11.2-desktop.4.linux-arm64
-          compose_url: https://github.com/docker/compose-desktop/releases/download/v2.21.0-desktop.1/docker-compose-linux-aarch64
       - run:
           name: Run Cirrus tests and linting
           command: |
@@ -144,9 +113,6 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - check_file_paths:
           paths: "schemas/"
       - run:
@@ -168,9 +134,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -193,9 +156,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -218,9 +178,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -242,9 +199,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -266,9 +220,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -290,9 +241,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -314,9 +262,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -338,9 +283,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -363,9 +305,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -388,9 +327,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -409,9 +345,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run rust integration tests
           command: |
@@ -433,9 +366,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -456,9 +386,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Run integration tests
           command: |
@@ -474,15 +401,9 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - setup_docker:
+      - docker_login:
           username: $DOCKER_USER
           password: $DOCKER_PASS
-      - run:
-          name: Build Multiarch Images
-          command: |
-            # # Build all images for aarch64 and x86_64 to hydrate build cache
-            make BUILD_MULTIPLATFORM=1 build_dev build_test build_ui build_prod
-            # Pull x86_64 and tag to dockerhub for deploy
       - run:
           name: Deploy to Dockerhub
           command: |
@@ -509,7 +430,7 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - setup_docker:
+      - docker_login:
           username: $DOCKERHUB_CIRRUS_USER
           password: $DOCKERHUB_CIRRUS_PASS
       - run:
@@ -528,9 +449,6 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - setup_docker:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Check for package version change in last commit before proceeding.
           command: |
@@ -611,7 +529,7 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - setup_docker:
+      - docker_login:
           username: $DOCKER_USER
           password: $DOCKER_PASS
       - run:
@@ -671,7 +589,7 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - setup_docker:
+      - docker_login:
           username: $DOCKER_USER
           password: $DOCKER_PASS
       - run:
