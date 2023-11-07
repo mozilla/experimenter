@@ -80,15 +80,9 @@ FROM system-builder AS rust-builder
 WORKDIR /application-services
 
 # Rust packages
-# This is temporary while megazord packaging is pending.
-ARG as_version
-
+# Checkout application services at a locked commit
 RUN git clone https://github.com/mozilla/application-services.git .
-RUN if [[ -z "${as_version}" ]] ; then \
-    echo "No application-services version supplied, using latest commit." ; \
-    else \
-    git fetch ; \
-    fi
+RUN git fetch && git checkout da9301f829de67149d50dce5b709aed42f1bfe1b
 
 RUN git submodule init
 RUN git submodule update --recursive

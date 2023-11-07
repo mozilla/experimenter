@@ -220,16 +220,22 @@ CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 cirrus_build:
 	$(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
+cirrus_build_test:
+	$(COMPOSE_TEST) build cirrus
+
+cirrus_bash: cirrus_build
+	$(COMPOSE) run cirrus bash
+
 cirrus_up: cirrus_build
 	$(COMPOSE) up cirrus
 
 cirrus_down: cirrus_build
 	$(COMPOSE) down cirrus
 
-cirrus_test: cirrus_build
+cirrus_test: cirrus_build_test
 	$(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
 
-cirrus_check: cirrus_build
+cirrus_check: cirrus_build_test
 	$(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format: cirrus_build
