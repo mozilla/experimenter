@@ -24,6 +24,7 @@ import {
   EXTERNAL_URLS,
   POSITIVE_NUMBER_FIELD,
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
+  TOOLTIP_DISABLED,
   TOOLTIP_DURATION,
   TOOLTIP_RELEASE_DATE,
 } from "src/lib/constants";
@@ -748,6 +749,18 @@ export const FormAudience = ({
           <Form.Group as={Col} className="mt-2" controlId="proposedEnrollment">
             <Form.Label className="d-flex align-items-center">
               Enrollment period
+              {experiment.isRollout && (
+                <>
+                  <Info
+                    data-tip={TOOLTIP_DISABLED}
+                    data-testid="tooltip-disabled"
+                    width="20"
+                    height="20"
+                    className="ml-1"
+                  />
+                  <ReactTooltip />
+                </>
+              )}
             </Form.Label>
             <InputGroup>
               <Form.Control
@@ -758,7 +771,7 @@ export const FormAudience = ({
                 type="number"
                 min="0"
                 aria-describedby="proposedEnrollment-unit"
-                disabled={isLocked!}
+                disabled={isLocked! || !!experiment.isRollout}
               />
               <InputGroup.Append>
                 <InputGroup.Text id="proposedEnrollment-unit">

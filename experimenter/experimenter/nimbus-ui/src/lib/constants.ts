@@ -83,6 +83,7 @@ export const RISK_QUESTIONS = {
 
 export const TOOLTIP_DURATION =
   "This is the total duration of the experiment, including the enrollment period.";
+export const TOOLTIP_DISABLED = "Enrollment Period is disabled on rollouts";
 export const TOOLTIP_RELEASE_DATE =
   "This is the approximate release date of the version that is being targeted. Click here to find your date!";
 
