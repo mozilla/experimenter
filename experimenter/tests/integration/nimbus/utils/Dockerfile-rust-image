@@ -1,52 +1,6 @@
-FROM rust:buster AS builder
-
-ARG as_version
-
-ENV SQLCIPHER_LIB_DIR=/application-services/libs/desktop/linux-x86-64/sqlcipher/lib
-ENV SQLCIPHER_INCLUDE_DIR=/application-services/libs/desktop/linux-x86-64/sqlcipher/include
-ENV NSS_DIR=/application-services/libs/desktop/linux-x86-64/nss
-ENV NSS_STATIC=1
-
-RUN rustup target add x86_64-unknown-linux-musl
-RUN apt update && apt install -y musl-tools musl-dev
-RUN update-ca-certificates
-
-RUN apt-get update -qqy \
-  && apt-get -qqy install \
-    gyp \
-    ninja-build \
-    zlib1g-dev \
-    tclsh \
-    python3-venv
-
-RUN git clone https://github.com/mozilla/application-services.git
-RUN if [[ -z "${as_version}" ]] ; then \
-    echo "No application-services version supplied, using lastest commit." \
-  ; else \
-    cd application-services && git checkout $as_version \
-  ; fi
-
-WORKDIR /application-services
-
-RUN git submodule init
-RUN git submodule update --recursive
-RUN ./libs/verify-desktop-environment.sh
-
-RUN mkdir -p /application-services/megazord
-RUN cargo build
-
-RUN cargo build --manifest-path megazords/nimbus-experimenter/Cargo.toml --release
-RUN cargo uniffi-bindgen generate --library target/release/libnimbus_experimenter.so  --language python --out-dir /application-services/megazord
-
-RUN mv megazord/nimbus.py megazord/nimbus_rust.py
-# This should be called libnimbus_experimenter.so; once all uniffi-bindgen calls in this repo have moved to --library, we
-# can move this libnimbus_experimenter.so
-RUN mv target/release/libnimbus_experimenter.so megazord/libcirrus.so
-
-
 FROM python:3.11-buster
 
-COPY --from=builder /application-services/megazord /application-services/megazord
+COPY --from=as-builder /application-services/nimbus-experimenter /application-services
 ENV PYTHON_PATH=$PYTHON_PATH:/application-services/megazord
 
 RUN apt-get update -qqy \

@@ -1,30 +1,5 @@
-# First stage: Build the Rust components
-FROM rust:buster AS rust-builder
-
-RUN update-ca-certificates
-
-RUN apt-get update -qqy \
-    && apt-get -qqy install \
-    gyp \
-    ninja-build \
-    zlib1g-dev \
-    tclsh \
-    python3-venv
-
-WORKDIR /application-services
-
-# Checkout application services at a locked commit
-RUN git clone https://github.com/mozilla/application-services.git .
-RUN git fetch && git checkout da9301f829de67149d50dce5b709aed42f1bfe1b
-
-RUN git submodule init
-RUN git submodule update --recursive
-
-RUN cargo build --manifest-path megazords/cirrus/Cargo.toml --release
-RUN cargo uniffi-bindgen generate --library target/release/libcirrus.so --language python --out-dir .
-
-# Second stage: Build Python environment with dependencies
-FROM python:3.11.2-slim-buster as python-builder
+# First stage: Build Python environment with dependencies
+FROM python:3.11.2-slim-bullseye as python-builder
 
 # Set working directory for the container
 WORKDIR /cirrus
@@ -51,15 +26,13 @@ COPY poetry.lock /cirrus/
 RUN poetry config virtualenvs.create false && \
     poetry install --only=main --no-interaction --no-ansi
 
-# Third stage: Deploy stage
-FROM python:3.11.2-slim-buster as deploy
+# Second stage: Deploy stage
+FROM python:3.11.2-slim-bullseye as deploy
 
 WORKDIR /cirrus
 
-# Copy specific Rust components
-COPY --from=rust-builder /application-services/target/release/libcirrus.so /application-services/libcirrus.so
-COPY --from=rust-builder /application-services/cirrus.py /application-services/cirrus_sdk.py
-COPY --from=rust-builder /application-services/fml.py /application-services/fml_sdk.py
+# Copy cirrus megazord
+COPY --from=as-builder /application-services/cirrus/ /application-services/
 
 # Copy Python site packages and scripts
 COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
