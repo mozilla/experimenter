@@ -41,7 +41,6 @@ commands:
     steps:
       - run: |
           echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
-          docker buildx create --use --driver cloud "mozilla/default"
 
 
 jobs:
