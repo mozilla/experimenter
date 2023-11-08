@@ -105,6 +105,12 @@ compose_build:  ## Build containers
 build_megazords:
 	$(DOCKER_BUILD) -f application-services/Dockerfile -t experimenter:megazords application-services/
 
+update_application_services: build_megazords
+	docker run \
+		-v ./application-services/application-services.env:/application-services/application-services.env \
+		experimenter:megazords \
+		/application-services/update-application-services.sh
+
 build_dev: ssl build_megazords
 	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
