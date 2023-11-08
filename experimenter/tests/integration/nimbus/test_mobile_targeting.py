@@ -2,12 +2,11 @@ import json
 import os
 
 import pytest
+from nimbus_experimenter_megazord import nimbus
 
 from nimbus.jexl import collect_exprs
 from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
 from nimbus.utils import helpers
-
-nimbus = pytest.importorskip("nimbus_rust")
 
 
 def client_info_list():

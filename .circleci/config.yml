@@ -587,16 +587,29 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - run:
+          name: Build rust test image
+          command: make build_rust_image
+
+  deploy_rust_image:
+    working_directory: ~/experimenter
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
+    steps:
+      - checkout
       - docker_login:
           username: $DOCKER_USER
           password: $DOCKER_PASS
       - run:
-          name: Build rust test image
+          name: Build and deploy rust test image
           command: |
             set +e
             docker kill nimbus-rust-image
             docker rm nimbus-rust-image
+            set -e
             make build_rust_image
+            docker tag experimenter:nimbus-rust-image ${DOCKERHUB_REPO}:nimbus-rust-image
             docker push ${DOCKERHUB_REPO}:nimbus-rust-image
 
 workflows:
@@ -610,7 +623,6 @@ workflows:
                 - main
     jobs:
       - build_firefox_versions
-      - build_rust_image
 
   update_configs:
     triggers:
@@ -625,6 +637,8 @@ workflows:
 
   build:
     jobs:
+      - build_rust_image:
+          name: Build SDK Integration Test Image
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
@@ -738,4 +752,10 @@ workflows:
           filters:
             branches:
               only: main
-
+      - deploy_rust_image:
+          name: Deploy SDK Integration Test Image
+          filters:
+            branches:
+              only: main
+          requires:
+          - Build SDK Integration Test Image

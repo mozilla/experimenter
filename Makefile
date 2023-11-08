@@ -98,7 +98,7 @@ build_as:
 	$(DOCKER_BUILD) -f application-services/Dockerfile -t as-builder application-services/
 
 build_rust_image: build_as
-	$(DOCKER_BUILD) -t experimenter:nimbus-rust-image -f experimenter/tests/integration/nimbus/utils/Dockerfile-ruts-image
+	$(DOCKER_BUILD) --target nimbus-rust-image -f experimenter/Dockerfile -t experimenter:nimbus-rust-image experimenter/
 
 build_dev: ssl build_as
 	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/

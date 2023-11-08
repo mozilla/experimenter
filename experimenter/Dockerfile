@@ -127,6 +127,18 @@ COPY --from=file-loader /experimenter/experimenter/templates/ /experimenter/expe
 RUN yarn --cwd /experimenter/experimenter/theme/static_src build
 
 
+# Integration test image
+#-------------------------
+FROM python:3.11.1 AS nimbus-rust-image
+WORKDIR /code
+
+RUN apt-get update -qqy && \
+    apt-get install -qqy \
+        tox
+
+COPY --from=dev /application-services /application-services/
+ENV PYTHONPATH=$PYTHONPATH:/application-services
+
 # Deploy image
 #-------------------------
 FROM python:3.11.1-slim AS deploy
