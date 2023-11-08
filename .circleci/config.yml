@@ -435,8 +435,7 @@ jobs:
       - run:
           name: Deploy to latest
           command: |
-            # Build all images for aarch64 and x86_64 to hydrate build cache
-            make BUILD_MULTIPLATFORM=1 cirrus_build
+            make cirrus_build
             # Pull x86_64 and tag to dockerhub for deploy
             make cirrus_build
             docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest

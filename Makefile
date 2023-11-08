@@ -8,7 +8,7 @@ COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker compose -f docker-compose-test.yml
 COMPOSE_PROD = docker compose -f docker-compose-prod.yml
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
-DOCKER_BUILD = docker buildx build $$( [ $$BUILD_MULTIPLATFORM  ] && echo "--platform linux/amd64,linux/arm64 --output type=cacheonly" )
+DOCKER_BUILD = docker buildx build
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
