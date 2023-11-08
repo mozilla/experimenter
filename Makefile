@@ -8,7 +8,7 @@ COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker compose -f docker-compose-test.yml
 COMPOSE_PROD = docker compose -f docker-compose-prod.yml
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
-DOCKER_BUILD = docker buildx build $$( [ $$BUILD_MULTIPLATFORM  ] && echo "--platform linux/amd64,linux/arm64 --output type=cacheonly" )
+DOCKER_BUILD = docker buildx build
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
@@ -220,16 +220,22 @@ CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 cirrus_build:
 	$(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
+cirrus_build_test:
+	$(COMPOSE_TEST) build cirrus
+
+cirrus_bash: cirrus_build
+	$(COMPOSE) run cirrus bash
+
 cirrus_up: cirrus_build
 	$(COMPOSE) up cirrus
 
 cirrus_down: cirrus_build
 	$(COMPOSE) down cirrus
 
-cirrus_test: cirrus_build
+cirrus_test: cirrus_build_test
 	$(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
 
-cirrus_check: cirrus_build
+cirrus_check: cirrus_build_test
 	$(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format: cirrus_build
