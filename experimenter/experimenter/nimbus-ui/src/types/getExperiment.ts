@@ -210,6 +210,7 @@ export interface getExperiment_experimentBySlug {
   targetingConfig: (getExperiment_experimentBySlug_targetingConfig | null)[] | null;
   isSticky: boolean | null;
   isFirstRun: boolean;
+  isWeb: boolean;
   excludedExperiments: getExperiment_experimentBySlug_excludedExperiments[];
   requiredExperiments: getExperiment_experimentBySlug_requiredExperiments[];
   jexlTargetingExpression: string | null;

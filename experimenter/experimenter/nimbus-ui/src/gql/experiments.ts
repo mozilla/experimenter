@@ -131,6 +131,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
       isSticky
       isFirstRun
+      isWeb
       excludedExperiments {
         id
         slug
