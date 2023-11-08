@@ -591,33 +591,12 @@ jobs:
           username: $DOCKER_USER
           password: $DOCKER_PASS
       - run:
-          name: Check for tag change
-          command: |
-            set +e
-            docker pull ${DOCKERHUB_REPO}:nimbus-rust-image
-            docker_id=$(docker run -t -d --name nimbus-rust-image ${DOCKERHUB_REPO}:nimbus-rust-image)
-            docker cp nimbus-rust-image:/code/application-services-old.txt /home/circleci/experimenter/application-services-old.txt
-            git -c 'versionsort.suffix=-' \
-              ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/mozilla/application-services.git \
-              '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3 > /home/circleci/experimenter/application-services-current.txt
-            DIFF=$(diff /home/circleci/experimenter/application-services-current.txt /home/circleci/experimenter/application-services-old.txt)
-            if [ ! "$DIFF" ]; then
-                echo "No AS updates"
-                circleci-agent step halt
-            fi
-      - run:
           name: Build rust test image
           command: |
             set +e
             docker kill nimbus-rust-image
             docker rm nimbus-rust-image
-            AS_VERSION=$(git -c 'versionsort.suffix=-' \
-              ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/mozilla/application-services.git \
-              '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3)
-            docker buildx build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f experimenter/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
-            docker_id=$(docker run -t -d --name nimbus-rust-image ${DOCKERHUB_REPO}:nimbus-rust-image)
-            docker cp /home/circleci/experimenter/application-services-current.txt nimbus-rust-image:/code/application-services-old.txt
-            docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-rust-image
+            make build_rust_image
             docker push ${DOCKERHUB_REPO}:nimbus-rust-image
 
 workflows:

@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any, Dict, List
 
-from fml_sdk import FmlClient, FmlError, MergedJsonWithErrors  # type: ignore
+from cirrus_megazord.fml import FmlClient, FmlError, MergedJsonWithErrors  # type: ignore
 
 logger = logging.getLogger(__name__)
 
