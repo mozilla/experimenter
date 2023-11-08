@@ -25,14 +25,43 @@ from nimbus.models.base_dataclass import (
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
+config_data = helpers.load_config_data()
+
+
+def get_feature_id_as_string(slug, app):
+    return str(
+        next(
+            (
+                f["id"]
+                for f in config_data["allFeatureConfigs"]
+                if f["slug"] == slug and f["application"] == app
+            ),
+            None,
+        )
+    )
+
+
 APPLICATION_FEATURE_IDS = {
-    BaseExperimentApplications.FIREFOX_DESKTOP: "1",
-    BaseExperimentApplications.FENIX: "2",
-    BaseExperimentApplications.IOS: "3",
-    BaseExperimentApplications.FOCUS_ANDROID: "4",
-    BaseExperimentApplications.FOCUS_IOS: "6",
-    BaseExperimentApplications.DEMO_APP: "138",
+    BaseExperimentApplications.FIREFOX_DESKTOP: get_feature_id_as_string(
+        "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP
+    ),
+    BaseExperimentApplications.FENIX: get_feature_id_as_string(
+        "no-feature-fenix", BaseExperimentApplications.FENIX
+    ),
+    BaseExperimentApplications.IOS: get_feature_id_as_string(
+        "no-feature-ios", BaseExperimentApplications.IOS
+    ),
+    BaseExperimentApplications.FOCUS_ANDROID: get_feature_id_as_string(
+        "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID
+    ),
+    BaseExperimentApplications.FOCUS_IOS: get_feature_id_as_string(
+        "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS
+    ),
+    BaseExperimentApplications.DEMO_APP: get_feature_id_as_string(
+        "example-feature", BaseExperimentApplications.DEMO_APP
+    ),
 }
+
 
 APPLICATION_KINTO_REVIEW_PATH = {
     BaseExperimentApplications.FIREFOX_DESKTOP: (
