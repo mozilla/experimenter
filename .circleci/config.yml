@@ -520,6 +520,43 @@ jobs:
                 echo "No config changes, skipping"
             fi
 
+  update_application_services:
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
+      - checkout
+      - gh/setup:
+          token: GH_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
+      - run:
+          name: Setup Git
+          command: |
+            git config --local user.name "dataops-ci-bot"
+            git config --local user.email "dataops+ci-bot@mozilla.com"
+            gh config set git_protocol https
+      - run:
+          name: Check for Application Services update
+          command: |
+            git checkout main
+            git pull origin main
+            make update_as
+            if (($(git status --porcelain | wc -c) > 0)); then
+              git checkout -B update-application-services
+              git add .
+              git commit -m "chore(nimbus): Update application-services"
+              if (($((git diff update-application-services origin/update-application-services || git diff HEAD~1) | wc -c) > 0)); then
+                git push origin update-application-services -f
+                gh pr create -t "chore(nimbus): Update application-services" -b "" --base main --head update-application-services --repo mozilla/experimenter || echo "PR already exists, skipping"
+              else
+                echo "Changes already committed, skipping"
+              fi
+            else
+              echo "No config changes, skipping"
+            fi
+
   build_firefox_versions:
     working_directory: ~/experimenter
     machine:
@@ -622,6 +659,7 @@ workflows:
                 - main
     jobs:
       - update_external_configs
+      - update_application_services
 
   build:
     jobs:

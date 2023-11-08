@@ -5,6 +5,7 @@ RUN apt-get update && \
     apt-get upgrade && \
     apt-get install -y \
       curl \
+      jq \
       zip
 
 COPY . /application-services
