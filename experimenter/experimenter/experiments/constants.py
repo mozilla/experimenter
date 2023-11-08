@@ -56,6 +56,7 @@ class ApplicationConfig:
     channel_app_id: Dict[str, str]
     kinto_collection: str
     randomization_unit: str
+    is_web: bool
 
 
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
@@ -73,6 +74,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
+    is_web=False,
 )
 
 APPLICATION_CONFIG_FENIX = ApplicationConfig(
@@ -86,6 +88,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
+    is_web=False,
 )
 
 APPLICATION_CONFIG_IOS = ApplicationConfig(
@@ -100,6 +103,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
+    is_web=False,
 )
 
 APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
@@ -113,6 +117,7 @@ APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
+    is_web=False,
 )
 
 APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
@@ -124,6 +129,7 @@ APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
+    is_web=False,
 )
 
 
@@ -137,6 +143,7 @@ APPLICATION_CONFIG_FOCUS_IOS = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
+    is_web=False,
 )
 
 APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
@@ -149,6 +156,7 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
+    is_web=False,
 )
 
 APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
@@ -161,6 +169,7 @@ APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
+    is_web=True,
 )
 
 APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
@@ -173,6 +182,7 @@ APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
+    is_web=True,
 )
 
 
