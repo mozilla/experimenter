@@ -55,13 +55,6 @@ features:
         default:
           jump-back-in: true
           recent-explorations: true
-  library-coordinator-refactor:
-    description: "This feature is for managing the roll out of the library coordinator code as part of the changes on the navigation in the app\n"
-    variables:
-      enabled:
-        description: "Enables the feature\n"
-        type: Boolean
-        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -190,7 +183,7 @@ features:
         type: "Map<String, NimbusOnboardingCardData>"
         default:
           notification-permissions:
-            body: Onboarding/Onboarding.Notification.Description.v114
+            body: Onboarding/Onboarding.Notification.Description.v120
             buttons:
               primary:
                 action: request-notifications
@@ -202,10 +195,10 @@ features:
             order: 30
             prerequisites:
               - ALWAYS
-            title: Onboarding/Onboarding.Notification.Title.v114
+            title: Onboarding/Onboarding.Notification.Title.v120
             type: fresh-install
           sign-to-sync:
-            body: Onboarding/Onboarding.Sync.Description.v114
+            body: Onboarding/Onboarding.Sync.Description.v120
             buttons:
               primary:
                 action: sync-sign-in
@@ -217,7 +210,7 @@ features:
             order: 20
             prerequisites:
               - ALWAYS
-            title: Onboarding/Onboarding.Sync.Title.v114
+            title: Onboarding/Onboarding.Sync.Title.v120
             type: fresh-install
           update-sign-to-sync:
             body: Upgrade/Upgrade.SyncSign.Description.v114
@@ -247,22 +240,26 @@ features:
             title: Upgrade/Upgrade.Welcome.Title.v114
             type: upgrade
           welcome:
-            body: Onboarding/Onboarding.Welcome.Description.TreatementA.v114
+            body: Onboarding/Onboarding.Welcome.Description.TreatementA.v120
             buttons:
               primary:
-                action: set-default-browser
+                action: open-instructions-popup
                 title: Onboarding/Onboarding.Welcome.ActionTreatementA.v114
               secondary:
                 action: next-card
                 title: Onboarding/Onboarding.Welcome.Skip.v114
-            image: welcome-globe
-            link:
-              title: Onboarding/Onboarding.Welcome.Link.Action.v114
-              url: "https://www.mozilla.org/privacy/firefox/"
+            instructions-popup:
+              button-action: open-ios-fx-settings
+              button-title: Onboarding/DefaultBrowserPopup.ButtonTitle.v114
+              instructions:
+                - Onboarding/DefaultBrowserPopup.FirstLabel.v114
+                - Onboarding/DefaultBrowserPopup.SecondLabel.v114
+                - Onboarding/DefaultBrowserPopup.ThirdLabel.v114
+              title: Onboarding/DefaultBrowserPopup.Title.v114
             order: 10
             prerequisites:
               - ALWAYS
-            title: Onboarding/Onboarding.Welcome.Title.TreatementA.v114
+            title: Onboarding/Onboarding.Welcome.Title.TreatementA.v120
             type: fresh-install
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
