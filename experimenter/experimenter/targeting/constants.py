@@ -4,6 +4,11 @@ from django.db import models
 
 from experimenter.experiments.constants import Application, NimbusConstants
 
+# The identifiers in the exressions of the targeting field can be found
+# here: https://searchfox.org/mozilla-central/source/browser/components/newtab/lib/ASRouterTargeting.jsm#526
+# and here:
+# https://searchfox.org/mozilla-central/source/toolkit/components/nimbus/lib/ExperimentManager.sys.mjs#94`
+
 
 @dataclass
 class NimbusTargetingConfig:
@@ -1819,6 +1824,7 @@ SHOPPING_ONBOARDING_SHOWN = NimbusTargetingConfig(
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
+
 
 
 class TargetingConstants:
