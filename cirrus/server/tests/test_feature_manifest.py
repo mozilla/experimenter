@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from fml_sdk import FmlError
+from cirrus_megazord.fml import FmlError
 
 from cirrus.feature_manifest import FeatureManifestLanguage
 from cirrus.settings import channel, fml_path

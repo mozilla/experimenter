@@ -3,9 +3,9 @@ from unittest.mock import patch
 
 import pytest
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from cirrus_sdk import NimbusError
+from cirrus_megazord.cirrus import NimbusError
+from cirrus_megazord.fml import FmlError
 from fastapi import status
-from fml_sdk import FmlError
 
 from cirrus.main import (
     create_fml,
