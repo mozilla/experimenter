@@ -138,14 +138,17 @@ static_rm:
 kill: compose_stop compose_rm docker_prune
 	echo "All containers removed!"
 
-check: build_test
+lint: build_test
 	$(COMPOSE_TEST) run experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
+check: lint
 
-pytest: build_test
+test: build_test
 	$(COMPOSE_TEST) run experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
+pytest: test
 
-up: build_dev
+start: build_dev
 	$(COMPOSE) up
+up: start
 
 up_legacy: build_dev
 	$(COMPOSE_LEGACY) up
@@ -171,8 +174,9 @@ generate_docs: build_dev
 generate_types: build_dev
 	$(COMPOSE) run experimenter sh -c "$(NIMBUS_TYPES_GENERATE)"
 
-code_format: build_dev
+format: build_dev
 	$(COMPOSE) run experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
+code_format: format
 
 makemigrations: build_dev
 	$(COMPOSE) run experimenter python manage.py makemigrations
