@@ -25,10 +25,10 @@ from nimbus.models.base_dataclass import (
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
-config_data = helpers.load_config_data()
-
 
 def get_feature_id_as_string(slug, app):
+    config_data = helpers.load_config_data()
+
     return str(
         next(
             (
@@ -312,8 +312,12 @@ def create_experiment(base_url, default_data):
         # Fill Metrics page
         metrics = branches.save_and_continue()
         if default_data.metrics.primary_outcomes:
-            metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
-            assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
+            metrics.set_primary_outcomes(
+                values=default_data.metrics.primary_outcomes[0]
+            )
+            assert (
+                metrics.primary_outcomes.text != ""
+            ), "The primary outcome was not set"
             metrics.set_secondary_outcomes(
                 values=default_data.metrics.secondary_outcomes[0]
             )
