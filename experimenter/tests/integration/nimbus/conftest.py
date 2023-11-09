@@ -25,41 +25,24 @@ from nimbus.models.base_dataclass import (
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
-
-def get_feature_id_as_string(slug, app):
-    config_data = helpers.load_config_data()["allFeatureConfigs"]
-    print("config data", config_data)
-
-    return str(
-        next(
-            (
-                f["id"]
-                for f in config_data
-                if f["slug"] == slug and f["application"] == app
-            ),
-            None,
-        )
-    )
-
-
 APPLICATION_FEATURE_IDS = {
-    BaseExperimentApplications.FIREFOX_DESKTOP: get_feature_id_as_string(
-        "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP
+    BaseExperimentApplications.FIREFOX_DESKTOP: helpers.get_feature_id_as_string(
+        "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP.value
     ),
-    BaseExperimentApplications.FENIX: get_feature_id_as_string(
-        "no-feature-fenix", BaseExperimentApplications.FENIX
+    BaseExperimentApplications.FENIX: helpers.get_feature_id_as_string(
+        "no-feature-fenix", BaseExperimentApplications.FENIX.value
     ),
-    BaseExperimentApplications.IOS: get_feature_id_as_string(
-        "no-feature-ios", BaseExperimentApplications.IOS
+    BaseExperimentApplications.IOS: helpers.get_feature_id_as_string(
+        "no-feature-ios", BaseExperimentApplications.IOS.value
     ),
-    BaseExperimentApplications.FOCUS_ANDROID: get_feature_id_as_string(
-        "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID
+    BaseExperimentApplications.FOCUS_ANDROID: helpers.get_feature_id_as_string(
+        "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID.value
     ),
-    BaseExperimentApplications.FOCUS_IOS: get_feature_id_as_string(
-        "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS
+    BaseExperimentApplications.FOCUS_IOS: helpers.get_feature_id_as_string(
+        "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS.value
     ),
-    BaseExperimentApplications.DEMO_APP: get_feature_id_as_string(
-        "example-feature", BaseExperimentApplications.DEMO_APP
+    BaseExperimentApplications.DEMO_APP: helpers.get_feature_id_as_string(
+        "example-feature", BaseExperimentApplications.DEMO_APP.value
     ),
 }
 
@@ -313,12 +296,8 @@ def create_experiment(base_url, default_data):
         # Fill Metrics page
         metrics = branches.save_and_continue()
         if default_data.metrics.primary_outcomes:
-            metrics.set_primary_outcomes(
-                values=default_data.metrics.primary_outcomes[0]
-            )
-            assert (
-                metrics.primary_outcomes.text != ""
-            ), "The primary outcome was not set"
+            metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
+            assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
             metrics.set_secondary_outcomes(
                 values=default_data.metrics.secondary_outcomes[0]
             )
