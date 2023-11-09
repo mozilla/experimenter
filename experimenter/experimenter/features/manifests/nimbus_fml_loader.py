@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 
 import yaml
-from nimbus_experimenter_megazord.fml import FmlClient
 from packaging import version as version_packaging
+from rust_fml import FmlClient
 
 from experimenter.settings import BASE_DIR
 

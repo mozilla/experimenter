@@ -171,7 +171,7 @@ class TestNimbusFmlLoader(TestCase):
         loader.application_data = None
 
         with mock.patch(
-            "nimbus_experimenter_megazord.fml.FmlClient.new_with_ref",
+            "rust_fml.FmlClient.new_with_ref",
         ) as new_with_ref:
             result = loader.get_fml_clients(versions=[])
             self.assertIsNone(result)
@@ -185,7 +185,7 @@ class TestNimbusFmlLoader(TestCase):
         loader = self.create_loader(application, channel)
 
         with mock.patch(
-            "nimbus_experimenter_megazord.fml.FmlClient.new_with_ref",
+            "rust_fml.FmlClient.new_with_ref",
         ) as new_with_ref:
             loader.create_client(path, channel, ref)
             new_with_ref.assert_called()
