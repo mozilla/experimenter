@@ -1724,7 +1724,10 @@ DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
         "Targeting users that have their default PDF handler set to a browser other "
         "than the current Firefox installation"
     ),
-    targeting="!defaultHandler?.pdf && defaultPDFHandler?.knownBrowser",
+    targeting=(
+        "'pdf' in isDefaultHandler && !isDefaultHandler['pdf'] && "
+        "'knownBrowser' in defaultPDFHandler && defaultPDFHandler['knownBrowser']"
+    ),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
