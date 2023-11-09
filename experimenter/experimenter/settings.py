@@ -230,7 +230,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 
-LOGGING_CONSOLE_LEVEL = config("LOGGING_CONSOLE_LEVEL", default="DEBUG")
+LOGGING_CONSOLE_LEVEL = config("LOGGING_CONSOLE_LEVEL", default="DEBUG")  # Legacy env var
+LOG_LEVEL = config("LOG_LEVEL", default=LOGGING_CONSOLE_LEVEL)
 
 # Logging
 
@@ -248,7 +249,7 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": LOGGING_CONSOLE_LEVEL,
+            "level": LOG_LEVEL,
             "class": "logging.StreamHandler",
             "formatter": "mozlog" if LOGGING_USE_JSON else "verbose",
         }
