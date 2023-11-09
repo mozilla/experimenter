@@ -56,7 +56,14 @@ CLI_DIR = experimenter/experimenter/features/manifests/application-services
 CLI_INSTALLER = $(CLI_DIR)/install-nimbus-cli.sh
 NIMBUS_CLI = $(CLI_DIR)/nimbus-cli
 
-ssl: nginx/key.pem nginx/cert.pem
+help:
+	@echo "Please use 'make <target>' where <target> is one of the following commands."
+	@echo
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@echo
+	@echo "Check the Makefile to know exactly what each target is doing."
+
+ssl: nginx/key.pem nginx/cert.pem  ## Generate all SSL certificates
 
 nginx/key.pem:
 	openssl genrsa -out nginx/key.pem 4096
@@ -66,10 +73,10 @@ nginx/cert.pem: nginx/key.pem
 		-subj "/C=US/ST=California/L=Mountain View/O=Mozilla/CN=experiment_local" \
 		> nginx/cert.pem
 
-secretkey:
+secretkey:  ## Generate random key
 	openssl rand -hex 24
 
-auth_gcloud:
+auth_gcloud:  ## Login to GCloud
 	gcloud auth login --update-adc
 
 jetstream_config:
@@ -80,18 +87,18 @@ jetstream_config:
 feature_manifests: build_dev
 	$(COMPOSE) run experimenter /experimenter/bin/manifest-tool.py fetch-latest
 
-install_nimbus_cli:
+install_nimbus_cli:  ## Install Nimbus client
 	mkdir -p $(CLI_DIR)
 	curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh > "$(CLI_INSTALLER)"
 	$(SHELL) $(CLI_INSTALLER) --directory "$(CLI_DIR)"
 
-fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests
+fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests  ## Fetch all external resources
 	echo "External Resources Fetched"
 
-update_kinto:
+update_kinto:  ## Update latest Kinto/Remote Settings container
 	docker pull mozilla/kinto-dist:latest
 
-compose_build:
+compose_build:  ## Build containers
 	$(COMPOSE) build
 
 build_as:
@@ -128,25 +135,25 @@ docker_prune:
 	docker volume prune -f
 	docker volume rm $$(docker volume ls -qf dangling=true) || true
 
-static_rm:
+static_rm:  ## Remove statically generated files
 	rm -Rf experimenter/node_modules
 	rm -Rf experimenter/experimenter/legacy/legacy-ui/core/node_modules/
 	rm -Rf experimenter/experimenter/nimbus-ui/node_modules/
 	rm -Rf experimenter/experimenter/legacy/legacy-ui/assets/
 	rm -Rf experimenter/experimenter/nimbus-ui/build/
 
-kill: compose_stop compose_rm docker_prune
+kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune containers
 	echo "All containers removed!"
 
-lint: build_test
+lint: build_test  ## Running linting on source code
 	$(COMPOSE_TEST) run experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
 check: lint
 
-test: build_test
+test: build_test  ## Run tests
 	$(COMPOSE_TEST) run experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
 pytest: test
 
-start: build_dev
+start: build_dev  ## Start containers
 	$(COMPOSE) up
 up: start
 
@@ -174,20 +181,20 @@ generate_docs: build_dev
 generate_types: build_dev
 	$(COMPOSE) run experimenter sh -c "$(NIMBUS_TYPES_GENERATE)"
 
-format: build_dev
+format: build_dev  ## Format source tree
 	$(COMPOSE) run experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
 code_format: format
 
 makemigrations: build_dev
 	$(COMPOSE) run experimenter python manage.py makemigrations
 
-migrate: build_dev
+migrate: build_dev  ## Run database migrations
 	$(COMPOSE) run experimenter sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
 
 bash: build_dev
 	$(COMPOSE) run experimenter bash
 
-refresh: kill build_dev compose_build
+refresh: kill build_dev compose_build  ## Rebuild all containers
 	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 dependabot_approve:
@@ -280,17 +287,18 @@ SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npm
 SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
 SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 
-schemas_build:
+schemas_build:  ## Build schemas
 	$(DOCKER_BUILD) --target dev -f schemas/Dockerfile -t schemas:dev schemas/
 
 schemas_bash: schemas_build
 	$(SCHEMAS_RUN) "bash"
 
-schemas_format: schemas_build
+schemas_format: schemas_build  ## Format schemas source tree
 	$(SCHEMAS_RUN) "$(SCHEMAS_FORMAT)"
 
-schemas_check: schemas_build
+schemas_lint: schemas_build  ## Lint schemas source tree
 	$(SCHEMAS_RUN) "$(SCHEMAS_BLACK)&&$(SCHEMAS_RUFF)&&$(SCHEMAS_DIFF_PYDANTIC)&&$(SCHEMAS_TEST)"
+schemas_check: schemas_lint
 
 schemas_dist_pypi: schemas_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_PYPI)"
