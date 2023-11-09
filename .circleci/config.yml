@@ -348,6 +348,7 @@ jobs:
           name: Run rust integration tests
           command: |
             cp .env.integration-tests .env
+            docker pull ${DOCKERHUB_REPO}:nimbus-rust-image
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_rust PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
