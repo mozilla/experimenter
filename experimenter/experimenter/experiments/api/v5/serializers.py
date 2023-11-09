@@ -32,6 +32,7 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusVersionedSchema,
 )
+from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
@@ -355,6 +356,30 @@ class NimbusConfigurationDataClass:
 class NimbusConfigurationSerializer(DataclassSerializer[NimbusConfigurationDataClass]):
     class Meta:
         dataclass = NimbusConfigurationDataClass
+
+
+@dataclass
+class NimbusFmlErrorDataClass:
+    line: int
+    col: int
+    message: str
+    highlight: str
+
+
+@dataclass
+class NimbusFmlErrorListDataClass:
+    errors: typing.List[NimbusFmlErrorDataClass]
+
+    def __init__(self, errors):  # pragma: no cover
+        return [
+            NimbusFmlErrorDataClass(
+                line=e.line,
+                col=e.col,
+                message=e.message,
+                highlight=e.highlight,
+            )
+            for e in errors
+        ]
 
 
 _SerializerT = typing.TypeVar("_SerializerT", bound=serializers.ModelSerializer)
@@ -1413,6 +1438,16 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return None
 
+    def _validate_with_fml(self, feature_config, channel, obj):
+        loader = NimbusFmlLoader(feature_config.application, channel)
+        if fml_errors := loader.get_fml_errors(obj, feature_config.slug):
+            return [
+                f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
+                f"{e.message} at line {e.line+1} column {e.col}"
+                for e in fml_errors
+            ]
+        return None
+
     def _validate_schema(self, obj, schema):
         try:
             jsonschema.validate(obj, schema, resolver=NestedRefResolver(schema))
@@ -1438,16 +1473,26 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         else:
             localizations = None
 
+        application = data.get("application")
         reference_branch_errors = []
+
         for feature_value_data in data.get("reference_branch", {}).get(
             "feature_values", []
         ):
-            if schema_errors := self._validate_feature_value_against_schema(
+            if application == NimbusExperiment.Application.DESKTOP:
+                if schema_errors := self._validate_feature_value_against_schema(
+                    feature_value_data["feature_config"],
+                    feature_value_data["value"],
+                    localizations,
+                ):
+                    reference_branch_errors.append({"value": schema_errors})
+                    continue
+            elif fml_errors := self._validate_with_fml(
                 feature_value_data["feature_config"],
+                data.get("channel"),
                 feature_value_data["value"],
-                localizations,
             ):
-                reference_branch_errors.append({"value": schema_errors})
+                reference_branch_errors.append({"value": fml_errors})
                 continue
 
             reference_branch_errors.append({})
@@ -1461,12 +1506,22 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             treatment_branch_errors = []
 
             for feature_value_data in treatment_branch_data["feature_values"]:
-                if schema_errors := self._validate_feature_value_against_schema(
+                if application == NimbusExperiment.Application.DESKTOP:
+                    if schema_errors := self._validate_feature_value_against_schema(
+                        feature_value_data["feature_config"],
+                        feature_value_data["value"],
+                        localizations,
+                    ):
+                        treatment_branch_errors.append({"value": schema_errors})
+                        treatment_branches_errors_found = True
+                        continue
+
+                elif fml_errors := self._validate_with_fml(
                     feature_value_data["feature_config"],
+                    data.get("channel"),
                     feature_value_data["value"],
-                    localizations,
                 ):
-                    treatment_branch_errors.append({"value": schema_errors})
+                    treatment_branch_errors.append({"value": fml_errors})
                     treatment_branches_errors_found = True
                     continue
 
