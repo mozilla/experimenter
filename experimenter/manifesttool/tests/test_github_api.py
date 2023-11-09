@@ -3,6 +3,7 @@ from unittest import TestCase
 import responses
 
 from manifesttool import github_api
+from manifesttool.repository import Ref
 
 
 class GitHubApiTests(TestCase):
@@ -25,4 +26,4 @@ class GitHubApiTests(TestCase):
 
         result = github_api.get_main_ref("owner/repo")
 
-        self.assertEqual(result, "0" * 40)
+        self.assertEqual(result, Ref("main", "0" * 40))

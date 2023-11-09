@@ -3,6 +3,8 @@ from typing import Any
 
 import requests
 
+from manifesttool.repository import Ref
+
 GITHUB_API_URL = "https://api.github.com"
 GITHUB_API_HEADERS = {
     "Accept": "application/vnd.github+json",
@@ -20,7 +22,7 @@ def api_request(path: str, **kwargs: dict[str, Any]) -> dict[str, Any]:
     ).json()
 
 
-def get_main_ref(repo: str) -> str:
+def get_main_ref(repo: str) -> Ref:
     """Get the revision of the current main branch of the requested repository.
 
     Args:
@@ -28,4 +30,4 @@ def get_main_ref(repo: str) -> str:
             The repository, including the owner.
     """
     rsp = api_request(f"repos/{repo}/branches/main")
-    return rsp["commit"]["sha"]
+    return Ref("main", rsp["commit"]["sha"])

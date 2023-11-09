@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from cirrus_sdk import NimbusError
+from cirrus_megazord.cirrus import NimbusError
 
 from cirrus.sdk import SDK
 

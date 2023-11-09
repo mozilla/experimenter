@@ -3,6 +3,23 @@ description = "Page load related performance metrics"
 
 
 ## Performance
+[metrics.perf_largest_contentful_paint_ms]
+select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.perf_largest_contentful_paint_ms")}}'
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.perf_largest_contentful_paint_ms.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.perf_largest_contentful_paint_ms.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+[metrics.perf_largest_contentful_paint_ms.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+
 [metrics.perf_page_load_time_ms]
 select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.perf_page_load_time_ms")}}'
 data_source = 'main'
