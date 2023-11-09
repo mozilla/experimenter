@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any, Dict, List
 
-from cirrus_megazord.cirrus import CirrusClient, NimbusError  # type: ignore
+from cirrus_sdk import CirrusClient, NimbusError  # type: ignore
 
 logger = logging.getLogger(__name__)
 
