@@ -235,7 +235,8 @@ LOG_LEVEL = config("LOG_LEVEL", default=LOGGING_CONSOLE_LEVEL)
 
 # Logging
 
-LOGGING_USE_JSON = config("LOGGING_USE_JSON", cast=bool, default=True)
+_logging_use_json = config("LOGGING_USE_JSON", cast=bool, default=True)  # Legacy env var
+LOG_FORMAT = config("LOG_FORMAT", default="mozlog" if _logging_use_json else "text")
 
 LOGGING = {
     "version": 1,
@@ -245,13 +246,13 @@ LOGGING = {
             "()": "dockerflow.logging.JsonLogFormatter",
             "logger_name": "experimenter",
         },
-        "verbose": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
+        "text": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
     },
     "handlers": {
         "console": {
             "level": LOG_LEVEL,
             "class": "logging.StreamHandler",
-            "formatter": "mozlog" if LOGGING_USE_JSON else "verbose",
+            "formatter": LOG_FORMAT,
         }
     },
     "loggers": {
