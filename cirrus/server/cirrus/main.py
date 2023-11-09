@@ -6,9 +6,9 @@ from typing import Any, List, NamedTuple
 
 import sentry_sdk
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
-from cirrus_megazord.cirrus import NimbusError  # type: ignore
-from cirrus_megazord.fml import FmlError  # type: ignore
+from cirrus_sdk import NimbusError  # type: ignore
 from fastapi import FastAPI, HTTPException, status
+from fml_sdk import FmlError  # type: ignore
 from glean import Configuration, Glean, load_metrics, load_pings  # type: ignore
 from pydantic import BaseModel
 

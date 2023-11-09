@@ -124,7 +124,6 @@ services:
     working_dir: /cirrus
     ports:
       - "8001:8001"
-
   demo-app-server:
     build:
       context: ./demo-app/server

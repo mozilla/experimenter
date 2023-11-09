@@ -42,7 +42,7 @@ LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.js
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_projects
-PYTHON_PATH_SDK = PYTHONPATH=/application-services
+PYTHON_PATH_SDK = PYTHONPATH=/application-services/megazord
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
@@ -101,22 +101,16 @@ update_kinto:  ## Update latest Kinto/Remote Settings container
 compose_build:  ## Build containers
 	$(COMPOSE) build
 
-build_as:
-	$(DOCKER_BUILD) -f application-services/Dockerfile -t as-builder application-services/
-
-build_rust_image: build_as
-	$(DOCKER_BUILD) -t experimenter:nimbus-rust-image -f experimenter/tests/integration/nimbus/utils/Dockerfile-ruts-image
-
-build_dev: ssl build_as
+build_dev: ssl
 	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
-build_test: ssl build_as
+build_test: ssl
 	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
-build_ui: ssl build_as
+build_ui: ssl
 	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
 
-build_prod: ssl build_as
+build_prod: ssl
 	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
@@ -234,10 +228,10 @@ CIRRUS_PYTHON_TYPECHECK = pyright -p .
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
-cirrus_build: build_as
+cirrus_build:
 	$(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
-cirrus_build_test: build_as
+cirrus_build_test:
 	$(COMPOSE_TEST) build cirrus
 
 cirrus_bash: cirrus_build
