@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from manifesttool.cli import MANIFESTS_DIR
 from manifesttool.appconfig import AppConfigs
+from manifesttool.cli import MANIFESTS_DIR
 
 
 class AppConfigTests(TestCase):
