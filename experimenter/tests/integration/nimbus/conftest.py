@@ -28,6 +28,8 @@ from nimbus.utils import helpers
 
 def get_feature_id_as_string(slug, app):
     config_data = helpers.load_config_data()
+    print("config data", config_data)
+
 
     return str(
         next(
