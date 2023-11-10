@@ -3,7 +3,9 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 ---
 fenix:
-  repo: \@mozilla-mobile/firefox-android
+  repo:
+    type: "github"
+    name: "mozilla-mobile/firefox-android"
   fml_path: fenix/app/nimbus.fml.yaml
   major_release_branch: "releases_v{major}"
   minor_release_tag: "fenix-v{major}.{minor}.{patch}"
