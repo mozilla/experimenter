@@ -14,11 +14,9 @@ import os
 from importlib import resources
 from urllib.parse import urljoin
 
-import sentry_sdk
 from decouple import config
 from django.contrib.admin import ModelAdmin, StackedInline, TabularInline
 from django.db.models import DecimalField, ForeignKey, JSONField, ManyToManyField
-from sentry_sdk.integrations.django import DjangoIntegration
 
 for cls in [
     DecimalField,
@@ -230,11 +228,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 
-LOGGING_CONSOLE_LEVEL = config("LOGGING_CONSOLE_LEVEL", default="DEBUG")
+LOGGING_CONSOLE_LEVEL = config("LOGGING_CONSOLE_LEVEL", default="DEBUG")  # Legacy env var
+LOG_LEVEL = config("LOG_LEVEL", default=LOGGING_CONSOLE_LEVEL)
 
 # Logging
 
-LOGGING_USE_JSON = config("LOGGING_USE_JSON", cast=bool, default=True)
+_logging_use_json = config("LOGGING_USE_JSON", cast=bool, default=True)  # Legacy env var
+LOG_FORMAT = config("LOG_FORMAT", default="mozlog" if _logging_use_json else "text")
 
 LOGGING = {
     "version": 1,
@@ -244,13 +244,13 @@ LOGGING = {
             "()": "dockerflow.logging.JsonLogFormatter",
             "logger_name": "experimenter",
         },
-        "verbose": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
+        "text": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
     },
     "handlers": {
         "console": {
-            "level": LOGGING_CONSOLE_LEVEL,
+            "level": LOG_LEVEL,
             "class": "logging.StreamHandler",
-            "formatter": "mozlog" if LOGGING_USE_JSON else "verbose",
+            "formatter": LOG_FORMAT,
         }
     },
     "loggers": {
@@ -271,19 +271,8 @@ LOGGING = {
 
 # Sentry configuration
 SENTRY_DSN = config("SENTRY_DSN", default=None)
+SENTRY_ENV = config("SENTRY_ENV", default=None)
 SENTRY_DSN_NIMBUS_UI = SENTRY_DSN
-if SENTRY_DSN:  # pragma: no cover
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        integrations=[DjangoIntegration()],
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        # We recommend adjusting this value in production.
-        traces_sample_rate=1.0,
-        # If you wish to associate users to errors (assuming you are using
-        # django.contrib.auth) you may enable sending PII data.
-        send_default_pii=False,
-    )
 
 
 # Django Rest Framework Configuration
