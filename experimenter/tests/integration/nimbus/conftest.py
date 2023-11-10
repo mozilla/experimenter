@@ -26,13 +26,26 @@ from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
 APPLICATION_FEATURE_IDS = {
-    BaseExperimentApplications.FIREFOX_DESKTOP: "1",
-    BaseExperimentApplications.FENIX: "2",
-    BaseExperimentApplications.IOS: "3",
-    BaseExperimentApplications.FOCUS_ANDROID: "4",
-    BaseExperimentApplications.FOCUS_IOS: "6",
-    BaseExperimentApplications.DEMO_APP: "137",
+    BaseExperimentApplications.FIREFOX_DESKTOP: helpers.get_feature_id_as_string(
+        "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP.value
+    ),
+    BaseExperimentApplications.FENIX: helpers.get_feature_id_as_string(
+        "no-feature-fenix", BaseExperimentApplications.FENIX.value
+    ),
+    BaseExperimentApplications.IOS: helpers.get_feature_id_as_string(
+        "no-feature-ios", BaseExperimentApplications.IOS.value
+    ),
+    BaseExperimentApplications.FOCUS_ANDROID: helpers.get_feature_id_as_string(
+        "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID.value
+    ),
+    BaseExperimentApplications.FOCUS_IOS: helpers.get_feature_id_as_string(
+        "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS.value
+    ),
+    BaseExperimentApplications.DEMO_APP: helpers.get_feature_id_as_string(
+        "example-feature", BaseExperimentApplications.DEMO_APP.value
+    ),
 }
+
 
 APPLICATION_KINTO_REVIEW_PATH = {
     BaseExperimentApplications.FIREFOX_DESKTOP: (

@@ -147,6 +147,13 @@ def load_targeting_configs(app="DESKTOP"):
     ]
 
 
+def get_feature_id_as_string(slug, app):
+    config_data = load_config_data()["allFeatureConfigs"]
+    for f in config_data:
+        if f["slug"] == slug and f["application"] == app:
+            return str(f["id"])
+
+
 def load_experiment_data(slug):
     return load_graphql_data(
         {
