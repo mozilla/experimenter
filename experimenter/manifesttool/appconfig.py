@@ -23,8 +23,10 @@ class AppConfig(BaseModel):
     repo: Repository
     fml_path: Optional[str]
     experimenter_yaml_path: Optional[str]
-    major_release_branch: Optional[str]
-    minor_release_tag: Optional[str]
+    branch_re: Optional[str]
+    tag_re: Optional[str]
+    ignored_branches: Optional[list[str]]
+    ignored_tags: Optional[list[str]]
 
     @root_validator(pre=True)
     def validate_one_manifest_path(cls, values):
@@ -46,8 +48,10 @@ class AppConfigs(BaseModel):
     __root__: dict[str, AppConfig]
 
     @classmethod
-    def load_from_file(cls, filename: Path) -> "AppConfigs":
+    def load_from_directory(cls, directory: Path) -> "AppConfigs":
         """Load the app configurations and parse them."""
+        filename = directory / "apps.yaml"
+
         with filename.open() as f:
             app_configs: Any = yaml.safe_load(f)
 
