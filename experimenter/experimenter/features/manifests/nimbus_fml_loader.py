@@ -38,7 +38,7 @@ class NimbusFmlLoader:
     def _get_local_file_path(self):
         """Get path to release feature manifest from experimenter (local)."""
         if self.application is not None:
-            path = Path(self.MANIFEST_PATH, self.application, "release.fml.yaml")
+            path = Path(self.MANIFEST_PATH, self.application, f"{self.channel}.fml.yaml")
             if Path.exists(path):
                 return path
         else:
