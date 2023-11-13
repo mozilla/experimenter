@@ -1717,6 +1717,24 @@ ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
 )
 
 
+DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
+    name="Default PDF handler is a different browser",
+    slug="default_pdf_is_different_browser",
+    description=(
+        "Targeting users that have their default PDF handler set to a browser other "
+        "than the current Firefox installation"
+    ),
+    targeting=(
+        "'pdf' in isDefaultHandler && !isDefaultHandler['pdf'] && "
+        "'knownBrowser' in defaultPDFHandler && defaultPDFHandler['knownBrowser']"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
     TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'
