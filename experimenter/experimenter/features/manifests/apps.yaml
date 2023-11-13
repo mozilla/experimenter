@@ -8,32 +8,46 @@ fenix:
     type: "github"
     name: "mozilla-mobile/firefox-android"
   fml_path: "fenix/app/nimbus.fml.yaml"
-  major_release_branch: "releases_v{major}"
-  minor_release_tag: "fenix-v{major}.{minor}.{patch}"
+  branch_re: 'releases_v(?P<major>\d+)'
+  tag_re: 'fenix-v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'
+  version_file:
+    type: "plaintext"
+    path: "version.txt"
 firefox_ios:
   slug: "ios"
   repo:
     type: "github"
     name: "mozilla-mobile/firefox-ios"
   fml_path: "nimbus.fml.yaml"
-  major_release_branch: "release/v{major}"
-  minor_release_tag: "v{major}.{minor}"
+  branch_re: 'release/v(?P<major>\d+)(?:\.(?P<minor>\d+))?'
+  tag_re: 'v(?P<major>\d+)\.(?P<minor>\d+)'
+  version_file:
+    type: "plist"
+    path: "Client/Info.plist"
+    key: "CFBundleShortVersionString"
 focus_android:
   slug: "focus-android"
   repo:
     type: "github"
     name: "mozilla-mobile/firefox-android"
   fml_path: "focus-android/app/nimbus.fml.yaml"
-  major_release_branch: "releases_v{major}"
-  minor_release_tag: "focus-v{major}.{minor}.{patch}"
+  branch_re: 'releases_v(?P<major>\d+)'
+  tag_re: 'focus-v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'
+  version_file:
+    type: "plaintext"
+    path: "version.txt"
 focus_ios:
   slug: "focus-ios"
   repo:
     type: "github"
     name: "mozilla-mobile/focus-ios"
   fml_path: "nimbus.fml.yaml"
-  major_release_branch: "releases_v{major}"
-  minor_release_tag: "v{major}.{minor}"
+  branch_re: 'releases_v(?P<major>\d+)(?:\.(?P<minor>\d+))?'
+  tag_re: 'v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'
+  version_file:
+    type: "plist"
+    path: "Blockzilla/Info.plist"
+    key: "CFBundleShortVersionString"
 monitor_cirrus:
   slug: "monitor-web"
   repo:
@@ -46,3 +60,6 @@ firefox_desktop:
     type: "hgmo"
     name: "mozilla-central"
   experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
+  version_file:
+    type: "plaintext"
+    path: "browser/config/version.txt"
