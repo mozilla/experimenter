@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 
 import yaml
-from packaging import version as version_packaging
 from rust_fml import FmlClient, FmlFeatureInspector
 
 from experimenter.experiments.constants import NimbusConstants
@@ -48,61 +47,19 @@ class NimbusFmlLoader:
             )
         return None
 
-    def _get_remote_file_path(self):
-        """Get path to the feature manifest from location defined in apps.yaml."""
-        if not self.application_data:
-            return None
-        return Path(
-            self.application_data["repo"]["name"], self.application_data["fml_path"]
-        )
-
-    # Todo: Add versioning https://mozilla-hub.atlassian.net/browse/EXP-3875
-    def _get_version_refs(self, versions):
-        """Get github refs for each version."""
-        if versions == []:
-            return ["main"]
-        refs = []
-        for v in versions:
-            version = version_packaging.parse(v)
-            # Todo: this can be expanded later to fetch both the
-            # branch/major version and the tagged minor version.
-            version_ref_minor = self._get_minor_version_ref(
-                version,
-            )
-            refs.append(version_ref_minor)
-        return refs
-
-    def _get_major_version_ref(self, version):
-        if not self.application_data:
-            return None
-        return self.application_data["major_release_branch"].format(
-            major=version.major,
-        )
-
-    def _get_minor_version_ref(self, version):
-        if not self.application_data:
-            return None
-        return self.application_data["minor_release_tag"].format(
-            major=version.major,
-            minor=version.minor,
-            patch=version.micro,
-        )
-
     # Todo: Add versioning https://mozilla-hub.atlassian.net/browse/EXP-3875
     def _get_fml_clients(self, versions: list[str]) -> list[FmlClient]:
-        refs = self._get_version_refs(versions)
         clients = []
         if file_path := self._get_local_file_path():
-            for r in refs:
-                client = self._create_client(str(file_path), self.channel)
-                if client is not None:
-                    clients.append(client)
-                else:
-                    logger.error(
-                        "Nimbus FML Loader: "
-                        f"Failed to create FML clients for file path {file_path}, "
-                        f"channel {self.channel}, and ref {r}."
-                    )
+            client = self._create_client(str(file_path), self.channel)
+            if client is not None:
+                clients.append(client)
+            else:
+                logger.error(
+                    "Nimbus FML Loader: "
+                    f"Failed to create FML clients for file path {file_path} and "
+                    f"channel {self.channel}."
+                )
         return clients
 
     def _create_client(self, path: str, channel: str) -> FmlClient:
