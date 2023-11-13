@@ -67,7 +67,7 @@ Please note we have a [Code of Conduct](https://www.mozilla.org/en-US/about/gove
 
 The subject should follow the this pattern:
 
-`fixes #github_issue_number type(scope): Description`
+`type(scope): Description`
 
 #### Type
 
@@ -90,6 +90,8 @@ One of the following:
 
 - **project**: Anything that affects the entire project
 - **nimbus**: Anything scoped only to Nimbus experiment frontend
+- **cirrus**: Anything scoped to Cirrus.
+- **schemas**: Anything scoped to Nimbus schemas.
 - **legacy**: Anything scoped only to Legacy experiment frontend
 - **visualization**: Anything scoped only to Analysis Visualization
 
@@ -113,6 +115,8 @@ Because
 This commit
 
 * Change
+
+Fixes #github_issue_number
 ```
 
 Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes". Commits are expected to follow this format.
