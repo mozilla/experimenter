@@ -15,7 +15,7 @@ class TestNimbusFmlLoader(TestCase):
         BASE_DIR, "features", "tests", "fixtures", "fml", "test_apps.yaml"
     )
     TEST_MANIFEST_PATH = Path(
-        BASE_DIR, "features", "tests", "fixtures", "fml", "test_release.fml.yaml"
+        BASE_DIR, "features", "tests", "fixtures", "fml", "release.fml.yaml"
     )
 
     @staticmethod
@@ -234,6 +234,20 @@ class TestNimbusFmlLoader(TestCase):
         loader = self.create_loader()
         file_path = loader._get_local_file_path()
         self.assertEqual(file_path, expected_path)
+
+    def test_get_local_file_path_for_nightly(self):
+        expected_path = Path(
+            "/experimenter/experimenter/features/manifests/fenix/nightly.fml.yaml"
+        )
+
+        loader = self.create_loader(channel="nightly")
+        file_path = loader._get_local_file_path()
+        self.assertEqual(file_path, expected_path)
+
+    def test_get_local_file_path_for_invalid_channel(self):
+        loader = self.create_loader(channel="rats")
+        file_path = loader._get_local_file_path()
+        self.assertIsNone(file_path)
 
     @patch(
         "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader.MANIFEST_PATH",
