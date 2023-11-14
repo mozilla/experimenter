@@ -375,7 +375,7 @@ features:
       product-recommendations:
         description: "if true, recommended products feature is enabled to be shown to the user based on their preference."
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
