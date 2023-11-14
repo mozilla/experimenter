@@ -10,17 +10,26 @@ from mozilla_nimbus_schemas import FeatureManifest
 from manifesttool import github_api, hgmo_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, RepositoryType
 from manifesttool.repository import Ref
+from manifesttool.version import Version
 
 
 @dataclass
 class FetchResult:
     app_name: str
     ref: Ref
+    version: Optional[Version]
     exc: Optional[Exception] = None
+
+    def __str__(self):
+        return f"{self.app_name} at {self.ref} version {self.version}"
 
 
 def fetch_fml_app(
-    manifest_dir: Path, app_name: str, app_config: AppConfig, ref: Optional[Ref] = None
+    manifest_dir: Path,
+    app_name: str,
+    app_config: AppConfig,
+    ref: Optional[Ref] = None,
+    version: Optional[Version] = None
 ) -> FetchResult:
     if app_config.repo.type == RepositoryType.HGMO:
         raise Exception("FML-based apps on hg.mozilla.org are not supported.")
@@ -28,7 +37,10 @@ def fetch_fml_app(
     if ref is not None and not ref.is_resolved:
         raise ValueError(f"fetch_fml_app: ref `{ref.name}` is not resolved")
 
-    result = FetchResult(app_name=app_name, ref=ref or Ref("main"))
+    if version is not None and ref is None:
+        raise ValueError("Cannot fetch specific version without a ref.")
+
+    result = FetchResult(app_name=app_name, ref=ref or Ref("main"), version=version)
 
     try:
         # We could operate against "main" for all these calls, but the repository
@@ -38,7 +50,10 @@ def fetch_fml_app(
         if ref is None:
             ref = result.ref = github_api.get_main_ref(app_config.repo.name)
 
-        print(f"fetch: {app_name} at {ref}")
+        if version:
+            print(f"fetch: {app_name} at {ref} version {version}")
+        else:
+            print(f"fetch: {app_name} at {ref}")
 
         channels = nimbus_cli.get_channels(app_config, ref.resolved)
         print(f"fetch: {app_name}: channels are {', '.join(channels)}")
@@ -75,7 +90,11 @@ def fetch_fml_app(
 
 
 def fetch_legacy_app(
-    manifest_dir: Path, app_name: str, app_config: AppConfig, ref: Optional[Ref] = None
+    manifest_dir: Path,
+    app_name: str,
+    app_config: AppConfig,
+    ref: Optional[Ref] = None,
+    version: Optional[Version] = None,
 ) -> FetchResult:
     if app_config.repo.type == RepositoryType.GITHUB:
         raise Exception("Legacy experimenter.yaml apps on GitHub are not supported.")
@@ -83,7 +102,10 @@ def fetch_legacy_app(
     if ref is not None and not ref.is_resolved:
         raise ValueError(f"fetch_legacy_app: ref {ref.name} is not resolved")
 
-    result = FetchResult(app_name=app_name, ref=ref or Ref("tip"))
+    if version is not None and ref is None:
+        raise ValueError("Cannot fetch specific version without a ref.")
+
+    result = FetchResult(app_name=app_name, ref=ref or Ref("tip"), version=version)
 
     try:
         # We could operate against "tip" for all these calls, but the repository
@@ -93,7 +115,10 @@ def fetch_legacy_app(
         if ref is None:
             ref = result.ref = hgmo_api.get_tip_rev(app_config.repo.name)
 
-        print(f"fetch: {app_name} at {ref}")
+        if version:
+            print(f"fetch: {app_name} at {ref} version {version}")
+        else:
+            print(f"fetch: {app_name} at {ref}")
 
         manifest_path = manifest_dir / app_config.slug / "experimenter.yaml"
         print(f"fetch: {app_name}: downloading experimenter.yaml")
@@ -156,7 +181,7 @@ def summarize_results(results: list[FetchResult]):
         print("SUCCESS:\n")
         for result in results:
             if result.exc is None:
-                print(f"{result.app_name} at {result.ref}")
+                print(result)
 
         print("")
 
@@ -164,4 +189,4 @@ def summarize_results(results: list[FetchResult]):
         print("FAILURES:\n")
         for result in results:
             if result.exc is not None:
-                print(f"{result.app_name} at {result.ref}")
+                print(result)

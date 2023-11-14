@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any
+from typing import Any, Optional
 from unittest import TestCase
 from unittest.mock import call, patch
 
@@ -10,8 +10,9 @@ import yaml
 
 from manifesttool import fetch
 from manifesttool.appconfig import AppConfig, Repository, RepositoryType
-from manifesttool.fetch import fetch_fml_app, fetch_legacy_app
+from manifesttool.fetch import FetchResult, fetch_fml_app, fetch_legacy_app
 from manifesttool.repository import Ref
+from manifesttool.version import Version
 
 FML_APP_CONFIG = AppConfig(
     slug="fml-app",
@@ -114,6 +115,16 @@ def make_mock_fetch_file(paths=None):
     return mock_fetch_file
 
 
+def mock_fetch(
+    manifest_dir: Path,
+    app_name: str,
+    app_config: AppConfig,
+    ref: Optional[Ref],
+    version: Optional[Version] = None,
+) -> FetchResult:
+    """A mock version of fetch_fml_app and fetch_legacy_app that returns success."""
+    return FetchResult(app_name, ref, version)
+
 class FetchTests(TestCase):
     maxDiff = None
 
@@ -206,6 +217,17 @@ class FetchTests(TestCase):
             generate_experimenter_yaml.assert_called_with(
                 FML_APP_CONFIG, "release", manifest_dir
             )
+
+    def test_fetch_fml_version_no_ref(self):
+        """Testing fetch_fml_app with a version but no ref results in an error."""
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("fml-app").mkdir()
+
+            with self.assertRaisesRegex(
+                ValueError, "Cannot fetch specific version without a ref."
+            ):
+                fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG, version=Version(1))
 
     @patch.object(
         fetch.github_api, "get_main_ref", side_effect=Exception("Connection error")
@@ -332,6 +354,19 @@ class FetchTests(TestCase):
                     ),
                 ],
             )
+
+    def test_fetch_legacy_version_no_ref(self):
+        """Testing fetch_legacy_app with a version but no ref results in an error."""
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("legacy-app").mkdir()
+
+            with self.assertRaisesRegex(
+                ValueError, "Cannot fetch specific version without a ref."
+            ):
+                fetch_legacy_app(
+                    manifest_dir, "app", LEGACY_APP_CONFIG, version=Version(1)
+                )
 
     @patch.object(fetch.hgmo_api, "get_tip_rev", lambda *args: Ref("tip", "ref"))
     @patch.object(

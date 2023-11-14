@@ -11,7 +11,7 @@ from manifesttool import cli
 from manifesttool.appconfig import AppConfig, AppConfigs
 from manifesttool.fetch import FetchResult
 from manifesttool.repository import Ref
-from manifesttool.tests.test_fetch import FML_APP_CONFIG, LEGACY_APP_CONFIG
+from manifesttool.tests.test_fetch import FML_APP_CONFIG, LEGACY_APP_CONFIG, mock_fetch
 
 
 def make_app_configs(app_config: AppConfig) -> AppConfigs:
@@ -50,7 +50,7 @@ class CliTests(TestCase):
     @patch.object(
         cli,
         "fetch_fml_app",
-        side_effect=lambda *args: FetchResult("fml_app", Ref("main", "resolved")),
+        side_effect=lambda *args: mock_fetch(*args, ref=Ref("main", "resolved"))
     )
     def test_fetch_fml(self, fetch_fml_app):
         with cli_runner(app_config=FML_APP_CONFIG) as runner:
@@ -64,14 +64,14 @@ class CliTests(TestCase):
             )
 
             self.assertIn(
-                "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved)\n", result.stdout
+                "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved) version None\n", result.stdout
             )
 
     @patch.object(
         cli,
         "fetch_fml_app",
         lambda *args: FetchResult(
-            "fml_app", Ref("main"), exc=Exception("Connection error")
+            "fml_app", Ref("main"), version=None, exc=Exception("Connection error")
         ),
     )
     def test_fetch_fml_failure(self):
@@ -79,12 +79,12 @@ class CliTests(TestCase):
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            self.assertIn("SUMMARY:\n\nFAILURES:\n\nfml_app at main\n", result.stdout)
+            self.assertIn("SUMMARY:\n\nFAILURES:\n\nfml_app at main version None\n", result.stdout)
 
     @patch.object(
         cli,
         "fetch_legacy_app",
-        side_effect=lambda *args: FetchResult("legacy_app", Ref("tip", "resolved")),
+        side_effect=lambda *args: FetchResult("legacy_app", Ref("tip", "resolved"), version=None),
     )
     def test_fetch_legacy(self, fetch_legacy_app):
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
@@ -98,14 +98,14 @@ class CliTests(TestCase):
             )
 
             self.assertIn(
-                "SUMMARY:\n\nSUCCESS:\n\nlegacy_app at tip (resolved)\n", result.stdout
+                "SUMMARY:\n\nSUCCESS:\n\nlegacy_app at tip (resolved) version None\n", result.stdout
             )
 
     @patch.object(
         cli,
         "fetch_legacy_app",
         lambda *args: FetchResult(
-            "legacy_app", Ref("tip"), exc=Exception("Connection error")
+            "legacy_app", Ref("tip"), version=None, exc=Exception("Connection error")
         ),
     )
     def test_fetch_legacy_failure(self):
@@ -114,6 +114,6 @@ class CliTests(TestCase):
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             self.assertIn(
-                "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip\n",
+                "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip version None\n",
                 result.stdout,
             )
