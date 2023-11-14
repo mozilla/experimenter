@@ -1,7 +1,9 @@
+import plistlib
 import re
 from dataclasses import dataclass
 from typing import Optional
 
+from manifesttool.appconfig import VersionFile, VersionFileType
 from manifesttool.repository import Ref
 
 
@@ -38,6 +40,21 @@ class Version:
                 kwargs["patch"] = int(patch)
 
         return cls(**kwargs)
+
+    VERSION_RE = re.compile(r"^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)))?")
+
+    @classmethod
+    def parse(cls, s: str) -> Optional["Version"]:
+        """Parse a version out of a given string.
+
+        Any missing component will be assumed zero.
+
+        Trailing signifiers (e.g., b0, a0, rc1) will be ignored.
+        """
+        if m := cls.VERSION_RE.match(s):
+            return cls.from_match(m.groupdict())
+
+        return None
 
     def as_tuple(self) -> (int, int, int):
         """Return the version as a (major, minor, patch) tuple."""
@@ -114,3 +131,30 @@ def filter_versioned_refs(
             and (ignore_ref_names is None or r.name not in ignore_ref_names)
         )
     }
+
+
+def parse_version_file(f: VersionFile, contents: str) -> Optional[Version]:
+    """Parse a version file and return the version.
+
+    Args:
+        f: The ``VersionFile`` definition.
+        contents: The contents of the file.
+
+    Returns:
+        The parsed Version.
+    """
+    if f.__root__.type == VersionFileType.PLAIN_TEXT:
+        return _parse_plain_text_version_file(contents)
+    elif f.__root__.type == VersionFileType.PLIST:
+        return _parse_plist_version_file(contents, f.__root__.key)
+
+
+def _parse_plain_text_version_file(contents: str) -> Optional[Version]:
+    return Version.parse(contents)
+
+
+def _parse_plist_version_file(contents: str, key: str) -> Optional[Version]:
+    plist = plistlib.loads(contents.encode())
+    version_str = plist[key]
+
+    return Version.parse(version_str)

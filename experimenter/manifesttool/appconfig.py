@@ -1,9 +1,9 @@
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Literal, Union
 
 import yaml
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, Field, root_validator
 
 
 class RepositoryType(Enum):
@@ -14,6 +14,41 @@ class RepositoryType(Enum):
 class Repository(BaseModel):
     type: RepositoryType
     name: str
+
+
+class VersionFileType(str, Enum):
+    PLAIN_TEXT = "plaintext"
+    PLIST = "plist"
+
+
+class PlainTextVersionFile(BaseModel):
+    type: Literal[VersionFileType.PLAIN_TEXT]
+    path: str
+
+
+class PListVersionFile(BaseModel):
+    type: Literal[VersionFileType.PLIST]
+    path: str
+    key: str
+
+
+class VersionFile(BaseModel):
+    __root__: Union[PlainTextVersionFile, PListVersionFile] = Field(discriminator="type")
+
+
+class RepositoryType(str, Enum):
+    GITHUB = "github"
+    HGMO = "hgmo"
+
+
+
+class Repository(BaseModel):
+    """A repository."""
+
+
+    type: RepositoryType
+    name: str
+
 
 
 class AppConfig(BaseModel):
@@ -27,6 +62,8 @@ class AppConfig(BaseModel):
     tag_re: Optional[str]
     ignored_branches: Optional[list[str]]
     ignored_tags: Optional[list[str]]
+    version_file: VersionFile
+
 
     @root_validator(pre=True)
     def validate_one_manifest_path(cls, values):

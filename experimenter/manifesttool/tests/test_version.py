@@ -2,10 +2,10 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from manifesttool.appconfig import AppConfigs
+from manifesttool.appconfig import AppConfigs, VersionFile, VersionFileType
 from manifesttool.cli import MANIFESTS_DIR
 from manifesttool.repository import Ref
-from manifesttool.version import Version, find_versioned_refs, filter_versioned_refs
+from manifesttool.version import Version, find_versioned_refs, filter_versioned_refs, parse_version_file
 
 
 class VersionTests(TestCase):
@@ -349,3 +349,46 @@ class VersionTests(TestCase):
             set(filtered_branches.keys()),
             {Version(107, 1), Version(120)},
         )
+
+    @parameterized.expand(
+        [
+            ("121.0a1\n", Version(121)),
+            ("119.0.1\n", Version(119, 0, 1)),
+        ],
+    )
+    def test_parse_version_file_plain_text(self, contents, expected):
+        """Testing parse_version_file with a plain-text version file."""
+        version_file = VersionFile.parse_obj({
+            "type": VersionFileType.PLAIN_TEXT,
+            "path": "version.txt",
+        })
+
+        self.assert_equal(parse_version_file(version_file, contents), expected)
+
+    @parameterized.expand(
+        [
+            ("121.0", Version(121)),
+            ("121.1", Version(121)),
+        ]
+    )
+    def test_parse_version_file_plist(self, version_str, expected):
+        """Testing parse_version_file with a plist version file."""
+        version_file = VersionFile.parse_obj({
+            "type": VersionFileType.PLIST,
+            "path": "info.plist",
+            "key": "Version",
+        })
+
+        contents = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"'
+            ' "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n'
+            '<plist version="1.0">\n'
+            '<dict>\n'
+            '  <key>Version</key>\n'
+            f'  <string>{version_str}</string>\n'
+            '</dict>\n'
+            '</plist>\n'
+        )
+
+        self.assert_equal(parse_version_file(version_file, contents), expected)
