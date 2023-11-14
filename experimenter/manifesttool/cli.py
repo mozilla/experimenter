@@ -32,10 +32,10 @@ def main(ctx: click.Context, *, manifest_dir: Path):
     )
 
 
-@main.command("fetch-latest")
+@main.command("fetch")
 @click.pass_context
-def fetch_latest(ctx: click.Context):
-    """Fetch the latest FML manifests and generate experimenter.yaml files."""
+def fetch(ctx: click.Context):
+    """Fetch the FML manifests and generate experimenter.yaml files."""
     context = ctx.find_object(Context)
 
     results = []

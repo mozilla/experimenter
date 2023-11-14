@@ -38,10 +38,10 @@ def fetch_fml_app(
         if ref is None:
             ref = result.ref = github_api.get_main_ref(app_config.repo.name)
 
-        print(f"fetch-latest: {app_name} at {ref}")
+        print(f"fetch: {app_name} at {ref}")
 
         channels = nimbus_cli.get_channels(app_config, ref.resolved)
-        print(f"fetch-latest: {app_name}: channels are {', '.join(channels)}")
+        print(f"fetch: {app_name}: channels are {', '.join(channels)}")
 
         if not channels:
             print(
@@ -51,7 +51,7 @@ def fetch_fml_app(
             raise Exception("No channels found")
 
         for channel in channels:
-            print(f"fetch-latest: {app_name}: download {channel} manifest")
+            print(f"fetch: {app_name}: download {channel} manifest")
             nimbus_cli.download_single_file(
                 app_config,
                 channel,
@@ -59,7 +59,7 @@ def fetch_fml_app(
                 ref.resolved,
             )
 
-        print(f"fetch-latest: {app_name}: generate experimenter.yaml")
+        print(f"fetch: {app_name}: generate experimenter.yaml")
         # The single-file fml file for each channel will generate the same
         # experimenter.yaml, so we can pick any here.
         nimbus_cli.generate_experimenter_yaml(
@@ -93,10 +93,10 @@ def fetch_legacy_app(
         if ref is None:
             ref = result.ref = hgmo_api.get_tip_rev(app_config.repo.name)
 
-        print(f"fetch-latest: {app_name} at {ref}")
+        print(f"fetch: {app_name} at {ref}")
 
         manifest_path = manifest_dir / app_config.slug / "experimenter.yaml"
-        print(f"fetch-latest: {app_name}: downloading experimenter.yaml")
+        print(f"fetch: {app_name}: downloading experimenter.yaml")
         hgmo_api.fetch_file(
             app_config.repo.name,
             app_config.experimenter_yaml_path,
@@ -121,13 +121,13 @@ def fetch_legacy_app(
             if feature.json_schema is not None:
                 if feature.json_schema.path in fetched_schemas:
                     print(
-                        f"fetch-latest: {app_name}: already fetched schema for "
+                        f"fetch: {app_name}: already fetched schema for "
                         f"feature {feature_slug} ({feature.json_schema.path})"
                     )
                     continue
 
                 print(
-                    f"fetch-latest: {app_name}: fetching schema for feature {feature_slug} "
+                    f"fetch: {app_name}: fetching schema for feature {feature_slug} "
                     f"({feature.json_schema.path})"
                 )
 

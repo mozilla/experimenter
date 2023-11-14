@@ -52,9 +52,9 @@ class CliTests(TestCase):
         "fetch_fml_app",
         side_effect=lambda *args: FetchResult("fml_app", Ref("main", "resolved")),
     )
-    def test_fetch_latest_fml(self, fetch_fml_app):
+    def test_fetch_fml(self, fetch_fml_app):
         with cli_runner(app_config=FML_APP_CONFIG) as runner:
-            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
+            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             fetch_fml_app.assert_called_with(
@@ -74,9 +74,9 @@ class CliTests(TestCase):
             "fml_app", Ref("main"), exc=Exception("Connection error")
         ),
     )
-    def test_fetch_latest_fml_failure(self):
+    def test_fetch_fml_failure(self):
         with cli_runner(app_config=FML_APP_CONFIG) as runner:
-            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
+            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             self.assertIn("SUMMARY:\n\nFAILURES:\n\nfml_app at main\n", result.stdout)
@@ -86,9 +86,9 @@ class CliTests(TestCase):
         "fetch_legacy_app",
         side_effect=lambda *args: FetchResult("legacy_app", Ref("tip", "resolved")),
     )
-    def fetch_latest_legacy_success(self, fetch_legacy_app):
+    def test_fetch_legacy(self, fetch_legacy_app):
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
-            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
+            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             fetch_legacy_app.assert_called_with(
@@ -110,7 +110,7 @@ class CliTests(TestCase):
     )
     def test_fetch_legacy_failure(self):
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
-            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch-latest"])
+            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             self.assertIn(
