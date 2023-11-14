@@ -1,9 +1,10 @@
 import plistlib
 import re
 from dataclasses import dataclass
-from typing import Optional
+from typing import Iterable, Optional
 
-from manifesttool.appconfig import VersionFile, VersionFileType
+from manifesttool import github_api, hgmo_api
+from manifesttool.appconfig import AppConfig, RepositoryType, VersionFile, VersionFileType
 from manifesttool.repository import Ref
 
 
@@ -41,7 +42,7 @@ class Version:
 
         return cls(**kwargs)
 
-    VERSION_RE = re.compile(r"^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)))?")
+    VERSION_RE = re.compile(r"^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?")
 
     @classmethod
     def parse(cls, s: str) -> Optional["Version"]:
@@ -158,3 +159,37 @@ def _parse_plist_version_file(contents: str, key: str) -> Optional[Version]:
     version_str = plist[key]
 
     return Version.parse(version_str)
+
+
+def resolve_ref_versions(
+    app_config: AppConfig,
+    refs: Iterable[Ref],
+) -> dict[Version, Ref]:
+    """Resolve refs to versions based on the contents of their version file.
+
+    Args:
+        app_config: The AppConfig for the specific app.
+        refs: The refs to resolve
+
+    Returns:
+        A mapping of Versions to the Refs.
+    """
+    if app_config.repo.type == RepositoryType.GITHUB:
+        fetch_file = github_api.fetch_file
+    elif app_config.repo.type == RepositoryType.HGMO:
+        fetch_file = hgmo_api.fetch_file
+    else:  # pragma: no cover
+        assert False
+
+    versions = {}
+
+    for ref in refs:
+        version_file_contents = fetch_file(
+            app_config.repo.name, app_config.version_file.__root__.path, ref.resolved
+        )
+
+        v = parse_version_file(app_config.version_file, version_file_contents)
+
+        versions[v] = ref
+
+    return versions

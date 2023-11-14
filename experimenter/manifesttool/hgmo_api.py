@@ -1,8 +1,9 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, overload
 
 import requests
 
+from manifesttool import download
 from manifesttool.repository import Ref
 
 HGMO_URL = "https://hg.mozilla.org"
@@ -24,15 +25,45 @@ def get_tip_rev(repo: str) -> Ref:
     return Ref("tip", rsp["node"])
 
 
+@overload
+def fetch_file(repo: str, file_path: str, rev: str) -> str:
+    ...  # pragma: no cover
+
+
+@overload
+def fetch_file(repo: str, file_path: str, rev: str, download_path: Path) -> None:
+    ...  # pragma: no cover
+
+
 def fetch_file(
     repo: str,
     file_path: str,
     rev: str,
-    download_path: Path,
+    download_path: Optional[Path] = None,
 ):
+    """Fetch the file path at the given revision from the repository.
+
+    Args:
+        repo:
+            The name of the repository.
+
+        file_path:
+            The path to the file in the repository.
+
+        rev:
+            The revision at which the file is to be fetched.
+
+        download_path:
+            If provided, the file will be written to disk at this location.
+
+    Returns:
+        If ``download_path`` is ``None``, the file contents are returned as a
+        ``str``. Otherwise, ``None`` is returned.
+    """
     url = f"{HGMO_URL}/{repo}/raw-file/{rev}/{file_path}"
-    with requests.get(url, stream=True) as req:
-        req.raise_for_status()
-        with download_path.open("wb") as f:
-            for chunk in req.iter_content(chunk_size=8192):
-                f.write(chunk)
+
+    if download_path is None:
+        return download.as_text(url)
+
+    download.to_path(url, download_path)
+    return None
