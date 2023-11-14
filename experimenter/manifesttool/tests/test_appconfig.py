@@ -7,8 +7,7 @@ from manifesttool.cli import MANIFESTS_DIR
 class AppConfigTests(TestCase):
     def test_parse_apps_yaml(self):
         """Testing that we can parse apps.yaml."""
-        apps_yaml_path = MANIFESTS_DIR / "apps.yaml"
-        AppConfigs.load_from_file(apps_yaml_path)
+        AppConfigs.load_from_directory(MANIFESTS_DIR)
 
     def test_parse_experimenter_and_fml_paths(self):
         """Testing that parsing apps.yaml fails if an app contains both the
