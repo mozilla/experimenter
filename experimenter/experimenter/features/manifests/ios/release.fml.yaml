@@ -240,6 +240,7 @@ features:
               secondary:
                 action: next-card
                 title: Onboarding/Onboarding.Welcome.Skip.v114
+            image: welcome-globe
             instructions-popup:
               button-action: open-ios-fx-settings
               button-title: Onboarding/DefaultBrowserPopup.ButtonTitle.v114
@@ -248,6 +249,9 @@ features:
                 - Onboarding/DefaultBrowserPopup.SecondLabel.v114
                 - Onboarding/DefaultBrowserPopup.ThirdLabel.v114
               title: Onboarding/DefaultBrowserPopup.Title.v114
+            link:
+              title: Onboarding/Onboarding.Welcome.Link.Action.v114
+              url: "https://www.mozilla.org/privacy/firefox/"
             order: 10
             prerequisites:
               - ALWAYS
