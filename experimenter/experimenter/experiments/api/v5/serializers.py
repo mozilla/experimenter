@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 import typing
 from collections import defaultdict
@@ -40,6 +41,8 @@ from experimenter.kinto.tasks import (
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 from experimenter.settings import SIZING_DATA_KEY
+
+logger = logging.getLogger()
 
 
 class TransitionConstants:
@@ -1441,11 +1444,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def _validate_with_fml(self, feature_config, channel, obj):
         loader = NimbusFmlLoader(feature_config.application, channel)
         if fml_errors := loader.get_fml_errors(obj, feature_config.slug):
-            return [
-                f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
-                f"{e.message} at line {e.line+1} column {e.col}"
-                for e in fml_errors
-            ]
+            for e in fml_errors:
+                logger.error(f"{e.message} at line {e.line+1} column {e.col}")
+            return [f"{NimbusExperiment.ERROR_FML_VALIDATION}"]
         return None
 
     def _validate_schema(self, obj, schema):
