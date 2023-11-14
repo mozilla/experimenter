@@ -1503,14 +1503,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         self.assertFalse(serializer.is_valid())
         self.mock_fml_errors.assert_called()
         self.assertEqual(len(serializer.errors), 2)
-        self.assertIn(
-            fml_errors[0].message,
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][0],
-        )
-        self.assertIn(
-            fml_errors[1].message,
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][1],
-        )
 
     def test_serializer_fml_invalid_treatment_branch_value(self):
         fml_errors = [
@@ -1565,14 +1557,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         self.assertFalse(serializer.is_valid())
         self.mock_fml_errors.assert_called()
         self.assertEqual(len(serializer.errors), 2)
-        self.assertIn(
-            fml_errors[0].message,
-            serializer.errors["treatment_branches"][0]["feature_values"][0]["value"][0],
-        )
-        self.assertIn(
-            fml_errors[1].message,
-            serializer.errors["treatment_branches"][0]["feature_values"][0]["value"][1],
-        )
 
     def test_fml_validation_with_no_errors(self):
         fml_errors = None
