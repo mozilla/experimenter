@@ -64,7 +64,8 @@ class CliTests(TestCase):
             )
 
             self.assertIn(
-                "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved) version None\n", result.stdout
+                "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved) version None\n",
+                result.stdout,
             )
 
     @patch.object(
@@ -79,12 +80,17 @@ class CliTests(TestCase):
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            self.assertIn("SUMMARY:\n\nFAILURES:\n\nfml_app at main version None\n", result.stdout)
+            self.assertIn(
+                "SUMMARY:\n\nFAILURES:\n\nfml_app at main version None\nConnection error\n",
+                result.stdout,
+            )
 
     @patch.object(
         cli,
         "fetch_legacy_app",
-        side_effect=lambda *args: FetchResult("legacy_app", Ref("tip", "resolved"), version=None),
+        side_effect=lambda *args: FetchResult(
+            "legacy_app", Ref("tip", "resolved"), version=None
+        ),
     )
     def test_fetch_legacy(self, fetch_legacy_app):
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
@@ -98,7 +104,8 @@ class CliTests(TestCase):
             )
 
             self.assertIn(
-                "SUMMARY:\n\nSUCCESS:\n\nlegacy_app at tip (resolved) version None\n", result.stdout
+                "SUMMARY:\n\nSUCCESS:\n\nlegacy_app at tip (resolved) version None\n",
+                result.stdout,
             )
 
     @patch.object(
@@ -114,6 +121,6 @@ class CliTests(TestCase):
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
             self.assertIn(
-                "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip version None\n",
+                "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip version None\nConnection error\n",
                 result.stdout,
             )

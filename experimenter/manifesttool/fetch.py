@@ -21,7 +21,12 @@ class FetchResult:
     exc: Optional[Exception] = None
 
     def __str__(self):
-        return f"{self.app_name} at {self.ref} version {self.version}"
+        s = f"{self.app_name} at {self.ref} version {self.version}"
+        if self.exc:
+            exc_message = str(self.exc).partition("\n")[0]
+            s = f"{s}\n{exc_message}\n"
+
+        return s
 
 
 def fetch_fml_app(
@@ -29,7 +34,7 @@ def fetch_fml_app(
     app_name: str,
     app_config: AppConfig,
     ref: Optional[Ref] = None,
-    version: Optional[Version] = None
+    version: Optional[Version] = None,
 ) -> FetchResult:
     if app_config.repo.type == RepositoryType.HGMO:
         raise Exception("FML-based apps on hg.mozilla.org are not supported.")
