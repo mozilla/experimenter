@@ -1,11 +1,27 @@
+from typing import Optional
 from unittest import TestCase
 
+import responses
 from parameterized import parameterized
 
-from manifesttool.appconfig import AppConfigs
+from manifesttool.appconfig import (
+    AppConfig,
+    AppConfigs,
+    RepositoryType,
+    VersionFile,
+    VersionFileType,
+)
 from manifesttool.cli import MANIFESTS_DIR
+from manifesttool.github_api import GITHUB_RAW_URL
+from manifesttool.hgmo_api import HGMO_URL
 from manifesttool.repository import Ref
-from manifesttool.version import Version, find_versioned_refs, filter_versioned_refs
+from manifesttool.version import (
+    Version,
+    filter_versioned_refs,
+    find_versioned_refs,
+    parse_version_file,
+    resolve_ref_versions,
+)
 
 
 class VersionTests(TestCase):
@@ -349,3 +365,149 @@ class VersionTests(TestCase):
             set(filtered_branches.keys()),
             {Version(107, 1), Version(120)},
         )
+
+    @parameterized.expand(
+        [
+            ("bogus", None),
+            ("1", Version(1)),
+            ("1\n", Version(1)),
+            ("1a1", Version(1)),
+            ("1.2", Version(1, 2)),
+            ("1.2\n", Version(1, 2)),
+            ("1.2a1", Version(1, 2)),
+            ("1.2.1", Version(1, 2, 1)),
+            ("1.2.1\n", Version(1, 2, 1)),
+            ("1.2.1a1", Version(1, 2, 1)),
+        ]
+    )
+    def test_version_parse(self, s: str, expected: Optional[Version]):
+        """Testing Version.parse."""
+        self.assertEqual(Version.parse(s), expected)
+
+    @parameterized.expand(
+        [
+            ("121.0a1\n", Version(121)),
+            ("119.0.1\n", Version(119, 0, 1)),
+            ("bogus", None),
+        ],
+    )
+    def test_parse_version_file_plain_text(self, contents, expected):
+        """Testing parse_version_file with a plain-text version file."""
+        version_file = VersionFile.parse_obj(
+            {
+                "type": VersionFileType.PLAIN_TEXT,
+                "path": "version.txt",
+            }
+        )
+
+        self.assertEqual(parse_version_file(version_file, contents), expected)
+
+    @parameterized.expand(
+        [
+            ("121.0", Version(121)),
+            ("121.1", Version(121, 1)),
+            ("bogus", None),
+        ]
+    )
+    def test_parse_version_file_plist(self, version_str, expected):
+        """Testing parse_version_file with a plist version file."""
+        version_file = VersionFile.parse_obj(
+            {
+                "type": VersionFileType.PLIST,
+                "path": "info.plist",
+                "key": "Version",
+            }
+        )
+
+        contents = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"'
+            ' "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n'
+            '<plist version="1.0">\n'
+            "<dict>\n"
+            "  <key>Version</key>\n"
+            f"  <string>{version_str}</string>\n"
+            "</dict>\n"
+            "</plist>\n"
+        )
+
+        self.assertEqual(parse_version_file(version_file, contents), expected)
+
+    @parameterized.expand(
+        [
+            (
+                app_config,
+                [
+                    (Ref("v120", "r0"), "120.0a1\n"),
+                    (Ref("v120.1", "r1"), "120.1a1\n"),
+                    (Ref("v121", "r2"), "121.0a1\n"),
+                ],
+                {
+                    Version(120): Ref("v120", "r0"),
+                    Version(120, 1): Ref("v120.1", "r1"),
+                    Version(121): Ref("v121", "r2"),
+                },
+            )
+            for app_config in (
+                AppConfig.parse_obj(
+                    {
+                        "slug": "fml-app",
+                        "repo": {
+                            "type": "github",
+                            "name": "fml-app",
+                        },
+                        "fml_path": "nimbus.fml.yaml",
+                        "version_file": {
+                            "type": "plaintext",
+                            "path": "version.txt",
+                        },
+                    },
+                ),
+                AppConfig.parse_obj(
+                    {
+                        "slug": "legacy-app",
+                        "repo": {
+                            "type": "hgmo",
+                            "name": "legacy-app",
+                        },
+                        "experimenter_yaml_path": "nimbus.yaml",
+                        "version_file": {
+                            "type": "plaintext",
+                            "path": "version.txt",
+                        },
+                    },
+                ),
+            )
+        ]
+    )
+    @responses.activate
+    def test_resolve_ref_versions(
+        self,
+        app_config: AppConfig,
+        bodies: list[tuple[Ref, str]],
+        expected: dict[Version, Ref],
+    ):
+        """Testing resolve_ref_versions."""
+        if app_config.repo.type == RepositoryType.GITHUB:
+            url_template = (
+                f"{GITHUB_RAW_URL}/{app_config.repo.name}/"
+                f"{{ref.resolved}}/{app_config.version_file.__root__.path}"
+            )
+        else:
+            url_template = (
+                f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
+                f"{{ref.resolved}}/{app_config.version_file.__root__.path}"
+            )
+
+        refs = []
+        rsps = []
+        for ref, body in bodies:
+            rsps.append(responses.get(url_template.format(ref=ref), body=body))
+            refs.append(ref)
+
+        result = resolve_ref_versions(app_config, refs)
+
+        for rsp in rsps:
+            self.assertEqual(rsp.call_count, 1)
+
+        self.assertEqual(result, expected)

@@ -1,10 +1,13 @@
-from unittest import TestCase
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
+from unittest import TestCase
 
 import responses
 from responses import matchers
 
 from manifesttool import github_api
+from manifesttool.github_api import GITHUB_RAW_URL
 from manifesttool.repository import Ref
 
 
@@ -18,7 +21,7 @@ def _add_paginated_responses(
             **page_kwargs,
             match=[
                 matchers.query_param_matcher({"page": page_number}, strict_match=False),
-            ]
+            ],
         )
         for page_number, page_kwargs in pages.items()
     }
@@ -158,3 +161,23 @@ class GitHubApiTests(TestCase):
         self.assertEqual(rsps["2"].call_count, 1)
         self.assertEqual(rsps["3"].call_count, 1)
         self.assertEqual(rsps["4"].call_count, 0)
+
+    @responses.activate
+    def test_fetch_file_download(self):
+        """Testing github_api.fetch_file."""
+        responses.get(f"{GITHUB_RAW_URL}/repo/ref/file/path.txt", body=b"hello, world\n")
+
+        with TemporaryDirectory() as tmp_dir:
+            tmp_filename = Path(tmp_dir, "file.txt")
+
+            github_api.fetch_file("repo", "file/path.txt", "ref", tmp_filename)
+
+            self.assertTrue(tmp_filename.exists())
+
+            with tmp_filename.open("rb") as f:
+                contents = f.read()
+
+            self.assertEqual(contents, b"hello, world\n")
+
+        contents = github_api.fetch_file("repo", "file/path.txt", "ref")
+        self.assertEqual(contents, "hello, world\n")
