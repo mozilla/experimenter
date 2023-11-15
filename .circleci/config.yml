@@ -506,7 +506,7 @@ jobs:
             git checkout main
             git pull origin main
             cp .env.sample .env
-            make fetch_external_resources
+            env GITHUB_BEARER_TOKEN="${GH_TOKEN}" make fetch_external_resources
             if (($(git status --porcelain | wc -c) > 0))
               then
                 git checkout -B external-config
