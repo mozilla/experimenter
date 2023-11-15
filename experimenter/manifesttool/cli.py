@@ -3,8 +3,13 @@ from pathlib import Path
 
 import click
 
-from manifesttool.appconfig import AppConfigs
-from manifesttool.fetch import fetch_fml_app, fetch_legacy_app, summarize_results
+from manifesttool.appconfig import AppConfigs, RepositoryType
+from manifesttool.fetch import (
+    fetch_fml_app,
+    fetch_legacy_app,
+    fetch_releases,
+    summarize_results,
+)
 
 MANIFEST_DIR = Path(__file__).parent.parent / "experimenter" / "features" / "manifests"
 
@@ -49,5 +54,12 @@ def fetch(ctx: click.Context):
             results.append(fetch_legacy_app(context.manifest_dir, app_name, app_config))
         else:  # pragma: no cover
             assert False, "unreachable"
+
+        if (
+            app_config.repo.type == RepositoryType.GITHUB
+            and app_config.fml_path is not None
+            and app_config.version_file is not None
+        ):
+            results.extend(fetch_releases(context.manifest_dir, app_name, app_config))
 
     summarize_results(results)

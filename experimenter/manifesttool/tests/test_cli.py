@@ -8,7 +8,13 @@ import yaml
 from click.testing import CliRunner
 
 from manifesttool import cli
-from manifesttool.appconfig import AppConfig, AppConfigs
+from manifesttool.appconfig import (
+    AppConfig,
+    AppConfigs,
+    Repository,
+    RepositoryType,
+    VersionFile,
+)
 from manifesttool.fetch import FetchResult
 from manifesttool.repository import Ref
 from manifesttool.tests.test_fetch import FML_APP_CONFIG, LEGACY_APP_CONFIG, mock_fetch
@@ -47,27 +53,32 @@ class CliTests(TestCase):
 
     maxDiff = None
 
+    @patch.object(cli, "fetch_releases")
     @patch.object(
         cli,
         "fetch_fml_app",
-        side_effect=lambda *args: mock_fetch(*args, ref=Ref("main", "resolved"))
+        side_effect=lambda *args: mock_fetch(*args, ref=Ref("main", "resolved")),
     )
-    def test_fetch_fml(self, fetch_fml_app):
+    def test_fetch_fml(self, fetch_fml_app, fetch_releases):
         with cli_runner(app_config=FML_APP_CONFIG) as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
-            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            fetch_fml_app.assert_called_with(
-                Path("."),
-                "fml_app",
-                FML_APP_CONFIG,
-            )
+        self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            self.assertIn(
-                "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved) version None\n",
-                result.stdout,
-            )
+        fetch_fml_app.assert_called_with(
+            Path("."),
+            "fml_app",
+            FML_APP_CONFIG,
+        )
 
+        self.assertIn(
+            "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved) version None\n",
+            result.stdout,
+        )
+
+        fetch_releases.assert_not_called()
+
+    @patch.object(cli, "fetch_releases")
     @patch.object(
         cli,
         "fetch_fml_app",
@@ -75,16 +86,21 @@ class CliTests(TestCase):
             "fml_app", Ref("main"), version=None, exc=Exception("Connection error")
         ),
     )
-    def test_fetch_fml_failure(self):
+    def test_fetch_fml_failure(self, fetch_releases):
+        """Testing the fetch command with an FML app when a failure occurs."""
         with cli_runner(app_config=FML_APP_CONFIG) as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
-            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            self.assertIn(
-                "SUMMARY:\n\nFAILURES:\n\nfml_app at main version None\nConnection error\n",
-                result.stdout,
-            )
+        self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
+        self.assertIn(
+            "SUMMARY:\n\nFAILURES:\n\nfml_app at main version None\nConnection error\n",
+            result.stdout,
+        )
+
+        fetch_releases.assert_not_called()
+
+    @patch.object(cli, "fetch_releases")
     @patch.object(
         cli,
         "fetch_legacy_app",
@@ -92,22 +108,27 @@ class CliTests(TestCase):
             "legacy_app", Ref("tip", "resolved"), version=None
         ),
     )
-    def test_fetch_legacy(self, fetch_legacy_app):
+    def test_fetch_legacy(self, fetch_legacy_app, fetch_releases):
+        """Testing the fetch command with a legacy app."""
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
-            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            fetch_legacy_app.assert_called_with(
-                Path("."),
-                "legacy_app",
-                LEGACY_APP_CONFIG,
-            )
+        self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            self.assertIn(
-                "SUMMARY:\n\nSUCCESS:\n\nlegacy_app at tip (resolved) version None\n",
-                result.stdout,
-            )
+        fetch_legacy_app.assert_called_with(
+            Path("."),
+            "legacy_app",
+            LEGACY_APP_CONFIG,
+        )
 
+        self.assertIn(
+            "SUMMARY:\n\nSUCCESS:\n\nlegacy_app at tip (resolved) version None\n",
+            result.stdout,
+        )
+
+        fetch_releases.assert_not_called()
+
+    @patch.object(cli, "fetch_releases")
     @patch.object(
         cli,
         "fetch_legacy_app",
@@ -115,12 +136,44 @@ class CliTests(TestCase):
             "legacy_app", Ref("tip"), version=None, exc=Exception("Connection error")
         ),
     )
-    def test_fetch_legacy_failure(self):
+    def test_fetch_legacy_failure(self, fetch_releases):
+        """Testing the fetch command with a legacy app when a failure occurs."""
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
             result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
-            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
-            self.assertIn(
-                "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip version None\nConnection error\n",
-                result.stdout,
-            )
+        self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+
+        self.assertIn(
+            "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip version None\nConnection error\n",
+            result.stdout,
+        )
+
+        fetch_releases.assert_not_called()
+
+    @patch.object(
+        cli, "fetch_fml_app", lambda *args: mock_fetch(*args, ref=Ref("main", "resolved"))
+    )
+    @patch.object(cli, "fetch_releases", side_effects=lambda *args: [])
+    def test_fetch_fml_releases(self, fetch_releases):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            version_file=VersionFile.create_plain_text("version.txt"),
+            branch_re="",
+            tag_re="",
+        )
+
+        with cli_runner(app_config=app_config) as runner:
+            result = runner.invoke(cli.main, ["--manifest-dir", ".", "fetch"])
+            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+            print(result.stdout)
+
+        fetch_releases.assert_called_once_with(
+            Path("."),
+            "fml_app",
+            app_config,
+        )
