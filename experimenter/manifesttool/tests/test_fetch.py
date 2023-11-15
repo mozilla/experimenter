@@ -421,6 +421,47 @@ class FetchTests(TestCase):
                     manifest_dir, "app", LEGACY_APP_CONFIG, version=Version(1)
                 )
 
+    @patch.object(fetch.hgmo_api, "get_tip_rev")
+    @patch.object(fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file())
+    def test_fetch_legacy_ref_version(self, fetch_file, get_tip_rev):
+        """Testing fetch_legacy_app with a ref and a version."""
+        ref = Ref("v1.2.3", "foo")
+        version = Version(1, 2, 3)
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("legacy-app").mkdir()
+
+            result = fetch_legacy_app(
+                manifest_dir, "app", LEGACY_APP_CONFIG, ref, version
+            )
+            self.assertEqual(result, FetchResult("app", ref, version))
+
+            get_tip_rev.assert_not_called()
+            fetch_file.assert_has_calls(
+                [
+                    call(
+                        LEGACY_APP_CONFIG.repo.name,
+                        LEGACY_MANIFEST_PATH,
+                        ref.resolved,
+                        manifest_dir
+                        / LEGACY_APP_CONFIG.slug
+                        / f"v{version}"
+                        / "experimenter.yaml",
+                    ),
+                    call(
+                        LEGACY_APP_CONFIG.repo.name,
+                        FEATURE_JSON_SCHEMA_PATH,
+                        ref.resolved,
+                        manifest_dir
+                        / LEGACY_APP_CONFIG.slug
+                        / f"v{version}"
+                        / "schemas"
+                        / FEATURE_JSON_SCHEMA_PATH,
+                    ),
+                ]
+            )
+
     @patch.object(fetch.hgmo_api, "get_tip_rev", lambda *args: Ref("tip", "ref"))
     @patch.object(
         fetch.hgmo_api,

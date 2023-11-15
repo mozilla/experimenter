@@ -127,20 +127,27 @@ def fetch_legacy_app(
         else:
             print(f"fetch: {app_name} at {ref}")
 
-        manifest_path = manifest_dir / app_config.slug / "experimenter.yaml"
         print(f"fetch: {app_name}: downloading experimenter.yaml")
+
+        app_dir = manifest_dir / app_config.slug
+        if version:
+            app_dir /= f"v{version}"
+
+        app_dir.mkdir(exist_ok=True)
+        manifest_path = app_dir / "experimenter.yaml"
+
         hgmo_api.fetch_file(
             app_config.repo.name,
             app_config.experimenter_yaml_path,
             ref.resolved,
-            manifest_dir / app_config.slug / "experimenter.yaml",
+            manifest_path,
         )
 
         with manifest_path.open() as f:
             raw_manifest = yaml.safe_load(f)
             manifest = FeatureManifest.parse_obj(raw_manifest)
 
-        schema_dir = manifest_dir / app_config.slug / "schemas"
+        schema_dir = app_dir / "schemas"
         schema_dir.mkdir(exist_ok=True)
 
         # Some features may re-use the same schemas, so we only have to fetch them
