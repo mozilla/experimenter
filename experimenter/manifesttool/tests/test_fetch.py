@@ -11,6 +11,7 @@ import yaml
 from manifesttool import fetch
 from manifesttool.appconfig import AppConfig, Repository, RepositoryType
 from manifesttool.fetch import FetchResult, fetch_fml_app, fetch_legacy_app
+from manifesttool.nimbus_cli import _get_experimenter_yaml_path, _get_fml_path
 from manifesttool.repository import Ref
 from manifesttool.version import Version
 
@@ -75,14 +76,14 @@ def generate_fml(app_config: AppConfig, channel: str) -> dict[str, Any]:
 
 
 def mock_download_single_file(
+    manifest_dir: Path,
     app_config: AppConfig,
     channel: str,
-    manifests_dir: Path,
     ref: str,
+    version: Optional[Version],
 ):
     """A mock version of `nimbus fml -- single file`."""
-
-    filename = manifests_dir / app_config.slug / f"{channel}.fml.yaml"
+    filename = _get_fml_path(manifest_dir, app_config, channel, version)
     with filename.open("w") as f:
         yaml.dump(generate_fml(app_config, channel), f)
 
@@ -161,8 +162,8 @@ class FetchTests(TestCase):
             get_channels.asset_called_with(FML_APP_CONFIG, "ref")
             download_single_file.assert_has_calls(
                 [
-                    call(FML_APP_CONFIG, "release", manifest_dir, "ref"),
-                    call(FML_APP_CONFIG, "beta", manifest_dir, "ref"),
+                    call(manifest_dir, FML_APP_CONFIG, "release", "ref", None),
+                    call(manifest_dir, FML_APP_CONFIG, "beta", "ref", None),
                 ]
             )
 
@@ -212,10 +213,17 @@ class FetchTests(TestCase):
             get_main_ref.assert_not_called()
             get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
             download_single_file.assert_called_with(
-                FML_APP_CONFIG, "release", manifest_dir, ref.resolved
+                manifest_dir,
+                FML_APP_CONFIG,
+                "release",
+                ref.resolved,
+                None,
             )
             generate_experimenter_yaml.assert_called_with(
-                FML_APP_CONFIG, "release", manifest_dir
+                manifest_dir,
+                FML_APP_CONFIG,
+                "release",
+                None,
             )
 
     def test_fetch_fml_version_no_ref(self):
@@ -228,6 +236,51 @@ class FetchTests(TestCase):
                 ValueError, "Cannot fetch specific version without a ref."
             ):
                 fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG, version=Version(1))
+
+    @patch.object(fetch.github_api, "get_main_ref")
+    @patch.object(
+        fetch.nimbus_cli, "get_channels", side_effect=lambda *args: ["release", "beta"]
+    )
+    @patch.object(
+        fetch.nimbus_cli, "download_single_file", side_effect=mock_download_single_file
+    )
+    @patch.object(
+        fetch.nimbus_cli,
+        "generate_experimenter_yaml",
+        wraps=fetch.nimbus_cli.generate_experimenter_yaml,
+    )
+    def test_fetch_fml_ref_version(
+        self, generate_experimenter_yaml, download_single_file, get_channels, get_main_ref
+    ):
+        """Testing fetch_fml_app with a ref and a version."""
+        ref = Ref("v123", "foo")
+        version = Version(1, 2, 3)
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("fml-app").mkdir()
+
+            result = fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG, ref, version)
+            self.assertEqual(result, FetchResult("app", ref, version))
+
+            get_main_ref.assert_not_called()
+            get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
+            download_single_file.assert_has_calls(
+                [
+                    call(manifest_dir, FML_APP_CONFIG, "release", ref.resolved, version),
+                    call(manifest_dir, FML_APP_CONFIG, "beta", ref.resolved, version),
+                ]
+            )
+
+            generate_experimenter_yaml.assert_called_once_with(
+                manifest_dir, FML_APP_CONFIG, "release", version
+            )
+
+            experimenter_manifest_path = _get_experimenter_yaml_path(
+                manifest_dir, FML_APP_CONFIG, version
+            )
+
+            self.assertIn("v1.2.3", str(experimenter_manifest_path))
+            self.assertTrue(experimenter_manifest_path.exists())
 
     @patch.object(
         fetch.github_api, "get_main_ref", side_effect=Exception("Connection error")

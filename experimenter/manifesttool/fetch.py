@@ -73,19 +73,21 @@ def fetch_fml_app(
         for channel in channels:
             print(f"fetch: {app_name}: download {channel} manifest")
             nimbus_cli.download_single_file(
+                manifest_dir,
                 app_config,
                 channel,
-                manifest_dir,
                 ref.resolved,
+                version,
             )
 
         print(f"fetch: {app_name}: generate experimenter.yaml")
         # The single-file fml file for each channel will generate the same
         # experimenter.yaml, so we can pick any here.
         nimbus_cli.generate_experimenter_yaml(
+            manifest_dir,
             app_config,
             channels[0],
-            manifest_dir,
+            version,
         )
     except Exception as e:
         print_exception(e, file=sys.stderr)
