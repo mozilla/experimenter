@@ -25,8 +25,7 @@ class Context:
 @click.pass_context
 def main(ctx: click.Context, *, manifest_dir: Path):
     """manifest-tool - tools for working with manifests of Experimenter apps."""
-    apps_yaml_path = manifest_dir / "apps.yaml"
-    app_configs = AppConfigs.load_from_file(apps_yaml_path)
+    app_configs = AppConfigs.load_from_directory(manifest_dir)
     ctx.obj = Context(
         manifest_dir,
         app_configs,

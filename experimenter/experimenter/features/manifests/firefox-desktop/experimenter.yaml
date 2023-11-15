@@ -248,6 +248,18 @@ urlbar:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.allowPositionInSuggestions
       description: Whether quick suggest results can be shown in position specified in the suggestions.
+    quickSuggestContextualOptInEnabled:
+      type: boolean
+      setPref: browser.urlbar.quicksuggest.contextualOptIn
+      description: Whether the Firefox Suggest contextual opt-in result is enabled. If true, this implicitly disables shouldShowOnboardingDialog.
+    quickSuggestContextualOptInSayHello:
+      type: boolean
+      setPref: browser.urlbar.quicksuggest.contextualOptIn.sayHello
+      description: Controls which variant of the copy is used for the Firefox Suggest contextual opt-in result.
+    quickSuggestContextualOptInTopPosition:
+      type: boolean
+      setPref: browser.urlbar.quicksuggest.contextualOptIn.topPosition
+      description: Controls whether the Firefox Suggest contextual opt-in result appears at the top of results or at the bottom, after one-off buttons.
     quickSuggestDataCollectionEnabled:
       type: boolean
       description: Whether data collection should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) data collection, if the user has already toggled that preference.
@@ -1410,7 +1422,19 @@ dapTelemetry:
     task1Enabled:
       type: boolean
       fallbackPref: toolkit.telemetry.dap_task1_enabled
-      description: Whether to send fake measurements for verification task 1.
+      description: Whether to send fake measurements for task 1.
+    task1TaskId:
+      type: string
+      fallbackPref: toolkit.telemetry.dap_task1_taskid
+      description: The task ID to use for task 1 measurements.
+    visitCountingEnabled:
+      type: boolean
+      fallbackPref: toolkit.telemetry.dap_visit_counting_enabled
+      description: Whether to count visits to the provided list of URLs.
+    visitCountingExperimentList:
+      fallbackPref: toolkit.telemetry.dap_visit_counting_experiment_list
+      type: json
+      description: A list of experiments with URLs for which we want to count visits.
 
 etpLevel2PBMPref:
   description: The pref that controls the ETP level 2 list in the private browsing mode
@@ -1943,3 +1967,26 @@ phc:
       description: Whether to enable PHC
       type: boolean
       setPref: memory.phc.enabled
+
+mailto:
+  description: Prefs to control aspects of the mailto handler
+  owner: install-update@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    The exposure event is sent when a webmail site calls the
+    registerProtocolHandler function and when users use mailto links in Firefox.
+  isEarlyStartup: false
+  variables:
+    dualPrompt:
+      type: boolean
+      description: >-
+        Can be used to toggle the entire feature on and off.
+      fallbackPref: browser.mailto.dualPrompt
+    dualPrompt.os:
+      type: boolean
+      description: >-
+        Make webmail sites display prompts to set Firefox as default OS mailto
+        application and another prompt to set the current site as default
+        webmail site in Firefox.
+      fallbackPref: browser.mailto.dualPrompt.os
+

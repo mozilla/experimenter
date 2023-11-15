@@ -3,7 +3,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from django.test import TestCase
-from packaging import version
 from rust_fml import FmlClient
 
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
@@ -15,7 +14,7 @@ class TestNimbusFmlLoader(TestCase):
         BASE_DIR, "features", "tests", "fixtures", "fml", "test_apps.yaml"
     )
     TEST_MANIFEST_PATH = Path(
-        BASE_DIR, "features", "tests", "fixtures", "fml", "test_release.fml.yaml"
+        BASE_DIR, "features", "tests", "fixtures", "fml", "release.fml.yaml"
     )
 
     @staticmethod
@@ -78,80 +77,6 @@ class TestNimbusFmlLoader(TestCase):
         )
         self.assertIsNone(data)
 
-    def test_get_ref_no_versions(self):
-        application = "fenix"
-        channel = "release"
-        no_version = []
-
-        client = self.create_loader()
-        refs = client._get_version_refs(no_version)
-
-        self.assertEqual(client.application, application)
-        self.assertEqual(client.channel, channel)
-        self.assertEqual(refs, ["main"])
-
-    def test_get_ref_for_single_version(self):
-        application = "fenix"
-        channel = "release"
-        version = ["112.1.0"]
-
-        client = self.create_loader()
-        refs = client._get_version_refs(version)
-
-        self.assertEqual(client.application, application)
-        self.assertEqual(client.channel, channel)
-        self.assertEqual(len(refs), 1)
-
-    def test_get_refs_for_multiple_versions(self):
-        application = "fenix"
-        channel = "release"
-        expected_repo = "mozilla-mobile/firefox-android"
-        versions = [
-            "112.1.0",
-            "112.1.1",
-            "113.0.0",
-            "118.7.3",
-        ]
-
-        client = self.create_loader()
-        self.assertEqual(client.application_data["repo"]["name"], expected_repo)
-
-        refs = client._get_version_refs(versions)
-
-        self.assertEqual(client.application, application)
-        self.assertEqual(client.channel, channel)
-        self.assertEqual(len(refs), 4)
-
-    def test_get_major_version_refs(self):
-        loader = self.create_loader()
-        v = version.parse("112.1.0")
-        expected = "releases_v112"
-
-        result = loader._get_major_version_ref(v)
-        self.assertEqual(result, expected)
-
-    def test_get_minor_version_refs(self):
-        loader = self.create_loader()
-        v = version.parse("112.1.0")
-        expected = "fenix-v112.1.0"
-
-        result = loader._get_minor_version_ref(v)
-        self.assertEqual(result, expected)
-
-    def test_get_major_version_refs_application_is_none(self):
-        v = version.parse("112.1.0")
-        loader = self.create_loader()
-        loader.application_data = None
-        result = loader._get_major_version_ref(version=v)
-        self.assertIsNone(result)
-
-    def test_get_minor_version_refs_application_is_none(self):
-        v = version.parse("112.1.0")
-        loader = self.create_loader()
-        loader.application_data = None
-        result = loader._get_minor_version_ref(version=v)
-        self.assertIsNone(result)
-
     def test_get_fml_clients(self):
         versions = [
             "112.1.0",
@@ -165,7 +90,7 @@ class TestNimbusFmlLoader(TestCase):
             "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader._create_client",
         ) as create:
             result = loader._get_fml_clients(versions)
-            self.assertEqual(len(result), 4)
+            self.assertEqual(len(result), 1)
             create.assert_called()
 
     @patch(
@@ -235,6 +160,20 @@ class TestNimbusFmlLoader(TestCase):
         file_path = loader._get_local_file_path()
         self.assertEqual(file_path, expected_path)
 
+    def test_get_local_file_path_for_nightly(self):
+        expected_path = Path(
+            "/experimenter/experimenter/features/manifests/fenix/nightly.fml.yaml"
+        )
+
+        loader = self.create_loader(channel="nightly")
+        file_path = loader._get_local_file_path()
+        self.assertEqual(file_path, expected_path)
+
+    def test_get_local_file_path_for_invalid_channel(self):
+        loader = self.create_loader(channel="rats")
+        file_path = loader._get_local_file_path()
+        self.assertIsNone(file_path)
+
     @patch(
         "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader.MANIFEST_PATH",
     )
@@ -252,20 +191,6 @@ class TestNimbusFmlLoader(TestCase):
             file_path = loader._get_local_file_path()
             self.assertIsNone(file_path)
             self.assertIn("Nimbus FML Loader: Invalid application", log.output[0])
-
-    def test_get_remote_file_path(self):
-        expected_path = Path(
-            "mozilla-mobile", "firefox-android", "fenix", "app", "nimbus.fml.yaml"
-        )
-        loader = self.create_loader()
-        file_path = loader._get_remote_file_path()
-        self.assertEqual(file_path, expected_path)
-
-    def test_get_remote_file_path_no_application_data(self):
-        loader = self.create_loader()
-        loader.application_data = None
-        file_path = loader._get_remote_file_path()
-        self.assertIsNone(file_path)
 
     def test_create_client(self):
         loader = self.create_loader()
