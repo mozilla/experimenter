@@ -166,6 +166,7 @@ describe("Summary", () => {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
           status: NimbusExperimentStatusEnum.LIVE,
           statusNext: NimbusExperimentStatusEnum.COMPLETE,
+          isEnrollmentPaused: true,
         },
       );
       render(
@@ -338,6 +339,7 @@ describe("Summary", () => {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
           statusNext: NimbusExperimentStatusEnum.COMPLETE,
           status: NimbusExperimentStatusEnum.LIVE,
+          isEnrollmentPaused: true,
         },
       );
       const errorMessage = "Something went very wrong.";
@@ -379,6 +381,34 @@ describe("Summary", () => {
           status: NimbusExperimentStatusEnum.LIVE,
           statusNext: NimbusExperimentStatusEnum.LIVE,
           isEnrollmentPaused: true,
+        },
+      );
+      render(
+        <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
+      );
+      fireEvent.click(screen.getByTestId("end-enrollment-start"));
+      await waitFor(() => {
+        expect(refetch).toHaveBeenCalled();
+        expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+      });
+    });
+
+    it("can mark the experiment as requesting review on enrollment end confirmation when experiment is web", async () => {
+      const refetch = jest.fn();
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        statusNext: null,
+        isEnrollmentPaused: false,
+        isWeb: true,
+      });
+      const mutationMock = createMutationMock(
+        experiment.id!,
+        NimbusExperimentPublishStatusEnum.REVIEW,
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
+          status: NimbusExperimentStatusEnum.LIVE,
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          isEnrollmentPaused: false,
         },
       );
       render(
