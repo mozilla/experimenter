@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
-from .sdk import SDK
+from .sdk import SDK, CirrusMetricsHandler
 from .settings import (
     app_id,
     channel,
@@ -37,13 +37,16 @@ class FeatureRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.pings, app.state.metrics = initialize_glean()
     initialize_sentry()
     app.state.fml = create_fml()
-    app.state.sdk = create_sdk(app.state.fml.get_coenrolling_feature_ids())
+    app.state.sdk = create_sdk(
+        app.state.fml.get_coenrolling_feature_ids(),
+        CirrusMetricsHandler(app.state.metrics, app.state.pings),
+    )
     app.state.remote_setting = RemoteSettings(app.state.sdk)
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
-    app.state.pings, app.state.metrics = initialize_glean()
 
     yield
     if app.state.scheduler:
@@ -74,9 +77,13 @@ def create_fml():
         sys.exit(1)
 
 
-def create_sdk(coenrolling_feature_ids: List[str]):
+def create_sdk(coenrolling_feature_ids: List[str], metrics_handler: CirrusMetricsHandler):
     try:
-        return SDK(context=context, coenrolling_feature_ids=coenrolling_feature_ids)
+        return SDK(
+            context=context,
+            metrics_handler=metrics_handler,
+            coenrolling_feature_ids=coenrolling_feature_ids,
+        )
     except NimbusError as e:  # type: ignore
         logger.error(f"Error occurred during SDK creation: {e}")
         sys.exit(1)

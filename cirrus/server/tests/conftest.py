@@ -1,6 +1,7 @@
 import json
 from unittest import mock
 
+from cirrus_sdk import EnrollmentStatusExtraDef, MetricsHandler
 from fastapi.testclient import TestClient
 from glean import testing
 from mozilla_nimbus_shared import check_schema
@@ -11,6 +12,19 @@ from cirrus.feature_manifest import FeatureManifestLanguage
 from cirrus.main import app, initialize_glean
 from cirrus.sdk import SDK
 from cirrus.settings import channel, context, fml_path
+
+
+class TestMetricsHandler(MetricsHandler):
+    records = []
+
+    def __init__(self):
+        pass
+
+    def record_enrollment_statuses(
+        self, enrollment_status_extras: [EnrollmentStatusExtraDef]
+    ):
+        for enrollment_status_extra in enrollment_status_extras:
+            self.records.append(enrollment_status_extra)
 
 
 @fixture(scope="module")
@@ -37,8 +51,15 @@ def remote_settings(sdk):
 
 
 @fixture
-def sdk():
-    return SDK(context=context, coenrolling_feature_ids=[])
+def metrics_handler():
+    return TestMetricsHandler()
+
+
+@fixture
+def sdk(metrics_handler):
+    return SDK(
+        context=context, coenrolling_feature_ids=[], metrics_handler=metrics_handler
+    )
 
 
 @fixture
