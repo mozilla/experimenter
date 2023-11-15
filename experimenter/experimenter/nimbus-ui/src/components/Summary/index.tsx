@@ -54,13 +54,14 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
       status: NimbusExperimentStatusEnum.LIVE,
       statusNext: NimbusExperimentStatusEnum.COMPLETE,
+      isEnrollmentPaused: true,
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
     },
     {
       publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
       status: NimbusExperimentStatusEnum.LIVE,
       statusNext: NimbusExperimentStatusEnum.LIVE,
-      isEnrollmentPaused: true,
+      isEnrollmentPaused: experiment.isWeb ? false : true,
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
     },
     {
