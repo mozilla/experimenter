@@ -35,6 +35,25 @@ class PListVersionFile(BaseModel):
 class VersionFile(BaseModel):
     __root__: Union[PlainTextVersionFile, PListVersionFile] = Field(discriminator="type")
 
+    @classmethod
+    def create_plain_text(cls, path: str):  # pragma: no cover
+        return cls(
+            __root__=PlainTextVersionFile(
+                type=VersionFileType.PLAIN_TEXT,
+                path=path,
+            ),
+        )
+
+    @classmethod
+    def create_plist(cls, path: str, key: str):  # pragma: no cover
+        return cls(
+            __root__=PListVersionFile(
+                type=VersionFileType.PLIST,
+                path=path,
+                key=key,
+            ),
+        )
+
 
 class AppConfig(BaseModel):
     """The configuration of a single app in apps.yaml."""
