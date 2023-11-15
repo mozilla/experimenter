@@ -410,7 +410,9 @@ jobs:
             ./scripts/store_git_info.sh
             make build_prod
             docker tag experimenter:deploy ${DOCKERHUB_REPO}:latest
+            docker tag experimenter:deploy ${DOCKERHUB_REPO}:latest-test
             docker push ${DOCKERHUB_REPO}:latest
+            docker push ${DOCKERHUB_REPO}:latest-test
       - gcp-cli/setup
       - run:
           name: Deploy to Google Container Registry
