@@ -11,7 +11,7 @@ from manifesttool.appconfig import (
     VersionFile,
     VersionFileType,
 )
-from manifesttool.cli import MANIFESTS_DIR
+from manifesttool.cli import MANIFEST_DIR
 from manifesttool.github_api import GITHUB_RAW_URL
 from manifesttool.hgmo_api import HGMO_URL
 from manifesttool.repository import Ref
@@ -29,7 +29,7 @@ class VersionTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.app_configs = AppConfigs.load_from_directory(MANIFESTS_DIR)
+        cls.app_configs = AppConfigs.load_from_directory(MANIFEST_DIR)
 
     def test_from_match(self):
         """Tesing Version.from_match."""

@@ -6,7 +6,7 @@ import click
 from manifesttool.appconfig import AppConfigs
 from manifesttool.fetch import fetch_fml_app, fetch_legacy_app, summarize_results
 
-MANIFESTS_DIR = Path(__file__).parent.parent / "experimenter" / "features" / "manifests"
+MANIFEST_DIR = Path(__file__).parent.parent / "experimenter" / "features" / "manifests"
 
 
 @dataclass
@@ -19,7 +19,7 @@ class Context:
 @click.option(
     "--manifest-dir",
     type=Path,
-    default=MANIFESTS_DIR,
+    default=MANIFEST_DIR,
     help="The directory that contains manifests",
 )
 @click.pass_context

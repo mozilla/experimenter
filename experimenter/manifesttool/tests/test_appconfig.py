@@ -1,13 +1,13 @@
 from unittest import TestCase
 
 from manifesttool.appconfig import AppConfigs
-from manifesttool.cli import MANIFESTS_DIR
+from manifesttool.cli import MANIFEST_DIR
 
 
 class AppConfigTests(TestCase):
     def test_parse_apps_yaml(self):
         """Testing that we can parse apps.yaml."""
-        AppConfigs.load_from_directory(MANIFESTS_DIR)
+        AppConfigs.load_from_directory(MANIFEST_DIR)
 
     def test_parse_experimenter_and_fml_paths(self):
         """Testing that parsing apps.yaml fails if an app contains both the
