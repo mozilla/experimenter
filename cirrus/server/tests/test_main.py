@@ -25,11 +25,11 @@ def test_create_fml_with_error():
         assert fml is None
 
 
-def test_create_sdk_with_error():
+def test_create_sdk_with_error(metrics_handler):
     with patch.object(sys, "exit") as mock_exit, patch("cirrus.main.SDK") as mock_sdk:
         mock_sdk.side_effect = NimbusError("Error occurred during SDK creation")
 
-        sdk = create_sdk([])
+        sdk = create_sdk([], metrics_handler)
 
         mock_exit.assert_called_once_with(1)  # Assert that sys.exit(1) was called
         assert sdk is None

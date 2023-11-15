@@ -15,7 +15,7 @@ WORKDIR /application-services
 
 # Checkout application services at a locked commit
 RUN git clone https://github.com/mozilla/application-services.git .
-RUN git fetch && git checkout da9301f829de67149d50dce5b709aed42f1bfe1b
+RUN git fetch && git checkout 0a53eff4c6e89649b18086d259c0ff5a5fc89061
 
 RUN git submodule init
 RUN git submodule update --recursive

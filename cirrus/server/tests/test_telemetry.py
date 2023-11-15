@@ -11,7 +11,7 @@ from cirrus.main import (
     initialize_glean,
     record_metrics,
 )
-from cirrus.sdk import SDK
+from cirrus.sdk import SDK, CirrusMetricsHandler
 
 
 def before_enrollment_ping(data):
@@ -41,7 +41,6 @@ def before_enrollment_ping(data):
 
 def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
     app.state.remote_setting.update_recipes(recipes)
-    _, metrics = initialize_glean()
     ping_spy = mocker.spy(app.state.pings.enrollment, "submit")
     enrolled_partial_configuration = {
         "events": [
@@ -79,6 +78,7 @@ def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
 
 @pytest.mark.asyncio
 async def test_enrollment_metrics_recorded_with_compute_features(mocker, recipes):
+    _, app.state.metrics = initialize_glean()
     context = json.dumps(
         {
             "app_id": "org.mozilla.test",
@@ -86,7 +86,11 @@ async def test_enrollment_metrics_recorded_with_compute_features(mocker, recipes
             "channel": "release",
         }
     )
-    sdk = SDK(context=context, coenrolling_feature_ids=[])
+    sdk = SDK(
+        context=context,
+        coenrolling_feature_ids=[],
+        metrics_handler=CirrusMetricsHandler(app.state.metrics, app.state.pings),
+    )
 
     request = FeatureRequest(
         client_id="test_client_id", context={"user_id": "test-client-id"}
@@ -94,7 +98,6 @@ async def test_enrollment_metrics_recorded_with_compute_features(mocker, recipes
 
     app.state.remote_setting.update_recipes(recipes)
     sdk.set_experiments(json.dumps(recipes))
-    _, metrics = initialize_glean()
 
     app.state.pings.enrollment.test_before_next_submit(before_enrollment_ping)
 
@@ -105,3 +108,55 @@ async def test_enrollment_metrics_recorded_with_compute_features(mocker, recipes
 
     assert ping_spy.call_count == 1
     assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
+
+
+@pytest.mark.asyncio
+async def test_enrollment_status_metrics_recorded_with_metrics_handler(mocker, recipes):
+    _, app.state.metrics = initialize_glean()
+    context = json.dumps(
+        {
+            "app_id": "org.mozilla.test",
+            "app_name": "test_app",
+            "channel": "release",
+        }
+    )
+    sdk = SDK(
+        context=context,
+        coenrolling_feature_ids=[],
+        metrics_handler=CirrusMetricsHandler(app.state.metrics, app.state.pings),
+    )
+
+    request = FeatureRequest(
+        client_id="test_client_id", context={"user_id": "test-client-id"}
+    )
+
+    app.state.remote_setting.update_recipes(recipes)
+    sdk.set_experiments(json.dumps(recipes))
+
+    def test_ping(data):
+        assert (
+            app.state.metrics.cirrus_events.enrollment_status.test_get_num_recorded_errors(
+                ErrorType.INVALID_OVERFLOW
+            )
+            == 0
+        )
+        snapshot = app.state.metrics.cirrus_events.enrollment_status.test_get_value()
+        assert len(snapshot) == 5
+
+        assert snapshot[0].extra["status"] == "Enrolled"
+        assert snapshot[1].extra["status"] == "Enrolled"
+        assert snapshot[2].extra["status"] == "NotEnrolled"
+        assert snapshot[2].extra["reason"] == "NotSelected"
+        assert snapshot[3].extra["status"] == "NotEnrolled"
+        assert snapshot[3].extra["reason"] == "NotTargeted"
+        assert snapshot[4].extra["status"] == "Error"
+
+    app.state.pings.enrollment_status.test_before_next_submit(test_ping)
+
+    mocker.patch.object(app.state, "sdk", sdk)
+    ping_spy = mocker.spy(app.state.pings.enrollment_status, "submit")
+
+    await compute_features(request)
+
+    assert ping_spy.call_count == 1
+    assert app.state.metrics.cirrus_events.enrollment_status.test_get_value() is None

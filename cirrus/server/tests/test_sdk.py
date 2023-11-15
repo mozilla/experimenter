@@ -38,9 +38,9 @@ from cirrus.sdk import SDK
         ),
     ],
 )
-def test_invalid_context(context, expected_error_message):
+def test_invalid_context(context, expected_error_message, metrics_handler):
     with pytest.raises(NimbusError) as e:
-        SDK(context=context, coenrolling_feature_ids=[])
+        SDK(context=context, coenrolling_feature_ids=[], metrics_handler=metrics_handler)
 
         assert str(e.value).startswith(expected_error_message)
 
@@ -110,11 +110,15 @@ def test_set_experiments_failure_invalid_malform_key(sdk, recipes):
     }
 
 
-def test_coenrolling_feature_recipes(recipes_with_coenrolling_features):
+def test_coenrolling_feature_recipes(recipes_with_coenrolling_features, metrics_handler):
     targeting_context = {"clientId": "test", "requestContext": {}}
     context = {"app_id": "org.mozilla.test", "app_name": "test_app", "channel": "release"}
     feature_id = "coenrolling-feature"
-    sdk = SDK(context=json.dumps(context), coenrolling_feature_ids=[feature_id])
+    sdk = SDK(
+        context=json.dumps(context),
+        coenrolling_feature_ids=[feature_id],
+        metrics_handler=metrics_handler,
+    )
     sdk.set_experiments(recipes_with_coenrolling_features)
     result = sdk.compute_enrollments(targeting_context)
 
