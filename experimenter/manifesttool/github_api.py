@@ -1,11 +1,14 @@
 import os
-from typing import Any, Generator
+from pathlib import Path
+from typing import Any, Generator, Optional, overload
 
 import requests
 
+from manifesttool import download
 from manifesttool.repository import Ref
 
 GITHUB_API_URL = "https://api.github.com"
+GITHUB_RAW_URL = "https://raw.githubusercontent.com"
 GITHUB_API_HEADERS = {
     "Accept": "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
@@ -81,3 +84,47 @@ def _get_refs(repo: str, kind: str) -> list[Ref]:
         for page in paginated_api_request(f"repos/{repo}/{kind}")
         for ref in page
     ]
+
+
+@overload
+def fetch_file(repo: str, file_path: str, rev: str) -> str:
+    ...  # pragma: no cover
+
+
+@overload
+def fetch_file(repo: str, file_path: str, rev: str, download_path: Path) -> None:
+    ...  # pragma: no cover
+
+
+def fetch_file(
+    repo: str,
+    file_path: str,
+    rev: str,
+    download_path: Optional[Path] = None,
+):
+    """Fetch the file path at the given revision from the repository.
+
+    Args:
+        repo:
+            The name of the repository.
+
+        file_path:
+            The path to the file in the repository.
+
+        rev:
+            The revision at which the file is to be fetched.
+
+        download_path:
+            If provided, the file will be written to disk at this location.
+
+    Returns:
+        If ``download_path`` is ``None``, the file contents are returned as a
+        ``str``. Otherwise, ``None`` is returned.
+    """
+    url = f"{GITHUB_RAW_URL}/{repo}/{rev}/{file_path}"
+
+    if download_path is None:
+        return download.as_text(url)
+
+    download.to_path(url, download_path)
+    return None
