@@ -230,17 +230,17 @@ class FetchTests(TestCase):
             fml_path="nimbus.fml.yaml",
         )
 
-        with self.assertRaises(
+        with self.assertRaisesRegex(
             Exception,
-            msg="FML-based apps on hg.mozilla.org are not supported.",
+            "FML-based apps on hg.mozilla.org are not supported.",
         ):
             fetch_fml_app(Path("."), "invalid", app_config)
 
     def test_fetch_fml_unresolved_ref(self):
         """Testing fetch_fml_app with an unresolved ref."""
-        with self.assertRaises(
+        with self.assertRaisesRegex(
             ValueError,
-            msg="fetch_fml_app: ref `foo` is not resolved",
+            "fetch_fml_app: ref `foo` is not resolved",
         ):
             fetch_fml_app(Path("."), "repo", FML_APP_CONFIG, Ref("foo"))
 
@@ -401,9 +401,9 @@ class FetchTests(TestCase):
         )
 
         with TemporaryDirectory() as tmp:
-            with self.assertRaises(
+            with self.assertRaisesRegex(
                 Exception,
-                msg="Legacy experimenter.yaml apps on GitHub are not supported.",
+                "Legacy experimenter.yaml apps on GitHub are not supported.",
             ):
                 fetch_legacy_app(Path(tmp), "invalid", app_config)
 
@@ -413,8 +413,8 @@ class FetchTests(TestCase):
             manifest_dir = Path(tmp)
             manifest_dir.joinpath("legacy-app").mkdir()
 
-            with self.assertRaises(
+            with self.assertRaisesRegex(
                 ValueError,
-                msg="fetch_legacy_app: ref `foo` is not resolved",
+                "fetch_legacy_app: ref foo is not resolved",
             ):
                 fetch_legacy_app(manifest_dir, "repo", LEGACY_APP_CONFIG, Ref("foo"))
