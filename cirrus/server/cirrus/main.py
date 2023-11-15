@@ -152,7 +152,7 @@ def collate_enrollment_metric_data(
     return data
 
 
-def record_metrics(enrolled_partial_configuration: dict[str, Any], client_id: str):
+async def record_metrics(enrolled_partial_configuration: dict[str, Any], client_id: str):
     metrics = collate_enrollment_metric_data(
         enrolled_partial_configuration=enrolled_partial_configuration
     )
@@ -202,7 +202,7 @@ async def compute_features(request_data: FeatureRequest):
         str, Any
     ] = app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
 
-    record_metrics(
+    await record_metrics(
         enrolled_partial_configuration=enrolled_partial_configuration,
         client_id=request_data.client_id,
     )

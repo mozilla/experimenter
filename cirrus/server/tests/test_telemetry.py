@@ -39,7 +39,8 @@ def before_enrollment_ping(data):
     assert extra_2["experiment_type"] == RecipeType.EXPERIMENT.value
 
 
-def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
+@pytest.mark.asyncio
+async def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
     app.state.remote_setting.update_recipes(recipes)
     _, metrics = initialize_glean()
     ping_spy = mocker.spy(app.state.pings.enrollment, "submit")
@@ -71,7 +72,7 @@ def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
 
     app.state.pings.enrollment.test_before_next_submit(before_enrollment_ping)
 
-    record_metrics(enrolled_partial_configuration, "test_client_id")
+    await record_metrics(enrolled_partial_configuration, "test_client_id")
 
     assert ping_spy.call_count == 1
     assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
