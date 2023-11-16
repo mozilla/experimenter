@@ -28,7 +28,7 @@ def get_bookmark_ref(repo: str, bookmark: str) -> Ref:
         A Ref for the given bookmark.
     """
     rsp = api_request(f"{repo}/json-log?rev={bookmark}:{bookmark}")
-    return Ref(bookmark, rsp["node"])
+    return Ref(bookmark, rsp["entries"][0]["node"])
 
 
 @overload

@@ -7,7 +7,6 @@ from unittest.mock import call, patch
 
 import responses
 import yaml
-from parameterized import parameterized
 
 import manifesttool
 from manifesttool.appconfig import (
@@ -101,10 +100,12 @@ def mock_download_single_file(
     with filename.open("w") as f:
         yaml.dump(generate_fml(app_config, channel), f)
 
+
 DEFAULT_MOCK_FETCHES = {
     LEGACY_MANIFEST_PATH: LEGACY_MANIFEST,
     FEATURE_JSON_SCHEMA_PATH: FEATURE_JSON_SCHEMA,
 }
+
 
 def make_mock_fetch_file(
     *,
@@ -137,9 +138,7 @@ def make_mock_fetch_file(
                 ref: DEFAULT_MOCK_FETCHES,
             }
     else:
-        raise ValueError(
-            "mack_mock_fetch_file requires one of paths_by_ref or ref"
-        )
+        raise ValueError("mack_mock_fetch_file requires one of paths_by_ref or ref")
 
     def mock_fetch_file(
         repo: str,
@@ -150,10 +149,8 @@ def make_mock_fetch_file(
         """A mock version of hgmo_api.fetch_file."""
         try:
             paths = paths_by_ref[rev]
-        except KeyError as e:
-            raise Exception(
-                f"Unexpected ref {rev} passed to hgmo_api.fetch_file"
-            )
+        except KeyError:
+            raise Exception(f"Unexpected ref {rev} passed to hgmo_api.fetch_file")
 
         try:
             content = paths[file_path]
@@ -165,7 +162,7 @@ def make_mock_fetch_file(
         if download_path:
             with download_path.open("w", newline="\n") as f:
                 json.dump(content, f)
-            return
+            return None
 
         return content
 
@@ -423,7 +420,9 @@ class FetchTests(TestCase):
         manifesttool.fetch.hgmo_api, "get_bookmark_ref", lambda *args: Ref("tip", "ref")
     )
     @patch.object(
-        manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file(ref="ref")
+        manifesttool.fetch.hgmo_api,
+        "fetch_file",
+        side_effect=make_mock_fetch_file(ref="ref"),
     )
     def test_fetch_legacy(self, fetch_file):
         """Testing fetch_legacy_app."""
@@ -457,7 +456,9 @@ class FetchTests(TestCase):
 
     @patch.object(manifesttool.fetch.hgmo_api, "get_bookmark_ref")
     @patch.object(
-        manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file(ref="resolved")
+        manifesttool.fetch.hgmo_api,
+        "fetch_file",
+        side_effect=make_mock_fetch_file(ref="resolved"),
     )
     def test_fetch_legacy_ref(self, fetch_file, get_bookmark_ref):
         """Testing fetch_legacy_app with a specific ref."""
@@ -505,7 +506,9 @@ class FetchTests(TestCase):
 
     @patch.object(manifesttool.fetch.hgmo_api, "get_bookmark_ref")
     @patch.object(
-        manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file(ref="foo")
+        manifesttool.fetch.hgmo_api,
+        "fetch_file",
+        side_effect=make_mock_fetch_file(ref="foo"),
     )
     def test_fetch_legacy_ref_version(self, fetch_file, get_bookmark_ref):
         """Testing fetch_legacy_app with a ref and a version."""
@@ -554,8 +557,7 @@ class FetchTests(TestCase):
         "fetch_file",
         side_effect=make_mock_fetch_file(
             paths_by_ref={
-                "ref":
-                {
+                "ref": {
                     LEGACY_MANIFEST_PATH: {
                         "feature": LEGACY_MANIFEST["feature"],
                         "feature-2": LEGACY_MANIFEST["feature"],
@@ -732,7 +734,7 @@ class FetchTests(TestCase):
             experimenter_yaml_path="experimenter.yaml",
             release_discovery=ReleaseDiscovery(
                 version_file=VersionFile.create_plain_text("version.txt"),
-                strategies=[DiscoveryStrategy.create_branched()]
+                strategies=[DiscoveryStrategy.create_branched()],
             ),
         )
 

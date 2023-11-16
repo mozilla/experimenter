@@ -25,7 +25,12 @@ class HgMoApiTests(TestCase):
         responses.get(
             f"{HGMO_URL}/repo/json-log?rev={ref_name}:{ref_name}",
             json={
-                "node": resolved,
+                "node": "bogus",
+                "entries": [
+                    {
+                        "node": resolved,
+                    },
+                ],
             },
         )
 

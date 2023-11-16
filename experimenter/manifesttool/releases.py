@@ -60,7 +60,9 @@ def discover_tagged_releases(
 
 
 def discover_branched_releases(
-    app_name: str, app_config: AppConfig, strategy: BranchedDiscoveryStrategy,
+    app_name: str,
+    app_config: AppConfig,
+    strategy: BranchedDiscoveryStrategy,
 ) -> dict[Version, Ref]:
     assert app_config.repo.type == RepositoryType.HGMO
 
@@ -70,9 +72,7 @@ def discover_branched_releases(
         branches = [app_config.repo.default_branch]
 
     refs = [
-        hgmo_api.get_bookmark_ref(app_config.repo.name, branch)
-        for branch in branches
+        hgmo_api.get_bookmark_ref(app_config.repo.name, branch) for branch in branches
     ]
 
     return resolve_ref_versions(app_config, refs)
-

@@ -249,22 +249,24 @@ class ReleaseTests(TestCase):
     @patch.object(
         manifesttool.releases.hgmo_api,
         "get_bookmark_ref",
-        make_mock_get_bookmark_ref({
-            "foo": "1",
-            "bar": "2",
-            "baz": "3",
-        })
+        make_mock_get_bookmark_ref(
+            {
+                "foo": "1",
+                "bar": "2",
+                "baz": "3",
+            }
+        ),
     )
     @patch.object(
         manifesttool.releases.hgmo_api,
         "fetch_file",
         make_mock_fetch_file(
             paths_by_ref={
-                "1": { "version.txt": "1.0.0" },
-                "2": { "version.txt": "2.0.0" },
-                "3": { "version.txt": "3.0.0" },
+                "1": {"version.txt": "1.0.0"},
+                "2": {"version.txt": "2.0.0"},
+                "3": {"version.txt": "3.0.0"},
             }
-        )
+        ),
     )
     def test_discover_branched_releases(self):
         strategy = DiscoveryStrategy.create_branched(["foo", "bar", "baz"])
@@ -286,7 +288,9 @@ class ReleaseTests(TestCase):
             manifest_dir = Path(tmp)
             manifest_dir.joinpath(app_config.slug).mkdir()
 
-            releases = discover_branched_releases("legacy_app", app_config, strategy.__root__)
+            releases = discover_branched_releases(
+                "legacy_app", app_config, strategy.__root__
+            )
 
             self.assertEqual(
                 releases,
@@ -294,24 +298,26 @@ class ReleaseTests(TestCase):
                     Version(1): Ref("foo", "1"),
                     Version(2): Ref("bar", "2"),
                     Version(3): Ref("baz", "3"),
-                }
+                },
             )
 
     @patch.object(
         manifesttool.releases.hgmo_api,
         "get_bookmark_ref",
-        side_effect=make_mock_get_bookmark_ref({
-            "default": "1",
-        })
+        side_effect=make_mock_get_bookmark_ref(
+            {
+                "default": "1",
+            }
+        ),
     )
     @patch.object(
         manifesttool.releases.hgmo_api,
         "fetch_file",
         make_mock_fetch_file(
             paths_by_ref={
-                "1": { "version.txt": "1.0.0" },
+                "1": {"version.txt": "1.0.0"},
             }
-        )
+        ),
     )
     def test_discover_branched_releases_default(self, get_bookmark_ref):
         strategy = DiscoveryStrategy.create_branched()
@@ -333,13 +339,15 @@ class ReleaseTests(TestCase):
             manifest_dir = Path(tmp)
             manifest_dir.joinpath(app_config.slug).mkdir()
 
-            releases = discover_branched_releases("legacy_app", app_config, strategy.__root__)
+            releases = discover_branched_releases(
+                "legacy_app", app_config, strategy.__root__
+            )
 
             self.assertEqual(
                 releases,
                 {
                     Version(1): Ref("default", "1"),
-                }
+                },
             )
 
         get_bookmark_ref.assert_called_once_with(app_config.repo.name, "default")

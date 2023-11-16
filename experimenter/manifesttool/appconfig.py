@@ -85,7 +85,9 @@ class BranchedDiscoveryStrategy(BaseModel):
 
 
 class DiscoveryStrategy(BaseModel):
-    __root__: Union[TaggedDiscoveryStrategy, BranchedDiscoveryStrategy] = Field(discriminator="type")
+    __root__: Union[TaggedDiscoveryStrategy, BranchedDiscoveryStrategy] = Field(
+        discriminator="type"
+    )
 
     @classmethod
     def create_tagged(
@@ -114,6 +116,7 @@ class DiscoveryStrategy(BaseModel):
                 branches=branches,
             ),
         )
+
 
 class ReleaseDiscovery(BaseModel):
     version_file: VersionFile
