@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from experimenter.tests.integration.nimbus.conftest import driver
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
 
@@ -60,6 +59,7 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     kinto_client,
     base_url,
     experiment_name,
+    driver,
 ):
     # Launch a rollout with 100% population
     reference_branch_value = '{"enabled": true, "something": "You are enrolled"}'
