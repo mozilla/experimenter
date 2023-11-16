@@ -18,7 +18,7 @@ class NimbusExperimentCsvListView(ListAPIView):
 
     queryset = (
         NimbusExperiment.objects.select_related("owner")
-        .prefetch_related("feature_configs", "changes")
+        .prefetch_related("feature_configs")
         .filter(is_archived=False)
     )
 
