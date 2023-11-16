@@ -10,17 +10,36 @@ from mozilla_nimbus_schemas import FeatureManifest
 from manifesttool import github_api, hgmo_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, RepositoryType
 from manifesttool.repository import Ref
+from manifesttool.version import (
+    Version,
+    filter_versioned_refs,
+    find_versioned_refs,
+    resolve_ref_versions,
+)
 
 
 @dataclass
 class FetchResult:
     app_name: str
     ref: Ref
+    version: Optional[Version]
     exc: Optional[Exception] = None
+
+    def __str__(self):
+        as_str = f"{self.app_name} at {self.ref} version {self.version}"
+        if self.exc:
+            exc_message = str(self.exc).partition("\n")[0]
+            as_str = f"{as_str}\n{exc_message}\n"
+
+        return as_str
 
 
 def fetch_fml_app(
-    manifest_dir: Path, app_name: str, app_config: AppConfig, ref: Optional[Ref] = None
+    manifest_dir: Path,
+    app_name: str,
+    app_config: AppConfig,
+    ref: Optional[Ref] = None,
+    version: Optional[Version] = None,
 ) -> FetchResult:
     if app_config.repo.type == RepositoryType.HGMO:
         raise Exception("FML-based apps on hg.mozilla.org are not supported.")
@@ -28,7 +47,10 @@ def fetch_fml_app(
     if ref is not None and not ref.is_resolved:
         raise ValueError(f"fetch_fml_app: ref `{ref.name}` is not resolved")
 
-    result = FetchResult(app_name=app_name, ref=ref or Ref("main"))
+    if version is not None and ref is None:
+        raise ValueError("Cannot fetch specific version without a ref.")
+
+    result = FetchResult(app_name=app_name, ref=ref or Ref("main"), version=version)
 
     try:
         # We could operate against "main" for all these calls, but the repository
@@ -38,10 +60,13 @@ def fetch_fml_app(
         if ref is None:
             ref = result.ref = github_api.get_main_ref(app_config.repo.name)
 
-        print(f"fetch-latest: {app_name} at {ref}")
+        if version:
+            print(f"fetch: {app_name} at {ref} version {version}")
+        else:
+            print(f"fetch: {app_name} at {ref}")
 
         channels = nimbus_cli.get_channels(app_config, ref.resolved)
-        print(f"fetch-latest: {app_name}: channels are {', '.join(channels)}")
+        print(f"fetch: {app_name}: channels are {', '.join(channels)}")
 
         if not channels:
             print(
@@ -51,21 +76,23 @@ def fetch_fml_app(
             raise Exception("No channels found")
 
         for channel in channels:
-            print(f"fetch-latest: {app_name}: download {channel} manifest")
+            print(f"fetch: {app_name}: download {channel} manifest")
             nimbus_cli.download_single_file(
+                manifest_dir,
                 app_config,
                 channel,
-                manifest_dir,
                 ref.resolved,
+                version,
             )
 
-        print(f"fetch-latest: {app_name}: generate experimenter.yaml")
+        print(f"fetch: {app_name}: generate experimenter.yaml")
         # The single-file fml file for each channel will generate the same
         # experimenter.yaml, so we can pick any here.
         nimbus_cli.generate_experimenter_yaml(
+            manifest_dir,
             app_config,
             channels[0],
-            manifest_dir,
+            version,
         )
     except Exception as e:
         print_exception(e, file=sys.stderr)
@@ -75,7 +102,11 @@ def fetch_fml_app(
 
 
 def fetch_legacy_app(
-    manifest_dir: Path, app_name: str, app_config: AppConfig, ref: Optional[Ref] = None
+    manifest_dir: Path,
+    app_name: str,
+    app_config: AppConfig,
+    ref: Optional[Ref] = None,
+    version: Optional[Version] = None,
 ) -> FetchResult:
     if app_config.repo.type == RepositoryType.GITHUB:
         raise Exception("Legacy experimenter.yaml apps on GitHub are not supported.")
@@ -83,7 +114,10 @@ def fetch_legacy_app(
     if ref is not None and not ref.is_resolved:
         raise ValueError(f"fetch_legacy_app: ref {ref.name} is not resolved")
 
-    result = FetchResult(app_name=app_name, ref=ref or Ref("tip"))
+    if version is not None and ref is None:
+        raise ValueError("Cannot fetch specific version without a ref.")
+
+    result = FetchResult(app_name=app_name, ref=ref or Ref("tip"), version=version)
 
     try:
         # We could operate against "tip" for all these calls, but the repository
@@ -93,22 +127,32 @@ def fetch_legacy_app(
         if ref is None:
             ref = result.ref = hgmo_api.get_tip_rev(app_config.repo.name)
 
-        print(f"fetch-latest: {app_name} at {ref}")
+        if version:
+            print(f"fetch: {app_name} at {ref} version {version}")
+        else:
+            print(f"fetch: {app_name} at {ref}")
 
-        manifest_path = manifest_dir / app_config.slug / "experimenter.yaml"
-        print(f"fetch-latest: {app_name}: downloading experimenter.yaml")
+        print(f"fetch: {app_name}: downloading experimenter.yaml")
+
+        app_dir = manifest_dir / app_config.slug
+        if version:
+            app_dir /= f"v{version}"
+
+        app_dir.mkdir(exist_ok=True)
+        manifest_path = app_dir / "experimenter.yaml"
+
         hgmo_api.fetch_file(
             app_config.repo.name,
             app_config.experimenter_yaml_path,
             ref.resolved,
-            manifest_dir / app_config.slug / "experimenter.yaml",
+            manifest_path,
         )
 
         with manifest_path.open() as f:
             raw_manifest = yaml.safe_load(f)
             manifest = FeatureManifest.parse_obj(raw_manifest)
 
-        schema_dir = manifest_dir / app_config.slug / "schemas"
+        schema_dir = app_dir / "schemas"
         schema_dir.mkdir(exist_ok=True)
 
         # Some features may re-use the same schemas, so we only have to fetch them
@@ -121,13 +165,13 @@ def fetch_legacy_app(
             if feature.json_schema is not None:
                 if feature.json_schema.path in fetched_schemas:
                     print(
-                        f"fetch-latest: {app_name}: already fetched schema for "
+                        f"fetch: {app_name}: already fetched schema for "
                         f"feature {feature_slug} ({feature.json_schema.path})"
                     )
                     continue
 
                 print(
-                    f"fetch-latest: {app_name}: fetching schema for feature {feature_slug} "
+                    f"fetch: {app_name}: fetching schema for feature {feature_slug} "
                     f"({feature.json_schema.path})"
                 )
 
@@ -149,6 +193,66 @@ def fetch_legacy_app(
     return result
 
 
+def fetch_releases(
+    manifest_dir: Path,
+    app_name: str,
+    app_config: AppConfig,
+) -> list[FetchResult]:
+    """Fetch all releases in the past 5 major versions of the app."""
+    results = []
+
+    if app_config.repo.type == RepositoryType.HGMO:
+        raise Exception("Cannot fetch releases for apps hosted on hg.mozilla.org.")
+
+    if app_config.fml_path is None:
+        raise Exception("Cannot fetch releases for legacy apps.")
+
+    if app_config.version_file is None:
+        raise Exception(f"App {app_name} does not have a version file.")
+
+    if not app_config.branch_re:
+        print(f"fetch: releases: {app_name} does not support releases", file=sys.stderr)
+        return results
+
+    # Find all release branches.
+    branches = github_api.get_branches(app_config.repo.name)
+    versions = find_versioned_refs(
+        branches, app_config.branch_re, app_config.ignored_branches
+    )
+
+    # Limit to the last 5 major versions.
+    #
+    # We must pass a list here because if max() is passed a single arg it will
+    # try to iterate over it.
+    max_major_version = max([0, *(v.major for v in versions.keys())])
+
+    if max_major_version == 0:
+        raise Exception(f"Could not find a major release for {app_name}.")
+
+    min_version = Version(max_major_version - 4, 0, 0)
+
+    versions = filter_versioned_refs(versions, min_version)
+
+    # Extract the actual version number for each branch's version file.
+    # Otherwise, e.g., a branch like release/v1 would end up overwriting 1.0.0
+    # version constantly, even though it is likely futher ahead than 1.0.0.
+    versions = resolve_ref_versions(app_config, versions.values())
+
+    if app_config.tag_re:
+        tags = github_api.get_tags(app_config.repo.name)
+        tag_versions = find_versioned_refs(
+            tags, app_config.tag_re, app_config.ignored_tags
+        )
+        tag_versions = filter_versioned_refs(tag_versions, min_version)
+
+        versions.update(tag_versions)
+
+    for version, ref in versions.items():
+        results.append(fetch_fml_app(manifest_dir, app_name, app_config, ref, version))
+
+    return results
+
+
 def summarize_results(results: list[FetchResult]):
     print("\n\nSUMMARY:\n")
 
@@ -156,7 +260,7 @@ def summarize_results(results: list[FetchResult]):
         print("SUCCESS:\n")
         for result in results:
             if result.exc is None:
-                print(f"{result.app_name} at {result.ref}")
+                print(result)
 
         print("")
 
@@ -164,4 +268,4 @@ def summarize_results(results: list[FetchResult]):
         print("FAILURES:\n")
         for result in results:
             if result.exc is not None:
-                print(f"{result.app_name} at {result.ref}")
+                print(result)

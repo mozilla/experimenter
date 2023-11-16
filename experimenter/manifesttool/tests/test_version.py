@@ -11,7 +11,7 @@ from manifesttool.appconfig import (
     VersionFile,
     VersionFileType,
 )
-from manifesttool.cli import MANIFESTS_DIR
+from manifesttool.cli import MANIFEST_DIR
 from manifesttool.github_api import GITHUB_RAW_URL
 from manifesttool.hgmo_api import HGMO_URL
 from manifesttool.repository import Ref
@@ -29,7 +29,7 @@ class VersionTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.app_configs = AppConfigs.load_from_directory(MANIFESTS_DIR)
+        cls.app_configs = AppConfigs.load_from_directory(MANIFEST_DIR)
 
     def test_from_match(self):
         """Tesing Version.from_match."""
@@ -151,12 +151,10 @@ class VersionTests(TestCase):
                     "releases/v8.1.6",
                     "releases_v107.1",
                     "releases_v120",
-                    "releases_v999",
                 ],
                 {
                     Version(107, 1): Ref("releases_v107.1"),
                     Version(120): Ref("releases_v120"),
-                    Version(999): Ref("releases_v999"),
                 },
             ),
         ]
@@ -171,6 +169,7 @@ class VersionTests(TestCase):
         self._test_find_versioned_refs(
             self.app_configs.__root__[app_name].branch_re,
             [Ref(name) for name in names],
+            self.app_configs.__root__[app_name].ignored_branches,
             expected,
         )
 
@@ -259,7 +258,6 @@ class VersionTests(TestCase):
                     "8.1.6",
                 ],
                 {
-                    Version(999): Ref("v999.0.0"),
                     Version(120): Ref("v120.0"),
                     Version(98, 1): Ref("v98.1.0"),
                 },
@@ -276,6 +274,7 @@ class VersionTests(TestCase):
         self._test_find_versioned_refs(
             self.app_configs.__root__[app_name].tag_re,
             [Ref(name) for name in names],
+            self.app_configs.__root__[app_name].ignored_tags,
             expected,
         )
 
@@ -283,9 +282,10 @@ class VersionTests(TestCase):
         self,
         pattern: str,
         refs: list[Ref],
+        ignored_refs: Optional[list[str]],
         expected: dict[Version, Ref],
     ):
-        versions = find_versioned_refs(refs, pattern)
+        versions = find_versioned_refs(refs, pattern, ignored_refs)
 
         self.assertEqual(
             versions,
@@ -301,9 +301,7 @@ class VersionTests(TestCase):
             for patch in (0, 1)
         }
 
-        versioned_refs[Version(9999)] = Ref("over_9000")
-
-        result = filter_versioned_refs(versioned_refs, Version(100), ["over_9000"])
+        result = filter_versioned_refs(versioned_refs, Version(100))
 
         self.assertEqual(
             set(result.keys()),
@@ -333,37 +331,6 @@ class VersionTests(TestCase):
                 Version(100, 1, 1),
                 Version(100, 0, 1),
             },
-        )
-
-    def test_filter_versioned_refs_focus_ios(self):
-        """Testing filter_versioned_refs for focus-ios with real data."""
-        app_config = self.app_configs.__root__["focus_ios"]
-        versioned_tags = {
-            Version(999): Ref("v999.0.0"),
-            Version(120): Ref("v120.0"),
-            Version(98, 1): Ref("v98.1.0"),
-        }
-        filtered_tags = filter_versioned_refs(
-            versioned_tags, Version(100), app_config.ignored_tags
-        )
-        self.assertEqual(
-            set(filtered_tags.keys()),
-            {Version(120)},
-        )
-
-        versioned_branches = {
-            Version(107, 1): Ref("releases_v107.1"),
-            Version(120): Ref("releases_v120"),
-            Version(999): Ref("releases_v999"),
-        }
-        filtered_branches = filter_versioned_refs(
-            versioned_branches,
-            Version(100),
-            app_config.ignored_branches,
-        )
-        self.assertEqual(
-            set(filtered_branches.keys()),
-            {Version(107, 1), Version(120)},
         )
 
     @parameterized.expand(
