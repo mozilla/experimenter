@@ -1,17 +1,34 @@
 import json
+from contextlib import redirect_stderr, contextmanager
+from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any
+from typing import Any, Iterable, Optional
 from unittest import TestCase
 from unittest.mock import call, patch
 
 import responses
 import yaml
+from parameterized import parameterized
 
+import manifesttool
 from manifesttool import fetch
-from manifesttool.appconfig import AppConfig, Repository, RepositoryType
-from manifesttool.fetch import fetch_fml_app, fetch_legacy_app
+from manifesttool.appconfig import (
+    AppConfig,
+    Repository,
+    RepositoryType,
+    VersionFile,
+    VersionFileType,
+)
+from manifesttool.fetch import (
+    FetchResult,
+    fetch_fml_app,
+    fetch_legacy_app,
+    fetch_releases,
+)
+from manifesttool.nimbus_cli import _get_experimenter_yaml_path, _get_fml_path
 from manifesttool.repository import Ref
+from manifesttool.version import Version
 
 FML_APP_CONFIG = AppConfig(
     slug="fml-app",
@@ -74,14 +91,14 @@ def generate_fml(app_config: AppConfig, channel: str) -> dict[str, Any]:
 
 
 def mock_download_single_file(
+    manifest_dir: Path,
     app_config: AppConfig,
     channel: str,
-    manifests_dir: Path,
     ref: str,
+    version: Optional[Version],
 ):
     """A mock version of `nimbus fml -- single file`."""
-
-    filename = manifests_dir / app_config.slug / f"{channel}.fml.yaml"
+    filename = _get_fml_path(manifest_dir, app_config, channel, version)
     with filename.open("w") as f:
         yaml.dump(generate_fml(app_config, channel), f)
 
@@ -112,6 +129,93 @@ def make_mock_fetch_file(paths=None):
             json.dump(content, f)
 
     return mock_fetch_file
+
+
+def mock_fetch(
+    manifest_dir: Path,
+    app_name: str,
+    app_config: AppConfig,
+    ref: Optional[Ref],
+    version: Optional[Version] = None,
+) -> FetchResult:
+    """A mock version of fetch_fml_app and fetch_legacy_app that returns success."""
+    return FetchResult(app_name, ref, version)
+
+
+@contextmanager
+def mocks_for_fetch_releases(
+    app_config: AppConfig,
+    branches: list[Ref],
+    tags: Optional[list[Ref]],
+    ref_versions: dict[str, Version],
+):
+    """Create a set of mocks to call fetch_releases.
+
+    Args:
+        app_config:
+            The app configuration.
+
+            The ``version_file`` and ``branch_re`` fields are required.
+
+        branches:
+            The list of refs to return from ``get_branches()``.
+
+        Tags:
+            The list of refs to return from ``get_tags()``.
+
+            If ``None``, ``app_config.tag_re`` must also be ``None``.
+
+        ref_versions:
+            A mapping of resolved refs to Versions.
+
+            This argument is used to generate a mock for ``fetch_file()``.
+
+    Yields:
+        A 3-tuple of the mocks for ``get_branches``, ``get_tags``, and ``fetch_file``.
+    """
+    assert app_config.repo.type == RepositoryType.GITHUB
+    assert app_config.branch_re is not None
+
+    # Mocking plist files is more annoying.
+    assert app_config.version_file is not None
+    assert app_config.version_file.__root__.type == VersionFileType.PLAIN_TEXT
+
+    # Ensure tags are defined if app specifies a tag regex.
+    assert app_config.tag_re is None or tags is not None
+
+    def mock_get_branches(*args):
+        return branches
+
+    def mock_get_tags(*args):
+        assert tags is not None
+        return tags
+
+    def mock_fetch_file(
+        repo: str, path: str, ref: str, download_path: Optional[Path] = None
+    ):
+        assert repo == app_config.repo.name
+        assert download_path is None
+        assert path == app_config.version_file.__root__.path
+        assert ref in ref_versions
+
+        return str(ref_versions[ref])
+
+    with (
+        patch.object(
+            manifesttool.github_api, "get_branches", side_effect=mock_get_branches
+        ) as get_branches,
+        patch.object(
+            manifesttool.github_api, "get_tags", side_effect=mock_get_tags
+        ) as get_tags,
+        patch.object(
+            manifesttool.github_api, "fetch_file", side_effect=mock_fetch_file
+        ) as fetch_file,
+    ):
+        yield (
+            get_branches,
+            get_tags,
+            fetch_file,
+        )
 
 
 class FetchTests(TestCase):
@@ -150,13 +254,15 @@ class FetchTests(TestCase):
             get_channels.asset_called_with(FML_APP_CONFIG, "ref")
             download_single_file.assert_has_calls(
                 [
-                    call(FML_APP_CONFIG, "release", manifest_dir, "ref"),
-                    call(FML_APP_CONFIG, "beta", manifest_dir, "ref"),
+                    call(manifest_dir, FML_APP_CONFIG, "release", "ref", None),
+                    call(manifest_dir, FML_APP_CONFIG, "beta", "ref", None),
                 ]
             )
 
-            experimenter_manifest_path = (
-                manifest_dir / FML_APP_CONFIG.slug / "experimenter.yaml"
+            experimenter_manifest_path = _get_experimenter_yaml_path(
+                manifest_dir,
+                FML_APP_CONFIG,
+                None,
             )
             self.assertTrue(
                 experimenter_manifest_path.exists(), "experimenter.yaml should exist"
@@ -201,11 +307,74 @@ class FetchTests(TestCase):
             get_main_ref.assert_not_called()
             get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
             download_single_file.assert_called_with(
-                FML_APP_CONFIG, "release", manifest_dir, ref.resolved
+                manifest_dir,
+                FML_APP_CONFIG,
+                "release",
+                ref.resolved,
+                None,
             )
             generate_experimenter_yaml.assert_called_with(
-                FML_APP_CONFIG, "release", manifest_dir
+                manifest_dir,
+                FML_APP_CONFIG,
+                "release",
+                None,
             )
+
+    def test_fetch_fml_version_no_ref(self):
+        """Testing fetch_fml_app with a version but no ref results in an error."""
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("fml-app").mkdir()
+
+            with self.assertRaisesRegex(
+                ValueError, "Cannot fetch specific version without a ref."
+            ):
+                fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG, version=Version(1))
+
+    @patch.object(fetch.github_api, "get_main_ref")
+    @patch.object(
+        fetch.nimbus_cli, "get_channels", side_effect=lambda *args: ["release", "beta"]
+    )
+    @patch.object(
+        fetch.nimbus_cli, "download_single_file", side_effect=mock_download_single_file
+    )
+    @patch.object(
+        fetch.nimbus_cli,
+        "generate_experimenter_yaml",
+        wraps=fetch.nimbus_cli.generate_experimenter_yaml,
+    )
+    def test_fetch_fml_ref_version(
+        self, generate_experimenter_yaml, download_single_file, get_channels, get_main_ref
+    ):
+        """Testing fetch_fml_app with a ref and a version."""
+        ref = Ref("v123", "foo")
+        version = Version(1, 2, 3)
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("fml-app").mkdir()
+
+            result = fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG, ref, version)
+            self.assertEqual(result, FetchResult("app", ref, version))
+
+            get_main_ref.assert_not_called()
+            get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
+            download_single_file.assert_has_calls(
+                [
+                    call(manifest_dir, FML_APP_CONFIG, "release", ref.resolved, version),
+                    call(manifest_dir, FML_APP_CONFIG, "beta", ref.resolved, version),
+                ]
+            )
+
+            generate_experimenter_yaml.assert_called_once_with(
+                manifest_dir, FML_APP_CONFIG, "release", version
+            )
+
+            experimenter_manifest_path = _get_experimenter_yaml_path(
+                manifest_dir, FML_APP_CONFIG, version
+            )
+
+            self.assertIn("v1.2.3", str(experimenter_manifest_path))
+            self.assertTrue(experimenter_manifest_path.exists())
 
     @patch.object(
         fetch.github_api, "get_main_ref", side_effect=Exception("Connection error")
@@ -333,6 +502,60 @@ class FetchTests(TestCase):
                 ],
             )
 
+    def test_fetch_legacy_version_no_ref(self):
+        """Testing fetch_legacy_app with a version but no ref results in an error."""
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("legacy-app").mkdir()
+
+            with self.assertRaisesRegex(
+                ValueError, "Cannot fetch specific version without a ref."
+            ):
+                fetch_legacy_app(
+                    manifest_dir, "app", LEGACY_APP_CONFIG, version=Version(1)
+                )
+
+    @patch.object(fetch.hgmo_api, "get_tip_rev")
+    @patch.object(fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file())
+    def test_fetch_legacy_ref_version(self, fetch_file, get_tip_rev):
+        """Testing fetch_legacy_app with a ref and a version."""
+        ref = Ref("v1.2.3", "foo")
+        version = Version(1, 2, 3)
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("legacy-app").mkdir()
+
+            result = fetch_legacy_app(
+                manifest_dir, "app", LEGACY_APP_CONFIG, ref, version
+            )
+            self.assertEqual(result, FetchResult("app", ref, version))
+
+            get_tip_rev.assert_not_called()
+            fetch_file.assert_has_calls(
+                [
+                    call(
+                        LEGACY_APP_CONFIG.repo.name,
+                        LEGACY_MANIFEST_PATH,
+                        ref.resolved,
+                        manifest_dir
+                        / LEGACY_APP_CONFIG.slug
+                        / f"v{version}"
+                        / "experimenter.yaml",
+                    ),
+                    call(
+                        LEGACY_APP_CONFIG.repo.name,
+                        FEATURE_JSON_SCHEMA_PATH,
+                        ref.resolved,
+                        manifest_dir
+                        / LEGACY_APP_CONFIG.slug
+                        / f"v{version}"
+                        / "schemas"
+                        / FEATURE_JSON_SCHEMA_PATH,
+                    ),
+                ]
+            )
+
     @patch.object(fetch.hgmo_api, "get_tip_rev", lambda *args: Ref("tip", "ref"))
     @patch.object(
         fetch.hgmo_api,
@@ -418,3 +641,193 @@ class FetchTests(TestCase):
                 "fetch_legacy_app: ref foo is not resolved",
             ):
                 fetch_legacy_app(manifest_dir, "repo", LEGACY_APP_CONFIG, Ref("foo"))
+
+    @parameterized.expand(
+        [
+            (
+                AppConfig(
+                    slug="legacy-app",
+                    repo=Repository(
+                        type=RepositoryType.HGMO,
+                        name="legacy-repo",
+                    ),
+                    experimenter_yaml_path="experimenter.yaml",
+                ),
+                "Cannot fetch releases for apps hosted on hg.mozilla.org",
+            ),
+            (
+                AppConfig(
+                    slug="legacy-app",
+                    repo=Repository(
+                        type=RepositoryType.GITHUB,
+                        name="legacy-repo",
+                    ),
+                    experimenter_yaml_path="experimenter.yaml",
+                ),
+                "Cannot fetch releases for legacy apps",
+            ),
+            (
+                AppConfig(
+                    slug="fml-app",
+                    repo=Repository(
+                        type=RepositoryType.GITHUB,
+                        name="fml-repo",
+                    ),
+                    fml_path="nimbus.fml.yaml",
+                ),
+                "App app does not have a version file.",
+            ),
+        ]
+    )
+    def test_fetch_releases_unsupported_apps(
+        self, app_config: AppConfig, exc_message: str
+    ):
+        """Testing fetch_releases with unsupported apps."""
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath(app_config.slug).mkdir()
+
+            with self.assertRaisesRegex(Exception, exc_message):
+                fetch_releases(manifest_dir, "app", app_config)
+
+    @patch.object(fetch.github_api, "get_branches")
+    def test_fetch_releases_no_branch_re(self, app_config):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            version_file=VersionFile.create_plain_text("version.txt"),
+        )
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath(app_config.slug).mkdir()
+
+            f = StringIO()
+            with redirect_stderr(f):
+                fetch_releases(manifest_dir, "app", app_config)
+
+            self.assertIn("fetch: releases: app does not support releases", f.getvalue())
+
+    @patch.object(
+        fetch,
+        "fetch_fml_app",
+        mock_fetch,
+    )
+    def test_fetch_releases(self):
+        """Testing fetch_releases."""
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            version_file=VersionFile.create_plain_text("version.txt"),
+            branch_re=r"release_v(?P<major>\d)+",
+            tag_re=r"v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)",
+        )
+
+        branches = [Ref(f"release_v{major}", f"branch-v{major}") for major in range(1, 7)]
+        tags = [Ref(f"v{major}.0.0", f"tag-v{major}") for major in range(1, 7)]
+        ref_versions = {
+            **{f"branch-v{major}": Version(major, 0, 1) for major in range(1, 7)},
+            **{f"tag-v{major}": Version(major) for major in range(1, 7)},
+        }
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath(app_config.slug).mkdir()
+
+            with mocks_for_fetch_releases(app_config, branches, tags, ref_versions):
+                results = fetch_releases(manifest_dir, "app", app_config)
+
+        self.assertEqual(len(results), 10)  # 5 branches and 5 tags
+        for major in range(2, 7):
+            self.assertIn(
+                FetchResult(
+                    app_name="app",
+                    ref=Ref(f"v{major}.0.0", f"tag-v{major}"),
+                    version=Version(major),
+                ),
+                results,
+            )
+            self.assertIn(
+                FetchResult(
+                    app_name="app",
+                    ref=Ref(f"release_v{major}", f"branch-v{major}"),
+                    version=Version(major, 0, 1),
+                ),
+                results,
+            )
+
+    @patch.object(
+        fetch,
+        "fetch_fml_app",
+        mock_fetch,
+    )
+    def test_fetch_releases_no_tag_re(self):
+        """Testing fetch_releases with no tag_re specified."""
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            version_file=VersionFile.create_plain_text("version.txt"),
+            branch_re=r"release_v(?P<major>\d)+",
+        )
+
+        branches = [Ref(f"release_v{major}", f"branch-v{major}") for major in range(1, 7)]
+        ref_versions = {f"branch-v{major}": Version(major, 0, 1) for major in range(1, 7)}
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath(app_config.slug).mkdir()
+
+            with mocks_for_fetch_releases(app_config, branches, None, ref_versions) as (
+                get_branches,
+                get_tags,
+                resolve_ref_versions,
+            ):
+                results = fetch_releases(manifest_dir, "app", app_config)
+
+                get_tags.assert_not_called()
+
+        self.assertEqual(len(results), 5)  # 5 branches
+        for major in range(2, 7):
+            self.assertIn(
+                FetchResult(
+                    app_name="app",
+                    ref=Ref(f"release_v{major}", f"branch-v{major}"),
+                    version=Version(major, 0, 1),
+                ),
+                results,
+            )
+
+    @patch.object(fetch.github_api, "get_branches", lambda *args: [])
+    def test_fetch_releases_no_major_release(self):
+        """Testing fetch_releases when there are no release branches."""
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            version_file=VersionFile.create_plain_text("version.txt"),
+            branch_re=r"release_v(?P<major>\d)+",
+            tag_re=r"v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)",
+        )
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath(app_config.slug).mkdir()
+
+            with self.assertRaisesRegex(
+                Exception, "Could not find a major release for app."
+            ):
+                fetch_releases(manifest_dir, "app", app_config)
