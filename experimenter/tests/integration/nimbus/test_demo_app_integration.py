@@ -121,6 +121,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     kinto_client,
     base_url,
     experiment_name,
+    driver
 ):
     # Launch an experiment with two branches
     reference_branch_value = '{"enabled": true, "something": "Control branch"}'
