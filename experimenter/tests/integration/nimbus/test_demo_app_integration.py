@@ -59,7 +59,6 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     kinto_client,
     base_url,
     experiment_name,
-    driver,
 ):
     # Launch a rollout with 100% population
     reference_branch_value = '{"enabled": true, "something": "You are enrolled"}'
@@ -75,7 +74,7 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
     # demo app frontend, default displays "Not Enrolled"
-    demo_app = DemoAppPage(driver)
+    demo_app = DemoAppPage(selenium)
 
     demo_app.navigate_to()
     result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
@@ -121,7 +120,6 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     kinto_client,
     base_url,
     experiment_name,
-    driver,
 ):
     # Launch an experiment with two branches
     reference_branch_value = '{"enabled": true, "something": "Control branch"}'
@@ -139,7 +137,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     home = HomePage(selenium, base_url).open()
     assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
-    demo_app = DemoAppPage(driver)
+    demo_app = DemoAppPage(selenium)
     # Demo app frontend, by default, returns "Not Enrolled" message
     demo_app.navigate_to()
 

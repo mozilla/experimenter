@@ -7,7 +7,7 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from selenium import webdriver
+
 
 from nimbus.kinto.client import (
     KINTO_COLLECTION_DESKTOP,
@@ -297,8 +297,12 @@ def create_experiment(base_url, default_data):
         # Fill Metrics page
         metrics = branches.save_and_continue()
         if default_data.metrics.primary_outcomes:
-            metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
-            assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
+            metrics.set_primary_outcomes(
+                values=default_data.metrics.primary_outcomes[0]
+            )
+            assert (
+                metrics.primary_outcomes.text != ""
+            ), "The primary outcome was not set"
             metrics.set_secondary_outcomes(
                 values=default_data.metrics.secondary_outcomes[0]
             )
@@ -435,9 +439,3 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
 
     return _telemetry_event_check
 
-
-@pytest.fixture
-def driver():
-    driver = webdriver.Chrome()
-    yield driver
-    driver.quit()
