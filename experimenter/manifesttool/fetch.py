@@ -26,12 +26,12 @@ class FetchResult:
     exc: Optional[Exception] = None
 
     def __str__(self):
-        s = f"{self.app_name} at {self.ref} version {self.version}"
+        as_str = f"{self.app_name} at {self.ref} version {self.version}"
         if self.exc:
             exc_message = str(self.exc).partition("\n")[0]
-            s = f"{s}\n{exc_message}\n"
+            as_str = f"{as_str}\n{exc_message}\n"
 
-        return s
+        return as_str
 
 
 def fetch_fml_app(
