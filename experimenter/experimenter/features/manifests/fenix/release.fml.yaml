@@ -17,7 +17,7 @@ features:
           feature-setting-global-rules-sub-frames: 0
           feature-setting-value: 0
           feature-setting-value-pbm: 0
-          feature-ui: 1
+          feature-ui: 0
   extensions-process:
     description: A feature to rollout the extensions process.
     variables:
