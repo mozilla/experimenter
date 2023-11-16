@@ -7,9 +7,12 @@ from parameterized import parameterized
 from manifesttool.appconfig import (
     AppConfig,
     AppConfigs,
+    DiscoveryStrategy,
+    DiscoveryStrategyType,
+    ReleaseDiscovery,
+    Repository,
     RepositoryType,
     VersionFile,
-    VersionFileType,
 )
 from manifesttool.cli import MANIFEST_DIR
 from manifesttool.github_api import GITHUB_RAW_URL
@@ -166,10 +169,17 @@ class VersionTests(TestCase):
         expected: dict[Version, Ref],
     ):
         """Testing find_versioned_refs with real branch data."""
+        strategy = next(
+            release_discovery.__root__
+            for release_discovery in self.app_configs.__root__[
+                app_name
+            ].release_discovery.strategies
+            if release_discovery.__root__.type == DiscoveryStrategyType.TAGGED
+        )
         self._test_find_versioned_refs(
-            self.app_configs.__root__[app_name].branch_re,
+            strategy.branch_re,
             [Ref(name) for name in names],
-            self.app_configs.__root__[app_name].ignored_branches,
+            strategy.ignored_branches,
             expected,
         )
 
@@ -271,10 +281,17 @@ class VersionTests(TestCase):
         expected: dict[Version, Ref],
     ):
         """Testing find_versioned_refs with real tag data."""
+        strategy = next(
+            release_discovery.__root__
+            for release_discovery in self.app_configs.__root__[
+                app_name
+            ].release_discovery.strategies
+            if release_discovery.__root__.type == DiscoveryStrategyType.TAGGED
+        )
         self._test_find_versioned_refs(
-            self.app_configs.__root__[app_name].tag_re,
+            strategy.tag_re,
             [Ref(name) for name in names],
-            self.app_configs.__root__[app_name].ignored_tags,
+            strategy.ignored_tags,
             expected,
         )
 
@@ -360,13 +377,7 @@ class VersionTests(TestCase):
     )
     def test_parse_version_file_plain_text(self, contents, expected):
         """Testing parse_version_file with a plain-text version file."""
-        version_file = VersionFile.parse_obj(
-            {
-                "type": VersionFileType.PLAIN_TEXT,
-                "path": "version.txt",
-            }
-        )
-
+        version_file = VersionFile.create_plain_text("version.txt")
         self.assertEqual(parse_version_file(version_file, contents), expected)
 
     @parameterized.expand(
@@ -378,14 +389,7 @@ class VersionTests(TestCase):
     )
     def test_parse_version_file_plist(self, version_str, expected):
         """Testing parse_version_file with a plist version file."""
-        version_file = VersionFile.parse_obj(
-            {
-                "type": VersionFileType.PLIST,
-                "path": "info.plist",
-                "key": "Version",
-            }
-        )
-
+        version_file = VersionFile.create_plist("info.plist", "Version")
         contents = (
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"'
@@ -416,33 +420,29 @@ class VersionTests(TestCase):
                 },
             )
             for app_config in (
-                AppConfig.parse_obj(
-                    {
-                        "slug": "fml-app",
-                        "repo": {
-                            "type": "github",
-                            "name": "fml-app",
-                        },
-                        "fml_path": "nimbus.fml.yaml",
-                        "version_file": {
-                            "type": "plaintext",
-                            "path": "version.txt",
-                        },
-                    },
+                AppConfig(
+                    slug="fml-app",
+                    repo=Repository(
+                        type=RepositoryType.GITHUB,
+                        name="fml-app",
+                    ),
+                    fml_path="nimbus.fml.yaml",
+                    release_discovery=ReleaseDiscovery(
+                        version_file=VersionFile.create_plain_text("version.txt"),
+                        strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
+                    ),
                 ),
-                AppConfig.parse_obj(
-                    {
-                        "slug": "legacy-app",
-                        "repo": {
-                            "type": "hgmo",
-                            "name": "legacy-app",
-                        },
-                        "experimenter_yaml_path": "nimbus.yaml",
-                        "version_file": {
-                            "type": "plaintext",
-                            "path": "version.txt",
-                        },
-                    },
+                AppConfig(
+                    slug="legacy-app",
+                    repo=Repository(
+                        type=RepositoryType.HGMO,
+                        name="legacy-app",
+                    ),
+                    experimenter_yaml_path="nimbus.yaml",
+                    release_discovery=ReleaseDiscovery(
+                        version_file=VersionFile.create_plain_text("version.txt"),
+                        strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
+                    ),
                 ),
             )
         ]
@@ -458,12 +458,12 @@ class VersionTests(TestCase):
         if app_config.repo.type == RepositoryType.GITHUB:
             url_template = (
                 f"{GITHUB_RAW_URL}/{app_config.repo.name}/"
-                f"{{ref.resolved}}/{app_config.version_file.__root__.path}"
+                f"{{ref.resolved}}/{app_config.release_discovery.version_file.__root__.path}"
             )
         else:
             url_template = (
                 f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
-                f"{{ref.resolved}}/{app_config.version_file.__root__.path}"
+                f"{{ref.resolved}}/{app_config.release_discovery.version_file.__root__.path}"
             )
 
         refs = []
