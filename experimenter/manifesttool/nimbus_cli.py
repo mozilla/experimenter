@@ -2,8 +2,10 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Optional
 
 from manifesttool.appconfig import AppConfig, RepositoryType
+from manifesttool.version import Version
 
 NIMBUS_CLI_PATH = "/application-services/bin/nimbus-cli"
 
@@ -49,10 +51,11 @@ def get_channels(app_config: AppConfig, ref: str) -> list[str]:
 
 
 def download_single_file(
+    manifest_dir: Path,
     app_config: AppConfig,
     channel: str,
-    manifests_dir: Path,
     ref: str,
+    version: Optional[Version],
 ):
     """Download the single-file FML manifest for the app on the specified channel."""
     assert app_config.repo.type == RepositoryType.GITHUB
@@ -66,19 +69,55 @@ def download_single_file(
             "--ref",
             ref,
             f"@{app_config.repo.name}/{app_config.fml_path}",
-            str(manifests_dir / app_config.slug / f"{channel}.fml.yaml"),
+            str(_get_fml_path(manifest_dir, app_config, channel, version)),
         ],
     )
 
 
-def generate_experimenter_yaml(app_config: AppConfig, channel: str, manifests_dir: Path):
+def generate_experimenter_yaml(
+    manifest_dir: Path,
+    app_config: AppConfig,
+    channel: str,
+    version: Optional[Version],
+):
     """Generate an experimenter.yaml manifest from a single-file FML file."""
     nimbus_cli(
         [
             "fml",
             "--",
             "generate-experimenter",
-            str(manifests_dir / app_config.slug / f"{channel}.fml.yaml"),
-            str(manifests_dir / app_config.slug / "experimenter.yaml"),
+            str(_get_fml_path(manifest_dir, app_config, channel, version)),
+            str(_get_experimenter_yaml_path(manifest_dir, app_config, version)),
         ],
     )
+
+
+def _get_fml_path(
+    manifest_dir: Path,
+    app_config: AppConfig,
+    channel: str,
+    version: Optional[Version],
+) -> Path:
+    path = manifest_dir / app_config.slug
+
+    if version:
+        path /= f"v{version}"
+
+    path.mkdir(exist_ok=True)
+
+    return path / f"{channel}.fml.yaml"
+
+
+def _get_experimenter_yaml_path(
+    manifest_dir: Path,
+    app_config: AppConfig,
+    version: Optional[Version],
+) -> Path:
+    path = manifest_dir / app_config.slug
+
+    if version:
+        path /= f"v{version}"
+
+    path.mkdir(exist_ok=True)
+
+    return path / "experimenter.yaml"
