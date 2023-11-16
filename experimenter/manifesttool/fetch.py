@@ -9,7 +9,7 @@ from mozilla_nimbus_schemas import FeatureManifest
 
 from manifesttool import github_api, hgmo_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, DiscoveryStrategyType, RepositoryType
-from manifesttool.releases import discover_tagged_releases
+from manifesttool.releases import discover_branched_releases, discover_tagged_releases
 from manifesttool.repository import Ref
 from manifesttool.version import Version
 
@@ -199,24 +199,26 @@ def fetch_releases(
     """Fetch all releases for the app."""
     results = []
 
-    if app_config.repo.type == RepositoryType.HGMO:
-        raise Exception("Cannot fetch releases for apps hosted on hg.mozilla.org.")
-
     if app_config.release_discovery is None:
         raise Exception(f"App {app_name} does not support releases.")
 
-    if app_config.fml_path is None:
-        raise Exception("Cannot fetch releases for legacy apps.")
-
     versions = {}
     for strategy in app_config.release_discovery.strategies:
-        if strategy.__root__.type == DiscoveryStrategyType.TAGGED:
-            versions.update(
-                discover_tagged_releases(app_name, app_config, strategy.__root__)
-            )
+        strategy = strategy.__root__
+        if strategy.type == DiscoveryStrategyType.TAGGED:
+            versions.update(discover_tagged_releases(app_name, app_config, strategy))
+        elif strategy.type == DiscoveryStrategyType.BRANCHED:
+            versions.update(discover_branched_releases(app_name, app_config, strategy))
+        else:  # pragma: no cover
+            raise AssertionError("unreachable")
+
+    if app_config.fml_path:
+        fetch_app = fetch_fml_app
+    else:
+        fetch_app = fetch_legacy_app
 
     for version, ref in versions.items():
-        results.append(fetch_fml_app(manifest_dir, app_name, app_config, ref, version))
+        results.append(fetch_app(manifest_dir, app_name, app_config, ref, version))
 
     return results
 

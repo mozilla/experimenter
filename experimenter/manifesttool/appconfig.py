@@ -68,6 +68,7 @@ class VersionFile(BaseModel):
 
 class DiscoveryStrategyType(str, Enum):
     TAGGED = "tagged"
+    BRANCHED = "branched"
 
 
 class TaggedDiscoveryStrategy(BaseModel):
@@ -78,8 +79,13 @@ class TaggedDiscoveryStrategy(BaseModel):
     ignored_tags: Optional[list[str]]
 
 
+class BranchedDiscoveryStrategy(BaseModel):
+    type: Literal[DiscoveryStrategyType.BRANCHED]
+    branches: Optional[list[str]]
+
+
 class DiscoveryStrategy(BaseModel):
-    __root__: TaggedDiscoveryStrategy
+    __root__: Union[TaggedDiscoveryStrategy, BranchedDiscoveryStrategy] = Field(discriminator="type")
 
     @classmethod
     def create_tagged(
@@ -100,6 +106,14 @@ class DiscoveryStrategy(BaseModel):
             )
         )
 
+    @classmethod
+    def create_branched(cls, branches: Optional[list[str]] = None):  # pragma: no cover
+        return cls(
+            __root__=BranchedDiscoveryStrategy(
+                type=DiscoveryStrategyType.BRANCHED,
+                branches=branches,
+            ),
+        )
 
 class ReleaseDiscovery(BaseModel):
     version_file: VersionFile

@@ -82,3 +82,14 @@ firefox_desktop:
     name: "mozilla-unified"
     default_branch: "central"
   experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
+  release_discovery:
+    version_file:
+      type: "plaintext"
+      path: "browser/config/version.txt"
+    strategies:
+      - type: "branched"
+        branches:
+          - "central"
+          - "beta"
+          - "release"
+          - "esr115"

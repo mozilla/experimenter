@@ -1,6 +1,7 @@
-from manifesttool import github_api
+from manifesttool import github_api, hgmo_api
 from manifesttool.appconfig import (
     AppConfig,
+    BranchedDiscoveryStrategy,
     RepositoryType,
     TaggedDiscoveryStrategy,
 )
@@ -56,3 +57,22 @@ def discover_tagged_releases(
         versions.update(tag_versions)
 
     return versions
+
+
+def discover_branched_releases(
+    app_name: str, app_config: AppConfig, strategy: BranchedDiscoveryStrategy,
+) -> dict[Version, Ref]:
+    assert app_config.repo.type == RepositoryType.HGMO
+
+    # If there are no branches listed, we will only scan the default branch.
+    branches = strategy.branches
+    if branches is None:
+        branches = [app_config.repo.default_branch]
+
+    refs = [
+        hgmo_api.get_bookmark_ref(app_config.repo.name, branch)
+        for branch in branches
+    ]
+
+    return resolve_ref_versions(app_config, refs)
+

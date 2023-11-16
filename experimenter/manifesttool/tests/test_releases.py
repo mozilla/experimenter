@@ -18,8 +18,9 @@ from manifesttool.appconfig import (
     VersionFile,
     VersionFileType,
 )
-from manifesttool.releases import discover_tagged_releases
+from manifesttool.releases import discover_branched_releases, discover_tagged_releases
 from manifesttool.repository import Ref
+from manifesttool.tests.test_fetch import make_mock_fetch_file
 from manifesttool.version import Version
 
 
@@ -104,6 +105,13 @@ def mocks_for_discover_tagged_releases(
             get_tags,
             fetch_file,
         )
+
+
+def make_mock_get_bookmark_ref(refs: dict[str, str]):
+    def get_bookmark_ref(repo: str, bookmark: str):
+        return Ref(bookmark, refs[bookmark])
+
+    return get_bookmark_ref
 
 
 class ReleaseTests(TestCase):
@@ -237,3 +245,101 @@ class ReleaseTests(TestCase):
                 Exception, "Could not find a major release for app."
             ):
                 discover_tagged_releases("app", app_config, strategy.__root__)
+
+    @patch.object(
+        manifesttool.releases.hgmo_api,
+        "get_bookmark_ref",
+        make_mock_get_bookmark_ref({
+            "foo": "1",
+            "bar": "2",
+            "baz": "3",
+        })
+    )
+    @patch.object(
+        manifesttool.releases.hgmo_api,
+        "fetch_file",
+        make_mock_fetch_file(
+            paths_by_ref={
+                "1": { "version.txt": "1.0.0" },
+                "2": { "version.txt": "2.0.0" },
+                "3": { "version.txt": "3.0.0" },
+            }
+        )
+    )
+    def test_discover_branched_releases(self):
+        strategy = DiscoveryStrategy.create_branched(["foo", "bar", "baz"])
+        app_config = AppConfig(
+            slug="legacy-app",
+            repo=Repository(
+                type=RepositoryType.HGMO,
+                name="legacy-repo",
+                default_branch="foo",
+            ),
+            experimenter_yaml_path="experimenter.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[strategy],
+            ),
+        )
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath(app_config.slug).mkdir()
+
+            releases = discover_branched_releases("legacy_app", app_config, strategy.__root__)
+
+            self.assertEqual(
+                releases,
+                {
+                    Version(1): Ref("foo", "1"),
+                    Version(2): Ref("bar", "2"),
+                    Version(3): Ref("baz", "3"),
+                }
+            )
+
+    @patch.object(
+        manifesttool.releases.hgmo_api,
+        "get_bookmark_ref",
+        side_effect=make_mock_get_bookmark_ref({
+            "default": "1",
+        })
+    )
+    @patch.object(
+        manifesttool.releases.hgmo_api,
+        "fetch_file",
+        make_mock_fetch_file(
+            paths_by_ref={
+                "1": { "version.txt": "1.0.0" },
+            }
+        )
+    )
+    def test_discover_branched_releases_default(self, get_bookmark_ref):
+        strategy = DiscoveryStrategy.create_branched()
+        app_config = AppConfig(
+            slug="legacy-app",
+            repo=Repository(
+                type=RepositoryType.HGMO,
+                name="legacy-repo",
+                default_branch="default",
+            ),
+            experimenter_yaml_path="experimenter.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[strategy],
+            ),
+        )
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath(app_config.slug).mkdir()
+
+            releases = discover_branched_releases("legacy_app", app_config, strategy.__root__)
+
+            self.assertEqual(
+                releases,
+                {
+                    Version(1): Ref("default", "1"),
+                }
+            )
+
+        get_bookmark_ref.assert_called_once_with(app_config.repo.name, "default")

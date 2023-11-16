@@ -101,21 +101,59 @@ def mock_download_single_file(
     with filename.open("w") as f:
         yaml.dump(generate_fml(app_config, channel), f)
 
+DEFAULT_MOCK_FETCHES = {
+    LEGACY_MANIFEST_PATH: LEGACY_MANIFEST,
+    FEATURE_JSON_SCHEMA_PATH: FEATURE_JSON_SCHEMA,
+}
 
-def make_mock_fetch_file(paths=None):
-    if paths is None:
-        paths = {
-            LEGACY_MANIFEST_PATH: LEGACY_MANIFEST,
-            FEATURE_JSON_SCHEMA_PATH: FEATURE_JSON_SCHEMA,
-        }
+def make_mock_fetch_file(
+    *,
+    ref: Optional[str] = None,
+    paths_by_ref: Optional[dict[str, dict[str, str]]] = None,
+):
+    """Create a mock for hgmo_api.fetch_file
+
+    Args:
+        ref:
+            If provided, the mock will only support fetching at the given
+            resolved ref and it will only support fetching the files listed in
+            ``DEFAULT_MOCK_FETCHES``.
+
+            Mutually exclusive with ``paths_by_ref``.
+
+        paths_by_ref:
+            A mapping of resolved refs to file paths to contents.
+
+            Mutually exclusive with ``ref``.
+    """
+    if ref is not None or paths_by_ref is not None:
+        if ref is not None and paths_by_ref is not None:
+            raise ValueError(
+                "make_mock_fetch_file expects only one of paths_by_ref or ref"
+            )
+
+        if ref is not None:
+            paths_by_ref = {
+                ref: DEFAULT_MOCK_FETCHES,
+            }
+    else:
+        raise ValueError(
+            "mack_mock_fetch_file requires one of paths_by_ref or ref"
+        )
 
     def mock_fetch_file(
         repo: str,
         file_path: str,
         rev: str,
-        download_path: Path,
-    ):
+        download_path: Optional[Path] = None,
+    ) -> Optional[str]:
         """A mock version of hgmo_api.fetch_file."""
+        try:
+            paths = paths_by_ref[rev]
+        except KeyError as e:
+            raise Exception(
+                f"Unexpected ref {rev} passed to hgmo_api.fetch_file"
+            )
 
         try:
             content = paths[file_path]
@@ -124,8 +162,12 @@ def make_mock_fetch_file(paths=None):
                 f"Unexpected file path ({file_path}) passed to hgmo_api.fetch_file"
             ) from e
 
-        with download_path.open("w", newline="\n") as f:
-            json.dump(content, f)
+        if download_path:
+            with download_path.open("w", newline="\n") as f:
+                json.dump(content, f)
+            return
+
+        return content
 
     return mock_fetch_file
 
@@ -381,7 +423,7 @@ class FetchTests(TestCase):
         manifesttool.fetch.hgmo_api, "get_bookmark_ref", lambda *args: Ref("tip", "ref")
     )
     @patch.object(
-        manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file()
+        manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file(ref="ref")
     )
     def test_fetch_legacy(self, fetch_file):
         """Testing fetch_legacy_app."""
@@ -415,7 +457,7 @@ class FetchTests(TestCase):
 
     @patch.object(manifesttool.fetch.hgmo_api, "get_bookmark_ref")
     @patch.object(
-        manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file()
+        manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file(ref="resolved")
     )
     def test_fetch_legacy_ref(self, fetch_file, get_bookmark_ref):
         """Testing fetch_legacy_app with a specific ref."""
@@ -463,7 +505,7 @@ class FetchTests(TestCase):
 
     @patch.object(manifesttool.fetch.hgmo_api, "get_bookmark_ref")
     @patch.object(
-        manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file()
+        manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file(ref="foo")
     )
     def test_fetch_legacy_ref_version(self, fetch_file, get_bookmark_ref):
         """Testing fetch_legacy_app with a ref and a version."""
@@ -511,13 +553,16 @@ class FetchTests(TestCase):
         manifesttool.fetch.hgmo_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(
-            {
-                LEGACY_MANIFEST_PATH: {
-                    "feature": LEGACY_MANIFEST["feature"],
-                    "feature-2": LEGACY_MANIFEST["feature"],
-                },
-                FEATURE_JSON_SCHEMA_PATH: FEATURE_JSON_SCHEMA,
-            }
+            paths_by_ref={
+                "ref":
+                {
+                    LEGACY_MANIFEST_PATH: {
+                        "feature": LEGACY_MANIFEST["feature"],
+                        "feature-2": LEGACY_MANIFEST["feature"],
+                    },
+                    FEATURE_JSON_SCHEMA_PATH: FEATURE_JSON_SCHEMA,
+                }
+            },
         ),
     )
     def test_fetch_legacy_repeated_schema(self, fetch_file):
@@ -594,57 +639,22 @@ class FetchTests(TestCase):
             ):
                 fetch_legacy_app(manifest_dir, "repo", LEGACY_APP_CONFIG, Ref("foo"))
 
-    @parameterized.expand(
-        [
-            (
-                AppConfig(
-                    slug="legacy-app",
-                    repo=Repository(
-                        type=RepositoryType.HGMO,
-                        name="legacy-repo",
-                        default_branch="tip",
-                    ),
-                    experimenter_yaml_path="experimenter.yaml",
-                ),
-                "Cannot fetch releases for apps hosted on hg.mozilla.org",
-            ),
-            (
-                AppConfig(
-                    slug="legacy-app",
-                    repo=Repository(
-                        type=RepositoryType.GITHUB,
-                        name="legacy-repo",
-                    ),
-                    experimenter_yaml_path="experimenter.yaml",
-                    release_discovery=ReleaseDiscovery(
-                        version_file=VersionFile.create_plain_text("version.txt"),
-                        strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
-                    ),
-                ),
-                "Cannot fetch releases for legacy apps",
-            ),
-            (
-                AppConfig(
-                    slug="fml-app",
-                    repo=Repository(
-                        type=RepositoryType.GITHUB,
-                        name="fml-repo",
-                    ),
-                    fml_path="nimbus.fml.yaml",
-                ),
-                "App app does not support releases.",
-            ),
-        ]
-    )
-    def test_fetch_releases_unsupported_apps(
-        self, app_config: AppConfig, exc_message: str
-    ):
+    def test_fetch_releases_unsupported_apps(self):
         """Testing fetch_releases with unsupported apps."""
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+        )
+
         with TemporaryDirectory() as tmp:
             manifest_dir = Path(tmp)
             manifest_dir.joinpath(app_config.slug).mkdir()
 
-            with self.assertRaisesRegex(Exception, exc_message):
+            with self.assertRaisesRegex(Exception, "App app does not support releases."):
                 fetch_releases(manifest_dir, "app", app_config)
 
     @patch.object(
@@ -660,8 +670,8 @@ class FetchTests(TestCase):
         "fetch_fml_app",
         side_effect=mock_fetch,
     )
-    def test_fetch_releases(self, fetch_fml_app):
-        """Testing fetch_releases."""
+    def test_fetch_releases_tagged(self, fetch_fml_app):
+        """Testing fetch_releases with a TaggedDiscoveryStrategy."""
         app_config = AppConfig(
             slug="fml-app",
             repo=Repository(
@@ -696,4 +706,47 @@ class FetchTests(TestCase):
                 version=Version(1, 2, 3),
             ),
             results,
+        )
+
+    @patch.object(
+        manifesttool.fetch,
+        "discover_branched_releases",
+        lambda *args: {
+            Version(1): Ref("tip", "foo"),
+        },
+    )
+    @patch.object(
+        manifesttool.fetch,
+        "fetch_legacy_app",
+        side_effect=mock_fetch,
+    )
+    def test_fetch_releases_branches(self, fetch_legacy_app):
+        """Testing fetch_releases with a BranchedDiscoveryStrategy."""
+        app_config = AppConfig(
+            slug="legacy-app",
+            repo=Repository(
+                type=RepositoryType.HGMO,
+                name="legacy-repo",
+                default_branch="tip",
+            ),
+            experimenter_yaml_path="experimenter.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[DiscoveryStrategy.create_branched()]
+            ),
+        )
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            results = fetch_releases(manifest_dir, "legacy_app", app_config)
+
+        self.assertEqual(
+            results,
+            [
+                FetchResult(
+                    app_name="legacy_app",
+                    ref=Ref("tip", "foo"),
+                    version=Version(1),
+                ),
+            ],
         )
