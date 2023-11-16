@@ -1,0 +1,536 @@
+---
+version: 1.0.0
+about:
+  description: Nimbus Feature Manifest for Fenix (Firefox Android)
+channels:
+  - beta
+features:
+  cookie-banners:
+    description: Features for cookie banner handling.
+    variables:
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled.
+        type: "Map<CookieBannersSection, Int>"
+        default:
+          dialog-re-engage-time: 4
+          feature-setting-value: 0
+          feature-ui: 0
+  extensions-process:
+    description: A feature to rollout the extensions process.
+    variables:
+      enabled:
+        description: "If true, the extensions process is enabled."
+        type: Boolean
+        default: false
+  glean:
+    description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
+    variables:
+      metrics-enabled:
+        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+        type: "Map<String, Boolean>"
+        default: {}
+  growth-data:
+    description: A feature measuring campaign growth data
+    variables:
+      enabled:
+        description: "If true, the feature is active"
+        type: Boolean
+        default: false
+  homescreen:
+    description: The homescreen that the user goes to when they press home or new tab.
+    variables:
+      sections-enabled:
+        description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
+        type: "Map<HomeScreenSection, Boolean>"
+        default:
+          jump-back-in: true
+          pocket: true
+          pocket-sponsored-stories: true
+          recent-explorations: true
+          recently-saved: true
+          top-sites: true
+  juno-onboarding:
+    description: A feature that shows juno onboarding flow.
+    variables:
+      cards:
+        description: Collection of user facing onboarding cards.
+        type: "Map<String, OnboardingCardData>"
+        default:
+          add-search-widget:
+            body: juno_onboarding_add_search_widget_description
+            card-type: add-search-widget
+            enabled: false
+            image-res: ic_onboarding_search_widget
+            ordering: 15
+            primary-button-label: juno_onboarding_add_search_widget_positive_button
+            secondary-button-label: juno_onboarding_add_search_widget_negative_button
+            title: juno_onboarding_add_search_widget_title
+          default-browser:
+            body: juno_onboarding_default_browser_description_nimbus
+            card-type: default-browser
+            image-res: ic_onboarding_welcome
+            link-text: juno_onboarding_default_browser_description_link_text
+            ordering: 10
+            primary-button-label: juno_onboarding_default_browser_positive_button
+            secondary-button-label: juno_onboarding_default_browser_negative_button
+            title: juno_onboarding_default_browser_title_nimbus
+          notification-permission:
+            body: juno_onboarding_enable_notifications_description_nimbus
+            card-type: notification-permission
+            image-res: ic_notification_permission
+            ordering: 30
+            primary-button-label: juno_onboarding_enable_notifications_positive_button
+            secondary-button-label: juno_onboarding_enable_notifications_negative_button
+            title: juno_onboarding_enable_notifications_title_nimbus
+          sync-sign-in:
+            body: juno_onboarding_sign_in_description
+            card-type: sync-sign-in
+            image-res: ic_onboarding_sync
+            ordering: 20
+            primary-button-label: juno_onboarding_sign_in_positive_button
+            secondary-button-label: juno_onboarding_sign_in_negative_button
+            title: juno_onboarding_sign_in_title
+      enabled:
+        description: "if true, juno onboarding is shown to the user."
+        type: Boolean
+        default: false
+  messaging:
+    description: "The in-app messaging system.\n"
+    variables:
+      actions:
+        description: A growable map of action URLs.
+        type: "Map<String, String>"
+        default:
+          ENABLE_PRIVATE_BROWSING: "://enable_private_browsing"
+          INSTALL_SEARCH_WIDGET: "://install_search_widget"
+          MAKE_DEFAULT_BROWSER: "://make_default_browser"
+          OPEN_SETTINGS: "://settings"
+          OPEN_SETTINGS_ACCESSIBILITY: "://settings_accessibility"
+          OPEN_SETTINGS_ADDON_MANAGER: "://settings_addon_manager"
+          OPEN_SETTINGS_DELETE_BROWSING_DATA: "://settings_delete_browsing_data"
+          OPEN_SETTINGS_LOGINS: "://settings_logins"
+          OPEN_SETTINGS_NOTIFICATIONS: "://settings_notifications"
+          OPEN_SETTINGS_PRIVACY: "://settings_privacy"
+          OPEN_SETTINGS_SEARCH_ENGINE: "://settings_search_engine"
+          OPEN_SETTINGS_TRACKING_PROTECTION: "://settings_tracking_protection"
+          OPEN_SETTINGS_WALLPAPERS: "://settings_wallpapers"
+          TURN_ON_SYNC: "://turn_on_sync"
+          VIEW_BOOKMARKS: "://urls_bookmarks"
+          VIEW_COLLECTIONS: "://home_collections"
+          VIEW_HISTORY: "://urls_history"
+          VIEW_HOMESCREEN: "://home"
+      message-under-experiment:
+        description: "Deprecated in favor of `MessageData#experiment`. This will be removed in future releases."
+        type: Option<String>
+        default: ~
+      messages:
+        description: A growable collection of messages
+        type: "Map<String, MessageData>"
+        default:
+          default-browser:
+            action: MAKE_DEFAULT_BROWSER
+            button-label: preferences_set_as_default_browser
+            style: PERSISTENT
+            surface: homescreen
+            text: default_browser_experiment_card_text
+            trigger:
+              - I_AM_NOT_DEFAULT_BROWSER
+              - USER_ESTABLISHED_INSTALL
+          default-browser-notification:
+            action: MAKE_DEFAULT_BROWSER
+            style: NOTIFICATION
+            surface: notification
+            text: nimbus_notification_default_browser_text
+            title: nimbus_notification_default_browser_title
+            trigger:
+              - I_AM_NOT_DEFAULT_BROWSER
+              - DAY_3_AFTER_INSTALL
+      notification-config:
+        description: Configuration of the notification worker for all notification messages.
+        type: NotificationConfig
+        default: {}
+      on-control:
+        description: What should be displayed when a control message is selected.
+        type: ControlMessageBehavior
+        default: show-next-message
+      styles:
+        description: "A map of styles to configure message appearance.\n"
+        type: "Map<String, StyleData>"
+        default:
+          DEFAULT:
+            max-display-count: 5
+            priority: 50
+          NOTIFICATION:
+            max-display-count: 1
+            priority: 50
+          PERSISTENT:
+            max-display-count: 20
+            priority: 50
+          SURVEY:
+            max-display-count: 1
+            priority: 55
+          URGENT:
+            max-display-count: 10
+            priority: 100
+          WARNING:
+            max-display-count: 10
+            priority: 60
+      triggers:
+        description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
+        type: "Map<String, String>"
+        default:
+          ALWAYS: "true"
+          DAY_1_AFTER_INSTALL: days_since_install == 1
+          DAY_2_AFTER_INSTALL: days_since_install == 2
+          DAY_3_AFTER_INSTALL: days_since_install == 3
+          DAY_4_AFTER_INSTALL: days_since_install == 4
+          DAY_5_AFTER_INSTALL: days_since_install == 5
+          DEVICE_ANDROID: "os == 'Android'"
+          DEVICE_IOS: "os == 'iOS'"
+          FUNNEL_ORGANIC: "adjust_campaign == ''"
+          FUNNEL_PAID: "adjust_campaign != ''"
+          FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
+          FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
+          INACTIVE_1_DAY: "'app_launched'|eventLastSeen('Hours') >= 24"
+          INACTIVE_2_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 2"
+          INACTIVE_3_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 3"
+          INACTIVE_4_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 4"
+          INACTIVE_5_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 5"
+          I_AM_DEFAULT_BROWSER: is_default_browser
+          I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
+          LAUNCHED_ONCE_THIS_WEEK: "'app_launched'|eventSum('Days', 7) == 1"
+          MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
+          NEVER: "false"
+          USER_CASUAL: "'app_launched'|eventCountNonZero('Days', 28) >= 7 && 'app_launched'|eventCountNonZero('Days', 28) < 14"
+          USER_CORE_ACTIVE: "'app_launched'|eventCountNonZero('Days', 28) >= 21"
+          USER_DE_SPEAKER: "'de' in locale"
+          USER_EN_SPEAKER: "'en' in locale"
+          USER_ESTABLISHED_INSTALL: number_of_app_launches >=4
+          USER_ES_SPEAKER: "'es' in locale"
+          USER_FR_SPEAKER: "'fr' in locale"
+          USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"
+          USER_RECENTLY_INSTALLED: days_since_install < 7
+          USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
+          USER_REGULAR: "'app_launched'|eventCountNonZero('Days', 28) >= 14 && 'app_launched'|eventCountNonZero('Days', 28) < 21"
+          USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
+    allow-coenrollment: true
+  mr2022:
+    description: Features for MR 2022.
+    variables:
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled.
+        type: "Map<MR2022Section, Boolean>"
+        default:
+          home-onboarding-dialog-existing-users: true
+          jump-back-in-cfr: true
+          sync-cfr: true
+          tcp-cfr: true
+          tcp-feature: true
+          wallpapers-selection-tool: true
+  nimbus-system:
+    description: "Configuration of the Nimbus System in Android.\n"
+    variables:
+      refresh-interval-foreground:
+        description: "The minimum interval in minutes between fetching experiment \nrecipes in the foreground.\n"
+        type: Int
+        default: 60
+  nimbus-validation:
+    description: A feature that does not correspond to an application feature suitable for showing that Nimbus is working. This should never be used in production.
+    variables:
+      settings-icon:
+        description: The drawable displayed in the app menu for Settings
+        type: String
+        default: mozac_ic_settings
+      settings-punctuation:
+        description: The emoji displayed in the Settings screen title.
+        type: String
+        default: ""
+      settings-title:
+        description: The title of displayed in the Settings screen and app menu.
+        type: Text
+        default: browser_menu_settings
+  onboarding:
+    description: "A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments."
+    variables:
+      order:
+        description: Determines the order of the onboarding page panels
+        type: List<OnboardingPanel>
+        default:
+          - themes
+          - toolbar-placement
+          - sync
+          - tcp
+          - privacy-notice
+  pdfjs:
+    description: PDF.js features
+    variables:
+      download-button:
+        description: Download button
+        type: Boolean
+        default: true
+      open-in-app-button:
+        description: Open in app button
+        type: Boolean
+        default: true
+  pre-permission-notification-prompt:
+    description: A feature that shows the pre-permission notification prompt.
+    variables:
+      enabled:
+        description: "if true, the pre-permission notification prompt is shown to the user."
+        type: Boolean
+        default: false
+  print:
+    description: A feature for printing from the share or browser menu.
+    variables:
+      browser-print-enabled:
+        description: "If true, a print button from the browser menu is available."
+        type: Boolean
+        default: true
+      share-print-enabled:
+        description: "If true, a print button from the share menu is available."
+        type: Boolean
+        default: true
+  private-browsing:
+    description: Private Browsing Mode
+    variables:
+      felt-privacy-enabled:
+        description: "if true, enable felt privacy related UI"
+        type: Boolean
+        default: false
+  re-engagement-notification:
+    description: A feature that shows the re-engagement notification if the user is inactive.
+    variables:
+      enabled:
+        description: "If true, the re-engagement notification is shown to the inactive user."
+        type: Boolean
+        default: false
+      type:
+        description: The type of re-engagement notification that is shown to the inactive user.
+        type: Int
+        default: 0
+  search-extra-params:
+    description: A feature that provides additional args for search.
+    variables:
+      channel-id:
+        description: The channel Id param name with arg.
+        type: "Map<String, String>"
+        default: {}
+      enabled:
+        description: "If true, the feature is active."
+        type: Boolean
+        default: false
+      feature-enabler:
+        description: "The feature enabler param name with arg, NOTE this map could be empty."
+        type: "Map<String, String>"
+        default: {}
+      search-engine:
+        description: The search engine name.
+        type: String
+        default: ""
+  search-term-groups:
+    description: A feature allowing the grouping of URLs around the search term that it came from.
+    variables:
+      enabled:
+        description: "If true, the feature shows up on the homescreen and on the new tab screen."
+        type: Boolean
+        default: false
+  shopping-experience:
+    description: A feature that shows product review quality information.
+    variables:
+      enabled:
+        description: "if true, the shopping experience feature is shown to the user."
+        type: Boolean
+        default: false
+  splash-screen:
+    description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
+    variables:
+      enabled:
+        description: "If true, the feature is active."
+        type: Boolean
+        default: false
+      maximum_duration_ms:
+        description: The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
+        type: Int
+        default: 0
+  toolbar:
+    description: The searchbar/awesomebar that user uses to search.
+    variables:
+      toolbar-position-top:
+        description: "If true, toolbar appears at top of the screen."
+        type: Boolean
+        default: false
+  unified-search:
+    description: A feature allowing user to easily search for specified results directly in the search bar.
+    variables:
+      enabled:
+        description: "If true, the feature shows up in the search bar."
+        type: Boolean
+        default: true
+enums:
+  ControlMessageBehavior:
+    description: An enum to influence what should be displayed when a control message is selected.
+    variants:
+      show-next-message:
+        description: The next eligible message should be shown.
+      show-none:
+        description: The surface should show no message.
+  CookieBannersSection:
+    description: The identifiers for the sections of the MR 2022.
+    variants:
+      dialog-re-engage-time:
+        description: "An integer indicating the number of hours that needs to happen before the re-engagement dialog shows again since the last seen, for example if set to 4 that means if the users has seen the dialog, it will see it 4 hours later."
+      feature-setting-value:
+        description: "An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all."
+      feature-ui:
+        description: "An integer either 0 or 1 indicating if the UI for cookie banner handling should be visible, 0 to hide the UI and 1 to show the UI. The actual UI is composed by cookie banner section in the settings page, the toolbar section and the re-engagement dialog."
+  HomeScreenSection:
+    description: The identifiers for the sections of the homescreen.
+    variants:
+      jump-back-in:
+        description: The tabs the user was looking immediately before being interrupted.
+      pocket:
+        description: The pocket section. This should only be available in the US.
+      pocket-sponsored-stories:
+        description: Subsection of the Pocket homescreen section which shows sponsored stories.
+      recent-explorations:
+        description: The tab groups
+      recently-saved:
+        description: The sites the user has bookmarked recently.
+      top-sites:
+        description: The frecency and pinned sites.
+  MR2022Section:
+    description: The identifiers for the sections of the MR 2022.
+    variants:
+      home-onboarding-dialog-existing-users:
+        description: Home onboarding dialog for upgraded users.
+      jump-back-in-cfr:
+        description: Jump back-in onboarding message.
+      sync-cfr:
+        description: CFR for the first time you see a synced tab on the home screen.
+      tcp-cfr:
+        description: CFR for the first time you use the browse with Total Cookie Protection on the browser screen.
+      tcp-feature:
+        description: Controls the Total Cookie Protection feature.
+      wallpapers-selection-tool:
+        description: Wallpapers selection dialog tool for the home screen.
+  OnboardingCardType:
+    description: An enum to describe a type of card.
+    variants:
+      add-search-widget:
+        description: Allows user to add search widget to homescreen.
+      default-browser:
+        description: Allows user to set Firefox as the default browser.
+      notification-permission:
+        description: Allows user to enable notification permission.
+      sync-sign-in:
+        description: Allows user to sync with a Firefox account.
+  OnboardingPanel:
+    description: The types of onboarding panels in the onboarding page
+    variants:
+      privacy-notice:
+        description: The onboarding panel where users can tap to view our privacy notice.
+      sync:
+        description: The onboarding panel where users can sign in to sync
+      tcp:
+        description: The onboarding panel where users can choose their total cookie protection settings
+      themes:
+        description: The themes onboarding panel where users pick themes
+      toolbar-placement:
+        description: The onboarding panel where users choose their toolbar placement (bottom or top)
+objects:
+  MessageData:
+    description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
+    fields:
+      action:
+        description: "A URL of a page or a deeplink. This may have substitution variables in.\n"
+        type: Text
+        default: ""
+      button-label:
+        description: "The text on the button. If no text is present, the whole message is clickable.\n"
+        type: Option<Text>
+        default: ~
+      experiment:
+        description: The slug of the experiment that this message came from.
+        type: Option<String>
+        default: ~
+      is-control:
+        description: "Indicates if this message is the control message, if true shouldn't be displayed"
+        type: Boolean
+        default: false
+      style:
+        description: "The style as described in a `StyleData` from the styles table.\n"
+        type: String
+        default: DEFAULT
+      surface:
+        description: The surface identifier for this message.
+        type: String
+        default: homescreen
+      text:
+        description: The message text displayed to the user
+        type: Text
+        default: ""
+      title:
+        description: The title text displayed to the user
+        type: Option<Text>
+        default: ~
+      trigger:
+        description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions `true`.\n"
+        type: List<String>
+        default: []
+  NotificationConfig:
+    description: Attributes controlling the global configuration of notification messages.
+    fields:
+      refresh-interval:
+        description: "How often, in minutes, the notification message worker will wake up and check for new messages.\n"
+        type: Int
+        default: 240
+  OnboardingCardData:
+    description: An object to describe a user facing onboarding card.
+    fields:
+      body:
+        description: The message text displayed to the user. May contain linkable text.
+        type: Text
+        default: ""
+      card-type:
+        description: The type of the card.
+        type: OnboardingCardType
+        default: default-browser
+      enabled:
+        description: "If true, this card is shown to the user."
+        type: Boolean
+        default: true
+      image-res:
+        description: The resource id of the image to be displayed.
+        type: Image
+        default: ic_onboarding_welcome
+      link-text:
+        description: "The text to link from the body text. This should match the linkable text from the body text exactly. e.g. body: This is a policy link\n     link-text: policy link\n"
+        type: Option<Text>
+        default: ~
+      ordering:
+        description: Used to sequence the cards.
+        type: Int
+        default: 0
+      primary-button-label:
+        description: The text to display on the primary button.
+        type: Text
+        default: ""
+      secondary-button-label:
+        description: The text to display on the secondary button.
+        type: Text
+        default: ""
+      title:
+        description: The title text displayed to the user.
+        type: Text
+        default: ""
+  StyleData:
+    description: "A group of properties (predominantly visual) to describe the style of the message.\n"
+    fields:
+      max-display-count:
+        description: "How many sessions will this message be shown to the user before it is expired.\n"
+        type: Int
+        default: 5
+      priority:
+        description: "The importance of this message. 0 is not very important, 100 is very important.\n"
+        type: Int
+        default: 50
