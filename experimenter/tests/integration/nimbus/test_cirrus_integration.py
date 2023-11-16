@@ -9,8 +9,8 @@ def navigate_to(selenium):
     selenium.get(demo_app_url)
 
 
-@pytest.mark.demo_app
-def test_create_new_rollout_approve_remote_settings_demo_app(
+@pytest.mark.cirrus_enrollment
+def test_create_new_rollout_approve_remote_settings_cirrus(
     selenium,
     experiment_url,
     create_experiment,
@@ -70,8 +70,8 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     assert result_text_element.is_displayed()
 
 
-@pytest.mark.demo_app
-def test_create_new_experiment_approve_remote_settings_demo_app(
+@pytest.mark.cirrus_enrollment
+def test_create_new_experiment_approve_remote_settings_cirrus(
     selenium,
     experiment_url,
     create_experiment,
