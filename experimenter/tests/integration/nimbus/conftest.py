@@ -7,7 +7,7 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from selenium.webdriver import Firefox
+from selenium import webdriver
 
 from nimbus.kinto.client import (
     KINTO_COLLECTION_DESKTOP,
@@ -438,6 +438,6 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
 
 @pytest.fixture
 def driver():
-    driver = Firefox()
+    driver = webdriver.Chrome()
     yield driver
     driver.quit()
