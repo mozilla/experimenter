@@ -3,13 +3,13 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework_csv.renderers import CSVRenderer
 
 from experimenter.experiments.api.v5.serializers import (
     NimbusConfigurationDataClass,
     NimbusConfigurationSerializer,
     NimbusExperimentCsvSerializer,
 )
-from experimenter.experiments.api.v5.views import NimbusExperimentCsvRenderer
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
@@ -62,14 +62,17 @@ class TestNimbusExperimentCsvListView(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        csv_data = response.content
-        expected_csv_data = NimbusExperimentCsvRenderer().render(
-            NimbusExperimentCsvSerializer(
-                [experiment_1, experiment_4, experiment_2, experiment_3], many=True
-            ).data,
-            renderer_context={"header": NimbusExperimentCsvSerializer.Meta.fields},
+        csv_data = response.content.decode("utf-8")
+        expected_csv_data = (
+            TestNimbusCsvRenderer()
+            .render(
+                NimbusExperimentCsvSerializer(
+                    [experiment_1, experiment_4, experiment_2, experiment_3], many=True
+                ).data,
+                renderer_context={"header": NimbusExperimentCsvSerializer.Meta.fields},
+            )
+            .decode("utf-8")
         )
-
         self.assertEqual(csv_data, expected_csv_data)
 
     def test_get_returns_csv_filter_archived_experiments_info(self):
@@ -94,12 +97,25 @@ class TestNimbusExperimentCsvListView(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        csv_data = response.content
-        expected_csv_data = NimbusExperimentCsvRenderer().render(
-            NimbusExperimentCsvSerializer([experiment_1], many=True).data,
-            renderer_context={"header": NimbusExperimentCsvSerializer.Meta.fields},
+        csv_data = response.content.decode("utf-8")
+        expected_csv_data = (
+            TestNimbusCsvRenderer()
+            .render(
+                NimbusExperimentCsvSerializer(
+                    [
+                        experiment_1,
+                    ],
+                    many=True,
+                ).data,
+                renderer_context={"header": NimbusExperimentCsvSerializer.Meta.fields},
+            )
+            .decode("utf-8")
         )
         self.assertEqual(csv_data, expected_csv_data)
+
+
+class TestNimbusCsvRenderer(CSVRenderer):
+    header = NimbusExperimentCsvSerializer.Meta.fields
 
 
 class TestNimbusConfigurationView(MockSizingDataMixin, TestCase):
