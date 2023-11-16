@@ -121,7 +121,9 @@ def fetch_legacy_app(
         # feature schemas could differ or not be present if they were removed in a
         # subsequent commit.
         if ref is None:
-            ref = result.ref = hgmo_api.get_tip_rev(app_config.repo.name)
+            ref = result.ref = hgmo_api.get_bookmark_ref(
+                app_config.repo.name, app_config.repo.default_branch
+            )
 
         if version:
             print(f"fetch: {app_name} at {ref} version {version}")

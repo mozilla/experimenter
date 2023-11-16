@@ -79,5 +79,6 @@ firefox_desktop:
   slug: "firefox-desktop"
   repo:
     type: "hgmo"
-    name: "mozilla-central"
+    name: "mozilla-unified"
+    default_branch: "central"
   experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"

@@ -42,6 +42,7 @@ LEGACY_APP_CONFIG = AppConfig(
     repo=Repository(
         type=RepositoryType.HGMO,
         name="legacy-repo",
+        default_branch="tip",
     ),
     experimenter_yaml_path="experimenter.yaml",
 )
@@ -333,6 +334,7 @@ class FetchTests(TestCase):
             repo=Repository(
                 type=RepositoryType.HGMO,
                 name="invalid",
+                default_branch="tip",
             ),
             fml_path="nimbus.fml.yaml",
         )
@@ -376,7 +378,7 @@ class FetchTests(TestCase):
         generate_experimenter_yaml.assert_not_called()
 
     @patch.object(
-        manifesttool.fetch.hgmo_api, "get_tip_rev", lambda *args: Ref("tip", "ref")
+        manifesttool.fetch.hgmo_api, "get_bookmark_ref", lambda *args: Ref("tip", "ref")
     )
     @patch.object(
         manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file()
@@ -411,11 +413,11 @@ class FetchTests(TestCase):
             )
             self.assertEqual(fetch_file.call_count, 2)
 
-    @patch.object(manifesttool.fetch.hgmo_api, "get_tip_rev")
+    @patch.object(manifesttool.fetch.hgmo_api, "get_bookmark_ref")
     @patch.object(
         manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file()
     )
-    def test_fetch_legacy_ref(self, fetch_file, get_tip_rev):
+    def test_fetch_legacy_ref(self, fetch_file, get_bookmark_ref):
         """Testing fetch_legacy_app with a specific ref."""
         ref = Ref("custom", "resolved")
         with TemporaryDirectory() as tmp:
@@ -425,7 +427,7 @@ class FetchTests(TestCase):
             result = fetch_legacy_app(manifest_dir, "app", LEGACY_APP_CONFIG, ref)
             self.assertIsNone(result.exc)
 
-            get_tip_rev.assert_not_called()
+            get_bookmark_ref.assert_not_called()
             fetch_file.assert_has_calls(
                 [
                     call(
@@ -459,11 +461,11 @@ class FetchTests(TestCase):
                     manifest_dir, "app", LEGACY_APP_CONFIG, version=Version(1)
                 )
 
-    @patch.object(manifesttool.fetch.hgmo_api, "get_tip_rev")
+    @patch.object(manifesttool.fetch.hgmo_api, "get_bookmark_ref")
     @patch.object(
         manifesttool.fetch.hgmo_api, "fetch_file", side_effect=make_mock_fetch_file()
     )
-    def test_fetch_legacy_ref_version(self, fetch_file, get_tip_rev):
+    def test_fetch_legacy_ref_version(self, fetch_file, get_bookmark_ref):
         """Testing fetch_legacy_app with a ref and a version."""
         ref = Ref("v1.2.3", "foo")
         version = Version(1, 2, 3)
@@ -477,7 +479,7 @@ class FetchTests(TestCase):
             )
             self.assertEqual(result, FetchResult("app", ref, version))
 
-            get_tip_rev.assert_not_called()
+            get_bookmark_ref.assert_not_called()
             fetch_file.assert_has_calls(
                 [
                     call(
@@ -503,7 +505,7 @@ class FetchTests(TestCase):
             )
 
     @patch.object(
-        manifesttool.fetch.hgmo_api, "get_tip_rev", lambda *args: Ref("tip", "ref")
+        manifesttool.fetch.hgmo_api, "get_bookmark_ref", lambda *args: Ref("tip", "ref")
     )
     @patch.object(
         manifesttool.fetch.hgmo_api,
@@ -550,10 +552,10 @@ class FetchTests(TestCase):
 
     @patch.object(
         manifesttool.fetch.hgmo_api,
-        "get_tip_rev",
+        "get_bookmark_ref",
         side_effect=Exception("Connection error"),
     )
-    def test_fetch_legacy_exception(self, get_tip_rev):
+    def test_fetch_legacy_exception(self, get_bookmark_ref):
         """Testing fetch_fml_app when an exception is caught."""
         with TemporaryDirectory() as tmp:
             manifest_dir = Path(tmp)
@@ -600,6 +602,7 @@ class FetchTests(TestCase):
                     repo=Repository(
                         type=RepositoryType.HGMO,
                         name="legacy-repo",
+                        default_branch="tip",
                     ),
                     experimenter_yaml_path="experimenter.yaml",
                 ),

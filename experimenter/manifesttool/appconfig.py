@@ -6,7 +6,7 @@ import yaml
 from pydantic import BaseModel, Field, root_validator
 
 
-class RepositoryType(Enum):
+class RepositoryType(str, Enum):
     HGMO = "hgmo"  # hg.mozilla.org
     GITHUB = "github"
 
@@ -14,6 +14,17 @@ class RepositoryType(Enum):
 class Repository(BaseModel):
     type: RepositoryType
     name: str
+    default_branch: str = Field(default="main")
+
+    @root_validator(pre=True)
+    def validate_default_branch(cls, values):
+        ty = values.get("type")
+        default_branch = values.get("default_branch")
+
+        if ty == RepositoryType.HGMO and default_branch is None:
+            raise ValueError("hg.mozilla.org-hosted repositories require default_branch")
+
+        return values
 
 
 class VersionFileType(str, Enum):

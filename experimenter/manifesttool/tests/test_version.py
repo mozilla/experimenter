@@ -437,6 +437,7 @@ class VersionTests(TestCase):
                     repo=Repository(
                         type=RepositoryType.HGMO,
                         name="legacy-app",
+                        default_branch="tip",
                     ),
                     experimenter_yaml_path="nimbus.yaml",
                     release_discovery=ReleaseDiscovery(
