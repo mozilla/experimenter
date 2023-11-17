@@ -437,5 +437,5 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
 
 
 @pytest.fixture
-def demo_app(selenium):
-    return DemoAppPage(selenium)
+def demo_app():
+    return DemoAppPage()
