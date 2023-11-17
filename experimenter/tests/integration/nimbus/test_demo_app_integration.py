@@ -3,9 +3,10 @@ import pytest
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
 
-# def navigate_to(selenium):
-#     demo_app_url = "http://demo-app-frontend:3000/"
-#     selenium.get(demo_app_url)
+
+def navigate_to(selenium):
+    demo_app_url = "http://demo-app-frontend:3000/"
+    selenium.get(demo_app_url)
 
 
 @pytest.mark.demo_app
@@ -32,7 +33,7 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
     # demo app frontend, default displays "Not Enrolled"
-    demo_app.open()
+    navigate_to(selenium)
     selenium.refresh()
     result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
     assert result_text_element.is_displayed()
@@ -54,7 +55,7 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     summary.wait_for_complete_status()
 
     # Demo app frontend, default displays "Not Enrolled" again
-    demo_app.open()
+    navigate_to(selenium)
     selenium.refresh()
 
     result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
@@ -96,7 +97,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
     # Demo app frontend, by default, returns "Not Enrolled" message
-    demo_app.open()
+    navigate_to(selenium)
     selenium.refresh()
 
     result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
@@ -134,7 +135,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
-    demo_app.open()
+    navigate_to(selenium)
     selenium.refresh()
 
     result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
