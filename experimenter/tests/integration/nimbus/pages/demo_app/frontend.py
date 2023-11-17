@@ -3,9 +3,10 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from nimbus.pages.base import Base
 
 
-class DemoAppPage:
+class DemoAppPage(Base):
     def __init__(self, driver):
         self.driver = driver
 
@@ -14,8 +15,8 @@ class DemoAppPage:
         self.driver.get(demo_app_url)
 
     def wait_for_result_text(self, text_list):
-        xpath_conditions = " | ".join([f"contains(., '{text}')" for text in text_list])
-        xpath = f"//h1[{xpath_conditions}]"
+        xpath_conditions = " | ".join([f".='{text}'" for text in text_list])
+        xpath = f"//h1[{' or '.join([''] + xpath_conditions.split(' | '))}]"
 
         return WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.XPATH, xpath))
@@ -29,7 +30,9 @@ class DemoAppPage:
             )
         )
         context_input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//input[@placeholder='Context']"))
+            EC.presence_of_element_located(
+                (By.XPATH, "//input[@placeholder='Context']")
+            )
         )
 
         client_id_input.send_keys(client_id)
