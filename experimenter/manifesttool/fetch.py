@@ -8,14 +8,10 @@ import yaml
 from mozilla_nimbus_schemas import FeatureManifest
 
 from manifesttool import github_api, hgmo_api, nimbus_cli
-from manifesttool.appconfig import AppConfig, RepositoryType
+from manifesttool.appconfig import AppConfig, DiscoveryStrategyType, RepositoryType
+from manifesttool.releases import discover_branched_releases, discover_tagged_releases
 from manifesttool.repository import Ref
-from manifesttool.version import (
-    Version,
-    filter_versioned_refs,
-    find_versioned_refs,
-    resolve_ref_versions,
-)
+from manifesttool.version import Version
 
 
 @dataclass
@@ -125,7 +121,9 @@ def fetch_legacy_app(
         # feature schemas could differ or not be present if they were removed in a
         # subsequent commit.
         if ref is None:
-            ref = result.ref = hgmo_api.get_tip_rev(app_config.repo.name)
+            ref = result.ref = hgmo_api.get_bookmark_ref(
+                app_config.repo.name, app_config.repo.default_branch
+            )
 
         if version:
             print(f"fetch: {app_name} at {ref} version {version}")
@@ -198,57 +196,29 @@ def fetch_releases(
     app_name: str,
     app_config: AppConfig,
 ) -> list[FetchResult]:
-    """Fetch all releases in the past 5 major versions of the app."""
+    """Fetch all releases for the app."""
     results = []
 
-    if app_config.repo.type == RepositoryType.HGMO:
-        raise Exception("Cannot fetch releases for apps hosted on hg.mozilla.org.")
+    if app_config.release_discovery is None:
+        raise Exception(f"App {app_name} does not support releases.")
 
-    if app_config.fml_path is None:
-        raise Exception("Cannot fetch releases for legacy apps.")
+    versions = {}
+    for strategy in app_config.release_discovery.strategies:
+        strategy = strategy.__root__
+        if strategy.type == DiscoveryStrategyType.TAGGED:
+            versions.update(discover_tagged_releases(app_name, app_config, strategy))
+        elif strategy.type == DiscoveryStrategyType.BRANCHED:
+            versions.update(discover_branched_releases(app_name, app_config, strategy))
+        else:  # pragma: no cover
+            raise AssertionError("unreachable")
 
-    if app_config.version_file is None:
-        raise Exception(f"App {app_name} does not have a version file.")
-
-    if not app_config.branch_re:
-        print(f"fetch: releases: {app_name} does not support releases", file=sys.stderr)
-        return results
-
-    # Find all release branches.
-    branches = github_api.get_branches(app_config.repo.name)
-    versions = find_versioned_refs(
-        branches, app_config.branch_re, app_config.ignored_branches
-    )
-
-    # Limit to the last 5 major versions.
-    #
-    # We must pass a list here because if max() is passed a single arg it will
-    # try to iterate over it.
-    max_major_version = max([0, *(v.major for v in versions.keys())])
-
-    if max_major_version == 0:
-        raise Exception(f"Could not find a major release for {app_name}.")
-
-    min_version = Version(max_major_version - 4, 0, 0)
-
-    versions = filter_versioned_refs(versions, min_version)
-
-    # Extract the actual version number for each branch's version file.
-    # Otherwise, e.g., a branch like release/v1 would end up overwriting 1.0.0
-    # version constantly, even though it is likely futher ahead than 1.0.0.
-    versions = resolve_ref_versions(app_config, versions.values())
-
-    if app_config.tag_re:
-        tags = github_api.get_tags(app_config.repo.name)
-        tag_versions = find_versioned_refs(
-            tags, app_config.tag_re, app_config.ignored_tags
-        )
-        tag_versions = filter_versioned_refs(tag_versions, min_version)
-
-        versions.update(tag_versions)
+    if app_config.fml_path:
+        fetch_app = fetch_fml_app
+    else:
+        fetch_app = fetch_legacy_app
 
     for version, ref in versions.items():
-        results.append(fetch_fml_app(manifest_dir, app_name, app_config, ref, version))
+        results.append(fetch_app(manifest_dir, app_name, app_config, ref, version))
 
     return results
 

@@ -3,6 +3,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 import responses
+from parameterized import parameterized
 
 from manifesttool import hgmo_api
 from manifesttool.hgmo_api import HGMO_URL
@@ -12,19 +13,30 @@ from manifesttool.repository import Ref
 class HgMoApiTests(TestCase):
     """Tests for hg.mozilla.org API wrappers."""
 
+    @parameterized.expand(
+        [
+            ("tip", "0" * 40),
+            ("foo", "1" * 40),
+        ]
+    )
     @responses.activate
-    def test_get_tip_rev(self):
-        """Testing get_tip_rev."""
+    def test_get_bookmark_ref(self, ref_name: str, resolved: str):
+        """Testing get_bookmark_rev."""
         responses.get(
-            f"{HGMO_URL}/repo/json-log?rev=tip:tip",
+            f"{HGMO_URL}/repo/json-log?rev={ref_name}:{ref_name}",
             json={
-                "node": "0" * 40,
+                "node": "bogus",
+                "entries": [
+                    {
+                        "node": resolved,
+                    },
+                ],
             },
         )
 
-        result = hgmo_api.get_tip_rev("repo")
+        result = hgmo_api.get_bookmark_ref("repo", ref_name)
 
-        self.assertEqual(result, Ref("tip", "0" * 40))
+        self.assertEqual(result, Ref(ref_name, resolved))
 
     @responses.activate
     def test_fetch_file(self):

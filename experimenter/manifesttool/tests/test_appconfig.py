@@ -13,7 +13,9 @@ class AppConfigTests(TestCase):
         """Testing that parsing apps.yaml fails if an app contains both the
         fml_path and experimenter_yaml_path keys.
         """
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(
+            ValueError, "fml_path and experimenter_yaml_path are mutually exclusive"
+        ):
             AppConfigs.parse_obj(
                 {
                     "app": {
@@ -29,12 +31,31 @@ class AppConfigTests(TestCase):
         """Testing that parsing apps.yaml fails if an app is missing both the
         fml_path and experimenter_yaml_path keys.
         """
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(
+            ValueError, "one of fml_path and experimenter_yaml_path is required"
+        ):
             AppConfigs.parse_obj(
                 {
                     "app": {
                         "slug": "app",
                         "repo": {"type": "github", "name": "owner/repo"},
+                    },
+                }
+            )
+
+    def test_parse_hgmo_no_default(self):
+        """Testing that parsing apps.yaml fails if an app has an
+        hg.mozilla.org-hosted repository but does not specify a default branch.
+        """
+        with self.assertRaisesRegex(
+            ValueError, "hg.mozilla.org-hosted repositories require default_branch"
+        ):
+            AppConfigs.parse_obj(
+                {
+                    "app": {
+                        "slug": "app",
+                        "repo": {"type": "hgmo", "name": "repo"},
+                        "experimenter_yaml_path": "experimenter.yaml",
                     },
                 }
             )

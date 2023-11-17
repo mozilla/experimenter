@@ -14,15 +14,21 @@ def api_request(path: str, **kwargs) -> dict[str, Any]:
     return requests.get(f"{HGMO_URL}/{path}", **kwargs).json()
 
 
-def get_tip_rev(repo: str) -> Ref:
-    """Get the revision of the current repository tip.
+def get_bookmark_ref(repo: str, bookmark: str) -> Ref:
+    """Resolve a bookmark to a Ref.
 
     Args:
         repo:
             The repository name.
+
+        bookmark.
+            The bookmark to fetch
+
+    Returns:
+        A Ref for the given bookmark.
     """
-    rsp = api_request(f"{repo}/json-log?rev=tip:tip")
-    return Ref("tip", rsp["node"])
+    rsp = api_request(f"{repo}/json-log?rev={bookmark}:{bookmark}")
+    return Ref(bookmark, rsp["entries"][0]["node"])
 
 
 @overload
