@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any, Optional, overload
+from urllib.parse import urlencode
 
 import requests
 
@@ -14,7 +15,7 @@ def api_request(path: str, **kwargs) -> dict[str, Any]:
     return requests.get(f"{HGMO_URL}/{path}", **kwargs).json()
 
 
-def get_bookmark_ref(repo: str, bookmark: str) -> Ref:
+def resolve_branch(repo: str, bookmark: str) -> Ref:
     """Resolve a bookmark to a Ref.
 
     Args:
@@ -27,7 +28,12 @@ def get_bookmark_ref(repo: str, bookmark: str) -> Ref:
     Returns:
         A Ref for the given bookmark.
     """
-    rsp = api_request(f"{repo}/json-log?rev={bookmark}:{bookmark}")
+    query = urlencode(
+        {
+            "rev": f"bookmark({bookmark})",
+        }
+    )
+    rsp = api_request(f"{repo}/json-log?{query}")
     return Ref(bookmark, rsp["entries"][0]["node"])
 
 

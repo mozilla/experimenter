@@ -64,15 +64,18 @@ def discover_branched_releases(
     app_config: AppConfig,
     strategy: BranchedDiscoveryStrategy,
 ) -> dict[Version, Ref]:
-    assert app_config.repo.type == RepositoryType.HGMO
+    if app_config.repo.type == RepositoryType.GITHUB:
+        resolve_branch = github_api.resolve_branch
+    elif app_config.repo.type == RepositoryType.HGMO:
+        resolve_branch = hgmo_api.resolve_branch
+    else:  # pragma: no cover
+        raise AssertionError()
 
     # If there are no branches listed, we will only scan the default branch.
     branches = strategy.branches
     if branches is None:
         branches = [app_config.repo.default_branch]
 
-    refs = [
-        hgmo_api.get_bookmark_ref(app_config.repo.name, branch) for branch in branches
-    ]
+    refs = [resolve_branch(app_config.repo.name, branch) for branch in branches]
 
     return resolve_ref_versions(app_config, refs)
