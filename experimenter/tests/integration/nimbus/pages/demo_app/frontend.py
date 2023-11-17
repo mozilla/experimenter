@@ -29,9 +29,7 @@ class DemoAppPage:
             )
         )
         context_input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                (By.XPATH, "//input[@placeholder='Context']")
-            )
+            EC.presence_of_element_located((By.XPATH, "//input[@placeholder='Context']"))
         )
 
         client_id_input.send_keys(client_id)

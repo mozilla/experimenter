@@ -1,10 +1,7 @@
-
 import pytest
+
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
-
-
-
 
 
 @pytest.mark.demo_app
@@ -16,7 +13,6 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     base_url,
     experiment_name,
     demo_app,
-
 ):
     # Launch a rollout with 100% population
     reference_branch_value = '{"enabled": true, "something": "You are enrolled"}'
