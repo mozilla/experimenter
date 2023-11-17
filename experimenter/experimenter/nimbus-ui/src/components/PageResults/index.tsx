@@ -125,7 +125,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { external_config: externalConfig } = analysis.metadata || {};
 
   const allAnalysisBases: AnalysisBases[] = Object.keys(
-    analysis?.overall || {},
+    analysis?.overall || analysis?.weekly || {},
   ).sort() as AnalysisBases[];
   const analysisBasisHelpMarkdown =
     "Select the **analysis basis** whose results you want to see. See [defining exposure signals](https://experimenter.info/jetstream/configuration/#defining-exposure-signals) in the docs for more info.";
