@@ -123,7 +123,7 @@ def fetch_legacy_app(
         # feature schemas could differ or not be present if they were removed in a
         # subsequent commit.
         if ref is None:
-            ref = result.ref = hgmo_api.get_bookmark_ref(
+            ref = result.ref = hgmo_api.resolve_branch(
                 app_config.repo.name, app_config.repo.default_branch
             )
 

@@ -107,11 +107,11 @@ def mocks_for_discover_tagged_releases(
         )
 
 
-def make_mock_get_bookmark_ref(refs: dict[str, str]):
-    def get_bookmark_ref(repo: str, bookmark: str):
+def make_mock_resolve_branch(refs: dict[str, str]):
+    def resolve_branch(repo: str, bookmark: str):
         return Ref(bookmark, refs[bookmark])
 
-    return get_bookmark_ref
+    return resolve_branch
 
 
 class ReleaseTests(TestCase):
@@ -248,8 +248,8 @@ class ReleaseTests(TestCase):
 
     @patch.object(
         manifesttool.releases.hgmo_api,
-        "get_bookmark_ref",
-        make_mock_get_bookmark_ref(
+        "resolve_branch",
+        make_mock_resolve_branch(
             {
                 "foo": "1",
                 "bar": "2",
@@ -303,8 +303,8 @@ class ReleaseTests(TestCase):
 
     @patch.object(
         manifesttool.releases.hgmo_api,
-        "get_bookmark_ref",
-        side_effect=make_mock_get_bookmark_ref(
+        "resolve_branch",
+        side_effect=make_mock_resolve_branch(
             {
                 "default": "1",
             }
@@ -319,7 +319,7 @@ class ReleaseTests(TestCase):
             }
         ),
     )
-    def test_discover_branched_releases_default(self, get_bookmark_ref):
+    def test_discover_branched_releases_default(self, resolve_branch):
         strategy = DiscoveryStrategy.create_branched()
         app_config = AppConfig(
             slug="legacy-app",
@@ -350,4 +350,4 @@ class ReleaseTests(TestCase):
                 },
             )
 
-        get_bookmark_ref.assert_called_once_with(app_config.repo.name, "default")
+        resolve_branch.assert_called_once_with(app_config.repo.name, "default")
