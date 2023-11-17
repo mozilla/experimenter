@@ -4,9 +4,6 @@ from nimbus.pages.base import Base
 
 
 class DemoAppPage(Base):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def wait_for_result_text(self, text_list):
         xpath_conditions = " | ".join([f".='{text}'" for text in text_list])
         xpath = f"//h1[{' or '.join(xpath_conditions.split(' | '))}]"
