@@ -3755,6 +3755,14 @@ export const mockAnalysisWithExposures = mockAnalysis({
     },
   },
 });
+
+export const mockAnalysisWithWeeklyExposures = mockAnalysis({
+  weekly: {
+    enrollments: { all: weeklyMockAnalysis() },
+    exposures: { all: weeklyMockAnalysis() },
+  },
+  overall: {},
+});
 /*
  * An incomplete analysis is missing one or both of `retained` and/or `search_count`
  */

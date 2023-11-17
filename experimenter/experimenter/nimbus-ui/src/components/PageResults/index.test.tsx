@@ -26,6 +26,7 @@ import {
   mockAnalysisWithErrorsAndResults,
   mockAnalysisWithExposures,
   mockAnalysisWithSegments,
+  mockAnalysisWithWeeklyExposures,
   MOCK_METADATA_WITH_CONFIG,
 } from "src/lib/visualization/mocks";
 import { AnalysisData } from "src/lib/visualization/types";
@@ -156,9 +157,7 @@ describe("PageResults", () => {
   });
 
   it("displays the analysis basis options properly", async () => {
-    const { container } = render(
-      <Subject mockAnalysisData={mockAnalysisWithExposures} />,
-    );
+    render(<Subject mockAnalysisData={mockAnalysisWithExposures} />);
 
     const defaultBasis = "enrollments";
     const otherBasis = "exposures";
@@ -185,6 +184,22 @@ describe("PageResults", () => {
     expect(
       within(analysisBasisSelectParent).getByTestId(`${otherBasis}-radio`),
     ).toBeChecked();
+  });
+
+  it("displays the analysis basis options for weekly results", async () => {
+    render(<Subject mockAnalysisData={mockAnalysisWithWeeklyExposures} />);
+
+    const defaultBasis = "enrollments";
+    const otherBasis = "exposures";
+
+    expect(screen.getByText("Analysis Basis"));
+    const analysisBasisSelectParent = screen.getByTestId(
+      "analysis-basis-results-selector",
+    );
+
+    // both exist
+    expect(within(analysisBasisSelectParent).getByText(defaultBasis));
+    expect(within(analysisBasisSelectParent).getByText(otherBasis));
   });
 
   it("displays analysis errors", async () => {
