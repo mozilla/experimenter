@@ -6,6 +6,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import responses
+from parameterized import parameterized
 
 import manifesttool
 from manifesttool.appconfig import (
@@ -107,11 +108,11 @@ def mocks_for_discover_tagged_releases(
         )
 
 
-def make_mock_get_bookmark_ref(refs: dict[str, str]):
-    def get_bookmark_ref(repo: str, bookmark: str):
+def make_mock_resolve_branch(refs: dict[str, str]):
+    def resolve_branch(repo: str, bookmark: str):
         return Ref(bookmark, refs[bookmark])
 
-    return get_bookmark_ref
+    return resolve_branch
 
 
 class ReleaseTests(TestCase):
@@ -246,51 +247,73 @@ class ReleaseTests(TestCase):
             ):
                 discover_tagged_releases("app", app_config, strategy.__root__)
 
-    @patch.object(
-        manifesttool.releases.hgmo_api,
-        "get_bookmark_ref",
-        make_mock_get_bookmark_ref(
-            {
-                "foo": "1",
-                "bar": "2",
-                "baz": "3",
-            }
-        ),
-    )
-    @patch.object(
-        manifesttool.releases.hgmo_api,
-        "fetch_file",
-        make_mock_fetch_file(
-            paths_by_ref={
-                "1": {"version.txt": "1.0.0"},
-                "2": {"version.txt": "2.0.0"},
-                "3": {"version.txt": "3.0.0"},
-            }
-        ),
-    )
-    def test_discover_branched_releases(self):
-        strategy = DiscoveryStrategy.create_branched(["foo", "bar", "baz"])
-        app_config = AppConfig(
-            slug="legacy-app",
-            repo=Repository(
-                type=RepositoryType.HGMO,
-                name="legacy-repo",
-                default_branch="foo",
+    @parameterized.expand(
+        [
+            (
+                AppConfig(
+                    slug="fml-app",
+                    repo=Repository(
+                        type=RepositoryType.GITHUB,
+                        name="fml-repo",
+                    ),
+                    fml_path="nimbus.fml.yaml",
+                    release_discovery=ReleaseDiscovery(
+                        version_file=VersionFile.create_plain_text("version.txt"),
+                        strategies=[
+                            DiscoveryStrategy.create_branched(["foo", "bar", "baz"])
+                        ],
+                    ),
+                ),
+                manifesttool.releases.github_api,
             ),
-            experimenter_yaml_path="experimenter.yaml",
-            release_discovery=ReleaseDiscovery(
-                version_file=VersionFile.create_plain_text("version.txt"),
-                strategies=[strategy],
+            (
+                AppConfig(
+                    slug="legacy-app",
+                    repo=Repository(
+                        type=RepositoryType.HGMO,
+                        name="legacy-repo",
+                        default_branch="foo",
+                    ),
+                    experimenter_yaml_path="experimenter.yaml",
+                    release_discovery=ReleaseDiscovery(
+                        version_file=VersionFile.create_plain_text("version.txt"),
+                        strategies=[
+                            DiscoveryStrategy.create_branched(["foo", "bar", "baz"])
+                        ],
+                    ),
+                ),
+                manifesttool.releases.hgmo_api,
             ),
-        )
+        ]
+    )
+    def test_discover_branched_releases(self, app_config: AppConfig, api):
+        strategy = app_config.release_discovery.strategies[0].__root__
+        app_name = app_config.slug.replace("-", "_")
+
+        branches = {"foo": "1", "bar": "2", "baz": "3"}
+        paths_by_ref = {
+            "1": {"version.txt": "1.0.0"},
+            "2": {"version.txt": "2.0.0"},
+            "3": {"version.txt": "3.0.0"},
+        }
 
         with TemporaryDirectory() as tmp:
             manifest_dir = Path(tmp)
             manifest_dir.joinpath(app_config.slug).mkdir()
 
-            releases = discover_branched_releases(
-                "legacy_app", app_config, strategy.__root__
-            )
+            with (
+                patch.object(
+                    api,
+                    "resolve_branch",
+                    make_mock_resolve_branch(branches),
+                ),
+                patch.object(
+                    api,
+                    "fetch_file",
+                    make_mock_fetch_file(paths_by_ref=paths_by_ref),
+                ),
+            ):
+                releases = discover_branched_releases(app_name, app_config, strategy)
 
             self.assertEqual(
                 releases,
@@ -303,8 +326,8 @@ class ReleaseTests(TestCase):
 
     @patch.object(
         manifesttool.releases.hgmo_api,
-        "get_bookmark_ref",
-        side_effect=make_mock_get_bookmark_ref(
+        "resolve_branch",
+        side_effect=make_mock_resolve_branch(
             {
                 "default": "1",
             }
@@ -319,7 +342,7 @@ class ReleaseTests(TestCase):
             }
         ),
     )
-    def test_discover_branched_releases_default(self, get_bookmark_ref):
+    def test_discover_branched_releases_default(self, resolve_branch):
         strategy = DiscoveryStrategy.create_branched()
         app_config = AppConfig(
             slug="legacy-app",
@@ -350,4 +373,4 @@ class ReleaseTests(TestCase):
                 },
             )
 
-        get_bookmark_ref.assert_called_once_with(app_config.repo.name, "default")
+        resolve_branch.assert_called_once_with(app_config.repo.name, "default")
