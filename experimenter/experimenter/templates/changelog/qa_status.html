@@ -1,0 +1,47 @@
+{% block main_content %}
+  {% csrf_token %}
+  <div class="pb-4">
+    <label for="qa_status" class="block mb-2 text-lg font-large">QA Score</label>
+    <form 
+      hx-post="{% url "update_qa_status" %}"
+      hx-target="#current-qa-status"
+      hx-swap="outerHTML"
+    >
+      <input type="hidden" name="experiment_slug" value="{{ experiment.slug }}"/>
+      <div class="flex">
+        <select 
+          id="qa_status"
+          name="qa_status"
+          onchange="toggleSaveButton()"
+          class="w-1/4 bg-slate-50 border border-gray-300 text-md rounded-lg focus:ring-violet-500 focus:border-violet-500 p-2.5"
+        >
+          <option {% if not qa_status %}selected{% endif %}value="">Choose a score</option>
+          <option 
+            key="RED"
+            value="RED"
+            {% if qa_status and qa_status.value == "RED" %}selected{% endif %}
+          >🔴 RED </option>
+          <option
+            key="YELLOW"
+            value="YELLOW"
+            {% if qa_status and qa_status.value == "YELLOW" %}selected{% endif %}
+          >🟡 YELLOW </option>
+          <option
+            key="GREEN"
+            value="GREEN"
+            {% if qa_status and qa_status.value == "GREEN" %}selected{% endif %}
+          >🟢 GREEN </option>
+        </select>
+        <button 
+          type="submit"
+          x-data="toggleSaveButton"
+          id="save_button"
+          class="disabled:opacity-25 text-white bg-violet-500 hover:bg-violet-400 rounded-lg text-lg ps-5 pe-5 me-2 ms-4 float-center"
+        >Save</button>
+      </div>
+    </form>
+  </div>
+  <div id="current-qa-status">
+    <p>Current QA score: {{ experiment.qa_status }}</p>
+  </div>
+{% endblock %}

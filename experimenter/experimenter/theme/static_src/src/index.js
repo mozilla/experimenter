@@ -14,34 +14,34 @@ Alpine.data("redirect", () => ({
   },
 }));
 
-Alpine.data('slider', (id) => ({
+Alpine.data("slider", (id) => ({
   tab: 1,
   tabs: [],
 
   init() {
-    this.tabs = [...this.$el.querySelectorAll('nav[role=tablist] a[role=tab]')];
+    this.tabs = [...this.$el.querySelectorAll("nav[role=tablist] a[role=tab]")];
     this.changeSlide();
   },
 
   changeSlide() {
     const activeTab = this.tabs[this.tab];
-    activeTab.classList.add('active');
+    activeTab.classList.add("active");
 
     this.tabs.forEach((tab, index) => {
-      tab.addEventListener('click', (e) => {
+      tab.addEventListener("click", (e) => {
         e.preventDefault();
         this.tab = index;
 
         this.tabs.forEach((tab, tabIndex) => {
           if (tabIndex === index) {
-            tab.classList.add('active');
+            tab.classList.add("active");
           } else {
-            tab.classList.remove('active');
+            tab.classList.remove("active");
           }
         });
       });
     });
-  }
+  },
 }));
 
 window.Alpine = Alpine;

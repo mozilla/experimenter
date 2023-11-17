@@ -1,0 +1,49 @@
+{% block main_content %}
+  <div class="p-5 sm:p-8 space-y-4">
+    <div class="mb-6 space-y-1">
+      <h1 class="text-2xl sm:text-3xl text-gray-800 font-medium">Overview</h1>
+      <p class="text-sm sm:text-base text-gray-500">{{ item.id }}</p>
+    </div>
+    <div class="pb-4">
+      <label for="color" class="block mb-2 text-lg font-large">Color</label>
+      <form 
+        hx-post="{% url "update_color" %}"
+        hx-target="#current-color"
+        hx-swap="outerHTML"
+      >
+        <input type="hidden" name="item_id" value="{{ item.id }}"/>
+        <div class="flex">
+          <select 
+            id="color"
+            name="color"
+            class="w-1/4 bg-slate-50 border border-gray-300 text-md rounded-lg focus:ring-violet-500 focus:border-violet-500 p-2.5"
+          >
+            <option {% if not color %}selected{% endif %}>Choose a score</option>
+            <option 
+              key="RED"
+              value="RED"
+              {% if color and color.value == "RED" %}selected{% endif %}
+            >🔴 RED </option>
+            <option
+              key="YELLOW"
+              value="YELLOW"
+              {% if color and color.value == "YELLOW" %}selected{% endif %}
+            >🟡 YELLOW </option>
+            <option
+              key="GREEN"
+              value="GREEN"
+              {% if color and color.value == "GREEN" %}selected{% endif %}
+            >🟢 GREEN </option>
+          </select>
+          <button 
+            type="submit"
+            class="text-white bg-violet-500 hover:bg-violet-400 rounded-lg text-lg ps-5 pe-5 me-2 ms-4 float-center"
+          >Save</button>
+        </div>
+      </form>
+      <div id="current-color">
+        <p>Current color: {{ item.color }}</p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

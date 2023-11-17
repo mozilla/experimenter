@@ -12,7 +12,7 @@
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
     <script defer src="{% static 'scripts/bundle.js' %}"></script>
 </head>
-<body x-data="sidebar" :class="{ 'overflow-hidden md:overflow-auto': open,  }">
+<body x-data="sidebar" :class="{ 'overflow-hidden md:overflow-auto': open,  }" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% include "common/header.html"%}
     <div class="h-full min-h-screen w-full flex flex-col justify-start items-center">
         <!-- This is a overlay that renders when the sidebar is open -->
