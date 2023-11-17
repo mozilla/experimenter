@@ -82,7 +82,7 @@ WORKDIR /application-services
 # Rust packages
 # Checkout application services at a locked commit
 RUN git clone https://github.com/mozilla/application-services.git .
-RUN git fetch && git checkout da9301f829de67149d50dce5b709aed42f1bfe1b
+RUN git fetch && git checkout e8d45a3554d2fbf05631ae7f801ad9d840c69819
 
 RUN git submodule init
 RUN git submodule update --recursive
