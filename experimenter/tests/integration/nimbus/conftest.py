@@ -437,5 +437,5 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
 
 
 @pytest.fixture
-def demo_app(selenium):
-    return DemoAppPage(selenium, base_url="http://demo-app-frontend:3000/")
+def demo_app():
+    return DemoAppPage()
