@@ -3,7 +3,7 @@ from pathlib import Path
 
 import click
 
-from manifesttool.appconfig import AppConfigs, RepositoryType
+from manifesttool.appconfig import AppConfigs
 from manifesttool.fetch import (
     fetch_fml_app,
     fetch_legacy_app,
@@ -55,11 +55,7 @@ def fetch(ctx: click.Context):
         else:  # pragma: no cover
             assert False, "unreachable"
 
-        if (
-            app_config.repo.type == RepositoryType.GITHUB
-            and app_config.fml_path is not None
-            and app_config.version_file is not None
-        ):
+        if app_config.release_discovery:
             results.extend(fetch_releases(context.manifest_dir, app_name, app_config))
 
     summarize_results(results)
