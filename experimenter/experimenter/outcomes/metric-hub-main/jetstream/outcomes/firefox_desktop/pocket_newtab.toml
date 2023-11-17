@@ -1,72 +1,14 @@
 friendly_name = "Pocket in New Tab"
 description = "Usage and engagement metrics for Pocket content in New Tab."
 
-[metrics.pocket_organic_rec_clicks]
-friendly_name = "Pocket organic rec clicks"
-description = "Number of Pocket organic recs clicked in New Tab"
-select_expression = """
-      COUNTIF(
-          event = 'CLICK'
-          AND source = 'CARDGRID'
-          AND JSON_EXTRACT_SCALAR(value, '$.card_type') = 'organic'
-      )
-"""
-data_source = "as_events"
-statistics = { bootstrap_mean = {} }
+[metrics.organic_pocket_clicks.statistics.bootstrap_mean]
+[metrics.organic_pocket_clicks.statistics.deciles]
 
-[metrics.pocket_sponsored_content_clicks]
-friendly_name = "Pocket sponsored content clicks"
-description = "Number of Pocket sponsored content tiles clicked in New Tab"
-select_expression = """
-      COUNTIF(
-          event = 'CLICK'
-          AND source = 'CARDGRID'
-          AND JSON_EXTRACT_SCALAR(value, '$.card_type') = 'spoc'
-      )
-"""
-data_source = "as_events"
-statistics = { bootstrap_mean = {} }
+[metrics.sponsored_pocket_clicks.statistics.bootstrap_mean]
+[metrics.sponsored_pocket_clicks.statistics.deciles]
 
-[metrics.disabled_pocket_in_new_tab]
-friendly_name = "Disable Pocket in New Tab clicks"
-description = "Number of clicks to disable Pocket in New Tab"
-select_expression = """
-      COUNTIF(
-          event = 'PREF_CHANGED'
-          AND source = 'TOP_STORIES'
-          AND JSON_EXTRACT_SCALAR(value, '$.status') = 'false'
-      )
-"""
-data_source = "as_events"
-statistics = { bootstrap_mean = { drop_highest = 0.0000001 } }
-bigger_is_better = false
+[metrics.newtab_searches.statistics.bootstrap_mean]
+[metrics.newtab_searches.statistics.deciles]
 
-[metrics.disabled_pocket_sponsored_content_in_new_tab]
-friendly_name = "Disable Pocket sponsored content in New Tab clicks"
-description = "Number of clicks to disable Pocket sponsored content in New Tab"
-select_expression = """
-      COUNTIF(
-          event = 'PREF_CHANGED'
-          AND source = 'POCKET_SPOCS'
-          AND JSON_EXTRACT_SCALAR(value, '$.status') = 'false'
-      )
-"""
-data_source = "as_events"
-statistics = { bootstrap_mean = { drop_highest = 0.0000001 } }
-bigger_is_better = false
-
-[metrics.urlbar_handoff_search_count]
-friendly_name = "New Tab search bar searches"
-description = "Number of searches performed in New Tab search bar."
-select_expression = "IFNULL(SUM(search_count_urlbar_handoff), 0)"
-data_source = "clients_daily"
-statistics = { bootstrap_mean = {} }
-
-[data_sources.as_events]
-from_expression = """(
-    SELECT
-        *,
-        DATE(submission_timestamp) AS submission_date
-    FROM mozdata.activity_stream.events
-    )"""
-experiments_column_type = "native"
+[metrics.newtab_pocket_enabled.statistics.binomial]
+[metrics.newtab_sponsored_pocket_stories_enabled.statistics.binomial]
