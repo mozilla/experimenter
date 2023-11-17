@@ -407,6 +407,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     risk_brand = factory.LazyAttribute(lambda o: random.choice([True, False]))
     is_localized = factory.LazyAttribute(lambda o: False)
     localizations = factory.LazyAttribute(lambda o: None)
+    qa_status = factory.LazyAttribute(lambda o: None)
 
     class Meta:
         model = NimbusExperiment

@@ -1527,3 +1527,23 @@ class TestNimbusExperimentSerializer(TestCase):
 
         self.assertEqual(experiment.excluded_experiments.get(), excluded)
         self.assertEqual(experiment.required_experiments.get(), required)
+
+    def test_can_set_qa_status(self):
+        non_graded_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        new_status = NimbusExperiment.QAStatus.RED
+        serializer = NimbusExperimentSerializer(
+            non_graded_experiment,
+            {
+                "qa_status": new_status,
+                "changelog_message": "Test changelog",
+            },
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.qa_status, new_status)
