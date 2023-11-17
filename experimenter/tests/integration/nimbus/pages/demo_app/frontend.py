@@ -17,7 +17,7 @@ class DemoAppPage(Base):
 
     def wait_for_result_text(self, text_list):
         xpath_conditions = " | ".join([f".='{text}'" for text in text_list])
-        xpath = f"//h1[{' or '.join([''] + xpath_conditions.split(' | '))}]"
+        xpath = f"//h1[{''.join(['', *xpath_conditions.split(' | ')])}]"
 
         return WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.XPATH, xpath))
