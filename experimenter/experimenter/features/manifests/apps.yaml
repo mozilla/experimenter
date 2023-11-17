@@ -89,6 +89,15 @@ firefox_desktop:
     strategies:
       - type: "branched"
         branches:
+          # The order here is important!
+          #
+          # When central is merging to beta or beta is merging to release, then
+          # both of those will have the same version number for a period of
+          # time.
+          #
+          # In this order, if two consecutive branches have the same version,
+          # then the latter will take precedence. e.g., if both beta and release
+          # report the same version, we will use the feature manifest from release.
           - "central"
           - "beta"
           - "release"
