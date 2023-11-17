@@ -57,9 +57,8 @@ class GitHubApiTests(TestCase):
             status=403,
             body="do not try to json parse this",
         )
-        with self.assertRaises(Exception) as e:
-            github_api.resolve_branch("owner/repo")
-            self.assertIn("GitHub API rate limit exceeded", str(e))
+        with self.assertRaisesRegex(Exception, "GitHub API rate limit exceeded") as e:
+            github_api.resolve_branch("owner/repo", "main")
 
     @responses.activate
     def test_get_branches(self):
