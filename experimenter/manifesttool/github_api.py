@@ -48,15 +48,18 @@ def paginated_api_request(path: str, per_page: int = 100) -> Generator[Any, None
         page += 1
 
 
-def get_main_ref(repo: str) -> Ref:
+def resolve_branch(repo: str, branch: str) -> Ref:
     """Get the revision of the current main branch of the requested repository.
 
     Args:
         repo:
             The repository, including the owner.
+
+        branch:
+            The name of the branch.
     """
-    rsp = api_request(f"repos/{repo}/branches/main")
-    return Ref("main", rsp["commit"]["sha"])
+    rsp = api_request(f"repos/{repo}/branches/{branch}")
+    return Ref(branch, rsp["commit"]["sha"])
 
 
 def get_branches(repo: str) -> list[Ref]:

@@ -196,7 +196,7 @@ class FetchTests(TestCase):
 
     @patch.object(
         manifesttool.fetch.github_api,
-        "get_main_ref",
+        "resolve_branch",
         side_effect=lambda *args: Ref("main", "ref"),
     )
     @patch.object(
@@ -209,7 +209,7 @@ class FetchTests(TestCase):
         "get_channels",
         side_effect=lambda *args: ["release", "beta"],
     )
-    def test_fetch_fml(self, get_channels, download_single_file, get_main_ref):
+    def test_fetch_fml(self, get_channels, download_single_file, resolve_branch):
         """Testing fetch_fml_app."""
         with TemporaryDirectory() as tmp:
             manifest_dir = Path(tmp)
@@ -218,7 +218,7 @@ class FetchTests(TestCase):
             result = fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG)
             self.assertIsNone(result.exc)
 
-            get_main_ref.assert_called_with(FML_APP_CONFIG.repo.name)
+            resolve_branch.assert_called_with(FML_APP_CONFIG.repo.name, "main")
             get_channels.asset_called_with(FML_APP_CONFIG, "ref")
             download_single_file.assert_has_calls(
                 [
@@ -256,7 +256,7 @@ class FetchTests(TestCase):
                 },
             )
 
-    @patch.object(manifesttool.fetch.github_api, "get_main_ref")
+    @patch.object(manifesttool.fetch.github_api, "resolve_branch")
     @patch.object(
         manifesttool.fetch.nimbus_cli,
         "get_channels",
@@ -265,7 +265,11 @@ class FetchTests(TestCase):
     @patch.object(manifesttool.fetch.nimbus_cli, "download_single_file")
     @patch.object(manifesttool.fetch.nimbus_cli, "generate_experimenter_yaml")
     def test_fetch_fml_ref(
-        self, generate_experimenter_yaml, download_single_file, get_channels, get_main_ref
+        self,
+        generate_experimenter_yaml,
+        download_single_file,
+        get_channels,
+        resolve_branch,
     ):
         """Testing fetch_fml_app with a specific ref."""
         ref = Ref("custom", "resolved")
@@ -276,7 +280,7 @@ class FetchTests(TestCase):
             result = fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG, ref)
             self.assertIsNone(result.exc)
 
-            get_main_ref.assert_not_called()
+            resolve_branch.assert_not_called()
             get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
             download_single_file.assert_called_with(
                 manifest_dir,
@@ -303,7 +307,7 @@ class FetchTests(TestCase):
             ):
                 fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG, version=Version(1))
 
-    @patch.object(manifesttool.fetch.github_api, "get_main_ref")
+    @patch.object(manifesttool.fetch.github_api, "resolve_branch")
     @patch.object(
         manifesttool.fetch.nimbus_cli,
         "get_channels",
@@ -320,7 +324,11 @@ class FetchTests(TestCase):
         wraps=manifesttool.fetch.nimbus_cli.generate_experimenter_yaml,
     )
     def test_fetch_fml_ref_version(
-        self, generate_experimenter_yaml, download_single_file, get_channels, get_main_ref
+        self,
+        generate_experimenter_yaml,
+        download_single_file,
+        get_channels,
+        resolve_branch,
     ):
         """Testing fetch_fml_app with a ref and a version."""
         ref = Ref("v123", "foo")
@@ -332,7 +340,7 @@ class FetchTests(TestCase):
             result = fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG, ref, version)
             self.assertEqual(result, FetchResult("app", ref, version))
 
-            get_main_ref.assert_not_called()
+            resolve_branch.assert_not_called()
             get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
             download_single_file.assert_has_calls(
                 [
@@ -354,10 +362,10 @@ class FetchTests(TestCase):
 
     @patch.object(
         manifesttool.fetch.github_api,
-        "get_main_ref",
+        "resolve_branch",
         side_effect=Exception("Connection error"),
     )
-    def test_fetch_fml_exception(self, get_main_ref):
+    def test_fetch_fml_exception(self, resolve_branch):
         """Testing fetch_fml_app when an exception is caught."""
         with TemporaryDirectory() as tmp:
             manifest_dir = Path(tmp)

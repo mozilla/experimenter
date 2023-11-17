@@ -54,7 +54,9 @@ def fetch_fml_app(
         # single file manifests could differ because they were based on different
         # commits.
         if ref is None:
-            ref = result.ref = github_api.get_main_ref(app_config.repo.name)
+            ref = result.ref = github_api.resolve_branch(
+                app_config.repo.name, app_config.repo.default_branch
+            )
 
         if version:
             print(f"fetch: {app_name} at {ref} version {version}")

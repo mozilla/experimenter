@@ -31,8 +31,8 @@ class GitHubApiTests(TestCase):
     """Tests for GitHub API wrappers."""
 
     @responses.activate
-    def test_get_main_ref(self):
-        """Testing get_main_ref."""
+    def test_resolve_branch(self):
+        """Testing resolve_branch."""
         responses.get(
             "https://api.github.com/repos/owner/repo/branches/main",
             json={
@@ -42,7 +42,7 @@ class GitHubApiTests(TestCase):
             },
         )
 
-        result = github_api.get_main_ref("owner/repo")
+        result = github_api.resolve_branch("owner/repo", "main")
 
         self.assertEqual(result, Ref("main", "0" * 40))
 
@@ -58,7 +58,7 @@ class GitHubApiTests(TestCase):
             body="do not try to json parse this",
         )
         with self.assertRaises(Exception) as e:
-            github_api.get_main_ref("owner/repo")
+            github_api.resolve_branch("owner/repo")
             self.assertIn("GitHub API rate limit exceeded", str(e))
 
     @responses.activate
