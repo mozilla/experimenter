@@ -4,6 +4,8 @@ from nimbus.pages.base import Base
 
 
 class DemoAppPage(Base):
+    PAGE_TITLE = "Demo app frontend"
+
     def wait_for_result_text(self, text_list):
         xpath_conditions = " | ".join([f".='{text}'" for text in text_list])
         xpath = f"//h1[{' or '.join(xpath_conditions.split(' | '))}]"
@@ -11,7 +13,6 @@ class DemoAppPage(Base):
         return self.wait_for_and_find_element(self, xpath, description=None)
 
     def fill_and_send_form_data(self, client_id, context):
-
         client_id_input = self.wait_for_and_find_element(
             self, "//input[@placeholder='Client ID']", description=None
         )
