@@ -184,10 +184,14 @@ def resolve_ref_versions(
 
     for ref in refs:
         version_file_contents = fetch_file(
-            app_config.repo.name, app_config.version_file.__root__.path, ref.resolved
+            app_config.repo.name,
+            app_config.release_discovery.version_file.__root__.path,
+            ref.resolved,
         )
 
-        v = parse_version_file(app_config.version_file, version_file_contents)
+        v = parse_version_file(
+            app_config.release_discovery.version_file, version_file_contents
+        )
 
         versions[v] = ref
 
