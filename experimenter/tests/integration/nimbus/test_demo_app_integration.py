@@ -1,54 +1,10 @@
-import time
 
 import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
 
 
-class DemoAppPage:
-    def __init__(self, driver):
-        self.driver = driver
 
-    def navigate_to(self):
-        demo_app_url = "http://demo-app-frontend:3000/"
-        self.driver.get(demo_app_url)
-
-    def wait_for_result_text(self, text_list):
-        xpath_conditions = " | ".join(
-            [f"contains(text(), '{text}')" for text in text_list]
-        )
-        xpath = f"//h1[{xpath_conditions}]"
-
-        return WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, xpath))
-        )
-
-    def fill_and_send_form_data(self, client_id, context):
-        time.sleep(10)
-        client_id_input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                (By.XPATH, "//input[@placeholder='Client ID']")
-            )
-        )
-        context_input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//input[@placeholder='Context']"))
-        )
-
-        client_id_input.send_keys(client_id)
-        context_input.send_keys(context)
-
-    def click_send_my_details(self):
-        send_details_button = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, "//button[contains(text(), 'Send My Details')]")
-            )
-        )
-        assert send_details_button.is_displayed() and send_details_button.is_enabled()
-        send_details_button.click()
 
 
 @pytest.mark.demo_app
@@ -59,6 +15,8 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     kinto_client,
     base_url,
     experiment_name,
+    demo_app,
+
 ):
     # Launch a rollout with 100% population
     reference_branch_value = '{"enabled": true, "something": "You are enrolled"}'
@@ -74,9 +32,8 @@ def test_create_new_rollout_approve_remote_settings_demo_app(
     assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
     # demo app frontend, default displays "Not Enrolled"
-    demo_app = DemoAppPage(selenium)
-
     demo_app.navigate_to()
+    selenium.refresh()
     result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
     assert result_text_element.is_displayed()
 
@@ -120,6 +77,7 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     kinto_client,
     base_url,
     experiment_name,
+    demo_app,
 ):
     # Launch an experiment with two branches
     reference_branch_value = '{"enabled": true, "something": "Control branch"}'
@@ -137,9 +95,9 @@ def test_create_new_experiment_approve_remote_settings_demo_app(
     home = HomePage(selenium, base_url).open()
     assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
-    demo_app = DemoAppPage(selenium)
     # Demo app frontend, by default, returns "Not Enrolled" message
     demo_app.navigate_to()
+    selenium.refresh()
 
     result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
     assert result_text_element.is_displayed()

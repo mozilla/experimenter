@@ -23,6 +23,7 @@ from nimbus.models.base_dataclass import (
     BaseExperimentMetricsDataClass,
 )
 from nimbus.pages.experimenter.home import HomePage
+from nimbus.pages.demo_app.frontend import DemoAppPage
 from nimbus.utils import helpers
 
 APPLICATION_FEATURE_IDS = {
@@ -296,8 +297,12 @@ def create_experiment(base_url, default_data):
         # Fill Metrics page
         metrics = branches.save_and_continue()
         if default_data.metrics.primary_outcomes:
-            metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
-            assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
+            metrics.set_primary_outcomes(
+                values=default_data.metrics.primary_outcomes[0]
+            )
+            assert (
+                metrics.primary_outcomes.text != ""
+            ), "The primary outcome was not set"
             metrics.set_secondary_outcomes(
                 values=default_data.metrics.secondary_outcomes[0]
             )
@@ -433,3 +438,8 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
             return False
 
     return _telemetry_event_check
+
+
+@pytest.fixture
+def demo_app(selenium):
+    return DemoAppPage(selenium)
