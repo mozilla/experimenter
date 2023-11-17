@@ -310,13 +310,6 @@ features:
         default:
           history-groups: true
           tab-tray-groups: false
-  share-extension-coordinator-refactor:
-    description: "This feature is for managing the roll out of the share extension coordinator as part of the changes to the navigation in the app\n"
-    variables:
-      enabled:
-        description: "Enables the feature\n"
-        type: Boolean
-        default: true
   share-sheet:
     description: This feature define the redesign of the share sheet
     variables:
