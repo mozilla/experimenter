@@ -3,6 +3,7 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
 from nimbus.pages.base import Base
 
 
@@ -30,9 +31,7 @@ class DemoAppPage(Base):
             )
         )
         context_input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                (By.XPATH, "//input[@placeholder='Context']")
-            )
+            EC.presence_of_element_located((By.XPATH, "//input[@placeholder='Context']"))
         )
 
         client_id_input.send_keys(client_id)
