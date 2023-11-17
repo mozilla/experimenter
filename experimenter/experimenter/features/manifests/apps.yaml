@@ -16,6 +16,7 @@ fenix:
       - type: "tagged"
         branch_re: 'releases_v(?P<major>\d+)'
         tag_re: 'fenix-v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'
+      - type: "branched"
 
 firefox_ios:
   slug: "ios"
@@ -32,6 +33,7 @@ firefox_ios:
       - type: "tagged"
         branch_re: 'release/v(?P<major>\d+)(?:\.(?P<minor>\d+))?'
         tag_re: 'v(?P<major>\d+)\.(?P<minor>\d+)'
+      - type: "branched"
 
 focus_android:
   slug: "focus-android"
@@ -47,6 +49,7 @@ focus_android:
       - type: "tagged"
         branch_re: 'releases_v(?P<major>\d+)'
         tag_re: 'focus-v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'
+      - type: "branched"
 
 focus_ios:
   slug: "focus-ios"
@@ -60,6 +63,7 @@ focus_ios:
       path: "Blockzilla/Info.plist"
       key: "CFBundleShortVersionString"
     strategies:
+      # We don't use a branched strategy for focus_ios because it is on v9000.
       - type: "tagged"
         branch_re: 'releases_v(?P<major>\d+)(?:\.(?P<minor>\d+))?'
         tag_re: 'v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'

@@ -20,10 +20,10 @@ class HgMoApiTests(TestCase):
         ]
     )
     @responses.activate
-    def test_get_bookmark_ref(self, ref_name: str, resolved: str):
+    def test_resolve_branch(self, ref_name: str, resolved: str):
         """Testing get_bookmark_rev."""
         responses.get(
-            f"{HGMO_URL}/repo/json-log?rev={ref_name}:{ref_name}",
+            f"{HGMO_URL}/repo/json-log?rev=bookmark({ref_name})",
             json={
                 "node": "bogus",
                 "entries": [
@@ -34,7 +34,7 @@ class HgMoApiTests(TestCase):
             },
         )
 
-        result = hgmo_api.get_bookmark_ref("repo", ref_name)
+        result = hgmo_api.resolve_branch("repo", ref_name)
 
         self.assertEqual(result, Ref(ref_name, resolved))
 
