@@ -157,9 +157,7 @@ describe("PageResults", () => {
   });
 
   it("displays the analysis basis options properly", async () => {
-    render(
-      <Subject mockAnalysisData={mockAnalysisWithExposures} />,
-    );
+    render(<Subject mockAnalysisData={mockAnalysisWithExposures} />);
 
     const defaultBasis = "enrollments";
     const otherBasis = "exposures";
@@ -189,9 +187,7 @@ describe("PageResults", () => {
   });
 
   it("displays the analysis basis options for weekly results", async () => {
-    render(
-      <Subject mockAnalysisData={mockAnalysisWithWeeklyExposures} />,
-    );
+    render(<Subject mockAnalysisData={mockAnalysisWithWeeklyExposures} />);
 
     const defaultBasis = "enrollments";
     const otherBasis = "exposures";
