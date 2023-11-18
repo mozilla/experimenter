@@ -83,6 +83,7 @@ class Version:
 def find_versioned_refs(
     refs: list[Ref],
     pattern: str,
+    ignored_ref_names: Optional[list[str]],
 ) -> dict[Version, Ref]:
     """Find all named refs that correspond to versions, according to the given
     pattern.
@@ -95,6 +96,9 @@ def find_versioned_refs(
             A regular expression with named capture groups for the major, minor,
             and patch components of the version.
 
+        ignored_ref_names:
+            An list of refs that should be ignored.
+
     Returns:
         A dictionary mapping version numbers to refs.
     """
@@ -102,6 +106,9 @@ def find_versioned_refs(
 
     versioned = {}
     for ref in refs:
+        if ignored_ref_names and ref.name in ignored_ref_names:
+            continue
+
         if m := pattern.match(ref.name):
             version = Version.from_match(m.groupdict())
             versioned[version] = ref
@@ -112,7 +119,6 @@ def find_versioned_refs(
 def filter_versioned_refs(
     refs: dict[Version, Ref],
     min_version: Version,
-    ignore_ref_names: Optional[list[str]],
 ) -> dict[Version, Ref]:
     """Filter out all versions that are below the minimum version.
 
@@ -124,14 +130,7 @@ def filter_versioned_refs(
         A new dictionary whose entries all have a version greater than or equal
         to the specified minimum verison.
     """
-    return {
-        v: r
-        for v, r in refs.items()
-        if (
-            v >= min_version
-            and (ignore_ref_names is None or r.name not in ignore_ref_names)
-        )
-    }
+    return {v: r for v, r in refs.items() if v >= min_version}
 
 
 def parse_version_file(f: VersionFile, contents: str) -> Optional[Version]:
@@ -185,10 +184,14 @@ def resolve_ref_versions(
 
     for ref in refs:
         version_file_contents = fetch_file(
-            app_config.repo.name, app_config.version_file.__root__.path, ref.resolved
+            app_config.repo.name,
+            app_config.release_discovery.version_file.__root__.path,
+            ref.resolved,
         )
 
-        v = parse_version_file(app_config.version_file, version_file_contents)
+        v = parse_version_file(
+            app_config.release_discovery.version_file, version_file_contents
+        )
 
         versions[v] = ref
 

@@ -85,7 +85,7 @@ jetstream_config:
 	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
 
 feature_manifests: build_dev
-	$(COMPOSE) run experimenter /experimenter/bin/manifest-tool.py fetch-latest
+	$(COMPOSE) run experimenter /experimenter/bin/manifest-tool.py fetch
 
 install_nimbus_cli:  ## Install Nimbus client
 	mkdir -p $(CLI_DIR)
