@@ -17,7 +17,7 @@ class DemoAppPage(Base):
     def fill_and_send_form_data(self, client_id, context):
         client_xpath = "//input[@placeholder='Client ID']"
         client_id_input = self.wait_for_and_find_element(
-            (By.XPATH, client_xpath), description=None
+            By.XPATH, client_xpath, description=None
         )
         context_xpath = "//input[@placeholder='Context']"
         context_input = self.wait_for_and_find_element(
