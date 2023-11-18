@@ -508,7 +508,7 @@ jobs:
             cp .env.sample .env
             env GITHUB_BEARER_TOKEN="${GH_TOKEN}" make fetch_external_resources FETCH_ARGS="--summary fetch-summary.txt"
             mv ./experimenter/fetch-summary.txt /tmp/fetch-summary.txt
-            if ./experimenter/bin/should-pr.py
+            if python3 ./experimenter/bin/should-pr.py
               then
                 git checkout -B external-config
                 git add .
