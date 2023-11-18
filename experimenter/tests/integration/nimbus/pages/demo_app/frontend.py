@@ -31,7 +31,7 @@ class DemoAppPage(Base):
     def click_send_my_details(self):
         details_xpath = "//button[contains(text(), 'Send My Details')]"
         send_details_button = self.wait_for_and_find_element(
-            (By.XPATH, details_xpath), description=None
+            By.XPATH, details_xpath, description=None
         )
 
         send_details_button.click()
