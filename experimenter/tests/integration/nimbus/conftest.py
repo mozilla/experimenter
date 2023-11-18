@@ -22,6 +22,7 @@ from nimbus.models.base_dataclass import (
     BaseExperimentDataClass,
     BaseExperimentMetricsDataClass,
 )
+from nimbus.pages.demo_app.frontend import DemoAppPage
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
@@ -433,3 +434,8 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
             return False
 
     return _telemetry_event_check
+
+
+@pytest.fixture
+def demo_app(selenium, experiment_url):
+    return DemoAppPage(selenium, experiment_url)
