@@ -22,7 +22,7 @@ class FetchResult:
     exc: Optional[Exception] = None
     cached: bool = False
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         as_str = f"{self.app_name} at {self.ref} version {self.version}"
 
         if self.exc:
