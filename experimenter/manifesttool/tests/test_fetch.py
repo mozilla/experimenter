@@ -281,12 +281,12 @@ class FetchTests(TestCase):
             self.assertIsNone(result.exc)
 
             resolve_branch.assert_not_called()
-            get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
+            get_channels.assert_called_with(FML_APP_CONFIG, ref.target)
             download_single_file.assert_called_with(
                 manifest_dir,
                 FML_APP_CONFIG,
                 "release",
-                ref.resolved,
+                ref.target,
                 None,
             )
             generate_experimenter_yaml.assert_called_with(
@@ -341,11 +341,11 @@ class FetchTests(TestCase):
             self.assertEqual(result, FetchResult("app", ref, version))
 
             resolve_branch.assert_not_called()
-            get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
+            get_channels.assert_called_with(FML_APP_CONFIG, ref.target)
             download_single_file.assert_has_calls(
                 [
-                    call(manifest_dir, FML_APP_CONFIG, "release", ref.resolved, version),
-                    call(manifest_dir, FML_APP_CONFIG, "beta", ref.resolved, version),
+                    call(manifest_dir, FML_APP_CONFIG, "release", ref.target, version),
+                    call(manifest_dir, FML_APP_CONFIG, "beta", ref.target, version),
                 ]
             )
 
@@ -484,13 +484,13 @@ class FetchTests(TestCase):
                     call(
                         LEGACY_APP_CONFIG.repo.name,
                         LEGACY_MANIFEST_PATH,
-                        ref.resolved,
+                        ref.target,
                         manifest_dir / LEGACY_APP_CONFIG.slug / "experimenter.yaml",
                     ),
                     call(
                         LEGACY_APP_CONFIG.repo.name,
                         FEATURE_JSON_SCHEMA_PATH,
-                        ref.resolved,
+                        ref.target,
                         manifest_dir
                         / LEGACY_APP_CONFIG.slug
                         / "schemas"
@@ -538,7 +538,7 @@ class FetchTests(TestCase):
                     call(
                         LEGACY_APP_CONFIG.repo.name,
                         LEGACY_MANIFEST_PATH,
-                        ref.resolved,
+                        ref.target,
                         manifest_dir
                         / LEGACY_APP_CONFIG.slug
                         / f"v{version}"
@@ -547,7 +547,7 @@ class FetchTests(TestCase):
                     call(
                         LEGACY_APP_CONFIG.repo.name,
                         FEATURE_JSON_SCHEMA_PATH,
-                        ref.resolved,
+                        ref.target,
                         manifest_dir
                         / LEGACY_APP_CONFIG.slug
                         / f"v{version}"

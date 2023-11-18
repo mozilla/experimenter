@@ -63,7 +63,7 @@ def fetch_fml_app(
         else:
             print(f"fetch: {app_name} at {ref}")
 
-        channels = nimbus_cli.get_channels(app_config, ref.resolved)
+        channels = nimbus_cli.get_channels(app_config, ref.target)
         print(f"fetch: {app_name}: channels are {', '.join(channels)}")
 
         if not channels:
@@ -79,7 +79,7 @@ def fetch_fml_app(
                 manifest_dir,
                 app_config,
                 channel,
-                ref.resolved,
+                ref.target,
                 version,
             )
 
@@ -144,7 +144,7 @@ def fetch_legacy_app(
         hgmo_api.fetch_file(
             app_config.repo.name,
             app_config.experimenter_yaml_path,
-            ref.resolved,
+            ref.target,
             manifest_path,
         )
 
@@ -181,7 +181,7 @@ def fetch_legacy_app(
                 hgmo_api.fetch_file(
                     app_config.repo.name,
                     feature.json_schema.path,
-                    ref.resolved,
+                    ref.target,
                     schema_path,
                 )
 
