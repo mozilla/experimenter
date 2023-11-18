@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 import click
 
@@ -40,7 +41,10 @@ def main(ctx: click.Context, *, manifest_dir: Path):
 
 @main.command("fetch")
 @click.pass_context
-def fetch(ctx: click.Context):
+@click.option(
+    "--summary", "summary_filename", type=Path, help="Write a summary to this file."
+)
+def fetch(ctx: click.Context, *, summary_filename: Optional[Path]):
     """Fetch the FML manifests and generate experimenter.yaml files."""
     context = ctx.find_object(Context)
 
@@ -67,4 +71,8 @@ def fetch(ctx: click.Context):
 
             ref_cache.write_to_file(ref_cache_path)
 
-    summarize_results(results)
+    summarize_results(results, f)
+
+    if summary_filename:
+        with summary_filename.open("w") as f:
+            summarize_results(results, f)
