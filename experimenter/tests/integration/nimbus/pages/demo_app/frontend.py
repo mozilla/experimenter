@@ -12,7 +12,7 @@ class DemoAppPage(Base):
         xpath_conditions = " | ".join([f".='{text}'" for text in text_list])
         xpath = f"//h1[{' or '.join(xpath_conditions.split(' | '))}]"
 
-        return self.wait_for_and_find_element((By.XPATH, xpath), description=None)
+        return self.wait_for_and_find_element(By.XPATH, xpath, description=None)
 
     def fill_and_send_form_data(self, client_id, context):
         client_xpath = "//input[@placeholder='Client ID']"
