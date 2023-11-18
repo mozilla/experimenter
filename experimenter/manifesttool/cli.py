@@ -1,3 +1,4 @@
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -71,8 +72,20 @@ def fetch(ctx: click.Context, *, summary_filename: Optional[Path]):
 
             ref_cache.write_to_file(ref_cache_path)
 
-    summarize_results(results, f)
+    summary_file = sys.stdout
+    if summary_filename:
+        summary_file = summary_filename.open("w")
+
+    success_count, cache_count, fail_count = summarize_results(results, summary_file)
 
     if summary_filename:
-        with summary_filename.open("w") as f:
-            summarize_results(results, f)
+        summary_file.close()
+
+    # If we have any successful results, we'll exit normally. In CI, the PR will
+    # include the generated summary, which will contain any failures.
+    #
+    # However, if all we have are failures and cache hits, we won't produce a
+    # PR. Therefore we should exit(1) and cause the task to fail so it will be
+    # noticed.
+    if fail_count > 0 and success_count == 0:
+        raise SystemExit(1)

@@ -2,7 +2,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from traceback import print_exception
-from typing import Optional
+from typing import Optional, TextIO
 
 import yaml
 from mozilla_nimbus_schemas import FeatureManifest
@@ -252,7 +252,13 @@ def fetch_releases(
     return results
 
 
-def summarize_results(results: list[FetchResult], file=sys.stdout):
+def summarize_results(results: list[FetchResult], file: TextIO) -> (int, int, int):
+    """Print out a summary of the results to the given file.
+
+    Returns:
+        A 3-tuple of the number of successes, the number of cache hits, and the
+        number of failures.
+    """
     successes = []
     failures = []
     cached = []
@@ -265,7 +271,10 @@ def summarize_results(results: list[FetchResult], file=sys.stdout):
         else:
             successes.append(result)
 
-    print("\n\nSUMMARY:\n", file=file)
+    if file == sys.stdout:
+        print("\n\n")
+
+    print("SUMMARY:\n", file=file)
 
     if successes:
         print("SUCCESS:\n", file=file)
@@ -285,3 +294,5 @@ def summarize_results(results: list[FetchResult], file=sys.stdout):
         print("FAILURES:\n", file=file)
         for result in failures:
             print(result, file=file)
+
+    return (len(successes), len(cached), len(failures))
