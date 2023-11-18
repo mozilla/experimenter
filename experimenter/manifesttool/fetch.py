@@ -252,7 +252,7 @@ def fetch_releases(
     return results
 
 
-def summarize_results(results: list[FetchResult]):
+def summarize_results(results: list[FetchResult], file=sys.stdout):
     successes = []
     failures = []
     cached = []
@@ -265,23 +265,23 @@ def summarize_results(results: list[FetchResult]):
         else:
             successes.append(result)
 
-    print("\n\nSUMMARY:\n")
+    print("\n\nSUMMARY:\n", file=file)
 
     if successes:
-        print("SUCCESS:\n")
+        print("SUCCESS:\n", file=file)
         for result in successes:
-            print(result)
+            print(result, file=file)
 
-        print()
+        print(file=file)
 
     if cached:
-        print("CACHED:\n")
+        print("CACHED:\n", file=file)
         for result in cached:
-            print(result)
+            print(result, file=file)
 
-        print()
+        print(file=file)
 
     if failures:
-        print("FAILURES:\n")
+        print("FAILURES:\n", file=file)
         for result in failures:
-            print(result)
+            print(result, file=file)
