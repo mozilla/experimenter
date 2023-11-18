@@ -21,7 +21,7 @@ class DemoAppPage(Base):
         )
         context_xpath = "//input[@placeholder='Context']"
         context_input = self.wait_for_and_find_element(
-            (By.XPATH, context_xpath), description=None
+            By.XPATH, context_xpath, description=None
         )
         time.sleep(10)
 
