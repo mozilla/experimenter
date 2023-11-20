@@ -110,6 +110,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     )
     localizations = serializers.SerializerMethodField()
     locales = serializers.SerializerMethodField()
+    publishedDate = serializers.DateTimeField(source="published_date")
 
     class Meta:
         model = NimbusExperiment
@@ -141,6 +142,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "featureValidationOptOut",
             "localizations",
             "locales",
+            "publishedDate",
         )
 
     def get_application(self, obj):

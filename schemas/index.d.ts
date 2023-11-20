@@ -132,6 +132,7 @@ export interface NimbusExperiment {
     [k: string]: unknown;
   };
   locales?: string[];
+  publishedDate?: string;
 }
 export interface ExperimentBucketConfig {
   randomizationUnit: string;

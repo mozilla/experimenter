@@ -937,6 +937,7 @@ class NimbusExperimentSerializer(
             "proposed_release_date",
             "public_description",
             "publish_status",
+            "published_date",
             "qa_comment",
             "qa_status",
             "reference_branch",

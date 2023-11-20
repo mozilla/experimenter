@@ -274,6 +274,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     is_localized = models.BooleanField("Is Localized Flag", default=False)
     localizations = models.TextField("Localizations", blank=True, null=True)
+    published_date = models.DateTimeField("Date First Published", blank=True, null=True)
 
     required_experiments = models.ManyToManyField["NimbusExperiment"](
         "NimbusExperiment",

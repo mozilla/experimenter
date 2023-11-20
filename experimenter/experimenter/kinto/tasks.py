@@ -2,6 +2,7 @@ import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from experimenter.celery import app
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -263,6 +264,9 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
         logger.info(f"Pushing {experiment.slug} to Kinto")
 
         kinto_client = KintoClient(collection)
+
+        if experiment.published_date is None:
+            experiment.published_date = timezone.now()
 
         data = NimbusExperimentSerializer(experiment).data
 

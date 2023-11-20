@@ -91,6 +91,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "featureValidationOptOut": experiment.is_client_schema_disabled,
                 "localizations": None,
                 "locales": ["en-US"],
+                "publishedDate": experiment.published_date,
             },
         )
 

@@ -72,3 +72,4 @@ class NimbusExperiment(BaseModel):
     featureValidationOptOut: Optional[bool]
     localizations: Optional[dict]
     locales: Optional[List[str]]
+    publishedDate: Optional[str]

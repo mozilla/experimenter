@@ -768,9 +768,11 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
 
 
 class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
-    def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_accepted(
+    def test_push_experiment_to_kinto(
         self,
     ):
+        """Push desktop experiment to Kinto and validate its outgoing publish status,
+        published_date, and changelogs"""
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
@@ -780,10 +782,8 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
         )
 
-        data = NimbusExperimentSerializer(experiment).data
-
         self.mock_kinto_client.create_record.assert_called_with(
-            data=data,
+            data=mock.ANY,
             collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
             if_not_exists=True,
@@ -800,6 +800,7 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
                 message=NimbusChangeLog.Messages.LAUNCHING_TO_KINTO,
             ).exists()
         )
+        self.assertIsNotNone(experiment.published_date)
 
     def test_push_experiment_to_kinto_reraises_exception(self):
         experiment = NimbusExperimentFactory.create(
