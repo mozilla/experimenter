@@ -356,6 +356,10 @@ features:
         description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
         type: Boolean
         default: true
+      product_ads:
+        description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
+        type: Boolean
+        default: true
       relay:
         description: "Configurable relay URL for production environment\n"
         type: String

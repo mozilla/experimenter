@@ -155,6 +155,9 @@ shopping2023:
     product-recommendations:
       type: boolean
       description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
+    product_ads:
+      type: boolean
+      description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
     relay:
       type: string
       description: "Configurable relay URL for production environment\n"
