@@ -285,6 +285,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         verbose_name="Excluded Experiments",
     )
+    qa_status = models.CharField(
+        "QA Status",
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=NimbusConstants.QAStatus.choices,
+    )
 
     objects = NimbusExperimentManager()
 
@@ -860,6 +867,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned._start_date = None
         cloned._end_date = None
         cloned._enrollment_end_date = None
+        cloned.qa_status = None
         cloned.save()
 
         if rollout_branch_slug:

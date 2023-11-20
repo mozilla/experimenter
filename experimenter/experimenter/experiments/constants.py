@@ -278,6 +278,11 @@ class NimbusConstants:
         "changelog_message",
     )
 
+    class QAStatus(models.TextChoices):
+        RED = "RED"
+        YELLOW = "YELLOW"
+        GREEN = "GREEN"
+
     APPLICATION_CONFIGS = {
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
         Application.FENIX: APPLICATION_CONFIG_FENIX,
