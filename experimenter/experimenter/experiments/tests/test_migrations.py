@@ -1,7 +1,6 @@
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
 
 
 class TestMigrations(MigratorTestCase):
@@ -34,6 +33,9 @@ class TestMigrations(MigratorTestCase):
 
     def test_migration(self):
         """Run the test itself."""
+        NimbusExperiment = self.new_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
         experiment = NimbusExperiment.objects.get(slug="test-experiment")
         self.assertEqual(
             experiment.proposed_duration, 20
