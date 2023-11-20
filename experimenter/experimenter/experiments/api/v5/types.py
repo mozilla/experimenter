@@ -37,6 +37,11 @@ class NimbusExperimentPublishStatusEnum(graphene.Enum):
         enum = NimbusConstants.PublishStatus
 
 
+class NimbusExperimentQAStatusEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.QAStatus
+
+
 class NimbusExperimentFirefoxVersionEnum(graphene.Enum):
     class Meta:
         enum = NimbusConstants.Version
@@ -484,6 +489,7 @@ class NimbusExperimentType(DjangoObjectType):
     proposed_release_date = graphene.String()
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
+    qa_status = NimbusExperimentQAStatusEnum()
     ready_for_review = graphene.Field(NimbusReviewType)
     recipe_json = graphene.String()
     reference_branch = graphene.Field(NimbusBranchType)
@@ -559,6 +565,7 @@ class NimbusExperimentType(DjangoObjectType):
             "proposed_release_date",
             "public_description",
             "publish_status",
+            "qa_status",
             "ready_for_review",
             "recipe_json",
             "reference_branch",

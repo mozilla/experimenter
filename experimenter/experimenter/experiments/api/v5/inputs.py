@@ -8,6 +8,7 @@ from experimenter.experiments.api.v5.types import (
     NimbusExperimentDocumentationLinkEnum,
     NimbusExperimentFirefoxVersionEnum,
     NimbusExperimentPublishStatusEnum,
+    NimbusExperimentQAStatusEnum,
     NimbusExperimentStatusEnum,
 )
 
@@ -69,6 +70,7 @@ class ExperimentInput(graphene.InputObjectType):
     proposed_release_date = graphene.String()
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
+    qa_status = NimbusExperimentQAStatusEnum()
     reference_branch = graphene.Field(BranchInput)
     required_experiments = graphene.List(graphene.NonNull(graphene.Int))
     risk_brand = graphene.Boolean()

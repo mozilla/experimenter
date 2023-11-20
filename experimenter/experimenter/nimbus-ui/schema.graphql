@@ -59,6 +59,7 @@ type NimbusExperimentType {
   proposedReleaseDate: String
   isLocalized: Boolean
   localizations: String
+  qaStatus: NimbusExperimentQAStatusEnum
   documentationLinks: [NimbusDocumentationLinkType!]
   changes: [NimbusChangeLogType]
   canArchive: Boolean
@@ -344,6 +345,12 @@ enum NimbusExperimentConclusionRecommendationEnum {
   FOLLOWUP
 }
 
+enum NimbusExperimentQAStatusEnum {
+  RED
+  YELLOW
+  GREEN
+}
+
 type NimbusDocumentationLinkType {
   title: NimbusExperimentDocumentationLinkEnum
   link: String!
@@ -508,6 +515,7 @@ input ExperimentInput {
   proposedReleaseDate: String
   publicDescription: String
   publishStatus: NimbusExperimentPublishStatusEnum
+  qaStatus: NimbusExperimentQAStatusEnum
   referenceBranch: BranchInput = null
   requiredExperiments: [Int!]
   riskBrand: Boolean
