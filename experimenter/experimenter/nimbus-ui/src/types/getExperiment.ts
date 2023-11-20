@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentApplicationEnum, NimbusExperimentConclusionRecommendationEnum, NimbusExperimentChannelEnum, NimbusExperimentFirefoxVersionEnum, NimbusExperimentDocumentationLinkEnum } from "./globalTypes";
+import { NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentApplicationEnum, NimbusExperimentConclusionRecommendationEnum, NimbusExperimentChannelEnum, NimbusExperimentFirefoxVersionEnum, NimbusExperimentDocumentationLinkEnum, NimbusExperimentQAStatusEnum } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -247,6 +247,7 @@ export interface getExperiment_experimentBySlug {
   languages: getExperiment_experimentBySlug_languages[];
   projects: (getExperiment_experimentBySlug_projects | null)[] | null;
   isRolloutDirty: boolean;
+  qaStatus: NimbusExperimentQAStatusEnum | null;
 }
 
 export interface getExperiment {

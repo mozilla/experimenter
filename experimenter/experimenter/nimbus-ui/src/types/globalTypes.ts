@@ -190,6 +190,12 @@ export enum NimbusExperimentPublishStatusEnum {
   WAITING = "WAITING",
 }
 
+export enum NimbusExperimentQAStatusEnum {
+  GREEN = "GREEN",
+  RED = "RED",
+  YELLOW = "YELLOW",
+}
+
 export enum NimbusExperimentStatusEnum {
   COMPLETE = "COMPLETE",
   DRAFT = "DRAFT",
@@ -260,6 +266,7 @@ export interface ExperimentInput {
   proposedReleaseDate?: string | null;
   publicDescription?: string | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
+  qaStatus?: NimbusExperimentQAStatusEnum | null;
   referenceBranch?: BranchInput | null;
   requiredExperiments?: number[] | null;
   riskBrand?: boolean | null;

@@ -100,6 +100,7 @@ class TransitionConstants:
         "all": [
             "is_archived",
             "publish_status",
+            "qa_status",
             "status_next",
             "status",
             "conclusion_recommendation",
@@ -888,6 +889,11 @@ class NimbusExperimentSerializer(
         allow_empty=True,
         required=False,
     )
+    qa_status = serializers.ChoiceField(
+        choices=NimbusExperiment.QAStatus.choices,
+        allow_null=True,
+        required=False,
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -924,6 +930,7 @@ class NimbusExperimentSerializer(
             "proposed_release_date",
             "public_description",
             "publish_status",
+            "qa_status",
             "reference_branch",
             "required_experiments",
             "risk_brand",
