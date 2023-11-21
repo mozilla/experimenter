@@ -1551,7 +1551,8 @@ EARLY_DAY_USER_NEED_DEFAULT = NimbusTargetingConfig(
 EARLY_DAY_USER_NEED_DEFAULT_V2 = NimbusTargetingConfig(
     name="Early day user (less than 28 days) needs default",
     slug="early_day_user_need_default_v2",
-    description="Users with profiles that are less than 28 days old and has not set default",
+    description="Users with profiles that are less than 28 days old and "
+    "has not set default",
     targeting=f"{EARLY_DAY_USER_V2.targeting} && {NEED_DEFAULT}",
     desktop_telemetry="",
     sticky_required=True,
