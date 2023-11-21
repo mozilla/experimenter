@@ -27,6 +27,17 @@ features:
         description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
         default: false
+  felt-privacy-feature:
+    description: The feature that enhances private browsing mode
+    variables:
+      felt-deletion-enabled:
+        description: "If true, enable Felt Deletion part of Felt Privacy"
+        type: Boolean
+        default: false
+      simplified-ui-enabled:
+        description: "If true, enable simplified UI part of Felt Privacy"
+        type: Boolean
+        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -267,13 +278,6 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
-  private-browsing:
-    description: Private Browsing Mode
-    variables:
-      felt-privacy-enabled:
-        description: "If true, enable felt privacy related UI"
-        type: Boolean
-        default: false
   qr-code-coordinator-refactor:
     description: "The feature for managing the roll out of the qrCode coordinator.\n"
     variables:
