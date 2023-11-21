@@ -507,7 +507,7 @@ jobs:
             git pull origin main
             cp .env.sample .env
             env GITHUB_BEARER_TOKEN="${GH_TOKEN}" make fetch_external_resources
-            if (($(git status --porcelain | wc -c) > 0))
+            if ./experimenter/bin/should-pr.py
               then
                 git checkout -B external-config
                 git add .
