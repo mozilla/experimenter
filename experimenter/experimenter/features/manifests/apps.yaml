@@ -56,7 +56,9 @@ focus_ios:
   repo:
     type: "github"
     name: "mozilla-mobile/focus-ios"
-  fml_path: "nimbus.fml.yaml"
+  fml_path:
+    - "focus-ios/nimbus.fml.yaml"
+    - "nimbus.fml.yaml"
   release_discovery:
     version_file:
       type: "plist"
