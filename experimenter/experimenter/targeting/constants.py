@@ -1526,11 +1526,33 @@ EARLY_DAY_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EARLY_DAY_USER_V2 = NimbusTargetingConfig(
+    name="Early day user (less than 28 days)",
+    slug="early_day_user_v2",
+    description="Users with profiles that are less than 28 days old",
+    targeting=f"{PROFILELESSTHAN28DAYS}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EARLY_DAY_USER_NEED_DEFAULT = NimbusTargetingConfig(
     name="Early day user (28 days or less) needs default",
     slug="early_day_user_need_default",
     description="Less than 28 day old profile age and has not set default",
     targeting=f"{EARLY_DAY_USER.targeting} && {NEED_DEFAULT}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER_NEED_DEFAULT_V2 = NimbusTargetingConfig(
+    name="Early day user (less than 28 days) needs default",
+    slug="early_day_user_need_default_v2",
+    description="Users with profiles that are less than 28 days old and has not set default",
+    targeting=f"{EARLY_DAY_USER_V2.targeting} && {NEED_DEFAULT}",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -1548,11 +1570,33 @@ EARLY_DAY_USER_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EARLY_DAY_USER_NEED_PIN_V2 = NimbusTargetingConfig(
+    name="Early day user (less than 28 days) needs pin",
+    slug="early_day_user_need_pin_v2",
+    description="Users with profiles that are less than 28 days old and has not pinned",
+    targeting=f"{EARLY_DAY_USER_V2.targeting} && doesAppNeedPin",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name="Early day user (28 days or less) has default needs pin",
     slug="early_day_user_has_default_need_pin",
     description="Less than 28 day old profile age has set default and has not pinned",
     targeting=f"{EARLY_DAY_USER_NEED_PIN.targeting} && isDefaultBrowser",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN_V2 = NimbusTargetingConfig(
+    name="Early day user (less than 28 days) has default needs pin",
+    slug="early_day_user_has_default_need_pin_v2",
+    description="Less than 28 day old profile age has set default and has not pinned",
+    targeting=f"{EARLY_DAY_USER_NEED_PIN_V2.targeting} && isDefaultBrowser",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
