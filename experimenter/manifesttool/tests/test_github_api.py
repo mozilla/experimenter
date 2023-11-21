@@ -7,7 +7,7 @@ import responses
 from responses import matchers
 
 from manifesttool import github_api
-from manifesttool.github_api import GITHUB_RAW_URL
+from manifesttool.github_api import GITHUB_RAW_URL, GITHUB_API_URL
 from manifesttool.repository import Ref
 
 
@@ -34,7 +34,7 @@ class GitHubApiTests(TestCase):
     def test_resolve_branch(self):
         """Testing resolve_branch."""
         responses.get(
-            "https://api.github.com/repos/owner/repo/branches/main",
+            f"{GITHUB_API_URL}/repos/owner/repo/branches/main",
             json={
                 "commit": {
                     "sha": "0" * 40,
@@ -50,7 +50,7 @@ class GitHubApiTests(TestCase):
     def test_api_limit(self):
         """Testing detection of API rate limit errors."""
         responses.get(
-            "https://api.github.com/repos/owner/repo/branches/main",
+            f"{GITHUB_API_URL}/repos/owner/repo/branches/main",
             headers={
                 "X-RateLimit-Remaining": "0",
             },
@@ -64,7 +64,7 @@ class GitHubApiTests(TestCase):
     def test_get_branches(self):
         """Testing get_branches and the underlying paginated_api_request."""
         rsps = _add_paginated_responses(
-            "https://api.github.com/repos/owner/repo/branches",
+            f"{GITHUB_API_URL}/repos/owner/repo/branches",
             {
                 "1": {
                     "json": [
@@ -110,7 +110,7 @@ class GitHubApiTests(TestCase):
     def test_get_tags(self):
         """Testing get_tags."""
         rsps = _add_paginated_responses(
-            "https://api.github.com/repos/owner/repo/tags",
+            f"{GITHUB_API_URL}/repos/owner/repo/tags",
             {
                 "1": {
                     "json": [
@@ -180,3 +180,22 @@ class GitHubApiTests(TestCase):
 
         contents = github_api.fetch_file("repo", "file/path.txt", "ref")
         self.assertEqual(contents, "hello, world\n")
+
+    @responses.activate
+    def test_file_exists(self):
+        """Testing github_api.file_exists."""
+        responses.get(
+            f"{GITHUB_API_URL}/repos/repo/contents/file.txt",
+            status=404,
+            body="404",
+            match=[matchers.query_param_matcher({"ref": "foo"})],
+        )
+
+        responses.get(
+            f"{GITHUB_API_URL}/repos/repo/contents/file.txt",
+            json={},
+            match=[matchers.query_param_matcher({"ref": "bar"})],
+        )
+
+        self.assertFalse(github_api.file_exists("repo", "file.txt", "foo"))
+        self.assertTrue(github_api.file_exists("repo", "file.txt", "bar"))
