@@ -186,7 +186,7 @@ def resolve_ref_versions(
         version_file_contents = fetch_file(
             app_config.repo.name,
             app_config.release_discovery.version_file.__root__.path,
-            ref.resolved,
+            ref.target,
         )
 
         v = parse_version_file(

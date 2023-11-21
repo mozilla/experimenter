@@ -10,7 +10,7 @@ from mozilla_nimbus_schemas import FeatureManifest
 from manifesttool import github_api, hgmo_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, DiscoveryStrategyType, RepositoryType
 from manifesttool.releases import discover_branched_releases, discover_tagged_releases
-from manifesttool.repository import Ref
+from manifesttool.repository import Ref, RefCache
 from manifesttool.version import Version
 
 
@@ -20,12 +20,16 @@ class FetchResult:
     ref: Ref
     version: Optional[Version]
     exc: Optional[Exception] = None
+    cached: bool = False
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         as_str = f"{self.app_name} at {self.ref} version {self.version}"
+
         if self.exc:
             exc_message = str(self.exc).partition("\n")[0]
             as_str = f"{as_str}\n{exc_message}\n"
+        elif self.cached:
+            as_str = f"{as_str} (cached)"
 
         return as_str
 
@@ -63,7 +67,7 @@ def fetch_fml_app(
         else:
             print(f"fetch: {app_name} at {ref}")
 
-        channels = nimbus_cli.get_channels(app_config, ref.resolved)
+        channels = nimbus_cli.get_channels(app_config, ref.target)
         print(f"fetch: {app_name}: channels are {', '.join(channels)}")
 
         if not channels:
@@ -79,7 +83,7 @@ def fetch_fml_app(
                 manifest_dir,
                 app_config,
                 channel,
-                ref.resolved,
+                ref.target,
                 version,
             )
 
@@ -144,7 +148,7 @@ def fetch_legacy_app(
         hgmo_api.fetch_file(
             app_config.repo.name,
             app_config.experimenter_yaml_path,
-            ref.resolved,
+            ref.target,
             manifest_path,
         )
 
@@ -181,7 +185,7 @@ def fetch_legacy_app(
                 hgmo_api.fetch_file(
                     app_config.repo.name,
                     feature.json_schema.path,
-                    ref.resolved,
+                    ref.target,
                     schema_path,
                 )
 
@@ -197,6 +201,7 @@ def fetch_releases(
     manifest_dir: Path,
     app_name: str,
     app_config: AppConfig,
+    ref_cache: RefCache,
 ) -> list[FetchResult]:
     """Fetch all releases for the app."""
     results = []
@@ -220,24 +225,51 @@ def fetch_releases(
         fetch_app = fetch_legacy_app
 
     for version, ref in versions.items():
-        results.append(fetch_app(manifest_dir, app_name, app_config, ref, version))
+        if ref_cache.get(ref.name) == ref:
+            print(f"fetch: {app_name} at {ref.name} has not updated")
+            results.append(FetchResult(app_name, ref, version, cached=True))
+            continue
+
+        result = fetch_app(manifest_dir, app_name, app_config, ref, version)
+
+        if result.exc is None:
+            ref_cache.add(ref)
+
+        results.append(result)
 
     return results
 
 
 def summarize_results(results: list[FetchResult]):
+    successes = []
+    failures = []
+    cached = []
+
+    for result in results:
+        if result.exc:
+            failures.append(result)
+        elif result.cached:
+            cached.append(result)
+        else:
+            successes.append(result)
+
     print("\n\nSUMMARY:\n")
 
-    if any(result.exc is None for result in results):
+    if successes:
         print("SUCCESS:\n")
-        for result in results:
-            if result.exc is None:
-                print(result)
+        for result in successes:
+            print(result)
 
-        print("")
+        print()
 
-    if any(result.exc is not None for result in results):
+    if cached:
+        print("CACHED:\n")
+        for result in cached:
+            print(result)
+
+        print()
+
+    if failures:
         print("FAILURES:\n")
-        for result in results:
-            if result.exc is not None:
-                print(result)
+        for result in failures:
+            print(result)
