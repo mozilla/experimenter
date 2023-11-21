@@ -10,6 +10,7 @@ from manifesttool.fetch import (
     fetch_releases,
     summarize_results,
 )
+from manifesttool.repository import RefCache
 
 MANIFEST_DIR = Path(__file__).parent.parent / "experimenter" / "features" / "manifests"
 
@@ -46,7 +47,8 @@ def fetch(ctx: click.Context):
     results = []
 
     for app_name, app_config in context.app_configs.__root__.items():
-        context.manifest_dir.joinpath(app_config.slug).mkdir(exist_ok=True)
+        app_dir = context.manifest_dir.joinpath(app_config.slug)
+        app_dir.mkdir(exist_ok=True)
 
         if app_config.fml_path is not None:
             results.append(fetch_fml_app(context.manifest_dir, app_name, app_config))
@@ -56,6 +58,13 @@ def fetch(ctx: click.Context):
             assert False, "unreachable"
 
         if app_config.release_discovery:
-            results.extend(fetch_releases(context.manifest_dir, app_name, app_config))
+            ref_cache_path = app_dir / ".ref-cache.yaml"
+            ref_cache = RefCache.load_or_create(ref_cache_path)
+
+            results.extend(
+                fetch_releases(context.manifest_dir, app_name, app_config, ref_cache)
+            )
+
+            ref_cache.write_to_file(ref_cache_path)
 
     summarize_results(results)

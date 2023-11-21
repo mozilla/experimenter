@@ -19,8 +19,9 @@ from manifesttool.appconfig import (
 )
 from manifesttool.cli import main
 from manifesttool.fetch import FetchResult
-from manifesttool.repository import Ref
+from manifesttool.repository import Ref, RefCache
 from manifesttool.tests.test_fetch import FML_APP_CONFIG, LEGACY_APP_CONFIG, mock_fetch
+from manifesttool.version import Version
 
 
 def make_app_configs(app_config: AppConfig) -> AppConfigs:
@@ -158,8 +159,23 @@ class CliTests(TestCase):
         "fetch_fml_app",
         lambda *args: mock_fetch(*args, ref=Ref("main", "resolved")),
     )
-    @patch.object(manifesttool.cli, "fetch_releases", side_effects=lambda *args: [])
+    @patch.object(
+        manifesttool.fetch,
+        "discover_tagged_releases",
+        lambda *args: {Version(1): Ref("foo", "bar")},
+    )
+    @patch.object(
+        manifesttool.cli,
+        "fetch_releases",
+        wraps=manifesttool.cli.fetch_releases,
+    )
+    @patch.object(
+        manifesttool.fetch,
+        "fetch_fml_app",
+        mock_fetch,
+    )
     def test_fetch_fml_releases(self, fetch_releases):
+        """Testing the fetch command with releases."""
         app_config = AppConfig(
             slug="fml-app",
             repo=Repository(
@@ -176,10 +192,21 @@ class CliTests(TestCase):
         with cli_runner(app_config=app_config) as runner:
             result = runner.invoke(main, ["--manifest-dir", ".", "fetch"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
-            print(result.stdout)
 
+            cache_path = Path("fml-app", ".ref-cache.yaml")
+            self.assertTrue(cache_path.exists(), "cli writes per-app ref cache")
+            cache = RefCache.load_from_file(cache_path)
+
+        self.assertEqual(cache, RefCache(__root__={"foo": "bar"}))
+
+        # This is technically called with an empty cache, but the mock stores
+        # the args it was called with. ``cache`` is an object, so when we update
+        # ``cache`` inside ``fetch_releases``, we are also updating the same
+        # object that the mock cached. Hence, we need to provide the filled out
+        # cache to this assertion.
         fetch_releases.assert_called_once_with(
             Path("."),
             "fml_app",
             app_config,
+            cache,
         )

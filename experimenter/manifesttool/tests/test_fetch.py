@@ -1,4 +1,6 @@
 import json
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
@@ -22,9 +24,10 @@ from manifesttool.fetch import (
     fetch_fml_app,
     fetch_legacy_app,
     fetch_releases,
+    summarize_results,
 )
 from manifesttool.nimbus_cli import _get_experimenter_yaml_path, _get_fml_path
-from manifesttool.repository import Ref
+from manifesttool.repository import Ref, RefCache
 from manifesttool.version import Version
 
 FML_APP_CONFIG = AppConfig(
@@ -281,12 +284,12 @@ class FetchTests(TestCase):
             self.assertIsNone(result.exc)
 
             resolve_branch.assert_not_called()
-            get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
+            get_channels.assert_called_with(FML_APP_CONFIG, ref.target)
             download_single_file.assert_called_with(
                 manifest_dir,
                 FML_APP_CONFIG,
                 "release",
-                ref.resolved,
+                ref.target,
                 None,
             )
             generate_experimenter_yaml.assert_called_with(
@@ -341,11 +344,11 @@ class FetchTests(TestCase):
             self.assertEqual(result, FetchResult("app", ref, version))
 
             resolve_branch.assert_not_called()
-            get_channels.assert_called_with(FML_APP_CONFIG, ref.resolved)
+            get_channels.assert_called_with(FML_APP_CONFIG, ref.target)
             download_single_file.assert_has_calls(
                 [
-                    call(manifest_dir, FML_APP_CONFIG, "release", ref.resolved, version),
-                    call(manifest_dir, FML_APP_CONFIG, "beta", ref.resolved, version),
+                    call(manifest_dir, FML_APP_CONFIG, "release", ref.target, version),
+                    call(manifest_dir, FML_APP_CONFIG, "beta", ref.target, version),
                 ]
             )
 
@@ -484,13 +487,13 @@ class FetchTests(TestCase):
                     call(
                         LEGACY_APP_CONFIG.repo.name,
                         LEGACY_MANIFEST_PATH,
-                        ref.resolved,
+                        ref.target,
                         manifest_dir / LEGACY_APP_CONFIG.slug / "experimenter.yaml",
                     ),
                     call(
                         LEGACY_APP_CONFIG.repo.name,
                         FEATURE_JSON_SCHEMA_PATH,
-                        ref.resolved,
+                        ref.target,
                         manifest_dir
                         / LEGACY_APP_CONFIG.slug
                         / "schemas"
@@ -538,7 +541,7 @@ class FetchTests(TestCase):
                     call(
                         LEGACY_APP_CONFIG.repo.name,
                         LEGACY_MANIFEST_PATH,
-                        ref.resolved,
+                        ref.target,
                         manifest_dir
                         / LEGACY_APP_CONFIG.slug
                         / f"v{version}"
@@ -547,7 +550,7 @@ class FetchTests(TestCase):
                     call(
                         LEGACY_APP_CONFIG.repo.name,
                         FEATURE_JSON_SCHEMA_PATH,
-                        ref.resolved,
+                        ref.target,
                         manifest_dir
                         / LEGACY_APP_CONFIG.slug
                         / f"v{version}"
@@ -665,7 +668,7 @@ class FetchTests(TestCase):
             manifest_dir.joinpath(app_config.slug).mkdir()
 
             with self.assertRaisesRegex(Exception, "App app does not support releases."):
-                fetch_releases(manifest_dir, "app", app_config)
+                fetch_releases(manifest_dir, "app", app_config, RefCache())
 
     @patch.object(
         manifesttool.fetch,
@@ -695,10 +698,42 @@ class FetchTests(TestCase):
             ),
         )
 
+        cache = RefCache()
+
         with TemporaryDirectory() as tmp:
             manifest_dir = Path(tmp)
 
-            results = fetch_releases(manifest_dir, "fml_app", app_config)
+            results = fetch_releases(manifest_dir, "fml_app", app_config, cache)
+
+        self.assertEqual(fetch_fml_app.call_count, 2)
+        fetch_fml_app.assert_has_calls(
+            [
+                call(
+                    manifest_dir,
+                    "fml_app",
+                    app_config,
+                    Ref("branch", "foo"),
+                    Version(1),
+                ),
+                call(
+                    manifest_dir,
+                    "fml_app",
+                    app_config,
+                    Ref("tag", "bar"),
+                    Version(1, 2, 3),
+                ),
+            ]
+        )
+
+        self.assertEqual(
+            cache,
+            RefCache(
+                __root__={
+                    "branch": "foo",
+                    "tag": "bar",
+                }
+            ),
+        )
 
         self.assertEqual(len(results), 2)
         self.assertIn(
@@ -748,7 +783,11 @@ class FetchTests(TestCase):
 
         with TemporaryDirectory() as tmp:
             manifest_dir = Path(tmp)
-            results = fetch_releases(manifest_dir, "legacy_app", app_config)
+            results = fetch_releases(manifest_dir, "legacy_app", app_config, RefCache())
+
+        fetch_legacy_app.assert_called_once_with(
+            manifest_dir, "legacy_app", app_config, Ref("tip", "foo"), Version(1)
+        )
 
         self.assertEqual(
             results,
@@ -759,4 +798,99 @@ class FetchTests(TestCase):
                     version=Version(1),
                 ),
             ],
+        )
+
+    @patch.object(
+        manifesttool.fetch,
+        "discover_tagged_releases",
+        lambda *args: {
+            Version(1): Ref("branch", "up-to-date-branch"),
+            Version(1, 2, 3): Ref("tag", "up-to-date-tag"),
+        },
+    )
+    @patch.object(manifesttool.fetch, "fetch_fml_app", side_effect=mock_fetch)
+    def test_fetch_releases_cached(self, fetch_fml_app):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[DiscoveryStrategy.create_tagged(branch_re="", tag_re="")],
+            ),
+        )
+
+        cache = RefCache(
+            __root__={
+                "branch": "outdated-branch",
+                "tag": "up-to-date-tag",
+            }
+        )
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+
+            fetch_releases(manifest_dir, "fml_app", app_config, cache)
+
+        self.assertEqual(fetch_fml_app.call_count, 1)
+        fetch_fml_app.called_once_with(
+            manifest_dir,
+            "fml_app",
+            app_config,
+            Ref("branch", "updated-branch"),
+            Version(1),
+        )
+
+        self.assertEqual(
+            cache,
+            RefCache(
+                __root__={
+                    "branch": "up-to-date-branch",
+                    "tag": "up-to-date-tag",
+                }
+            ),
+        )
+
+    def test_summarize_results(self):
+        stdout_buffer = StringIO()
+
+        with redirect_stdout(stdout_buffer):
+            summarize_results(
+                [
+                    FetchResult(
+                        "app-1",
+                        Ref("a", "foo"),
+                        None,
+                    ),
+                    FetchResult("app-2", Ref("b", "bar"), Version(1, 2, 3)),
+                    FetchResult("app-3", Ref("c", "baz"), None, exc=Exception("oh no")),
+                    FetchResult("app-4", Ref("d", "qux"), Version(4, 5, 6), cached=True),
+                    FetchResult(
+                        "app-5",
+                        Ref("e", "quux"),
+                        Version(7, 8, 9),
+                        exc=Exception("rats!"),
+                    ),
+                ]
+            )
+
+        self.assertEqual(
+            stdout_buffer.getvalue(),
+            "\n\n"
+            "SUMMARY:\n\n"
+            "SUCCESS:\n\n"
+            "app-1 at a (foo) version None\n"
+            "app-2 at b (bar) version 1.2.3\n"
+            "\n"
+            "CACHED:\n\n"
+            "app-4 at d (qux) version 4.5.6 (cached)\n"
+            "\n"
+            "FAILURES:\n\n"
+            "app-3 at c (baz) version None\n"
+            "oh no\n\n"
+            "app-5 at e (quux) version 7.8.9\n"
+            "rats!\n\n",
         )
