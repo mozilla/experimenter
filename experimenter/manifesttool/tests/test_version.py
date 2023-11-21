@@ -459,12 +459,12 @@ class VersionTests(TestCase):
         if app_config.repo.type == RepositoryType.GITHUB:
             url_template = (
                 f"{GITHUB_RAW_URL}/{app_config.repo.name}/"
-                f"{{ref.resolved}}/{app_config.release_discovery.version_file.__root__.path}"
+                f"{{ref.target}}/{app_config.release_discovery.version_file.__root__.path}"
             )
         else:
             url_template = (
                 f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
-                f"{{ref.resolved}}/{app_config.release_discovery.version_file.__root__.path}"
+                f"{{ref.target}}/{app_config.release_discovery.version_file.__root__.path}"
             )
 
         refs = []
