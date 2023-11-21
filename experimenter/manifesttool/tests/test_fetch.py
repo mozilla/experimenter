@@ -9,6 +9,7 @@ from unittest.mock import call, patch
 
 import responses
 import yaml
+from parameterized import parameterized
 
 import manifesttool
 from manifesttool.appconfig import (
@@ -94,6 +95,7 @@ def generate_fml(app_config: AppConfig, channel: str) -> dict[str, Any]:
 def mock_download_single_file(
     manifest_dir: Path,
     app_config: AppConfig,
+    fml_path: str,
     channel: str,
     ref: str,
     version: Optional[Version],
@@ -225,8 +227,22 @@ class FetchTests(TestCase):
             get_channels.asset_called_with(FML_APP_CONFIG, "ref")
             download_single_file.assert_has_calls(
                 [
-                    call(manifest_dir, FML_APP_CONFIG, "release", "ref", None),
-                    call(manifest_dir, FML_APP_CONFIG, "beta", "ref", None),
+                    call(
+                        manifest_dir,
+                        FML_APP_CONFIG,
+                        FML_APP_CONFIG.fml_path,
+                        "release",
+                        "ref",
+                        None,
+                    ),
+                    call(
+                        manifest_dir,
+                        FML_APP_CONFIG,
+                        FML_APP_CONFIG.fml_path,
+                        "beta",
+                        "ref",
+                        None,
+                    ),
                 ]
             )
 
@@ -284,10 +300,13 @@ class FetchTests(TestCase):
             self.assertIsNone(result.exc)
 
             resolve_branch.assert_not_called()
-            get_channels.assert_called_with(FML_APP_CONFIG, ref.target)
+            get_channels.assert_called_with(
+                FML_APP_CONFIG, FML_APP_CONFIG.fml_path, ref.target
+            )
             download_single_file.assert_called_with(
                 manifest_dir,
                 FML_APP_CONFIG,
+                FML_APP_CONFIG.fml_path,
                 "release",
                 ref.target,
                 None,
@@ -344,11 +363,27 @@ class FetchTests(TestCase):
             self.assertEqual(result, FetchResult("app", ref, version))
 
             resolve_branch.assert_not_called()
-            get_channels.assert_called_with(FML_APP_CONFIG, ref.target)
+            get_channels.assert_called_with(
+                FML_APP_CONFIG, FML_APP_CONFIG.fml_path, ref.target
+            )
             download_single_file.assert_has_calls(
                 [
-                    call(manifest_dir, FML_APP_CONFIG, "release", ref.target, version),
-                    call(manifest_dir, FML_APP_CONFIG, "beta", ref.target, version),
+                    call(
+                        manifest_dir,
+                        FML_APP_CONFIG,
+                        FML_APP_CONFIG.fml_path,
+                        "release",
+                        ref.target,
+                        version,
+                    ),
+                    call(
+                        manifest_dir,
+                        FML_APP_CONFIG,
+                        FML_APP_CONFIG.fml_path,
+                        "beta",
+                        ref.target,
+                        version,
+                    ),
                 ]
             )
 
@@ -362,6 +397,118 @@ class FetchTests(TestCase):
 
             self.assertIn("v1.2.3", str(experimenter_manifest_path))
             self.assertTrue(experimenter_manifest_path.exists())
+
+    @parameterized.expand(
+        [
+            (["nimbus.fml.yaml", "app/nimbus.fml.yaml"], "nimbus.fml.yaml"),
+            (["nimbus.fml.yaml", "app/nimbus.fml.yaml"], "app/nimbus.fml.yaml"),
+        ]
+    )
+    @patch.object(
+        manifesttool.fetch.github_api, "resolve_branch", lambda *args: Ref("main", "foo")
+    )
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "get_channels",
+        side_effect=lambda *args: ["channel"],
+    )
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "download_single_file",
+        side_effect=mock_download_single_file,
+    )
+    def test_fetch_fml_multiple_fml(
+        self,
+        fml_paths: list[str],
+        correct_fml_path: str,
+        download_single_file,
+        get_channels,
+    ):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path=fml_paths,
+        )
+
+        def mock_file_exists(repo, file, rev):
+            return file == correct_fml_path
+
+        with (
+            TemporaryDirectory() as tmp,
+            patch.object(
+                manifesttool.fetch.github_api, "file_exists", side_effect=mock_file_exists
+            ) as file_exists,
+        ):
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("fml-app").mkdir()
+
+            result = fetch_fml_app(manifest_dir, "fml_app", app_config)
+            self.assertEqual(
+                result,
+                FetchResult(
+                    app_name="fml_app",
+                    ref=Ref("main", "foo"),
+                    version=None,
+                ),
+            )
+
+            # Files are resolved in order, so file_exists() should be called index+1 times.
+            index = fml_paths.index(correct_fml_path)
+            self.assertEqual(file_exists.call_count, index + 1)
+            file_exists.assert_has_calls(
+                [call("fml-repo", fml_path, "foo") for fml_path in fml_paths[: index + 1]]
+            )
+
+        get_channels.assert_called_once_with(app_config, correct_fml_path, "foo")
+        download_single_file.assert_called_once_with(
+            manifest_dir,
+            app_config,
+            correct_fml_path,
+            "channel",
+            "foo",
+            None,
+        )
+
+    @patch.object(
+        manifesttool.fetch.github_api, "resolve_branch", lambda *args: Ref("main", "foo")
+    )
+    @patch.object(
+        manifesttool.fetch.github_api, "file_exists", side_effect=lambda *args: False
+    )
+    @patch.object(manifesttool.fetch.nimbus_cli, "get_channels")
+    def test_fetch_fml_missing_fml(self, get_channels, file_exists):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path=[
+                "does-not-exist.fml.yaml",
+                "neither-does-this.fml.yaml",
+            ],
+        )
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("fml-app").mkdir()
+
+            result = fetch_fml_app(manifest_dir, "fml_app", app_config)
+
+        self.assertEqual(file_exists.call_count, 2)
+        file_exists.assert_has_calls(
+            [call("fml-repo", fml_path, "foo") for fml_path in app_config.fml_path]
+        )
+
+        self.assertIsNotNone(result.exc)
+        self.assertEqual(
+            str(result.exc), "Could not find a feature manifest for fml_app at main (foo)"
+        )
+
+        get_channels.assert_not_called()
 
     @patch.object(
         manifesttool.fetch.github_api,
