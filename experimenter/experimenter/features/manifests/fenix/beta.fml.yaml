@@ -13,8 +13,8 @@ features:
         type: "Map<CookieBannersSection, Int>"
         default:
           feature-setting-detect-only: 0
-          feature-setting-global-rules: 0
-          feature-setting-global-rules-sub-frames: 0
+          feature-setting-global-rules: 1
+          feature-setting-global-rules-sub-frames: 1
           feature-setting-value: 0
           feature-setting-value-pbm: 1
           feature-ui: 1
