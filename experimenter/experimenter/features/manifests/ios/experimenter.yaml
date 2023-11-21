@@ -23,6 +23,17 @@ credit-card-autofill:
     credit-card-autofill-status:
       type: boolean
       description: "If true, we will allow user to use the credit autofill feature"
+felt-privacy-feature:
+  description: The feature that enhances private browsing mode
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    felt-deletion-enabled:
+      type: boolean
+      description: "If true, enable Felt Deletion part of Felt Privacy"
+    simplified-ui-enabled:
+      type: boolean
+      description: "If true, enable simplified UI part of Felt Privacy"
 firefox-suggest-feature:
   description: Configuration for the Firefox Suggest feature.
   hasExposure: true
@@ -90,14 +101,6 @@ onboarding-framework-feature:
     dismissable:
       type: boolean
       description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
-private-browsing:
-  description: Private Browsing Mode
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    felt-privacy-enabled:
-      type: boolean
-      description: "If true, enable felt privacy related UI"
 qr-code-coordinator-refactor:
   description: "The feature for managing the roll out of the qrCode coordinator.\n"
   hasExposure: true
