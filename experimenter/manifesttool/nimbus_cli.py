@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from manifesttool import github_api
 from manifesttool.appconfig import AppConfig, RepositoryType
 from manifesttool.version import Version
 
@@ -23,7 +24,7 @@ def nimbus_cli(args: list[str], *, output: bool = False):
     )
 
 
-def get_channels(app_config: AppConfig, ref: str) -> list[str]:
+def get_channels(app_config: AppConfig, fml_path: str, ref: str) -> list[str]:
     """Get the list of channels supported by the application."""
     assert app_config.repo.type == RepositoryType.GITHUB
     output = nimbus_cli(
@@ -34,7 +35,7 @@ def get_channels(app_config: AppConfig, ref: str) -> list[str]:
             "--json",
             "--ref",
             ref,
-            f"@{app_config.repo.name}/{app_config.fml_path}",
+            f"@{app_config.repo.name}/{fml_path}",
         ],
         output=True,
     )
@@ -53,12 +54,18 @@ def get_channels(app_config: AppConfig, ref: str) -> list[str]:
 def download_single_file(
     manifest_dir: Path,
     app_config: AppConfig,
+    fml_path: str,
     channel: str,
     ref: str,
     version: Optional[Version],
 ):
-    """Download the single-file FML manifest for the app on the specified channel."""
+    """Download the single-file FML manifest for the app on the specified
+    channel.
+
+    If the AppConfig provides multiple FML paths, they will be tried in order.
+    """
     assert app_config.repo.type == RepositoryType.GITHUB
+
     nimbus_cli(
         [
             "fml",
@@ -68,7 +75,7 @@ def download_single_file(
             channel,
             "--ref",
             ref,
-            f"@{app_config.repo.name}/{app_config.fml_path}",
+            f"@{app_config.repo.name}/{fml_path}",
             str(_get_fml_path(manifest_dir, app_config, channel, version)),
         ],
     )
