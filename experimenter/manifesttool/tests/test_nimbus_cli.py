@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from parameterized import parameterized
 
@@ -31,7 +31,8 @@ class NimbusCliTests(TestCase):
     def test_get_channels(self, mock_cli):
         """Testing get_channels calls nimbus-cli with correct arguments."""
         self.assertEqual(
-            nimbus_cli.get_channels(APP_CONFIG, "0" * 40), ["staging", "prod"]
+            nimbus_cli.get_channels(APP_CONFIG, APP_CONFIG.fml_path, "0" * 40),
+            ["staging", "prod"],
         )
         mock_cli.assert_called_with(
             [
@@ -54,7 +55,7 @@ class NimbusCliTests(TestCase):
     def test_get_channels_invalid(self):
         "Testing get_channels handling of invalid JSON."
         with self.assertRaises(json.decoder.JSONDecodeError):
-            nimbus_cli.get_channels(APP_CONFIG, "channel")
+            nimbus_cli.get_channels(APP_CONFIG, APP_CONFIG.fml_path, "channel")
 
     @parameterized.expand(
         [
@@ -73,7 +74,12 @@ class NimbusCliTests(TestCase):
             manifest_dir = Path(tmp)
             manifest_dir.joinpath("slug").mkdir()
             nimbus_cli.download_single_file(
-                manifest_dir, APP_CONFIG, "channel", "0" * 40, version
+                manifest_dir,
+                APP_CONFIG,
+                APP_CONFIG.fml_path,
+                "channel",
+                "0" * 40,
+                version,
             )
 
             check_call.assert_called_with(

@@ -128,7 +128,7 @@ class AppConfig(BaseModel):
 
     slug: str
     repo: Repository
-    fml_path: Optional[str]
+    fml_path: Optional[Union[str, list[str]]]
     experimenter_yaml_path: Optional[str]
     release_discovery: Optional[ReleaseDiscovery]
 

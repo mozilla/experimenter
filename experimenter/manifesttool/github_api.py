@@ -18,7 +18,9 @@ if bearer_token := os.getenv("GITHUB_BEARER_TOKEN"):  # pragma: no cover
     GITHUB_API_HEADERS["Authorization"] = f"Bearer {bearer_token}"
 
 
-def api_request(path: str, **kwargs: dict[str, Any]) -> Any:
+def api_request(
+    path: str, *, raise_for_status: bool = True, **kwargs: dict[str, Any]
+) -> requests.Response:
     """Make a request to the GitHub API."""
     url = f"{GITHUB_API_URL}/{path}"
     rsp = requests.get(url, headers=GITHUB_API_HEADERS, **kwargs)
@@ -27,9 +29,10 @@ def api_request(path: str, **kwargs: dict[str, Any]) -> Any:
         if rsp.headers.get("X-RateLimit-Remaining") == "0":
             raise Exception(f"Could not fetch {url}: GitHub API rate limit exceeded")
 
-    rsp.raise_for_status()
+    if raise_for_status:
+        rsp.raise_for_status()
 
-    return rsp.json()
+    return rsp
 
 
 def paginated_api_request(path: str, per_page: int = 100) -> Generator[Any, None, None]:
@@ -37,7 +40,7 @@ def paginated_api_request(path: str, per_page: int = 100) -> Generator[Any, None
     page = 1
 
     while True:
-        results = api_request(path, params={"page": page, "per_page": per_page})
+        results = api_request(path, params={"page": page, "per_page": per_page}).json()
 
         # When there are no more results, the API returns an empty list.
         if results:
@@ -58,7 +61,7 @@ def resolve_branch(repo: str, branch: str) -> Ref:
         branch:
             The name of the branch.
     """
-    rsp = api_request(f"repos/{repo}/branches/{branch}")
+    rsp = api_request(f"repos/{repo}/branches/{branch}").json()
     return Ref(branch, rsp["commit"]["sha"])
 
 
@@ -131,3 +134,21 @@ def fetch_file(
 
     download.to_path(url, download_path)
     return None
+
+
+def file_exists(repo: str, file_path: str, rev: str) -> bool:
+    """Return whether or not a file with the given path exists in the repo at
+    the given revision.
+    """
+    rsp = api_request(
+        f"repos/{repo}/contents/{file_path}",
+        raise_for_status=False,
+        params={"ref": rev},
+    )
+
+    if rsp.status_code == 404:
+        return False
+
+    rsp.raise_for_status()
+
+    return True
