@@ -1713,7 +1713,6 @@ WINDOWS_10_PLUS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-
 IOS_EARLY_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
     name="Early day users iPhone only",
     slug="ios_early_day_users_iphone_only",
@@ -1724,7 +1723,6 @@ IOS_EARLY_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
     is_first_run_required=False,
     application_choice_names=(Application.IOS.name,),
 )
-
 
 IOS_LATER_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
     name="Later day users iPhone only",
@@ -1737,7 +1735,6 @@ IOS_LATER_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-
 ANDROID_EARLY_DAY_USERS_ONLY = NimbusTargetingConfig(
     name="Early day users only",
     slug="android_early_day_users_only",
@@ -1748,7 +1745,6 @@ ANDROID_EARLY_DAY_USERS_ONLY = NimbusTargetingConfig(
     is_first_run_required=False,
     application_choice_names=(Application.FENIX.name,),
 )
-
 
 ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
     name="Later day users only",
@@ -1761,7 +1757,6 @@ ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-
 DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
     name="Default PDF handler is a different browser",
     slug="default_pdf_is_different_browser",
@@ -1773,6 +1768,23 @@ DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
         "'pdf' in isDefaultHandler && !isDefaultHandler['pdf'] && "
         "'knownBrowser' in defaultPDFHandler && defaultPDFHandler['knownBrowser']"
     ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SHOPPING_OPTED_IN = NimbusTargetingConfig(
+    name="Users opted in to shopping",
+    slug="shopping_opted_in",
+    description="Users with the shopping experience enabled and who have opted in",
+    targeting="""
+    (
+        ('browser.shopping.experience2023.enabled'|preferenceValue)
+        &&
+        ('browser.shopping.experience2023.optedIn'|preferenceValue == 1)
+    )
+    """,
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
