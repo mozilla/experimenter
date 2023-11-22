@@ -87,12 +87,10 @@ class Features:
         features = []
 
         for application in NimbusConstants.APPLICATION_CONFIGS.values():
-            application_yaml_path = os.path.join(
-                settings.FEATURE_MANIFESTS_PATH, application.slug, "experimenter.yaml"
-            )
+            application_yaml_path = settings.FEATURE_MANIFESTS_PATH / application.slug / "experimenter.yaml"
 
-            if os.path.exists(application_yaml_path):
-                with open(application_yaml_path) as application_yaml_file:
+            if application_yaml_path.exists():
+                with application_yaml_path.open() as application_yaml_file:
                     application_data = yaml.safe_load(application_yaml_file)
                     manifest = FeatureManifest.parse_obj(application_data)
 
