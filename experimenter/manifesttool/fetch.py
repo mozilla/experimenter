@@ -67,7 +67,18 @@ def fetch_fml_app(
         else:
             print(f"fetch: {app_name} at {ref}")
 
-        channels = nimbus_cli.get_channels(app_config, ref.target)
+        if isinstance(app_config.fml_path, str):
+            fml_path = app_config.fml_path
+        elif isinstance(app_config.fml_path, list):
+            for fml_path in app_config.fml_path:
+                if github_api.file_exists(app_config.repo.name, fml_path, ref.target):
+                    break
+            else:
+                raise Exception(
+                    f"Could not find a feature manifest for {app_name} at {ref}"
+                )
+
+        channels = nimbus_cli.get_channels(app_config, fml_path, ref.target)
         print(f"fetch: {app_name}: channels are {', '.join(channels)}")
 
         if not channels:
@@ -82,6 +93,7 @@ def fetch_fml_app(
             nimbus_cli.download_single_file(
                 manifest_dir,
                 app_config,
+                fml_path,
                 channel,
                 ref.target,
                 version,
