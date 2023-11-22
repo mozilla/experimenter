@@ -1245,13 +1245,30 @@ class NimbusFeatureConfig(models.Model):
         return self.name
 
 
+class NimbusFeatureVersion(models.Model):
+    major = models.IntegerField(null=False)
+    minor = models.IntegerField(null=False)
+    patch = models.IntegerField(null=False)
+
+    class Meta:
+        verbose_name = "Nimbus Feature Version"
+        verbose_name_plural = "Nimbus Feature Versions"
+        unique_together = ("major", "minor", "patch")
+
+    def __repr__(self):  # pragma: no cover
+        return f"<NimbusFeatureVersion({self.major}, {self.minor}, {self.patch})>"
+
+    def __str__(self):  # pragma: no cover
+        return f"{self.major}.{self.minor}.{self.patch}"
+
+
 class NimbusVersionedSchema(models.Model):
     feature_config = models.ForeignKey(
         NimbusFeatureConfig,
         related_name="schemas",
         on_delete=models.CASCADE,
     )
-    version = models.CharField(max_length=255, null=True)
+    version = models.ForeignKey(NimbusFeatureVersion, on_delete=models.CASCADE, null=True)
     schema = models.TextField(blank=True, null=True)
     sets_prefs = ArrayField(models.CharField(max_length=255, null=False, default=list))
 
@@ -1260,11 +1277,19 @@ class NimbusVersionedSchema(models.Model):
         verbose_name_plural = "Nimbus Versioned Schemas"
         unique_together = ("feature_config", "version")
 
-    def __str__(self):  # pragma: no cover
+    def __repr__(self):  # pragma: no cover
         return (
             f"<NimbusVersionedSchema(feature_config_id={self.feature_config_id}, "
-            f"version={self.version!r})>"
+            f"version={self.version})>"
         )
+
+    def __str__(self):  # pragma: no cover
+        as_str = f"NimbusVersionedSchema for {self.feature_config_id}"
+
+        if self.version is not None:
+            as_str = f"{as_str} at {self.version}"
+
+        return as_str
 
 
 class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
