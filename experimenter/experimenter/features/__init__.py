@@ -1,8 +1,8 @@
 import json
-import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union
+from typing import Iterable, Optional, Union
 
 import yaml
 from django.conf import settings
@@ -14,7 +14,8 @@ from mozilla_nimbus_schemas.experiments.feature_manifests import (
     FeatureWithoutExposure,
 )
 
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants import ApplicationConfig, NimbusConstants
+from manifesttool.version import Version
 
 FEATURE_SCHEMA_TYPES = {
     FeatureVariableType.INT: "integer",
@@ -34,6 +35,7 @@ class Feature:
     slug: str
     application_slug: str
     model: Union[FeatureWithExposure, FeatureWithoutExposure]
+    version: Optional[Version] = None
 
     def load_remote_jsonschema(self):
         if self.model.json_schema is not None:
@@ -80,28 +82,53 @@ class Feature:
 
 
 class Features:
-    _features = None
+    _features: Optional[list[Feature]] = None
+
+    @classmethod
+    def _read_manifest(
+        cls,
+        application: ApplicationConfig,
+        manifest_path: Path,
+        version: Version = None,
+    ):
+        with manifest_path.open() as manifest_file:
+            application_data = yaml.safe_load(manifest_file)
+            manifest = FeatureManifest.parse_obj(application_data)
+
+            for feature_slug, feature_model in manifest.__root__.items():
+                yield Feature(
+                    slug=feature_slug,
+                    application_slug=application.slug,
+                    model=feature_model.__root__,
+                    version=version,
+                )
 
     @classmethod
     def _load_features(cls):
         features = []
+        version_re = re.compile(r"^v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)")
 
         for application in NimbusConstants.APPLICATION_CONFIGS.values():
-            application_yaml_path = settings.FEATURE_MANIFESTS_PATH / application.slug / "experimenter.yaml"
+            application_dir: Path = settings.FEATURE_MANIFESTS_PATH / application.slug
+            application_yaml_path = application_dir / "experimenter.yaml"
 
             if application_yaml_path.exists():
-                with application_yaml_path.open() as application_yaml_file:
-                    application_data = yaml.safe_load(application_yaml_file)
-                    manifest = FeatureManifest.parse_obj(application_data)
+                features.extend(cls._read_manifest(application, application_yaml_path))
 
-                    for feature_slug, feature_model in manifest.__root__.items():
-                        features.append(
-                            Feature(
-                                slug=feature_slug,
-                                application_slug=application.slug,
-                                model=feature_model.__root__,
+                for child in application_dir.iterdir():
+                    if not child.is_dir():
+                        continue
+
+                    if m := version_re.match(child.name):
+                        version = Version.from_match(m.groupdict())
+
+                        application_yaml_path = child / "experimenter.yaml"
+                        if application_yaml_path.exists():
+                            features.extend(
+                                cls._read_manifest(
+                                    application, application_yaml_path, version
+                                )
                             )
-                        )
 
         return features
 
@@ -110,15 +137,23 @@ class Features:
         cls._features = None
 
     @classmethod
-    def all(cls):
+    def all(cls) -> list[Feature]:
         if cls._features is None:
             cls._features = cls._load_features()
 
         return cls._features
 
     @classmethod
-    def by_application(cls, application):
+    def by_application(cls, application) -> list[Feature]:
         return [f for f in cls.all() if f.application_slug == application]
+
+    @classmethod
+    def unversioned(cls) -> Iterable[Feature]:
+        return (f for f in cls.all() if f.version is None)
+
+    @classmethod
+    def versioned(cls) -> Iterable[Feature]:
+        return (f for f in cls.all() if f.version is not None)
 
 
 @register()
