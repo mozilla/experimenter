@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 from experimenter.experiments.constants import NO_FEATURE_SLUG
 from experimenter.experiments.models import (
     NimbusFeatureConfig,
+    NimbusFeatureVersion,
     NimbusVersionedSchema,
 )
 from experimenter.features import Features
