@@ -27,55 +27,55 @@ from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
 APPLICATION_FEATURE_IDS = {
-    BaseExperimentApplications.FIREFOX_DESKTOP: helpers.get_feature_id_as_string(
+    BaseExperimentApplications.FIREFOX_DESKTOP.value: helpers.get_feature_id_as_string(
         "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP.value
     ),
-    BaseExperimentApplications.FENIX: helpers.get_feature_id_as_string(
-        "no-feature-fenix", BaseExperimentApplications.FENIX.value
+    BaseExperimentApplications.FIREFOX_FENIX.value: helpers.get_feature_id_as_string(
+        "no-feature-fenix", BaseExperimentApplications.FIREFOX_FENIX.value
     ),
-    BaseExperimentApplications.IOS: helpers.get_feature_id_as_string(
-        "no-feature-ios", BaseExperimentApplications.IOS.value
+    BaseExperimentApplications.FIREFOX_IOS.value: helpers.get_feature_id_as_string(
+        "no-feature-ios", BaseExperimentApplications.FIREFOX_IOS.value
     ),
-    BaseExperimentApplications.FOCUS_ANDROID: helpers.get_feature_id_as_string(
+    BaseExperimentApplications.FOCUS_ANDROID.value: helpers.get_feature_id_as_string(
         "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID.value
     ),
-    BaseExperimentApplications.FOCUS_IOS: helpers.get_feature_id_as_string(
+    BaseExperimentApplications.FOCUS_IOS.value: helpers.get_feature_id_as_string(
         "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS.value
     ),
-    BaseExperimentApplications.DEMO_APP: helpers.get_feature_id_as_string(
+    BaseExperimentApplications.DEMO_APP.value: helpers.get_feature_id_as_string(
         "example-feature", BaseExperimentApplications.DEMO_APP.value
     ),
 }
 
 
 APPLICATION_KINTO_REVIEW_PATH = {
-    BaseExperimentApplications.FIREFOX_DESKTOP: (
+    BaseExperimentApplications.FIREFOX_DESKTOP.value: (
         "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
     ),
-    BaseExperimentApplications.FENIX: (
+    BaseExperimentApplications.FIREFOX_FENIX.value: (
         "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
     ),
-    BaseExperimentApplications.IOS: (
+    BaseExperimentApplications.FIREFOX_IOS.value: (
         "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
     ),
-    BaseExperimentApplications.FOCUS_ANDROID: (
+    BaseExperimentApplications.FOCUS_ANDROID.value: (
         "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
     ),
-    BaseExperimentApplications.FOCUS_IOS: (
+    BaseExperimentApplications.FOCUS_IOS.value: (
         "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
     ),
-    BaseExperimentApplications.DEMO_APP: (
+    BaseExperimentApplications.DEMO_APP.value: (
         "#/buckets/main-workspace/collections/nimbus-web-experiments/simple-review"
     ),
 }
 
 APPLICATION_KINTO_COLLECTION = {
-    "DESKTOP": KINTO_COLLECTION_DESKTOP,
-    "FENIX": KINTO_COLLECTION_MOBILE,
-    "IOS": KINTO_COLLECTION_MOBILE,
-    "FOCUS_ANDROID": KINTO_COLLECTION_MOBILE,
-    "FOCUS_IOS": KINTO_COLLECTION_MOBILE,
-    "DEMO_APP": KINTO_COLLECTION_WEB,
+    BaseExperimentApplications.FIREFOX_DESKTOP.value: KINTO_COLLECTION_DESKTOP,
+    BaseExperimentApplications.FIREFOX_FENIX.value: KINTO_COLLECTION_MOBILE,
+    BaseExperimentApplications.FIREFOX_IOS.value: KINTO_COLLECTION_MOBILE,
+    BaseExperimentApplications.FOCUS_ANDROID.value: KINTO_COLLECTION_MOBILE,
+    BaseExperimentApplications.FOCUS_IOS.value: KINTO_COLLECTION_MOBILE,
+    BaseExperimentApplications.DEMO_APP.value: KINTO_COLLECTION_WEB,
 }
 
 
@@ -128,17 +128,13 @@ def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
 
 
 @pytest.fixture(
-    # Use all applications as available parameters in parallel_pytest_args.txt
+    # Use all applications as available parameters in circle config
     params=list(BaseExperimentApplications),
     ids=[application.name for application in BaseExperimentApplications],
     autouse=True,
 )
 def application(request):
-    """
-    Returns the current application to use for testing
-    Will also parametrize the tests
-    """
-    return request.param
+    return request.param.value
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -154,7 +150,7 @@ def _verify_url(request, base_url):
 
 @pytest.fixture
 def kinto_client(default_data):
-    return KintoClient(APPLICATION_KINTO_COLLECTION[default_data.application.value])
+    return KintoClient(APPLICATION_KINTO_COLLECTION[default_data.application])
 
 
 @pytest.fixture
@@ -199,26 +195,17 @@ def default_data(application, experiment_name, load_experiment_outcomes):
     feature_config_id = APPLICATION_FEATURE_IDS[application]
 
     outcomes = {
-        "firefox_desktop": BaseExperimentMetricsDataClass(
+        BaseExperimentApplications.FIREFOX_DESKTOP.value: BaseExperimentMetricsDataClass(
             primary_outcomes=[load_experiment_outcomes["firefox_desktop"][0]],
             secondary_outcomes=[load_experiment_outcomes["firefox_desktop"][1]],
         ),
-        "fenix": BaseExperimentMetricsDataClass(
+        BaseExperimentApplications.FIREFOX_FENIX.value: BaseExperimentMetricsDataClass(
             primary_outcomes=[load_experiment_outcomes["fenix"][0]],
             secondary_outcomes=[load_experiment_outcomes["fenix"][1]],
         ),
-        "ios": BaseExperimentMetricsDataClass(
+        BaseExperimentApplications.FIREFOX_IOS.value: BaseExperimentMetricsDataClass(
             primary_outcomes=[load_experiment_outcomes["firefox_ios"][0]],
             secondary_outcomes=[load_experiment_outcomes["firefox_ios"][1]],
-        ),
-        "focus_ios": BaseExperimentMetricsDataClass(
-            primary_outcomes=[], secondary_outcomes=[]
-        ),
-        "focus_android": BaseExperimentMetricsDataClass(
-            primary_outcomes=[], secondary_outcomes=[]
-        ),
-        "demo_app": BaseExperimentMetricsDataClass(
-            primary_outcomes=[], secondary_outcomes=[]
         ),
     }
 
@@ -238,7 +225,13 @@ def default_data(application, experiment_name, load_experiment_outcomes):
                 description="treatment description",
             ),
         ],
-        metrics=outcomes[str(application).lower().rsplit(".")[-1]],
+        metrics=outcomes.get(
+            application,
+            BaseExperimentMetricsDataClass(
+                primary_outcomes=[],
+                secondary_outcomes=[],
+            ),
+        ),
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=106,
@@ -265,7 +258,7 @@ def create_experiment(base_url, default_data):
         experiment = home.create_new_button()
         experiment.public_name = default_data.public_name
         experiment.hypothesis = default_data.hypothesis
-        experiment.application = default_data.application.value
+        experiment.application = default_data.application
 
         # Fill Overview Page
         overview = experiment.save_and_continue()
@@ -313,12 +306,15 @@ def create_experiment(base_url, default_data):
         audience.targeting = "no_targeting"
         audience.percentage = "100"
         audience.expected_clients = default_data.audience.expected_clients
-        if default_data.application.value != "DEMO_APP":
+        if default_data.application != BaseExperimentApplications.DEMO_APP.value:
             audience.min_version = default_data.audience.min_version
             audience.percentage = default_data.audience.percentage
             audience.targeting = default_data.audience.targeting
             audience.countries = ["Canada"]
-            if default_data.application.value != "DESKTOP":
+            if (
+                default_data.application
+                != BaseExperimentApplications.FIREFOX_DESKTOP.value
+            ):
                 audience.languages = ["English"]
             else:
                 audience.locales = ["English (US)"]
@@ -353,7 +349,7 @@ def trigger_experiment_loader(selenium):
 def fixture_experiment_default_data():
     return {
         "hypothesis": "Test Hypothesis",
-        "application": "DESKTOP",
+        "application": BaseExperimentApplications.FIREFOX_DESKTOP.value,
         "changelogMessage": "test updates",
         "targetingConfigSlug": "no_targeting",
         "publicDescription": "Some sort of Fancy Words",

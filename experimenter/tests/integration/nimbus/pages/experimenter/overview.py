@@ -49,7 +49,7 @@ class OverviewPage(ExperimenterBase):
     @public_description.setter
     def public_description(self, text=None):
         name = self.wait_for_and_find_element(*self._public_description_locator)
-        name.send_keys(f"{text}")
+        name.send_keys(text)
 
     def select_risk_brand_false(self):
         el = self.wait_for_and_find_element(*self._risk_brand_locator)

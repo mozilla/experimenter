@@ -5,6 +5,7 @@ import pytest
 
 from nimbus.jexl import collect_exprs
 from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
+from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.utils import helpers
 
 nimbus = pytest.importorskip("nimbus_rust")
@@ -66,7 +67,6 @@ def test_check_mobile_targeting(
     experiment_name,
     targeting,
 ):
-
     # The context fixtures can only contain strings or null
     context["language"] = context["language"][:2]  # strip region
     # This context dictionary supports non string values
@@ -89,7 +89,7 @@ def test_check_mobile_targeting(
     experiment_slug = str(slugify(experiment_name))
     helpers.create_basic_experiment(
         experiment_slug,
-        context["app_name"],
+        BaseExperimentApplications.FIREFOX_FENIX.value,
         targeting,
         languages=context["language"],
     )
@@ -97,7 +97,6 @@ def test_check_mobile_targeting(
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
 
     for sub_expr in collect_exprs(expression):
-
         # The evaluator will throw if it detects a syntax error, a comparison type
         # mismatch, or an undefined variable
         try:
