@@ -3,6 +3,7 @@ import logging
 from typing import Optional
 
 from django.core.management.base import BaseCommand
+from django.db import transaction
 
 from experimenter.experiments.constants import NO_FEATURE_SLUG
 from experimenter.experiments.models import (
@@ -19,12 +20,9 @@ logger = logging.getLogger()
 class Command(BaseCommand):
     help = "Load Feature Configs from remote sources"
 
+    @transaction.atomic
     def handle(self, *args, **options):
         logger.info("Loading Features")
-
-        features_to_disable = set(
-            NimbusFeatureConfig.objects.values_list("application", "slug")
-        )
 
         # A mapping of (application slug, feature slug) to feature configs.
         #
@@ -32,39 +30,76 @@ class Command(BaseCommand):
         # different version. We only need to create a single NimbusFeatureConfig
         # for each of those, so if we keep track of them we can skip a bunch of
         # update_or_create() calls.
-        feature_configs: dict[tuple[str, str], NimbusFeatureConfig] = {}
+        feature_configs: dict[tuple[str, str], NimbusFeatureConfig] = {
+            (fc.application, fc.slug): fc for fc in NimbusFeatureConfig.objects.all()
+        }
+
+        features_to_disable = set(feature_configs.keys())
 
         # Iterate through the unversioned features first for the initial
-        # update_or_create() calls. The unversioned features are the most
-        # up-to-date (since they come from the main branch (or equivalent)), so
-        # lets use the descriptions from there.
         #
         # Then we can iterate over the versioned feature and create any that
         # aren't in the unversioned manifests.
         #
         # When we are ingesting versioned Features, we want to update the
         # NimbusFeatureConfig objects with the most up-to-date description.
+        updated: set[tuple[str, str]] = set()
         for feature in itertools.chain(
             Features.unversioned(),
             sorted(Features.versioned(), key=lambda f: f.version, reverse=True),
         ):
-            if (feature.application_slug, feature.slug) in feature_configs:
+            key = (feature.application_slug, feature.slug)
+            if key in updated:
+                # We have already processes the unversioned feature OR a
+                # versioned feature at a newer version.
+                #
+                # The unversioned features are the most up-to-date (since they come from
+                # the main branch (or equivalent)), so lets use the descriptions from
+                # there, if they exist.
                 continue
 
-            feature_config, created = NimbusFeatureConfig.objects.update_or_create(
-                slug=feature.slug,
-                application=feature.application_slug,
-                defaults={
-                    "name": feature.slug,
-                    "description": feature.model.description,
-                    "enabled": True,
-                },
-            )
+            # Django doesn't keep track of whether or not fields were updated
+            # when you call save(). By default, it will update every field in
+            # the object, whether or not it was dirtied. However, if we are
+            # creating the object, we have to save every field anyway.
+            created = False
+            dirty_fields = []
 
-            feature_configs[(feature.application_slug, feature.slug)] = feature_config
+            feature_config = feature_configs.get(key)
+            if feature_config is None:
+                feature_config = NimbusFeatureConfig(
+                    slug=feature.slug,
+                    application=feature.application_slug,
+                    name=feature.slug,
+                )
+                created = True
 
-            if not created:
-                features_to_disable.discard((feature.application_slug, feature.slug))
+            if feature_config.name != feature.slug:
+                feature_config.name = feature.slug
+                dirty_fields.append("name")
+
+            if feature_config.description != feature.model.description:
+                feature_config.description = feature.model.description
+                dirty_fields.append("description")
+
+            if not feature_config.enabled:
+                feature_config.enabled = True
+                dirty_fields.append("enabled")
+
+            if created:
+                # We don't have enough feature configs to justify moving this
+                # into a bulk_create, as it does not noticably impact
+                # performance.
+                feature_config.save()
+            elif dirty_fields:
+                feature_config.save(update_fields=dirty_fields)
+
+            updated.add(key)
+
+            if created:
+                feature_configs[key] = feature_config
+            else:
+                features_to_disable.discard(key)
 
         # Disable any features that we didn't come across.
         for application_slug, feature_slug in features_to_disable:
@@ -75,45 +110,86 @@ class Command(BaseCommand):
                 ).update(enabled=False)
 
         # Populate the version table and cache the results so we can re-use them
-        # in model creation.
-        versions: dict[Version, NimbusFeatureVersion] = {}
+        # in NimbusVersionedSchema creation.
+        versions: dict[Version, NimbusFeatureVersion] = {
+            Version(v.major, v.minor, v.patch): v
+            for v in NimbusFeatureVersion.objects.all()
+        }
+
+        versions_to_create = []
         for feature in Features.versioned():
             assert feature.version is not None
 
             if feature.version in versions:
                 continue
 
-            versions[feature.version] = NimbusFeatureVersion.objects.get_or_create(
+            version = versions[feature.version] = NimbusFeatureVersion(
                 major=feature.version.major,
                 minor=feature.version.minor,
                 patch=feature.version.patch,
-            )[0]
+            )
+            versions_to_create.append(version)
 
+        NimbusFeatureVersion.objects.bulk_create(versions_to_create)
+
+        # A mapping of (feature_config.id, version.id) to NimbusVersionedSchemas.
+        schemas: dict[tuple[int, Optional[int]], NimbusVersionedSchema] = {
+            (schema.feature_config_id, schema.version_id): schema
+            for schema in NimbusVersionedSchema.objects.all()
+        }
+
+        # If we call .save() on a newly created model, Django will not properly
+        # aggregate all the model creations into a single operation. It is
+        # faster to call save() only for updates and use bulk_create() for
+        # inserts.
+        schemas_to_create = []
         for feature in Features.all():
             feature_config = feature_configs[(feature.application_slug, feature.slug)]
+
             feature_version: Optional[NimbusFeatureVersion] = None
+            feature_version_id: Optional[int] = None
             if feature.version:
                 feature_version = versions[feature.version]
+                feature_version_id = feature_version.id
 
-            defaults = {
-                "sets_prefs": [
-                    v.set_pref
-                    for v in feature.model.variables.values()
-                    if v.set_pref is not None
-                ]
-            }
-            if (schema := feature.get_jsonschema()) is not None:
-                defaults["schema"] = schema
+            key = (feature_config.id, feature_version_id)
 
-            NimbusVersionedSchema.objects.update_or_create(
-                feature_config=feature_config,
-                version=feature_version,
-                defaults=defaults,
-            )
+            dirty_fields = []
+            created = False
+
+            schema = schemas.get(key)
+            if schema is None:
+                created = True
+                schema = NimbusVersionedSchema(
+                    feature_config=feature_config,
+                    version=feature_version,
+                )
+
+            if (jsonschema := feature.get_jsonschema()) is not None:
+                if schema.schema != jsonschema:
+                    schema.schema = jsonschema
+                    dirty_fields.append("schema")
+
+            sets_prefs = [
+                v.set_pref
+                for v in feature.model.variables.values()
+                if v.set_pref is not None
+            ]
+
+            if schema.sets_prefs != sets_prefs:
+                schema.sets_prefs = sets_prefs
+                dirty_fields.append("sets_prefs")
+
+            if created:
+                schemas_to_create.append(schema)
+            elif dirty_fields:
+                schema.save(update_fields=dirty_fields)
 
             logger.info(
                 f"Feature Loaded: {feature.application_slug}/{feature.slug} "
                 f"(version {feature.version})"
             )
+
+        NimbusVersionedSchema.objects.bulk_create(schemas_to_create)
 
         logger.info("Features Updated")
