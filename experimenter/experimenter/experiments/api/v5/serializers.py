@@ -4,8 +4,10 @@ import re
 import typing
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import Any, Optional
 
 import jsonschema
+import packaging
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -31,6 +33,7 @@ from experimenter.experiments.models import (
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
+    NimbusFeatureVersion,
     NimbusVersionedSchema,
 )
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
@@ -1420,31 +1423,70 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return value
 
     def _validate_feature_value_against_schema(
-        self, feature_config, value, localizations
+        self,
+        feature_config: NimbusFeatureConfig,
+        value: str,
+        localizations: Optional[dict[str, Any]],
+        min_version: packaging.version.Version,
+        max_version: Optional[packaging.version.Version],
     ):
-        if schema := feature_config.schemas.get(version=None).schema:
-            json_schema = json.loads(schema)
-            json_value = json.loads(value)
+        schemas_in_range = feature_config.get_versioned_schema_range(
+            min_version, max_version
+        )
+        if schemas_in_range.unsupported_in_range:
+            return [
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
+                    feature_config=feature_config,
+                )
+            ]
 
+        errors = []
+
+        for version in schemas_in_range.unsupported_versions:
+            errors.append(
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
+                    feature_config=feature_config,
+                    version=version,
+                )
+            )
+
+        json_value = json.loads(value)
+
+        for schema in schemas_in_range.schemas:
+            if schema.schema is None:  # Only in tests.
+                continue
+
+            json_schema = json.loads(schema.schema)
             if not localizations:
-                return self._validate_schema(json_value, json_schema)
+                errors.extend(
+                    self._validate_schema(json_value, json_schema, schema.version)
+                )
+            else:
+                for locale_code, substitutions in localizations.items():
+                    try:
+                        substituted_value = self._substitute_localizations(
+                            json_value, substitutions, locale_code
+                        )
+                    except LocalizationError as e:
+                        errors.append(str(e))
+                        continue
 
-            for locale_code, substitutions in localizations.items():
-                try:
-                    substituted_value = self._substitute_localizations(
-                        json_value, substitutions, locale_code
-                    )
-                except LocalizationError as e:
-                    return [str(e)]
-
-                if schema_errors := self._validate_schema(substituted_value, json_schema):
-                    return [
-                        (
+                    if schema_errors := self._validate_schema(
+                        substituted_value, json_schema, schema.version
+                    ):
+                        err_msg = (
                             f"Schema validation errors occured during locale "
                             f"substitution for locale {locale_code}"
-                        ),
-                        *schema_errors,
-                    ]
+                        )
+
+                        if schema.version is not None:
+                            err_msg += f" at version {schema.version}"
+
+                        errors.append(err_msg)
+                        errors.extend(schema_errors)
+
+        if errors:
+            return errors
 
         return None
 
@@ -1458,14 +1500,34 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             ]
         return None
 
-    def _validate_schema(self, obj, schema):
+    def _validate_schema(
+        self, obj: Any, schema: dict[str, Any], version: Optional[NimbusFeatureVersion]
+    ) -> list[str]:
         try:
             jsonschema.validate(obj, schema, resolver=NestedRefResolver(schema))
         except jsonschema.ValidationError as e:
-            return [e.message]
+            err_msg = e.message
+            if version is not None:
+                err_msg += f" at version {version}"
+
+            return [err_msg]
+
+        return []
 
     def _validate_feature_configs(self, data):
+        application = data.get("application")
         feature_configs = data.get("feature_configs", [])
+
+        min_version = None
+        max_version = None
+        if not NimbusExperiment.Application.is_web(application):
+            raw_min_version = data.get("firefox_min_version", "")
+            raw_max_version = data.get("firefox_max_version", "")
+
+            # We've already validated the versions in _validate_versions.
+            min_version = NimbusExperiment.Version.parse(raw_min_version)
+            if raw_max_version:
+                max_version = NimbusExperiment.Version.parse(raw_max_version)
 
         warn_feature_schema = data.get("warn_feature_schema", False)
 
@@ -1496,6 +1558,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     feature_value_data["feature_config"],
                     feature_value_data["value"],
                     localizations,
+                    min_version,
+                    max_version,
                 ):
                     reference_branch_errors.append({"value": schema_errors})
                     continue
@@ -1524,6 +1588,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         feature_value_data["feature_config"],
                         feature_value_data["value"],
                         localizations,
+                        min_version,
+                        max_version,
                     ):
                         treatment_branch_errors.append({"value": schema_errors})
                         treatment_branches_errors_found = True
@@ -1906,9 +1972,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 {"channel": "Channel is required for this application."}
             )
         data = super().validate(data)
+        data = self._validate_versions(data)
         data = self._validate_localizations(data)
         data = self._validate_feature_configs(data)
-        data = self._validate_versions(data)
         data = self._validate_enrollment_targeting(data)
         data = self._validate_sticky_enrollment(data)
         data = self._validate_rollout_version_support(data)
