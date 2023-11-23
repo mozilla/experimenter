@@ -3,7 +3,11 @@ import json
 from django.core.management import call_command
 from django.test import TestCase
 
-from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
+from experimenter.experiments.models import (
+    NimbusExperiment,
+    NimbusFeatureConfig,
+    NimbusFeatureVersion,
+)
 from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
     NimbusVersionedSchemaFactory,
@@ -12,6 +16,7 @@ from experimenter.features import Features
 from experimenter.features.tests import (
     mock_invalid_remote_schema_features,
     mock_valid_features,
+    mock_versioned_features,
 )
 
 
@@ -257,3 +262,52 @@ class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
 
         feature_config = NimbusFeatureConfig.objects.get(slug="no-feature-fenix")
         self.assertEqual(feature_config.enabled, True)
+
+
+@mock_versioned_features
+class TestLoadVersionedFeatureConfigs(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Features.clear_cache()
+
+    def test_load_feature_configs(self):
+        NimbusFeatureConfig.objects.all().delete()
+
+        call_command("load_feature_configs")
+
+        self.assertEqual(NimbusFeatureVersion.objects.count(), 2)
+        v120_0_0 = NimbusFeatureVersion.objects.get(major=120, minor=0, patch=0)
+        v120_1_0 = NimbusFeatureVersion.objects.get(major=120, minor=1, patch=0)
+
+        self.assertEqual(NimbusFeatureConfig.objects.count(), 2)
+        feature_1 = NimbusFeatureConfig.objects.get(name="feature-1")
+        self.assertEqual(feature_1.description, "Unversioned Feature 1")
+        self.assertEqual(feature_1.schemas.count(), 3)
+        self.assertEqual(
+            feature_1.schemas.filter(feature_config=feature_1, version=None).count(), 1
+        )
+        self.assertEqual(
+            feature_1.schemas.filter(feature_config=feature_1, version=v120_0_0).count(),
+            1,
+        )
+        self.assertEqual(
+            feature_1.schemas.filter(feature_config=feature_1, version=v120_1_0).count(),
+            1,
+        )
+
+        feature_2 = NimbusFeatureConfig.objects.get(name="feature-2")
+        self.assertIsNotNone(feature_2)
+        self.assertEqual(feature_2.description, "Feature 2 for version 120.1.0")
+        self.assertEqual(feature_2.schemas.count(), 2)
+        self.assertEqual(
+            feature_2.schemas.filter(feature_config=feature_2, version=None).count(), 0
+        )
+        self.assertEqual(
+            feature_2.schemas.filter(feature_config=feature_2, version=v120_0_0).count(),
+            1,
+        )
+        self.assertEqual(
+            feature_2.schemas.filter(feature_config=feature_2, version=v120_1_0).count(),
+            1,
+        )

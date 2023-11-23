@@ -1,0 +1,8 @@
+feature-1:
+  description: Unversioned Feature 1
+  owner: owner@example.com
+  hasExposure: false
+  variables:
+    value1:
+      type: string
+      description: foo
