@@ -1,4 +1,3 @@
-import os
 from urllib.parse import urljoin
 
 import pytest
@@ -258,29 +257,10 @@ def test_rollout_live_update_reject_on_experimenter(
 
 
 @pytest.mark.remote_settings
-@pytest.mark.skipif(
-    any(
-        app in os.getenv("PYTEST_ARGS")
-        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID", "DEMO_APP"]
-    ),
-    reason="Only run for non-mobile applications and non desktop",
-)
-def test_summary_release_date_not_visible(
+def test_create_new_experiment_timeout_remote_settings(
     selenium,
-    kinto_client,
     create_experiment,
-    experiment_url,
 ):
     summary = create_experiment(selenium)
     summary.launch_and_approve()
-
-    kinto_client.approve()
-
-    summary = SummaryPage(selenium, experiment_url).open()
-    summary.wait_for_live_status()
-
-    summary.wait_for_timeline_visible()
-    timeline_release_date = summary.wait_until_timeline_release_date_not_found()
-    assert not timeline_release_date
-    audience_release_date = summary.wait_until_audience_section_release_date_not_found()
-    assert not audience_release_date
+    summary.wait_for_timeout_alert()

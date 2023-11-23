@@ -374,14 +374,14 @@ class SummaryPage(ExperimenterBase):
             message="Summary Page: could not find release date on timeline",
         )
 
-    def wait_until_audience_section_release_date_not_found(self):
+    def wait_until_release_date_not_found(self):
         self.wait.until_not(
             EC.presence_of_element_located(self._audience_proposed_release_date_locator),
-            message="Summary Page: could not find release date in Audience section",
+            message="Audience Page: could not find release date",
         )
 
-    def wait_until_timeline_release_date_not_found(self):
+    def wait_until_first_run_not_found(self):
         self.wait.until_not(
-            EC.presence_of_element_located(self._audience_proposed_release_date_locator),
-            message="Summary Page: could not find release date on timeline",
+            EC.presence_of_element_located(self._audience_is_first_run_locator),
+            message="Audience Page: could not find first run checkbox",
         )

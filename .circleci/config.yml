@@ -214,7 +214,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FENIX -m remote_settings --reruns 1
+      PYTEST_ARGS: -k FIREFOX_FENIX -m remote_settings --reruns 1
     steps:
       - checkout
       - check_file_paths:
@@ -235,7 +235,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k 'not (FOCUS_IOS or DESKTOP or FENIX or FOCUS_ANDROID)' -m remote_settings --reruns 1
+      PYTEST_ARGS: -k FIREFOX_IOS -m remote_settings --reruns 1
     steps:
       - checkout
       - check_file_paths:
@@ -321,7 +321,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m nimbus_ui -n 2 --reruns 1
+      PYTEST_ARGS: -m nimbus_ui -n 2 --reruns 1
     steps:
       - checkout
       - check_file_paths:
@@ -340,6 +340,8 @@ jobs:
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
+    environment:
+      PYTEST_ARGS: -k FIREFOX_FENIX
     steps:
       - checkout
       - check_file_paths:
@@ -353,7 +355,7 @@ jobs:
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
-  integration_nimbus_demo_app:
+  integration_nimbus_cirrus:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
@@ -361,7 +363,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k 'not (FOCUS_IOS or DESKTOP or FENIX or FOCUS_ANDROID or IOS)'  -m demo_app --reruns 1
+      PYTEST_ARGS: -k DEMO_APP -m cirrus_enrollment --reruns 1
     steps:
       - checkout
       - check_file_paths:
@@ -729,7 +731,7 @@ workflows:
             branches:
               ignore:
                 - main
-      - integration_nimbus_demo_app:
+      - integration_nimbus_cirrus:
           name: Test Demo app with Cirrus
           filters:
             branches:

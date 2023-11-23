@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.pages.browser import Browser
 from nimbus.utils import helpers
 
@@ -22,7 +23,7 @@ def test_check_advanced_targeting(
     experiment_slug = str(slugify(experiment_name))
     data = {
         "hypothesis": "Test Hypothesis",
-        "application": "DESKTOP",
+        "application": BaseExperimentApplications.FIREFOX_DESKTOP.value,
         "changelogMessage": "test updates",
         "targetingConfigSlug": targeting,
         "publicDescription": "Some sort of Fancy Words",
@@ -59,7 +60,7 @@ def test_check_advanced_targeting(
     }
     helpers.create_experiment(
         experiment_slug,
-        "desktop",
+        BaseExperimentApplications.FIREFOX_DESKTOP.value,
         targeting_config_slug,
         data,
     )
@@ -113,7 +114,7 @@ def test_check_audience_targeting(
     experiment_default_data.update(audience_field)
     helpers.create_experiment(
         experiment_slug,
-        "desktop",
+        BaseExperimentApplications.FIREFOX_DESKTOP.value,
         "no_targeting",
         experiment_default_data,
     )
