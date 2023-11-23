@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import json
 import os
 from importlib import resources
+from pathlib import Path
 from urllib.parse import urljoin
 
 from decouple import config
@@ -491,7 +492,7 @@ JETSTREAM_CONFIG_OUTCOMES_PATH = os.path.join(
 )
 
 # Feature Manifest path
-FEATURE_MANIFESTS_PATH = os.path.join(BASE_DIR, "features", "manifests")
+FEATURE_MANIFESTS_PATH = Path(BASE_DIR, "features", "manifests")
 
 SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
     "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False, cast=bool

@@ -176,6 +176,7 @@ COPY --from=dev /experimenter/bin/ /experimenter/bin/
 COPY --from=dev /application-services/megazord/ /application-services/megazord/
 COPY --from=file-loader /experimenter/manage.py /experimenter/manage.py
 COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
+COPY --from=file-loader /experimenter/manifesttool/ /experimenter/manifesttool/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
 COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
 COPY --from=ui /experimenter/experimenter/theme/static/ /experimenter/experimenter/theme/static/

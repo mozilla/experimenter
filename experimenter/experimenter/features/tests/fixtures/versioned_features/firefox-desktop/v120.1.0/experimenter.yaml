@@ -1,0 +1,14 @@
+feature-1:
+  description: Feature 1 for version 120.1.0
+  owner: owner@example.com
+  hasExposure: false
+  variables:
+    value3:
+      type: string
+      description: baz
+
+feature-2:
+  description: Feature 2 for version 120.1.0
+  hasExposure: false
+  variables: {}
+
