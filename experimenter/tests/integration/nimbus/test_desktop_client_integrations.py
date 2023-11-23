@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 import pytest
 import requests
 
+from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.pages.browser import AboutConfig
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.utils import helpers
@@ -76,7 +77,6 @@ def test_check_telemetry_enrollment_unenrollment(
     experiment_slug = str(slugify(experiment_name))
     data = {
         "hypothesis": "Test Hypothesis",
-        "application": "DESKTOP",
         "changelogMessage": "test updates",
         "targetingConfigSlug": targeting,
         "publicDescription": "Some sort of Fancy Words",
@@ -102,7 +102,7 @@ def test_check_telemetry_enrollment_unenrollment(
     }
     helpers.create_experiment(
         experiment_slug,
-        "desktop",
+        BaseExperimentApplications.FIREFOX_DESKTOP.value,
         targeting,
         data,
     )
@@ -187,7 +187,7 @@ def test_check_telemetry_pref_flip(
     experiment_default_data["treatmentBranches"] = []
     helpers.create_experiment(
         experiment_slug,
-        "desktop",
+        BaseExperimentApplications.FIREFOX_DESKTOP.value,
         targeting,
         experiment_default_data,
     )
@@ -282,7 +282,7 @@ def test_check_telemetry_sticky_targeting(
     experiment_default_data["isSticky"] = True
     helpers.create_experiment(
         experiment_slug,
-        "desktop",
+        BaseExperimentApplications.FIREFOX_DESKTOP.value,
         targeting_config_slug,
         experiment_default_data,
     )

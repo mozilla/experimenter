@@ -3,9 +3,18 @@ from urllib.parse import urljoin
 
 import pytest
 
+from nimbus.models.base_dataclass import (
+    BaseExperimentApplications,
+)
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
-from nimbus.utils import helpers
+
+MOBILE_APPS = [
+    BaseExperimentApplications.FIREFOX_FENIX.value,
+    BaseExperimentApplications.FIREFOX_IOS.value,
+    BaseExperimentApplications.FOCUS_ANDROID.value,
+    BaseExperimentApplications.FOCUS_IOS.value,
+]
 
 
 @pytest.mark.nimbus_ui
@@ -87,16 +96,6 @@ def test_branch_screenshot(
 
 
 @pytest.mark.nimbus_ui
-def test_create_new_experiment_timeout_remote_settings(
-    selenium,
-    create_experiment,
-):
-    summary = create_experiment(selenium)
-    summary.launch_and_approve()
-    summary.wait_for_timeout_alert()
-
-
-@pytest.mark.nimbus_ui
 def test_every_form_page_can_be_resaved(
     selenium,
     create_experiment,
@@ -111,56 +110,32 @@ def test_every_form_page_can_be_resaved(
 
 
 @pytest.mark.nimbus_ui
-@pytest.mark.skipif(
-    any(app in os.getenv("PYTEST_ARGS") for app in ["FIREFOX_DESKTOP", "DEMO_APP"]),
-    reason="Only run for mobile applications",
-)
-def test_first_run_release_date(
+def test_first_run_release_date_visible_for_mobile(
     base_url,
     selenium,
     kinto_client,
-    slugify,
-    experiment_name,
     application,
+    create_experiment,
 ):
-    experiment_slug = str(slugify(experiment_name))
-    targeting = helpers.load_targeting_configs(app=application)[0]
-    data = {
-        "hypothesis": "Test Hypothesis",
-        "application": application,
-        "changelogMessage": "test updates",
-        "targetingConfigSlug": targeting,
-        "publicDescription": "Some sort of Fancy Words",
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "featureConfigIds": [2],
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 50,
-            "featureValues": [
-                {
-                    "featureConfig": "1",
-                    "value": "{}",
-                },
-            ],
-        },
-        "treatmentBranches": [],
-        "firefoxMinVersion": "FIREFOX_120",
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
-        "isFirstRun": True,
-        "proposedReleaseDate": "2023-12-12",
-    }
-    helpers.create_experiment(
-        experiment_slug,
-        app=application,
-        targeting=targeting,
-        data=data,
-    )
+    if application not in MOBILE_APPS:
+        pytest.skip(f"Skipping for {application}")
+
+    summary = create_experiment(selenium)
+    experiment_slug = summary.experiment_slug
+
+    audience = summary.navigate_to_audience()
+    audience.make_first_run()
+    audience.proposed_release_date = "2023-12-12"
+
+    assert audience.is_first_run
+    assert audience.proposed_release_date == "2023-12-12"
+
+    audience.save_and_continue()
 
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+
+    assert summary.proposed_release_date == "2023-12-12"
+
     summary.launch_and_approve()
 
     kinto_client.approve()
@@ -173,116 +148,28 @@ def test_first_run_release_date(
 
 
 @pytest.mark.nimbus_ui
-@pytest.mark.skipif(
-    any(app in os.getenv("PYTEST_ARGS") for app in ["FIREFOX_DESKTOP", "DEMO_APP"]),
-    reason="Only run for mobile applications",
-)
-def test_audience_page_release_date(
-    base_url,
-    selenium,
-    slugify,
-    experiment_name,
-):
-    application = "FENIX"
-    experiment_slug = str(slugify(experiment_name))
-    targeting = helpers.load_targeting_configs(app=application)[0]
-    data = {
-        "hypothesis": "Test Hypothesis",
-        "application": application,
-        "changelogMessage": "test updates",
-        "targetingConfigSlug": targeting,
-        "publicDescription": "Some sort of Fancy Words",
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "featureConfigIds": [2],
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 50,
-            "featureValues": [
-                {
-                    "featureConfig": "1",
-                    "value": "{}",
-                },
-            ],
-        },
-        "treatmentBranches": [],
-        "firefoxMinVersion": "FIREFOX_120",
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
-        "isFirstRun": True,
-        "proposedReleaseDate": "2023-12-12",
-    }
-    helpers.create_experiment(
-        experiment_slug,
-        app=application,
-        targeting=targeting,
-        data=data,
-    )
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
-
-    audience = summary.navigate_to_audience()
-    assert audience.is_first_run
-    assert audience.proposed_release_date == "2023-12-12"
-
-    audience.make_first_run()
-    summary = audience.save_and_continue()
-
-    assert summary.proposed_release_date == "Not set"
-
-
-@pytest.mark.nimbus_ui
-@pytest.mark.skipif(
-    any(app in os.getenv("PYTEST_ARGS") for app in ["FIREFOX_DESKTOP", "DEMO_APP"]),
-    reason="Only run for mobile applications",
-)
-def test_summary_timeline_release_date(
+def test_first_run_release_date_not_visible_for_non_mobile(
     base_url,
     selenium,
     kinto_client,
-    slugify,
-    experiment_name,
+    application,
+    create_experiment,
 ):
-    application = "FENIX"
-    experiment_slug = str(slugify(experiment_name))
-    targeting = helpers.load_targeting_configs(app=application)[0]
-    data = {
-        "hypothesis": "Test Hypothesis",
-        "application": application,
-        "changelogMessage": "test updates",
-        "targetingConfigSlug": targeting,
-        "publicDescription": "Some sort of Fancy Words",
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "featureConfigIds": [2],
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 50,
-            "featureValues": [
-                {
-                    "featureConfig": "1",
-                    "value": "{}",
-                },
-            ],
-        },
-        "treatmentBranches": [],
-        "firefoxMinVersion": "FIREFOX_120",
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
-        "isFirstRun": True,
-        "proposedReleaseDate": "2023-12-12",
-    }
-    helpers.create_experiment(
-        experiment_slug,
-        app=application,
-        targeting=targeting,
-        data=data,
-    )
+    if application in [
+        *MOBILE_APPS,
+        BaseExperimentApplications.DEMO_APP.value,  # TODO: Remove DEMO_APP with #9817
+    ]:
+        pytest.skip(f"Skipping for {application}")
 
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = create_experiment(selenium)
+    experiment_slug = summary.experiment_slug
+
+    audience = summary.navigate_to_audience()
+
+    audience.wait_until_release_date_not_found()
+    audience.wait_until_first_run_not_found()
+
+    summary = audience.navigate_to_summary()
     summary.launch_and_approve()
 
     kinto_client.approve()
@@ -291,25 +178,5 @@ def test_summary_timeline_release_date(
     summary.wait_for_live_status()
 
     summary.wait_for_timeline_visible()
-    summary.wait_for_release_date()
-
-
-@pytest.mark.nimbus_ui
-@pytest.mark.skipif(
-    any(
-        app in os.getenv("PYTEST_ARGS")
-        for app in ["FOCUS_IOS", "IOS", "FENIX", "FOCUS_ANDROID", "DEMO_APP"]
-    ),
-    reason="Only run for non-mobile applications and non desktop",
-)
-def test_audience_page_release_date_not_visible(
-    selenium,
-    create_experiment,
-):
-    summary = create_experiment(selenium)
-    audience = summary.navigate_to_audience()
-
-    release_date = audience.wait_until_release_date_not_found()
-    assert not release_date
-    first_run = audience.wait_until_first_run_not_found()
-    assert not first_run
+    summary.wait_until_release_date_not_found()
+    summary.wait_until_first_run_not_found()

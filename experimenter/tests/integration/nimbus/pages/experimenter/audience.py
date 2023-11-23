@@ -131,8 +131,8 @@ class AudiencePage(ExperimenterBase):
     @languages.setter
     def languages(self, text=None):
         el = self.wait_for_and_find_element(*self._languages_input_locator)
-        for _ in text:
-            el.send_keys(f"{_}")
+        for char in text:
+            el.send_keys(char)
             el.send_keys(Keys.ENTER)
 
     @property
@@ -153,10 +153,8 @@ class AudiencePage(ExperimenterBase):
 
     @proposed_release_date.setter
     def proposed_release_date(self, text=None):
-        el = self.wait_for_and_find_element(*self._languages_input_locator)
-        for _ in text:
-            el.send_keys(f"{_}")
-            el.send_keys(Keys.TAB)
+        el = self.wait_for_and_find_element(*self._release_date_locator)
+        el.send_keys(text)
 
     def wait_until_release_date_not_found(self):
         self.wait.until_not(

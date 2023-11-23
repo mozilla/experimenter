@@ -1,6 +1,9 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
+from nimbus.models.base_dataclass import (
+    BaseExperimentApplications,
+)
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.overview import OverviewPage
 
@@ -41,7 +44,7 @@ class NewExperiment(ExperimenterBase):
         return self.wait_for_and_find_element(*self._application_select_locator).text
 
     @application.setter
-    def application(self, app="DESKTOP"):
+    def application(self, app=BaseExperimentApplications.FIREFOX_DESKTOP.value):
         el = self.wait_for_and_find_element(*self._application_select_locator)
         select = Select(el)
         select.select_by_value(app)
