@@ -23,6 +23,7 @@ from experimenter.experiments.models import (
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
+    NimbusFeatureVersion,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
 )
@@ -326,10 +327,43 @@ class NimbusExperimentAdmin(
     filter_horizontal = ("excluded_experiments", "required_experiments")
 
 
+class NimbusFeatureVersionAdmin(
+    ReadOnlyAdminMixin, admin.ModelAdmin[NimbusFeatureVersion]
+):
+    pass
+
+
+class NimbusVersionedSchemaApplicationFilter(admin.SimpleListFilter):
+    title = "application"
+    parameter_name = "application"
+
+    def lookups(self, request, model_admin):
+        return NimbusExperiment.Application.choices
+
+    def queryset(self, request, queryset):
+        if self.value():
+            queryset = queryset.filter(feature_config__application=self.value())
+
+        return queryset
+
+
 class NimbusVersionedSchemaAdmin(
     ReadOnlyAdminMixin, admin.ModelAdmin[NimbusVersionedSchema]
 ):
-    pass
+    @staticmethod
+    def get_application(obj: NimbusVersionedSchema):
+        return obj.feature_config.application
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("feature_config")
+
+    get_application.short_description = "Application"
+
+    list_filter = (NimbusVersionedSchemaApplicationFilter,)
+    list_display = (
+        "__str__",
+        get_application,
+    )
 
 
 class NimbusVersionedSchemaInlineAdmin(
@@ -379,4 +413,5 @@ admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
 admin.site.register(NimbusFeatureConfig, NimbusFeatureConfigAdmin)
 admin.site.register(NimbusVersionedSchema, NimbusVersionedSchemaAdmin)
 admin.site.register(NimbusBranch, NimbusBranchAdmin)
+admin.site.register(NimbusFeatureVersion, NimbusFeatureVersionAdmin)
 admin.site.register(NimbusDocumentationLink)
