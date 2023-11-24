@@ -337,10 +337,10 @@ class NimbusVersionedSchemaApplicationFilter(admin.SimpleListFilter):
     title = "application"
     parameter_name = "application"
 
-    def lookups(self, request, model_admin):  # pragma: no cover
+    def lookups(self, request, model_admin):
         return NimbusExperiment.Application.choices
 
-    def queryset(self, request, queryset):  # pragma: no cover
+    def queryset(self, request, queryset):
         if self.value():
             queryset = queryset.filter(feature_config__application=self.value())
 
@@ -351,10 +351,10 @@ class NimbusVersionedSchemaAdmin(
     ReadOnlyAdminMixin, admin.ModelAdmin[NimbusVersionedSchema]
 ):
     @staticmethod
-    def get_application(obj: NimbusVersionedSchema):  # pragma: no cover
+    def get_application(obj: NimbusVersionedSchema):
         return obj.feature_config.application
 
-    def get_queryset(self, request):  # pragma: no cover
+    def get_queryset(self, request):
         return super().get_queryset(request).select_related("feature_config")
 
     get_application.short_description = "Application"

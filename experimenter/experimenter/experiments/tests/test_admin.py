@@ -18,6 +18,7 @@ from experimenter.experiments.models import (
     NimbusBranch,
     NimbusChangeLog,
     NimbusExperiment,
+    NimbusVersionedSchema,
 )
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
@@ -124,7 +125,7 @@ class TestNimbusExperimentAdmin(TestCase):
                 "admin:experiments_nimbusexperiment_change",
                 args=(experiment.pk,),
             ),
-            **{settings.OPENIDC_EMAIL_HEADER: user.email}
+            **{settings.OPENIDC_EMAIL_HEADER: user.email},
         )
         self.assertEqual(response.status_code, 200)
 
@@ -140,7 +141,7 @@ class TestNimbusExperimentAdmin(TestCase):
             ),
             {"action": "force_fetch_jetstream_data", "_selected_action": [experiment.id]},
             follow=True,
-            **{settings.OPENIDC_EMAIL_HEADER: user.email}
+            **{settings.OPENIDC_EMAIL_HEADER: user.email},
         )
         self.assertEqual(response.status_code, 200)
         mock_fetch_experiment_data.delay.assert_called_with(experiment.id)
@@ -216,7 +217,6 @@ class TestNimbusExperimentExport(TestCase):
         self.assertIsNone(conclusion_recommendation)
 
     def test_before_import_row(self):
-
         resource = NimbusExperimentResource()
 
         test_row = {"owner": 9999}
@@ -279,3 +279,31 @@ class TestNimbusExperimentExport(TestCase):
 
         self.assertGreaterEqual(len(post_changes), len(pre_changes))
         self.assertGreaterEqual(len(post_changes), num_changes)
+
+
+class NimbusVersionedSchemaAdminTests(TestCase):
+    def test_filter_application(self):
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        url = reverse("admin:experiments_nimbusversionedschema_changelist")
+
+        response = self.client.get(url, **{settings.OPENIDC_EMAIL_HEADER: user.email})
+        change_list = response.context["cl"]
+        self.assertEqual(
+            set(change_list.paginator.object_list),
+            set(NimbusVersionedSchema.objects.all()),
+        )
+
+        response = self.client.get(
+            f"{url}?application={NimbusExperiment.Application.DESKTOP}",
+            **{settings.OPENIDC_EMAIL_HEADER: user.email},
+        )
+        change_list = response.context["cl"]
+        self.assertEqual(len(change_list.paginator.object_list), 1)
+        self.assertEqual(
+            set(change_list.paginator.object_list),
+            set(
+                NimbusVersionedSchema.objects.filter(
+                    feature_config__application=NimbusExperiment.Application.DESKTOP
+                )
+            ),
+        )
