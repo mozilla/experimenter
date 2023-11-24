@@ -58,50 +58,51 @@ class Command(BaseCommand):
                 # there, if they exist.
                 continue
 
-            # Django doesn't keep track of whether or not fields were updated
-            # when you call save(). By default, it will update every field in
-            # the object, whether or not it was dirtied. However, if we are
-            # creating the object, we have to save every field anyway.
-            created = False
-            dirty_fields = []
-
             feature_config = feature_configs.get(key)
             if feature_config is None:
-                feature_config = NimbusFeatureConfig(
+                feature_config = feature_configs[key] = NimbusFeatureConfig(
                     slug=feature.slug,
                     application=feature.application_slug,
                     name=feature.slug,
+                    description=feature.model.description,
+                    # Only enable features from unversioned manifests.
+                    enabled=feature.version is None,
                 )
-                created = True
 
-            if feature_config.name != feature.slug:
-                feature_config.name = feature.slug
-                dirty_fields.append("name")
-
-            if feature_config.description != feature.model.description:
-                feature_config.description = feature.model.description
-                dirty_fields.append("description")
-
-            if not feature_config.enabled:
-                feature_config.enabled = True
-                dirty_fields.append("enabled")
-
-            if created:
                 # We don't have enough feature configs to justify moving this
                 # into a bulk_create, as it does not noticably impact
                 # performance.
                 feature_config.save()
-            elif dirty_fields:
-                feature_config.save(update_fields=dirty_fields)
+            else:
+                # Django doesn't keep track of whether or not fields were updated
+                # when you call save(). By default, it will update every field in
+                # the object, whether or not it was dirtied. However, if we are
+                # creating the object, we have to save every field anyway.
+                dirty_fields = []
+
+                if feature_config.name != feature.slug:
+                    feature_config.name = feature.slug
+                    dirty_fields.append("name")
+
+                if feature_config.description != feature.model.description:
+                    feature_config.description = feature.model.description
+                    dirty_fields.append("description")
+
+                # Only enable features from unversioned manifests.
+                if not feature_config.enabled and feature.version is None:
+                    feature_config.enabled = True
+                    dirty_fields.append("enabled")
+
+                if dirty_fields:
+                    feature_config.save(update_fields=dirty_fields)
+
+                if feature.version is None:
+                    features_to_disable.remove(key)
 
             updated.add(key)
 
-            if created:
-                feature_configs[key] = feature_config
-            else:
-                features_to_disable.discard(key)
-
-        # Disable any features that we didn't come across.
+        # Disable any features that we didn't come across, except tombstone
+        # features.
         for application_slug, feature_slug in features_to_disable:
             if feature_slug not in NO_FEATURE_SLUG:
                 logger.info(f"Feature Not Found in YAML: {feature_slug}")
