@@ -300,6 +300,7 @@ class TestLoadVersionedFeatureConfigs(TestCase):
         self.assertIsNotNone(feature_2)
         self.assertEqual(feature_2.description, "Feature 2 for version 120.1.0")
         self.assertEqual(feature_2.schemas.count(), 2)
+        self.assertFalse(feature_2.enabled)
         self.assertEqual(
             feature_2.schemas.filter(feature_config=feature_2, version=None).count(), 0
         )
@@ -311,3 +312,20 @@ class TestLoadVersionedFeatureConfigs(TestCase):
             feature_2.schemas.filter(feature_config=feature_2, version=v120_1_0).count(),
             1,
         )
+
+    def test_load_feature_configs_versioned_missing(self):
+        feature_2 = NimbusFeatureConfig.objects.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="feature-2",
+            name="Feature 2: Electric Boogaloo",
+            enabled=True,
+            description="A feature",
+        )
+
+        call_command("load_feature_configs")
+
+        feature_2 = NimbusFeatureConfig.objects.get(pk=feature_2.pk)
+
+        self.assertEqual(feature_2.name, "feature-2")
+        self.assertEqual(feature_2.description, "Feature 2 for version 120.1.0")
+        self.assertFalse(feature_2.enabled)
