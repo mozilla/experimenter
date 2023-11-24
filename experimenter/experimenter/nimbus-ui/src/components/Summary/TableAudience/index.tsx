@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { Accordion, Button, Card, Table } from "react-bootstrap";
 import { Code } from "src/components/Code";
 import NotSet from "src/components/NotSet";
+import { MOBILE_APPLICATIONS } from "src/components/PageEditAudience/FormAudience";
 import { displayConfigLabelOrNotSet } from "src/components/Summary";
 import { useConfig } from "src/hooks";
 import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
@@ -26,6 +27,9 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
   const { firefoxVersions, channels, targetingConfigs } = useConfig();
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
+  const isMobile =
+    experiment.application != null &&
+    MOBILE_APPLICATIONS.includes(experiment.application);
 
   const [expand, setExpand] = useState(false);
 
@@ -140,7 +144,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                 {experiment.isSticky ? "True" : "False"}
               </td>
 
-              {!isDesktop ? (
+              {isMobile ? (
                 <>
                   <th>First Run Experiment</th>
                   <td data-testid="experiment-is-first-run">
@@ -151,7 +155,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                 <td colSpan={2}></td>
               )}
             </tr>
-            {!isDesktop && (
+            {isMobile && (
               <tr>
                 <th>First Run Release Date</th>
                 <td colSpan={3} data-testid="experiment-release-date">
