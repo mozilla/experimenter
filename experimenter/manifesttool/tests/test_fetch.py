@@ -1,5 +1,4 @@
 import json
-from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -1002,31 +1001,30 @@ class FetchTests(TestCase):
         )
 
     def test_summarize_results(self):
-        stdout_buffer = StringIO()
+        buffer = StringIO()
 
-        with redirect_stdout(stdout_buffer):
-            summarize_results(
-                [
-                    FetchResult(
-                        "app-1",
-                        Ref("a", "foo"),
-                        None,
-                    ),
-                    FetchResult("app-2", Ref("b", "bar"), Version(1, 2, 3)),
-                    FetchResult("app-3", Ref("c", "baz"), None, exc=Exception("oh no")),
-                    FetchResult("app-4", Ref("d", "qux"), Version(4, 5, 6), cached=True),
-                    FetchResult(
-                        "app-5",
-                        Ref("e", "quux"),
-                        Version(7, 8, 9),
-                        exc=Exception("rats!"),
-                    ),
-                ]
-            )
+        summarize_results(
+            [
+                FetchResult(
+                    "app-1",
+                    Ref("a", "foo"),
+                    None,
+                ),
+                FetchResult("app-2", Ref("b", "bar"), Version(1, 2, 3)),
+                FetchResult("app-3", Ref("c", "baz"), None, exc=Exception("oh no")),
+                FetchResult("app-4", Ref("d", "qux"), Version(4, 5, 6), cached=True),
+                FetchResult(
+                    "app-5",
+                    Ref("e", "quux"),
+                    Version(7, 8, 9),
+                    exc=Exception("rats!"),
+                ),
+            ],
+            buffer,
+        )
 
         self.assertEqual(
-            stdout_buffer.getvalue(),
-            "\n\n"
+            buffer.getvalue(),
             "SUMMARY:\n\n"
             "SUCCESS:\n\n"
             "app-1 at a (foo) version None\n"
