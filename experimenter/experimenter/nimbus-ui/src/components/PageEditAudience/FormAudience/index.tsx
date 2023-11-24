@@ -75,6 +75,13 @@ export const audienceFieldNames = [
   "isFirstRun",
 ] as const;
 
+export const MOBILE_APPLICATIONS = [
+  NimbusExperimentApplicationEnum.FENIX,
+  NimbusExperimentApplicationEnum.IOS,
+  NimbusExperimentApplicationEnum.FOCUS_ANDROID,
+  NimbusExperimentApplicationEnum.FOCUS_IOS,
+];
+
 interface SelectExperimentOption {
   name: string;
   slug: string;
@@ -435,6 +442,9 @@ export const FormAudience = ({
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
+  const isMobile =
+    experiment.application != null &&
+    MOBILE_APPLICATIONS.includes(experiment.application);
   const isLiveRollout = experiment.isRollout && getStatus(experiment).live;
   const isLocked = isLiveRollout && !getStatus(experiment).draft;
   const isArchived =
@@ -617,7 +627,7 @@ export const FormAudience = ({
             <FormErrors name="isSticky" />
           </Form.Group>
         </Form.Row>
-        {!isDesktop && (
+        {isMobile && (
           <Form.Group>
             <Form.Row>
               <Form.Group as={Col} controlId="isFirstRun">

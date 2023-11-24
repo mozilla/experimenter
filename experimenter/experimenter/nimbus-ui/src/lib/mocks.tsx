@@ -141,59 +141,27 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "FOLLOWUP",
     },
   ],
-  applicationConfigs: [
-    {
-      application: NimbusExperimentApplicationEnum.DESKTOP,
-      channels: [
-        {
-          label: "Desktop Beta",
-          value: "BETA",
-        },
-        {
-          label: "Desktop Nightly",
-          value: "NIGHTLY",
-        },
-        {
-          label: "Platypus Doorstop",
-          value: "PLATYPUS_DOORSTOP",
-        },
-      ],
+  applicationConfigs: Object.values(NimbusExperimentApplicationEnum).map(
+    (application) => {
+      return {
+        application,
+        channels: [
+          {
+            label: "Desktop Beta",
+            value: "BETA",
+          },
+          {
+            label: "Desktop Nightly",
+            value: "NIGHTLY",
+          },
+          {
+            label: "Platypus Doorstop",
+            value: "PLATYPUS_DOORSTOP",
+          },
+        ],
+      };
     },
-    {
-      application: NimbusExperimentApplicationEnum.FENIX,
-      channels: [
-        {
-          label: "Desktop Beta",
-          value: "BETA",
-        },
-        {
-          label: "Desktop Nightly",
-          value: "NIGHTLY",
-        },
-        {
-          label: "Platypus Doorstop",
-          value: "PLATYPUS_DOORSTOP",
-        },
-      ],
-    },
-    {
-      application: NimbusExperimentApplicationEnum.IOS,
-      channels: [
-        {
-          label: "Desktop Beta",
-          value: "BETA",
-        },
-        {
-          label: "Desktop Nightly",
-          value: "NIGHTLY",
-        },
-        {
-          label: "Platypus Doorstop",
-          value: "PLATYPUS_DOORSTOP",
-        },
-      ],
-    },
-  ],
+  ),
   allFeatureConfigs: [
     {
       id: 1,
