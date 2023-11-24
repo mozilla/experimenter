@@ -509,7 +509,7 @@ jobs:
             git pull origin main
             cp .env.sample .env
             env GITHUB_BEARER_TOKEN="${GH_TOKEN}" make fetch_external_resources
-            if ./experimenter/bin/should-pr.py
+            if python3 ./experimenter/bin/should-pr.py
               then
                 git checkout -B external-config
                 git add .
