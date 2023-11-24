@@ -95,7 +95,7 @@ class CliTests(TestCase):
         with cli_runner(app_config=FML_APP_CONFIG) as runner:
             result = runner.invoke(main, ["--manifest-dir", ".", "fetch"])
 
-        self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+        self.assertEqual(result.exit_code, 1, result.exception or result.stdout)
 
         self.assertIn(
             "SUMMARY:\n\nFAILURES:\n\nfml_app at main version None\nConnection error\n",
@@ -145,7 +145,7 @@ class CliTests(TestCase):
         with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
             result = runner.invoke(main, ["--manifest-dir", ".", "fetch"])
 
-        self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+        self.assertEqual(result.exit_code, 1, result.exception or result.stdout)
 
         self.assertIn(
             "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip version None\nConnection error\n",
@@ -209,4 +209,60 @@ class CliTests(TestCase):
             "fml_app",
             app_config,
             cache,
+        )
+
+    @patch.object(
+        manifesttool.cli,
+        "fetch_fml_app",
+        lambda *args: FetchResult(
+            "fml_app", ref=Ref("main", "quux"), version=None, exc=Exception("oh no")
+        ),
+    )
+    @patch.object(
+        manifesttool.fetch,
+        "discover_tagged_releases",
+        lambda *args: {
+            Version(1): Ref("foo", "bar"),
+            Version(2): Ref("baz", "qux"),
+        },
+    )
+    @patch.object(manifesttool.fetch, "fetch_fml_app", lambda *args: mock_fetch(*args))
+    @patch.object(
+        manifesttool.fetch.RefCache,
+        "load_or_create",
+        lambda *args: RefCache(__root__={"foo": "bar"}),
+    )
+    def test_fetch_summary_filename(self):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
+            ),
+        )
+
+        with cli_runner(app_config=app_config) as runner:
+            result = runner.invoke(
+                main, ["--manifest-dir", ".", "fetch", "--summary", "summary.txt"]
+            )
+            self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+
+            with Path("summary.txt").open() as f:
+                summary = f.read()
+
+        self.assertEqual(
+            summary,
+            "SUMMARY:\n\n"
+            "SUCCESS:\n\n"
+            "fml_app at baz (qux) version 2.0.0\n\n"
+            "CACHED:\n\n"
+            "fml_app at foo (bar) version 1.0.0 (cached)\n\n"
+            "FAILURES:\n\n"
+            "fml_app at main (quux) version None\n"
+            "oh no\n\n",
         )
