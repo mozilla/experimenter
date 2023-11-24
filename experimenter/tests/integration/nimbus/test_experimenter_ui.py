@@ -155,10 +155,7 @@ def test_first_run_release_date_not_visible_for_non_mobile(
     application,
     create_experiment,
 ):
-    if application in [
-        *MOBILE_APPS,
-        BaseExperimentApplications.DEMO_APP.value,  # TODO: Remove DEMO_APP with #9817
-    ]:
+    if application in MOBILE_APPS:
         pytest.skip(f"Skipping for {application}")
 
     summary = create_experiment(selenium)
@@ -178,5 +175,6 @@ def test_first_run_release_date_not_visible_for_non_mobile(
     summary.wait_for_live_status()
 
     summary.wait_for_timeline_visible()
-    summary.wait_until_release_date_not_found()
-    summary.wait_until_first_run_not_found()
+    summary.wait_until_timeline_release_date_not_found()
+    summary.wait_until_audience_release_date_not_found()
+    summary.wait_until_audience_first_run_not_found()
