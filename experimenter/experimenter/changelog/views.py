@@ -1,7 +1,7 @@
 from django.views.generic import DetailView
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.constants import NimbusConstants
@@ -13,20 +13,22 @@ class NimbusChangeLogsView(DetailView):
     context_object_name = "experiment"
     template_name = "changelog/overview.html"
 
-@require_POST
 def update_qa_status(request):
-    model = NimbusExperiment
-    experiment_slug = request.POST.get("experiment_slug")
+    data = request.POST.get('data')
 
-    queryset = NimbusExperiment.objects.filter(id=experiment_slug)
+    logger.info("ELISE: are we getting data? " + str(data))
+    
+    # return HttpResponse(f"Received data: {data}")
+    
     if request.method == "POST":
+        experiment_slug = request.POST.get("experiment_slug")
         new_status = request.POST.get("qa_status")
+        logger.info("ELISE: ========== " + str(experiment_slug) + str(new_status))
+
+        experiment = get_object_or_404(NimbusExperiment, slug=experiment_slug)
+        # experiment = NimbusExperiment.objects.filter(id=experiment_slug)
+        experiment.qaStatus = new_status
         
-        experiment = queryset
-        experiment.qaStatus = new_status.value
-        experiment.update(
-            qaStatus=new_status
-        )
         experiment.save()
         
         return render(request, 'changelog/qa_status.html', {'qa_status': new_status})

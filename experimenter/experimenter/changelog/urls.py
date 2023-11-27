@@ -6,5 +6,5 @@ urlpatterns = [
     re_path(
         r"^(?P<slug>[\w-]+)/$", NimbusChangeLogsView.as_view(), name="changelogs-by-slug"
     ),
-    path(r"update_qa_status/", update_qa_status, name="update_qa_status"),
+    path(r"<slug:slug>/update-qa-status/", update_qa_status, name="update_qa_status"),
 ]
