@@ -2156,7 +2156,7 @@ it("disable fields for web application", async () => {
   const countriesDiv = document.querySelector('[data-testid="countries"]');
   const selectCountriesElement = countriesDiv?.querySelector("input");
   expect(selectCountriesElement).toHaveAttribute("disabled");
-  \
+  
   const languagesDiv = document.querySelector('[data-testid="languages"]');
   const selectLanguagesElement = languagesDiv?.querySelector("input");
   expect(selectLanguagesElement).toHaveAttribute("disabled");
