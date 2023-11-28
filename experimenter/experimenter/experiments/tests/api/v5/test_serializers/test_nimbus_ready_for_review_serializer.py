@@ -924,6 +924,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
                     application=NimbusExperiment.Application.IOS,
@@ -1146,6 +1147,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                     ],
                 )
             ],
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             is_sticky=True,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
@@ -2810,7 +2812,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
                 ),
             ],
             is_sticky=True,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         serializer = NimbusReviewSerializer(
