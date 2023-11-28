@@ -38,7 +38,11 @@ const FormLaunchPreviewToReview = ({
             This experiment is currently <strong>live for testing</strong>, but
             you will need to let QA know in your PI request. When you have
             received a sign-off, click “Request launch” to launch the
-            experiment.
+            experiment.{" "}
+            <strong>
+              Note: It can take up to an hour before clients receive a preview
+              experiment.
+            </strong>
           </p>
 
           <FormLaunchConfirmationCheckboxes onChange={setAllBoxesChecked} />
