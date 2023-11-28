@@ -31,27 +31,14 @@ cirrus_sentry_dsn: str = cast(str, config("CIRRUS_SENTRY_DSN", default=""))
 @dataclass
 class MetricsConfiguration:
     app_id: str = app_id
-    build: Optional[str] = cast(
-        Optional[str], config("CIRRUS_METRICS_BUILD", default=None)
-    )
+    build: Optional[str] = None
     channel: str = channel
-    data_dir: str = cast(str, config("CIRRUS_METRICS_DATA_DIR", default="/var/glean"))
-    log_level: Union[str, int] = cast(
-        Union[str, int],
-        logging.getLevelName(
-            cast(str, config("CIRRUS_METRICS_LOG_LEVEL", default="WARNING"))
-        ),
-    )
-    max_events_buffer: int = cast(
-        int, config("CIRRUS_METRICS_MAX_EVENTS_BUFFER", default=500)
-    )
-    server_endpoint: Optional[str] = cast(
-        Optional[str], config("CIRRUS_SERVER_ENDPOINT", default=None)
-    )
-    upload_enabled: bool = cast(
-        bool, config("CIRRUS_METRICS_UPLOAD_ENABLED", default=True)
-    )
-    version: str = cast(str, config("CIRRUS_METRICS_VERSION", default="1.0"))
+    data_dir: str = "/var/glean"
+    log_level: Union[str, int] = logging.getLevelName("WARNING")
+    max_events_buffer: int = 500
+    server_endpoint: Optional[str] = None
+    upload_enabled: bool = True
+    version: str = "1.0"
 
 
 metrics_config = MetricsConfiguration()
