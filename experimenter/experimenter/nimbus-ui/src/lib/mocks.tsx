@@ -163,13 +163,13 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
             value: "PLATYPUS_DOORSTOP",
           },
           {
-          label: "Staging",
-          value: "STAGING",
+            label: "Staging",
+            value: "STAGING",
           },
           {
-          label: "Production",
-          value: "PRODUCTION",
-        },
+            label: "Production",
+            value: "PRODUCTION",
+          },
         ],
       };
     },

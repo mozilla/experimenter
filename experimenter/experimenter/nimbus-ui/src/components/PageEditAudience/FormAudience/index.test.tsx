@@ -2156,18 +2156,13 @@ it("disable fields for web application", async () => {
   const countriesDiv = document.querySelector('[data-testid="countries"]');
   const selectCountriesElement = countriesDiv?.querySelector("input");
   expect(selectCountriesElement).toHaveAttribute("disabled");
-  
+
   const languagesDiv = document.querySelector('[data-testid="languages"]');
   const selectLanguagesElement = languagesDiv?.querySelector("input");
   expect(selectLanguagesElement).toHaveAttribute("disabled");
 
   expect(screen.queryByTestId("isSticky")).toBeDisabled();
   screen.getByTestId("tooltip-disabled-is-sticky");
-
-  expect(screen.getByTestId("isFirstRun")).toBeDisabled();
-  screen.getByTestId("tooltip-disabled-first-run");
-
-  expect(screen.queryByTestId("proposedReleaseDate")).toBeDisabled();
 });
 describe("filterAndSortTargetingConfigSlug", () => {
   it("filters for experiment application and sorts them as expected", () => {

@@ -709,28 +709,9 @@ export const FormAudience = ({
                   type="checkbox"
                   onChange={(e) => setIsFirstRun(e.target.checked)}
                   checked={isFirstRun}
-                  disabled={
-                    isFirstRunRequiredWarning || isLocked || experiment.isWeb
-                  }
-                  label={
-                    <>
-                      {"First run experiment "}
-                      {experiment.isWeb && (
-                        <>
-                          <Info
-                            data-tip={TOOLTIP_DISABLED_FOR_WEBAPP}
-                            data-testid="tooltip-disabled-first-run"
-                            width="20"
-                            height="20"
-                            className="ml-1"
-                          />
-                          <ReactTooltip />
-                        </>
-                      )}
-                    </>
-                  }
+                  disabled={isFirstRunRequiredWarning || isLocked!}
+                  label="First run experiment"
                 />
-
                 {isFirstRunRequiredWarning && (
                   <Alert
                     data-testid="is-first-run-required-warning"
@@ -758,7 +739,7 @@ export const FormAudience = ({
                 <Form.Control
                   {...formControlAttrs("proposedReleaseDate")}
                   type="date"
-                  disabled={!isFirstRun || experiment.isWeb}
+                  disabled={!isFirstRun}
                 />
                 <FormErrors name="proposedReleaseDate" />
               </Form.Group>
