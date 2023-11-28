@@ -24,13 +24,6 @@ To set up the Cirrus environment, follow these steps:
    CIRRUS_CHANNEL=developer
    CIRRUS_FML_PATH=./feature_manifest/sample.fml.yaml
    CIRRUS_SENTRY_DSN=dsn_url
-   CIRRUS_METRICS_BUILD=
-   CIRRUS_METRICS_DATA_DIR=/var/glean
-   CIRRUS_METRICS_LOG_LEVEL=WARNING
-   CIRRUS_METRICS_MAX_EVENTS_BUFFER=500
-   CIRRUS_SERVER_ENDPOINT=
-   CIRRUS_METRICS_UPLOAD_ENABLED=True
-   CIRRUS_METRICS_VERSION=1.0
    ```
 
    Here's what each variable represents:
