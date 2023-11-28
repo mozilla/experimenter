@@ -4,6 +4,7 @@ from decimal import Decimal
 from itertools import product
 from unittest import mock
 
+import packaging
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
@@ -27,7 +28,9 @@ from experimenter.experiments.models import (
     NimbusBucketRange,
     NimbusExperiment,
     NimbusFeatureConfig,
+    NimbusFeatureVersion,
     NimbusIsolationGroup,
+    NimbusVersionedSchema,
 )
 from experimenter.experiments.tests import JEXLParser
 from experimenter.experiments.tests.factories import (
@@ -38,6 +41,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
     NimbusIsolationGroupFactory,
+    NimbusVersionedSchemaFactory,
 )
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
@@ -2846,3 +2850,236 @@ class TestNimbusBranchScreenshot(TestCase):
             self.screenshot.save()
             self.screenshot.delete()
             mock_delete.assert_called_with(expected_filename)
+
+
+class NimbusFeatureConfigTests(TestCase):
+    def test_schemas_between_versions(self):
+        feature = NimbusFeatureConfigFactory.create()
+
+        versions = {
+            (v.major, v.minor, v.patch): v
+            for v in NimbusFeatureVersion.objects.bulk_create(
+                NimbusFeatureVersion(
+                    major=major,
+                    minor=minor,
+                    patch=patch,
+                )
+                for major in range(1, 3)
+                for minor in range(3)
+                for patch in range(3)
+            )
+        }
+
+        schemas = {
+            schema.version: schema
+            for schema in NimbusVersionedSchema.objects.bulk_create(
+                NimbusVersionedSchema(
+                    feature_config=feature,
+                    version=versions[(major, minor, patch)],
+                    sets_prefs=[],
+                )
+                for major in range(1, 3)
+                for minor in range(3)
+                for patch in range(3)
+            )
+        }
+
+        results = feature.schemas_between_versions(
+            packaging.version.Version("1.2"),
+            packaging.version.Version("2.1.1"),
+        )
+
+        self.assertEqual(
+            set(results),
+            {
+                schemas[versions[v]]
+                for v in (
+                    (1, 2, 0),
+                    (1, 2, 1),
+                    (1, 2, 2),
+                    (2, 0, 0),
+                    (2, 0, 1),
+                    (2, 0, 2),
+                    (2, 1, 0),
+                )
+            },
+        )
+
+    def test_get_versioned_schema_range_min_version_max_version_unsupported(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusConstants.Application.DESKTOP
+        )
+        version = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+        unversioned_schema = NimbusVersionedSchema.objects.get(
+            feature_config=feature, version=None
+        )
+        NimbusVersionedSchemaFactory.create(feature_config=feature, version=version)
+
+        schemas_in_range = feature.get_versioned_schema_range(
+            packaging.version.Version("111.0.0"), packaging.version.Version("112.0.0")
+        )
+        self.assertEqual(
+            schemas_in_range,
+            NimbusFeatureConfig.VersionedSchemaRange(
+                schemas=[unversioned_schema],
+                unsupported_in_range=False,
+                unsupported_versions=[],
+            ),
+        )
+
+    @parameterized.expand(
+        [
+            None,
+            packaging.version.Version("122.0.0"),
+        ]
+    )
+    def test_get_versioned_schema_range_min_version_unsupported(self, max_version):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusConstants.Application.DESKTOP
+        )
+        version = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+        versioned_schema = NimbusVersionedSchemaFactory.create(
+            feature_config=feature, version=version
+        )
+
+        info = feature.get_versioned_schema_range(
+            packaging.version.Version("111.0.0"), max_version
+        )
+        self.assertEqual(
+            info,
+            NimbusFeatureConfig.VersionedSchemaRange(
+                schemas=[versioned_schema],
+                unsupported_in_range=False,
+                unsupported_versions=[],
+            ),
+        )
+
+    def test_get_versioned_schema_range_unsupported_app(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusConstants.Application.DEMO_APP
+        )
+        unversioned_schema = feature.schemas.get(version=None)
+        info = feature.get_versioned_schema_range(
+            packaging.version.Version("1.0.0"), None
+        )
+
+        self.assertEqual(
+            info,
+            NimbusFeatureConfig.VersionedSchemaRange(
+                schemas=[unversioned_schema],
+                unsupported_in_range=False,
+                unsupported_versions=[],
+            ),
+        )
+
+    def test_get_versioned_schema_range_unsupported_in_range(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusConstants.Application.DESKTOP
+        )
+        version = NimbusFeatureVersion.objects.create(major=123, minor=0, patch=0)
+        NimbusVersionedSchemaFactory.create(feature_config=feature, version=version)
+        schemas_in_range = feature.get_versioned_schema_range(
+            packaging.version.Version("121.0.0"), packaging.version.Version("122.0.0")
+        )
+
+        self.assertEqual(
+            schemas_in_range,
+            NimbusFeatureConfig.VersionedSchemaRange(
+                schemas=[],
+                unsupported_in_range=True,
+                unsupported_versions=[],
+            ),
+        )
+
+    def test_get_versioned_schema_range_unsupported_versions(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusConstants.Application.DESKTOP
+        )
+        versions = {
+            (v.major, v.minor, v.patch): v
+            for v in NimbusFeatureVersion.objects.bulk_create(
+                NimbusFeatureVersion(major=major, minor=minor, patch=0)
+                for major in (121, 122, 123)
+                for minor in (0, 1)
+            )
+        }
+        # There needs to exist another feature for the same app with versioned
+        # schemas so that we can infer the application supports those versions.
+        feature_2 = NimbusFeatureConfigFactory.create(
+            application=NimbusConstants.Application.DESKTOP
+        )
+        NimbusVersionedSchema.objects.bulk_create(
+            NimbusVersionedSchemaFactory.build(
+                feature_config=feature_2,
+                version=version,
+            )
+            for version in versions.values()
+        )
+
+        schema = NimbusVersionedSchemaFactory.create(
+            feature_config=feature, version=versions[(122, 1, 0)]
+        )
+        schemas_in_range = feature.get_versioned_schema_range(
+            packaging.version.Version("121.0.0"), packaging.version.Version("124.0.0")
+        )
+
+        self.assertEqual(
+            schemas_in_range,
+            NimbusFeatureConfig.VersionedSchemaRange(
+                schemas=[schema],
+                unsupported_in_range=False,
+                unsupported_versions=[
+                    versions[v]
+                    for v in (
+                        (123, 1, 0),
+                        (123, 0, 0),
+                        (122, 0, 0),
+                        (121, 1, 0),
+                        (121, 0, 0),
+                    )
+                ],
+            ),
+        )
+
+    def test_get_versioned_schema_range(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusConstants.Application.DESKTOP
+        )
+        versions = {
+            (v.major, v.minor, v.patch): v
+            for v in NimbusFeatureVersion.objects.bulk_create(
+                NimbusFeatureVersion(major=major, minor=minor, patch=0)
+                for major in (121, 122, 123)
+                for minor in (0, 1)
+            )
+        }
+        schemas = {
+            schema.version: schema
+            for schema in NimbusVersionedSchema.objects.bulk_create(
+                NimbusVersionedSchemaFactory.build(
+                    feature_config=feature,
+                    version=version,
+                )
+                for version in versions.values()
+            )
+        }
+
+        schemas_in_range = feature.get_versioned_schema_range(
+            packaging.version.Version("122.0.0"), packaging.version.Version("123.1.0")
+        )
+
+        self.assertEqual(
+            schemas_in_range,
+            NimbusFeatureConfig.VersionedSchemaRange(
+                schemas=[
+                    schemas[versions[v]]
+                    for v in (
+                        (123, 0, 0),
+                        (122, 1, 0),
+                        (122, 0, 0),
+                    )
+                ],
+                unsupported_in_range=False,
+                unsupported_versions=[],
+            ),
+        )

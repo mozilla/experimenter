@@ -15,7 +15,7 @@ from experimenter.experiments.api.v5.serializers import (
     NimbusReviewSerializer,
 )
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment, NimbusFeatureVersion
 from experimenter.experiments.tests.api.v5.test_serializers.mixins import (
     MockFmlErrorMixin,
 )
@@ -2755,6 +2755,435 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 "required_experiments": [
                     NimbusExperiment.ERROR_EXCLUDED_REQUIRED_MUTUALLY_EXCLUSIVE,
                 ],
+            },
+        )
+
+
+class VersionedFeatureValidationTests(TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+
+        self.user = UserFactory()
+
+        self.versions = {
+            (v.major, v.minor, v.patch): v
+            for v in NimbusFeatureVersion.objects.bulk_create(
+                NimbusFeatureVersion(major=major, minor=minor, patch=patch)
+                for (major, minor, patch) in (
+                    (120, 0, 0),
+                    (121, 0, 0),
+                    (122, 0, 0),
+                )
+            )
+        }
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Version.FIREFOX_120,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
+                    feature_config="FEATURE",
+                    version="121.0.0",
+                ),
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_121,
+                NimbusExperiment.Version.FIREFOX_122,
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
+                    feature_config="FEATURE",
+                ),
+            ),
+        ]
+    )
+    def test_validate_feature_versioned_unsupported_versions(
+        self, min_version, max_version, expected_error
+    ):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="FEATURE",
+            name="FEATURE",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(120, 0, 0)], schema=None
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(122, 0, 0)], schema=None
+                ),
+            ],
+        )
+
+        NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(120, 0, 0)], schema=None
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(121, 0, 0)], schema=None
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(122, 0, 0)], schema=None
+                ),
+            ],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=min_version,
+            firefox_max_version=max_version,
+            feature_configs=[feature],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user", self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_values": [
+                        {
+                            "value": [expected_error],
+                        }
+                    ]
+                }
+            },
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Version.FIREFOX_110,
+                NimbusExperiment.Version.NO_VERSION,
+                [(122, 0, 0), (121, 0, 0), (120, 0, 0)],
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_110,
+                NimbusExperiment.Version.FIREFOX_121,
+                [(120, 0, 0)],
+            ),
+        ]
+    )
+    def test_validate_feature_versioned_truncated_range(
+        self, min_version, max_version, expected_versions
+    ):
+        schema = json.dumps(
+            {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                    },
+                },
+                "additionalProperties": False,
+            }
+        )
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="FEATURE",
+            name="FEATURE",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(120, 0, 0)],
+                    schema=schema,
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(121, 0, 0)],
+                    schema=schema,
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(122, 0, 0)],
+                    schema=schema,
+                ),
+            ],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=min_version,
+            firefox_max_version=max_version,
+            feature_configs=[feature],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature,
+        )
+        feature_value.value = json.dumps({"enabled": 1})
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user", self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_values": [
+                        {
+                            "value": [
+                                "1 is not of type 'boolean' at version "
+                                f"{major}.{minor}.{patch}"
+                                for (major, minor, patch) in expected_versions
+                            ]
+                        }
+                    ]
+                }
+            },
+        )
+
+    def test_validate_feature_versioned_before_versioned_range(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="FEATURE",
+            name="FEATURE",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=json.dumps(
+                        {
+                            "type": "object",
+                            "properties": {"kind": {"const": "unversioned"}},
+                            "additionalProperties": False,
+                        }
+                    ),
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(120, 0, 0)],
+                    schema=json.dumps(
+                        {
+                            "type": "object",
+                            "properties": {"kind": {"const": "versioned"}},
+                            "additionalProperties": False,
+                        }
+                    ),
+                ),
+            ],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_110,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_111,
+            feature_configs=[feature],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature
+        )
+        feature_value.value = json.dumps({"kind": "unversioned"})
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_validate_feature_versioned(self):
+        json_schema = json.dumps(
+            {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                    },
+                },
+                "additionalProperties": False,
+            }
+        )
+
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="FEATURE",
+            name="FEATURE",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(120, 0, 0)], schema=json_schema
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(121, 0, 0)], schema=json_schema
+                ),
+            ],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_122,
+            feature_configs=[feature],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature
+        )
+        feature_value.value = json.dumps({"enabled": 1})
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user", self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_values": [
+                        {
+                            "value": [
+                                "1 is not of type 'boolean' at version 121.0.0",
+                                "1 is not of type 'boolean' at version 120.0.0",
+                            ],
+                        }
+                    ]
+                }
+            },
+        )
+
+    def test_validate_feature_versioned_localized(self):
+        json_schema = json.dumps(
+            {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                    },
+                },
+                "additionalProperties": False,
+            }
+        )
+
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="FEATURE",
+            name="FEATURE",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(120, 0, 0)], schema=json_schema
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(121, 0, 0)], schema=json_schema
+                ),
+            ],
+        )
+
+        locale_en_us = LocaleFactory.create(code="en-US")
+        locale_en_ca = LocaleFactory.create(code="en-CA")
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_122,
+            feature_configs=[feature],
+            locales=[locale_en_us, locale_en_ca],
+            is_localized=True,
+            localizations=json.dumps(
+                {
+                    "en-US": {"enabled-value": "true"},
+                    "en-CA": {"enabled-value": "true"},
+                }
+            ),
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature
+        )
+        feature_value.value = json.dumps(
+            {
+                "enabled": {
+                    "$l10n": {
+                        "id": "enabled-value",
+                        "text": "enabled",
+                        "comment": "comment",
+                    },
+                }
+            }
+        )
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user", self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_values": [
+                        {
+                            "value": [
+                                (
+                                    "Schema validation errors occured during locale "
+                                    "substitution for locale en-US at version 121.0.0"
+                                ),
+                                "'true' is not of type 'boolean' at version 121.0.0",
+                                (
+                                    "Schema validation errors occured during locale "
+                                    "substitution for locale en-CA at version 121.0.0"
+                                ),
+                                "'true' is not of type 'boolean' at version 121.0.0",
+                                (
+                                    "Schema validation errors occured during locale "
+                                    "substitution for locale en-US at version 120.0.0"
+                                ),
+                                "'true' is not of type 'boolean' at version 120.0.0",
+                                (
+                                    "Schema validation errors occured during locale "
+                                    "substitution for locale en-CA at version 120.0.0"
+                                ),
+                                "'true' is not of type 'boolean' at version 120.0.0",
+                            ],
+                        }
+                    ]
+                }
             },
         )
 
