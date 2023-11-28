@@ -1808,6 +1808,21 @@ SHOPPING_OPTED_IN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SHOPPING_ONBOARDING_SHOWN = NimbusTargetingConfig(
+    name="Shopping onboarding shown",
+    slug="shopping_onboarding_shown",
+    description=(
+        "Users that have seen the shopping experiment onboarding at least once. "
+        "Used as a proxy to target shopping users for a feature continuity rollout, "
+        "ensuring the shopping feature stays active across different experiments."
+    ),
+    targeting="'browser.shopping.experience2023.autoActivateCount'|preferenceValue >= 1",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
