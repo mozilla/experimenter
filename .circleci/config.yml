@@ -508,8 +508,9 @@ jobs:
             git checkout main
             git pull origin main
             cp .env.sample .env
-            env GITHUB_BEARER_TOKEN="${GH_TOKEN}" make fetch_external_resources
-            if ./experimenter/bin/should-pr.py
+            env GITHUB_BEARER_TOKEN="${GH_TOKEN}" make fetch_external_resources FETCH_ARGS="--summary fetch-summary.txt"
+            mv ./experimenter/fetch-summary.txt /tmp/fetch-summary.txt
+            if python3 ./experimenter/bin/should-pr.py
               then
                 git checkout -B external-config
                 git add .
@@ -517,7 +518,8 @@ jobs:
                 if (($((git diff external-config origin/external-config || git diff HEAD~1) | wc -c) > 0))
                   then
                     git push origin external-config -f
-                    gh pr create -t "chore(nimbus): Update External Configs" -b "" --base main --head external-config --repo mozilla/experimenter || echo "PR already exists, skipping"
+                    gh pr create -t "chore(nimbus): Update External Configs" -F /tmp/fetch-summary.txt --base main --head external-config --repo mozilla/experimenter || \
+                      gh pr edit external-config -F /tmp/fetch-summary.txt
                   else
                     echo "Changes already committed, skipping"
                 fi

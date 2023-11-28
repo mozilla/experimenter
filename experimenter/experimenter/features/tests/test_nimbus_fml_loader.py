@@ -10,9 +10,6 @@ from experimenter.settings import BASE_DIR
 
 
 class TestNimbusFmlLoader(TestCase):
-    TEST_BASE_PATH = Path(
-        BASE_DIR, "features", "tests", "fixtures", "fml", "test_apps.yaml"
-    )
     TEST_MANIFEST_PATH = Path(
         BASE_DIR, "features", "tests", "fixtures", "fml", "fenix", "release.fml.yaml"
     )

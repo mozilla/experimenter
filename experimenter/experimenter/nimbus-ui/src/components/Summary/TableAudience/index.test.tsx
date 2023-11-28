@@ -4,6 +4,7 @@
 
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import React from "react";
+import { MOBILE_APPLICATIONS } from "src/components/PageEditAudience/FormAudience";
 import TableAudience from "src/components/Summary/TableAudience";
 import { MockedCache, mockExperimentQuery } from "src/lib/mocks";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
@@ -34,11 +35,15 @@ describe("TableAudience", () => {
     });
   });
 
-  describe("renders 'First Run Release Date' row as expected", () => {
-    it("with proposed release date", () => {
+  describe("renders 'First Run Release Date' row for mobile", () => {
+    it.each(
+      Object.values(NimbusExperimentApplicationEnum).filter((application) =>
+        MOBILE_APPLICATIONS.includes(application),
+      ),
+    )("with proposed release date", (application) => {
       const expectedDate = "2023-12-12";
       const { experiment } = mockExperimentQuery("demo-slug", {
-        application: NimbusExperimentApplicationEnum.IOS,
+        application,
         proposedReleaseDate: expectedDate,
         isFirstRun: true,
       });
@@ -47,9 +52,13 @@ describe("TableAudience", () => {
         expectedDate,
       );
     });
-    it("when not set", () => {
+    it.each(
+      Object.values(NimbusExperimentApplicationEnum).filter((application) =>
+        MOBILE_APPLICATIONS.includes(application),
+      ),
+    )("when not set", (application) => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        application: NimbusExperimentApplicationEnum.IOS,
+        application,
         isFirstRun: true,
       });
       render(<Subject {...{ experiment }} />);
@@ -60,22 +69,61 @@ describe("TableAudience", () => {
   });
 
   describe("render First Run fields based on application", () => {
-    it("when application is desktop", () => {
-      const { experiment } = mockExperimentQuery("demo-slug");
+    it.each(
+      Object.values(NimbusExperimentApplicationEnum).filter(
+        (application) => !MOBILE_APPLICATIONS.includes(application),
+      ),
+    )("when application is not mobile", (application) => {
+      const { experiment } = mockExperimentQuery("demo-slug", { application });
       render(<Subject {...{ experiment }} />);
       expect(screen.queryByTestId("experiment-is-first-run")).toBeNull();
       expect(screen.queryByTestId("experiment-release-date")).toBeNull();
     });
-    it("when application is mobile", () => {
+    it.each(
+      Object.values(NimbusExperimentApplicationEnum).filter((application) =>
+        MOBILE_APPLICATIONS.includes(application),
+      ),
+    )("when application is mobile", (application) => {
       const expectedDate = "2023-12-12";
       const { experiment } = mockExperimentQuery("demo-slug", {
-        application: NimbusExperimentApplicationEnum.IOS,
+        application,
         proposedReleaseDate: expectedDate,
         isFirstRun: true,
       });
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-is-first-run")).toBeInTheDocument();
       expect(screen.getByTestId("experiment-release-date")).toBeInTheDocument();
+    });
+  });
+
+  describe("renders 'First Run Experiment' row as expected", () => {
+    it.each(
+      Object.values(NimbusExperimentApplicationEnum).filter((application) =>
+        MOBILE_APPLICATIONS.includes(application),
+      ),
+    )("with stick enrollment True", (application) => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        application,
+        isFirstRun: true,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-is-first-run")).toHaveTextContent(
+        "True",
+      );
+    });
+    it.each(
+      Object.values(NimbusExperimentApplicationEnum).filter((application) =>
+        MOBILE_APPLICATIONS.includes(application),
+      ),
+    )("when not set", (application) => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        application,
+        isFirstRun: false,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-is-first-run")).toHaveTextContent(
+        "False",
+      );
     });
   });
 
@@ -239,6 +287,7 @@ describe("TableAudience", () => {
       );
     });
   });
+
   describe("renders 'Locales' row as expected for old experiments", () => {
     it("when locales exist, displays them", () => {
       const data = {
@@ -266,6 +315,7 @@ describe("TableAudience", () => {
       );
     });
   });
+
   describe("renders 'Languages' row as expected", () => {
     it("when languages exist, displays them", () => {
       const data = {
@@ -306,6 +356,7 @@ describe("TableAudience", () => {
       );
     });
   });
+
   describe("renders 'Countries' row as expected", () => {
     it("when countries exist, displays them", async () => {
       const data = {
@@ -332,6 +383,7 @@ describe("TableAudience", () => {
       );
     });
   });
+
   describe("renders 'Stick Enrollment' row as expected", () => {
     it("with stick enrollment True", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
@@ -346,28 +398,6 @@ describe("TableAudience", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {});
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-is-sticky")).toHaveTextContent(
-        "False",
-      );
-    });
-  });
-  describe("renders 'First Run Experiment' row as expected", () => {
-    it("with stick enrollment True", () => {
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        application: NimbusExperimentApplicationEnum.IOS,
-        isFirstRun: true,
-      });
-      render(<Subject {...{ experiment }} />);
-      expect(screen.getByTestId("experiment-is-first-run")).toHaveTextContent(
-        "True",
-      );
-    });
-    it("when not set", () => {
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        application: NimbusExperimentApplicationEnum.IOS,
-        isFirstRun: false,
-      });
-      render(<Subject {...{ experiment }} />);
-      expect(screen.getByTestId("experiment-is-first-run")).toHaveTextContent(
         "False",
       );
     });

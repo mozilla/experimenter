@@ -529,6 +529,17 @@ windowsLaunchOnLogin:
       setPref: browser.startup.windowsLaunchOnLogin.enabled
       description: Should users see the Windows launch on login checkbox.
 
+windowsJumpList:
+  description: "Controls for the Windows Jump List integration."
+  owner: mconley@mozilla.com
+  hasExposure: false
+  isEarlyStartup: true
+  variables:
+    legacyBackend:
+      type: boolean
+      setPref: browser.taskbar.lists.legacyBackend
+      description: True if users should use the legacy Windows Jump List backend.
+
 abouthomecache:
   description: "The startup about:home cache."
   owner: omc@mozilla.com
@@ -752,6 +763,14 @@ pocketNewtab:
       description: The URL for the spocs endpoint.
       type: string
       setPref: "browser.newtabpage.activity-stream.discoverystream.spocs-endpoint"
+    spocsEndpointAllowlist:
+      description: Comma separated list of allowed endpoints for fetching spocs
+      type: string
+      setPref: "browser.newtabpage.activity-stream.discoverystream.endpoints"
+    spocsClearEndpoint:
+      description: URL for deleting any server data when a user opts out of sponsored content
+      type: string
+      setPref: "browser.newtabpage.activity-stream.discoverystream.endpointSpocsClear"
     regionStoriesConfig:
       description: A comma-separated list of region to get stories for.
       type: string
@@ -837,6 +856,17 @@ cm-csv-import:
       type: boolean
       description: Can show CSV Import in about:logins or Migration Wizard
       setPref: "signon.management.page.fileImport.enabled"
+
+# This feature flag mirrors the one used for ios
+# https://github.com/mozilla-mobile/firefox-ios/blob/main/nimbus-features/addressAutofillFeature.yaml
+address-autofill-feature:
+  description: Enabling address autofill feature
+  owner: issozi@mozilla.com
+  hasExposure: false
+  variables:
+    status:
+      type: boolean
+      description: If true, we will allow user to use address autofill
 
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
@@ -1970,16 +2000,6 @@ feltPrivacy:
       setPref: browser.privatebrowsing.resetPBM.enabled
       description: >-
         Enables the reset PBM feature button and confirmation panel.
-
-attribution:
-  description: Prefs related to install attribution
-  hasExposure: false
-  isEarlyStartup: true
-  variables:
-    macosEnabled:
-      type: boolean
-      description: Whether or not macOS attribution data will be processed and sent in Telemetry
-      fallbackPref: browser.attribution.macos.enabled
 
 phc:
   description: Prefs to control the Probabalistic Heap Checker (PHC)

@@ -145,72 +145,35 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "FOLLOWUP",
     },
   ],
-  applicationConfigs: [
-    {
-      application: NimbusExperimentApplicationEnum.DESKTOP,
-      channels: [
-        {
-          label: "Desktop Beta",
-          value: "BETA",
-        },
-        {
-          label: "Desktop Nightly",
-          value: "NIGHTLY",
-        },
-        {
-          label: "Platypus Doorstop",
-          value: "PLATYPUS_DOORSTOP",
-        },
-      ],
-    },
-    {
-      application: NimbusExperimentApplicationEnum.FENIX,
-      channels: [
-        {
-          label: "Desktop Beta",
-          value: "BETA",
-        },
-        {
-          label: "Desktop Nightly",
-          value: "NIGHTLY",
-        },
-        {
-          label: "Platypus Doorstop",
-          value: "PLATYPUS_DOORSTOP",
-        },
-      ],
-    },
-    {
-      application: NimbusExperimentApplicationEnum.IOS,
-      channels: [
-        {
-          label: "Desktop Beta",
-          value: "BETA",
-        },
-        {
-          label: "Desktop Nightly",
-          value: "NIGHTLY",
-        },
-        {
-          label: "Platypus Doorstop",
-          value: "PLATYPUS_DOORSTOP",
-        },
-      ],
-    },
-    {
-      application: NimbusExperimentApplicationEnum.MONITOR,
-      channels: [
-        {
+  applicationConfigs: Object.values(NimbusExperimentApplicationEnum).map(
+    (application) => {
+      return {
+        application,
+        channels: [
+          {
+            label: "Desktop Beta",
+            value: "BETA",
+          },
+          {
+            label: "Desktop Nightly",
+            value: "NIGHTLY",
+          },
+          {
+            label: "Platypus Doorstop",
+            value: "PLATYPUS_DOORSTOP",
+          },
+          {
           label: "Staging",
           value: "STAGING",
-        },
-        {
+          },
+          {
           label: "Production",
           value: "PRODUCTION",
         },
-      ],
+        ],
+      };
     },
-  ],
+  ),
   allFeatureConfigs: [
     {
       id: 1,

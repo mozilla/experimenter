@@ -12,7 +12,10 @@ import {
 } from "@testing-library/react";
 import React from "react";
 import selectEvent from "react-select-event";
-import { filterAndSortTargetingConfigs } from "src/components/PageEditAudience/FormAudience";
+import {
+  filterAndSortTargetingConfigs,
+  MOBILE_APPLICATIONS,
+} from "src/components/PageEditAudience/FormAudience";
 import {
   MOCK_EXPERIMENT,
   MOCK_ROLLOUT,
@@ -855,17 +858,38 @@ describe("FormAudience", () => {
     expect(screen.queryByTestId("locales")).not.toBeInTheDocument();
   });
 
-  it("isFirstRun renders for mobile application", async () => {
+  it.each(
+    Object.values(NimbusExperimentApplicationEnum).filter((application) =>
+      MOBILE_APPLICATIONS.includes(application),
+    ),
+  )("isFirstRun renders for mobile application", (application) => {
     render(
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplicationEnum.FENIX,
+          application,
         }}
       />,
     );
 
     expect(screen.queryByTestId("isFirstRun")).toBeInTheDocument();
+  });
+
+  it.each(
+    Object.values(NimbusExperimentApplicationEnum).filter(
+      (application) => !MOBILE_APPLICATIONS.includes(application),
+    ),
+  )("isFirstRun does not render for non mobile application", (application) => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application,
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId("isFirstRun")).not.toBeInTheDocument();
   });
 
   it("disables language field for desktop", async () => {
@@ -880,18 +904,6 @@ describe("FormAudience", () => {
 
     expect(screen.queryByTestId("languages")).not.toBeInTheDocument();
     expect(screen.queryByTestId("locales")).toBeInTheDocument();
-  });
-  it("isFirstRun does not renders for desktop application", async () => {
-    render(
-      <Subject
-        experiment={{
-          ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplicationEnum.DESKTOP,
-        }}
-      />,
-    );
-
-    expect(screen.queryByTestId("isFirstRun")).not.toBeInTheDocument();
   });
 
   it("calls onSubmit when save and next buttons are clicked", async () => {

@@ -1284,10 +1284,12 @@ class NimbusVersionedSchema(models.Model):
         )
 
     def __str__(self):  # pragma: no cover
-        as_str = f"NimbusVersionedSchema for {self.feature_config_id}"
+        as_str = f"{self.feature_config}"
 
         if self.version is not None:
-            as_str = f"{as_str} at {self.version}"
+            as_str += f" (version {self.version})"
+        else:
+            as_str += " (unversioned)"
 
         return as_str
 
