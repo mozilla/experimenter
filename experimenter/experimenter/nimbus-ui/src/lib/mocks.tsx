@@ -85,6 +85,10 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       label: "Android",
       value: NimbusExperimentApplicationEnum.FENIX,
     },
+    {
+      label: "Monitor",
+      value: NimbusExperimentApplicationEnum.MONITOR,
+    },
   ],
   takeaways: [
     { label: "DAU Gain", value: "DAU_GAIN" },
@@ -190,6 +194,19 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
         {
           label: "Platypus Doorstop",
           value: "PLATYPUS_DOORSTOP",
+        },
+      ],
+    },
+    {
+      application: NimbusExperimentApplicationEnum.MONITOR,
+      channels: [
+        {
+          label: "Staging",
+          value: "STAGING",
+        },
+        {
+          label: "Production",
+          value: "PRODUCTION",
         },
       ],
     },
@@ -676,6 +693,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   takeawaysMetricGain: false,
   takeawaysGainAmount: null,
   qaStatus: null,
+  isWeb: false,
 };
 
 export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {

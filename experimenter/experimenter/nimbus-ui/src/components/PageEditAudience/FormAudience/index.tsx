@@ -25,6 +25,7 @@ import {
   POSITIVE_NUMBER_FIELD,
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
   TOOLTIP_DISABLED,
+  TOOLTIP_DISABLED_FOR_WEBAPP,
   TOOLTIP_DURATION,
   TOOLTIP_RELEASE_DATE,
 } from "src/lib/constants";
@@ -472,11 +473,23 @@ export const FormAudience = ({
           <Form.Group as={Col} controlId="minVersion">
             <Form.Label className="d-flex align-items-center">
               Min Version
+              {experiment.isWeb && (
+                <>
+                  <Info
+                    data-tip={TOOLTIP_DISABLED_FOR_WEBAPP}
+                    data-testid="tooltip-disabled-min-version"
+                    width="20"
+                    height="20"
+                    className="ml-1"
+                  />
+                  <ReactTooltip />
+                </>
+              )}
             </Form.Label>
             <Form.Control
               {...formControlAttrs("firefoxMinVersion")}
               as="select"
-              disabled={isLocked!}
+              disabled={isLocked! || experiment.isWeb}
               custom
             >
               <SelectOptions options={config.firefoxVersions} />
@@ -486,11 +499,23 @@ export const FormAudience = ({
           <Form.Group as={Col} controlId="maxVersion">
             <Form.Label className="d-flex align-items-center">
               Max Version
+              {experiment.isWeb && (
+                <>
+                  <Info
+                    data-tip={TOOLTIP_DISABLED_FOR_WEBAPP}
+                    data-testid="tooltip-disabled-max-version"
+                    width="20"
+                    height="20"
+                    className="ml-1"
+                  />
+                  <ReactTooltip />
+                </>
+              )}
             </Form.Label>
             <Form.Control
               {...formControlAttrs("firefoxMaxVersion")}
               as="select"
-              disabled={isLocked!}
+              disabled={isLocked! || experiment.isWeb}
               custom
             >
               <SelectOptions options={config.firefoxVersions} />
@@ -514,25 +539,53 @@ export const FormAudience = ({
           )}
           {!isDesktop && (
             <Form.Group as={Col} controlId="languages" data-testid="languages">
-              <Form.Label>Languages</Form.Label>
+              <Form.Label>
+                Languages
+                {experiment.isWeb && (
+                  <>
+                    <Info
+                      data-tip={TOOLTIP_DISABLED_FOR_WEBAPP}
+                      data-testid="tooltip-disabled-languages"
+                      width="20"
+                      height="20"
+                      className="ml-1"
+                    />
+                    <ReactTooltip />
+                  </>
+                )}
+              </Form.Label>
               <Select
                 placeholder="All Languages"
                 isMulti
                 {...formSelectAttrs("languages", setLanguages)}
                 options={selectOptions(config.languages as SelectIdItems)}
-                isDisabled={isLocked!}
+                isDisabled={isLocked! || experiment.isWeb}
               />
               <FormErrors name="languages" />
             </Form.Group>
           )}
           <Form.Group as={Col} controlId="countries" data-testid="countries">
-            <Form.Label>Countries</Form.Label>
+            <Form.Label>
+              Countries
+              {experiment.isWeb && (
+                <>
+                  <Info
+                    data-tip={TOOLTIP_DISABLED_FOR_WEBAPP}
+                    data-testid="tooltip-disabled-countries"
+                    width="20"
+                    height="20"
+                    className="ml-1"
+                  />
+                  <ReactTooltip />
+                </>
+              )}
+            </Form.Label>
             <Select
               placeholder="All Countries"
               isMulti
               {...formSelectAttrs("countries", setCountries)}
               options={selectOptions(config.countries as SelectIdItems)}
-              isDisabled={isLocked!}
+              isDisabled={isLocked! || experiment.isWeb}
             />
 
             <FormErrors name="countries" />
@@ -599,8 +652,28 @@ export const FormAudience = ({
                 type="checkbox"
                 checked={isSticky}
                 onChange={(e) => setIsSticky(e.target.checked)}
-                disabled={stickyRequiredWarning || isLocked!}
-                label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
+                disabled={
+                  stickyRequiredWarning || isLocked! || experiment.isWeb
+                }
+                label={
+                  <>
+                    {
+                      "Sticky Enrollment (Clients remain enrolled until the experiment ends)"
+                    }
+                    {experiment.isWeb && (
+                      <>
+                        <Info
+                          data-tip={TOOLTIP_DISABLED_FOR_WEBAPP}
+                          data-testid="tooltip-disabled-is-sticky"
+                          width="20"
+                          height="20"
+                          className="ml-1"
+                        />
+                        <ReactTooltip />
+                      </>
+                    )}
+                  </>
+                }
               />
             </Form.Label>
             <LinkExternal
@@ -626,9 +699,28 @@ export const FormAudience = ({
                   type="checkbox"
                   onChange={(e) => setIsFirstRun(e.target.checked)}
                   checked={isFirstRun}
-                  disabled={isFirstRunRequiredWarning || isLocked!}
-                  label="First Run Experiment"
+                  disabled={
+                    isFirstRunRequiredWarning || isLocked || experiment.isWeb
+                  }
+                  label={
+                    <>
+                      {"First run experiment "}
+                      {experiment.isWeb && (
+                        <>
+                          <Info
+                            data-tip={TOOLTIP_DISABLED_FOR_WEBAPP}
+                            data-testid="tooltip-disabled-first-run"
+                            width="20"
+                            height="20"
+                            className="ml-1"
+                          />
+                          <ReactTooltip />
+                        </>
+                      )}
+                    </>
+                  }
                 />
+
                 {isFirstRunRequiredWarning && (
                   <Alert
                     data-testid="is-first-run-required-warning"
@@ -656,7 +748,7 @@ export const FormAudience = ({
                 <Form.Control
                   {...formControlAttrs("proposedReleaseDate")}
                   type="date"
-                  disabled={!isFirstRun}
+                  disabled={!isFirstRun || experiment.isWeb}
                 />
                 <FormErrors name="proposedReleaseDate" />
               </Form.Group>
