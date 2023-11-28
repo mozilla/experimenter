@@ -2127,6 +2127,43 @@ it("enrollment period is not diabled when experiment is not a rollout", async ()
   });
 });
 
+it("disable fields for web application", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        application: NimbusExperimentApplicationEnum.MONITOR,
+        channel: NimbusExperimentChannelEnum.STAGING,
+        status: NimbusExperimentStatusEnum.DRAFT,
+        isWeb: true,
+        firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.NO_VERSION,
+        firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.NO_VERSION,
+        populationPercent: "0",
+        proposedDuration: 0,
+        proposedEnrollment: 0,
+        proposedReleaseDate: "",
+        countries: [],
+        languages: [],
+      }}
+    />,
+  );
+  expect(screen.queryByTestId("firefoxMinVersion")).toBeDisabled();
+  screen.getByTestId("tooltip-disabled-min-version");
+
+  expect(screen.queryByTestId("firefoxMaxVersion")).toBeDisabled();
+  screen.getByTestId("tooltip-disabled-max-version");
+
+  const countriesDiv = document.querySelector('[data-testid="countries"]');
+  const selectCountriesElement = countriesDiv?.querySelector("input");
+  expect(selectCountriesElement).toHaveAttribute("disabled");
+
+  const languagesDiv = document.querySelector('[data-testid="languages"]');
+  const selectLanguagesElement = languagesDiv?.querySelector("input");
+  expect(selectLanguagesElement).toHaveAttribute("disabled");
+
+  expect(screen.queryByTestId("isSticky")).toBeDisabled();
+  screen.getByTestId("tooltip-disabled-is-sticky");
+});
 describe("filterAndSortTargetingConfigSlug", () => {
   it("filters for experiment application and sorts them as expected", () => {
     const expectedNoTargetingLabel = "No Targeting";
