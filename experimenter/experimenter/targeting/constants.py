@@ -1800,14 +1800,8 @@ DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
 SHOPPING_OPTED_IN = NimbusTargetingConfig(
     name="Users opted in to shopping",
     slug="shopping_opted_in",
-    description="Users with the shopping experience enabled and who have opted in",
-    targeting="""
-    (
-        ('browser.shopping.experience2023.enabled'|preferenceValue)
-        &&
-        ('browser.shopping.experience2023.optedIn'|preferenceValue == 1)
-    )
-    """,
+    description="Users who have opted in to the shopping experience",
+    targeting="'browser.shopping.experience2023.optedIn'|preferenceValue == 1",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
