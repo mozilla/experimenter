@@ -5,3 +5,5 @@ Because
 This commit
 
 - Change
+
+Fixes #github_issue_number
