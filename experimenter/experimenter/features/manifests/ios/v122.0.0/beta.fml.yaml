@@ -331,7 +331,7 @@ features:
       back_in_stock_reporting:
         description: "If true, enables for users the reporting feature for products back in stock.\n"
         type: Boolean
-        default: false
+        default: true
       config:
         description: "A Map of website configurations\n"
         type: "Map<String, WebsiteConfig>"
@@ -348,14 +348,10 @@ features:
             productIdFromURLRegex: "\\\\/ip\\\\/(?:[A-Za-z0-9-]{1,320}\\\\/)?(?<productId>[0-9]{3,13})"
             validTLDs:
               - com
-      product-recommendations:
-        description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
-        type: Boolean
-        default: false
       product_ads:
         description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
         type: Boolean
-        default: false
+        default: true
       relay:
         description: "Configurable relay URL for production environment\n"
         type: String

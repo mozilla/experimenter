@@ -1,12 +1,4 @@
 ---
-address-autofill-feature:
-  description: This property defines the address card autofill feature
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    status:
-      type: boolean
-      description: "If true, we will allow user to use the address autofill feature"
 contextual-hint-feature:
   description: This set holds all features pertaining to contextual hints.
   hasExposure: true
@@ -15,6 +7,14 @@ contextual-hint-feature:
     features-enabled:
       type: json
       description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+credential-autofill-coordinator-refactor:
+  description: "This feature manages the roll out of the credential autofill coordinator as part of the coordinator refactor.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 credit-card-autofill:
   description: This property defines the credit card autofill feature
   hasExposure: true
@@ -23,17 +23,6 @@ credit-card-autofill:
     credit-card-autofill-status:
       type: boolean
       description: "If true, we will allow user to use the credit autofill feature"
-felt-privacy-feature:
-  description: The feature that enhances private browsing mode
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    felt-deletion-enabled:
-      type: boolean
-      description: "If true, enable Felt Deletion part of Felt Privacy"
-    simplified-ui-enabled:
-      type: boolean
-      description: "If true, enable simplified UI part of Felt Privacy"
 firefox-suggest-feature:
   description: Configuration for the Firefox Suggest feature.
   hasExposure: true
@@ -61,6 +50,14 @@ homescreenFeature:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
+library-coordinator-refactor:
+  description: "This feature is for managing the roll out of the library coordinator code as part of the changes on the navigation in the app\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 messaging:
   description: "The in-app messaging system\n"
   hasExposure: true
@@ -101,6 +98,14 @@ onboarding-framework-feature:
     dismissable:
       type: boolean
       description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
+private-browsing:
+  description: Private Browsing Mode
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    felt-privacy-enabled:
+      type: boolean
+      description: "If true, enable felt privacy related UI"
 qr-code-coordinator-refactor:
   description: "The feature for managing the roll out of the qrCode coordinator.\n"
   hasExposure: true
@@ -133,6 +138,14 @@ search-term-groups-feature:
     grouping-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given grouping should be enabled.
+share-extension-coordinator-refactor:
+  description: "This feature is for managing the roll out of the share extension coordinator as part of the changes to the navigation in the app\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 share-sheet:
   description: This feature define the redesign of the share sheet
   hasExposure: true
@@ -149,15 +162,12 @@ shopping2023:
   hasExposure: true
   exposureDescription: ""
   variables:
-    back_in_stock_reporting:
-      type: boolean
-      description: "If true, enables for users the reporting feature for products back in stock.\n"
     config:
       type: json
       description: "A Map of website configurations\n"
-    product_ads:
+    product-recommendations:
       type: boolean
-      description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
+      description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
     relay:
       type: string
       description: "Configurable relay URL for production environment\n"

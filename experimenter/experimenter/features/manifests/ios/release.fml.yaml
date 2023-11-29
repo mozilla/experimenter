@@ -348,10 +348,6 @@ features:
             productIdFromURLRegex: "\\\\/ip\\\\/(?:[A-Za-z0-9-]{1,320}\\\\/)?(?<productId>[0-9]{3,13})"
             validTLDs:
               - com
-      product-recommendations:
-        description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
-        type: Boolean
-        default: false
       product_ads:
         description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
         type: Boolean
