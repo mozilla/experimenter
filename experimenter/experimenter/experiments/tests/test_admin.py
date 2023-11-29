@@ -211,10 +211,12 @@ class TestNimbusExperimentExport(TestCase):
         conclusion_recommendation = resource.dehydrate_conclusion_recommendation(
             experiment
         )
+        qa_status = resource.dehydrate_qa_status(experiment)
 
         self.assertIsNone(none_slug)
         self.assertIsNone(status_next)
         self.assertIsNone(conclusion_recommendation)
+        self.assertIsNone(qa_status)
 
     def test_before_import_row(self):
         resource = NimbusExperimentResource()
