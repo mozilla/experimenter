@@ -5,13 +5,6 @@ about:
 channels:
   - developer
 features:
-  address-autofill-feature:
-    description: This property defines the address card autofill feature
-    variables:
-      status:
-        description: "If true, we will allow user to use the address autofill feature"
-        type: Boolean
-        default: false
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
@@ -20,6 +13,13 @@ features:
         type: "Map<ContextualHint, Boolean>"
         default:
           toolbar-hint: true
+  credential-autofill-coordinator-refactor:
+    description: "This feature manages the roll out of the credential autofill coordinator as part of the coordinator refactor.\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   credit-card-autofill:
     description: This property defines the credit card autofill feature
     variables:
@@ -27,17 +27,6 @@ features:
         description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
         default: true
-  felt-privacy-feature:
-    description: The feature that enhances private browsing mode
-    variables:
-      felt-deletion-enabled:
-        description: "If true, enable Felt Deletion part of Felt Privacy"
-        type: Boolean
-        default: false
-      simplified-ui-enabled:
-        description: "If true, enable simplified UI part of Felt Privacy"
-        type: Boolean
-        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -66,22 +55,16 @@ features:
         default:
           jump-back-in: true
           recent-explorations: true
+          top-sites: true
+  library-coordinator-refactor:
+    description: "This feature is for managing the roll out of the library coordinator code as part of the changes on the navigation in the app\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   messaging:
     description: "The in-app messaging system\n"
-    documentation:
-      - name: User documentation
-        url: "https://experimenter.info/messaging/mobile-messaging"
-    contacts:
-      - jhugman@mozilla.com
-      - brennie@mozilla.com
-      - gbuciu@mozilla.com
-      - wteichmann@mozilla.com
-    events:
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_shown"
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_clicked"
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_expired"
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_dismissed"
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_malformed"
     variables:
       actions:
         description: A growable map of action URLs.
@@ -286,6 +269,13 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
+  private-browsing:
+    description: Private Browsing Mode
+    variables:
+      felt-privacy-enabled:
+        description: "If true, enable felt privacy related UI"
+        type: Boolean
+        default: false
   qr-code-coordinator-refactor:
     description: "The feature for managing the roll out of the qrCode coordinator.\n"
     variables:
@@ -322,6 +312,13 @@ features:
         default:
           history-groups: true
           tab-tray-groups: true
+  share-extension-coordinator-refactor:
+    description: "This feature is for managing the roll out of the share extension coordinator as part of the changes to the navigation in the app\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   share-sheet:
     description: This feature define the redesign of the share sheet
     variables:
@@ -336,10 +333,6 @@ features:
   shopping2023:
     description: "The configuration setting for the status of the Fakespot feature\n"
     variables:
-      back_in_stock_reporting:
-        description: "If true, enables for users the reporting feature for products back in stock.\n"
-        type: Boolean
-        default: true
       config:
         description: "A Map of website configurations\n"
         type: "Map<String, WebsiteConfig>"
@@ -356,8 +349,8 @@ features:
             productIdFromURLRegex: "\\\\/ip\\\\/(?:[A-Za-z0-9-]{1,320}\\\\/)?(?<productId>[0-9]{3,13})"
             validTLDs:
               - com
-      product_ads:
-        description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
+      product-recommendations:
+        description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
         type: Boolean
         default: true
       relay:
@@ -442,6 +435,8 @@ enums:
         description: The tabs the user was looking immediately before being interrupted.
       recent-explorations:
         description: The tab groups
+      top-sites:
+        description: The frecency and pinned sites.
   IconType:
     description: "The icon that will be added to the item in the device's search engine."
     variants:
