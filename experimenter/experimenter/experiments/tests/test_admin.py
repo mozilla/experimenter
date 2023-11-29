@@ -180,10 +180,12 @@ class TestNimbusExperimentExport(TestCase):
         # test normal dehydrate conditions
         experiment.status_next = "Complete"
         experiment.conclusion_recommendation = "STOP"
+        experiment.qa_status = "GREEN"
         status_next = resource.dehydrate_status_next(experiment)
         conclusion_recommendation = resource.dehydrate_conclusion_recommendation(
             experiment
         )
+        qa_status = resource.dehydrate_qa_status(experiment)
 
         num_changes = len(resource.dehydrate_changes(experiment))
         num_branches = len(resource.dehydrate_branches(experiment))
@@ -193,6 +195,7 @@ class TestNimbusExperimentExport(TestCase):
         self.assertEqual(num_branches, 2)
         self.assertEqual(reference_branch_slug, "control")
         self.assertEqual(status_next, "Complete")
+        self.assertEqual(qa_status, "GREEN")
         self.assertEqual(conclusion_recommendation, "STOP")
 
     def test_resource_dehydrate_none(self):
@@ -211,10 +214,12 @@ class TestNimbusExperimentExport(TestCase):
         conclusion_recommendation = resource.dehydrate_conclusion_recommendation(
             experiment
         )
+        qa_status = resource.dehydrate_qa_status(experiment)
 
         self.assertIsNone(none_slug)
         self.assertIsNone(status_next)
         self.assertIsNone(conclusion_recommendation)
+        self.assertIsNone(qa_status)
 
     def test_before_import_row(self):
         resource = NimbusExperimentResource()
