@@ -372,6 +372,10 @@ features:
         description: "if true, recommended products feature is enabled to be shown to the user based on their preference."
         type: Boolean
         default: false
+      product-recommendations-exposure:
+        description: "if true, we want to record recommended products inventory for opted-in users, even if product recommendations are disabled."
+        type: Boolean
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:

@@ -3,15 +3,8 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - developer
+  - release
 features:
-  address-autofill-feature:
-    description: This property defines the address card autofill feature
-    variables:
-      status:
-        description: "If true, we will allow user to use the address autofill feature"
-        type: Boolean
-        default: false
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
@@ -20,22 +13,18 @@ features:
         type: "Map<ContextualHint, Boolean>"
         default:
           toolbar-hint: true
+  credential-autofill-coordinator-refactor:
+    description: "This feature manages the roll out of the credential autofill coordinator as part of the coordinator refactor.\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   credit-card-autofill:
     description: This property defines the credit card autofill feature
     variables:
       credit-card-autofill-status:
         description: "If true, we will allow user to use the credit autofill feature"
-        type: Boolean
-        default: true
-  felt-privacy-feature:
-    description: The feature that enhances private browsing mode
-    variables:
-      felt-deletion-enabled:
-        description: "If true, enable Felt Deletion part of Felt Privacy"
-        type: Boolean
-        default: false
-      simplified-ui-enabled:
-        description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
         default: false
   firefox-suggest-feature:
@@ -44,7 +33,7 @@ features:
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -52,36 +41,30 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: true
+          status: false
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
       pocket-sponsored-stories:
         description: "This property defines whether pocket sponsored stories appear on the homepage.\n"
         type: Boolean
-        default: true
+        default: false
       sections-enabled:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
         type: "Map<HomeScreenSection, Boolean>"
         default:
           jump-back-in: true
           recent-explorations: true
+          top-sites: true
+  library-coordinator-refactor:
+    description: "This feature is for managing the roll out of the library coordinator code as part of the changes on the navigation in the app\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   messaging:
     description: "The in-app messaging system\n"
-    documentation:
-      - name: User documentation
-        url: "https://experimenter.info/messaging/mobile-messaging"
-    contacts:
-      - jhugman@mozilla.com
-      - brennie@mozilla.com
-      - gbuciu@mozilla.com
-      - wteichmann@mozilla.com
-    events:
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_shown"
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_clicked"
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_expired"
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_dismissed"
-      - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_malformed"
     variables:
       actions:
         description: A growable map of action URLs.
@@ -124,14 +107,6 @@ features:
               - I_AM_NOT_DEFAULT_BROWSER
               - SUPPORTS_DEFAULT_BROWSER
               - ON_FOURTH_LAUNCH_THIS_YEAR
-          survey-surface-message:
-            action: "https://www.macrumors.com"
-            button-label: ResearchSurface/PrimaryButton.Label.v112
-            style: SURVEY
-            surface: survey
-            text: ResearchSurface/Body.Text.v112
-            trigger:
-              - NEVER
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -286,6 +261,13 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
+  private-browsing:
+    description: Private Browsing Mode
+    variables:
+      felt-privacy-enabled:
+        description: "If true, enable felt privacy related UI"
+        type: Boolean
+        default: false
   qr-code-coordinator-refactor:
     description: "The feature for managing the roll out of the qrCode coordinator.\n"
     variables:
@@ -308,7 +290,7 @@ features:
         type: AwesomeBar
         default:
           position:
-            is-bottom: false
+            is-bottom: true
             is-position-feature-enabled: true
             is-toolbar-cfr-on: false
           search-highlights: false
@@ -321,25 +303,28 @@ features:
         type: "Map<SearchTermGroups, Boolean>"
         default:
           history-groups: true
-          tab-tray-groups: true
+          tab-tray-groups: false
+  share-extension-coordinator-refactor:
+    description: "This feature is for managing the roll out of the share extension coordinator as part of the changes to the navigation in the app\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   share-sheet:
     description: This feature define the redesign of the share sheet
     variables:
       move-actions:
         description: If true copy and send to device are moved to share sheet
         type: Boolean
-        default: true
+        default: false
       toolbar-changes:
         description: If true share option is shown on the toolbar
         type: Boolean
-        default: true
+        default: false
   shopping2023:
     description: "The configuration setting for the status of the Fakespot feature\n"
     variables:
-      back_in_stock_reporting:
-        description: "If true, enables for users the reporting feature for products back in stock.\n"
-        type: Boolean
-        default: true
       config:
         description: "A Map of website configurations\n"
         type: "Map<String, WebsiteConfig>"
@@ -356,10 +341,10 @@ features:
             productIdFromURLRegex: "\\\\/ip\\\\/(?:[A-Za-z0-9-]{1,320}\\\\/)?(?<productId>[0-9]{3,13})"
             validTLDs:
               - com
-      product_ads:
-        description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
+      product-recommendations:
+        description: "If true, recommended products feature is enabled\n to be shown to the user based on their preference.\n"
         type: Boolean
-        default: true
+        default: false
       relay:
         description: "Configurable relay URL for production environment\n"
         type: String
@@ -367,18 +352,18 @@ features:
       status:
         description: "Whether the Fakespot feature is enabled or disabled\n"
         type: Boolean
-        default: true
+        default: false
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: "If this is true, then on each page load adds a new item to Spotlight."
         type: Boolean
-        default: true
+        default: false
       icon-type:
         description: "The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.\n"
         type: Option<IconType>
-        default: screenshot
+        default: letter
       keep-for-days:
         description: "Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.\n"
         type: Option<Int>
@@ -442,6 +427,8 @@ enums:
         description: The tabs the user was looking immediately before being interrupted.
       recent-explorations:
         description: The tab groups
+      top-sites:
+        description: The frecency and pinned sites.
   IconType:
     description: "The icon that will be added to the item in the device's search engine."
     variants:
