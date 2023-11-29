@@ -18,7 +18,6 @@ export type QAEditorProps = UseQAResult & {
 };
 
 const TableQA = (props: TableQAProps) => {
-  // const { experiment, showEditor, setShowEditor } = props;
   const { qaStatus, showEditor, setShowEditor } = props;
 
   const onClickEdit = useCallback(() => setShowEditor(true), [setShowEditor]);
@@ -53,16 +52,13 @@ const TableQA = (props: TableQAProps) => {
             <tr className="w-25">
               <th className="border-top-0 border-bottom-2">QA Status</th>
               <td
-                data-testid="experiment-slug"
+                data-testid="experiment-qa-status"
                 className="text-monospace border-top-0 border-bottom-2"
               >
                 {qaStatus || <NotSet />}
               </td>
               <th className="border-top-0 w-75 border-bottom-2"></th>
-              <td
-                data-testid="experiment-owner"
-                className="border-top-0 border-bottom-2"
-              />
+              <td className="border-top-0 border-bottom-2" />
             </tr>
           </tbody>
         </Table>

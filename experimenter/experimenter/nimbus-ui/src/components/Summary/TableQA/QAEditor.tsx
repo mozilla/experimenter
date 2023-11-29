@@ -20,11 +20,6 @@ type QAEditorFieldName = typeof qaEditorFieldNames[number];
 export type QAEditorProps = UseQAResult & {
   setShowEditor: (state: boolean) => void;
 };
-// ELISE - todo - might need this Pick?
-// export type TakeawaysEditorProps = UseTakeawaysResult &
-//   Pick<getConfig_nimbusConfig, "conclusionRecommendations"> & {
-//     setShowEditor: (state: boolean) => void;
-//   };
 
 export const QAEditor = ({
   isLoading,
@@ -56,28 +51,28 @@ export const QAEditor = ({
     {},
   );
 
-  // const qaStatusSlugOptions = [
-  //   {
-  //     label: "Choose a score",
-  //     value: "",
-  //     description: "Choose a score",
-  //   },
-  // {
-  //   label: NimbusExperimentQAStatusEnum.RED,
-  //   value: NimbusExperimentQAStatusEnum.RED,
-  //   description: "🔴 RED ",
-  // },
-  // {
-  //   label: NimbusExperimentQAStatusEnum.YELLOW,
-  //   value: NimbusExperimentQAStatusEnum.YELLOW,
-  //   description: "🟡 YELLOW ",
-  // },
-  // {
-  //   label: NimbusExperimentQAStatusEnum.GREEN,
-  //   value: NimbusExperimentQAStatusEnum.GREEN,
-  //   description: "🟢 GREEN ",
-  // },
-  // ];
+  const qaStatusOptions = [
+    {
+      label: "Choose a score",
+      value: "",
+      description: "Choose a score",
+    },
+    {
+      label: NimbusExperimentQAStatusEnum.RED,
+      value: NimbusExperimentQAStatusEnum.RED,
+      description: "🔴 RED ",
+    },
+    {
+      label: NimbusExperimentQAStatusEnum.YELLOW,
+      value: NimbusExperimentQAStatusEnum.YELLOW,
+      description: "🟡 YELLOW ",
+    },
+    {
+      label: NimbusExperimentQAStatusEnum.GREEN,
+      value: NimbusExperimentQAStatusEnum.GREEN,
+      description: "🟢 GREEN ",
+    },
+  ];
 
   const onClickCancel = useCallback(
     () => setShowEditor(false),
@@ -94,7 +89,7 @@ export const QAEditor = ({
   });
 
   return (
-    <section id="qa-editor" data-testid="QAEditor">
+    <section id="qa-editor" className="mx-4" data-testid="QAEditor">
       <h3 className="h4 mb-3 mt-4">
         <Row>
           <Col>QA</Col>
@@ -136,18 +131,35 @@ export const QAEditor = ({
           )}
 
           <Form.Group as={Row} controlId="qaStatus" className="mb-0 pl-1">
-            {/* <Form.Group data-testid="qa-status" className="ml-3">
-              <Form.Control
-                as="select"
-                onSubmit={handleSave}
-                onChange={(e) => setQaStatus(qaStatusField)}
-                id="qaStatus"
-                {...{ "data-testid": "qaStatus" }}
-              >
-                <QaStatusSelectOptions options={qaStatusSlugOptions} />
-              </Form.Control>
-            </Form.Group> */}
-            Hello world
+            <Form.Group data-testid="qa-status">
+              <Row className="ml-0 flex-fill pl-0">
+                <Col className="ml-2 mr-0 pr-0 w-25">
+                  <Form.Label>
+                    <p className="font-weight-bold">QA Status: </p>
+                  </Form.Label>
+                </Col>
+                <Col className="ml-4 flex-fill pl-0 pr-8 mr-4">
+                  <Form.Control
+                    as="select"
+                    className="ml-0 mr-0"
+                    value={qaStatusField as NimbusExperimentQAStatusEnum}
+                    onSubmit={handleSave}
+                    onChange={(e) =>
+                      setQaStatus(
+                        e.target
+                          ? (e.target.value as NimbusExperimentQAStatusEnum)
+                          : null,
+                      )
+                    }
+                    id="qaStatus"
+                    {...{ "data-testid": "qaStatus" }}
+                  >
+                    <QaStatusOptions options={qaStatusOptions} />
+                  </Form.Control>
+                </Col>
+              </Row>
+            </Form.Group>
+            {/* Hello world */}
           </Form.Group>
         </Form>
       </FormProvider>
@@ -155,27 +167,27 @@ export const QAEditor = ({
   );
 };
 
-// const QaStatusSelectOptions = ({
-//   options,
-// }: {
-//   options:
-//     | null
-//     | (null | {
-//         label: null | string;
-//         value: null | string;
-//         description: null | string;
-//       })[];
-// }) => (
-//   <>
-//     {options?.map(
-//       (item, idx) =>
-//         item && (
-//           <option key={idx} value={item.value || ""}>
-//             `${item.description}`
-//           </option>
-//         ),
-//     )}
-//   </>
-// );
+const QaStatusOptions = ({
+  options,
+}: {
+  options:
+    | null
+    | (null | {
+        label: null | string;
+        value: null | string;
+        description: null | string;
+      })[];
+}) => (
+  <>
+    {options?.map(
+      (item, idx) =>
+        item && (
+          <option key={idx} value={item.value || ""}>
+            {item.description}
+          </option>
+        ),
+    )}
+  </>
+);
 
 export default QAEditor;

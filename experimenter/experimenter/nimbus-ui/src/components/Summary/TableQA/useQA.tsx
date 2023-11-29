@@ -16,7 +16,6 @@ import {
   updateExperimentVariables,
 } from "src/types/updateExperiment";
 
-// Params are a select subset of experiment properties
 export type UseQAExperimentSubset = Pick<
   getExperiment_experimentBySlug,
   "id" | "qaStatus"
