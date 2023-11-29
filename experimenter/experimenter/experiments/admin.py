@@ -110,7 +110,7 @@ class NimbusExperimentResource(resources.ModelResource):
 
     def dehydrate_qa_status(self, experiment):
         """Return None instead of empty string for nullable enums"""
-        if experiment.qa_status not in dict(NimbusConstants.Status.choices):
+        if experiment.qa_status not in dict(NimbusConstants.QAStatus.choices):
             return None
         return experiment.qa_status
 
