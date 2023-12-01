@@ -5,6 +5,15 @@ about:
 channels:
   - developer
 features:
+  awesomebar-suggestion-provider:
+    description: Configuration for the Firefox Suggest awesomebar suggestion provider.
+    variables:
+      available-suggestion-types:
+        description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
+        type: "Map<SuggestionType, Boolean>"
+        default:
+          amp: true
+          wikipedia: true
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -493,6 +502,13 @@ enums:
         description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in private mode. 0 for setting to be disabled, and 1 for enabling the setting."
       query-parameter-stripping-strip-list:
         description: An string separated by commas indicating the list of query params to be stripped from URIs. This list will be merged with records coming from RemoteSettings.
+  SuggestionType:
+    description: The type of a Firefox Suggest search suggestion.
+    variants:
+      amp:
+        description: A Firefox Suggestion from adMarketplace.
+      wikipedia:
+        description: A Firefox Suggestion for a Wikipedia page.
 objects:
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"

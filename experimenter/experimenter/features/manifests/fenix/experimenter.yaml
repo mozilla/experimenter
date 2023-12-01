@@ -1,4 +1,12 @@
 ---
+awesomebar-suggestion-provider:
+  description: Configuration for the Firefox Suggest awesomebar suggestion provider.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    available-suggestion-types:
+      type: json
+      description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
 cookie-banners:
   description: Features for cookie banner handling.
   hasExposure: true
