@@ -15,6 +15,37 @@ from fastapi.openapi.utils import get_openapi
 from cirrus.main import app
 
 OPENAPI_PATH = os.path.join("cirrus", "docs", "openapi.json")
+API_DOC_PATH = os.path.join("cirrus", "docs", "apidoc.html")
+
+"""Script to export the ReDoc documentation page into a standalone HTML file."""
+
+HTML_TEMPLATE = """<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Cirrus Api Doc</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="https://fastapi.tiangolo.com/img/favicon.png">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <style data-styled="" data-styled-version="4.4.1"></style>
+</head>
+<body>
+    <div id="redoc-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.js">
+    </script>
+    <script>
+        var spec = %s;
+        Redoc.init(spec, {}, document.getElementById("redoc-container"));
+    </script>
+</body>
+</html>
+"""
 
 
 def generate_or_check_openapi(check_docs: bool) -> None:
@@ -44,6 +75,9 @@ def generate_or_check_openapi(check_docs: bool) -> None:
         # Update openapi.json
         with open(OPENAPI_PATH, "w") as f:
             json.dump(openapi_schema, f)
+        # Update docs
+        with open(API_DOC_PATH, "w") as fd:
+            print(HTML_TEMPLATE % json.dumps(openapi_schema), file=fd)
         print("openapi.json has been updated!")
 
 
