@@ -81,6 +81,10 @@ The following are the available commands for working with Cirrus:
 
 # Cirrus Server to get Feature configuration API structure
 
+## Api Doc
+
+[Cirrus Api Doc](/cirrus/server/cirrus/docs/apidoc.html) for the Cirrus API
+
 ## Endpoint
 
 `POST /v1/features/`
