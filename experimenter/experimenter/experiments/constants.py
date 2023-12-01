@@ -502,6 +502,14 @@ class NimbusConstants:
         Application.DESKTOP: Version.FIREFOX_113,
     }
 
+    MIN_VERSIONED_FEATURE_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_120,
+        Application.FENIX: Version.FIREFOX_116,
+        Application.FOCUS_ANDROID: Version.FIREFOX_116,
+        Application.IOS: Version.FIREFOX_116,
+        Application.FOCUS_IOS: Version.FIREFOX_116,
+    }
+
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
     # limit the size of our slugs to the smallest limit, which is 80
@@ -616,4 +624,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     MULTIFEATURE_MAX_FEATURES = 20
     ERROR_MULTIFEATURE_TOO_MANY_FEATURES = (
         "Multi-feature experiments can only support up to 20 different features."
+    )
+
+    ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE = (
+        "Feature {feature_config} is not supported by any version in this range."
+    )
+
+    ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION = (
+        "Feature {feature_config} is not supported in version {version}."
     )

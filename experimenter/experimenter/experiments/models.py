@@ -2,11 +2,13 @@ import copy
 import datetime
 import os.path
 from collections import defaultdict
+from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from urllib.parse import urljoin
 from uuid import uuid4
 
+import packaging
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -15,7 +17,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import F, Q
+from django.db.models import F, Q, QuerySet
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -1236,6 +1238,119 @@ class NimbusFeatureConfig(models.Model):
     owner_email = models.EmailField(blank=True, null=True)
     enabled = models.BooleanField(default=True)
 
+    def schemas_between_versions(
+        self,
+        min_version: packaging.version,
+        max_version: Optional[packaging.version],
+    ) -> QuerySet["NimbusVersionedSchema"]:
+        return (
+            self.schemas.filter(
+                NimbusFeatureVersion.objects.between_versions_q(
+                    min_version, max_version, prefix="version"
+                )
+            )
+            .order_by("-version__major", "-version__minor", "-version__patch")
+            .select_related("version")
+        )
+
+    @dataclass
+    class VersionedSchemaRange:
+        # The versioned schemas in the requested range, or a single element list
+        # with an unversioned schema.
+        schemas: list["NimbusVersionedSchema"]
+
+        # If true, then this feature is unsupported in the entire version range.
+        unsupported_in_range: bool
+
+        # Any versions in the requested range that do not support the schema.
+        unsupported_versions: list["NimbusFeatureVersion"]
+
+    def get_versioned_schema_range(
+        self,
+        min_version: packaging.version,
+        max_version: Optional[packaging.version],
+    ) -> VersionedSchemaRange:
+        unsupported_versions: list[NimbusFeatureVersion] = []
+
+        assume_unversioned = False
+        if min_supported_version := NimbusConstants.MIN_VERSIONED_FEATURE_VERSION.get(
+            self.application
+        ):
+            min_supported_version = NimbusExperiment.Version.parse(min_supported_version)
+
+            if min_supported_version > min_version:
+                if max_version is not None and min_supported_version >= max_version:
+                    # We will not have any NimbusVerionedSchemas in this
+                    # version range. The best we can do is use the
+                    # unversioned schema.
+                    #
+                    # TODO(#9869): warn the user that we don't have information
+                    # about this interval.
+                    assume_unversioned = True
+                elif max_version is None or min_supported_version < max_version:
+                    # If you're targeting a minimum version before we have
+                    # versioned manifests without an upper bound, we'll use the
+                    # min_supported_version as the minimum version for determing
+                    # what NimbusVersionedSchemas to use.
+                    #
+                    # Using the unversioned schema in this case makes less
+                    # sense, because we have *some* version information.
+                    #
+                    # TODO(#9869): warn the user that we don't have information
+                    # about this interval.
+                    min_version = min_supported_version
+        else:
+            # This application does not support versioned feature configurations.
+            assume_unversioned = True
+
+        if assume_unversioned:
+            schemas = [self.schemas.get(version=None)]
+        else:
+            schemas = list(self.schemas_between_versions(min_version, max_version))
+
+            if schemas:
+                # Find all NimbusFeatureVersion objects between the min and max
+                # version that are supported by *any* feature in the
+                # application.
+                #
+                # If there is a version in this queryse that isn't present in
+                # `schemas`, then we know that the feature is not supported in
+                # that version.
+                supported_versions = (
+                    NimbusFeatureVersion.objects.filter(
+                        NimbusFeatureVersion.objects.between_versions_q(
+                            min_version, max_version
+                        ),
+                        schemas__feature_config__application=self.application,
+                    )
+                    .order_by("-major", "-minor", "-patch")
+                    .distinct()
+                )
+
+                schemas_by_version = {schema.version: schema for schema in schemas}
+
+                for application_version in supported_versions:
+                    if application_version not in schemas_by_version:
+                        unsupported_versions.append(application_version)
+            elif self.schemas.filter(version__isnull=False).exists():
+                # There are versioned schemas outside this range. This feature
+                # is unsupported in this range.
+                return NimbusFeatureConfig.VersionedSchemaRange(
+                    schemas=[],
+                    unsupported_in_range=True,
+                    unsupported_versions=[],
+                )
+            else:
+                # There are no verioned schemas for this feature. Fall back to
+                # using unversioned schema.
+                schemas = [self.schemas.get(version=None)]
+
+        return NimbusFeatureConfig.VersionedSchemaRange(
+            schemas=schemas,
+            unsupported_in_range=False,
+            unsupported_versions=unsupported_versions,
+        )
+
     class Meta:
         verbose_name = "Nimbus Feature Config"
         verbose_name_plural = "Nimbus Feature Configs"
@@ -1245,10 +1360,57 @@ class NimbusFeatureConfig(models.Model):
         return self.name
 
 
+class NimbusFeatureVersionManager(models.Manager["NimbusFeatureVersion"]):
+    def between_versions_q(
+        self,
+        min_version: packaging.version.Version,
+        max_version: Optional[packaging.version.Version],
+        *,
+        prefix: Optional[str] = None,
+    ) -> Q:
+        if prefix is not None:
+
+            def prefixed(**kwargs: dict[str, Any]):
+                return {f"{prefix}__{k}": v for k, v in kwargs.items()}
+
+        else:
+
+            def prefixed(**kwargs: dict[str, Any]):
+                return kwargs
+
+        # (a, b, c) >= (d, e, f)
+        # := (a > b) | (a = b & d > e) | (a = b & d = e & c >= f)
+        # == (a > b) | (a = b & (d > e | (d = e & c >= f)))
+
+        # packaging.version.Version uses major.minor.micro, but
+        # NimbusFeatureVersion uses major.minor.patch (semver).
+        q = Q(**prefixed(major__gt=min_version.major)) | Q(
+            **prefixed(major=min_version.major)
+        ) & (
+            Q(**prefixed(minor__gt=min_version.minor))
+            | Q(**prefixed(minor=min_version.minor, patch__gte=min_version.micro))
+        )
+
+        if max_version is not None:
+            # (a, b, c) < (d, e, f)
+            # := (a < d) | (a == d & b < e) | (a == d & b == e & c < f)
+            # == (a < d) | (a == d & (b < e | (b == e & c < f)))
+            q &= Q(**prefixed(major__lt=max_version.major)) | Q(
+                **prefixed(major=max_version.major)
+            ) & (
+                Q(**prefixed(minor__lt=max_version.minor))
+                | Q(**prefixed(minor=max_version.minor, patch__lt=max_version.micro))
+            )
+
+        return q
+
+
 class NimbusFeatureVersion(models.Model):
     major = models.IntegerField(null=False)
     minor = models.IntegerField(null=False)
     patch = models.IntegerField(null=False)
+
+    objects = NimbusFeatureVersionManager()
 
     class Meta:
         verbose_name = "Nimbus Feature Version"
@@ -1268,7 +1430,12 @@ class NimbusVersionedSchema(models.Model):
         related_name="schemas",
         on_delete=models.CASCADE,
     )
-    version = models.ForeignKey(NimbusFeatureVersion, on_delete=models.CASCADE, null=True)
+    version = models.ForeignKey(
+        NimbusFeatureVersion,
+        related_name="schemas",
+        on_delete=models.CASCADE,
+        null=True,
+    )
     schema = models.TextField(blank=True, null=True)
     sets_prefs = ArrayField(models.CharField(max_length=255, null=False, default=list))
 
