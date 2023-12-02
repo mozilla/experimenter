@@ -72,7 +72,7 @@ export const QAEditor = ({
       value: NimbusExperimentQAStatusEnum.GREEN,
       description: "🟢 GREEN ",
     },
-  ];
+  ] as const;
 
   const onClickCancel = useCallback(
     () => setShowEditor(false),
@@ -130,64 +130,45 @@ export const QAEditor = ({
             </Alert>
           )}
 
-          <Form.Group as={Row} controlId="qaStatus" className="mb-0 pl-1">
-            <Form.Group data-testid="qa-status">
-              <Row className="ml-0 flex-fill pl-0">
-                <Col className="ml-2 mr-0 pr-0 w-25">
-                  <Form.Label>
-                    <p className="font-weight-bold">QA Status: </p>
-                  </Form.Label>
-                </Col>
-                <Col className="ml-4 flex-fill pl-0 pr-8 mr-4">
-                  <Form.Control
-                    as="select"
-                    className="ml-0 mr-0"
-                    value={qaStatusField as NimbusExperimentQAStatusEnum}
-                    onSubmit={handleSave}
-                    onChange={(e) =>
-                      setQaStatus(
-                        e.target
-                          ? (e.target.value as NimbusExperimentQAStatusEnum)
-                          : null,
-                      )
-                    }
-                    id="qaStatus"
-                    {...{ "data-testid": "qaStatus" }}
-                  >
-                    <QaStatusOptions options={qaStatusOptions} />
-                  </Form.Control>
-                </Col>
-              </Row>
-            </Form.Group>
-            {/* Hello world */}
+          <Form.Group as={Row} className="mb-0 pl-1">
+            <Row className="ml-0 flex-fill pl-0">
+              <Col className="ml-2 mr-0 pr-0 w-25">
+                <Form.Label>
+                  <p className="font-weight-bold">QA Status: </p>
+                </Form.Label>
+              </Col>
+              <Col className="ml-4 flex-fill pl-0 pr-8 mr-4">
+                <Form.Control
+                  as="select"
+                  className="ml-0 mr-0"
+                  value={qaStatusField as NimbusExperimentQAStatusEnum}
+                  onSubmit={handleSave}
+                  onChange={(e) =>
+                    setQaStatus(
+                      e.target
+                        ? (e.target.value as NimbusExperimentQAStatusEnum)
+                        : null,
+                    )
+                  }
+                  id="qa-status-select"
+                  data-testid="qa-status"
+                >
+                  {qaStatusOptions.map(
+                    (item, idx) =>
+                      item && (
+                        <option key={idx} value={item.value}>
+                          {item.description}
+                        </option>
+                      ),
+                  )}
+                </Form.Control>
+              </Col>
+            </Row>
           </Form.Group>
         </Form>
       </FormProvider>
     </section>
   );
 };
-
-const QaStatusOptions = ({
-  options,
-}: {
-  options:
-    | null
-    | (null | {
-        label: null | string;
-        value: null | string;
-        description: null | string;
-      })[];
-}) => (
-  <>
-    {options?.map(
-      (item, idx) =>
-        item && (
-          <option key={idx} value={item.value || ""}>
-            {item.description}
-          </option>
-        ),
-    )}
-  </>
-);
 
 export default QAEditor;

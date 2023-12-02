@@ -71,7 +71,9 @@ export const useQA = (
             setIsLoading(false);
             setSubmitErrors(message);
           } else {
-            if (refetch) await refetch();
+            if (refetch) {
+              await refetch();
+            }
             setIsServerValid(true);
             setSubmitErrors({});
             setShowEditor(false);
