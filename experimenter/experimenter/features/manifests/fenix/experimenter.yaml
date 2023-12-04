@@ -59,7 +59,7 @@ homescreen:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
 juno-onboarding:
-  description: A feature that shows juno onboarding flow.
+  description: A feature that shows the onboarding flow.
   hasExposure: true
   exposureDescription: ""
   variables:
