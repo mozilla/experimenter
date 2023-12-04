@@ -276,6 +276,7 @@ class NimbusConstants:
     ARCHIVE_UPDATE_EXEMPT_FIELDS = (
         "is_archived",
         "changelog_message",
+        "qa_status",
     )
 
     class QAStatus(models.TextChoices):

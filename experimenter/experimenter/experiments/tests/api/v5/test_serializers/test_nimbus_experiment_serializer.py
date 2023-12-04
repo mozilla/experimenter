@@ -1430,6 +1430,22 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("name", serializer.errors)
 
+    def test_can_update_qa_status_while_archived(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_archived=True,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {
+                "qa_status": NimbusExperiment.QAStatus.GREEN,
+                "changelog_message": "updating name",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertTrue(experiment.is_archived, serializer.errors)
+
     def test_can_unarchive_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,

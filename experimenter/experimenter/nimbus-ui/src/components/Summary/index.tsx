@@ -16,6 +16,8 @@ import RequestLiveUpdate from "src/components/Summary/RequestLiveUpdate";
 import TableAudience from "src/components/Summary/TableAudience";
 import TableBranches from "src/components/Summary/TableBranches";
 import TableOverview from "src/components/Summary/TableOverview";
+import TableQA from "src/components/Summary/TableQA";
+import useQA from "src/components/Summary/TableQA/useQA";
 import TableRiskMitigation from "src/components/Summary/TableRiskMitigation";
 import { useChangeOperationMutation } from "src/hooks";
 import { CHANGELOG_MESSAGES } from "src/lib/constants";
@@ -34,6 +36,7 @@ type SummaryProps = {
 
 const Summary = ({ experiment, refetch }: SummaryProps) => {
   const takeawaysProps = useTakeaways(experiment, refetch);
+  const qaProps = useQA(experiment, refetch);
   const status = getStatus(experiment);
   const shouldDisableUpdateButton =
     !status.dirty || status.review || status.approved || status.waiting;
@@ -173,6 +176,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
 
       {/* Branches title is inside its table */}
       <TableBranches {...{ experiment }} />
+      <TableQA {...qaProps} />
     </div>
   );
 };
