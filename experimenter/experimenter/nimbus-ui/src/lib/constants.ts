@@ -15,6 +15,8 @@ export const CONTROL_BRANCH_REQUIRED_ERROR = "Control branch is required";
 
 export const SAVE_FAILED_NO_ERROR = "Save failed, no error available";
 
+export const SAVE_FAILED_QA_STATUS = "Failed to save qa status.";
+
 export const CONFIG_EMPTY_ERROR = "Configuration is empty";
 
 export const INVALID_CONFIG_ERROR = "Invalid configuration";
@@ -142,6 +144,7 @@ export const CHANGELOG_MESSAGES = {
   ARCHIVING_EXPERIMENT: "Archiving experiment",
   UNARCHIVING_EXPERIMENT: "Unarchiving experiment",
   UPDATED_TAKEAWAYS: "Updated Takeaways",
+  UPDATED_QA_STATUS: "Updated QA Status",
   CANCEL_REVIEW: "Cancelled Review Request",
 } as const;
 
