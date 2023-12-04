@@ -73,7 +73,7 @@ features:
           recently-saved: true
           top-sites: true
   juno-onboarding:
-    description: A feature that shows juno onboarding flow.
+    description: A feature that shows the onboarding flow.
     variables:
       cards:
         description: Collection of user facing onboarding cards.
