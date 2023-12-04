@@ -1,5 +1,5 @@
 # First stage: Build the Rust components
-FROM rust:buster AS rust-builder
+FROM rust:1.74.0-buster AS rust-builder
 
 RUN update-ca-certificates
 
