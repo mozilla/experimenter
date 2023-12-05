@@ -24,10 +24,14 @@ class NimbusFmlLoader:
     @classmethod
     @lru_cache
     def create_loader(cls, application: str, channel: str):
+        """Application and channel should stay the same for each iteration of the 
+        FML loader.
+        """
         return cls(application, channel)
 
     def file_path(self, version: NimbusFeatureVersion = None):
         """Get path to release feature manifest from experimenter (local)."""
+
         if self.application is not None:
             path = Path(self.MANIFEST_PATH, self.application)
             if version:
@@ -48,6 +52,9 @@ class NimbusFmlLoader:
 
     @lru_cache  # noqa: B019
     def fml_client(self, version: Optional[NimbusFeatureVersion] = None) -> FmlClient:
+        """There is a single FmlClient for each combination of application, app version,
+        and channel.
+        """
         file_path = self.file_path(version)
         if file_path is not None:
             return FmlClient(
@@ -58,11 +65,16 @@ class NimbusFmlLoader:
             logger.error("Nimbus FML Loader: Failed to get FmlClient.")
             return None
 
-    def _get_inspectors(self, client: FmlClient, feature_id: str) -> FmlFeatureInspector:
+    @lru_cache  # noqa: B019
+    def feature_inspector(
+        self, client: FmlClient, feature_id: str
+    ) -> FmlFeatureInspector:
+        """There is a single FmlFeatureInspector for each feature."""
         return client.get_feature_inspector(feature_id)
 
     @staticmethod
     def _get_errors(inspector: FmlFeatureInspector, blob: str):
+        """There can be None or more errors returned from a single feature inspector."""
         return inspector.get_errors(blob)
 
     def get_fml_errors(
@@ -72,8 +84,8 @@ class NimbusFmlLoader:
         version: Optional[NimbusFeatureVersion] = None,
     ):
         """Fetch errors from the FML. This method creates FML clients, which are
-        used by `FmlFeatureInspector`s to fetch errors based on the blob of text and
-        the given feature.
+        used by `FmlFeatureInspector`s to fetch FML errors based on a blob of text and
+        the given feature id.
 
         Returns:
             A list of feature manifest errors.
@@ -81,7 +93,7 @@ class NimbusFmlLoader:
         if self.application is not None:
             errors = []
             if client := self.fml_client(version):
-                if inspector := self._get_inspectors(client, feature_id):
+                if inspector := self.feature_inspector(client, feature_id):
                     if errs := self._get_errors(inspector, blob):
                         errors.extend(errs)
                 return errors
