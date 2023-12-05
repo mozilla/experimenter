@@ -1491,7 +1491,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return None
 
     def _validate_with_fml(self, loader: NimbusFmlLoader, feature_id: str, obj):
-        fml_errors = loader.get_fml_errors(obj, feature_id)
         if fml_errors := loader.get_fml_errors(obj, feature_id):
             return [
                 f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
@@ -1564,13 +1563,14 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     reference_branch_errors.append({"value": schema_errors})
                     continue
 
-            elif fml_errors := self._validate_with_fml(
-                loader,
-                feature_value_data["feature_config"].slug,
-                feature_value_data["value"],
-            ):
-                reference_branch_errors.append({"value": fml_errors})
-                continue
+            elif NimbusExperiment.Application.is_mobile(application):
+                if fml_errors := self._validate_with_fml(
+                    loader,
+                    feature_value_data["feature_config"].slug,
+                    feature_value_data["value"],
+                ):
+                    reference_branch_errors.append({"value": fml_errors})
+                    continue
 
             reference_branch_errors.append({})
 
@@ -1595,14 +1595,15 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         treatment_branches_errors_found = True
                         continue
 
-                elif fml_errors := self._validate_with_fml(
-                    loader,
-                    feature_value_data["feature_config"].slug,
-                    feature_value_data["value"],
-                ):
-                    treatment_branch_errors.append({"value": fml_errors})
-                    treatment_branches_errors_found = True
-                    continue
+                elif NimbusExperiment.Application.is_mobile(application):
+                    if fml_errors := self._validate_with_fml(
+                        loader,
+                        feature_value_data["feature_config"].slug,
+                        feature_value_data["value"],
+                    ):
+                        treatment_branch_errors.append({"value": fml_errors})
+                        treatment_branches_errors_found = True
+                        continue
 
                 treatment_branch_errors.append({})
 

@@ -1452,6 +1452,56 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         self.assertTrue(serializer.is_valid())
         self.mock_fml_errors.assert_not_called()
 
+    def test_serializer_no_fml_validation_on_non_mobile(self):
+        fml_errors = [
+            NimbusFmlErrorDataClass(
+                line=0,
+                col=0,
+                message="Incorrect value",
+                highlight="enabled",
+            ),
+            NimbusFmlErrorDataClass(
+                line=0,
+                col=0,
+                message="Type not allowed",
+                highlight="record",
+            ),
+        ]
+        self.setup_get_fml_errors(fml_errors)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DEMO_APP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.DEMO_APP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
+                )
+            ],
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+        reference_feature_value = experiment.reference_branch.feature_values.get()
+        reference_feature_value.value = json.dumps({"bar": {"baz": "baz", "qux": 123}})
+        reference_feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        self.mock_fml_errors.assert_not_called()
+
     def test_serializer_fml_invalid_reference_branch_value(self):
         fml_errors = [
             NimbusFmlErrorDataClass(
