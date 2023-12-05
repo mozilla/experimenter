@@ -1,7 +1,7 @@
 import os
 import time
 import uuid
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 import pytest
 import requests
@@ -79,21 +79,8 @@ APPLICATION_KINTO_COLLECTION = {
 }
 
 
-@pytest.fixture
-def slugify():
-    def _slugify(name):
-        return name.lower().replace(" ", "-").replace("[", "").replace("]", "")
-
-    return _slugify
-
-
-@pytest.fixture
-def json_url(slugify):
-    def _json_url(base_url, title):
-        base_url = urlparse(base_url)
-        return f"https://{base_url.netloc}/api/v6/experiments/{slugify(title)}"
-
-    return _json_url
+def slugify(name):
+    return name.lower().replace(" ", "-").replace("[", "").replace("]", "")
 
 
 @pytest.fixture
@@ -115,11 +102,10 @@ def firefox_options(firefox_options):
 
 
 @pytest.fixture
-def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
+def selenium(selenium, experiment_slug, kinto_client):
     yield selenium
 
     if os.getenv("CIRCLECI") is None:
-        experiment_slug = str(slugify(experiment_name))
         try:
             helpers.end_experiment(experiment_slug)
             kinto_client.approve()
@@ -164,13 +150,18 @@ def drafts_tab_url(base_url):
 
 
 @pytest.fixture
-def experiment_url(base_url, default_data, slugify):
-    return urljoin(base_url, slugify(default_data.public_name))
+def experiment_name(request):
+    return f"{request.node.name[:75]}{str(uuid.uuid4())[:4]}"
 
 
 @pytest.fixture
-def experiment_name(request):
-    return f"{request.node.name[:75]}{str(uuid.uuid4())[:4]}"
+def experiment_slug(experiment_name):
+    return slugify(experiment_name)
+
+
+@pytest.fixture
+def experiment_url(base_url, experiment_slug):
+    return urljoin(base_url, experiment_slug)
 
 
 @pytest.fixture(name="load_experiment_outcomes")
@@ -384,6 +375,37 @@ def fixture_experiment_default_data():
         "populationPercent": "100",
         "totalEnrolledClients": 55,
         "firefoxMinVersion": "FIREFOX_96",
+    }
+
+
+@pytest.fixture()
+def default_data_api(application):
+    feature_config_id = APPLICATION_FEATURE_IDS[application]
+    return {
+        "hypothesis": "Test Hypothesis",
+        "application": application,
+        "changelogMessage": "test updates",
+        "targetingConfigSlug": "no_targeting",
+        "publicDescription": "Some sort of Fancy Words",
+        "riskRevenue": False,
+        "riskPartnerRelated": False,
+        "riskBrand": False,
+        "featureConfigIds": [int(feature_config_id)],
+        "referenceBranch": {
+            "description": "reference branch",
+            "name": "Branch 1",
+            "ratio": 50,
+            "featureValues": [
+                {
+                    "featureConfig": str(feature_config_id),
+                    "value": "{}",
+                },
+            ],
+        },
+        "treatmentBranches": [],
+        "populationPercent": "100",
+        "totalEnrolledClients": 55,
+        "firefoxMinVersion": "FIREFOX_120",
     }
 
 

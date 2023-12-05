@@ -1,57 +1,71 @@
-from urllib.parse import urljoin
-
 import pytest
 
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
+from nimbus.utils import helpers
 
 
 @pytest.mark.remote_settings
 def test_create_new_experiment_approve_remote_settings(
     selenium,
     experiment_url,
-    create_experiment,
     kinto_client,
     base_url,
-    experiment_name,
+    application,
+    default_data_api,
+    experiment_slug,
 ):
-    create_experiment(selenium, is_rollout=False).launch_and_approve()
+    helpers.create_experiment(experiment_slug, application, default_data_api)
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
     home = HomePage(selenium, base_url).open()
-    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
+    assert experiment_slug in [item.text for item in home.tables[0].experiments]
 
 
 @pytest.mark.remote_settings
 def test_create_new_rollout_approve_remote_settings(
     selenium,
     experiment_url,
-    create_experiment,
     kinto_client,
     base_url,
-    experiment_name,
+    application,
+    default_data_api,
+    experiment_slug,
 ):
-    create_experiment(selenium, is_rollout=True).launch_and_approve()
+    helpers.create_experiment(
+        experiment_slug, application, default_data_api, is_rollout=True
+    )
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
     home = HomePage(selenium, base_url).open()
-    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
+    assert experiment_slug in [item.text for item in home.tables[0].experiments]
 
 
 @pytest.mark.remote_settings
 def test_create_new_experiment_reject_remote_settings(
     selenium,
     experiment_url,
-    create_experiment,
     kinto_client,
+    application,
+    default_data_api,
+    experiment_slug,
 ):
-    create_experiment(selenium).launch_and_approve()
+    helpers.create_experiment(experiment_slug, application, default_data_api)
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.reject()
 
@@ -62,10 +76,17 @@ def test_create_new_experiment_reject_remote_settings(
 def test_create_new_rollout_reject_remote_settings(
     selenium,
     experiment_url,
-    create_experiment,
     kinto_client,
+    application,
+    default_data_api,
+    experiment_slug,
 ):
-    create_experiment(selenium, is_rollout=True).launch_and_approve()
+    helpers.create_experiment(
+        experiment_slug, application, default_data_api, is_rollout=True
+    )
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.reject()
 
@@ -76,10 +97,15 @@ def test_create_new_rollout_reject_remote_settings(
 def test_end_experiment_and_approve_end_set_takeaways(
     selenium,
     experiment_url,
-    create_experiment,
     kinto_client,
+    application,
+    default_data_api,
+    experiment_slug,
 ):
-    create_experiment(selenium).launch_and_approve()
+    helpers.create_experiment(experiment_slug, application, default_data_api)
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.approve()
 
@@ -103,10 +129,17 @@ def test_end_experiment_and_approve_end_set_takeaways(
 def test_end_rollout_and_approve_end_set_takeaways(
     selenium,
     experiment_url,
-    create_experiment,
     kinto_client,
+    application,
+    default_data_api,
+    experiment_slug,
 ):
-    create_experiment(selenium, is_rollout=True).launch_and_approve()
+    helpers.create_experiment(
+        experiment_slug, application, default_data_api, is_rollout=True
+    )
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.approve()
 
@@ -130,10 +163,15 @@ def test_end_rollout_and_approve_end_set_takeaways(
 def test_end_experiment_and_reject_end(
     selenium,
     experiment_url,
-    create_experiment,
     kinto_client,
+    application,
+    default_data_api,
+    experiment_slug,
 ):
-    create_experiment(selenium).launch_and_approve()
+    helpers.create_experiment(experiment_slug, application, default_data_api)
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.approve()
 
@@ -150,10 +188,17 @@ def test_end_experiment_and_reject_end(
 def test_end_rollout_and_reject_end(
     selenium,
     experiment_url,
-    create_experiment,
     kinto_client,
+    application,
+    default_data_api,
+    experiment_slug,
 ):
-    create_experiment(selenium, is_rollout=True).launch_and_approve()
+    helpers.create_experiment(
+        experiment_slug, application, default_data_api, is_rollout=True
+    )
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.approve()
 
@@ -169,17 +214,21 @@ def test_end_rollout_and_reject_end(
 @pytest.mark.remote_settings
 def test_rollout_live_update_approve(
     selenium,
-    base_url,
-    create_experiment,
     kinto_client,
-    experiment_name,
-    slugify,
+    application,
+    default_data_api,
+    experiment_slug,
+    experiment_url,
 ):
-    experiment_slug = str(slugify(experiment_name))
-    create_experiment(selenium, is_rollout=True).launch_and_approve()
+    helpers.create_experiment(
+        experiment_slug, application, default_data_api, is_rollout=True
+    )
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.approve()
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
 
     summary.wait_for_live_status()
     audience = summary.navigate_to_audience()
@@ -187,7 +236,7 @@ def test_rollout_live_update_approve(
     audience.percentage = "60"
     audience.save_and_continue()
 
-    summary_page = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary_page = SummaryPage(selenium, experiment_url).open()
     summary_page.wait_for_update_request_visible()
 
     summary_page.request_update_and_approve()
@@ -197,17 +246,21 @@ def test_rollout_live_update_approve(
 @pytest.mark.remote_settings
 def test_rollout_live_update_approve_and_reject(
     selenium,
-    base_url,
-    create_experiment,
     kinto_client,
-    experiment_name,
-    slugify,
+    application,
+    default_data_api,
+    experiment_slug,
+    experiment_url,
 ):
-    experiment_slug = str(slugify(experiment_name))
-    create_experiment(selenium, is_rollout=True).launch_and_approve()
+    helpers.create_experiment(
+        experiment_slug, application, default_data_api, is_rollout=True
+    )
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.approve()
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
 
     summary.wait_for_live_status()
     audience = summary.navigate_to_audience()
@@ -215,7 +268,7 @@ def test_rollout_live_update_approve_and_reject(
     audience.percentage = "60"
     audience.save_and_continue()
 
-    summary_page = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary_page = SummaryPage(selenium, experiment_url).open()
     summary_page.wait_for_update_request_visible()
 
     summary_page.request_update_and_approve()
@@ -227,17 +280,21 @@ def test_rollout_live_update_approve_and_reject(
 @pytest.mark.remote_settings
 def test_rollout_live_update_reject_on_experimenter(
     selenium,
-    base_url,
-    create_experiment,
     kinto_client,
-    experiment_name,
-    slugify,
+    application,
+    default_data_api,
+    experiment_slug,
+    experiment_url,
 ):
-    experiment_slug = str(slugify(experiment_name))
-    create_experiment(selenium, is_rollout=True).launch_and_approve()
+    helpers.create_experiment(
+        experiment_slug, application, default_data_api, is_rollout=True
+    )
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_and_approve()
 
     kinto_client.approve()
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
 
     summary.wait_for_live_status()
     audience = summary.navigate_to_audience()
@@ -245,7 +302,7 @@ def test_rollout_live_update_reject_on_experimenter(
     audience.percentage = "60"
     audience.save_and_continue()
 
-    summary_page = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary_page = SummaryPage(selenium, experiment_url).open()
     summary_page.wait_for_update_request_visible()
 
     summary_page.request_update_and_reject()
@@ -259,8 +316,13 @@ def test_rollout_live_update_reject_on_experimenter(
 @pytest.mark.remote_settings
 def test_create_new_experiment_timeout_remote_settings(
     selenium,
-    create_experiment,
+    application,
+    default_data_api,
+    experiment_slug,
+    experiment_url,
 ):
-    summary = create_experiment(selenium)
+    helpers.create_experiment(experiment_slug, application, default_data_api)
+
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
     summary.wait_for_timeout_alert()

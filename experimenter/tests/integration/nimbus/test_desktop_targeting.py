@@ -15,12 +15,10 @@ def targeting_config_slug(request):
 @pytest.mark.run_targeting
 def test_check_advanced_targeting(
     selenium,
-    slugify,
-    experiment_name,
     targeting_config_slug,
+    experiment_slug,
 ):
     targeting = helpers.load_targeting_configs()[1]
-    experiment_slug = str(slugify(experiment_name))
     data = {
         "hypothesis": "Test Hypothesis",
         "application": BaseExperimentApplications.FIREFOX_DESKTOP.value,
@@ -61,8 +59,8 @@ def test_check_advanced_targeting(
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        targeting_config_slug,
         data,
+        targeting=targeting_config_slug,
     )
     experiment_data = helpers.load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
@@ -105,18 +103,16 @@ def test_check_advanced_targeting(
 @pytest.mark.run_targeting
 def test_check_audience_targeting(
     selenium,
-    slugify,
-    experiment_name,
     audience_field,
     experiment_default_data,
+    experiment_slug,
 ):
-    experiment_slug = str(slugify(experiment_name))
     experiment_default_data.update(audience_field)
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        "no_targeting",
         experiment_default_data,
+        targeting="no_targeting",
     )
     experiment_data = helpers.load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
