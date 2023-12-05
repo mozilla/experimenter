@@ -2991,6 +2991,29 @@ class NimbusFeatureConfigTests(TestCase):
             ),
         )
 
+    def test_get_versioned_schema_range_supported_in_range(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusConstants.Application.IOS
+        )
+        version = NimbusFeatureVersion.objects.bulk_create(
+            NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0),
+            NimbusFeatureVersion.objects.create(major=122, minor=0, patch=0),
+        )
+        NimbusVersionedSchemaFactory.create(feature_config=feature, version=version)
+        schemas_in_range = feature.get_versioned_schema_range(
+            packaging.version.Version("121.0.0"), packaging.version.Version("122.0.0")
+        )
+
+        self.assertEqual(
+            schemas_in_range,
+            NimbusFeatureConfig.VersionedSchemaRange(
+                schemas=[],
+                unsupported_in_range=True,
+                unsupported_versions=[],
+                supported_versions=["121.0.0", "122.0.0"],
+            ),
+        )
+
     def test_get_versioned_schema_range_unsupported_versions(self):
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusConstants.Application.DESKTOP
