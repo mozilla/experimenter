@@ -284,7 +284,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   redux-integration-feature:
     description: "This feature is for managing the roll out of the Redux integration feature\n"
     variables:
