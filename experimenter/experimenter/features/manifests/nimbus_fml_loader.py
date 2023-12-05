@@ -24,7 +24,7 @@ class NimbusFmlLoader:
     @classmethod
     @lru_cache
     def create_loader(cls, application: str, channel: str):
-        """Application and channel should stay the same for each iteration of the 
+        """Application and channel should stay the same for each iteration of the
         FML loader.
         """
         return cls(application, channel)
@@ -65,7 +65,6 @@ class NimbusFmlLoader:
             logger.error("Nimbus FML Loader: Failed to get FmlClient.")
             return None
 
-    @lru_cache  # noqa: B019
     def feature_inspector(
         self, client: FmlClient, feature_id: str
     ) -> FmlFeatureInspector:
@@ -74,7 +73,6 @@ class NimbusFmlLoader:
 
     @staticmethod
     def _get_errors(inspector: FmlFeatureInspector, blob: str):
-        """There can be None or more errors returned from a single feature inspector."""
         return inspector.get_errors(blob)
 
     def get_fml_errors(

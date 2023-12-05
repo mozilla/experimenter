@@ -21,7 +21,6 @@ class TestNimbusFmlLoader(TestCase):
     def setUp(self):
         NimbusFmlLoader.create_loader.cache_clear()
         NimbusFmlLoader.fml_client.cache_clear()
-        NimbusFmlLoader.feature_inspector.cache_clear()
 
     def create_loader(
         self,
