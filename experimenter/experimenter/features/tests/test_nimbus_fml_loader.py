@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 from django.test import TestCase
 from rust_fml import FmlClient
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
 from experimenter.settings import BASE_DIR
 
@@ -224,6 +225,33 @@ class TestNimbusFmlLoader(TestCase):
         mock_get_inspectors.assert_called()
         mock_get_errors.assert_not_called()
         self.assertEqual(result, [])
+
+    def test_get_fml_errors_with_no_client_because_of_no_manifest(
+        self,
+    ):
+        application = NimbusConstants.Application.DEMO_APP
+        channel = "release"
+        with self.assertLogs(level="ERROR") as log:
+            loader = NimbusFmlLoader(application, channel)
+            test_blob = json.dumps({"features": {"new-feature": {"enabled": "false"}}})
+
+            result = loader.get_fml_errors(test_blob, "my_feature_id")
+
+            self.assertEqual(result, [])
+            self.assertIn("Nimbus FML Loader: Invalid manifest path:", log.output[0])
+            self.assertIn("Nimbus FML Loader: Failed to get FmlClient.", log.output[1])
+
+    def test_get_fml_client_with_invalid_fm_path(
+        self,
+    ):
+        application = NimbusConstants.Application.DEMO_APP
+        channel = "release"
+        with self.assertLogs(level="ERROR") as log:
+            loader = NimbusFmlLoader(application, channel)
+            result = loader.fml_client()
+            self.assertIsNone(result)
+            self.assertIn("Nimbus FML Loader: Invalid manifest path:", log.output[0])
+            self.assertIn("Nimbus FML Loader: Failed to get FmlClient.", log.output[1])
 
     @patch(
         "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader._get_inspectors",

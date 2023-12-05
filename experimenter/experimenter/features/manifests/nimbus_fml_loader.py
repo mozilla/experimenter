@@ -55,9 +55,7 @@ class NimbusFmlLoader:
                 self.channel,
             )
         else:
-            logger.error(
-                "Nimbus FML Loader: Failed to get FmlClient."
-            )
+            logger.error("Nimbus FML Loader: Failed to get FmlClient.")
             return None
 
     def _get_inspectors(self, client: FmlClient, feature_id: str) -> FmlFeatureInspector:
