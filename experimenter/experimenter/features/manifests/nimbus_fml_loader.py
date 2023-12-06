@@ -3,6 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
+from django.conf import settings
 from rust_fml import FmlClient
 
 from experimenter.experiments.constants import NimbusConstants
@@ -24,20 +25,18 @@ class NimbusFmlLoader:
     @classmethod
     @lru_cache
     def create_loader(cls, application: str, channel: str):
-        """Application and channel should stay the same for each iteration of the
-        FML loader.
-        """
+        # Application and channel should stay the same for each iteration of the
+        # FML loader.
         return cls(application, channel)
 
     def file_path(self, version: NimbusFeatureVersion = None):
         """Get path to release feature manifest from experimenter (local)."""
 
         if self.application is not None:
-            path = Path(self.MANIFEST_PATH, self.application)
+            path = Path(settings.FEATURE_MANIFESTS_PATH, self.application)
             if version:
                 path /= f"v{version}"
             path /= f"{self.channel}.fml.yaml"
-
             if Path.exists(path):
                 return path
             else:
@@ -52,7 +51,9 @@ class NimbusFmlLoader:
 
     @lru_cache  # noqa: B019
     def fml_client(self, version: Optional[NimbusFeatureVersion] = None) -> FmlClient:
-        """There is a single FmlClient for each combination of application, app version,
+        """The FmlClient for the given version of the feature manifest.
+
+        There is a single FmlClient for each combination of application, app version,
         and channel.
         """
         file_path = self.file_path(version)
@@ -71,7 +72,9 @@ class NimbusFmlLoader:
         feature_id: str,
         version: Optional[NimbusFeatureVersion] = None,
     ):
-        """Fetch errors from the FML. This method creates FML clients, which are
+        """Fetch errors from the FML.
+
+        This method creates FML clients, which are
         used by `FmlFeatureInspector`s to fetch FML errors based on a blob of text and
         the given feature id.
 
