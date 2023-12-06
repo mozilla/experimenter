@@ -70,35 +70,12 @@ def test_check_telemetry_enrollment_unenrollment(
     check_ping_for_experiment,
     experiment_slug,
     experiment_url,
+    default_data_api,
 ):
-    data = {
-        "hypothesis": "Test Hypothesis",
-        "changelogMessage": "test updates",
-        "publicDescription": "Some sort of Fancy Words",
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "featureConfigIds": [1],
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 50,
-            "featureValues": [
-                {
-                    "featureConfig": "1",
-                    "value": "{}",
-                },
-            ],
-        },
-        "treatmentBranches": [],
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
-        "firefoxMinVersion": "FIREFOX_96",
-    }
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        data,
+        default_data_api,
     )
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -153,7 +130,7 @@ def test_check_telemetry_enrollment_unenrollment(
 def test_check_telemetry_pref_flip(
     selenium,
     kinto_client,
-    experiment_default_data,
+    default_data_api,
     check_ping_for_experiment,
     telemetry_event_check,
     trigger_experiment_loader,
@@ -162,8 +139,8 @@ def test_check_telemetry_pref_flip(
 ):
     about_config = AboutConfig(selenium)
 
-    experiment_default_data["featureConfigIds"] = [9]
-    experiment_default_data["referenceBranch"] = {
+    default_data_api["featureConfigIds"] = [9]
+    default_data_api["referenceBranch"] = {
         "description": "reference branch",
         "name": "Branch 1",
         "ratio": 100,
@@ -174,11 +151,11 @@ def test_check_telemetry_pref_flip(
             },
         ],
     }
-    experiment_default_data["treatmentBranches"] = []
+    default_data_api["treatmentBranches"] = []
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        experiment_default_data,
+        default_data_api,
     )
 
     about_config = about_config.open().wait_for_page_to_load()
@@ -241,7 +218,7 @@ def test_check_telemetry_pref_flip(
 def test_check_telemetry_sticky_targeting(
     selenium,
     kinto_client,
-    experiment_default_data,
+    default_data_api,
     check_ping_for_experiment,
     telemetry_event_check,
     trigger_experiment_loader,
@@ -253,8 +230,8 @@ def test_check_telemetry_sticky_targeting(
 
     requests.delete("http://ping-server:5000/pings")
     targeting_config_slug = "no_targeting"
-    experiment_default_data["targetingConfigSlug"] = targeting_config_slug
-    experiment_default_data["referenceBranch"] = {
+    default_data_api["targetingConfigSlug"] = targeting_config_slug
+    default_data_api["referenceBranch"] = {
         "description": "reference branch",
         "name": "Branch 1",
         "ratio": 100,
@@ -265,12 +242,12 @@ def test_check_telemetry_sticky_targeting(
             },
         ],
     }
-    experiment_default_data["treatmentBranches"] = []
-    experiment_default_data["isSticky"] = True
+    default_data_api["treatmentBranches"] = []
+    default_data_api["isSticky"] = True
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        experiment_default_data,
+        default_data_api,
         targeting=targeting_config_slug,
     )
 

@@ -336,48 +336,6 @@ def trigger_experiment_loader(selenium):
     return _trigger_experiment_loader
 
 
-@pytest.fixture(name="experiment_default_data")
-def fixture_experiment_default_data():
-    return {
-        "hypothesis": "Test Hypothesis",
-        "application": BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        "changelogMessage": "test updates",
-        "targetingConfigSlug": "no_targeting",
-        "publicDescription": "Some sort of Fancy Words",
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "featureConfigIds": [1],
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 50,
-            "featureValues": [
-                {
-                    "featureConfig": "1",
-                    "value": "{}",
-                },
-            ],
-        },
-        "treatmentBranches": [
-            {
-                "description": "treatment branch",
-                "name": "Branch 2",
-                "ratio": 50,
-                "featureValues": [
-                    {
-                        "featureConfig": "1",
-                        "value": "",
-                    },
-                ],
-            }
-        ],
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
-        "firefoxMinVersion": "FIREFOX_96",
-    }
-
-
 @pytest.fixture()
 def default_data_api(application):
     feature_config_id = APPLICATION_FEATURE_IDS[application]

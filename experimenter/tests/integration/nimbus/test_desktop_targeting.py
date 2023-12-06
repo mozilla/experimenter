@@ -17,49 +17,12 @@ def test_check_advanced_targeting(
     selenium,
     targeting_config_slug,
     experiment_slug,
+    default_data_api,
 ):
-    targeting = helpers.load_targeting_configs()[1]
-    data = {
-        "hypothesis": "Test Hypothesis",
-        "application": BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        "changelogMessage": "test updates",
-        "targetingConfigSlug": targeting,
-        "publicDescription": "Some sort of Fancy Words",
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "featureConfigIds": [1],
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 50,
-            "featureValues": [
-                {
-                    "featureConfig": "1",
-                    "value": "{}",
-                },
-            ],
-        },
-        "treatmentBranches": [
-            {
-                "description": "treatment branch",
-                "name": "Branch 2",
-                "ratio": 50,
-                "featureValues": [
-                    {
-                        "featureConfig": "1",
-                        "value": "{}",
-                    },
-                ],
-            }
-        ],
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
-    }
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        data,
+        default_data_api,
         targeting=targeting_config_slug,
     )
     experiment_data = helpers.load_experiment_data(experiment_slug)
@@ -104,14 +67,14 @@ def test_check_advanced_targeting(
 def test_check_audience_targeting(
     selenium,
     audience_field,
-    experiment_default_data,
     experiment_slug,
+    default_data_api,
 ):
-    experiment_default_data.update(audience_field)
+    default_data_api.update(audience_field)
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        experiment_default_data,
+        default_data_api,
         targeting="no_targeting",
     )
     experiment_data = helpers.load_experiment_data(experiment_slug)
