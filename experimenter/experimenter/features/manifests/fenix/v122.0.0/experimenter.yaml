@@ -74,6 +74,12 @@ messaging:
   hasExposure: true
   exposureDescription: ""
   variables:
+    $$experiment:
+      type: string
+      description: "The only acceptable value for `MessageData#experiment`. This should not be set by experiment."
+    $$surfaces:
+      type: json
+      description: "A list available surfaces for this app.\n\nThis should not be written to by experiments, and should be hidden to users.\n"
     actions:
       type: json
       description: A growable map of action URLs.
