@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
-from rust_fml import FmlClient, FmlFeatureInspector
+from rust_fml import FmlClient
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusFeatureVersion
@@ -65,16 +65,6 @@ class NimbusFmlLoader:
             logger.error("Nimbus FML Loader: Failed to get FmlClient.")
             return None
 
-    def feature_inspector(
-        self, client: FmlClient, feature_id: str
-    ) -> FmlFeatureInspector:
-        """There is a single FmlFeatureInspector for each feature."""
-        return client.get_feature_inspector(feature_id)
-
-    @staticmethod
-    def _get_errors(inspector: FmlFeatureInspector, blob: str):
-        return inspector.get_errors(blob)
-
     def get_fml_errors(
         self,
         blob: str,
@@ -91,8 +81,8 @@ class NimbusFmlLoader:
         if self.application is not None:
             errors = []
             if client := self.fml_client(version):
-                if inspector := self.feature_inspector(client, feature_id):
-                    if errs := self._get_errors(inspector, blob):
+                if inspector := client.get_feature_inspector(feature_id):
+                    if errs := inspector.get_errors(blob):
                         errors.extend(errs)
                 return errors
         logger.error(
