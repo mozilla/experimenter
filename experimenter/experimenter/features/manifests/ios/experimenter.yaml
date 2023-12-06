@@ -66,6 +66,9 @@ messaging:
   hasExposure: true
   exposureDescription: ""
   variables:
+    "$$experiment:":
+      type: string
+      description: Not to be set by experiment.
     actions:
       type: json
       description: A growable map of action URLs.
