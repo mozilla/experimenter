@@ -1519,7 +1519,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     )
                 )
             if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
-                errors.append([
+                errors.extend([
                     f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
                     f"{e.message} at line {e.line+1} column {e.col}"
                     f"{f' at version {version}' if version is not None else ''}"
@@ -1630,10 +1630,17 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         continue
 
                 elif NimbusExperiment.Application.is_mobile(application):
+                    feature_config = feature_value_data["feature_config"]
+                    blob = feature_value_data["value"]
+                    schemas_in_range = feature_config.get_versioned_schema_range(
+                        min_version, max_version
+                    )
+
                     if fml_errors := self._validate_with_fml(
                         loader,
-                        feature_value_data["feature_config"].slug,
-                        feature_value_data["value"],
+                        feature_config,
+                        blob,
+                        schemas_in_range,
                     ):
                         treatment_branch_errors.append({"value": fml_errors})
                         treatment_branches_errors_found = True

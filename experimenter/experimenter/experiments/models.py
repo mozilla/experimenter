@@ -1344,6 +1344,7 @@ class NimbusFeatureConfig(models.Model):
                     schemas=[],
                     unsupported_in_range=True,
                     unsupported_versions=[],
+                    supported_versions=[],
                 )
             else:
                 # There are no verioned schemas for this feature. Fall back to
@@ -1354,6 +1355,7 @@ class NimbusFeatureConfig(models.Model):
             schemas=schemas,
             unsupported_in_range=False,
             unsupported_versions=unsupported_versions,
+            supported_versions=supported_versions,
         )
 
     class Meta:
