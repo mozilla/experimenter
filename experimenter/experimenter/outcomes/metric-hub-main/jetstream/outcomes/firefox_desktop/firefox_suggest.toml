@@ -45,3 +45,27 @@ description = "Count of clicks on annoyance signals across all results shown in 
 friendly_name = "urlbar annoyances"
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
+
+[metrics.search_engine_clicks]
+select_expression = """COUNTIF(
+  is_terminal
+  AND event_action = 'engaged'
+  AND (
+    product_selected_result IN ('default_partner_search_suggestion', 'search_engine', 'trending_suggestion')
+    OR selected_result IN ('recent_search')
+  )
+)"""
+data_source = "urlbar_events"
+description = "Count of clicks on a result shown in the urlbar dropdown menu leading to a SERP"
+friendly_name = "Urlbar impressions ending on a SERP"
+exposure_basis = ["exposures", "enrollments"]
+statistics = { deciles = {}, bootstrap_mean = {} }
+
+[metrics.search_engine_rate]
+depends_on = ["search_engine_clicks", "urlbar_impressions"]
+friendly_name = "SERP engagement rate"
+description = "Proportion of urlbar impressions ending with a click leading to a SERP"
+
+[metrics.search_engine_rate.statistics.population_ratio]
+numerator = "search_engine_clicks"
+denominator = "urlbar_impressions"
