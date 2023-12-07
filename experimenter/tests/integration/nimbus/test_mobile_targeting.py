@@ -63,9 +63,8 @@ def test_check_mobile_targeting(
     sdk_client,
     load_app_context,
     context,
-    slugify,
-    experiment_name,
     targeting,
+    experiment_slug,
 ):
     # The context fixtures can only contain strings or null
     context["language"] = context["language"][:2]  # strip region
@@ -86,7 +85,6 @@ def test_check_mobile_targeting(
         additional_context=custom_targeting_attributes
     )
 
-    experiment_slug = str(slugify(experiment_name))
     helpers.create_basic_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_FENIX.value,

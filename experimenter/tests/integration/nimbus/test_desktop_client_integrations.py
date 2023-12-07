@@ -1,5 +1,4 @@
 import time
-from urllib.parse import urljoin
 
 import pytest
 import requests
@@ -65,53 +64,25 @@ def firefox_options(firefox_options):
 @pytest.mark.desktop_enrollment
 @pytest.mark.xdist_group(name="group1")
 def test_check_telemetry_enrollment_unenrollment(
-    base_url,
     selenium,
     kinto_client,
-    slugify,
-    experiment_name,
     telemetry_event_check,
     check_ping_for_experiment,
+    experiment_slug,
+    experiment_url,
+    default_data_api,
 ):
-    targeting = helpers.load_targeting_configs()[0]
-    experiment_slug = str(slugify(experiment_name))
-    data = {
-        "hypothesis": "Test Hypothesis",
-        "changelogMessage": "test updates",
-        "targetingConfigSlug": targeting,
-        "publicDescription": "Some sort of Fancy Words",
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "featureConfigIds": [1],
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 50,
-            "featureValues": [
-                {
-                    "featureConfig": "1",
-                    "value": "{}",
-                },
-            ],
-        },
-        "treatmentBranches": [],
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
-        "firefoxMinVersion": "FIREFOX_96",
-    }
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        targeting,
-        data,
+        default_data_api,
     )
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
     kinto_client.approve()
 
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
 
     # Ping the server twice as it sleeps sometimes
@@ -137,10 +108,10 @@ def test_check_telemetry_enrollment_unenrollment(
                     break
 
     # unenroll
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
     kinto_client.approve()
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
     requests.get("http://ping-server:5000/pings")
@@ -157,23 +128,19 @@ def test_check_telemetry_enrollment_unenrollment(
 @pytest.mark.desktop_enrollment
 @pytest.mark.xdist_group(name="group2")
 def test_check_telemetry_pref_flip(
-    base_url,
     selenium,
     kinto_client,
-    slugify,
-    experiment_name,
-    experiment_default_data,
+    default_data_api,
     check_ping_for_experiment,
     telemetry_event_check,
     trigger_experiment_loader,
+    experiment_slug,
+    experiment_url,
 ):
     about_config = AboutConfig(selenium)
 
-    targeting = helpers.load_targeting_configs()[0]
-    experiment_slug = str(slugify(experiment_name))
-    experiment_default_data["targetingConfigSlug"] = targeting
-    experiment_default_data["featureConfigIds"] = [9]
-    experiment_default_data["referenceBranch"] = {
+    default_data_api["featureConfigIds"] = [9]
+    default_data_api["referenceBranch"] = {
         "description": "reference branch",
         "name": "Branch 1",
         "ratio": 100,
@@ -184,12 +151,11 @@ def test_check_telemetry_pref_flip(
             },
         ],
     }
-    experiment_default_data["treatmentBranches"] = []
+    default_data_api["treatmentBranches"] = []
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        targeting,
-        experiment_default_data,
+        default_data_api,
     )
 
     about_config = about_config.open().wait_for_page_to_load()
@@ -197,12 +163,12 @@ def test_check_telemetry_pref_flip(
         "nimbus.qa.pref-1", "default", action=trigger_experiment_loader
     )
 
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
     kinto_client.approve()
 
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
 
     # Ping the server twice as it sleeps sometimes
@@ -225,10 +191,10 @@ def test_check_telemetry_pref_flip(
     )
 
     # unenroll
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
     kinto_client.approve()
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
     requests.get("http://ping-server:5000/pings")
@@ -250,24 +216,22 @@ def test_check_telemetry_pref_flip(
 @pytest.mark.desktop_enrollment
 @pytest.mark.xdist_group(name="group1")
 def test_check_telemetry_sticky_targeting(
-    base_url,
     selenium,
     kinto_client,
-    slugify,
-    experiment_name,
-    experiment_default_data,
+    default_data_api,
     check_ping_for_experiment,
     telemetry_event_check,
     trigger_experiment_loader,
+    experiment_slug,
+    experiment_url,
 ):
     about_config = AboutConfig(selenium)
     pref_name = "sticky.targeting.test.pref"
 
     requests.delete("http://ping-server:5000/pings")
-    experiment_slug = str(slugify(experiment_name))
     targeting_config_slug = "no_targeting"
-    experiment_default_data["targetingConfigSlug"] = targeting_config_slug
-    experiment_default_data["referenceBranch"] = {
+    default_data_api["targetingConfigSlug"] = targeting_config_slug
+    default_data_api["referenceBranch"] = {
         "description": "reference branch",
         "name": "Branch 1",
         "ratio": 100,
@@ -278,21 +242,21 @@ def test_check_telemetry_sticky_targeting(
             },
         ],
     }
-    experiment_default_data["treatmentBranches"] = []
-    experiment_default_data["isSticky"] = True
+    default_data_api["treatmentBranches"] = []
+    default_data_api["isSticky"] = True
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        targeting_config_slug,
-        experiment_default_data,
+        default_data_api,
+        targeting=targeting_config_slug,
     )
 
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
     kinto_client.approve()
 
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
 
     # Ping the server twice as it sleeps sometimes
@@ -328,10 +292,10 @@ def test_check_telemetry_sticky_targeting(
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
     # unenroll
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
     kinto_client.approve()
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
     requests.get("http://ping-server:5000/pings")

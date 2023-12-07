@@ -1,5 +1,4 @@
 import os
-from urllib.parse import urljoin
 
 import pytest
 
@@ -111,17 +110,16 @@ def test_every_form_page_can_be_resaved(
 
 @pytest.mark.nimbus_ui
 def test_first_run_release_date_visible_for_mobile(
-    base_url,
     selenium,
     kinto_client,
     application,
     create_experiment,
+    experiment_url,
 ):
     if application not in MOBILE_APPS:
         pytest.skip(f"Skipping for {application}")
 
     summary = create_experiment(selenium)
-    experiment_slug = summary.experiment_slug
 
     audience = summary.navigate_to_audience()
     audience.make_first_run()
@@ -132,7 +130,7 @@ def test_first_run_release_date_visible_for_mobile(
 
     audience.save_and_continue()
 
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
 
     assert summary.proposed_release_date == "2023-12-12"
 
@@ -140,7 +138,7 @@ def test_first_run_release_date_visible_for_mobile(
 
     kinto_client.approve()
 
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
 
     assert summary.first_run
@@ -149,17 +147,16 @@ def test_first_run_release_date_visible_for_mobile(
 
 @pytest.mark.nimbus_ui
 def test_first_run_release_date_not_visible_for_non_mobile(
-    base_url,
     selenium,
     kinto_client,
     application,
     create_experiment,
+    experiment_url,
 ):
     if application in MOBILE_APPS:
         pytest.skip(f"Skipping for {application}")
 
     summary = create_experiment(selenium)
-    experiment_slug = summary.experiment_slug
 
     audience = summary.navigate_to_audience()
 
@@ -171,7 +168,7 @@ def test_first_run_release_date_not_visible_for_non_mobile(
 
     kinto_client.approve()
 
-    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
 
     summary.wait_for_timeline_visible()
