@@ -234,12 +234,10 @@ def test_rollout_live_update_approve(
     audience = summary.navigate_to_audience()
 
     audience.percentage = "60"
-    audience.save_and_continue()
+    summary = audience.save_and_continue()
 
-    summary_page = SummaryPage(selenium, experiment_url).open()
-    summary_page.wait_for_update_request_visible()
-
-    summary_page.request_update_and_approve()
+    summary.wait_for_update_request_visible()
+    summary.request_update_and_approve()
     kinto_client.approve()
 
 
@@ -266,15 +264,14 @@ def test_rollout_live_update_approve_and_reject(
     audience = summary.navigate_to_audience()
 
     audience.percentage = "60"
-    audience.save_and_continue()
+    summary = audience.save_and_continue()
 
-    summary_page = SummaryPage(selenium, experiment_url).open()
-    summary_page.wait_for_update_request_visible()
+    summary.wait_for_update_request_visible()
 
-    summary_page.request_update_and_approve()
+    summary.request_update_and_approve()
     kinto_client.reject()
 
-    summary_page.wait_for_rejection_notice_visible()
+    summary.wait_for_rejection_notice_visible()
 
 
 @pytest.mark.remote_settings
@@ -300,17 +297,16 @@ def test_rollout_live_update_reject_on_experimenter(
     audience = summary.navigate_to_audience()
 
     audience.percentage = "60"
-    audience.save_and_continue()
+    summary = audience.save_and_continue()
 
-    summary_page = SummaryPage(selenium, experiment_url).open()
-    summary_page.wait_for_update_request_visible()
+    summary.wait_for_update_request_visible()
 
-    summary_page.request_update_and_reject()
-    summary_page.wait_for_rejection_reason_text_input_visible()
+    summary.request_update_and_reject()
+    summary.wait_for_rejection_reason_text_input_visible()
 
-    summary_page.set_rejection_reason()
-    summary_page.submit_rejection()
-    summary_page.wait_for_rejection_notice_visible()
+    summary.set_rejection_reason()
+    summary.submit_rejection()
+    summary.wait_for_rejection_notice_visible()
 
 
 @pytest.mark.remote_settings
