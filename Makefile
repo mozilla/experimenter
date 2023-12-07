@@ -3,11 +3,12 @@ SHELL = /bin/bash
 WAIT_FOR_DB = /experimenter/bin/wait-for-it.sh -t 30 db:5432 &&
 WAIT_FOR_RUNSERVER = /experimenter/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
-COMPOSE = docker compose -f docker-compose.yml
+COMPOSE_CIRRUS = [[ -n $$CIRRUS ]] && echo "-f docker-compose-cirrus.yml"
+COMPOSE = docker compose -f docker-compose.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker compose -f docker-compose-test.yml
-COMPOSE_PROD = docker compose -f docker-compose-prod.yml
-COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
+COMPOSE_PROD = docker compose -f docker-compose-prod.yml $$(${COMPOSE_CIRRUS})
+COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml $$(${COMPOSE_CIRRUS})
 DOCKER_BUILD = docker buildx build
 
 JOBS = 4
@@ -149,6 +150,7 @@ pytest: test
 
 start: build_dev  ## Start containers
 	$(COMPOSE) up
+
 up: start
 
 up_legacy: build_dev
@@ -219,6 +221,7 @@ integration_test_nimbus_rust: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod -R a+rwx /code/experimenter/tests/integration/;sudo mkdir -m a+rwx /code/experimenter/tests/integration/test-reports;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
 
 # cirrus
+CIRRUS_ENABLE = export CIRRUS=1 &&
 CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
 CIRRUS_BLACK_FIX = black -l 90 .
 CIRRUS_RUFF_CHECK = ruff .
@@ -229,37 +232,37 @@ CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
 cirrus_build:
-	$(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
+	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
 cirrus_build_test:
-	$(COMPOSE_TEST) build cirrus
+	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
 
 cirrus_bash: cirrus_build
-	$(COMPOSE) run cirrus bash
+	$(CIRRUS_ENABLE) $(COMPOSE) run cirrus bash
 
 cirrus_up: cirrus_build
-	$(COMPOSE) up cirrus
+	$(CIRRUS_ENABLE) $(COMPOSE) up cirrus
 
 cirrus_down: cirrus_build
-	$(COMPOSE) down cirrus
+	$(CIRRUS_ENABLE) $(COMPOSE) down cirrus
 
 cirrus_test: cirrus_build_test
-	$(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
+	$(CIRRUS_ENABLE) $(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
 
 cirrus_check: cirrus_build_test
-	$(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
+	$(CIRRUS_ENABLE) $(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format: cirrus_build
-	$(COMPOSE) run cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
+	$(CIRRUS_ENABLE) $(COMPOSE) run cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
 
 cirrus_typecheck_createstub: cirrus_build
-	$(COMPOSE) run cirrus sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
+	$(CIRRUS_ENABLE) $(COMPOSE) run cirrus sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
 
 cirrus_generate_docs: cirrus_build
-	$(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
+	$(CIRRUS_ENABLE) $(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
 build_demo_app:
-	$(COMPOSE_INTEGRATION) build demo-app-frontend demo-app-server
+	$(CIRRUS_ENABLE) $(COMPOSE_INTEGRATION) build demo-app-frontend demo-app-server
 
 
 # nimbus schemas package
