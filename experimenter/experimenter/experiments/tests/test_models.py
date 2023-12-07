@@ -2924,14 +2924,13 @@ class NimbusFeatureConfigTests(TestCase):
                 schemas=[unversioned_schema],
                 unsupported_in_range=False,
                 unsupported_versions=[],
-                supported_versions=[],
             ),
         )
 
     @parameterized.expand(
         [
-            packaging.version.Version("122.0.0"),
             None,
+            packaging.version.Version("122.0.0"),
         ]
     )
     def test_get_versioned_schema_range_min_version_unsupported(self, max_version):
@@ -2952,7 +2951,6 @@ class NimbusFeatureConfigTests(TestCase):
                 schemas=[versioned_schema],
                 unsupported_in_range=False,
                 unsupported_versions=[],
-                supported_versions=[version],
             ),
         )
 
@@ -2971,7 +2969,6 @@ class NimbusFeatureConfigTests(TestCase):
                 schemas=[unversioned_schema],
                 unsupported_in_range=False,
                 unsupported_versions=[],
-                supported_versions=[],
             ),
         )
 
@@ -2991,7 +2988,6 @@ class NimbusFeatureConfigTests(TestCase):
                 schemas=[],
                 unsupported_in_range=True,
                 unsupported_versions=[],
-                supported_versions=[],
             ),
         )
 
@@ -3042,7 +3038,6 @@ class NimbusFeatureConfigTests(TestCase):
                         (121, 0, 0),
                     )
                 ],
-                supported_versions=[versions[(122, 1, 0)]],
             ),
         )
 
@@ -3086,13 +3081,5 @@ class NimbusFeatureConfigTests(TestCase):
                 ],
                 unsupported_in_range=False,
                 unsupported_versions=[],
-                supported_versions=[
-                    versions[v]
-                    for v in (
-                        (123, 0, 0),
-                        (122, 1, 0),
-                        (122, 0, 0),
-                    )
-                ],
             ),
         )

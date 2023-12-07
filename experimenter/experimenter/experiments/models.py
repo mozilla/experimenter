@@ -1255,8 +1255,8 @@ class NimbusFeatureConfig(models.Model):
 
     @dataclass
     class VersionedSchemaRange:
-        # The versioned schemas in the requested range, or a single element list
-        # with an unversioned schema.
+        # The schemas that are supported in the requested version range, or a single
+        # element list with an unversioned schema.
         schemas: list["NimbusVersionedSchema"]
 
         # If true, then this feature is unsupported in the entire version range.
@@ -1265,15 +1265,11 @@ class NimbusFeatureConfig(models.Model):
         # Any versions in the requested range that do not support the schema.
         unsupported_versions: list["NimbusFeatureVersion"]
 
-        # Any versions in the requested range that support the schema.
-        supported_versions: list["NimbusFeatureVersion"]
-
     def get_versioned_schema_range(
         self,
         min_version: packaging.version,
         max_version: Optional[packaging.version],
     ) -> VersionedSchemaRange:
-        supported_versions: list[NimbusFeatureVersion] = []
         unsupported_versions: list[NimbusFeatureVersion] = []
 
         assume_unversioned = False
@@ -1320,7 +1316,7 @@ class NimbusFeatureConfig(models.Model):
                 # If there is a version in this queryse that isn't present in
                 # `schemas`, then we know that the feature is not supported in
                 # that version.
-                supported_feature_versions = (
+                supported_versions = (
                     NimbusFeatureVersion.objects.filter(
                         NimbusFeatureVersion.objects.between_versions_q(
                             min_version, max_version
@@ -1333,10 +1329,8 @@ class NimbusFeatureConfig(models.Model):
 
                 schemas_by_version = {schema.version: schema for schema in schemas}
 
-                for application_version in supported_feature_versions:
-                    if application_version in schemas_by_version:
-                        supported_versions.append(application_version)
-                    else:
+                for application_version in supported_versions:
+                    if application_version not in schemas_by_version:
                         unsupported_versions.append(application_version)
             elif self.schemas.filter(version__isnull=False).exists():
                 # There are versioned schemas outside this range. This feature
@@ -1345,7 +1339,6 @@ class NimbusFeatureConfig(models.Model):
                     schemas=[],
                     unsupported_in_range=True,
                     unsupported_versions=[],
-                    supported_versions=[],
                 )
             else:
                 # There are no verioned schemas for this feature. Fall back to
@@ -1356,7 +1349,6 @@ class NimbusFeatureConfig(models.Model):
             schemas=schemas,
             unsupported_in_range=False,
             unsupported_versions=unsupported_versions,
-            supported_versions=supported_versions,
         )
 
     class Meta:

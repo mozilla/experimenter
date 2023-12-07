@@ -1495,8 +1495,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         loader: NimbusFmlLoader,
         feature_config,
         blob: str,
-        schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
+        min_version: packaging.version.Version,
+        max_version: Optional[packaging.version.Version],
     ):
+        schemas_in_range = feature_config.get_versioned_schema_range(
+            min_version, max_version
+        )
+
         if schemas_in_range.unsupported_in_range:
             return [
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
@@ -1504,14 +1509,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 )
             ]
         errors = []
-
-        if (
-            len(schemas_in_range.schemas) == 1
-            and schemas_in_range.schemas[0].version is None
-        ):
-            versions = []
-        else:
-            versions = [schema.version for schema in schemas_in_range.schemas]
 
         for version in schemas_in_range.unsupported_versions:
             errors.append(
@@ -1521,7 +1518,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 )
             )
 
-        for version in schemas_in_range.supported_versions:
+        for schema in schemas_in_range.schemas:
+            version = schema.version
             if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
                 errors.extend(
                     [
@@ -1530,8 +1528,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         for e in fml_errors
                     ]
                 )
-                        
-                    
+
         return errors
 
     def _validate_schema(
@@ -1599,16 +1596,12 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     continue
 
             elif NimbusExperiment.Application.is_mobile(application):
-                feature_config = feature_value_data["feature_config"]
-                blob = feature_value_data["value"]
-                schemas_in_range = feature_config.get_versioned_schema_range(
-                    min_version, max_version
-                )
                 if fml_errors := self._validate_with_fml(
                     loader,
-                    feature_config,
-                    blob,
-                    schemas_in_range,
+                    feature_value_data["feature_config"],
+                    feature_value_data["value"],
+                    min_version,
+                    max_version,
                 ):
                     reference_branch_errors.append({"value": fml_errors})
                     continue
@@ -1637,17 +1630,12 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         continue
 
                 elif NimbusExperiment.Application.is_mobile(application):
-                    feature_config = feature_value_data["feature_config"]
-                    blob = feature_value_data["value"]
-                    schemas_in_range = feature_config.get_versioned_schema_range(
-                        min_version, max_version
-                    )
-
                     if fml_errors := self._validate_with_fml(
                         loader,
-                        feature_config,
-                        blob,
-                        schemas_in_range,
+                        feature_value_data["feature_config"],
+                        feature_value_data["value"],
+                        min_version,
+                        max_version,
                     ):
                         treatment_branch_errors.append({"value": fml_errors})
                         treatment_branches_errors_found = True
