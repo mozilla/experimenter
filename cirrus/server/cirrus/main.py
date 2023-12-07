@@ -48,11 +48,17 @@ async def lifespan(app: FastAPI):
     app.state.remote_setting = RemoteSettings(app.state.sdk)
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
+    send_instance_name_metric()
 
     yield
     if app.state.scheduler:
         app.state.scheduler.shutdown()
     Glean.shutdown()
+
+
+def send_instance_name_metric():
+    app.state.metrics.cirrus_events.instance_name.set(instance_name)
+    app.state.pings.startup.submit()
 
 
 def initialize_sentry():
@@ -131,9 +137,6 @@ def initialize_glean():
         log_level=int(metrics_config.log_level),
         upload_enabled=metrics_config.upload_enabled,
     )
-    metrics.cirrus_events.instance_name.set(instance_name)
-    pings.startup.submit()
-
     return pings, metrics
 
 
