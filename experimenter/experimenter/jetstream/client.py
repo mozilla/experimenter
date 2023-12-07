@@ -7,15 +7,17 @@ from itertools import chain
 from django.conf import settings
 from django.core.files.storage import default_storage
 from mozilla_nimbus_schemas.jetstream import (
+    AnalysisBasis,
     AnalysisErrors,
     Metadata,
     SampleSizes,
     Statistics,
 )
 
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.jetstream.models import (
     METRIC_GROUP,
-    AnalysisBasis,
+    AnalysisWindow,
     Group,
     JetstreamData,
     Metric,
@@ -23,6 +25,7 @@ from experimenter.jetstream.models import (
     Statistic,
     create_results_object_model,
 )
+from experimenter.outcomes import Metric as OutcomeMetric
 from experimenter.outcomes import Outcomes
 
 BRANCH_DATA = "branch_data"
@@ -36,12 +39,6 @@ ALL_STATISTICS = {
     Statistic.COUNT,
     Statistic.PERCENT,
 }
-
-
-class AnalysisWindow:
-    DAILY = "daily"
-    WEEKLY = "weekly"
-    OVERALL = "overall"
 
 
 def load_data_from_gcs(path):
@@ -92,18 +89,21 @@ def get_sizing_data(suffix="latest"):
 
 
 def get_results_metrics_map(
-    data, primary_outcome_slugs, secondary_outcome_slugs, outcomes_metadata
+    data: JetstreamData,
+    primary_outcome_slugs: list[str],
+    secondary_outcome_slugs: list[str],
+    outcomes_metadata,
 ):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
-    RESULTS_METRICS_MAP = {
+    RESULTS_METRICS_MAP: dict[str, set[Statistic]] = {
         Metric.RETENTION: {Statistic.BINOMIAL},
         Metric.SEARCH: {Statistic.MEAN},
         Metric.DAYS_OF_USE: {Statistic.MEAN},
         Metric.USER_COUNT: {Statistic.COUNT, Statistic.PERCENT},
     }
-    primary_metrics_set = set()
-    primary_outcome_metrics = list(
+    primary_metrics_set: set[str] = set()
+    primary_outcome_metrics: list[OutcomeMetric] = list(
         chain.from_iterable(
             [
                 outcome.metrics
@@ -145,7 +145,9 @@ def get_results_metrics_map(
     return RESULTS_METRICS_MAP, primary_metrics_set, other_metrics
 
 
-def get_other_metrics_names_and_map(data, RESULTS_METRICS_MAP):
+def get_other_metrics_names_and_map(
+    data: JetstreamData, RESULTS_METRICS_MAP: dict[str, set[Statistic]]
+):
     # These are metrics sent from Jetstream that are not explicitly chosen
     # by users to be either primary or secondary
     other_metrics_names = {}
@@ -179,7 +181,7 @@ def get_other_metrics_names_and_map(data, RESULTS_METRICS_MAP):
     return other_metrics_map, other_metrics_names
 
 
-def get_experiment_data(experiment):
+def get_experiment_data(experiment: NimbusExperiment):
     recipe_slug = experiment.slug.replace("-", "_")
     windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
@@ -208,12 +210,13 @@ def get_experiment_data(experiment):
         segment_points_exposures = defaultdict(list)
 
         for point in data_from_jetstream:
+            segment_key = point["segment"]
             if point["analysis_basis"] == AnalysisBasis.ENROLLMENTS:
-                segment_points_enrollments[point["segment"]].append(point)
+                segment_points_enrollments[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.ENROLLMENTS] = {}
                 raw_data[window][AnalysisBasis.ENROLLMENTS] = {}
             elif point["analysis_basis"] == AnalysisBasis.EXPOSURES:
-                segment_points_exposures[point["segment"]].append(point)
+                segment_points_exposures[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.EXPOSURES] = {}
                 raw_data[window][AnalysisBasis.EXPOSURES] = {}
 
