@@ -161,3 +161,10 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler(mocker, r
 
     assert ping_spy.call_count == 1
     assert app.state.metrics.cirrus_events.enrollment_status.test_get_value() is None
+
+
+def test_instance_name_metric(mocker):
+    _, app.state.metrics = initialize_glean()
+    assert (
+        app.state.metrics.cirrus_events.instance_name.test_get_value() == "test_instance"
+    )

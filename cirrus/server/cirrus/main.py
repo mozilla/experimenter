@@ -21,6 +21,7 @@ from .settings import (
     cirrus_sentry_dsn,
     context,
     fml_path,
+    instance_name,
     metrics_config,
     metrics_path,
     pings_path,
@@ -130,6 +131,9 @@ def initialize_glean():
         log_level=int(metrics_config.log_level),
         upload_enabled=metrics_config.upload_enabled,
     )
+    metrics.cirrus_events.instance_name.set(instance_name)
+    pings.startup.submit()
+
     return pings, metrics
 
 
