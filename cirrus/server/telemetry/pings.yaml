@@ -43,4 +43,4 @@ startup:
     - https://mozilla-hub.atlassian.net/browse/EXP-3574
     - https://github.com/mozilla/experimenter/issues/9911
   data_reviews:
-    - https://github.com/mozilla/experimenter/pull/9657#issuecomment-1791427765
+    - https://github.com/mozilla/experimenter/pull/9920#issuecomment-1846146644
