@@ -177,12 +177,17 @@ def load_experiment_data(slug):
     )
 
 
-def create_basic_experiment(name, app, targeting, languages=None):
+def create_basic_experiment(name, app, targeting=None, languages=None, is_rollout=False):
+    config_data = load_config_data()
+
     if languages is None:
         languages = []
-    config_data = load_config_data()
     language_ids = [l["id"] for l in config_data["languages"] if l["code"] in languages]
-    load_graphql_data(
+
+    if targeting is None:
+        targeting = load_targeting_configs()[0]
+
+    return load_graphql_data(
         {
             "operationName": "createExperiment",
             "variables": {
@@ -193,6 +198,7 @@ def create_basic_experiment(name, app, targeting, languages=None):
                     "languages": language_ids,
                     "changelogMessage": "test changelog message",
                     "targetingConfigSlug": targeting,
+                    "isRollout": is_rollout,
                 }
             },
             "query": """
@@ -211,7 +217,7 @@ def create_basic_experiment(name, app, targeting, languages=None):
 def update_experiment(slug, data):
     experiment_id = load_experiment_data(slug)["data"]["experimentBySlug"]["id"]
     data.update({"id": experiment_id})
-    load_graphql_data(
+    return load_graphql_data(
         {
             "operationName": "updateExperiment",
             "variables": {"input": data},
@@ -226,13 +232,16 @@ def update_experiment(slug, data):
     )
 
 
-def create_experiment(slug, app, targeting, data):
-    create_basic_experiment(
-        slug,
-        app,
-        targeting,
+def create_experiment(slug, app, data, targeting=None, is_rollout=False):
+    return (
+        create_basic_experiment(
+            slug,
+            app,
+            targeting=targeting,
+            is_rollout=is_rollout,
+        ),
+        update_experiment(slug, data),
     )
-    update_experiment(slug, data)
 
 
 def end_experiment(slug):
