@@ -1,19 +1,20 @@
 import json
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from django.test import TestCase
 from rust_fml import FmlClient
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
-from experimenter.settings import BASE_DIR
+from experimenter.features.tests import (
+    FML_DIR,
+    mock_fml_features,
+    mock_fml_versioned_features,
+)
 
 
 class TestNimbusFmlLoader(TestCase):
-    TEST_MANIFEST_PATH = Path(
-        BASE_DIR, "features", "tests", "fixtures", "fml", "fenix", "release.fml.yaml"
-    )
+    maxDiff = None
 
     def setUp(self):
         NimbusFmlLoader.create_loader.cache_clear()
@@ -38,79 +39,81 @@ class TestNimbusFmlLoader(TestCase):
         self.assertEqual(loader.application, application)
         self.assertEqual(loader.channel, channel)
 
-    def test_intiate_new_fml_loader_local_fml_files_do_not_exist_for_app(self):
+    def test_intiate_new_fml_loader_app_and_channel_do_not_exist(self):
         application = "badapp"
-        channel = "release"
+        channel = "releaseit"
 
         loader = NimbusFmlLoader(application, channel)
 
-        self.assertEqual(loader.application, None)
-        self.assertEqual(loader.channel, channel)
+        self.assertIsNone(loader.application)
+        self.assertIsNone(loader.channel)
 
     @patch(
         "rust_fml.FmlClient.__init__",
     )
+    @mock_fml_versioned_features
     def test_create_fml_client(self, new_client):
         new_client.return_value = None
         application = "fenix"
-        path = str(
-            Path(
-                "/experimenter",
-                "experimenter",
-                "features",
-                "manifests",
-                "fenix",
-                "release.fml.yaml",
-            )
-        )
         channel = "release"
+        version = "119.0.0"
         loader = self.create_loader(application, channel)
 
-        client = loader.fml_client()
+        expected_path = (
+            FML_DIR
+            / "versioned_features"
+            / f"{application}"
+            / f"v{version}"
+            / f"{channel}.fml.yaml"
+        )
+
+        client = loader.fml_client(version=version)
         self.assertIsNotNone(client)
         new_client.assert_called()
-        new_client.assert_called_with(path, channel)
+        new_client.assert_called_with(str(expected_path), channel)
 
+    @mock_fml_features
     def test_get_local_file_path_no_version(self):
-        expected_path = Path(
-            "/experimenter",
-            "experimenter",
-            "features",
-            "manifests",
-            "fenix",
-            "release.fml.yaml",
-        )
-        loader = self.create_loader()
+        application = "fenix"
+        channel = "nightly"
+        loader = self.create_loader(application=application, channel=channel)
+        expected_path = FML_DIR / f"{application}" / f"{channel}.fml.yaml"
+
         file_path = loader.file_path()
         self.assertEqual(file_path, expected_path)
 
+    @mock_fml_versioned_features
     def test_get_local_file_path_for_nightly_with_version(self):
-        expected_path = Path(
-            "/experimenter",
-            "experimenter",
-            "features",
-            "manifests",
-            "fenix",
-            "v119.0.0",
-            "nightly.fml.yaml",
+        application = "fenix"
+        channel = "release"
+        version = "119.0.0"
+        expected_path = (
+            FML_DIR
+            / "versioned_features"
+            / f"{application}"
+            / f"v{version}"
+            / f"{channel}.fml.yaml"
         )
-        loader = self.create_loader(channel="nightly")
+        loader = self.create_loader(channel=channel)
+
         file_path = loader.file_path(version="119.0.0")
         self.assertEqual(file_path, expected_path)
 
+    @mock_fml_versioned_features
     def test_get_local_file_path_for_invalid_channel(self):
         loader = self.create_loader(channel="rats")
-        file_path = loader.file_path(version="119.0.0")
-        self.assertIsNone(file_path)
+        with self.assertLogs(level="ERROR") as log:
+            file_path = loader.file_path(version="119.0.0")
+            self.assertIsNone(file_path)
+            self.assertIn("Nimbus FML Loader: Invalid manifest path", log.output[0])
 
-    @patch(
-        "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader.MANIFEST_PATH",
-    )
-    def test_get_local_file_path_does_not_exist(self, mock_manifest_path):
+    def test_get_local_file_path_does_not_exist(self):
+        version = "1.2.3"
         loader = self.create_loader()
-        mock_manifest_path.return_value = Path(BASE_DIR, "fake", "path")
-        file_path = loader.file_path()
-        self.assertIsNone(file_path)
+        with self.assertLogs(level="ERROR") as log:
+            file_path = loader.file_path(version=version)
+            self.assertIsNone(file_path)
+            self.assertIn("Nimbus FML Loader: Invalid manifest path", log.output[0])
 
     def test_local_fml_files_do_not_exist_for_bad_app(self):
         application = "badapp"
@@ -136,94 +139,25 @@ class TestNimbusFmlLoader(TestCase):
         result = loader.fml_client()
         self.assertIsInstance(result, FmlClient)
 
-    @patch(
-        "rust_fml.FmlClient.get_feature_inspector",
-    )
-    def test_get_inspectors_from_client(self, mock_get_inspector):
-        loader = self.create_loader()
-        client = loader.fml_client()
-        result = loader._get_inspectors(client, "some_id")
-        mock_get_inspector.assert_called_once_with("some_id")
-        self.assertIsNotNone(result)
-
-    @patch(
-        "rust_fml.FmlFeatureInspector.get_errors",
-    )
-    def test_get_errors_from_fml_inspector(self, mock_get_errors):
-        loader = self.create_loader()
-        test_blob = str(json.dumps({"new-feature": "false"}))
-        client = loader.fml_client()
-        inspector = loader._get_inspectors(client, "nimbus-validation")
-
-        result = loader._get_errors(inspector, test_blob)
-        mock_get_errors.assert_called_once_with(test_blob)
-        self.assertIsNotNone(result)
-
-    @patch(
-        "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader._get_inspectors",
-    )
-    @patch(
-        "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader._get_errors",
-    )
     def test_get_fml_errors_fetches_client_inspector_and_error(
-        self, mock_get_errors, mock_get_inspectors
+        self,
     ):
-        fml_errors = [
-            {
-                "line": 2,
-                "col": 0,
-                "message": "Incorrect value",
-                "highlight": "enabled",
-            },
-            {
-                "line": 3,
-                "col": 1,
-                "message": "Incorrect value again",
-                "highlight": "disabled",
-            },
-        ]
-        mock_get_errors.return_value = fml_errors
-        mock_get_inspectors.return_value = MagicMock()
         loader = self.create_loader()
         test_blob = json.dumps({"features": {"new-feature": {"enabled": "false"}}})
 
-        result = loader.get_fml_errors(test_blob, "my_feature_id")
+        result = loader.get_fml_errors(test_blob, "cookie-banners")
+        expected_error = 'Invalid property "features"; did you mean "sections-enabled"?'
+        self.assertIn(expected_error, result[0].message)
 
-        mock_get_inspectors.assert_called()
-        mock_get_errors.assert_called()
-        self.assertIn(fml_errors[0]["message"], result[0]["message"])
-        self.assertIn(fml_errors[1]["message"], result[1]["message"])
-
-    @patch(
-        "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader._get_inspectors",
-    )
-    @patch(
-        "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader._get_errors",
-    )
-    def test_get_fml_errors_with_no_inspector(self, mock_get_errors, mock_get_inspectors):
-        fml_errors = [
-            {
-                "line": 2,
-                "col": 0,
-                "message": "Incorrect value",
-                "highlight": "enabled",
-            },
-            {
-                "line": 3,
-                "col": 1,
-                "message": "Incorrect value again",
-                "highlight": "disabled",
-            },
-        ]
-        mock_get_errors.return_value = fml_errors
-        mock_get_inspectors.return_value = None
+    @mock_fml_features
+    def test_get_fml_errors_with_no_inspector(
+        self,
+    ):
+        # an inspector will only be fetched for valid features
+        fake_feature = "my-fake-feature"
         loader = self.create_loader()
         test_blob = json.dumps({"features": {"new-feature": {"enabled": "false"}}})
-
-        result = loader.get_fml_errors(test_blob, "my_feature_id")
-
-        mock_get_inspectors.assert_called()
-        mock_get_errors.assert_not_called()
+        result = loader.get_fml_errors(test_blob, fake_feature, "119.0.0")
         self.assertEqual(result, [])
 
     def test_get_fml_errors_with_no_client_because_of_no_manifest(
@@ -253,25 +187,14 @@ class TestNimbusFmlLoader(TestCase):
             self.assertIn("Nimbus FML Loader: Invalid manifest path:", log.output[0])
             self.assertIn("Nimbus FML Loader: Failed to get FmlClient.", log.output[1])
 
-    @patch(
-        "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader._get_inspectors",
-    )
     def test_return_empty_list_for_no_fml_errors(
         self,
-        mock_get_inspectors,
     ):
-        mock_get_inspectors.return_value = MagicMock()
         loader = self.create_loader()
-        test_blob = json.dumps({"features": {"new-feature": {"enabled": "false"}}})
-        with patch(
-            "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader._get_errors",
-        ) as mock_get_errors:
-            mock_get_errors.return_value = None
-            result = loader.get_fml_errors(test_blob, "my_feature_id")
+        valid_blob = json.dumps({"sections-enabled": {"feature-ui": 2}})
 
-            mock_get_inspectors.assert_called()
-            mock_get_errors.assert_called()
-            self.assertEqual(result, [])
+        result = loader.get_fml_errors(valid_blob, "cookie-banners")
+        self.assertEqual(result, [])
 
     def test_return_no_errors_for_invalid_application(
         self,
@@ -282,7 +205,7 @@ class TestNimbusFmlLoader(TestCase):
             loader = NimbusFmlLoader(application, channel)
             test_blob = json.dumps({"features": {"new-feature": {"enabled": "false"}}})
 
-            result = loader.get_fml_errors(test_blob, "my_feature_id")
+            result = loader.get_fml_errors(test_blob, "cookie-banners")
 
             self.assertEqual(loader.application, None)
             self.assertEqual(result, [])
