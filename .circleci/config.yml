@@ -372,6 +372,7 @@ jobs:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
+            export CIRRUS=1
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
@@ -440,8 +441,6 @@ jobs:
       - run:
           name: Deploy to latest
           command: |
-            make cirrus_build
-            # Pull x86_64 and tag to dockerhub for deploy
             make cirrus_build
             docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
             docker push ${DOCKERHUB_CIRRUS_REPO}:latest

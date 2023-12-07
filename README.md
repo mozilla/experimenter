@@ -302,6 +302,16 @@ Run kill, migrate, load_locales_countries load_dummy_experiments. Useful for res
 
 ### Running a dev instance
 
+#### Enabling Cirrus
+
+Cirrus is required to run and test web application experiments locally.  It is disabled by default.  To enable Cirrus run:
+
+```sh
+export CIRRUS=1
+```
+
+This will be done automatically for any Cirrus related make commands.
+
 #### make up
 
 Start a dev server listening on port 80 using the [Django runserver](https://docs.djangoproject.com/en/1.10/ref/django-admin/#runserver). It is useful to run `make refresh` first to ensure your database is up to date with the latest migrations and test data.
