@@ -128,9 +128,7 @@ def test_first_run_release_date_visible_for_mobile(
     assert audience.is_first_run
     assert audience.proposed_release_date == "2023-12-12"
 
-    audience.save_and_continue()
-
-    summary = SummaryPage(selenium, experiment_url).open()
+    summary = audience.save_and_continue()
 
     assert summary.proposed_release_date == "2023-12-12"
 
