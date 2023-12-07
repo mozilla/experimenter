@@ -1513,23 +1513,25 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         else:
             versions = [schema.version for schema in schemas_in_range.schemas]
 
-        for version in versions:
-            for version in schemas_in_range.unsupported_versions:
-                errors.append(
-                    NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
-                        feature_config=feature_config,
-                        version=version,
-                    )
+        for version in schemas_in_range.unsupported_versions:
+            errors.append(
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
+                    feature_config=feature_config,
+                    version=version,
                 )
+            )
+
+        for version in schemas_in_range.supported_versions:
             if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
                 errors.extend(
                     [
-                        f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
-                        f"{e.message} at line {e.line+1} column {e.col}"
-                        f"{f' at version {version}' if version is not None else ''}"
+                        f"{NimbusExperiment.ERROR_FML_VALIDATION}: {e.message} at line "
+                        f"{e.line+1} column {e.col} at version {version}"
                         for e in fml_errors
                     ]
                 )
+                        
+                    
         return errors
 
     def _validate_schema(
