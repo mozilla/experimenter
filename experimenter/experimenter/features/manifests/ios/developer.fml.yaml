@@ -176,6 +176,7 @@ features:
           AFTER_THREE_LAUNCHES_THIS_WEEK: "'app_cycle.foreground'|eventSum('Weeks', 1, 0) >= 3"
           ALLOWED_TIPS_NOTIFICATIONS: allowed_tips_notifications
           ALWAYS: "true"
+          DAY_3_AFTER_INSTALL: days_since_install >= 3
           DEVICE_ANDROID: "os == 'Android'"
           DEVICE_IOS: "os == 'iOS'"
           INACTIVE_NEW_USER: is_inactive_new_user
