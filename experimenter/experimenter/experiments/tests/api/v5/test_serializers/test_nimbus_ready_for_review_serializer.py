@@ -1,7 +1,6 @@
 import datetime
 import json
 from itertools import chain, product
-from operator import indexOf
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -29,7 +28,6 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.experiments.constants import NimbusConstants
 
 BASIC_JSON_SCHEMA = """\
 {
@@ -1504,135 +1502,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
         self.assertTrue(serializer.is_valid())
         self.mock_fml_errors.assert_not_called()
-
-    def test_serializer_fml_invalid_reference_branch_value(self):
-        application = NimbusExperiment.Application.FENIX
-        NimbusFeatureConfigFactory.create(
-            application=application,
-            schemas=[
-                NimbusVersionedSchemaFactory.build(version=None, schema=None),
-                NimbusVersionedSchemaFactory.build(
-                    version=self.versions[(120, 0, 0)], schema=None
-                ),
-                NimbusVersionedSchemaFactory.build(
-                    version=self.versions[(121, 0, 0)], schema=None
-                ),
-                NimbusVersionedSchemaFactory.build(
-                    version=self.versions[(122, 0, 0)], schema=None
-                ),
-            ],
-        )
-        
-        fml_errors = [
-            NimbusFmlErrorDataClass(
-                line=0,
-                col=0,
-                message="Incorrect value",
-                highlight="enabled",
-            ),
-            NimbusFmlErrorDataClass(
-                line=0,
-                col=0,
-                message="Type not allowed",
-                highlight="record",
-            ),
-        ]
-        self.setup_get_fml_errors(fml_errors)
-
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            warn_feature_schema=False,
-            feature_configs=[
-                NimbusFeatureConfigFactory.create(
-                    application=application,
-                    schemas=[
-                        NimbusVersionedSchemaFactory.build(
-                            version=None,
-                            schema=REF_JSON_SCHEMA,
-                        )
-                    ],
-                )
-            ],
-            is_sticky=True,
-            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
-        )
-        reference_feature_value = experiment.reference_branch.feature_values.get()
-        reference_feature_value.value = json.dumps({"bar": {"baz": "baz", "qux": 123}})
-        reference_feature_value.save()
-
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-
-        self.assertTrue(serializer.is_valid())
-        self.mock_fml_errors.assert_called()
-        self.assertEqual(len(serializer.errors), 2)
-
-    def test_serializer_fml_invalid_treatment_branch_value(self):
-        application = NimbusExperiment.Application.FENIX
-
-        fml_errors = [
-            NimbusFmlErrorDataClass(
-                line=0,
-                col=0,
-                message="Incorrect value",
-                highlight="enabled",
-            ),
-            NimbusFmlErrorDataClass(
-                line=0,
-                col=0,
-                message="Type not allowed",
-                highlight="record",
-            ),
-        ]
-        self.setup_get_fml_errors(fml_errors)
-
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            warn_feature_schema=False,
-            feature_configs=[
-                NimbusFeatureConfigFactory.create(
-                    application=application,
-                    schemas=[
-                        NimbusVersionedSchemaFactory.build(
-                            version=None,
-                            schema=REF_JSON_SCHEMA,
-                        )
-                    ],
-                )
-            ],
-            is_sticky=True,
-            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
-        )
-        treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
-        treatment_feature_value.value = json.dumps({"bang": {"bong": "boom"}})
-        treatment_feature_value.save()
-
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-
-        self.assertTrue(serializer.is_valid())
-        import ipdb
-        ipdb.set_trace()
-        self.mock_fml_errors.assert_called()
-        self.assertEqual(len(serializer.errors), 2)
 
     def test_serializer_fml_does_not_validate_desktop(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -3240,7 +3109,10 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         ]
     )
     def test_fml_validate_feature_versioned_unsupported_versions(
-        self, min_version, max_version, expected_error,
+        self,
+        min_version,
+        max_version,
+        expected_error,
     ):
         application = NimbusExperiment.Application.FENIX
 
@@ -3305,7 +3177,8 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader.get_fml_errors",
     )
     def test_fml_validate_feature_versioned_truncated_range(
-        self, mock_fml_errors,
+        self,
+        mock_fml_errors,
     ):
         mock_fml_errors.return_value = [
             NimbusFmlErrorDataClass(
@@ -3365,7 +3238,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         )
         feature_value.value = json.dumps({"enabled": 1})
         feature_value.save()
-        
+
         expected_versions = [
             self.versions[(120, 0, 0)],
             self.versions[(121, 0, 0)],
@@ -3373,7 +3246,8 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         ]
 
         expected_errors = [
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value! at line 2 column 0 at version {v.major}.{v.minor}.{v.patch}"
+            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value! "
+            f"at line 2 column 0 at version {v.major}.{v.minor}.{v.patch}"
             for v in expected_versions
         ]
 
@@ -3386,15 +3260,15 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn(
             expected_errors[0],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][2]
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][2],
         )
         self.assertIn(
             expected_errors[1],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][1]
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][1],
         )
         self.assertIn(
             expected_errors[2],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][0]
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][0],
         )
 
     def test_fml_validate_feature_versioned_before_versioned_range(self):
@@ -3465,27 +3339,24 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                 col=1,
                 message="Incorrect value again",
                 highlight="enabled",
-            )
+            ),
         ]
         self.setup_get_fml_errors(fml_errors)
 
         versions = [(120, 0, 0), (121, 0, 0)]
 
         expected_errors = [
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value at line 3 column 0 at version 120.0.0",
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value again at line 1 column 1 at version 120.0.0",
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value at line 3 column 0 at version 121.0.0",
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value again at line 1 column 1 at version 121.0.0",
-            
+            f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
+            "Incorrect value at line 3 column 0 at version 120.0.0",
+            f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
+            "Incorrect value again at line 1 column 1 at version 120.0.0",
+            f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
+            "Incorrect value at line 3 column 0 at version 121.0.0",
+            f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
+            "Incorrect value again at line 1 column 1 at version 121.0.0",
         ]
 
-        blob = json.dumps(
-            {
-                "enabled": {
-                    "no": 1
-                }
-            }
-        )
+        blob = json.dumps({"enabled": {"no": 1}})
 
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.FENIX,
@@ -3529,50 +3400,51 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn(
             expected_errors[0],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][2]
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][2],
         )
         self.assertIn(
             expected_errors[1],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][3]
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][3],
         )
         self.assertIn(
             expected_errors[2],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][0]
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][0],
         )
         self.assertIn(
             expected_errors[3],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][1]
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][1],
         )
 
-    def test_fml_validate_feature_versions_not_set(self):
+    def test_fml_validate_feature_versioned_range_treatment_branch(self):
         fml_errors = [
             NimbusFmlErrorDataClass(
                 line=2,
-                col=0,
-                message="Incorrect value",
-                highlight="enabled",
+                col=10,
+                message="Incorrect value in the treatment branch!",
+                highlight="disabled",
             ),
-            NimbusFmlErrorDataClass(
-                line=0,
-                col=1,
-                message="Incorrect value again",
-                highlight="enabled",
-            )
         ]
         self.setup_get_fml_errors(fml_errors)
 
+        versions = [(120, 0, 0)]
+        feature = "FEATURE"
         expected_errors = [
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value at line 3 column 0",
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value again at line 1 column 1",
-            
+            NimbusExperiment.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
+                feature_config=feature,
+            )
         ]
+
+        blob = json.dumps({"enabled": {"no": 1}})
 
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.FENIX,
             slug="FEATURE",
-            name="FEATURE",
+            name=feature,
             schemas=[
                 NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[versions[0]], schema=blob
+                ),
             ],
         )
 
@@ -3580,13 +3452,14 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_120,
             feature_configs=[feature],
         )
 
-        for branch in experiment.treatment_branches:
-            branch.delete()
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
+        treatment_feature_value.value = json.dumps({"bang": {"bong": "boom"}})
+        treatment_feature_value.save()
 
         feature_value = experiment.reference_branch.feature_values.get(
             feature_config=feature
@@ -3603,11 +3476,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn(
             expected_errors[0],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][1]
-        )
-        self.assertIn(
-            expected_errors[1],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][0]
+            serializer.errors["treatment_branches"][0]["feature_values"][0]["value"][0],
         )
 
     def test_fml_validate_feature_versions_no_errors(self):
@@ -3649,52 +3518,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.errors, {})
 
-    def test_fml_validate_feature_versions_treatment_branch(self):
-        fml_errors = [
-            NimbusFmlErrorDataClass(
-                line=2,
-                col=10,
-                message="Incorrect value in the treatment branch!",
-                highlight="disabled",
-            ),
-        ]
-        self.setup_get_fml_errors(fml_errors)
-        feature = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.FENIX,
-            slug="FEATURE",
-            name="FEATURE",
-            schemas=[
-                NimbusVersionedSchemaFactory.build(version=None, schema=None),
-            ],
-        )
-        expected_errors = [
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value in the treatment branch! at line 3 column 10 at version 120.0.0",
-            
-        ]
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_120,
-            feature_configs=[feature],
-        )
-
-        treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
-        treatment_feature_value.value = json.dumps({"bang": {"bong": "boom"}})
-        treatment_feature_value.save()
-
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
-        )
-
-        self.assertFalse(serializer.is_valid())
-        self.assertIn(
-            expected_errors[0],
-            serializer.errors["treatment_branches"][0]["feature_values"][0]["value"][1]
-        )
 
 class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
     def setUp(self):

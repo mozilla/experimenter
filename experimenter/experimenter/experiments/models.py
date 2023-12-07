@@ -1331,11 +1331,12 @@ class NimbusFeatureConfig(models.Model):
                     .distinct()
                 )
 
-                supported_versions.append(supported_feature_versions)
                 schemas_by_version = {schema.version: schema for schema in schemas}
 
                 for application_version in supported_feature_versions:
-                    if application_version not in schemas_by_version:
+                    if application_version in schemas_by_version:
+                        supported_versions.append(application_version)
+                    else:
                         unsupported_versions.append(application_version)
             elif self.schemas.filter(version__isnull=False).exists():
                 # There are versioned schemas outside this range. This feature

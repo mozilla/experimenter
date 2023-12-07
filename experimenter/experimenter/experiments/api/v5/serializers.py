@@ -1505,7 +1505,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             ]
         errors = []
 
-        if len(schemas_in_range.schemas) == 1 and schemas_in_range.schemas[0].version is None:
+        if (
+            len(schemas_in_range.schemas) == 1
+            and schemas_in_range.schemas[0].version is None
+        ):
             versions = []
         else:
             versions = [schema.version for schema in schemas_in_range.schemas]
@@ -1519,12 +1522,14 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     )
                 )
             if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
-                errors.extend([
-                    f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
-                    f"{e.message} at line {e.line+1} column {e.col}"
-                    f"{f' at version {version}' if version is not None else ''}"
-                    for e in fml_errors
-                ])
+                errors.extend(
+                    [
+                        f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
+                        f"{e.message} at line {e.line+1} column {e.col}"
+                        f"{f' at version {version}' if version is not None else ''}"
+                        for e in fml_errors
+                    ]
+                )
         return errors
 
     def _validate_schema(
