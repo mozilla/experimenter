@@ -360,6 +360,8 @@ features:
             productIdFromURLRegex: "(?:[\\\\/]|$|%2F)(?<productId>[A-Z0-9]{10})(?:[\\\\/]|$|\\\\#|\\\\?|%2F)"
             validTLDs:
               - com
+              - de
+              - fr
           bestbuy:
             productIdFromURLRegex: "\\\\/(?<productId>\\\\d+\\\\.p)"
             validTLDs:
