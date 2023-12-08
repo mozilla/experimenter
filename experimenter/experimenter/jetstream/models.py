@@ -226,12 +226,8 @@ class ResultsObjectModelBase(BaseModel):
             if metric in result_metrics and statistic in result_metrics[metric]:
                 branch = jetstream_data_point.branch
                 branch_obj = getattr(self, branch)
-                reference_branch_slug = (
-                    experiment.reference_branch.slug
-                    if experiment.reference_branch is not None
-                    else ""
-                )
-                branch_obj.is_control = reference_branch_slug == branch
+                assert experiment.reference_branch
+                branch_obj.is_control = experiment.reference_branch.slug == branch
                 group_obj = getattr(
                     branch_obj.branch_data, METRIC_GROUP.get(metric, Group.OTHER)
                 )
