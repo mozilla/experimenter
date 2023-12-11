@@ -1,4 +1,5 @@
-from typing import Any, Dict, List
+from enum import Enum
+from typing import Any
 
 from mozilla_nimbus_schemas.jetstream import AnalysisBasis
 from mozilla_nimbus_schemas.jetstream import Statistic as JetstreamStatisticResult
@@ -7,32 +8,32 @@ from pydantic import BaseModel, create_model
 from experimenter.experiments.models import NimbusExperiment
 
 
-class AnalysisWindow:
+class AnalysisWindow(str, Enum):
     DAILY = "daily"
     WEEKLY = "weekly"
     OVERALL = "overall"
 
 
-class Significance:
+class Significance(str, Enum):
     POSITIVE = "positive"
     NEGATIVE = "negative"
     NEUTRAL = "neutral"
 
 
-class BranchComparison:
+class BranchComparison(str, Enum):
     ABSOLUTE = "absolute"
     DIFFERENCE = "difference"
     UPLIFT = "relative_uplift"
 
 
-class Metric:
+class Metric(str, Enum):
     RETENTION = "retained"
     SEARCH = "search_count"
     DAYS_OF_USE = "days_of_use"
     USER_COUNT = "identity"
 
 
-class Statistic:
+class Statistic(str, Enum):
     """
     This is the list of statistics supported in Experimenter,
     not a complete list of statistics available in Jetstream.
@@ -44,13 +45,13 @@ class Statistic:
     COUNT = "count"
 
 
-class Segment:
+class Segment(str, Enum):
     ALL = "all"
 
 
 # TODO: Consider a "guardrail_metrics" group containing "days_of_use",
 # "retained", and "search_count".
-class Group:
+class Group(str, Enum):
     SEARCH = "search_metrics"
     USAGE = "usage_metrics"
     OTHER = "other_metrics"
@@ -81,9 +82,7 @@ for group, metrics in GROUPED_METRICS.items():
 
 
 class JetstreamDataPoint(JetstreamStatisticResult):
-    """
-    Same as the mozilla-nimbus-schemas `Statistic` but sets a default analysis_basis.
-    """
+    """Same as mozilla-nimbus-schemas `Statistic` but sets a default analysis_basis."""
 
     analysis_basis: AnalysisBasis = AnalysisBasis.ENROLLMENTS
 
@@ -91,11 +90,11 @@ class JetstreamDataPoint(JetstreamStatisticResult):
 class JetstreamData(BaseModel):
     """
     Parameters:
-        __root__: List[JetstreamDataPoint] = []
+        __root__: list[JetstreamDataPoint] = []
             The list should be filtered as needed coming in (e.g., by a given segment).
     """
 
-    __root__: List[JetstreamDataPoint] = []
+    __root__: list[JetstreamDataPoint] = []
 
     def __iter__(self):
         return iter(self.__root__)
@@ -174,13 +173,13 @@ class DataPoint(BaseModel):
 
 
 class BranchComparisonData(BaseModel):
-    all: List[DataPoint] = []
+    all: list[DataPoint] = []
     first: DataPoint = DataPoint()
 
 
 class SignificanceData(BaseModel):
-    overall: Dict[str, Any] = {}
-    weekly: Dict[str, Any] = {}
+    overall: dict[str, Any] = {}
+    weekly: dict[str, Any] = {}
 
 
 class MetricData(BaseModel):
