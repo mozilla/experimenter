@@ -96,7 +96,7 @@ def get_results_metrics_map(
 ):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
-    RESULTS_METRICS_MAP: dict[str, set[Statistic]] = {
+    results_metrics_map: dict[str, set[Statistic]] = {
         Metric.RETENTION: {Statistic.BINOMIAL},
         Metric.SEARCH: {Statistic.MEAN},
         Metric.DAYS_OF_USE: {Statistic.MEAN},
@@ -130,23 +130,23 @@ def get_results_metrics_map(
     for metric in primary_outcome_metrics:
         # validate against jetstream metadata unless we couldn't get it
         if bypass_jetstream_check or metric.slug in metrics_set_from_jetstream:
-            RESULTS_METRICS_MAP[metric.slug] = ALL_STATISTICS
+            results_metrics_map[metric.slug] = ALL_STATISTICS
 
             primary_metrics_set.add(metric.slug)
 
     for outcome_slug in secondary_outcome_slugs:
-        RESULTS_METRICS_MAP[outcome_slug] = ALL_STATISTICS
+        results_metrics_map[outcome_slug] = ALL_STATISTICS
 
     other_metrics_map, other_metrics = get_other_metrics_names_and_map(
-        data, RESULTS_METRICS_MAP
+        data, results_metrics_map
     )
-    RESULTS_METRICS_MAP |= other_metrics_map
+    results_metrics_map |= other_metrics_map
 
-    return RESULTS_METRICS_MAP, primary_metrics_set, other_metrics
+    return results_metrics_map, primary_metrics_set, other_metrics
 
 
 def get_other_metrics_names_and_map(
-    data: JetstreamData, RESULTS_METRICS_MAP: dict[str, set[Statistic]]
+    data: JetstreamData, results_metrics_map: dict[str, set[Statistic]]
 ):
     # These are metrics sent from Jetstream that are not explicitly chosen
     # by users to be either primary or secondary
@@ -156,7 +156,7 @@ def get_other_metrics_names_and_map(
     # This is an ordered list of priorities of stats to graph
     priority_stats = [Statistic.MEAN, Statistic.BINOMIAL]
     other_data = [
-        data_point for data_point in data if data_point.metric not in RESULTS_METRICS_MAP
+        data_point for data_point in data if data_point.metric not in results_metrics_map
     ]
     for jetstream_data_point in other_data:
         metric = jetstream_data_point.metric
