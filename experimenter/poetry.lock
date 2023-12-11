@@ -845,12 +845,12 @@ python-dateutil = ">=2.4"
 
 [[package]]
 name = "fontawesomefree"
-version = "6.4.0"
+version = "6.5.1"
 description = "Font Awesome Free"
 optional = false
 python-versions = "*"
 files = [
-    {file = "fontawesomefree-6.4.0-py3-none-any.whl", hash = "sha256:e12edad71b6cf6993fc7c6aea6367e131f2f247b6435faca99b12329bacd2b27"},
+    {file = "fontawesomefree-6.5.1-py3-none-any.whl", hash = "sha256:8dec4a2ee37bf8e53379ebbf0d38cefec4e06c7c9227f59af39dbb7b1632817b"},
 ]
 
 [[package]]
@@ -2891,4 +2891,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "fb48ca4a078e71539605415704b427f64867f31612910e149a510f9931708cd3"
+content-hash = "b44a44c16a86b230df27bbad145e33fb6eeb28765549339e5df434a8f87ac380"
