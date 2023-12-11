@@ -31,7 +31,7 @@ class Outcomes:
 
     @classmethod
     def _load_outcomes(cls):
-        outcomes = []
+        outcomes: list[Outcome] = []
 
         app_name_application_config = {
             a.app_name: a for a in NimbusConstants.APPLICATION_CONFIGS.values()

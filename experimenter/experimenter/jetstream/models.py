@@ -1,46 +1,57 @@
-from typing import Any, Dict, List
+from enum import Enum
+from typing import Any
 
+from mozilla_nimbus_schemas.jetstream import AnalysisBasis
+from mozilla_nimbus_schemas.jetstream import Statistic as JetstreamStatisticResult
 from pydantic import BaseModel, create_model
 
+from experimenter.experiments.models import NimbusExperiment
 
-class Significance:
+
+class AnalysisWindow(str, Enum):
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    OVERALL = "overall"
+
+
+class Significance(str, Enum):
     POSITIVE = "positive"
     NEGATIVE = "negative"
     NEUTRAL = "neutral"
 
 
-class BranchComparison:
+class BranchComparison(str, Enum):
     ABSOLUTE = "absolute"
     DIFFERENCE = "difference"
     UPLIFT = "relative_uplift"
 
 
-class Metric:
+class Metric(str, Enum):
     RETENTION = "retained"
     SEARCH = "search_count"
     DAYS_OF_USE = "days_of_use"
     USER_COUNT = "identity"
 
 
-class Statistic:
+class Statistic(str, Enum):
+    """
+    This is the list of statistics supported in Experimenter,
+    not a complete list of statistics available in Jetstream.
+    """
+
     PERCENT = "percentage"
     BINOMIAL = "binomial"
     MEAN = "mean"
     COUNT = "count"
 
 
-class Segment:
+class Segment(str, Enum):
     ALL = "all"
-
-
-class AnalysisBasis:
-    ENROLLMENTS = "enrollments"
-    EXPOSURES = "exposures"
 
 
 # TODO: Consider a "guardrail_metrics" group containing "days_of_use",
 # "retained", and "search_count".
-class Group:
+class Group(str, Enum):
     SEARCH = "search_metrics"
     USAGE = "usage_metrics"
     OTHER = "other_metrics"
@@ -70,27 +81,20 @@ for group, metrics in GROUPED_METRICS.items():
         METRIC_GROUP[metric] = group
 
 
-class JetstreamDataPoint(BaseModel):
-    lower: float = None
-    upper: float = None
-    point: float = None
-    metric: str = None
-    branch: str = None
-    statistic: str = None
-    window_index: str = None
-    comparison: str = None
-    segment: str = Segment.ALL
-    analysis_basis: str = AnalysisBasis.ENROLLMENTS
+class JetstreamDataPoint(JetstreamStatisticResult):
+    """Same as mozilla-nimbus-schemas `Statistic` but sets a default analysis_basis."""
+
+    analysis_basis: AnalysisBasis = AnalysisBasis.ENROLLMENTS
 
 
 class JetstreamData(BaseModel):
     """
     Parameters:
-        __root__: List[JetstreamDataPoint] = []
+        __root__: list[JetstreamDataPoint] = []
             The list should be filtered as needed coming in (e.g., by a given segment).
     """
 
-    __root__: List[JetstreamDataPoint] = []
+    __root__: list[JetstreamDataPoint] = []
 
     def __iter__(self):
         return iter(self.__root__)
@@ -169,13 +173,13 @@ class DataPoint(BaseModel):
 
 
 class BranchComparisonData(BaseModel):
-    all: List[DataPoint] = []
+    all: list[DataPoint] = []
     first: DataPoint = DataPoint()
 
 
 class SignificanceData(BaseModel):
-    overall: Dict[str, Any] = {}
-    weekly: Dict[str, Any] = {}
+    overall: dict[str, Any] = {}
+    weekly: dict[str, Any] = {}
 
 
 class MetricData(BaseModel):
@@ -187,7 +191,13 @@ class MetricData(BaseModel):
 
 
 class ResultsObjectModelBase(BaseModel):
-    def __init__(self, result_metrics, data, experiment, window="overall"):
+    def __init__(
+        self,
+        result_metrics: dict[str, set[Statistic]],
+        data: JetstreamData,
+        experiment: NimbusExperiment,
+        window=AnalysisWindow.OVERALL,
+    ):
         super().__init__()
 
         for jetstream_data_point in data:
@@ -205,12 +215,17 @@ class ResultsObjectModelBase(BaseModel):
                 point=jetstream_data_point.point,
             )
 
-            # For "overall" data, set window_index to 1 for uniformity
-            window_index = 1 if window == "overall" else jetstream_data_point.window_index
+            # For AnalysisWindow.OVERALL data, set window_index to 1 for uniformity
+            window_index = (
+                1
+                if window == AnalysisWindow.OVERALL
+                else jetstream_data_point.window_index
+            )
 
             if metric in result_metrics and statistic in result_metrics[metric]:
                 branch = jetstream_data_point.branch
                 branch_obj = getattr(self, branch)
+                assert experiment.reference_branch
                 branch_obj.is_control = experiment.reference_branch.slug == branch
                 group_obj = getattr(
                     branch_obj.branch_data, METRIC_GROUP.get(metric, Group.OTHER)
@@ -274,7 +289,7 @@ class ResultsObjectModelBase(BaseModel):
                 absolute_primary_metric_vals.first.count = conversion_count
                 absolute_primary_metric_vals.all[0].count = conversion_count
 
-    def compute_significance(self, data_point):
+    def compute_significance(self, data_point: DataPoint):
         if max(data_point.lower, data_point.upper, 0) == 0:
             return Significance.NEGATIVE
         if min(data_point.lower, data_point.upper, 0) == 0:
@@ -290,7 +305,7 @@ class ResultsObjectModelBase(BaseModel):
 """
 
 
-def create_results_object_model(data):
+def create_results_object_model(data: JetstreamData):
     branches = {}
     metrics = {}
     for jetstream_data_point in data:
