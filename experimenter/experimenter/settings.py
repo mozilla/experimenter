@@ -15,6 +15,7 @@ from importlib import resources
 from pathlib import Path
 from urllib.parse import urljoin
 
+from celery.schedules import crontab
 from decouple import config
 from django.contrib.admin import ModelAdmin, StackedInline, TabularInline
 from django.db.models import DecimalField, ForeignKey, JSONField, ManyToManyField
@@ -383,7 +384,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "fetch_jetstream_data": {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
-        "schedule": 28800,
+        "schedule": crontab(minute=0, hour="*/6"),
     },
     "fetch_population_sizing_data": {
         "task": "experimenter.jetstream.tasks.fetch_population_sizing_data",
