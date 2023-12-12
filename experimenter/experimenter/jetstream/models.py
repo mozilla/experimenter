@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from mozilla_nimbus_schemas.jetstream import AnalysisBasis
@@ -8,32 +8,32 @@ from pydantic import BaseModel, create_model
 from experimenter.experiments.models import NimbusExperiment
 
 
-class AnalysisWindow(str, Enum):
+class AnalysisWindow(StrEnum):
     DAILY = "daily"
     WEEKLY = "weekly"
     OVERALL = "overall"
 
 
-class Significance(str, Enum):
+class Significance(StrEnum):
     POSITIVE = "positive"
     NEGATIVE = "negative"
     NEUTRAL = "neutral"
 
 
-class BranchComparison(str, Enum):
+class BranchComparison(StrEnum):
     ABSOLUTE = "absolute"
     DIFFERENCE = "difference"
     UPLIFT = "relative_uplift"
 
 
-class Metric(str, Enum):
+class Metric(StrEnum):
     RETENTION = "retained"
     SEARCH = "search_count"
     DAYS_OF_USE = "days_of_use"
     USER_COUNT = "identity"
 
 
-class Statistic(str, Enum):
+class Statistic(StrEnum):
     """
     This is the list of statistics supported in Experimenter,
     not a complete list of statistics available in Jetstream.
@@ -45,13 +45,13 @@ class Statistic(str, Enum):
     COUNT = "count"
 
 
-class Segment(str, Enum):
+class Segment(StrEnum):
     ALL = "all"
 
 
 # TODO: Consider a "guardrail_metrics" group containing "days_of_use",
 # "retained", and "search_count".
-class Group(str, Enum):
+class Group(StrEnum):
     SEARCH = "search_metrics"
     USAGE = "usage_metrics"
     OTHER = "other_metrics"
