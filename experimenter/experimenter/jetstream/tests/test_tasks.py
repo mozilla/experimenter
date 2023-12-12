@@ -10,7 +10,8 @@ from parameterized import parameterized
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
-from experimenter.jetstream.models import Group
+from experimenter.jetstream.client import get_data
+from experimenter.jetstream.models import AnalysisWindow, Group
 from experimenter.jetstream.tests import mock_valid_outcomes
 from experimenter.jetstream.tests.constants import (
     JetstreamTestData,
@@ -1112,6 +1113,28 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         mock_get_experiment_data.side_effect = Exception
         with self.assertRaises(Exception):
             tasks.fetch_experiment_data(experiment.id)
+
+    @patch("experimenter.jetstream.client.validate_data")
+    @patch("experimenter.jetstream.client.load_data_from_gcs")
+    def test_builds_statistics_filename(
+        self, mock_load_data_from_gcs, mock_validate_data
+    ):
+        lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        offset = NimbusExperiment.DAYS_ANALYSIS_BUFFER + 1
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=offset)
+        )
+
+        mock_validate_data.return_value = True
+
+        recipe_slug = experiment.slug.replace("-", "_")
+        window = AnalysisWindow.OVERALL
+        get_data(recipe_slug, AnalysisWindow.OVERALL)
+        filename = f"statistics/statistics_{recipe_slug}_{window}.json"
+        mock_load_data_from_gcs.assert_called_with(filename)
+
+        assert "AnalysisWindow" not in filename
+        assert "overall" in filename
 
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
