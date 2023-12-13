@@ -280,6 +280,7 @@ enum NimbusExperimentApplicationEnum {
   FOCUS_IOS
   KLAR_IOS
   MONITOR
+  VPN
   DEMO_APP
 }
 
@@ -295,6 +296,7 @@ enum NimbusExperimentChannelEnum {
   DEVELOPER
   STAGING
   PRODUCTION
+  VPN
 }
 
 type NimbusLocaleType {
