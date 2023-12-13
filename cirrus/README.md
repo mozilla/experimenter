@@ -36,7 +36,7 @@ To set up the Cirrus environment, follow these steps:
    - `CIRRUS_CHANNEL`: Replace `developer` with the channel like `beta`, `release` etc.
    - `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.fml.yaml` or specify the correct path to your feature manifest file.
    - `CIRRUS_SENTRY_DSN`: Replace `dsn_url` with the appropriate DSN value.
-   - `CIRRUS_INSTANCE_NAME`: Replace with the instance name value.
+   - `CIRRUS_INSTANCE_NAME`: Replace with the instance name.
 
    Adjust the values of these variables according to your specific configuration requirements.
 
