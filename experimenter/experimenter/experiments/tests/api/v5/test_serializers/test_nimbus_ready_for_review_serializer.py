@@ -3194,9 +3194,13 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         schema = json.dumps(
             {
-                "enabled": {
-                    "target": "no",
-                }
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                    },
+                },
+                "additionalProperties": False,
             }
         )
 
@@ -3356,7 +3360,17 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             "Incorrect value again at line 1 column 1 at version 121.0.0",
         ]
 
-        blob = json.dumps({"enabled": {"no": 1}})
+        schema = json.dumps(
+            {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                    },
+                },
+                "additionalProperties": False,
+            }
+        )
 
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.FENIX,
@@ -3365,10 +3379,10 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             schemas=[
                 NimbusVersionedSchemaFactory.build(version=None, schema=None),
                 NimbusVersionedSchemaFactory.build(
-                    version=self.versions[versions[0]], schema=blob
+                    version=self.versions[versions[0]], schema=schema
                 ),
                 NimbusVersionedSchemaFactory.build(
-                    version=self.versions[versions[1]], schema=blob
+                    version=self.versions[versions[1]], schema=schema
                 ),
             ],
         )
@@ -3434,7 +3448,17 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             )
         ]
 
-        blob = json.dumps({"enabled": {"no": 1}})
+        schema = json.dumps(
+            {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                    },
+                },
+                "additionalProperties": False,
+            }
+        )
 
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.FENIX,
@@ -3443,7 +3467,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             schemas=[
                 NimbusVersionedSchemaFactory.build(version=None, schema=None),
                 NimbusVersionedSchemaFactory.build(
-                    version=self.versions[versions[0]], schema=blob
+                    version=self.versions[versions[0]], schema=schema
                 ),
             ],
         )

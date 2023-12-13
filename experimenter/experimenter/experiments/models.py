@@ -1255,8 +1255,8 @@ class NimbusFeatureConfig(models.Model):
 
     @dataclass
     class VersionedSchemaRange:
-        # The schemas that are supported in the requested version range, or a single
-        # element list with an unversioned schema.
+        # The versioned schemas in the requested range, or a single element list
+        # with an unversioned schema.
         schemas: list["NimbusVersionedSchema"]
 
         # If true, then this feature is unsupported in the entire version range.
