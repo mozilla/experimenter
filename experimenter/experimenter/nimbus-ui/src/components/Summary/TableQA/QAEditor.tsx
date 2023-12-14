@@ -60,17 +60,17 @@ export const QAEditor = ({
     {
       label: NimbusExperimentQAStatusEnum.RED,
       value: NimbusExperimentQAStatusEnum.RED,
-      description: "🔴 RED ",
+      description: NimbusExperimentQAStatusEnum.RED,
     },
     {
       label: NimbusExperimentQAStatusEnum.YELLOW,
       value: NimbusExperimentQAStatusEnum.YELLOW,
-      description: "🟡 YELLOW ",
+      description: NimbusExperimentQAStatusEnum.YELLOW,
     },
     {
       label: NimbusExperimentQAStatusEnum.GREEN,
       value: NimbusExperimentQAStatusEnum.GREEN,
-      description: "🟢 GREEN ",
+      description: NimbusExperimentQAStatusEnum.GREEN,
     },
   ] as const;
 
