@@ -251,7 +251,6 @@ export const GET_EXPERIMENTS_QUERY = gql`
         description
         application
         ownerEmail
-        schema
       }
       targetingConfig {
         label

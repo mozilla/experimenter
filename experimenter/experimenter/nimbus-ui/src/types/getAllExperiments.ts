@@ -23,7 +23,6 @@ export interface getAllExperiments_experiments_featureConfigs {
   description: string | null;
   application: NimbusExperimentApplicationEnum | null;
   ownerEmail: string | null;
-  schema: string | null;
 }
 
 export interface getAllExperiments_experiments_targetingConfig {
