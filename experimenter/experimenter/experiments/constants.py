@@ -176,9 +176,9 @@ APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
 APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
     name="VPN Web",
     slug="vpn-web",
-    app_name="mozillavpn_cirrus",
+    app_name="mozillavpn_backend_cirrus",
     channel_app_id={
-        Channel.VPN: "mozillavpn_cirrus",
+        Channel.VPN: "mozillavpn_backend_cirrus",
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
