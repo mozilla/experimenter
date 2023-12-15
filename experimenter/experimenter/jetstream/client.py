@@ -28,7 +28,6 @@ from experimenter.jetstream.models import (
 from experimenter.outcomes import Metric as OutcomeMetric
 from experimenter.outcomes import Outcomes
 
-BRANCH_DATA = "branch_data"
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
 ERRORS_FOLDER = "errors"
@@ -183,9 +182,9 @@ def get_other_metrics_names_and_map(
 
 def get_experiment_data(experiment: NimbusExperiment):
     recipe_slug = experiment.slug.replace("-", "_")
-    windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
+    # we don't use DAILY results in Experimenter, so only get WEEKLY/OVERALL
+    windows = [AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
-        AnalysisWindow.DAILY: {},
         AnalysisWindow.WEEKLY: {},
         AnalysisWindow.OVERALL: {},
     }
@@ -235,12 +234,13 @@ def get_experiment_data(experiment: NimbusExperiment):
                 outcomes_metadata,
             )
             if data and window == AnalysisWindow.OVERALL:
-                # Append some values onto Jetstream data
+                # Append some values onto the incoming Jetstream data
                 data.append_population_percentages()
                 data.append_retention_data(
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
                 )
 
+                # Create the output object (overall data)
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment)
                 data.append_conversion_count(primary_metrics_set)
@@ -248,9 +248,11 @@ def get_experiment_data(experiment: NimbusExperiment):
                 if segment == Segment.ALL:
                     experiment_data["other_metrics"] = other_metrics
             elif data and window == AnalysisWindow.WEEKLY:
+                # Create the output object (weekly data)
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
+            # Convert output object to dict and put into the final object
             transformed_data = data.dict(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
 
