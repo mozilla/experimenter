@@ -7,9 +7,14 @@ import { Button, Card, Col, Row, Table } from "react-bootstrap";
 import NotSet from "src/components/NotSet";
 import QAEditor from "src/components/Summary/TableQA/QAEditor";
 import { UseQAResult } from "src/components/Summary/TableQA/useQA";
-import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
+import { QA_STATUS_WITH_EMOJI } from "src/lib/constants";
+import {
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentQAStatusEnum,
+} from "src/types/globalTypes";
 
 type TableQAProps = {
+  publishStatus: NimbusExperimentPublishStatusEnum | null;
   qaStatus?: NimbusExperimentQAStatusEnum | null;
 } & UseQAResult;
 
@@ -17,8 +22,18 @@ export type QAEditorProps = UseQAResult & {
   setShowEditor: (state: boolean) => void;
 };
 
+export function qaStatusLabel(status: NimbusExperimentQAStatusEnum) {
+  if (status === NimbusExperimentQAStatusEnum.GREEN) {
+    return QA_STATUS_WITH_EMOJI.GREEN;
+  } else if (status === NimbusExperimentQAStatusEnum.YELLOW) {
+    return QA_STATUS_WITH_EMOJI.YELLOW;
+  } else {
+    return QA_STATUS_WITH_EMOJI.RED;
+  }
+}
+
 const TableQA = (props: TableQAProps) => {
-  const { qaStatus, showEditor, setShowEditor } = props;
+  const { publishStatus, qaStatus, showEditor, setShowEditor } = props;
 
   const onClickEdit = useCallback(() => setShowEditor(true), [setShowEditor]);
 
@@ -33,7 +48,7 @@ const TableQA = (props: TableQAProps) => {
           <Row>
             <Col className="my-1">QA</Col>
             <Col className="text-right">
-              {
+              {publishStatus !== NimbusExperimentPublishStatusEnum.REVIEW && (
                 <Button
                   onClick={onClickEdit}
                   variant="outline-primary"
@@ -43,7 +58,7 @@ const TableQA = (props: TableQAProps) => {
                 >
                   Edit
                 </Button>
-              }
+              )}
             </Col>
           </Row>
         </Card.Header>
@@ -56,7 +71,7 @@ const TableQA = (props: TableQAProps) => {
                   data-testid="experiment-qa-status"
                   className="text-monospace border-top-0 border-bottom-2"
                 >
-                  {qaStatus || <NotSet />}
+                  {qaStatus ? qaStatusLabel(qaStatus)[0] : <NotSet />}
                 </td>
                 <th className="border-top-0 w-75 border-bottom-2"></th>
                 <td className="border-top-0 border-bottom-2" />

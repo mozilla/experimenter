@@ -211,9 +211,9 @@ export enum NimbusExperimentPublishStatusEnum {
 }
 
 export enum NimbusExperimentQAStatusEnum {
-  GREEN = "✅ GREEN",
-  RED = "❌ RED",
-  YELLOW = "⚠️ YELLOW",
+  GREEN = "GREEN",
+  RED = "RED",
+  YELLOW = "YELLOW",
 }
 
 export enum NimbusExperimentStatusEnum {
