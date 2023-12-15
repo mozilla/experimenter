@@ -21,13 +21,18 @@ import {
   updateReviewRequestedBaseProps,
 } from "src/components/PageSummary/mocks";
 import { createMutationMock } from "src/components/Summary/mocks";
-import { CHANGELOG_MESSAGES, SERVER_ERRORS } from "src/lib/constants";
+import {
+  CHANGELOG_MESSAGES,
+  QA_STATUS_WITH_EMOJI,
+  SERVER_ERRORS,
+} from "src/lib/constants";
 import { mockExperimentQuery, mockLiveRolloutQuery } from "src/lib/mocks";
 import {
   NimbusExperimentApplicationEnum,
   NimbusExperimentChannelEnum,
   NimbusExperimentFirefoxVersionEnum,
   NimbusExperimentPublishStatusEnum,
+  NimbusExperimentQAStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
 
@@ -704,6 +709,37 @@ describe("PageSummary", () => {
       ).toBeInTheDocument();
     },
   );
+
+  it.each([
+    [NimbusExperimentQAStatusEnum.GREEN, QA_STATUS_WITH_EMOJI.GREEN[0]],
+    [NimbusExperimentQAStatusEnum.YELLOW, QA_STATUS_WITH_EMOJI.YELLOW[0]],
+    [NimbusExperimentQAStatusEnum.RED, QA_STATUS_WITH_EMOJI.RED[0]],
+  ])(
+    "renders qa status pill for each status",
+    async (qaStatus: NimbusExperimentQAStatusEnum, qaLabel: string) => {
+      const { mock } = mockExperimentQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+        qaStatus: qaStatus,
+        statusNext: null,
+      });
+
+      render(<Subject mocks={[mock]} />);
+      const qaStatusPill = await screen.findByTestId("pill-qa-status");
+      expect(qaStatusPill).toBeInTheDocument();
+      expect(screen.getByText(qaLabel)).toBeInTheDocument();
+    },
+  );
+
+  it("will not render qa status pill when status is not set", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      statusNext: null,
+    });
+    render(<Subject mocks={[mock]} />);
+    expect(screen.queryByTestId("pill-qa-status")).not.toBeInTheDocument();
+  });
 
   it.each([
     [
