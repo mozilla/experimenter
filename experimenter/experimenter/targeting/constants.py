@@ -4,6 +4,11 @@ from django.db import models
 
 from experimenter.experiments.constants import Application, NimbusConstants
 
+# The identifiers in the exressions of the targeting field can be found
+# here: https://searchfox.org/mozilla-central/source/browser/components/newtab/lib/ASRouterTargeting.jsm#526
+# and here:
+# https://searchfox.org/mozilla-central/source/toolkit/components/nimbus/lib/ExperimentManager.sys.mjs#94`
+
 
 @dataclass
 class NimbusTargetingConfig:
@@ -1814,6 +1819,17 @@ SHOPPING_ONBOARDING_SHOWN = NimbusTargetingConfig(
         "ensuring the shopping feature stays active across different experiments."
     ),
     targeting="'browser.shopping.experience2023.autoActivateCount'|preferenceValue >= 1",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
+    name="64bit Firefox build running on a computer with at least 8GB of RAM",
+    slug="is_64bit_build_and_8gb_ram",
+    description="Target 64bit builds running on computers with at least 8GB of RAM.",
+    targeting="archBits == 64 && memoryMB >= 8000",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
