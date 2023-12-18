@@ -21,6 +21,10 @@ class ExperimenterBase(Base):
             *self._save_continue_btn_locator, "save and continue button"
         )
         element.click()
+
+        # Wait for next page to load after save and continue before proceeding
+        self.wait_for_locator(self.NEXT_PAGE._page_wait_locator)
+
         return self.NEXT_PAGE(self.driver, self.base_url).wait_for_page_to_load()
 
     def save(self):
