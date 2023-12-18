@@ -1202,7 +1202,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "comparison_to_branch": "treatment-a",
                 "ci_width": 0.95,
                 "point": -0.1,
-                "lower": -0.2,
+                "lower": -10.2,
                 "upper": -0.01,
                 "segment": "all",
                 "analysis_basis": "enrollments",
