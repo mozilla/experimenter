@@ -612,13 +612,13 @@ files = [
 
 [[package]]
 name = "mozilla-nimbus-shared"
-version = "2.4.0"
+version = "2.5.2"
 description = "Shared data and schemas for Project Nimbus"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "mozilla_nimbus_shared-2.4.0-py3-none-any.whl", hash = "sha256:42bba41678bd7b924a5eacc96306c6b566d639729cf9fdff04fdc0f2359ba2c2"},
-    {file = "mozilla_nimbus_shared-2.4.0.tar.gz", hash = "sha256:fc8c3d54c6df4b18b44ba2fffa9dfdbe2f29e2724388728d9c22348c0733f6dc"},
+    {file = "mozilla_nimbus_shared-2.5.2-py3-none-any.whl", hash = "sha256:d7257945c13cffb2b2aa79f7d3b4c955ea4c93d511f6cccb08e9cd0fb7c5f412"},
+    {file = "mozilla_nimbus_shared-2.5.2.tar.gz", hash = "sha256:a10e84a9b860dc5cd5ef78babe9396674da815c853f43ba6ba4950b38f163119"},
 ]
 
 [package.dependencies]
@@ -1380,4 +1380,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.10"
-content-hash = "6c563d80062506906ee4f3e43c77c903d57bb131940f7c1ef5d9ae6ddaf5fdc6"
+content-hash = "511337302dd0938bc4d14475124881f0391982ca515f34f5e0deaeb24c932b5d"
