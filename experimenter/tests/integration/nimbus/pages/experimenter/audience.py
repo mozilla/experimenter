@@ -40,8 +40,18 @@ class AudiencePage(ExperimenterBase):
     )
     _first_run_checkbox_locator = (By.CSS_SELECTOR, '[data-testid="isFirstRun"]')
     _release_date_locator = (By.CSS_SELECTOR, '[data-testid="proposedReleaseDate"]')
+    _saved_locator = (By.CSS_SELECTOR, "form.was-validated")
 
     NEXT_PAGE = SummaryPage
+
+    def save_and_continue(self):
+        # Explicitly save and wait for save to complete before continuing
+        # to prevent intermittent failures where summary loads before saving
+        # audience is complete
+        self.save()
+        self.wait_for_locator(self._saved_locator)
+
+        return super().save_and_continue()
 
     @property
     def channel(self):
