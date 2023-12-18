@@ -643,20 +643,20 @@ sftp = ["paramiko (>=1.15.0)"]
 
 [[package]]
 name = "django-tailwind"
-version = "3.6.0"
+version = "3.7.0"
 description = "Tailwind CSS Framework for Django projects"
 optional = false
-python-versions = ">=3.8.1,<4.0.0"
+python-versions = ">=3.10.0,<4.0.0"
 files = [
-    {file = "django_tailwind-3.6.0-py3-none-any.whl", hash = "sha256:93db0ed1c18ae21ee8ad7f19f96744f5b2322e9d9872307a06e0f45b21cbe60a"},
-    {file = "django_tailwind-3.6.0.tar.gz", hash = "sha256:d878222a4ef957d1d0f0529dcd28b0065995ca6b8c7b43b058b9214c9e7d8ec0"},
+    {file = "django_tailwind-3.7.0-py3-none-any.whl", hash = "sha256:8f1003d74be35b4e5abe135f13599205a79e124671f57e93b7601a47c0dbab61"},
+    {file = "django_tailwind-3.7.0.tar.gz", hash = "sha256:65d80d0b41c3765a70bcfb41c94d3719e2d9b8be8aa347f0fcdb298df24e150f"},
 ]
 
 [package.dependencies]
 django = ">=3.2.14"
 
 [package.extras]
-reload = ["django-browser-reload (>=1.6.0,<2.0.0)"]
+reload = ["django-browser-reload (>=1.12.1,<2.0.0)"]
 
 [[package]]
 name = "django-test-migrations"
@@ -2891,4 +2891,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "3c44bcd958265e2479ca5542f47ad8f11b61139f4b3ce77e4f87488c2370423b"
+content-hash = "7d59cbcf13142fb5b08410d39f3c7f3e2758ebe3f0f8aa1174b8f73f87a1f009"
