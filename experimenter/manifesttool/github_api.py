@@ -8,7 +8,6 @@ from manifesttool import download
 from manifesttool.repository import Ref
 
 GITHUB_API_URL = "https://api.github.com"
-GITHUB_RAW_URL = "https://raw.githubusercontent.com"
 GITHUB_API_HEADERS = {
     "Accept": "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
@@ -127,7 +126,15 @@ def fetch_file(
         If ``download_path`` is ``None``, the file contents are returned as a
         ``str``. Otherwise, ``None`` is returned.
     """
-    url = f"{GITHUB_RAW_URL}/{repo}/{rev}/{file_path}"
+    rsp = api_request(
+        f"repos/{repo}/contents/{file_path}",
+        raise_for_status=False,
+        params={"ref": rev},
+    )
+
+    rsp.raise_for_status()
+
+    url = rsp.json()["download_url"]
 
     if download_path is None:
         return download.as_text(url)
