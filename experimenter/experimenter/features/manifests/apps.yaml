@@ -23,7 +23,9 @@ firefox_ios:
   repo:
     type: "github"
     name: "mozilla-mobile/firefox-ios"
-  fml_path: "nimbus.fml.yaml"
+  fml_path:
+    - "firefox-ios/nimbus.fml.yaml"
+    - "nimbus.fml.yaml"
   release_discovery:
     version_file:
       type: "plist"
