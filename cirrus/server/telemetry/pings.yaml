@@ -30,3 +30,17 @@ enrollment-status:
     - https://github.com/mozilla/experimenter/issues/9649
   data_reviews:
     - https://github.com/mozilla/experimenter/pull/9657#issuecomment-1791427765
+startup:
+  description: >
+    A ping to record startup data.
+  include_client_id: true
+  notification_emails:
+    - ykhurana@mozilla.com
+    - chumphreys@mozilla.com
+    - jkerim@mozilla.com
+    - project-nimbus@mozilla.com
+  bugs:
+    - https://mozilla-hub.atlassian.net/browse/EXP-3574
+    - https://github.com/mozilla/experimenter/issues/9911
+  data_reviews:
+    - https://github.com/mozilla/experimenter/pull/9920#issuecomment-1846146644
