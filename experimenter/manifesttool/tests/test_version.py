@@ -3,6 +3,7 @@ from unittest import TestCase
 
 import responses
 from parameterized import parameterized
+from responses import matchers
 
 from manifesttool.appconfig import (
     AppConfig,
@@ -15,9 +16,10 @@ from manifesttool.appconfig import (
     VersionFile,
 )
 from manifesttool.cli import MANIFEST_DIR
-from manifesttool.github_api import GITHUB_RAW_URL
+from manifesttool.github_api import GITHUB_API_URL
 from manifesttool.hgmo_api import HGMO_URL
 from manifesttool.repository import Ref
+from manifesttool.tests.test_github_api import GITHUB_RAW_URL
 from manifesttool.version import (
     Version,
     filter_versioned_refs,
@@ -470,8 +472,23 @@ class VersionTests(TestCase):
         refs = []
         rsps = []
         for ref, body in bodies:
-            rsps.append(responses.get(url_template.format(ref=ref), body=body))
+            download_url = url_template.format(ref=ref)
+            rsps.append(responses.get(download_url, body=body))
             refs.append(ref)
+
+            if app_config.repo.type == RepositoryType.GITHUB:
+                rsps.append(
+                    responses.get(
+                        (
+                            f"{GITHUB_API_URL}/repos/{app_config.repo.name}/"
+                            f"contents/{app_config.release_discovery.version_file.__root__.path}"
+                        ),
+                        match=[matchers.query_param_matcher({"ref": ref.target})],
+                        json={
+                            "download_url": download_url,
+                        },
+                    )
+                )
 
         result = resolve_ref_versions(app_config, refs)
 
