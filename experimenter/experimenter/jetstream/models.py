@@ -3,7 +3,7 @@ from typing import Any
 
 from mozilla_nimbus_schemas.jetstream import AnalysisBasis
 from mozilla_nimbus_schemas.jetstream import Statistic as JetstreamStatisticResult
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, create_model, validator
 
 from experimenter.experiments.models import NimbusExperiment
 
@@ -85,6 +85,9 @@ class JetstreamDataPoint(JetstreamStatisticResult):
     """Same as mozilla-nimbus-schemas `Statistic` but sets a default analysis_basis."""
 
     analysis_basis: AnalysisBasis = AnalysisBasis.ENROLLMENTS
+
+    class Config:
+        use_enum_values = True
 
 
 class JetstreamData(BaseModel):
@@ -345,7 +348,7 @@ def create_results_object_model(data: JetstreamData):
     for jetstream_data_point in data:
         branches[jetstream_data_point.branch] = {}
 
-    # create a dynamic model that extends BranchComparisonData with the all branches
+    # create a dynamic model that extends BranchComparisonData with all branches
     branches_data = {b: BranchComparisonData() for b in branches}
     PairwiseBranchComparisonData = create_model(
         "PairwiseBranchComparisonData",
