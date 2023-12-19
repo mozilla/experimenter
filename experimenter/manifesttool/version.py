@@ -3,6 +3,8 @@ import re
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
+from requests import HTTPError
+
 from manifesttool import github_api, hgmo_api
 from manifesttool.appconfig import AppConfig, RepositoryType, VersionFile, VersionFileType
 from manifesttool.repository import Ref
@@ -178,16 +180,34 @@ def resolve_ref_versions(
     elif app_config.repo.type == RepositoryType.HGMO:
         fetch_file = hgmo_api.fetch_file
     else:  # pragma: no cover
-        assert False
+        raise AssertionError("unreachable")
 
     versions = {}
 
+    version_file_paths: str | list[
+        str
+    ] = app_config.release_discovery.version_file.__root__.path
+    if not isinstance(version_file_paths, list):
+        version_file_paths = [version_file_paths]
+
     for ref in refs:
-        version_file_contents = fetch_file(
-            app_config.repo.name,
-            app_config.release_discovery.version_file.__root__.path,
-            ref.target,
-        )
+        for version_file_path in version_file_paths:
+            try:
+                version_file_contents = fetch_file(
+                    app_config.repo.name,
+                    version_file_path,
+                    ref.target,
+                )
+            except HTTPError as e:
+                if e.response.status_code == 404:
+                    continue
+
+                raise  # pragma: no cover
+
+            break
+
+        else:
+            raise Exception(f"Could not find version file for app {app_config.slug}")
 
         v = parse_version_file(
             app_config.release_discovery.version_file, version_file_contents
