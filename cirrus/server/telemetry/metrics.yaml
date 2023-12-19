@@ -80,3 +80,22 @@ cirrus_events:
     expires: never
     send_in_pings:
       - enrollment-status
+  instance_name:
+    type: string
+    description: The name of the instance
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/EXP-3574
+      - https://github.com/mozilla/experimenter/issues/9911
+    data_reviews:
+      - https://github.com/mozilla/experimenter/pull/9920#issuecomment-1846146644
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - ykhurana@mozilla.com
+      - chumphreys@mozilla.com
+      - jkerim@mozilla.com
+      - project-nimbus@mozilla.com
+    expires: never
+    send_in_pings:
+      - startup
+

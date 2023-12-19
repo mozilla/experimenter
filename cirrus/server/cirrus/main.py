@@ -21,6 +21,7 @@ from .settings import (
     cirrus_sentry_dsn,
     context,
     fml_path,
+    instance_name,
     metrics_config,
     metrics_path,
     pings_path,
@@ -47,11 +48,17 @@ async def lifespan(app: FastAPI):
     app.state.remote_setting = RemoteSettings(app.state.sdk)
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
+    send_instance_name_metric()
 
     yield
     if app.state.scheduler:
         app.state.scheduler.shutdown()
     Glean.shutdown()
+
+
+def send_instance_name_metric():
+    app.state.metrics.cirrus_events.instance_name.set(instance_name)
+    app.state.pings.startup.submit()
 
 
 def initialize_sentry():
