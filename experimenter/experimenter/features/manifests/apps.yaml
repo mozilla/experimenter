@@ -29,7 +29,9 @@ firefox_ios:
   release_discovery:
     version_file:
       type: "plist"
-      path: "Client/Info.plist"
+      path:
+        - "firefox-ios/Client/Info.plist"
+        - "Client/Info.plist"
       key: "CFBundleShortVersionString"
     strategies:
       - type: "tagged"
@@ -64,7 +66,9 @@ focus_ios:
   release_discovery:
     version_file:
       type: "plist"
-      path: "Blockzilla/Info.plist"
+      path:
+        - "focus-ios/Blockzilla/Info.plist"
+        - "Blockzilla/Info.plist"
       key: "CFBundleShortVersionString"
     strategies:
       # We don't use a branched strategy for focus_ios because it is on v9000.
@@ -76,37 +80,37 @@ focus_ios:
         ignored_tags:
           - "v999.0.0" # nimbus.fml.yaml missing.
 
-monitor_cirrus:
-  slug: "monitor-web"
-  repo:
-    type: "github"
-    name: "mozilla/blurts-server"
-  fml_path: "config/nimbus.yaml"
+# monitor_cirrus:
+#   slug: "monitor-web"
+#   repo:
+#     type: "github"
+#     name: "mozilla/blurts-server"
+#   fml_path: "config/nimbus.yaml"
 
-firefox_desktop:
-  slug: "firefox-desktop"
-  repo:
-    type: "hgmo"
-    name: "mozilla-unified"
-    default_branch: "central"
-  experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
-  release_discovery:
-    version_file:
-      type: "plaintext"
-      path: "browser/config/version.txt"
-    strategies:
-      - type: "branched"
-        branches:
-          # The order here is important!
-          #
-          # When central is merging to beta or beta is merging to release, then
-          # both of those will have the same version number for a period of
-          # time.
-          #
-          # In this order, if two consecutive branches have the same version,
-          # then the latter will take precedence. e.g., if both beta and release
-          # report the same version, we will use the feature manifest from release.
-          - "central"
-          - "beta"
-          - "release"
-          - "esr115"
+# firefox_desktop:
+#   slug: "firefox-desktop"
+#   repo:
+#     type: "hgmo"
+#     name: "mozilla-unified"
+#     default_branch: "central"
+#   experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
+#   release_discovery:
+#     version_file:
+#       type: "plaintext"
+#       path: "browser/config/version.txt"
+#     strategies:
+#       - type: "branched"
+#         branches:
+#           # The order here is important!
+#           #
+#           # When central is merging to beta or beta is merging to release, then
+#           # both of those will have the same version number for a period of
+#           # time.
+#           #
+#           # In this order, if two consecutive branches have the same version,
+#           # then the latter will take precedence. e.g., if both beta and release
+#           # report the same version, we will use the feature manifest from release.
+#           - "central"
+#           - "beta"
+#           - "release"
+#           - "esr115"

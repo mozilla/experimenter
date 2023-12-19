@@ -29,6 +29,23 @@ def _add_paginated_responses(
     }
 
 
+def make_responses_for_fetch(
+    repo_name: str, ref: str, path: str, content: bytes
+) -> list[responses.Response]:
+    download_url = f"{GITHUB_RAW_URL}/{repo_name}/{ref}/{path}"
+
+    return [
+        responses.get(
+            f"{GITHUB_API_URL}/repos/{repo_name}/contents/{path}",
+            match=[matchers.query_param_matcher({"ref": ref})],
+            json={
+                "download_url": download_url,
+            },
+        ),
+        responses.get(download_url, body=content),
+    ]
+
+
 class GitHubApiTests(TestCase):
     """Tests for GitHub API wrappers."""
 
@@ -166,16 +183,8 @@ class GitHubApiTests(TestCase):
     @responses.activate
     def test_fetch_file_download(self):
         """Testing github_api.fetch_file."""
-        api_rsp = responses.get(
-            f"{GITHUB_API_URL}/repos/repo/contents/file/path.txt",
-            match=[matchers.query_param_matcher({"ref": "ref"})],
-            json={
-                "download_url": f"{GITHUB_RAW_URL}/repo/ref/file/path.txt",
-            },
-        )
-        file_rsp = responses.get(
-            f"{GITHUB_RAW_URL}/repo/ref/file/path.txt",
-            body=b"hello, world\n",
+        api_rsp, file_rsp = make_responses_for_fetch(
+            "repo", "ref", "file/path.txt", b"hello, world\n"
         )
 
         with TemporaryDirectory() as tmp_dir:

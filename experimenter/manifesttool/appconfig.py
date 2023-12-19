@@ -34,12 +34,12 @@ class VersionFileType(str, Enum):
 
 class PlainTextVersionFile(BaseModel):
     type: Literal[VersionFileType.PLAIN_TEXT]
-    path: str
+    path: Optional[Union[str, list[str]]]
 
 
 class PListVersionFile(BaseModel):
     type: Literal[VersionFileType.PLIST]
-    path: str
+    path: Optional[Union[str, list[str]]]
     key: str
 
 
@@ -47,7 +47,7 @@ class VersionFile(BaseModel):
     __root__: Union[PlainTextVersionFile, PListVersionFile] = Field(discriminator="type")
 
     @classmethod
-    def create_plain_text(cls, path: str):  # pragma: no cover
+    def create_plain_text(cls, path: str | list[str]):  # pragma: no cover
         return cls(
             __root__=PlainTextVersionFile(
                 type=VersionFileType.PLAIN_TEXT,
@@ -56,7 +56,7 @@ class VersionFile(BaseModel):
         )
 
     @classmethod
-    def create_plist(cls, path: str, key: str):  # pragma: no cover
+    def create_plist(cls, path: str | list[str], key: str):  # pragma: no cover
         return cls(
             __root__=PListVersionFile(
                 type=VersionFileType.PLIST,
