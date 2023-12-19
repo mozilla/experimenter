@@ -26,6 +26,9 @@ pings_path: str = "./telemetry/pings.yaml"
 metrics_path: str = "./telemetry/metrics.yaml"
 
 cirrus_sentry_dsn: str = cast(str, config("CIRRUS_SENTRY_DSN", default=""))
+instance_name: str = cast(
+    str, config("CIRRUS_INSTANCE_NAME", default="instance name not defined")
+)
 
 
 @dataclass
