@@ -121,4 +121,3 @@ mozillavpn_backend_cirrus:
     type: "github"
     name: "mozilla-services/guardian-website"
   fml_path: "nimbus.yaml"
-
