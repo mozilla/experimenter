@@ -297,13 +297,6 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: true
-  redux-integration-feature:
-    description: "This feature is for managing the roll out of the Redux integration feature\n"
-    variables:
-      enabled:
-        description: "Enables the feature\n"
-        type: Boolean
-        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:

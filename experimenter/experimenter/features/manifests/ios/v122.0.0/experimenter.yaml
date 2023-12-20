@@ -112,14 +112,6 @@ qr-code-coordinator-refactor:
     enabled:
       type: boolean
       description: "Enables the feature\n"
-redux-integration-feature:
-  description: "This feature is for managing the roll out of the Redux integration feature\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 search:
   description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
   hasExposure: true
