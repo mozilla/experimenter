@@ -114,3 +114,10 @@ focus_ios:
 #           - "beta"
 #           - "release"
 #           - "esr115"
+
+mozillavpn_backend_cirrus:
+  slug: "vpn-web"
+  repo:
+    type: "github"
+    name: "mozilla-services/guardian-website"
+  fml_path: "nimbus.yaml"

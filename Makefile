@@ -52,6 +52,7 @@ FIREFOX_ANDROID_REPO = @mozilla-mobile/firefox-android
 FIREFOX_IOS_REPO     = @mozilla-mobile/firefox-ios
 FOCUS_IOS_REPO       = @mozilla-mobile/focus-ios
 MONITOR_REPO         = @mozilla/blurts-server
+VPN_REPO             = @mozilla-services/guardian-website
 
 CLI_DIR = experimenter/experimenter/features/manifests/application-services
 CLI_INSTALLER = $(CLI_DIR)/install-nimbus-cli.sh
