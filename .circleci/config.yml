@@ -504,8 +504,8 @@ jobs:
       - run:
           name: Check for External Config Update
           command: |
-            git checkout main
-            git pull origin main
+            # git checkout main
+            # git pull origin main
             cp .env.sample .env
             env GITHUB_BEARER_TOKEN="${GH_TOKEN}" make fetch_external_resources FETCH_ARGS="--summary fetch-summary.txt"
             mv ./experimenter/fetch-summary.txt /tmp/fetch-summary.txt
@@ -652,6 +652,8 @@ workflows:
 
   build:
     jobs:
+      - update_external_configs:
+          name: Update External Configs (do not merge)
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
