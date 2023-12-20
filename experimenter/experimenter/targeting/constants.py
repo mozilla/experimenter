@@ -1785,6 +1785,28 @@ ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+IOS_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
+    name="Review checker enabled users only",
+    slug="ios_review_checker_enabled_users_only",
+    description="Targeting users who have opted in review checker",
+    targeting="is_review_checker_enabled == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+ANDROID_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
+    name="Review checker enabled users only",
+    slug="android_review_checker_enabled_users_only",
+    description="Targeting users who have opted in review checker",
+    targeting="is_review_checker_enabled == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
     name="Default PDF handler is a different browser",
     slug="default_pdf_is_different_browser",
