@@ -78,6 +78,7 @@ def test_check_mobile_targeting(
             "isFirstRun": "true",
             "is_first_run": True,
             "is_phone": True,
+            "is_review_checker_enabled": True,
         }
     )
     client = sdk_client(load_app_context(context))
