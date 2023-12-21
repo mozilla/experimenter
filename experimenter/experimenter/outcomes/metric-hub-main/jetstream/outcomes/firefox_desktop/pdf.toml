@@ -1,2 +1,10 @@
 friendly_name = "PDF Metrics"
 description = "Usage and engagement metrics for PDFs"
+
+[metrics]
+[metrics.pdf_engagement.statistics.binomial]
+[metrics.pdf_freetext.statistics.binomial]
+[metrics.pdf_ink.statistics.binomial]
+[metrics.pdf_print.statistics.binomial]
+[metrics.pdf_save.statistics.binomial]
+[metrics.pdf_opening.statistics.binomial]
