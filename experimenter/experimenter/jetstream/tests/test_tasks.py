@@ -497,7 +497,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     },
                 },
                 "other_metrics": {
-                    Group.OTHER: {
+                    Group.OTHER.value: {
                         "some_count": "Some Count",
                         "another_count": "Another Count",
                     },
@@ -823,7 +823,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "weekly": WEEKLY_DATA,
                 "overall": OVERALL_DATA,
                 "other_metrics": {
-                    Group.OTHER: {
+                    Group.OTHER.value: {
                         "some_count": "Some Count",
                         "another_count": "Another Count",
                     },
@@ -921,9 +921,30 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                     "window_index": "1",
                                                 },
                                             },
-                                            "difference": {"all": [], "first": {}},
-                                            "relative_uplift": {"all": [], "first": {}},
-                                            "significance": {"overall": {}, "weekly": {}},
+                                            "difference": {
+                                                "all": [],
+                                                "first": {},
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "overall": {},
+                                                "weekly": {},
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
                                         }
                                     },
                                     "search_metrics": {},
@@ -951,9 +972,30 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                     "window_index": "1",
                                                 },
                                             },
-                                            "difference": {"all": [], "first": {}},
-                                            "relative_uplift": {"all": [], "first": {}},
-                                            "significance": {"overall": {}, "weekly": {}},
+                                            "difference": {
+                                                "all": [],
+                                                "first": {},
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "overall": {},
+                                                "weekly": {},
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
                                         }
                                     },
                                     "search_metrics": {},
@@ -986,10 +1028,31 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                     "upper": 0.0,
                                                 },
                                             },
-                                            "difference": {"all": [], "first": {}},
+                                            "difference": {
+                                                "all": [],
+                                                "first": {},
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "overall": {},
+                                                "weekly": {},
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
                                             "percent": 0.0,
-                                            "relative_uplift": {"all": [], "first": {}},
-                                            "significance": {"overall": {}, "weekly": {}},
                                         }
                                     },
                                     "search_metrics": {},
@@ -1015,10 +1078,31 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                     "upper": 0.0,
                                                 },
                                             },
-                                            "difference": {"all": [], "first": {}},
+                                            "difference": {
+                                                "all": [],
+                                                "first": {},
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "overall": {},
+                                                "weekly": {},
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
                                             "percent": 0.0,
-                                            "relative_uplift": {"all": [], "first": {}},
-                                            "significance": {"overall": {}, "weekly": {}},
                                         }
                                     },
                                     "search_metrics": {},
@@ -1030,7 +1114,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     },
                 },
                 "other_metrics": {
-                    Group.OTHER: {
+                    Group.OTHER.value: {
                         "some_count": "Some Count",
                         "another_count": "Another Count",
                     },

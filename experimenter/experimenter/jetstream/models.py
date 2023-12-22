@@ -3,7 +3,7 @@ from typing import Any
 
 from mozilla_nimbus_schemas.jetstream import AnalysisBasis
 from mozilla_nimbus_schemas.jetstream import Statistic as JetstreamStatisticResult
-from pydantic import BaseModel, create_model, validator
+from pydantic import BaseModel, create_model
 
 from experimenter.experiments.models import NimbusExperiment
 
