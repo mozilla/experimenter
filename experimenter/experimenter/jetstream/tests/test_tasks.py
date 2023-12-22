@@ -2319,11 +2319,11 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             experiment.results_data,
             {
                 "v2": {
+                    "daily": {},
                     "metadata": None,
                     "overall": {},
                     "show_analysis": False,
                     "weekly": {},
-                    "daily": {},
                     "errors": {"experiment": []},
                 },
             },
@@ -2380,11 +2380,11 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         )
         experiment.results_data = {
             "v2": {
+                "daily": None,
                 "metadata": None,
                 "overall": None,
                 "show_analysis": False,
                 "weekly": None,
-                "daily": None,
             },
         }
         experiment.save()

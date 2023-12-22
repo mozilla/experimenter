@@ -111,9 +111,6 @@ class JetstreamData(BaseModel):
     def extend(self, item):
         self.__root__.extend(item)
 
-    def dict(self, exclude_none):
-        return [item.dict(exclude_none=exclude_none) for item in self.__root__]
-
     def get_segment(self):
         return self.__root__[0].segment or Segment.ALL
 
