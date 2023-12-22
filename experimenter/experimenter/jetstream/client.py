@@ -197,6 +197,9 @@ def get_experiment_data(experiment: NimbusExperiment):
     experiment_errors = get_analysis_errors(recipe_slug)
 
     experiment_data = {
+        # DAILY included for backwards compatibility with UI
+        # TODO: remove DAILY after updating UI
+        AnalysisWindow.DAILY: {},
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
     }
@@ -252,6 +255,12 @@ def get_experiment_data(experiment: NimbusExperiment):
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
+                # DAILY included for backwards compatibility with UI
+                # TODO: remove DAILY after updating UI
+                experiment_data[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS] = {
+                    "all": []
+                }
+
             # Convert output object to dict and put into the final object
             transformed_data = data.dict(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
@@ -284,6 +293,12 @@ def get_experiment_data(experiment: NimbusExperiment):
             elif data and window == AnalysisWindow.WEEKLY:
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
+
+                # DAILY included for backwards compatibility with UI
+                # TODO: remove DAILY after updating UI
+                experiment_data[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES] = {
+                    "all": []
+                }
 
             transformed_data = data.dict(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.EXPOSURES][segment] = transformed_data

@@ -562,8 +562,10 @@ class JetstreamTestData:
                 "is_control": False,
                 "branch_data": {
                     Group.SEARCH.value: {
-                        "search_count": DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL.dict(
-                            exclude_none=True
+                        "search_count": (
+                            DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL.dict(
+                                exclude_none=True
+                            )
                         ),
                     },
                     Group.USAGE.value: {},
@@ -608,8 +610,10 @@ class JetstreamTestData:
                 "is_control": False,
                 "branch_data": {
                     Group.SEARCH.value: {
-                        "search_count": DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL.dict(
-                            exclude_none=True
+                        "search_count": (
+                            DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL.dict(
+                                exclude_none=True
+                            )
                         ),
                     },
                     Group.USAGE.value: {},
@@ -892,8 +896,10 @@ class JetstreamTestData:
                 "is_control": False,
                 "branch_data": {
                     Group.SEARCH.value: {
-                        "search_count": DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL.dict(
-                            exclude_none=True
+                        "search_count": (
+                            DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL.dict(
+                                exclude_none=True
+                            )
                         ),
                     },
                     Group.USAGE.value: {},
@@ -956,8 +962,10 @@ class JetstreamTestData:
                 "is_control": False,
                 "branch_data": {
                     Group.SEARCH.value: {
-                        "search_count": DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL.dict(
-                            exclude_none=True
+                        "search_count": (
+                            DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL.dict(
+                                exclude_none=True
+                            )
                         ),
                     },
                     Group.USAGE.value: {},

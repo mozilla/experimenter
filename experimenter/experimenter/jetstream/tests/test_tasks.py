@@ -68,6 +68,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v2": {
+                "daily": {"enrollments": {"all": []}, "exposures": {"all": []}},
                 "weekly": {
                     "enrollments": {
                         "all": WEEKLY_DATA,
@@ -679,6 +680,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v2": {
+                "daily": {},
                 "weekly": {},
                 "overall": {},
                 "metadata": {
@@ -820,6 +822,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v2": {
+                "daily": {"enrollments": {"all": []}, "exposures": {"all": []}},
                 "weekly": WEEKLY_DATA,
                 "overall": OVERALL_DATA,
                 "other_metrics": {
@@ -897,6 +900,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v2": {
+                "daily": {"enrollments": {"all": []}},
                 "weekly": {
                     "enrollments": {
                         "all": WEEKLY_DATA,
@@ -1449,6 +1453,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v2": {
+                "daily": {"enrollments": {"all": []}},
                 "weekly": {
                     "enrollments": {
                         "all": {
@@ -2318,6 +2323,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "overall": {},
                     "show_analysis": False,
                     "weekly": {},
+                    "daily": {},
                     "errors": {"experiment": []},
                 },
             },
@@ -2378,6 +2384,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "overall": None,
                 "show_analysis": False,
                 "weekly": None,
+                "daily": None,
             },
         }
         experiment.save()
