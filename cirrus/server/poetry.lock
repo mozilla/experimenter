@@ -345,13 +345,13 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "fastapi"
-version = "0.104.0"
+version = "0.105.0"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "fastapi-0.104.0-py3-none-any.whl", hash = "sha256:456482c1178fb7beb2814b88e1885bc49f9a81f079665016feffe3e1c6a7663e"},
-    {file = "fastapi-0.104.0.tar.gz", hash = "sha256:9c44de45693ae037b0c6914727a29c49a40668432b67c859a87851fc6a7b74c6"},
+    {file = "fastapi-0.105.0-py3-none-any.whl", hash = "sha256:f19ebf6fdc82a3281d10f2cb4774bdfa90238e3b40af3525a0c09fd08ad1c480"},
+    {file = "fastapi-0.105.0.tar.gz", hash = "sha256:4d12838819aa52af244580675825e750ad67c9df4614f557a769606af902cf22"},
 ]
 
 [package.dependencies]
@@ -612,13 +612,13 @@ files = [
 
 [[package]]
 name = "mozilla-nimbus-shared"
-version = "2.4.0"
+version = "2.5.2"
 description = "Shared data and schemas for Project Nimbus"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "mozilla_nimbus_shared-2.4.0-py3-none-any.whl", hash = "sha256:42bba41678bd7b924a5eacc96306c6b566d639729cf9fdff04fdc0f2359ba2c2"},
-    {file = "mozilla_nimbus_shared-2.4.0.tar.gz", hash = "sha256:fc8c3d54c6df4b18b44ba2fffa9dfdbe2f29e2724388728d9c22348c0733f6dc"},
+    {file = "mozilla_nimbus_shared-2.5.2-py3-none-any.whl", hash = "sha256:d7257945c13cffb2b2aa79f7d3b4c955ea4c93d511f6cccb08e9cd0fb7c5f412"},
+    {file = "mozilla_nimbus_shared-2.5.2.tar.gz", hash = "sha256:a10e84a9b860dc5cd5ef78babe9396674da815c853f43ba6ba4950b38f163119"},
 ]
 
 [package.dependencies]
@@ -1380,4 +1380,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.10"
-content-hash = "06e8e5d167707f6bda6bab176e1d6a2c60494aa5a3bc71d50e662d3c2d32f28e"
+content-hash = "511337302dd0938bc4d14475124881f0391982ca515f34f5e0deaeb24c932b5d"
