@@ -7,7 +7,7 @@ authors = [""]
 [tool.poetry.dependencies]
 python = "^3.10.10"
 ruff = "^0.1.0"
-fastapi = "^0.105.0"
+fastapi = "^0.106.0"
 uvicorn = "^0.24.0"
 pytest = "^7.2.2"
 httpx = "^0.25.0"
