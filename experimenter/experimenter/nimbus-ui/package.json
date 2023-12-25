@@ -62,7 +62,7 @@
     "react-tooltip": "^4.5.0",
     "typescript": "4.3.4",
     "vega": "5.22.0",
-    "vega-embed": "^6.21.0",
+    "vega-embed": "^6.24.0",
     "vega-lite": "^4.17.0",
     "zod": "^3.22.3"
   },
