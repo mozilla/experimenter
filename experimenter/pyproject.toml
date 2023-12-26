@@ -71,7 +71,7 @@ mozilla-nimbus-shared = "^2.5.2"
 mozilla-nimbus-schemas = "2023.10.2"
 django-redis = "^5.4.0"
 fontawesomefree = "6.4.0"
-django-tailwind = "^3.6.0"
+django-tailwind = "^3.8.0"
 ruff = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
