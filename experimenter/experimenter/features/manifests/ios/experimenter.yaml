@@ -7,6 +7,14 @@ address-autofill-feature:
     status:
       type: boolean
       description: "If true, we will allow user to use the address autofill feature"
+back-forward-list-coordinator-refactor-feature:
+  description: "Feature for managing the roll out of the BackForewardList presentation from coordinator\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 contextual-hint-feature:
   description: This set holds all features pertaining to contextual hints.
   hasExposure: true

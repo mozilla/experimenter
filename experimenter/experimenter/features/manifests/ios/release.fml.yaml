@@ -12,6 +12,13 @@ features:
         description: "If true, we will allow user to use the address autofill feature"
         type: Boolean
         default: false
+  back-forward-list-coordinator-refactor-feature:
+    description: "Feature for managing the roll out of the BackForewardList presentation from coordinator\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
