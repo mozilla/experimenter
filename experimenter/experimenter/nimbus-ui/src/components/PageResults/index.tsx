@@ -8,7 +8,6 @@ import { Card, Form } from "react-bootstrap";
 import Collapse from "react-bootstrap/Collapse";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import Select from "react-select";
 import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
 import AnalysisErrorAlert from "src/components/PageResults/AnalysisErrorAlert";
 import ExternalConfigAlert from "src/components/PageResults/ExternalConfigAlert";
