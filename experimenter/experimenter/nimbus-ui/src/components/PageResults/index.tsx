@@ -5,8 +5,8 @@
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useState } from "react";
 import { Card, Form } from "react-bootstrap";
-import Collapse from "react-bootstrap/Collapse";
 import Col from "react-bootstrap/Col";
+import Collapse from "react-bootstrap/Collapse";
 import Row from "react-bootstrap/Row";
 import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
 import AnalysisErrorAlert from "src/components/PageResults/AnalysisErrorAlert";
@@ -232,9 +232,21 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
         <Row noGutters>
           <Col lg="4" xl="2">
-            <Card className="sticky-top" style={{ marginRight: "1rem", marginTop: "1.5rem", top: "1.5rem" }}>
-              <Card.Header as="h5" style={{ paddingLeft: "0.5rem" }}>Results Config</Card.Header>
-              <Card.Body className="border-left-0 border-right-0 border-bottom-0" style={{ padding: "0.5rem" }}>
+            <Card
+              className="sticky-top"
+              style={{
+                marginRight: "1rem",
+                marginTop: "1.5rem",
+                top: "1.5rem",
+              }}
+            >
+              <Card.Header as="h5" style={{ paddingLeft: "0.5rem" }}>
+                Results Config
+              </Card.Header>
+              <Card.Body
+                className="border-left-0 border-right-0 border-bottom-0"
+                style={{ padding: "0.5rem" }}
+              >
                 {allAnalysisBases.length > 1 && (
                   <>
                     <div>
@@ -251,24 +263,24 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                         markdown={analysisBasisHelpMarkdown}
                       />
                     </div>
-                    {allAnalysisBases.map((basis) => (
-                      <div
-                        style={{ marginTop: "0.25rem", marginLeft: "0.5rem" }}
-                        data-testid="analysis-basis-results-selector"
-                      >
-                        <Form.Check
-                          inline
-                          radioGroup="analysis-basis-group"
-                          type="radio"
-                          key={`${basis}_radio_option`}
-                          onChange={() => setSelectedAnalysisBasis(basis)}
-                          label={basis}
-                          checked={basis === selectedAnalysisBasis}
-                          data-testid={`${basis}-radio`}
-                        />
-                      </div>
-                    ))}
-            </span>
+                    <div data-testid="analysis-basis-results-selector">
+                      {allAnalysisBases.map((basis) => (
+                        <div
+                          style={{ marginTop: "0.25rem", marginLeft: "0.5rem" }}
+                          key={`${basis}_basis_radio_option`}
+                        >
+                          <Form.Check
+                            inline
+                            radioGroup="analysis-basis-group"
+                            type="radio"
+                            onChange={() => setSelectedAnalysisBasis(basis)}
+                            label={basis}
+                            checked={basis === selectedAnalysisBasis}
+                            data-testid={`${basis}-basis-radio`}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </>
                 )}
                 {allSegments.length > 1 && (
@@ -287,30 +299,36 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                         markdown={segmentHelpMarkdown}
                       />
                     </div>
-                    {allSegments.map((segment) => (
-                      <div style={{ marginTop: "0.25rem", marginLeft: "0.5rem" }} data-testid="segment-results-selector">
-                        <Form.Check
-                          inline
-                          radioGroup="segment-radio-group"
-                          type="radio"
-                          key={`${segment}_radio_option`}
-                          onChange={() => setSelectedSegment(segment)}
-                          label={segment}
-                          checked={segment === selectedSegment}
-                          data-testid={`${segment}-radio`}
-                        />
-                      </div>
-                    ))}
+                    <div data-testid="segment-results-selector">
+                      {allSegments.map((segment) => (
+                        <div
+                          style={{ marginTop: "0.25rem", marginLeft: "0.5rem" }}
+                          key={`${segment}_segment_radio_option`}
+                        >
+                          <Form.Check
+                            inline
+                            radioGroup="segment-radio-group"
+                            type="radio"
+                            onChange={() => setSelectedSegment(segment)}
+                            label={segment}
+                            checked={segment === selectedSegment}
+                            data-testid={`${segment}-segment-radio`}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </>
                 )}
                 {analysis?.metadata?.analysis_start_time && (
                   <div style={{ marginTop: "1.5rem" }}>
                     Results last calculated:{" "}
                     <b>
-                      {new Date(analysis?.metadata?.analysis_start_time).toLocaleString(
-                        undefined,
-                        { timeZone: "UTC", timeZoneName: "short" },
-                      )}
+                      {new Date(
+                        analysis?.metadata?.analysis_start_time,
+                      ).toLocaleString(undefined, {
+                        timeZone: "UTC",
+                        timeZoneName: "short",
+                      })}
                     </b>
                   </div>
                 )}
@@ -327,7 +345,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
             {analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] &&
               Object.keys(
-                analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] || {},
+                analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] ||
+                  {},
               ).length > 0 && (
                 <TableWithTabComparison
                   {...{ experiment }}
@@ -343,8 +362,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
               <h2 className="h4 mb-3">Results Summary</h2>
               {analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] &&
                 Object.keys(
-                  analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] ||
-                    {},
+                  analysis.overall?.[selectedAnalysisBasis]?.[
+                    selectedSegment
+                  ] || {},
                 ).length > 0 && (
                   <TableWithTabComparison
                     {...{ experiment }}
@@ -361,7 +381,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
               {analysis.weekly?.[selectedAnalysisBasis]?.[selectedSegment] &&
                 Object.keys(
-                  analysis.weekly?.[selectedAnalysisBasis]?.[selectedSegment] || {},
+                  analysis.weekly?.[selectedAnalysisBasis]?.[selectedSegment] ||
+                    {},
                 ).length > 0 && (
                   <TableWithTabComparison
                     Table={TableResultsWeekly}
@@ -380,7 +401,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
               {controlBranchError}
               {analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] &&
               Object.keys(
-                analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] || {},
+                analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] ||
+                  {},
               ).length > 0
                 ? experiment.primaryOutcomes?.map((slug) => {
                     const outcome = configOutcomes!.find((set) => {
@@ -435,7 +457,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   getErrorsForOutcomes(experiment.primaryOutcomes, true)}
               {analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] &&
               Object.keys(
-                analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] || {},
+                analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] ||
+                  {},
               ).length > 0
                 ? experiment.secondaryOutcomes?.map((slug) => {
                     const outcome = configOutcomes!.find((set) => {
