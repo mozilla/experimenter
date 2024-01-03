@@ -349,19 +349,18 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "fastapi"
-version = "0.105.0"
+version = "0.108.0"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "fastapi-0.105.0-py3-none-any.whl", hash = "sha256:f19ebf6fdc82a3281d10f2cb4774bdfa90238e3b40af3525a0c09fd08ad1c480"},
-    {file = "fastapi-0.105.0.tar.gz", hash = "sha256:4d12838819aa52af244580675825e750ad67c9df4614f557a769606af902cf22"},
+    {file = "fastapi-0.108.0-py3-none-any.whl", hash = "sha256:8c7bc6d315da963ee4cdb605557827071a9a7f95aeb8fcdd3bde48cdc8764dd7"},
+    {file = "fastapi-0.108.0.tar.gz", hash = "sha256:5056e504ac6395bf68493d71fcfc5352fdbd5fda6f88c21f6420d80d81163296"},
 ]
 
 [package.dependencies]
-anyio = ">=3.7.1,<4.0.0"
 pydantic = ">=1.7.4,<1.8 || >1.8,<1.8.1 || >1.8.1,<2.0.0 || >2.0.0,<2.0.1 || >2.0.1,<2.1.0 || >2.1.0,<3.0.0"
-starlette = ">=0.27.0,<0.28.0"
+starlette = ">=0.29.0,<0.33.0"
 typing-extensions = ">=4.8.0"
 
 [package.extras]
@@ -420,39 +419,40 @@ files = [
 
 [[package]]
 name = "httpcore"
-version = "0.18.0"
+version = "1.0.2"
 description = "A minimal low-level HTTP client."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "httpcore-0.18.0-py3-none-any.whl", hash = "sha256:adc5398ee0a476567bf87467063ee63584a8bce86078bf748e48754f60202ced"},
-    {file = "httpcore-0.18.0.tar.gz", hash = "sha256:13b5e5cd1dca1a6636a6aaea212b19f4f85cd88c366a2b82304181b769aab3c9"},
+    {file = "httpcore-1.0.2-py3-none-any.whl", hash = "sha256:096cc05bca73b8e459a1fc3dcf585148f63e534eae4339559c9b8a8d6399acc7"},
+    {file = "httpcore-1.0.2.tar.gz", hash = "sha256:9fc092e4799b26174648e54b74ed5f683132a464e95643b226e00c2ed2fa6535"},
 ]
 
 [package.dependencies]
-anyio = ">=3.0,<5.0"
 certifi = "*"
 h11 = ">=0.13,<0.15"
-sniffio = "==1.*"
 
 [package.extras]
+asyncio = ["anyio (>=4.0,<5.0)"]
 http2 = ["h2 (>=3,<5)"]
 socks = ["socksio (==1.*)"]
+trio = ["trio (>=0.22.0,<0.23.0)"]
 
 [[package]]
 name = "httpx"
-version = "0.25.0"
+version = "0.26.0"
 description = "The next generation HTTP client."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "httpx-0.25.0-py3-none-any.whl", hash = "sha256:181ea7f8ba3a82578be86ef4171554dd45fec26a02556a744db029a0a27b7100"},
-    {file = "httpx-0.25.0.tar.gz", hash = "sha256:47ecda285389cb32bb2691cc6e069e3ab0205956f681c5b2ad2325719751d875"},
+    {file = "httpx-0.26.0-py3-none-any.whl", hash = "sha256:8915f5a3627c4d47b73e8202457cb28f1266982d1159bd5779d86a80c0eab1cd"},
+    {file = "httpx-0.26.0.tar.gz", hash = "sha256:451b55c30d5185ea6b23c2c793abf9bb237d2a7dfb901ced6ff69ad37ec1dfaf"},
 ]
 
 [package.dependencies]
+anyio = "*"
 certifi = "*"
-httpcore = ">=0.18.0,<0.19.0"
+httpcore = "==1.*"
 idna = "*"
 sniffio = "*"
 
@@ -1280,13 +1280,13 @@ files = [
 
 [[package]]
 name = "starlette"
-version = "0.27.0"
+version = "0.32.0.post1"
 description = "The little ASGI library that shines."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "starlette-0.27.0-py3-none-any.whl", hash = "sha256:918416370e846586541235ccd38a474c08b80443ed31c578a418e2209b3eef91"},
-    {file = "starlette-0.27.0.tar.gz", hash = "sha256:6a6b0d042acb8d469a01eba54e9cda6cbd24ac602c4cd016723117d6a7e73b75"},
+    {file = "starlette-0.32.0.post1-py3-none-any.whl", hash = "sha256:cd0cb10ddb49313f609cedfac62c8c12e56c7314b66d89bb077ba228bada1b09"},
+    {file = "starlette-0.32.0.post1.tar.gz", hash = "sha256:e54e2b7e2fb06dff9eac40133583f10dfa05913f5a85bf26f427c7a40a9a3d02"},
 ]
 
 [package.dependencies]
@@ -1384,4 +1384,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.10"
-content-hash = "7797709bf0e55ec88b757caefd2c860bc1844604a8c08971bb8751c699bfe674"
+content-hash = "911ce008de3f189e8a42b06756fbc40b7bcd16166ff1af12e07d396da111e8bc"
