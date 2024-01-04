@@ -27,13 +27,6 @@ features:
           feature-setting-value: 0
           feature-setting-value-pbm: 1
           feature-ui: 1
-  extensions-process:
-    description: A feature to rollout the extensions process.
-    variables:
-      enabled:
-        description: "If true, the extensions process is enabled."
-        type: Boolean
-        default: true
   fx-suggest:
     description: A feature that provides Firefox Suggest search suggestions.
     variables:
