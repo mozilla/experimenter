@@ -10,6 +10,7 @@ from cirrus.main import (
     compute_features,
     initialize_glean,
     record_metrics,
+    send_instance_name_metric,
 )
 from cirrus.sdk import SDK, CirrusMetricsHandler
 
@@ -161,3 +162,10 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler(mocker, r
 
     assert ping_spy.call_count == 1
     assert app.state.metrics.cirrus_events.enrollment_status.test_get_value() is None
+
+
+def test_instance_name_metric(mocker):
+    app.state.pings, _ = initialize_glean()
+    ping_spy = mocker.spy(app.state.pings.startup, "submit")
+    send_instance_name_metric()
+    assert ping_spy.call_count == 1

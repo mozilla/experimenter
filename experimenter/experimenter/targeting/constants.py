@@ -4,6 +4,11 @@ from django.db import models
 
 from experimenter.experiments.constants import Application, NimbusConstants
 
+# The identifiers in the exressions of the targeting field can be found
+# here: https://searchfox.org/mozilla-central/source/browser/components/newtab/lib/ASRouterTargeting.jsm#526
+# and here:
+# https://searchfox.org/mozilla-central/source/toolkit/components/nimbus/lib/ExperimentManager.sys.mjs#94`
+
 
 @dataclass
 class NimbusTargetingConfig:
@@ -685,6 +690,29 @@ EXISTING_USER_NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig
     ),
     targeting=(
         f"{EXISTING_USER_NO_ENTERPRISE_OR_PAST_VPN.targeting} && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig(
+    name=(
+        "All users, no enterprise or past VPN use, hasn't disabled "
+        "'Recommend extensions/features'"
+    ),
+    slug="no_vpn_has_not_disabled_recommend_features",
+    description=(
+        "Exclude users who have used Mozilla VPN, are enterprise users, or have"
+        " disabled 'Recommend extensions/features'"
+    ),
+    targeting=(
+        f"{NO_ENTERPRISE_OR_PAST_VPN.targeting} && "
+        "(!os.isWindows || os.windowsBuildNumber >= 18362) && "
         "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
         " && "
         "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
@@ -1780,6 +1808,28 @@ ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+IOS_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
+    name="Review checker enabled users only",
+    slug="ios_review_checker_enabled_users_only",
+    description="Targeting users who have opted in review checker",
+    targeting="is_review_checker_enabled",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+ANDROID_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
+    name="Review checker enabled users only",
+    slug="android_review_checker_enabled_users_only",
+    description="Targeting users who have opted in review checker",
+    targeting="is_review_checker_enabled",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
     name="Default PDF handler is a different browser",
     slug="default_pdf_is_different_browser",
@@ -1814,6 +1864,17 @@ SHOPPING_ONBOARDING_SHOWN = NimbusTargetingConfig(
         "ensuring the shopping feature stays active across different experiments."
     ),
     targeting="'browser.shopping.experience2023.autoActivateCount'|preferenceValue >= 1",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
+    name="64bit Firefox build running on a computer with at least 8GB of RAM",
+    slug="is_64bit_build_and_8gb_ram",
+    description="Target 64bit builds running on computers with at least 8GB of RAM.",
+    targeting="archBits == 64 && memoryMB >= 8000",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

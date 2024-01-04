@@ -3,6 +3,7 @@ from unittest import TestCase
 
 import responses
 from parameterized import parameterized
+from responses import matchers
 
 from manifesttool.appconfig import (
     AppConfig,
@@ -15,9 +16,10 @@ from manifesttool.appconfig import (
     VersionFile,
 )
 from manifesttool.cli import MANIFEST_DIR
-from manifesttool.github_api import GITHUB_RAW_URL
+from manifesttool.github_api import GITHUB_API_URL
 from manifesttool.hgmo_api import HGMO_URL
 from manifesttool.repository import Ref
+from manifesttool.tests.test_github_api import make_responses_for_fetch
 from manifesttool.version import (
     Version,
     filter_versioned_refs,
@@ -409,9 +411,9 @@ class VersionTests(TestCase):
             (
                 app_config,
                 [
-                    (Ref("v120", "r0"), "120.0a1\n"),
-                    (Ref("v120.1", "r1"), "120.1a1\n"),
-                    (Ref("v121", "r2"), "121.0a1\n"),
+                    (Ref("v120", "r0"), b"120.0a1\n"),
+                    (Ref("v120.1", "r1"), b"120.1a1\n"),
+                    (Ref("v121", "r2"), b"121.0a1\n"),
                 ],
                 {
                     Version(120): Ref("v120", "r0"),
@@ -456,22 +458,28 @@ class VersionTests(TestCase):
         expected: dict[Version, Ref],
     ):
         """Testing resolve_ref_versions."""
-        if app_config.repo.type == RepositoryType.GITHUB:
-            url_template = (
-                f"{GITHUB_RAW_URL}/{app_config.repo.name}/"
-                f"{{ref.target}}/{app_config.release_discovery.version_file.__root__.path}"
-            )
-        else:
-            url_template = (
-                f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
-                f"{{ref.target}}/{app_config.release_discovery.version_file.__root__.path}"
-            )
-
         refs = []
         rsps = []
         for ref, body in bodies:
-            rsps.append(responses.get(url_template.format(ref=ref), body=body))
             refs.append(ref)
+
+            if app_config.repo.type == RepositoryType.GITHUB:
+                rsps.extend(
+                    make_responses_for_fetch(
+                        app_config.repo.name,
+                        ref.target,
+                        app_config.release_discovery.version_file.__root__.path,
+                        body,
+                    )
+                )
+            else:
+                rsps.append(
+                    responses.get(
+                        f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
+                        f"{ref.target}/{app_config.release_discovery.version_file.__root__.path}",
+                        body=body,
+                    )
+                )
 
         result = resolve_ref_versions(app_config, refs)
 
@@ -479,3 +487,127 @@ class VersionTests(TestCase):
             self.assertEqual(rsp.call_count, 1)
 
         self.assertEqual(result, expected)
+
+    @parameterized.expand(
+        [
+            (
+                app_config,
+                [
+                    (Ref("v120", "r0"), "a/version.txt", b"120.0a1\n"),
+                    (Ref("v120.1", "r1"), "a/version.txt", b"120.1a1\n"),
+                    (Ref("v121", "r2"), "b/version.txt", b"121.0a1\n"),
+                ],
+                {
+                    Version(120): Ref("v120", "r0"),
+                    Version(120, 1): Ref("v120.1", "r1"),
+                    Version(121): Ref("v121", "r2"),
+                },
+            )
+            for app_config in (
+                AppConfig(
+                    slug="fml-app",
+                    repo=Repository(
+                        type=RepositoryType.GITHUB,
+                        name="fml-app",
+                    ),
+                    fml_path="nimbus.fml.yaml",
+                    release_discovery=ReleaseDiscovery(
+                        version_file=VersionFile.create_plain_text(
+                            ["a/version.txt", "b/version.txt"]
+                        ),
+                        strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
+                    ),
+                ),
+                AppConfig(
+                    slug="legacy-app",
+                    repo=Repository(
+                        type=RepositoryType.HGMO,
+                        name="legacy-app",
+                        default_branch="default",
+                    ),
+                    fml_path="experimenter.yaml",
+                    release_discovery=ReleaseDiscovery(
+                        version_file=VersionFile.create_plain_text(
+                            ["a/version.txt", "b/version.txt"]
+                        ),
+                        strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
+                    ),
+                ),
+            )
+        ]
+    )
+    @responses.activate
+    def test_resolve_ref_versions_multiple_files(self, app_config, bodies, expected):
+        version_paths = app_config.release_discovery.version_file.__root__.path
+
+        refs = []
+        rsps = []
+        for ref, good_path, body in bodies:
+            refs.append(ref)
+
+            bad_path = next(p for p in version_paths if p != good_path)
+
+            if app_config.repo.type == RepositoryType.GITHUB:
+                rsps.extend(
+                    make_responses_for_fetch(
+                        app_config.repo.name,
+                        ref.target,
+                        good_path,
+                        body,
+                    )
+                )
+                responses.get(
+                    f"{GITHUB_API_URL}/repos/{app_config.repo.name}/contents/{bad_path}",
+                    match=[matchers.query_param_matcher({"ref": ref.target})],
+                    status=404,
+                    body=b"",
+                )
+            else:
+                url_template = (
+                    f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
+                    f"{ref.target}/{{path}}"
+                )
+                rsps.append(responses.get(url_template.format(path=good_path), body=body))
+                responses.get(url_template.format(path=bad_path), status=404, body=b"")
+
+        result = resolve_ref_versions(app_config, refs)
+
+        for rsp in rsps:
+            self.assertEqual(rsp.call_count, 1)
+
+        self.assertEqual(result, expected)
+
+    @responses.activate
+    def test_resolve_ref_cannot_find_version(self):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-app",
+            ),
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text(
+                    ["a/version.txt", "b/version.txt"]
+                ),
+                strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
+            ),
+        )
+
+        rsps = [
+            responses.get(
+                f"{GITHUB_API_URL}/repos/{app_config.repo.name}/contents/{path}",
+                match=[matchers.query_param_matcher({"ref": "foo"})],
+                status=404,
+                body=b"",
+            )
+            for path in app_config.release_discovery.version_file.__root__.path
+        ]
+
+        with self.assertRaisesRegex(
+            Exception, "Could not find version file for app fml-app"
+        ):
+            resolve_ref_versions(app_config, [Ref("main", "foo")])
+
+        for rsp in rsps:
+            self.assertEqual(rsp.call_count, 1)

@@ -7,8 +7,10 @@ import responses
 from responses import matchers
 
 from manifesttool import github_api
-from manifesttool.github_api import GITHUB_RAW_URL, GITHUB_API_URL
+from manifesttool.github_api import GITHUB_API_URL
 from manifesttool.repository import Ref
+
+GITHUB_RAW_URL = "https://raw.githubusercontent.com"
 
 
 def _add_paginated_responses(
@@ -25,6 +27,23 @@ def _add_paginated_responses(
         )
         for page_number, page_kwargs in pages.items()
     }
+
+
+def make_responses_for_fetch(
+    repo_name: str, ref: str, path: str, content: bytes
+) -> list[responses.Response]:
+    download_url = f"{GITHUB_RAW_URL}/{repo_name}/{ref}/{path}"
+
+    return [
+        responses.get(
+            f"{GITHUB_API_URL}/repos/{repo_name}/contents/{path}",
+            match=[matchers.query_param_matcher({"ref": ref})],
+            json={
+                "download_url": download_url,
+            },
+        ),
+        responses.get(download_url, body=content),
+    ]
 
 
 class GitHubApiTests(TestCase):
@@ -164,7 +183,9 @@ class GitHubApiTests(TestCase):
     @responses.activate
     def test_fetch_file_download(self):
         """Testing github_api.fetch_file."""
-        responses.get(f"{GITHUB_RAW_URL}/repo/ref/file/path.txt", body=b"hello, world\n")
+        api_rsp, file_rsp = make_responses_for_fetch(
+            "repo", "ref", "file/path.txt", b"hello, world\n"
+        )
 
         with TemporaryDirectory() as tmp_dir:
             tmp_filename = Path(tmp_dir, "file.txt")
@@ -177,6 +198,9 @@ class GitHubApiTests(TestCase):
                 contents = f.read()
 
             self.assertEqual(contents, b"hello, world\n")
+
+        self.assertEqual(api_rsp.call_count, 1)
+        self.assertEqual(file_rsp.call_count, 1)
 
         contents = github_api.fetch_file("repo", "file/path.txt", "ref")
         self.assertEqual(contents, "hello, world\n")
