@@ -70,6 +70,7 @@ class ExperimentInput(graphene.InputObjectType):
     proposed_release_date = graphene.String()
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
+    qa_comment = graphene.String()
     qa_status = NimbusExperimentQAStatusEnum()
     reference_branch = graphene.Field(BranchInput)
     required_experiments = graphene.List(graphene.NonNull(graphene.Int))
