@@ -238,6 +238,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                 marginRight: "1rem",
                 marginTop: "1.5rem",
                 top: "1.5rem",
+                zIndex: 1,
               }}
             >
               <Card.Header as="h5" style={{ paddingLeft: "0.5rem" }}>
