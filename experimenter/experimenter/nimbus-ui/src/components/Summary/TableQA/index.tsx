@@ -16,6 +16,7 @@ import {
 type TableQAProps = {
   publishStatus: NimbusExperimentPublishStatusEnum | null;
   qaStatus?: NimbusExperimentQAStatusEnum | null;
+  qaComment?: string | null;
 } & UseQAResult;
 
 export type QAEditorProps = UseQAResult & {
@@ -33,7 +34,7 @@ export function qaStatusLabel(qaStatus: NimbusExperimentQAStatusEnum) {
 }
 
 const TableQA = (props: TableQAProps) => {
-  const { publishStatus, qaStatus, showEditor, setShowEditor } = props;
+  const { publishStatus, qaStatus, qaComment, showEditor, setShowEditor } = props;
 
   const onClickEdit = useCallback(() => setShowEditor(true), [setShowEditor]);
 
@@ -76,6 +77,18 @@ const TableQA = (props: TableQAProps) => {
                 <th className="border-top-0 w-75 border-bottom-2"></th>
                 <td className="border-top-0 border-bottom-2" />
               </tr>
+              {qaComment && (
+                <tr className="">
+                  <td
+                    data-testid="qa-comment"
+                    className="text-monospace border-top-0 border-bottom-2"
+                  >
+                    {qaComment}
+                  </td>
+                  <th className="border-top-0 w-75 border-bottom-2"></th>
+                  <td className="border-top-0 border-bottom-2" />
+                </tr>
+              )}
             </tbody>
           </Table>
         </Card.Body>
