@@ -22,14 +22,14 @@ export type QAEditorProps = UseQAResult & {
   setShowEditor: (state: boolean) => void;
 };
 
-export function qaStatusLabel(status: NimbusExperimentQAStatusEnum) {
-  if (status === NimbusExperimentQAStatusEnum.GREEN) {
-    return QA_STATUS_WITH_EMOJI.GREEN;
-  } else if (status === NimbusExperimentQAStatusEnum.YELLOW) {
-    return QA_STATUS_WITH_EMOJI.YELLOW;
-  } else {
-    return QA_STATUS_WITH_EMOJI.RED;
-  }
+export function qaStatusLabel(qaStatus: NimbusExperimentQAStatusEnum) {
+  const statuses = {
+    [NimbusExperimentQAStatusEnum.GREEN]: QA_STATUS_WITH_EMOJI.GREEN,
+    [NimbusExperimentQAStatusEnum.YELLOW]: QA_STATUS_WITH_EMOJI.YELLOW,
+    [NimbusExperimentQAStatusEnum.RED]: QA_STATUS_WITH_EMOJI.RED,
+  };
+
+  return statuses[qaStatus] || QA_STATUS_WITH_EMOJI.RED;
 }
 
 const TableQA = (props: TableQAProps) => {
