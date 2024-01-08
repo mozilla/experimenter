@@ -136,14 +136,14 @@ export const QAEditor = ({
           <Form.Group
             as={Row}
             data-testid="qa-status-section"
-            className="mb-0 pl-1"
+            className="mb-0 pl-3"
           >
-            <Col className="ml-2 mr-0 pr-0 w-25">
+            <Col className="mr-0 pl-0 pr-0 w-25">
               <Form.Label>
                 <p className="font-weight-bold">QA Status: </p>
               </Form.Label>
             </Col>
-            <Col className="ml-4 flex-fill pl-0 pr-8 mr-4">
+            <Col className="flex-fill pl-0 pr-8 mr-4">
               <Form.Control
                 as="select"
                 className="ml-0 mr-0"
@@ -173,13 +173,14 @@ export const QAEditor = ({
           <Form.Group
             as={Row}
             data-testid="qa-comment-section"
-            className="ml-1"
+            className="mt-4 pl-3"
           >
             <Form.Label className="font-weight-bold">Comment:</Form.Label>
             <Form.Control
               as="textarea"
               rows={5}
               {...formControlAttrs("qaComment")}
+              className="pr-8 mr-4"
             />
           </Form.Group>
         </Form>
