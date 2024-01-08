@@ -23,6 +23,7 @@ class Statistic(BaseModel):
     point: Optional[float] = None
     lower: Optional[float] = None
     upper: Optional[float] = None
+    p_value: Optional[float] = None
     segment: str = Field(default="all")
     analysis_basis: Optional[AnalysisBasis]
     window_index: Optional[str]
