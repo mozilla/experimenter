@@ -5,19 +5,19 @@ This directory contains a package of schemas published to various repositories f
 
 ## Installation/Usage
 ### Prerequisites
-- python ^3.10
+- python ^3.11
 - poetry ^1.2.2
 - node ^16
 - yarn ^1.22
 
 #### Common Operations
 From project root (i.e., parent to this directory)
-- Install: `make schemas_install`
+- Build: `make schemas_build`
 - Run linting and tests: `make schemas_check`
-- Code formatting: `make schemas_code_format`
+- Code formatting: `make schemas_format`
 
 #### Building Python Schemas Package
-`make schemas_build`
+`make schemas_build_pypi`
 
 #### Building Typescript Schemas Package
 `make schemas_build_npm`

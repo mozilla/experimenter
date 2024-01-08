@@ -1,5 +1,14 @@
 from .analysis_errors import AnalysisError, AnalysisErrors, AnalysisErrorsFactory
 from .metadata import ExternalConfig, Metadata, MetadataFactory, Metric, Outcome
+from .misc import (
+    AnalysisSegment,
+    AnalysisSignificance,
+    AnalysisWindow,
+    BranchComparison,
+    MetricGroup,
+    MetricIngestEnum,
+    StatisticIngestEnum,
+)
 from .population_sizing import (
     SampleSizes,
     SampleSizesFactory,
@@ -19,9 +28,15 @@ __all__ = [
     "AnalysisBasis",
     "AnalysisError",
     "AnalysisErrors",
+    "AnalysisSegment",
+    "AnalysisSignificance",
+    "AnalysisWindow",
+    "BranchComparison",
     "ExternalConfig",
     "Metadata",
     "Metric",
+    "MetricGroup",
+    "MetricIngestEnum",
     "Outcome",
     "SampleSizes",
     "SizingByUserType",
@@ -34,6 +49,7 @@ __all__ = [
     "SizingTarget",
     "SizingUserType",
     "Statistic",
+    "StatisticIngestEnum",
     "Statistics",
     "AnalysisErrorsFactory",
     "MetadataFactory",
