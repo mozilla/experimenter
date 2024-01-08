@@ -317,13 +317,9 @@ const PageSummary = (props: RouteComponentProps) => {
 export default PageSummary;
 
 export function qaStatusLabel(qaStatus: NimbusExperimentQAStatusEnum) {
-  const statuses = {
-    [NimbusExperimentQAStatusEnum.GREEN]: QA_STATUS_WITH_EMOJI.GREEN,
-    [NimbusExperimentQAStatusEnum.YELLOW]: QA_STATUS_WITH_EMOJI.YELLOW,
-    [NimbusExperimentQAStatusEnum.RED]: QA_STATUS_WITH_EMOJI.RED,
-  };
-
-  return statuses[qaStatus] || QA_STATUS_WITH_EMOJI.RED;
+  return qaStatus
+    ? QA_STATUS_WITH_EMOJI[qaStatus]
+    : QA_STATUS_WITH_EMOJI[NimbusExperimentQAStatusEnum.RED];
 }
 
 const StatusPills = ({

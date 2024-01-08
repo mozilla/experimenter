@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RegisterOptions } from "react-hook-form";
+import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
 
 export const BASE_PATH = "/nimbus";
 
@@ -191,7 +192,7 @@ export const IMAGE_UPLOAD_ACCEPT = ".gif,.jpg,.jpeg,.png";
 export const POLL_INTERVAL = 30000;
 
 export const QA_STATUS_WITH_EMOJI = {
-  GREEN: ["✅ QA: Green", "success"],
-  YELLOW: ["⚠️ QA: Yellow", "text-dark"],
-  RED: ["❌ QA: Red", "danger"],
+  [NimbusExperimentQAStatusEnum.GREEN]: ["✅ QA: Green", "success", "✅"],
+  [NimbusExperimentQAStatusEnum.YELLOW]: ["⚠️ QA: Yellow", "text-dark", "⚠️"],
+  [NimbusExperimentQAStatusEnum.RED]: ["❌ QA: Red", "danger", "❌"],
 };

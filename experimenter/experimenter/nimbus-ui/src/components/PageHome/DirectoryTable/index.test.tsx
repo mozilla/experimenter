@@ -17,12 +17,14 @@ import DirectoryTable, {
   DirectoryColumnFirefoxMinVersion,
   DirectoryColumnOwner,
   DirectoryColumnPopulationPercent,
+  DirectoryColumnQA,
   DirectoryColumnStartDate,
   DirectoryColumnTitle,
   DirectoryColumnUnpublishedUpdates,
   SortableColumnTitle,
 } from "src/components/PageHome/DirectoryTable";
 import { UpdateSearchParams } from "src/hooks/useSearchParamsState";
+import { QA_STATUS_WITH_EMOJI } from "src/lib/constants";
 import { getProposedEnrollmentRange, humanDate } from "src/lib/dateUtils";
 import {
   mockDirectoryExperiments,
@@ -82,6 +84,30 @@ describe("DirectoryColumnOwner", () => {
     );
     expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
       "Not set",
+    );
+  });
+});
+
+describe("DirectoryColumnQA", () => {
+  it("renders the QA status field if present", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnQA {...experiment} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell-qa")).toHaveTextContent(
+      QA_STATUS_WITH_EMOJI.GREEN[2],
+    );
+  });
+
+  it("renders nothing if qa status is not set", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnQA {...experiment} qaStatus={null} />
+      </TestTable>,
+    );
+    expect(screen.queryByTestId("directory-table-cell-qa")).toHaveTextContent(
+      "",
     );
   });
 });
@@ -397,6 +423,7 @@ describe("DirectoryTable", () => {
       );
       expectTableCells("directory-table-header", [
         "Name",
+        "QA",
         "Owner",
         "Feature",
         "Application",
