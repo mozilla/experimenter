@@ -34,7 +34,8 @@ export function qaStatusLabel(qaStatus: NimbusExperimentQAStatusEnum) {
 }
 
 const TableQA = (props: TableQAProps) => {
-  const { publishStatus, qaStatus, qaComment, showEditor, setShowEditor } = props;
+  const { publishStatus, qaStatus, qaComment, showEditor, setShowEditor } =
+    props;
 
   const onClickEdit = useCallback(() => setShowEditor(true), [setShowEditor]);
 

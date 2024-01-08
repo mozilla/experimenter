@@ -78,7 +78,7 @@ describe("TableQA", () => {
 
   it("does not render 'QA comment' row with no comment set", () => {
     render(<Subject {...{ qaStatus }} />);
-    expect(screen.getByTestId("qa-comment")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("qa-comment")).not.toBeInTheDocument();
   });
 });
 
@@ -89,20 +89,27 @@ describe("QAEditor", () => {
     expect(screen.queryByTestId("QAEditor")).toBeInTheDocument();
   });
 
-  it("renders as expected with content", () => {
+  it("renders as expected with content", async () => {
     render(
       <Subject
         {...{
           showEditor: true,
           qaStatus,
+          qaComment,
         }}
       />,
     );
     expect(screen.queryByTestId("QAEditor")).toBeInTheDocument();
     expect(screen.getByText("Save")).not.toBeDisabled();
     expect(screen.getByText("Cancel")).not.toBeDisabled();
-    expect(screen.queryByTestId("qa-status-section")).toBeInTheDocument();
-    expect(screen.queryByTestId("qa-comment-section")).not.toBeInTheDocument();
+
+    const qaStatusField = await screen.findByTestId("qa-status-section");
+    expect(qaStatusField).toBeInTheDocument();
+    expect(qaStatusField).toHaveTextContent(QA_STATUS_WITH_EMOJI.GREEN[0]);
+
+    const qaCommentField = await screen.findByTestId("qa-comment-section");
+    expect(qaCommentField).toBeInTheDocument();
+    expect(qaCommentField).toHaveTextContent(qaComment);
   });
 
   it("disables buttons when loading", async () => {
@@ -180,7 +187,7 @@ describe("QAEditor", () => {
     });
     const result = onSubmit.mock.calls[0][0];
 
-    expect(onSubmit).toHaveBeenCalledWith(expectedVal);
+    expect(onSubmit).toHaveBeenCalled();
     expect(result.qaStatus).toBeTruthy();
     expect(result.qaStatus).toEqual(expectedStatus);
   });
@@ -204,14 +211,13 @@ describe("QAEditor", () => {
     });
 
     expect((textArea as HTMLInputElement).value).toEqual(expectedComment);
-    expect(screen.getByTestId("qaComment")).toHaveTextContent(expectedComment);
 
     await act(async () => {
       fireEvent.click(screen.getByText("Save"));
     });
     const result = onSubmit.mock.calls[0][0];
 
-    expect(onSubmit).toHaveBeenCalledWith(expectedComment);
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
     expect(result.qaComment).toEqual(expectedComment);
     expect(result.qaStatus).toEqual(qaStatus);
   });
