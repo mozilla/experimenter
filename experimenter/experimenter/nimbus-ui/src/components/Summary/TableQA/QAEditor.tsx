@@ -11,6 +11,7 @@ import Row from "react-bootstrap/Row";
 import { FormProvider } from "react-hook-form";
 import { UseQAResult } from "src/components/Summary/TableQA/useQA";
 import { useCommonForm } from "src/hooks";
+import { QA_STATUS_WITH_EMOJI } from "src/lib/constants";
 import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
 
 export const qaEditorFieldNames = ["qaStatus"] as const;
@@ -60,17 +61,17 @@ export const QAEditor = ({
     {
       label: NimbusExperimentQAStatusEnum.RED,
       value: NimbusExperimentQAStatusEnum.RED,
-      description: "🔴 RED ",
+      description: QA_STATUS_WITH_EMOJI.RED[0],
     },
     {
       label: NimbusExperimentQAStatusEnum.YELLOW,
       value: NimbusExperimentQAStatusEnum.YELLOW,
-      description: "🟡 YELLOW ",
+      description: QA_STATUS_WITH_EMOJI.YELLOW[0],
     },
     {
       label: NimbusExperimentQAStatusEnum.GREEN,
       value: NimbusExperimentQAStatusEnum.GREEN,
-      description: "🟢 GREEN ",
+      description: QA_STATUS_WITH_EMOJI.GREEN[0],
     },
   ] as const;
 
@@ -132,11 +133,6 @@ export const QAEditor = ({
 
           <Form.Group as={Row} className="mb-0 pl-1">
             <Row className="ml-0 flex-fill pl-0">
-              <Col className="ml-2 mr-0 pr-0 w-25">
-                <Form.Label>
-                  <p className="font-weight-bold">QA Status: </p>
-                </Form.Label>
-              </Col>
               <Col className="ml-4 flex-fill pl-0 pr-8 mr-4">
                 <Form.Control
                   as="select"
@@ -145,7 +141,7 @@ export const QAEditor = ({
                   onSubmit={handleSave}
                   onChange={(e) =>
                     setQaStatus(
-                      e.target
+                      e.target.value
                         ? (e.target.value as NimbusExperimentQAStatusEnum)
                         : null,
                     )

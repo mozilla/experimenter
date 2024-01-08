@@ -7,6 +7,7 @@ import { RouterSlugProvider } from "src/lib/test-utils";
 
 export const Subject = ({
   id = 123,
+  publishStatus = null,
   qaStatus = null,
   isLoading = false,
   onSubmit = async (data) => {},
@@ -27,6 +28,7 @@ export const Subject = ({
         <TableQA
           {...{
             id,
+            publishStatus,
             qaStatus,
             isLoading,
             onSubmit,
