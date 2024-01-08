@@ -14,14 +14,21 @@ import { act } from "react-dom/test-utils";
 import { Subject as BaseSubject } from "src/components/Summary/TableQA/mocks";
 import useQA, { UseQAResult } from "src/components/Summary/TableQA/useQA";
 import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
-import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
+import {
+  CHANGELOG_MESSAGES,
+  QA_STATUS_WITH_EMOJI,
+  SUBMIT_ERROR,
+} from "src/lib/constants";
 import {
   MockedCache,
   mockExperimentMutation,
   mockExperimentQuery,
 } from "src/lib/mocks";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
-import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
+import {
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentQAStatusEnum,
+} from "src/types/globalTypes";
 
 const Subject = ({
   onSubmit = jest.fn(),
@@ -37,7 +44,6 @@ const { experiment } = mockExperimentQuery("demo-slug", {
 
 describe("TableQA", () => {
   it("renders rows displaying required fields at experiment creation as expected", () => {
-    const { experiment } = mockExperimentQuery("demo-slug");
     render(<Subject />);
 
     expect(screen.queryByTestId("section-qa")).toBeInTheDocument();
@@ -47,10 +53,19 @@ describe("TableQA", () => {
     );
   });
 
+  it("does not render edit button when publish status is in review", async () => {
+    const publishStatus = NimbusExperimentPublishStatusEnum.REVIEW;
+    render(<Subject {...{ publishStatus }} />);
+
+    expect(screen.queryByTestId("section-qa")).toBeInTheDocument();
+    expect(screen.queryByTestId("QAEditor")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("edit-qa-status")).not.toBeInTheDocument();
+  });
+
   it("renders 'QA status' row as expected with status set", () => {
     render(<Subject {...{ qaStatus }} />);
     expect(screen.getByTestId("experiment-qa-status")).toHaveTextContent(
-      "GREEN",
+      QA_STATUS_WITH_EMOJI.GREEN[0],
     );
   });
 });
@@ -141,20 +156,18 @@ describe("QAEditor", () => {
       target: { value: expectedStatus },
     });
 
-    const select1 = await screen.findByTestId("qa-status");
-    expect(select1).toBeInTheDocument();
-    expect((select1 as HTMLInputElement).value).toEqual(expectedStatus);
-
-    expect(screen.getByTestId("qa-status")).toHaveTextContent(expectedStatus);
+    const status = await screen.findByTestId("qa-status");
+    expect(status).toBeInTheDocument();
+    expect((status as HTMLInputElement).value).toEqual(expectedStatus);
 
     await act(async () => {
       fireEvent.click(screen.getByText("Save"));
     });
-    const result1 = onSubmit.mock.calls[0][0];
+    const result = onSubmit.mock.calls[0][0];
 
     expect(onSubmit).toHaveBeenCalledWith(expectedVal);
-    expect(result1.qaStatus).toBeTruthy();
-    expect(result1.qaStatus).toEqual(expectedStatus);
+    expect(result.qaStatus).toBeTruthy();
+    expect(result.qaStatus).toEqual(expectedStatus);
   });
 
   it("hides the editor when cancel is clicked", async () => {
