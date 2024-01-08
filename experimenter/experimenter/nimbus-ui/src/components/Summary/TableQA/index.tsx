@@ -70,7 +70,7 @@ const TableQA = (props: TableQAProps) => {
                 <th className="border-top-0 border-bottom-2">QA Status</th>
                 <td
                   data-testid="experiment-qa-status"
-                  className="text-monospace border-top-0 border-bottom-2"
+                  className="border-top-0 border-bottom-2"
                 >
                   {qaStatus ? qaStatusLabel(qaStatus)[0] : <NotSet />}
                 </td>
@@ -78,15 +78,15 @@ const TableQA = (props: TableQAProps) => {
                 <td className="border-top-0 border-bottom-2" />
               </tr>
               {qaComment && (
-                <tr className="">
+                <tr>
                   <td
+                    colSpan={3}
                     data-testid="qa-comment"
-                    className="text-monospace border-top-0 border-bottom-2"
+                    className="w-75 border-top-0 border-bottom-2"
+                    style={{ whiteSpace: "pre" }}
                   >
                     {qaComment}
                   </td>
-                  <th className="border-top-0 w-75 border-bottom-2"></th>
-                  <td className="border-top-0 border-bottom-2" />
                 </tr>
               )}
             </tbody>
