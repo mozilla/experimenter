@@ -65,12 +65,18 @@ const TableQA = (props: TableQAProps) => {
           </Row>
         </Card.Header>
         <Card.Body className=" pe-2 ps-2">
-          <Table data-testid="table-qa-status">
+          <Table
+            data-testid="table-qa-status"
+            style={{ tableLayout: "fixed", whiteSpace: "normal" }}
+          >
             <tbody>
               <tr className="w-25">
-                <th className="border-top-0 border-bottom-2">QA Status</th>
+                <th className="border-top-0 border-bottom-2" colSpan={3}>
+                  QA Status
+                </th>
                 <td
                   data-testid="experiment-qa-status"
+                  colSpan={4}
                   className="border-top-0 border-bottom-2"
                 >
                   {qaStatus ? qaStatusLabel(qaStatus)[0] : <NotSet />}
@@ -81,10 +87,10 @@ const TableQA = (props: TableQAProps) => {
               {qaComment && (
                 <tr>
                   <td
-                    colSpan={3}
+                    colSpan={8}
                     data-testid="qa-comment"
-                    className="w-75 border-top-0 border-bottom-2"
-                    style={{ whiteSpace: "pre" }}
+                    className="w-75 border-top-0 border-bottom-2 mr-8"
+                    style={{ whiteSpace: "pre-wrap", wordWrap: "normal" }}
                   >
                     {qaComment}
                   </td>

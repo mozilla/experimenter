@@ -899,7 +899,11 @@ class NimbusExperimentSerializer(
         required=False,
     )
     qa_comment = serializers.CharField(
-        min_length=0, max_length=4096, required=False, allow_blank=True
+        min_length=0,
+        max_length=4096,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
     )
 
     class Meta:

@@ -182,6 +182,7 @@ export const QAEditor = ({
               {...formControlAttrs("qaComment")}
               className="pr-8 mr-4"
             />
+            <FormErrors name="qaComment" />
           </Form.Group>
         </Form>
       </FormProvider>
