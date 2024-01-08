@@ -230,6 +230,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         name
       }
       isRolloutDirty
+      qaComment
       qaStatus
     }
   }
@@ -276,6 +277,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       status
       statusNext
       publishStatus
+      qaComment
       qaStatus
       monitoringDashboardUrl
       rolloutMonitoringDashboardUrl

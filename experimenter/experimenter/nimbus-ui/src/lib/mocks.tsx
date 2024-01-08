@@ -655,6 +655,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   takeawaysQbrLearning: false,
   takeawaysMetricGain: false,
   takeawaysGainAmount: null,
+  qaComment: null,
   qaStatus: null,
   isWeb: false,
 };
@@ -763,6 +764,7 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   projects: [{ name: "Pocket", id: "1" }],
   requiredExperiments: [],
   excludedExperiments: [],
+  qaComment: null,
   qaStatus: null,
 };
 
@@ -954,6 +956,7 @@ export function mockSingleDirectoryExperiment(
     takeawaysQbrLearning: false,
     projects: [MOCK_CONFIG.projects![0]],
     hypothesis: "test hypothesis",
+    qaComment: null,
     qaStatus: null,
     ...overrides,
   };

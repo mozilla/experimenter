@@ -489,6 +489,7 @@ class NimbusExperimentType(DjangoObjectType):
     proposed_release_date = graphene.String()
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
+    qa_comment = graphene.String()
     qa_status = NimbusExperimentQAStatusEnum()
     ready_for_review = graphene.Field(NimbusReviewType)
     recipe_json = graphene.String()
@@ -565,6 +566,7 @@ class NimbusExperimentType(DjangoObjectType):
             "proposed_release_date",
             "public_description",
             "publish_status",
+            "qa_comment",
             "qa_status",
             "ready_for_review",
             "recipe_json",
