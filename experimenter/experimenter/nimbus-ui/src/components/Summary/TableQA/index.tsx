@@ -7,7 +7,7 @@ import { Button, Card, Col, Row, Table } from "react-bootstrap";
 import NotSet from "src/components/NotSet";
 import QAEditor from "src/components/Summary/TableQA/QAEditor";
 import { UseQAResult } from "src/components/Summary/TableQA/useQA";
-import { QA_STATUS_WITH_EMOJI } from "src/lib/constants";
+import { QA_STATUS_PROPERTIES } from "src/lib/constants";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentQAStatusEnum,
@@ -22,12 +22,6 @@ type TableQAProps = {
 export type QAEditorProps = UseQAResult & {
   setShowEditor: (state: boolean) => void;
 };
-
-export function qaStatusLabel(qaStatus: NimbusExperimentQAStatusEnum) {
-  return qaStatus
-    ? QA_STATUS_WITH_EMOJI[qaStatus]
-    : QA_STATUS_WITH_EMOJI[NimbusExperimentQAStatusEnum.RED];
-}
 
 const TableQA = (props: TableQAProps) => {
   const { publishStatus, qaStatus, qaComment, showEditor, setShowEditor } =
@@ -75,7 +69,11 @@ const TableQA = (props: TableQAProps) => {
                   colSpan={4}
                   className="border-top-0 border-bottom-2"
                 >
-                  {qaStatus ? qaStatusLabel(qaStatus)[0] : <NotSet />}
+                  {qaStatus ? (
+                    QA_STATUS_PROPERTIES[qaStatus].description
+                  ) : (
+                    <NotSet />
+                  )}
                 </td>
                 <th className="border-top-0 w-75 border-bottom-2"></th>
                 <td className="border-top-0 border-bottom-2" />

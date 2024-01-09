@@ -10,7 +10,7 @@ import LinkExternal from "src/components/LinkExternal";
 import NotSet from "src/components/NotSet";
 import { displayConfigLabelOrNotSet } from "src/components/Summary";
 import { UpdateSearchParams, useConfig, useSearchParamsState } from "src/hooks";
-import { QA_STATUS_WITH_EMOJI } from "src/lib/constants";
+import { QA_STATUS_PROPERTIES } from "src/lib/constants";
 import { getProposedEnrollmentRange, humanDate } from "src/lib/dateUtils";
 import {
   applicationSortSelector,
@@ -30,7 +30,6 @@ import {
   unpublishedUpdatesSortSelector,
 } from "src/lib/experiment";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
-import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
 
 // These are all render functions for column types in the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;
@@ -52,18 +51,12 @@ export const DirectoryColumnTitle: React.FC<getAllExperiments_experiments> = ({
   );
 };
 
-export function qaStatusLabel(qaStatus: NimbusExperimentQAStatusEnum) {
-  return qaStatus
-    ? QA_STATUS_WITH_EMOJI[qaStatus]
-    : QA_STATUS_WITH_EMOJI[NimbusExperimentQAStatusEnum.RED];
-}
-
-export const DirectoryColumnQA: ColumnComponent = ({ qaStatus: q }) => (
+export const DirectoryColumnQA: ColumnComponent = ({ qaStatus }) => (
   <td
-    title={q ? qaStatusLabel(q)[0] : ""}
+    title={qaStatus ? QA_STATUS_PROPERTIES[qaStatus].description : ""}
     data-testid="directory-table-cell-qa"
   >
-    {q && qaStatusLabel(q)[2]}
+    {qaStatus && QA_STATUS_PROPERTIES[qaStatus].emoji}
   </td>
 );
 

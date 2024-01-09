@@ -11,7 +11,7 @@ import Row from "react-bootstrap/Row";
 import { FormProvider } from "react-hook-form";
 import { UseQAResult } from "src/components/Summary/TableQA/useQA";
 import { useCommonForm } from "src/hooks";
-import { QA_STATUS_WITH_EMOJI } from "src/lib/constants";
+import { QA_STATUS_PROPERTIES } from "src/lib/constants";
 import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
 
 export const qaEditorFieldNames = ["qaStatus", "qaComment"] as const;
@@ -63,17 +63,20 @@ export const QAEditor = ({
     {
       label: NimbusExperimentQAStatusEnum.RED,
       value: NimbusExperimentQAStatusEnum.RED,
-      description: QA_STATUS_WITH_EMOJI.RED[0],
+      description:
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.RED].description,
     },
     {
       label: NimbusExperimentQAStatusEnum.YELLOW,
       value: NimbusExperimentQAStatusEnum.YELLOW,
-      description: QA_STATUS_WITH_EMOJI.YELLOW[0],
+      description:
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.YELLOW].description,
     },
     {
       label: NimbusExperimentQAStatusEnum.GREEN,
       value: NimbusExperimentQAStatusEnum.GREEN,
-      description: QA_STATUS_WITH_EMOJI.GREEN[0],
+      description:
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].description,
     },
   ] as const;
 

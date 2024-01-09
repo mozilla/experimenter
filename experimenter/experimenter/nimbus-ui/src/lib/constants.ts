@@ -191,8 +191,29 @@ export const IMAGE_UPLOAD_ACCEPT = ".gif,.jpg,.jpeg,.png";
 
 export const POLL_INTERVAL = 30000;
 
-export const QA_STATUS_WITH_EMOJI = {
-  [NimbusExperimentQAStatusEnum.GREEN]: ["✅ QA: Green", "success", "✅"],
-  [NimbusExperimentQAStatusEnum.YELLOW]: ["⚠️ QA: Yellow", "text-dark", "⚠️"],
-  [NimbusExperimentQAStatusEnum.RED]: ["❌ QA: Red", "danger", "❌"],
+interface QAStatusProperties {
+  emoji: string;
+  description: string;
+  className: string;
+}
+
+export const QA_STATUS_PROPERTIES: Record<
+  NimbusExperimentQAStatusEnum,
+  QAStatusProperties
+> = {
+  [NimbusExperimentQAStatusEnum.GREEN]: {
+    emoji: "✅",
+    description: "✅ QA: Green",
+    className: "success",
+  },
+  [NimbusExperimentQAStatusEnum.YELLOW]: {
+    emoji: "⚠️",
+    description: "⚠️ QA: Yellow",
+    className: "text-dark",
+  },
+  [NimbusExperimentQAStatusEnum.RED]: {
+    emoji: "❌",
+    description: "❌ QA: Red",
+    className: "danger",
+  },
 };

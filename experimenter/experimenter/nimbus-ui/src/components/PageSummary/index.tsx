@@ -23,14 +23,13 @@ import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   LIFECYCLE_REVIEW_FLOWS,
-  QA_STATUS_WITH_EMOJI,
+  QA_STATUS_PROPERTIES,
 } from "src/lib/constants";
 import { ExperimentContext } from "src/lib/contexts";
 import { getStatus, getSummaryAction, StatusCheck } from "src/lib/experiment";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   NimbusExperimentPublishStatusEnum,
-  NimbusExperimentQAStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
 
@@ -216,9 +215,13 @@ const PageSummary = (props: RouteComponentProps) => {
         {status.live && <StatusPills {...{ experiment, status }} />}
         {qaStatus != null &&
           (() => {
-            const [label, color] = qaStatusLabel(qaStatus!);
+            const qaStatusProps = QA_STATUS_PROPERTIES[qaStatus!];
             return (
-              <StatusPill testId="pill-qa-status" label={label} color={color} />
+              <StatusPill
+                testId="pill-qa-status"
+                label={qaStatusProps.description}
+                color={qaStatusProps.className}
+              />
             );
           })()}
       </h5>
@@ -315,12 +318,6 @@ const PageSummary = (props: RouteComponentProps) => {
 };
 
 export default PageSummary;
-
-export function qaStatusLabel(qaStatus: NimbusExperimentQAStatusEnum) {
-  return qaStatus
-    ? QA_STATUS_WITH_EMOJI[qaStatus]
-    : QA_STATUS_WITH_EMOJI[NimbusExperimentQAStatusEnum.RED];
-}
 
 const StatusPills = ({
   experiment,

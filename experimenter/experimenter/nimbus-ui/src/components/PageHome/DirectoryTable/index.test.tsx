@@ -24,7 +24,7 @@ import DirectoryTable, {
   SortableColumnTitle,
 } from "src/components/PageHome/DirectoryTable";
 import { UpdateSearchParams } from "src/hooks/useSearchParamsState";
-import { QA_STATUS_WITH_EMOJI } from "src/lib/constants";
+import { QA_STATUS_PROPERTIES } from "src/lib/constants";
 import { getProposedEnrollmentRange, humanDate } from "src/lib/dateUtils";
 import {
   mockDirectoryExperiments,
@@ -32,6 +32,7 @@ import {
 } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
+import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
 
 const experiment = mockSingleDirectoryExperiment();
 
@@ -96,7 +97,7 @@ describe("DirectoryColumnQA", () => {
       </TestTable>,
     );
     expect(screen.getByTestId("directory-table-cell-qa")).toHaveTextContent(
-      QA_STATUS_WITH_EMOJI.GREEN[2],
+      QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].emoji,
     );
   });
 
