@@ -18,7 +18,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
@@ -408,13 +408,6 @@ features:
         type: "Map<TabTraySection, Boolean>"
         default:
           inactive-tabs: true
-  wallpaper-feature:
-    description: This property defines the configuration for the wallpaper feature
-    variables:
-      onboarding-sheet:
-        description: This property defines whether the wallpaper onboarding is shown or not
-        type: Boolean
-        default: true
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:
