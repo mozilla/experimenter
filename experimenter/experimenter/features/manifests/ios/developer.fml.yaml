@@ -11,7 +11,7 @@ features:
       status:
         description: "If true, we will allow user to use the address autofill feature"
         type: Boolean
-        default: false
+        default: true
   back-forward-list-coordinator-refactor-feature:
     description: "Feature for managing the roll out of the BackForewardList presentation from coordinator\n"
     variables:
