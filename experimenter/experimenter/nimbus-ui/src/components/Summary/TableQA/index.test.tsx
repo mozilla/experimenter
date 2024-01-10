@@ -16,7 +16,7 @@ import useQA, { UseQAResult } from "src/components/Summary/TableQA/useQA";
 import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import {
   CHANGELOG_MESSAGES,
-  QA_STATUS_WITH_EMOJI,
+  QA_STATUS_PROPERTIES,
   SUBMIT_ERROR,
 } from "src/lib/constants";
 import {
@@ -67,7 +67,7 @@ describe("TableQA", () => {
   it("renders 'QA status' row as expected with status set", () => {
     render(<Subject {...{ qaStatus }} />);
     expect(screen.getByTestId("experiment-qa-status")).toHaveTextContent(
-      QA_STATUS_WITH_EMOJI.GREEN[0],
+      QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].description,
     );
   });
 
@@ -105,7 +105,9 @@ describe("QAEditor", () => {
 
     const qaStatusField = await screen.findByTestId("qa-status-section");
     expect(qaStatusField).toBeInTheDocument();
-    expect(qaStatusField).toHaveTextContent(QA_STATUS_WITH_EMOJI.GREEN[0]);
+    expect(qaStatusField).toHaveTextContent(
+      QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].description,
+    );
 
     const qaCommentField = await screen.findByTestId("qa-comment-section");
     expect(qaCommentField).toBeInTheDocument();

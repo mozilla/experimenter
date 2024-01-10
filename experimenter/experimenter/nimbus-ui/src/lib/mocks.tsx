@@ -47,6 +47,7 @@ import {
   NimbusExperimentDocumentationLinkEnum,
   NimbusExperimentFirefoxVersionEnum,
   NimbusExperimentPublishStatusEnum,
+  NimbusExperimentQAStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
 
@@ -957,7 +958,7 @@ export function mockSingleDirectoryExperiment(
     projects: [MOCK_CONFIG.projects![0]],
     hypothesis: "test hypothesis",
     qaComment: null,
-    qaStatus: null,
+    qaStatus: NimbusExperimentQAStatusEnum.GREEN,
     ...overrides,
   };
 }
