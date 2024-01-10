@@ -15,6 +15,7 @@ import {
   getStatus,
   ownerUsernameSortSelector,
   populationPercentSortSelector,
+  qaStatusSortSelector,
   resultsReadySortSelector,
   selectFromExperiment,
   startDateSortSelector,
@@ -27,6 +28,7 @@ import {
 } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
+  NimbusExperimentQAStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
 
@@ -122,6 +124,7 @@ describe("selectFromExperiment", () => {
       [featureConfigNameSortSelector, "Picture-in-Picture"],
       [ownerUsernameSortSelector, "example@mozilla.com"],
       [resultsReadySortSelector, "0"],
+      [qaStatusSortSelector, NimbusExperimentQAStatusEnum.GREEN],
       [enrollmentSortSelector, "2021-07-07T00:00:00.000Z"],
       [applicationSortSelector, "DESKTOP"],
       [channelSortSelector, "NIGHTLY"],
@@ -157,6 +160,18 @@ describe("selectFromExperiment", () => {
         resultsReadySortSelector,
       ),
     ).toEqual("1");
+  });
+
+  it("returns nothing for qa status not set", () => {
+    const experiment = mockSingleDirectoryExperiment({
+      qaStatus: null,
+    });
+    expect(
+      selectFromExperiment(
+        { ...experiment, qaStatus: null },
+        qaStatusSortSelector,
+      ),
+    ).toEqual("0");
   });
 });
 
