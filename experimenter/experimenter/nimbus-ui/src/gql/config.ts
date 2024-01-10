@@ -103,6 +103,10 @@ export const GET_CONFIG_QUERY = gql`
         label
         value
       }
+      qaStatus {
+        label
+        value
+      }
     }
   }
 `;

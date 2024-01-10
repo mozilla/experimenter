@@ -126,6 +126,11 @@ export interface getConfig_nimbusConfig_takeaways {
   value: string | null;
 }
 
+export interface getConfig_nimbusConfig_qaStatus {
+  label: string | null;
+  value: string | null;
+}
+
 export interface getConfig_nimbusConfig {
   applications: (getConfig_nimbusConfig_applications | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
@@ -147,6 +152,7 @@ export interface getConfig_nimbusConfig {
   statusUpdateExemptFields: (getConfig_nimbusConfig_statusUpdateExemptFields | null)[] | null;
   populationSizingData: string | null;
   takeaways: (getConfig_nimbusConfig_takeaways | null)[] | null;
+  qaStatus: (getConfig_nimbusConfig_qaStatus | null)[] | null;
 }
 
 export interface getConfig {

@@ -3589,6 +3589,24 @@
               ]
             }
           },
+          "qaStatus": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
           "populationSizingData": {
             "type": "string"
           },
@@ -3616,6 +3634,7 @@
           "conclusionRecommendations",
           "takeaways",
           "types",
+          "qaStatus",
           "populationSizingData"
         ]
       },

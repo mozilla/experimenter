@@ -138,6 +138,9 @@ describe("filterExperiments", () => {
               MOCK_CONFIG!.targetingConfigs![0]!,
             ]);
             break;
+          case "qaStatus":
+            expect(experiment.qaStatus).toEqual([MOCK_CONFIG!.qaStatus![0]]);
+            break;
         }
       }
     }

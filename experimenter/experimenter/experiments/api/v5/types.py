@@ -309,6 +309,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     types = graphene.List(NimbusLabelValueType)
     status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
     population_sizing_data = graphene.String()
+    qa_status = graphene.List(NimbusLabelValueType)
 
     def _text_choices_to_label_value_list(self, text_choices):
         return [
@@ -428,6 +429,9 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_takeaways(self, info):
         return self._text_choices_to_label_value_list(NimbusExperiment.Takeaways)
+
+    def resolve_qa_status(self, info):
+        return self._text_choices_to_label_value_list(NimbusExperiment.QAStatus)
 
     def resolve_status_update_exempt_fields(self, info):
         return [
