@@ -16,6 +16,7 @@ import {
 type TableQAProps = {
   publishStatus: NimbusExperimentPublishStatusEnum | null;
   qaStatus?: NimbusExperimentQAStatusEnum | null;
+  qaComment?: string | null;
 } & UseQAResult;
 
 export type QAEditorProps = UseQAResult & {
@@ -33,7 +34,8 @@ export function qaStatusLabel(qaStatus: NimbusExperimentQAStatusEnum) {
 }
 
 const TableQA = (props: TableQAProps) => {
-  const { publishStatus, qaStatus, showEditor, setShowEditor } = props;
+  const { publishStatus, qaStatus, qaComment, showEditor, setShowEditor } =
+    props;
 
   const onClickEdit = useCallback(() => setShowEditor(true), [setShowEditor]);
 
@@ -63,19 +65,37 @@ const TableQA = (props: TableQAProps) => {
           </Row>
         </Card.Header>
         <Card.Body className=" pe-2 ps-2">
-          <Table data-testid="table-qa-status">
+          <Table
+            data-testid="table-qa-status"
+            style={{ tableLayout: "fixed", whiteSpace: "normal" }}
+          >
             <tbody>
               <tr className="w-25">
-                <th className="border-top-0 border-bottom-2">QA Status</th>
+                <th className="border-top-0 border-bottom-2" colSpan={3}>
+                  QA Status
+                </th>
                 <td
                   data-testid="experiment-qa-status"
-                  className="text-monospace border-top-0 border-bottom-2"
+                  colSpan={4}
+                  className="border-top-0 border-bottom-2"
                 >
                   {qaStatus ? qaStatusLabel(qaStatus)[0] : <NotSet />}
                 </td>
                 <th className="border-top-0 w-75 border-bottom-2"></th>
                 <td className="border-top-0 border-bottom-2" />
               </tr>
+              {qaComment && (
+                <tr>
+                  <td
+                    colSpan={8}
+                    data-testid="qa-comment"
+                    className="w-75 border-top-0 border-bottom-2 mr-8"
+                    style={{ whiteSpace: "pre-wrap", wordWrap: "normal" }}
+                  >
+                    {qaComment}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </Table>
         </Card.Body>
