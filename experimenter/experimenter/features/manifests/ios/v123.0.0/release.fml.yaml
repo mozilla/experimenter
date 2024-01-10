@@ -72,7 +72,7 @@ features:
         type: "Map<HomeScreenSection, Boolean>"
         default:
           jump-back-in: true
-          recent-explorations: true
+          recent-explorations: false
   messaging:
     description: "The in-app messaging system\n"
     documentation:
