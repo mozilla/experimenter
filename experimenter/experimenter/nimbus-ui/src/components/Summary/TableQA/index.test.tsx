@@ -38,8 +38,10 @@ const Subject = ({
 );
 
 const qaStatus = NimbusExperimentQAStatusEnum.GREEN;
+const qaComment = "Out of this world!";
 const { experiment } = mockExperimentQuery("demo-slug", {
   qaStatus: null,
+  qaComment: null,
 });
 
 describe("TableQA", () => {
@@ -68,6 +70,16 @@ describe("TableQA", () => {
       QA_STATUS_WITH_EMOJI.GREEN[0],
     );
   });
+
+  it("renders 'QA comment' row as expected with comment set", () => {
+    render(<Subject {...{ qaComment }} />);
+    expect(screen.getByTestId("qa-comment")).toHaveTextContent(qaComment);
+  });
+
+  it("does not render 'QA comment' row with no comment set", () => {
+    render(<Subject {...{ qaStatus }} />);
+    expect(screen.queryByTestId("qa-comment")).not.toBeInTheDocument();
+  });
 });
 
 describe("QAEditor", () => {
@@ -77,19 +89,27 @@ describe("QAEditor", () => {
     expect(screen.queryByTestId("QAEditor")).toBeInTheDocument();
   });
 
-  it("renders as expected with content", () => {
+  it("renders as expected with content", async () => {
     render(
       <Subject
         {...{
           showEditor: true,
           qaStatus,
+          qaComment,
         }}
       />,
     );
     expect(screen.queryByTestId("QAEditor")).toBeInTheDocument();
     expect(screen.getByText("Save")).not.toBeDisabled();
     expect(screen.getByText("Cancel")).not.toBeDisabled();
-    expect(screen.queryByTestId("qa-status")).toBeInTheDocument();
+
+    const qaStatusField = await screen.findByTestId("qa-status-section");
+    expect(qaStatusField).toBeInTheDocument();
+    expect(qaStatusField).toHaveTextContent(QA_STATUS_WITH_EMOJI.GREEN[0]);
+
+    const qaCommentField = await screen.findByTestId("qa-comment-section");
+    expect(qaCommentField).toBeInTheDocument();
+    expect(qaCommentField).toHaveTextContent(qaComment);
   });
 
   it("disables buttons when loading", async () => {
@@ -115,6 +135,7 @@ describe("QAEditor", () => {
   it("submits form data when save is clicked", async () => {
     const expected = {
       qaStatus: qaStatus,
+      qaComment: qaComment,
     };
 
     const onSubmit = jest.fn();
@@ -124,6 +145,7 @@ describe("QAEditor", () => {
           onSubmit,
           showEditor: true,
           qaStatus,
+          qaComment,
         }}
       />,
     );
@@ -165,9 +187,39 @@ describe("QAEditor", () => {
     });
     const result = onSubmit.mock.calls[0][0];
 
-    expect(onSubmit).toHaveBeenCalledWith(expectedVal);
+    expect(onSubmit).toHaveBeenCalled();
     expect(result.qaStatus).toBeTruthy();
     expect(result.qaStatus).toEqual(expectedStatus);
+  });
+
+  it("updates qa comment and saves as expected", async () => {
+    const onSubmit = jest.fn();
+    const expectedComment = "What a lovely cat you have";
+    render(
+      <Subject
+        {...{
+          onSubmit,
+          qaStatus,
+          showEditor: true,
+        }}
+      />,
+    );
+
+    const textArea = await screen.findByTestId("qaComment");
+    fireEvent.change(textArea, {
+      target: { value: expectedComment },
+    });
+
+    expect((textArea as HTMLInputElement).value).toEqual(expectedComment);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText("Save"));
+    });
+    const result = onSubmit.mock.calls[0][0];
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    expect(result.qaComment).toEqual(expectedComment);
+    expect(result.qaStatus).toEqual(qaStatus);
   });
 
   it("hides the editor when cancel is clicked", async () => {
@@ -178,6 +230,7 @@ describe("QAEditor", () => {
           setShowEditor,
           showEditor: true,
           qaStatus,
+          qaComment,
         }}
       />,
     );
@@ -195,6 +248,7 @@ describe("useQA hook", () => {
   const mutationVariables = {
     id: experiment.id,
     qaStatus: submitData.qaStatus,
+    qaComment: null,
     changelogMessage: CHANGELOG_MESSAGES.UPDATED_QA_STATUS,
   };
   let refetch = jest.fn();
@@ -209,6 +263,7 @@ describe("useQA hook", () => {
     expect(props).toMatchObject({
       id: experiment.id,
       qaStatus: experiment.qaStatus,
+      qaComment: experiment.qaComment,
       showEditor: false,
       isLoading: false,
       submitErrors: {},
@@ -271,6 +326,7 @@ describe("useQA hook", () => {
     const submitErrors = {
       "*": ["Oh no! Bad server!"],
       qa_status: ["Too many bad vibes!"],
+      qa_comment: ["Gotta improve the vibes"],
     };
     mocks[0].result.data.updateExperiment.message = submitErrors;
     const refetch = jest.fn();
