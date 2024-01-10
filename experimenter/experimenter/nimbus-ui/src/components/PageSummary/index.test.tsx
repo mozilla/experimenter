@@ -23,7 +23,7 @@ import {
 import { createMutationMock } from "src/components/Summary/mocks";
 import {
   CHANGELOG_MESSAGES,
-  QA_STATUS_WITH_EMOJI,
+  QA_STATUS_PROPERTIES,
   SERVER_ERRORS,
 } from "src/lib/constants";
 import { mockExperimentQuery, mockLiveRolloutQuery } from "src/lib/mocks";
@@ -711,9 +711,18 @@ describe("PageSummary", () => {
   );
 
   it.each([
-    [NimbusExperimentQAStatusEnum.GREEN, QA_STATUS_WITH_EMOJI.GREEN[0]],
-    [NimbusExperimentQAStatusEnum.YELLOW, QA_STATUS_WITH_EMOJI.YELLOW[0]],
-    [NimbusExperimentQAStatusEnum.RED, QA_STATUS_WITH_EMOJI.RED[0]],
+    [
+      NimbusExperimentQAStatusEnum.GREEN,
+      QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].description,
+    ],
+    [
+      NimbusExperimentQAStatusEnum.YELLOW,
+      QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.YELLOW].description,
+    ],
+    [
+      NimbusExperimentQAStatusEnum.RED,
+      QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.RED].description,
+    ],
   ])(
     "renders qa status pill for each qa status",
     async (qaStatus: NimbusExperimentQAStatusEnum, qaLabel: string) => {
@@ -749,7 +758,9 @@ describe("PageSummary", () => {
       render(<Subject mocks={[mock]} />);
       const qaStatusPill = await screen.findByTestId("pill-qa-status");
       expect(qaStatusPill).toBeInTheDocument();
-      expect(qaStatusPill).toHaveTextContent(QA_STATUS_WITH_EMOJI.GREEN[0]);
+      expect(qaStatusPill).toHaveTextContent(
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].description,
+      );
     },
   );
 
@@ -765,7 +776,9 @@ describe("PageSummary", () => {
     render(<Subject mocks={[mock]} />);
     const qaStatusPill = await screen.findByTestId("pill-qa-status");
     expect(qaStatusPill).toBeInTheDocument();
-    expect(qaStatusPill).toHaveTextContent(QA_STATUS_WITH_EMOJI.GREEN[0]);
+    expect(qaStatusPill).toHaveTextContent(
+      QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].description,
+    );
   });
 
   it("will not render qa status pill when status is not set", async () => {

@@ -10,6 +10,7 @@ import LinkExternal from "src/components/LinkExternal";
 import NotSet from "src/components/NotSet";
 import { displayConfigLabelOrNotSet } from "src/components/Summary";
 import { UpdateSearchParams, useConfig, useSearchParamsState } from "src/hooks";
+import { QA_STATUS_PROPERTIES } from "src/lib/constants";
 import { getProposedEnrollmentRange, humanDate } from "src/lib/dateUtils";
 import {
   applicationSortSelector,
@@ -23,6 +24,7 @@ import {
   firefoxMinVersionSortSelector,
   ownerUsernameSortSelector,
   populationPercentSortSelector,
+  qaStatusSortSelector,
   resultsReadySortSelector,
   startDateSortSelector,
   unpublishedUpdatesSortSelector,
@@ -48,6 +50,15 @@ export const DirectoryColumnTitle: React.FC<getAllExperiments_experiments> = ({
     </td>
   );
 };
+
+export const DirectoryColumnQA: ColumnComponent = ({ qaStatus }) => (
+  <td
+    title={qaStatus ? QA_STATUS_PROPERTIES[qaStatus].description : ""}
+    data-testid="directory-table-cell-qa"
+  >
+    {qaStatus && QA_STATUS_PROPERTIES[qaStatus].emoji}
+  </td>
+);
 
 export const DirectoryColumnOwner: ColumnComponent = (experiment) => (
   // #4380 made it so owner is never null, but we have experiments pre-this
@@ -280,6 +291,11 @@ interface DirectoryTableProps {
 
 const commonColumns: Column[] = [
   { label: "Name", sortBy: "name", component: DirectoryColumnTitle },
+  {
+    label: "QA",
+    sortBy: qaStatusSortSelector,
+    component: DirectoryColumnQA,
+  },
   {
     label: "Owner",
     sortBy: ownerUsernameSortSelector,
