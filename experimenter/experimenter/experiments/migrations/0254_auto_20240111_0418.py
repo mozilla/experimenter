@@ -6,23 +6,68 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('experiments', '0253_nimbusexperiment_qa_comment'),
+        ("experiments", "0253_nimbusexperiment_qa_comment"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='nimbusexperiment',
-            name='application',
-            field=models.CharField(choices=[('firefox-desktop', 'Firefox Desktop'), ('fenix', 'Firefox for Android (Fenix)'), ('ios', 'Firefox for iOS'), ('focus-android', 'Focus for Android'), ('klar-android', 'Klar for Android'), ('focus-ios', 'Focus for iOS'), ('klar-ios', 'Klar for iOS'), ('monitor-web', 'Monitor Web'), ('vpn-web', 'VPN Web'), ('demo-app', 'Demo App')], max_length=255, verbose_name='Application Type'),
+            model_name="nimbusexperiment",
+            name="application",
+            field=models.CharField(
+                choices=[
+                    ("firefox-desktop", "Firefox Desktop"),
+                    ("fenix", "Firefox for Android (Fenix)"),
+                    ("ios", "Firefox for iOS"),
+                    ("focus-android", "Focus for Android"),
+                    ("klar-android", "Klar for Android"),
+                    ("focus-ios", "Focus for iOS"),
+                    ("klar-ios", "Klar for iOS"),
+                    ("monitor-web", "Monitor Web"),
+                    ("vpn-web", "VPN Web"),
+                    ("demo-app", "Demo App"),
+                ],
+                max_length=255,
+                verbose_name="Application Type",
+            ),
         ),
         migrations.AlterField(
-            model_name='nimbusfeatureconfig',
-            name='application',
-            field=models.CharField(blank=True, choices=[('firefox-desktop', 'Firefox Desktop'), ('fenix', 'Firefox for Android (Fenix)'), ('ios', 'Firefox for iOS'), ('focus-android', 'Focus for Android'), ('klar-android', 'Klar for Android'), ('focus-ios', 'Focus for iOS'), ('klar-ios', 'Klar for iOS'), ('monitor-web', 'Monitor Web'), ('vpn-web', 'VPN Web'), ('demo-app', 'Demo App')], max_length=255, null=True),
+            model_name="nimbusfeatureconfig",
+            name="application",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("firefox-desktop", "Firefox Desktop"),
+                    ("fenix", "Firefox for Android (Fenix)"),
+                    ("ios", "Firefox for iOS"),
+                    ("focus-android", "Focus for Android"),
+                    ("klar-android", "Klar for Android"),
+                    ("focus-ios", "Focus for iOS"),
+                    ("klar-ios", "Klar for iOS"),
+                    ("monitor-web", "Monitor Web"),
+                    ("vpn-web", "VPN Web"),
+                    ("demo-app", "Demo App"),
+                ],
+                max_length=255,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='nimbusisolationgroup',
-            name='application',
-            field=models.CharField(choices=[('firefox-desktop', 'Firefox Desktop'), ('fenix', 'Firefox for Android (Fenix)'), ('ios', 'Firefox for iOS'), ('focus-android', 'Focus for Android'), ('klar-android', 'Klar for Android'), ('focus-ios', 'Focus for iOS'), ('klar-ios', 'Klar for iOS'), ('monitor-web', 'Monitor Web'), ('vpn-web', 'VPN Web'), ('demo-app', 'Demo App')], max_length=255),
+            model_name="nimbusisolationgroup",
+            name="application",
+            field=models.CharField(
+                choices=[
+                    ("firefox-desktop", "Firefox Desktop"),
+                    ("fenix", "Firefox for Android (Fenix)"),
+                    ("ios", "Firefox for iOS"),
+                    ("focus-android", "Focus for Android"),
+                    ("klar-android", "Klar for Android"),
+                    ("focus-ios", "Focus for iOS"),
+                    ("klar-ios", "Klar for iOS"),
+                    ("monitor-web", "Monitor Web"),
+                    ("vpn-web", "VPN Web"),
+                    ("demo-app", "Demo App"),
+                ],
+                max_length=255,
+            ),
         ),
     ]
