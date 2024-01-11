@@ -23,14 +23,13 @@ import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   LIFECYCLE_REVIEW_FLOWS,
-  QA_STATUS_WITH_EMOJI,
+  QA_STATUS_PROPERTIES,
 } from "src/lib/constants";
 import { ExperimentContext } from "src/lib/contexts";
 import { getStatus, getSummaryAction, StatusCheck } from "src/lib/experiment";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   NimbusExperimentPublishStatusEnum,
-  NimbusExperimentQAStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
 
@@ -129,6 +128,7 @@ const PageSummary = (props: RouteComponentProps) => {
 
   const {
     publishStatus,
+    qaStatus,
     canReview,
     reviewRequest: reviewRequestEvent,
     rejection: rejectionEvent,
@@ -213,6 +213,17 @@ const PageSummary = (props: RouteComponentProps) => {
       <h5 className="mb-3">
         Timeline
         {status.live && <StatusPills {...{ experiment, status }} />}
+        {qaStatus != null &&
+          (() => {
+            const qaStatusProps = QA_STATUS_PROPERTIES[qaStatus!];
+            return (
+              <StatusPill
+                testId="pill-qa-status"
+                label={qaStatusProps.description}
+                color={qaStatusProps.className}
+              />
+            );
+          })()}
       </h5>
 
       <SummaryTimeline {...{ experiment }} />
@@ -308,26 +319,6 @@ const PageSummary = (props: RouteComponentProps) => {
 
 export default PageSummary;
 
-export function qaStatusLabel(status: NimbusExperimentQAStatusEnum) {
-  if (status === NimbusExperimentQAStatusEnum.GREEN) {
-    return QA_STATUS_WITH_EMOJI.GREEN[0];
-  } else if (status === NimbusExperimentQAStatusEnum.YELLOW) {
-    return QA_STATUS_WITH_EMOJI.YELLOW[0];
-  } else {
-    return QA_STATUS_WITH_EMOJI.RED[0];
-  }
-}
-
-export function qaStatusColor(status: NimbusExperimentQAStatusEnum) {
-  if (status === NimbusExperimentQAStatusEnum.GREEN) {
-    return QA_STATUS_WITH_EMOJI.GREEN[1];
-  } else if (status === NimbusExperimentQAStatusEnum.YELLOW) {
-    return QA_STATUS_WITH_EMOJI.YELLOW[1];
-  } else {
-    return QA_STATUS_WITH_EMOJI.RED[1];
-  }
-}
-
 const StatusPills = ({
   experiment,
   status,
@@ -356,13 +347,6 @@ const StatusPills = ({
         testId="pill-dirty-unpublished"
         label="Unpublished changes"
         color={"danger"}
-      />
-    )}
-    {experiment.qaStatus != null && (
-      <StatusPill
-        testId="pill-qa-status"
-        label={qaStatusLabel(experiment.qaStatus)}
-        color={qaStatusColor(experiment.qaStatus)}
       />
     )}
   </>

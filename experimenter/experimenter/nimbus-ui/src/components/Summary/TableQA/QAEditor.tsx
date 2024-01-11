@@ -11,9 +11,10 @@ import Row from "react-bootstrap/Row";
 import { FormProvider } from "react-hook-form";
 import { UseQAResult } from "src/components/Summary/TableQA/useQA";
 import { useCommonForm } from "src/hooks";
+import { QA_STATUS_PROPERTIES } from "src/lib/constants";
 import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
 
-export const qaEditorFieldNames = ["qaStatus"] as const;
+export const qaEditorFieldNames = ["qaStatus", "qaComment"] as const;
 
 type QAEditorFieldName = typeof qaEditorFieldNames[number];
 
@@ -24,6 +25,7 @@ export type QAEditorProps = UseQAResult & {
 export const QAEditor = ({
   isLoading,
   qaStatus,
+  qaComment,
   setShowEditor,
   onSubmit,
   submitErrors,
@@ -32,6 +34,7 @@ export const QAEditor = ({
 }: QAEditorProps) => {
   const defaultValues = {
     qaStatus,
+    qaComment,
   };
 
   type DefaultValues = typeof defaultValues;
@@ -60,17 +63,20 @@ export const QAEditor = ({
     {
       label: NimbusExperimentQAStatusEnum.RED,
       value: NimbusExperimentQAStatusEnum.RED,
-      description: "🔴 RED ",
+      description:
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.RED].description,
     },
     {
       label: NimbusExperimentQAStatusEnum.YELLOW,
       value: NimbusExperimentQAStatusEnum.YELLOW,
-      description: "🟡 YELLOW ",
+      description:
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.YELLOW].description,
     },
     {
       label: NimbusExperimentQAStatusEnum.GREEN,
       value: NimbusExperimentQAStatusEnum.GREEN,
-      description: "🟢 GREEN ",
+      description:
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].description,
     },
   ] as const;
 
@@ -130,40 +136,56 @@ export const QAEditor = ({
             </Alert>
           )}
 
-          <Form.Group as={Row} className="mb-0 pl-1">
-            <Row className="ml-0 flex-fill pl-0">
-              <Col className="ml-2 mr-0 pr-0 w-25">
-                <Form.Label>
-                  <p className="font-weight-bold">QA Status: </p>
-                </Form.Label>
-              </Col>
-              <Col className="ml-4 flex-fill pl-0 pr-8 mr-4">
-                <Form.Control
-                  as="select"
-                  className="ml-0 mr-0"
-                  value={qaStatusField as NimbusExperimentQAStatusEnum}
-                  onSubmit={handleSave}
-                  onChange={(e) =>
-                    setQaStatus(
-                      e.target
-                        ? (e.target.value as NimbusExperimentQAStatusEnum)
-                        : null,
-                    )
-                  }
-                  id="qa-status-select"
-                  data-testid="qa-status"
-                >
-                  {qaStatusOptions.map(
-                    (item, idx) =>
-                      item && (
-                        <option key={idx} value={item.value}>
-                          {item.description}
-                        </option>
-                      ),
-                  )}
-                </Form.Control>
-              </Col>
-            </Row>
+          <Form.Group
+            as={Row}
+            data-testid="qa-status-section"
+            className="mb-0 pl-3"
+          >
+            <Col className="mr-0 pl-0 pr-0 w-25">
+              <Form.Label>
+                <p className="font-weight-bold">QA Status: </p>
+              </Form.Label>
+            </Col>
+            <Col className="flex-fill pl-0 pr-8 mr-4">
+              <Form.Control
+                as="select"
+                className="ml-0 mr-0"
+                value={qaStatusField as NimbusExperimentQAStatusEnum}
+                onSubmit={handleSave}
+                onChange={(e) =>
+                  setQaStatus(
+                    e.target
+                      ? (e.target.value as NimbusExperimentQAStatusEnum)
+                      : null,
+                  )
+                }
+                id="qa-status-select"
+                data-testid="qa-status"
+              >
+                {qaStatusOptions.map(
+                  (item, idx) =>
+                    item && (
+                      <option key={idx} value={item.value}>
+                        {item.description}
+                      </option>
+                    ),
+                )}
+              </Form.Control>
+            </Col>
+          </Form.Group>
+          <Form.Group
+            as={Row}
+            data-testid="qa-comment-section"
+            className="mt-4 pl-3"
+          >
+            <Form.Label className="font-weight-bold">Comment:</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={5}
+              {...formControlAttrs("qaComment")}
+              className="pr-8 mr-4"
+            />
+            <FormErrors name="qaComment" />
           </Form.Group>
         </Form>
       </FormProvider>

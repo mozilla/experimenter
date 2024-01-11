@@ -2184,6 +2184,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.takeaways_summary, None)
         self.assertEqual(child.conclusion_recommendation, None)
         self.assertEqual(child.qa_status, None)
+        self.assertEqual(child.qa_comment, None)
         self.assertEqual(child._start_date, None)
         self.assertEqual(child._end_date, None)
         self.assertEqual(child._enrollment_end_date, None)

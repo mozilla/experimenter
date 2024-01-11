@@ -294,6 +294,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         null=True,
         choices=NimbusConstants.QAStatus.choices,
     )
+    qa_comment = models.TextField("QA Comment", blank=True, null=True)
 
     objects = NimbusExperimentManager()
 
@@ -870,6 +871,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned._end_date = None
         cloned._enrollment_end_date = None
         cloned.qa_status = None
+        cloned.qa_comment = None
         cloned.save()
 
         if rollout_branch_slug:
