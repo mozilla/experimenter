@@ -19,7 +19,6 @@ class Channel(models.TextChoices):
     DEVELOPER = "developer"
     STAGING = "staging"
     PRODUCTION = "production"
-    VPN = "vpn"
 
 
 class ChangeEventType(Enum):
@@ -178,7 +177,7 @@ APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
     slug="vpn-web",
     app_name="mozillavpn_backend_cirrus",
     channel_app_id={
-        Channel.VPN: "mozillavpn_backend_cirrus",
+        Channel.PRODUCTION: "mozillavpn_backend_cirrus",
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,

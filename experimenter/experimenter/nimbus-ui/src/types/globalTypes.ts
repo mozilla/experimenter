@@ -32,7 +32,6 @@ export enum NimbusExperimentChannelEnum {
   STAGING = "STAGING",
   TESTFLIGHT = "TESTFLIGHT",
   UNBRANDED = "UNBRANDED",
-  VPN = "VPN",
 }
 
 export enum NimbusExperimentConclusionRecommendationEnum {

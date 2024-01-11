@@ -297,7 +297,6 @@ enum NimbusExperimentChannelEnum {
   DEVELOPER
   STAGING
   PRODUCTION
-  VPN
 }
 
 type NimbusLocaleType {
