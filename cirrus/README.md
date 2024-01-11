@@ -91,6 +91,13 @@ The following are the available commands for working with Cirrus:
 
 `POST /v1/features/`
 
+- When making a POST request, please make sure to set headers content type as JSON
+  ```javascript
+    headers: {
+            "Content-Type": "application/json",
+      }
+  ```
+
 ## Input
 
 The input should be a JSON object with the following properties:
@@ -99,6 +106,10 @@ The input should be a JSON object with the following properties:
 - `context` (object): Used for context. It can have any key-value pair.
   - `any-key` (anytype).
 
+Note: Make sure to provide a key-value pair when making a call, setting the `context` value as `{}` will be considered as `False` value. For testing you can set value such as
+```json
+ context: { key: "example-key" }
+```
 Example input:
 
 ```json
