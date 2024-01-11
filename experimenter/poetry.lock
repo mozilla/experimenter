@@ -643,20 +643,20 @@ sftp = ["paramiko (>=1.15.0)"]
 
 [[package]]
 name = "django-tailwind"
-version = "3.6.0"
+version = "3.8.0"
 description = "Tailwind CSS Framework for Django projects"
 optional = false
-python-versions = ">=3.8.1,<4.0.0"
+python-versions = ">=3.10.0,<4.0.0"
 files = [
-    {file = "django_tailwind-3.6.0-py3-none-any.whl", hash = "sha256:93db0ed1c18ae21ee8ad7f19f96744f5b2322e9d9872307a06e0f45b21cbe60a"},
-    {file = "django_tailwind-3.6.0.tar.gz", hash = "sha256:d878222a4ef957d1d0f0529dcd28b0065995ca6b8c7b43b058b9214c9e7d8ec0"},
+    {file = "django_tailwind-3.8.0-py3-none-any.whl", hash = "sha256:fa969c5b95d314b173fe2b2ed2cb2c03f2e2c94fdc2c01ff73a993fa159085da"},
+    {file = "django_tailwind-3.8.0.tar.gz", hash = "sha256:31c2f4a7879d685c2de0feaf0b63f246200b37337bea4d7dbafb59bc3f10c008"},
 ]
 
 [package.dependencies]
 django = ">=3.2.14"
 
 [package.extras]
-reload = ["django-browser-reload (>=1.6.0,<2.0.0)"]
+reload = ["django-browser-reload (>=1.12.1,<2.0.0)"]
 
 [[package]]
 name = "django-test-migrations"
@@ -1084,13 +1084,13 @@ test = ["coveralls (>=3.3,<4)", "iso8601 (>=1,<2)", "mock (>=4,<5)", "pytest (>=
 
 [[package]]
 name = "graphene-django"
-version = "3.1.1"
+version = "3.2.0"
 description = "Graphene Django integration"
 optional = false
 python-versions = "*"
 files = [
-    {file = "graphene-django-3.1.1.tar.gz", hash = "sha256:6df689056b2d3599e8ca5c96e7cd185927df307b5d3e817fdeedd00d40a52bbc"},
-    {file = "graphene_django-3.1.1-py2.py3-none-any.whl", hash = "sha256:7d9215e952849d7c97984be0e4cfd0c35c32407bd96eedd13231a22b8f6e8e8a"},
+    {file = "graphene-django-3.2.0.tar.gz", hash = "sha256:9aca4a862f12912c2e611624bdbcf6b0f9bc7a41d240110a41bf95575a7bacab"},
+    {file = "graphene_django-3.2.0-py2.py3-none-any.whl", hash = "sha256:b553ecdc1cd7fd5b2d71de1a729c03ae117321763a90ed48a7fb4fdbf7f0d43f"},
 ]
 
 [package.dependencies]
@@ -1102,7 +1102,7 @@ promise = ">=2.1"
 text-unidecode = "*"
 
 [package.extras]
-dev = ["black (==23.3.0)", "coveralls", "django-filter (>=22.1)", "djangorestframework (>=3.6.3)", "flake8 (==6.0.0)", "flake8-black (==0.3.6)", "flake8-bugbear (==23.3.23)", "mock", "pre-commit", "pytest (>=7.3.1)", "pytest-cov", "pytest-django (>=4.5.2)", "pytest-random-order", "pytz"]
+dev = ["coveralls", "django-filter (>=22.1)", "djangorestframework (>=3.6.3)", "mock", "pre-commit", "pytest (>=7.3.1)", "pytest-cov", "pytest-django (>=4.5.2)", "pytest-random-order", "pytz", "ruff (==0.1.2)"]
 rest-framework = ["djangorestframework (>=3.6.3)"]
 test = ["coveralls", "django-filter (>=22.1)", "djangorestframework (>=3.6.3)", "mock", "pytest (>=7.3.1)", "pytest-cov", "pytest-django (>=4.5.2)", "pytest-random-order", "pytz"]
 
@@ -2891,4 +2891,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "7c6509d7940905c7e9fdd02f107f5e5632b2fbb763d1681e556dfc4a52957b99"
+content-hash = "8c6d6b0e4ae5d2250b3306ced0cc22e6a190181b9a1345bf238214aaa65d14d3"

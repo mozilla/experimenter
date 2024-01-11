@@ -7,10 +7,16 @@ import { Button, Card, Col, Row, Table } from "react-bootstrap";
 import NotSet from "src/components/NotSet";
 import QAEditor from "src/components/Summary/TableQA/QAEditor";
 import { UseQAResult } from "src/components/Summary/TableQA/useQA";
-import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
+import { QA_STATUS_PROPERTIES } from "src/lib/constants";
+import {
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentQAStatusEnum,
+} from "src/types/globalTypes";
 
 type TableQAProps = {
+  publishStatus: NimbusExperimentPublishStatusEnum | null;
   qaStatus?: NimbusExperimentQAStatusEnum | null;
+  qaComment?: string | null;
 } & UseQAResult;
 
 export type QAEditorProps = UseQAResult & {
@@ -18,7 +24,8 @@ export type QAEditorProps = UseQAResult & {
 };
 
 const TableQA = (props: TableQAProps) => {
-  const { qaStatus, showEditor, setShowEditor } = props;
+  const { publishStatus, qaStatus, qaComment, showEditor, setShowEditor } =
+    props;
 
   const onClickEdit = useCallback(() => setShowEditor(true), [setShowEditor]);
 
@@ -33,7 +40,7 @@ const TableQA = (props: TableQAProps) => {
           <Row>
             <Col className="my-1">QA</Col>
             <Col className="text-right">
-              {
+              {publishStatus !== NimbusExperimentPublishStatusEnum.REVIEW && (
                 <Button
                   onClick={onClickEdit}
                   variant="outline-primary"
@@ -43,24 +50,46 @@ const TableQA = (props: TableQAProps) => {
                 >
                   Edit
                 </Button>
-              }
+              )}
             </Col>
           </Row>
         </Card.Header>
         <Card.Body className=" pe-2 ps-2">
-          <Table data-testid="table-qa-status">
+          <Table
+            data-testid="table-qa-status"
+            style={{ tableLayout: "fixed", whiteSpace: "normal" }}
+          >
             <tbody>
               <tr className="w-25">
-                <th className="border-top-0 border-bottom-2">QA Status</th>
+                <th className="border-top-0 border-bottom-2" colSpan={3}>
+                  QA Status
+                </th>
                 <td
                   data-testid="experiment-qa-status"
-                  className="text-monospace border-top-0 border-bottom-2"
+                  colSpan={4}
+                  className="border-top-0 border-bottom-2"
                 >
-                  {qaStatus || <NotSet />}
+                  {qaStatus ? (
+                    QA_STATUS_PROPERTIES[qaStatus].description
+                  ) : (
+                    <NotSet />
+                  )}
                 </td>
                 <th className="border-top-0 w-75 border-bottom-2"></th>
                 <td className="border-top-0 border-bottom-2" />
               </tr>
+              {qaComment && (
+                <tr>
+                  <td
+                    colSpan={8}
+                    data-testid="qa-comment"
+                    className="w-75 border-top-0 border-bottom-2 mr-8"
+                    style={{ whiteSpace: "pre-wrap", wordWrap: "normal" }}
+                  >
+                    {qaComment}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </Table>
         </Card.Body>

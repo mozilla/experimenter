@@ -700,6 +700,29 @@ EXISTING_USER_NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig(
+    name=(
+        "All users, no enterprise or past VPN use, hasn't disabled "
+        "'Recommend extensions/features'"
+    ),
+    slug="no_vpn_has_not_disabled_recommend_features",
+    description=(
+        "Exclude users who have used Mozilla VPN, are enterprise users, or have"
+        " disabled 'Recommend extensions/features'"
+    ),
+    targeting=(
+        f"{NO_ENTERPRISE_OR_PAST_VPN.targeting} && "
+        "(!os.isWindows || os.windowsBuildNumber >= 18362) && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_ENTERPRISE_OR_RECENT_VPN = NimbusTargetingConfig(
     name="No enterprise and no VPN connection in the last 30 days",
     slug="no_enterprise_or_last_30d_vpn_use",
@@ -1781,6 +1804,28 @@ ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
     targeting="days_since_install >= 28",
     desktop_telemetry="",
     sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+IOS_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
+    name="Review checker enabled users only",
+    slug="ios_review_checker_enabled_users_only",
+    description="Targeting users who have opted in review checker",
+    targeting="is_review_checker_enabled",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+ANDROID_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
+    name="Review checker enabled users only",
+    slug="android_review_checker_enabled_users_only",
+    description="Targeting users who have opted in review checker",
+    targeting="is_review_checker_enabled",
+    desktop_telemetry="",
+    sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.FENIX.name,),
 )

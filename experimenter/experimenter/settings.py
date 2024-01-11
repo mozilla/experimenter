@@ -139,7 +139,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "experimenter.base.context_processors.google_analytics",
                 "experimenter.base.context_processors.features",
                 "experimenter.base.context_processors.debug",
             ],
@@ -292,7 +291,6 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Experiments list pagination
 EXPERIMENTS_PAGINATE_BY = config("EXPERIMENTS_PAGINATE_BY", default=10, cast=int)
 
-USE_GOOGLE_ANALYTICS = config("USE_GOOGLE_ANALYTICS", default=True, cast=bool)
 
 # Automated email destinations
 

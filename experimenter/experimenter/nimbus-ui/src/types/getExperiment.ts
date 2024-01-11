@@ -247,6 +247,7 @@ export interface getExperiment_experimentBySlug {
   languages: getExperiment_experimentBySlug_languages[];
   projects: (getExperiment_experimentBySlug_projects | null)[] | null;
   isRolloutDirty: boolean;
+  qaComment: string | null;
   qaStatus: NimbusExperimentQAStatusEnum | null;
 }
 

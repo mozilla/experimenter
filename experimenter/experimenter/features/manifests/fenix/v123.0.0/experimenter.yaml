@@ -15,14 +15,14 @@ cookie-banners:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
-extensions-process:
-  description: A feature to rollout the extensions process.
+fx-strong-password:
+  description: A feature that provides a generated strong password on sign up.
   hasExposure: true
   exposureDescription: ""
   variables:
     enabled:
       type: boolean
-      description: "If true, the extensions process is enabled."
+      description: "When the feature is enabled and Firefox receives a Login event with an  empty saved logins list, a suggested strong password prompt will be shown,  allowing the user to use the generated password to fill in the password field  for the new account that will be created. When the feature is disabled,  there won't be any prompt displayed that would allow using a generated password.\n"
 fx-suggest:
   description: A feature that provides Firefox Suggest search suggestions.
   hasExposure: true

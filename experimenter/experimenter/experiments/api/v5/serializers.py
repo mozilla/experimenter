@@ -103,6 +103,7 @@ class TransitionConstants:
         "all": [
             "is_archived",
             "publish_status",
+            "qa_comment",
             "qa_status",
             "status_next",
             "status",
@@ -897,6 +898,13 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
+    qa_comment = serializers.CharField(
+        min_length=0,
+        max_length=4096,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -933,6 +941,7 @@ class NimbusExperimentSerializer(
             "proposed_release_date",
             "public_description",
             "publish_status",
+            "qa_comment",
             "qa_status",
             "reference_branch",
             "required_experiments",
