@@ -172,6 +172,18 @@ APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     is_web=True,
 )
 
+APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
+    name="VPN Web",
+    slug="vpn-web",
+    app_name="mozillavpn_backend_cirrus",
+    channel_app_id={
+        Channel.PRODUCTION: "mozillavpn_backend_cirrus",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+    is_web=True,
+)
+
 APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
     name="Demo App",
     slug="demo-app",
@@ -184,7 +196,6 @@ APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
 )
-
 
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
@@ -222,6 +233,10 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_MONITOR_WEB.slug,
         APPLICATION_CONFIG_MONITOR_WEB.name,
     )
+    VPN = (
+        APPLICATION_CONFIG_VPN_WEB.slug,
+        APPLICATION_CONFIG_VPN_WEB.name,
+    )
     DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
@@ -240,6 +255,7 @@ class Application(models.TextChoices):
         return application in (
             Application.DEMO_APP,
             Application.MONITOR,
+            Application.VPN,
         )
 
 
@@ -293,6 +309,7 @@ class NimbusConstants:
         Application.FOCUS_IOS: APPLICATION_CONFIG_FOCUS_IOS,
         Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
         Application.MONITOR: APPLICATION_CONFIG_MONITOR_WEB,
+        Application.VPN: APPLICATION_CONFIG_VPN_WEB,
         Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
     }
 
