@@ -288,6 +288,7 @@ export interface ExperimentInput {
   proposedReleaseDate?: string | null;
   publicDescription?: string | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
+  qaComment?: string | null;
   qaStatus?: NimbusExperimentQAStatusEnum | null;
   referenceBranch?: BranchInput | null;
   requiredExperiments?: number[] | null;

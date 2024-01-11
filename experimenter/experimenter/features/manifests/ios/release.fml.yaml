@@ -18,7 +18,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
@@ -72,7 +72,7 @@ features:
         type: "Map<HomeScreenSection, Boolean>"
         default:
           jump-back-in: true
-          recent-explorations: true
+          recent-explorations: false
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -408,19 +408,6 @@ features:
         type: "Map<TabTraySection, Boolean>"
         default:
           inactive-tabs: true
-  wallpaper-feature:
-    description: This property defines the configuration for the wallpaper feature
-    variables:
-      configuration:
-        description: This property defines the configuration for the wallpaper feature
-        type: WallpaperConfiguration
-        default:
-          status: true
-          version: v1
-      onboarding-sheet:
-        description: This property defines whether the wallpaper onboarding is shown or not
-        type: Boolean
-        default: true
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:
@@ -539,13 +526,6 @@ enums:
     variants:
       inactive-tabs:
         description: Tabs that have been automatically closed for the user.
-  WallpaperVariantVersion:
-    description: An enum to identify which version of the wallpaper system to use
-    variants:
-      legacy:
-        description: The legacy wallpaper version
-      v1:
-        description: The 2022 MR version
 objects:
   AwesomeBar:
     description: "A configuration option for the awesome bar. Part of the `search` feature."
@@ -742,17 +722,6 @@ objects:
         description: "The importance of this message. 0 is not very important, 100 is very important.\n"
         type: Int
         default: 50
-  WallpaperConfiguration:
-    description: The configuration for the a feature that can be enabled or disabled
-    fields:
-      status:
-        description: Whether or not the feature is enabled
-        type: Boolean
-        default: false
-      version:
-        description: Which version of the wallpaper sytem to use
-        type: WallpaperVariantVersion
-        default: legacy
   WebsiteConfig:
     description: "It represents a configuration for different e-commerce websites and includes regular expressions for extracting product IDs from their respective URLs\n"
     fields:

@@ -60,6 +60,7 @@ type NimbusExperimentType {
   isLocalized: Boolean
   localizations: String
   qaStatus: NimbusExperimentQAStatusEnum
+  qaComment: String
   documentationLinks: [NimbusDocumentationLinkType!]
   changes: [NimbusChangeLogType]
   canArchive: Boolean
@@ -537,6 +538,7 @@ input ExperimentInput {
   proposedReleaseDate: String
   publicDescription: String
   publishStatus: NimbusExperimentPublishStatusEnum
+  qaComment: String
   qaStatus: NimbusExperimentQAStatusEnum
   referenceBranch: BranchInput = null
   requiredExperiments: [Int!]
