@@ -1596,7 +1596,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         blob: str,
         min_version: packaging.version.Version,
         max_version: Optional[packaging.version.Version],
-    ):
+    ) -> dict[str, list[NimbusFeatureVersion]]:
         schemas_in_range = feature_config.get_versioned_schema_range(
             min_version, max_version
         )
@@ -1607,7 +1607,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     feature_config=feature_config,
                 )
             ]
-        errors = []
+        errors = defaultdict(list)
 
         for version in schemas_in_range.unsupported_versions:
             errors.append(
@@ -1620,15 +1620,27 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         for schema in schemas_in_range.schemas:
             version = schema.version
             if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
-                errors.extend(
-                    [
-                        f"{NimbusExperiment.ERROR_FML_VALIDATION}: {e.message} at line "
-                        f"{e.line+1} column {e.col} at version {version}"
-                        for e in fml_errors
-                    ]
-                )
+                for e in fml_errors:
+                    errors[e].append(version)
+                # errors.extend(
+                #     [
+                #         f"{NimbusExperiment.ERROR_FML_VALIDATION}: {e.message} at line "
+                #         f"{e.line+1} column {e.col} at version {version}"
+                #         for e in fml_errors
+                #     ]
+                # )
 
         return errors
+
+    def _format_grouped_errors(self, errs: dict[str, list[NimbusFeatureVersion]]):
+        formatted = []
+        for err, versions in errs.items():
+            if len(versions) > 1:
+                formatted.append(f"{err} between versions {min(versions)} and {max(versions)}")
+            elif len(versions) == 1:
+                formatted.append(f"{err} at version {versions[0]}")
+            else:
+                formatted.append(err)
 
     def _validate_schema(
         self, obj: Any, schema: dict[str, Any], version: Optional[NimbusFeatureVersion]
