@@ -106,6 +106,34 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         )
 
 
+class NimbusExperimentBranchThrough(models.Model):
+    parent_experiment = models.ForeignKey(
+        "NimbusExperiment",
+        on_delete=models.CASCADE,
+        related_name="%(class)s_parent",
+    )
+    child_experiment = models.ForeignKey(
+        "NimbusExperiment",
+        on_delete=models.CASCADE,
+        related_name="%(class)s_child",
+    )
+    branch_slug = models.SlugField(
+        max_length=NimbusConstants.MAX_SLUG_LEN, null=True, blank=True
+    )
+
+    class Meta:
+        abstract = True
+        unique_together = ("parent_experiment", "child_experiment", "branch_slug")
+
+
+class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):
+    pass
+
+
+class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):
+    pass
+
+
 class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.Model):
     parent = models.ForeignKey["NimbusExperiment"](
         "experiments.NimbusExperiment", models.SET_NULL, blank=True, null=True
@@ -280,12 +308,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         related_name="required_by",
         blank=True,
         verbose_name="Required Experiments",
+        through=NimbusExperimentBranchThroughRequired,
+        through_fields=("parent_experiment", "child_experiment"),
     )
     excluded_experiments = models.ManyToManyField["NimbusExperiment"](
         "NimbusExperiment",
         related_name="excluded_by",
         blank=True,
         verbose_name="Excluded Experiments",
+        through=NimbusExperimentBranchThroughExcluded,
+        through_fields=("parent_experiment", "child_experiment"),
     )
     qa_status = models.CharField(
         "QA Status",
