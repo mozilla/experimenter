@@ -222,6 +222,7 @@ class NimbusConfigurationDataClass:
     conclusionRecommendations: typing.List[LabelValueDataClass]
     takeaways: typing.List[LabelValueDataClass]
     types: typing.List[LabelValueDataClass]
+    qaStatus: typing.List[LabelValueDataClass]
     populationSizingData: str
     hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
@@ -254,6 +255,7 @@ class NimbusConfigurationDataClass:
         self.types = self._enum_to_label_value(NimbusExperiment.Type)
         self.populationSizingData = self._get_population_sizing_data()
         self.takeaways = self._enum_to_label_value(NimbusExperiment.Takeaways)
+        self.qaStatus = self._enum_to_label_value(NimbusExperiment.QAStatus)
 
     def _geo_model_to_dataclass(self, queryset):
         return [GeoDataClass(id=i.id, name=i.name, code=i.code) for i in queryset]
