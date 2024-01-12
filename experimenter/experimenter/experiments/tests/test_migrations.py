@@ -1,168 +1,100 @@
-import json
-from itertools import product
-
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
-from faker import Faker
 
 from experimenter.experiments.constants import NimbusConstants
 
 
-class TestRemoveDirtyPublishStatusMigration(MigratorTestCase):
+class TestMigrations(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0248_alter_nimbusexperiment_channel",
+        "0254_auto_20240111_0418",
     )
     migrate_to = (
         "experiments",
-        "0249_alter_nimbusbranchfeaturevalue_feature_config",
+        "0255_required_excluded_through",
     )
 
     def prepare(self):
         """Prepare some data before the migration."""
         User = self.old_state.apps.get_model("auth", "User")
-        NimbusFeatureConfig = self.old_state.apps.get_model(
-            "experiments", "NimbusFeatureConfig"
-        )
         NimbusExperiment = self.old_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
-        NimbusBranch = self.old_state.apps.get_model("experiments", "NimbusBranch")
-        NimbusBranchFeatureValue = self.old_state.apps.get_model(
-            "experiments", "NimbusBranchFeatureValue"
-        )
+
         user = User.objects.create(email="test@example.com")
 
-        feature_config = NimbusFeatureConfig.objects.create(
-            slug="test-feature", application=NimbusConstants.Application.DESKTOP
-        )
-        experiment = NimbusExperiment.objects.create(
+        parent_experiment = NimbusExperiment.objects.create(
             owner=user,
-            name="test experiment",
-            slug="test-experiment",
+            name="test parent experiment",
+            slug="test-parent-experiment",
             application=NimbusConstants.Application.DESKTOP,
             status=NimbusConstants.Status.DRAFT,
             publish_status=NimbusConstants.PublishStatus.IDLE,
             published_dto="{}",
         )
-        experiment.feature_configs.add(feature_config)
-        branch = NimbusBranch.objects.create(
-            experiment=experiment,
-            name="test branch",
-            slug="test-branch",
+        required_experiment = NimbusExperiment.objects.create(
+            owner=user,
+            name="test required experiment",
+            slug="test-required-experiment",
+            application=NimbusConstants.Application.DESKTOP,
+            status=NimbusConstants.Status.DRAFT,
+            publish_status=NimbusConstants.PublishStatus.IDLE,
+            published_dto="{}",
         )
-        NimbusBranchFeatureValue.objects.create(
-            branch=branch, feature_config=None, value="{}"
+        excluded_experiment = NimbusExperiment.objects.create(
+            owner=user,
+            name="test excluded experiment",
+            slug="test-excluded-experiment",
+            application=NimbusConstants.Application.DESKTOP,
+            status=NimbusConstants.Status.DRAFT,
+            publish_status=NimbusConstants.PublishStatus.IDLE,
+            published_dto="{}",
         )
-        NimbusBranchFeatureValue.objects.create(
-            branch=branch, feature_config=feature_config, value="{}"
-        )
+        parent_experiment.required_experiments.add(required_experiment)
+        parent_experiment.excluded_experiments.add(excluded_experiment)
 
     def test_migration(self):
         """Run the test itself."""
-        NimbusFeatureConfig = self.new_state.apps.get_model(
-            "experiments", "NimbusFeatureConfig"
+        NimbusExperiment = self.new_state.apps.get_model(
+            "experiments", "NimbusExperiment"
         )
-        NimbusBranchFeatureValue = self.new_state.apps.get_model(
-            "experiments", "NimbusBranchFeatureValue"
+
+        # Explicitly set through_fields on the related fields because of
+        # a bug in django-test-migrations
+        # https://github.com/wemake-services/django-test-migrations/issues/418
+        required_field = next(
+            f
+            for f in NimbusExperiment._meta.many_to_many
+            if f.name == "required_experiments"
         )
-        feature_config = NimbusFeatureConfig.objects.get(slug="test-feature")
+        excluded_field = next(
+            f
+            for f in NimbusExperiment._meta.many_to_many
+            if f.name == "excluded_experiments"
+        )
+        required_field.remote_field.through_fields = (
+            "parent_experiment",
+            "child_experiment",
+        )
+        excluded_field.remote_field.through_fields = (
+            "parent_experiment",
+            "child_experiment",
+        )
+
+        parent_experiment = NimbusExperiment.objects.get(slug="test-parent-experiment")
 
         self.assertEqual(
-            NimbusBranchFeatureValue.objects.filter(feature_config=None).count(), 0
-        )
-        self.assertEqual(
-            NimbusBranchFeatureValue.objects.filter(
-                feature_config=feature_config
-            ).count(),
-            1,
-        )
-
-
-class TestNimbusVersionedFeatureConfigMigration(MigratorTestCase):
-    migrate_from = (
-        "experiments",
-        "0239_alter_nimbusexperiment_experiment_targeting_blank",
-    )
-    migrate_to = ("experiments", "0240_nimbusversionedschema")
-
-    JSON_SCHEMA = json.dumps(
-        {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "object",
-            "properties": {
-                "variable": {"description": "variable description", "type": "string"}
-            },
-            "additionalProperties": False,
-        }
-    )
-
-    def prepare(self):
-        fake = Faker()
-
-        self.instances = [
-            {
-                "slug": fake.slug(),
-                "name": fake.slug(),
-                "description": fake.text(),
-                "owner_email": fake.email(),
-                "application": application,
-                "sets_prefs": sets_prefs,
-                "read_only": read_only,
-                "schema": self.JSON_SCHEMA,
-                "enabled": enabled,
-            }
-            for (application, sets_prefs, read_only, enabled) in (
-                product(
-                    list(NimbusConstants.Application),
-                    ([], [fake.slug().replace("-", ".")]),
-                    (True, False),
-                    (True, False),
+            set(
+                parent_experiment.required_experiments.all().values_list(
+                    "slug", flat=True
                 )
-            )
-        ]
-
-        NimbusFeatureConfig = self.old_state.apps.get_model(
-            "experiments", "NimbusFeatureConfig"
-        )
-        NimbusFeatureConfig.objects.bulk_create(
-            NimbusFeatureConfig(**kwargs) for kwargs in self.instances
-        )
-
-    def test_migration(self):
-        NimbusFeatureConfig = self.new_state.apps.get_model(
-            "experiments", "NimbusFeatureConfig"
-        )
-        NimbusVersionedSchema = self.new_state.apps.get_model(
-            "experiments", "NimbusVersionedSchema"
-        )
-
-        by_slug = {
-            fc.slug: fc
-            for fc in NimbusFeatureConfig.objects.all().prefetch_related("schemas")
-        }
-
-        for kwargs in self.instances:
-            feature_config = by_slug[kwargs["slug"]]
-
-            self.assertEqual(feature_config.description, kwargs["description"])
-            self.assertEqual(feature_config.enabled, kwargs["enabled"])
-            self.assertEqual(feature_config.name, kwargs["name"])
-            self.assertEqual(feature_config.owner_email, kwargs["owner_email"])
-
-            versioned_schemas = list(feature_config.schemas.all())
-            self.assertEqual(len(versioned_schemas), 1)
-
-            versioned_schema = versioned_schemas[0]
-
-            self.assertEqual(versioned_schema.schema, self.JSON_SCHEMA)
-            self.assertEqual(versioned_schema.sets_prefs, kwargs["sets_prefs"])
-            self.assertEqual(versioned_schema.version, None)
-
-        self.assertEqual(
-            NimbusVersionedSchema.objects.count(),
-            len(by_slug),
-            (
-                "There should be an equal number of NimbusVersionedSchemas and "
-                "NimbusFeatureConfigs",
             ),
+            {"test-required-experiment"},
+        )
+        self.assertEqual(
+            set(
+                parent_experiment.excluded_experiments.all().values_list(
+                    "slug", flat=True
+                )
+            ),
+            {"test-excluded-experiment"},
         )
