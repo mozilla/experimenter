@@ -20,6 +20,8 @@ from experimenter.experiments.models import (
     NimbusChangeLog,
     NimbusDocumentationLink,
     NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
 )
 from experimenter.outcomes import Outcomes
@@ -288,6 +290,28 @@ class NimbusStatusUpdateExemptFieldsType(graphene.ObjectType):
         return TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["rollouts"]
 
 
+class NimbusExperimentBranchThroughRequiredType(DjangoObjectType):
+    required_experiment = graphene.NonNull(lambda: NimbusExperimentType)
+
+    class Meta:
+        model = NimbusExperimentBranchThroughRequired
+        fields = ("required_experiment", "branch_slug")
+
+    def resolve_required_experiment(self, info):
+        return self.child_experiment
+
+
+class NimbusExperimentBranchThroughExcludedType(DjangoObjectType):
+    excluded_experiment = graphene.NonNull(lambda: NimbusExperimentType)
+
+    class Meta:
+        model = NimbusExperimentBranchThroughExcluded
+        fields = ("excluded_experiment", "branch_slug")
+
+    def resolve_excluded_experiment(self, info):
+        return self.child_experiment
+
+
 class NimbusConfigurationType(graphene.ObjectType):
     application_configs = graphene.List(NimbusExperimentApplicationConfigType)
     applications = graphene.List(NimbusLabelValueType)
@@ -465,6 +489,9 @@ class NimbusExperimentType(DjangoObjectType):
     excluded_experiments = graphene.NonNull(
         lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
     )
+    excluded_experiments_branches = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentBranchThroughExcludedType))
+    )
     feature_configs = DjangoListField(NimbusFeatureConfigType)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
@@ -501,6 +528,9 @@ class NimbusExperimentType(DjangoObjectType):
     rejection = graphene.Field(NimbusChangeLogType)
     required_experiments = graphene.NonNull(
         lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
+    )
+    required_experiments_branches = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentBranchThroughRequiredType))
     )
     results_expected_date = graphene.DateTime()
     results_ready = graphene.Boolean()
@@ -715,3 +745,13 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_required_experiments(self, info):
         return self.required_experiments.only("id", "slug", "name", "public_description")
+
+    def resolve_excluded_experiments_branches(self, info):
+        return NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=self
+        )
+
+    def resolve_required_experiments_branches(self, info):
+        return NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=self
+        )

@@ -263,6 +263,7 @@ export interface ExperimentInput {
   countries?: (string | null)[] | null;
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
   excludedExperiments?: number[] | null;
+  excludedExperimentsBranches?: (NimbusExperimentBranchThroughExcludedInput | null)[] | null;
   featureConfigIds?: (number | null)[] | null;
   firefoxMaxVersion?: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;
@@ -291,6 +292,7 @@ export interface ExperimentInput {
   qaStatus?: NimbusExperimentQAStatusEnum | null;
   referenceBranch?: BranchInput | null;
   requiredExperiments?: number[] | null;
+  requiredExperimentsBranches?: (NimbusExperimentBranchThroughRequiredInput | null)[] | null;
   riskBrand?: boolean | null;
   riskMitigationLink?: string | null;
   riskPartnerRelated?: boolean | null;
@@ -306,6 +308,16 @@ export interface ExperimentInput {
   totalEnrolledClients?: number | null;
   treatmentBranches?: (BranchInput | null)[] | null;
   warnFeatureSchema?: boolean | null;
+}
+
+export interface NimbusExperimentBranchThroughExcludedInput {
+  excludedExperiment: number;
+  branchSlug?: string | null;
+}
+
+export interface NimbusExperimentBranchThroughRequiredInput {
+  requiredExperiment: number;
+  branchSlug?: string | null;
 }
 
 //==============================================================

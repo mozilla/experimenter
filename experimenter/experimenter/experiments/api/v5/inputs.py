@@ -38,6 +38,16 @@ class DocumentationLinkInput(graphene.InputObjectType):
     link = graphene.String(required=True)
 
 
+class NimbusExperimentBranchThroughRequiredInput(graphene.InputObjectType):
+    required_experiment = graphene.NonNull(graphene.Int)
+    branch_slug = graphene.String()
+
+
+class NimbusExperimentBranchThroughExcludedInput(graphene.InputObjectType):
+    excluded_experiment = graphene.NonNull(graphene.Int)
+    branch_slug = graphene.String()
+
+
 class ExperimentInput(graphene.InputObjectType):
     application = NimbusExperimentApplicationEnum()
     changelog_message = graphene.String()
@@ -46,6 +56,9 @@ class ExperimentInput(graphene.InputObjectType):
     countries = graphene.List(graphene.String)
     documentation_links = graphene.List(DocumentationLinkInput)
     excluded_experiments = graphene.List(graphene.NonNull(graphene.Int))
+    excluded_experiments_branches = graphene.List(
+        NimbusExperimentBranchThroughExcludedInput
+    )
     feature_config_ids = graphene.List(graphene.Int)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
@@ -74,6 +87,9 @@ class ExperimentInput(graphene.InputObjectType):
     qa_status = NimbusExperimentQAStatusEnum()
     reference_branch = graphene.Field(BranchInput)
     required_experiments = graphene.List(graphene.NonNull(graphene.Int))
+    required_experiments_branches = graphene.List(
+        NimbusExperimentBranchThroughRequiredInput
+    )
     risk_brand = graphene.Boolean()
     risk_mitigation_link = graphene.String()
     risk_partner_related = graphene.Boolean()
