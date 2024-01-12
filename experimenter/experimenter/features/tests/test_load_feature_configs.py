@@ -66,6 +66,7 @@ class TestLoadFeatureConfigs(TestCase):
             },
         )
 
+        self.assertTrue(schema.is_early_startup)
         feature_config = NimbusFeatureConfig.objects.get(slug="prefSettingFeature")
         schema = feature_config.schemas.get(version=None)
 
@@ -130,6 +131,7 @@ class TestLoadFeatureConfigs(TestCase):
                 "additionalProperties": False,
             },
         )
+        self.assertTrue(schema.is_early_startup)
 
         feature_config = NimbusFeatureConfig.objects.get(slug="prefSettingFeature")
 
