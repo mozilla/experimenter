@@ -285,6 +285,8 @@ class ResultsObjectModelBase(BaseModel):
                     if len(comparison_data.all) == 0:
                         comparison_data.first = data_point
 
+                    # TODO: remove `if` when this bug is fixed:
+                    #    https://github.com/mozilla/experimenter/issues/10043
                     # ignore duplicate results
                     # - OVERALL can only have one
                     # - WEEKLY should not have dupes for the same index
@@ -310,6 +312,8 @@ class ResultsObjectModelBase(BaseModel):
                     if len(pairwise_comparison_data.all) == 0:
                         pairwise_comparison_data.first = data_point
 
+                    # TODO: remove `if` when this bug is fixed:
+                    #    https://github.com/mozilla/experimenter/issues/10043
                     # ignore duplicate results
                     # - OVERALL can only have one
                     # - WEEKLY should not have dupes for the same index
