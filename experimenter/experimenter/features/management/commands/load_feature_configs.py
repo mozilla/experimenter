@@ -153,17 +153,16 @@ class Command(BaseCommand):
                 feature_version = versions[feature.version]
                 feature_version_id = feature_version.id
 
-            key = (feature_config.id, feature_version_id)
-
             dirty_fields = []
             created = False
 
-            schema = schemas.get(key)
+            schema = schemas.get((feature_config.id, feature_version_id))
             if schema is None:
                 created = True
                 schema = NimbusVersionedSchema(
                     feature_config=feature_config,
                     version=feature_version,
+                    is_early_startup=feature.model.is_early_startup or False,
                 )
 
             if (jsonschema := feature.get_jsonschema()) is not None:
@@ -180,6 +179,13 @@ class Command(BaseCommand):
             if schema.sets_prefs != sets_prefs:
                 schema.sets_prefs = sets_prefs
                 dirty_fields.append("sets_prefs")
+
+            if (
+                feature.model.is_early_startup is not None and
+                schema.is_early_startup != feature.model.is_early_startup
+            ):
+                schema.is_early_startup = feature.model.is_early_startup
+                dirty_fields.append("is_early_startup")
 
             if created:
                 schemas_to_create.append(schema)

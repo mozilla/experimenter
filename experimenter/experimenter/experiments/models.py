@@ -1471,7 +1471,10 @@ class NimbusVersionedSchema(models.Model):
         null=True,
     )
     schema = models.TextField(blank=True, null=True)
+
+    # Desktop-only
     sets_prefs = ArrayField(models.CharField(max_length=255, null=False, default=list))
+    is_early_startup = models.BooleanField(null=False, default=False)
 
     class Meta:
         verbose_name = "Nimbus Versioned Schema"
