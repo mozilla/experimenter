@@ -957,7 +957,6 @@ export function mockSingleDirectoryExperiment(
     takeawaysQbrLearning: false,
     projects: [MOCK_CONFIG.projects![0]],
     hypothesis: "test hypothesis",
-    qaComment: null,
     qaStatus: NimbusExperimentQAStatusEnum.GREEN,
     ...overrides,
   };
