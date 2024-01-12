@@ -1,16 +1,17 @@
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
 
 
 class TestMigrations(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0254_auto_20240111_0418",
+        "0256_nimbusversionedschema_is_early_startup",
     )
     migrate_to = (
         "experiments",
-        "0255_required_excluded_through",
+        "0257_alter_nimbusexperiment_qa_status",
     )
 
     def prepare(self):
@@ -22,79 +23,17 @@ class TestMigrations(MigratorTestCase):
 
         user = User.objects.create(email="test@example.com")
 
-        parent_experiment = NimbusExperiment.objects.create(
+        NimbusExperiment.objects.create(
             owner=user,
-            name="test parent experiment",
-            slug="test-parent-experiment",
+            name="test experiment",
+            slug="test-experiment",
             application=NimbusConstants.Application.DESKTOP,
             status=NimbusConstants.Status.DRAFT,
             publish_status=NimbusConstants.PublishStatus.IDLE,
-            published_dto="{}",
+            qa_status=None,
         )
-        required_experiment = NimbusExperiment.objects.create(
-            owner=user,
-            name="test required experiment",
-            slug="test-required-experiment",
-            application=NimbusConstants.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-            publish_status=NimbusConstants.PublishStatus.IDLE,
-            published_dto="{}",
-        )
-        excluded_experiment = NimbusExperiment.objects.create(
-            owner=user,
-            name="test excluded experiment",
-            slug="test-excluded-experiment",
-            application=NimbusConstants.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-            publish_status=NimbusConstants.PublishStatus.IDLE,
-            published_dto="{}",
-        )
-        parent_experiment.required_experiments.add(required_experiment)
-        parent_experiment.excluded_experiments.add(excluded_experiment)
 
     def test_migration(self):
         """Run the test itself."""
-        NimbusExperiment = self.new_state.apps.get_model(
-            "experiments", "NimbusExperiment"
-        )
-
-        # Explicitly set through_fields on the related fields because of
-        # a bug in django-test-migrations
-        # https://github.com/wemake-services/django-test-migrations/issues/418
-        required_field = next(
-            f
-            for f in NimbusExperiment._meta.many_to_many
-            if f.name == "required_experiments"
-        )
-        excluded_field = next(
-            f
-            for f in NimbusExperiment._meta.many_to_many
-            if f.name == "excluded_experiments"
-        )
-        required_field.remote_field.through_fields = (
-            "parent_experiment",
-            "child_experiment",
-        )
-        excluded_field.remote_field.through_fields = (
-            "parent_experiment",
-            "child_experiment",
-        )
-
-        parent_experiment = NimbusExperiment.objects.get(slug="test-parent-experiment")
-
-        self.assertEqual(
-            set(
-                parent_experiment.required_experiments.all().values_list(
-                    "slug", flat=True
-                )
-            ),
-            {"test-required-experiment"},
-        )
-        self.assertEqual(
-            set(
-                parent_experiment.excluded_experiments.all().values_list(
-                    "slug", flat=True
-                )
-            ),
-            {"test-excluded-experiment"},
-        )
+        experiment = NimbusExperiment.objects.get(slug="test-experiment")
+        self.assertEqual(experiment.qa_status, NimbusConstants.QAStatus.NOT_SET)

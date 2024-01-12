@@ -180,22 +180,22 @@ class TestNimbusExperimentExport(TestCase):
         # test normal dehydrate conditions
         experiment.status_next = "Complete"
         experiment.conclusion_recommendation = "STOP"
-        experiment.qa_status = "GREEN"
+        experiment.qa_status = NimbusExperiment.QAStatus.GREEN
         status_next = resource.dehydrate_status_next(experiment)
         conclusion_recommendation = resource.dehydrate_conclusion_recommendation(
             experiment
         )
-        qa_status = resource.dehydrate_qa_status(experiment)
 
         num_changes = len(resource.dehydrate_changes(experiment))
         num_branches = len(resource.dehydrate_branches(experiment))
         reference_branch_slug = resource.dehydrate_reference_branch_slug(experiment)
+        qa_status = resource.dehydrate_qa_status(experiment)
 
         self.assertGreaterEqual(num_changes, 1)
         self.assertEqual(num_branches, 2)
         self.assertEqual(reference_branch_slug, "control")
         self.assertEqual(status_next, "Complete")
-        self.assertEqual(qa_status, "GREEN")
+        self.assertEqual(qa_status, NimbusExperiment.QAStatus.GREEN)
         self.assertEqual(conclusion_recommendation, "STOP")
 
     def test_resource_dehydrate_none(self):
@@ -208,6 +208,7 @@ class TestNimbusExperimentExport(TestCase):
         experiment.reference_branch = None
         experiment.status_next = ""
         experiment.conclusion_recommendation = ""
+        experiment.qa_status = ""
 
         none_slug = resource.dehydrate_reference_branch_slug(experiment)
         status_next = resource.dehydrate_status_next(experiment)
@@ -219,7 +220,7 @@ class TestNimbusExperimentExport(TestCase):
         self.assertIsNone(none_slug)
         self.assertIsNone(status_next)
         self.assertIsNone(conclusion_recommendation)
-        self.assertIsNone(qa_status)
+        self.assertEqual(qa_status, NimbusExperiment.QAStatus.NOT_SET)
 
     def test_before_import_row(self):
         resource = NimbusExperimentResource()

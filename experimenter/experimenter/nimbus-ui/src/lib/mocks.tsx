@@ -449,6 +449,10 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       label: "GREEN",
       value: NimbusExperimentQAStatusEnum.GREEN,
     },
+    {
+      label: "NOT SET",
+      value: NimbusExperimentQAStatusEnum.NOT_SET,
+    },
   ],
 };
 
@@ -671,7 +675,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   takeawaysMetricGain: false,
   takeawaysGainAmount: null,
   qaComment: null,
-  qaStatus: null,
+  qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
   isWeb: false,
 };
 
@@ -780,7 +784,7 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   requiredExperiments: [],
   excludedExperiments: [],
   qaComment: null,
-  qaStatus: null,
+  qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
 };
 
 export function mockExperiment<

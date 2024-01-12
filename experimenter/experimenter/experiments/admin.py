@@ -109,9 +109,9 @@ class NimbusExperimentResource(resources.ModelResource):
         return experiment.status_next
 
     def dehydrate_qa_status(self, experiment):
-        """Return None instead of empty string for nullable enums"""
+        """Return NOT_SET instead of empty string for nullable enums"""
         if experiment.qa_status not in dict(NimbusConstants.QAStatus.choices):
-            return None
+            return NimbusConstants.QAStatus.NOT_SET
         return experiment.qa_status
 
     def dehydrate_conclusion_recommendation(self, experiment):
@@ -279,6 +279,9 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     )
     conclusion_recommendation = forms.ChoiceField(
         choices=NimbusExperiment.ConclusionRecommendation.choices, required=False
+    )
+    qa_status = forms.ChoiceField(
+        choices=NimbusExperiment.QAStatus.choices, required=False
     )
 
     def __init__(self, *args, **kwargs):
