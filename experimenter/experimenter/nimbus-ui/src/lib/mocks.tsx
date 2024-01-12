@@ -436,6 +436,20 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   populationSizingData: JSON.stringify(MOCK_SIZING),
+  qaStatus: [
+    {
+      label: "RED",
+      value: NimbusExperimentQAStatusEnum.RED,
+    },
+    {
+      label: "YELLOW",
+      value: NimbusExperimentQAStatusEnum.YELLOW,
+    },
+    {
+      label: "GREEN",
+      value: NimbusExperimentQAStatusEnum.GREEN,
+    },
+  ],
 };
 
 // Disabling this rule for now because we'll eventually
