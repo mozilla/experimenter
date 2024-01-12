@@ -62,7 +62,6 @@ export interface getAllExperiments_experiments {
   status: NimbusExperimentStatusEnum | null;
   statusNext: NimbusExperimentStatusEnum | null;
   publishStatus: NimbusExperimentPublishStatusEnum | null;
-  qaComment: string | null;
   qaStatus: NimbusExperimentQAStatusEnum | null;
   monitoringDashboardUrl: string | null;
   rolloutMonitoringDashboardUrl: string | null;
