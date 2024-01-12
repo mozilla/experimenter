@@ -2411,6 +2411,10 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
                         id
                         name
                     }
+                    qaStatus {
+                        label
+                        value
+                    }
                     takeaways {
                         label
                         value
@@ -2442,6 +2446,7 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
 
         assertChoices(config["applications"], NimbusExperiment.Application)
         assertChoices(config["takeaways"], NimbusExperiment.Takeaways)
+        assertChoices(config["qaStatus"], NimbusExperiment.QAStatus)
         assertChoices(config["types"], NimbusExperiment.Type)
         assertChoices(config["channels"], NimbusExperiment.Channel)
         assertChoices(
