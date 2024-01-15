@@ -20,6 +20,7 @@ from .settings import (
     channel,
     cirrus_sentry_dsn,
     context,
+    env_name,
     fml_path,
     instance_name,
     metrics_config,
@@ -73,6 +74,7 @@ def initialize_sentry():
             # of sampled transactions.
             # We recommend adjusting this value in production.
             profiles_sample_rate=0.1,
+            environment=env_name,
         )
 
 
