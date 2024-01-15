@@ -620,6 +620,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         locale = LocaleFactory.create()
         language = LanguageFactory.create()
         project = ProjectFactory.create()
+        required = NimbusExperimentFactory.create(application=application)
+        excluded = NimbusExperimentFactory.create(application=application)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
             parent=NimbusExperimentFactory.create(),
@@ -629,6 +631,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             locales=[locale],
             languages=[language],
             projects=[project],
+            required_experiments_branches=[required],
+            excluded_experiments_branches=[excluded],
         )
 
         review_request_change = experiment.changes.latest_review_request()
@@ -839,6 +843,21 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     localizations
                     isWeb
                     qaStatus
+
+                    requiredExperimentsBranches {
+                        requiredExperiment {
+                            id
+                            slug
+                        }
+                        branchSlug
+                    }
+                    excludedExperimentsBranches {
+                        excludedExperiment {
+                            id
+                            slug
+                        }
+                        branchSlug
+                    }
                 }
             }
             """,
@@ -884,6 +903,15 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     if experiment.proposed_enrollment_end_date
                     else None
                 ),
+                "excludedExperimentsBranches": [
+                    {
+                        "excludedExperiment": {
+                            "id": excluded.id,
+                            "slug": excluded.slug,
+                        },
+                        "branchSlug": excluded.reference_branch.slug,
+                    }
+                ],
                 "featureConfigs": [
                     {
                         "application": NimbusExperiment.Application(
@@ -991,6 +1019,15 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     if rejection_change
                     else None
                 ),
+                "requiredExperimentsBranches": [
+                    {
+                        "requiredExperiment": {
+                            "id": required.id,
+                            "slug": required.slug,
+                        },
+                        "branchSlug": required.reference_branch.slug,
+                    }
+                ],
                 "resultsReady": experiment.results_ready,
                 "reviewRequest": (
                     {
