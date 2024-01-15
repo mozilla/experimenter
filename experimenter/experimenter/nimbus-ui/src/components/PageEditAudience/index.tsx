@@ -46,8 +46,8 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
         languages,
         isSticky,
         isFirstRun,
-        requiredExperiments,
-        excludedExperiments,
+        requiredExperimentsBranches,
+        excludedExperimentsBranches,
       }: Record<string, any>,
       next: boolean,
     ) => {
@@ -76,8 +76,8 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
               languages,
               isSticky,
               isFirstRun,
-              requiredExperiments,
-              excludedExperiments,
+              requiredExperimentsBranches,
+              excludedExperimentsBranches,
             },
           },
         });
