@@ -57,7 +57,7 @@ class ExperimentInput(graphene.InputObjectType):
     documentation_links = graphene.List(DocumentationLinkInput)
     excluded_experiments = graphene.List(graphene.NonNull(graphene.Int))
     excluded_experiments_branches = graphene.List(
-        NimbusExperimentBranchThroughExcludedInput
+        graphene.NonNull(NimbusExperimentBranchThroughExcludedInput)
     )
     feature_config_ids = graphene.List(graphene.Int)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
