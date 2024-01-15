@@ -29,6 +29,7 @@ cirrus_sentry_dsn: str = cast(str, config("CIRRUS_SENTRY_DSN", default=""))
 instance_name: str = cast(
     str, config("CIRRUS_INSTANCE_NAME", default="instance name not defined")
 )
+env_name = cast(str, config("CIRRUS_ENV_NAME", default="production"))
 
 
 @dataclass
