@@ -32,6 +32,8 @@ from experimenter.experiments.models import (
     NimbusBranchScreenshot,
     NimbusDocumentationLink,
     NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
     NimbusFeatureVersion,
     NimbusVersionedSchema,
@@ -773,6 +775,52 @@ class NimbusStatusTransitionValidator:
                 )
 
 
+class NimbusExperimentBranchThroughSerializer(serializers.Serializer):
+    branch_slug = serializers.CharField(min_length=0, max_length=1024, allow_null=True)
+
+    def validate(self, data):
+        data = super().validate(data)
+        child_experiment = data[self.CHILD_FIELD]
+        branch_slug = data["branch_slug"]
+
+        if (
+            branch_slug is not None
+            and branch_slug
+            not in child_experiment.branches.all().values_list("slug", flat=True)
+        ):
+            raise serializers.ValidationError(
+                {
+                    "branch_slug": (
+                        f"{branch_slug} is not a valid branch "
+                        f"for {child_experiment.name}: "
+                        f"{[b.slug for b in child_experiment.branches.all()]}",
+                    )
+                }
+            )
+
+        return data
+
+
+class NimbusExperimentBranchThroughRequiredSerializer(
+    NimbusExperimentBranchThroughSerializer
+):
+    CHILD_FIELD = "required_experiment"
+
+    required_experiment = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusExperiment.objects.all(),
+    )
+
+
+class NimbusExperimentBranchThroughExcludedSerializer(
+    NimbusExperimentBranchThroughSerializer
+):
+    CHILD_FIELD = "excluded_experiment"
+
+    excluded_experiment = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusExperiment.objects.all(),
+    )
+
+
 class NimbusExperimentSerializer(
     NimbusExperimentBranchMixin,
     NimbusStatusValidationMixin,
@@ -895,6 +943,13 @@ class NimbusExperimentSerializer(
         allow_empty=True,
         required=False,
     )
+    excluded_experiments_branches = NimbusExperimentBranchThroughExcludedSerializer(
+        many=True,
+        required=False,
+    )
+    required_experiments_branches = NimbusExperimentBranchThroughRequiredSerializer(
+        many=True, required=False
+    )
     qa_status = serializers.ChoiceField(
         choices=NimbusExperiment.QAStatus.choices,
         allow_null=True,
@@ -917,6 +972,7 @@ class NimbusExperimentSerializer(
             "conclusion_recommendation",
             "countries",
             "documentation_links",
+            "excluded_experiments_branches",
             "excluded_experiments",
             "feature_config",
             "feature_configs",
@@ -924,15 +980,15 @@ class NimbusExperimentSerializer(
             "firefox_min_version",
             "hypothesis",
             "is_archived",
-            "is_rollout_dirty",
             "is_enrollment_paused",
             "is_first_run",
             "is_localized",
+            "is_rollout_dirty",
             "is_rollout",
             "is_sticky",
             "languages",
-            "localizations",
             "locales",
+            "localizations",
             "name",
             "population_percent",
             "prevent_pref_conflicts",
@@ -946,6 +1002,7 @@ class NimbusExperimentSerializer(
             "qa_comment",
             "qa_status",
             "reference_branch",
+            "required_experiments_branches",
             "required_experiments",
             "risk_brand",
             "risk_mitigation_link",
@@ -953,10 +1010,10 @@ class NimbusExperimentSerializer(
             "risk_revenue",
             "secondary_outcomes",
             "slug",
-            "status",
             "status_next",
-            "takeaways_metric_gain",
+            "status",
             "takeaways_gain_amount",
+            "takeaways_metric_gain",
             "takeaways_qbr_learning",
             "takeaways_summary",
             "targeting_config_slug",
@@ -1163,6 +1220,35 @@ class NimbusExperimentSerializer(
         self.changelog_message = validated_data.pop("changelog_message")
         return super().create(validated_data)
 
+    def save_required_excluded_experiment_branches(self):
+        required_experiment_branches = self.validated_data.pop(
+            "required_experiments_branches", None
+        )
+        if required_experiment_branches is not None:
+            NimbusExperimentBranchThroughRequired.objects.filter(
+                parent_experiment=self.instance
+            ).all().delete()
+            for required_experiment_branch in required_experiment_branches:
+                NimbusExperimentBranchThroughRequired.objects.create(
+                    parent_experiment=self.instance,
+                    child_experiment=required_experiment_branch["required_experiment"],
+                    branch_slug=required_experiment_branch["branch_slug"],
+                )
+
+        excluded_experiment_branches = self.validated_data.pop(
+            "excluded_experiments_branches", None
+        )
+        if excluded_experiment_branches is not None:
+            NimbusExperimentBranchThroughExcluded.objects.filter(
+                parent_experiment=self.instance
+            ).all().delete()
+            for excluded_experiment_branch in excluded_experiment_branches:
+                NimbusExperimentBranchThroughExcluded.objects.create(
+                    parent_experiment=self.instance,
+                    child_experiment=excluded_experiment_branch["excluded_experiment"],
+                    branch_slug=excluded_experiment_branch["branch_slug"],
+                )
+
     def save(self):
         feature_configs_provided = "feature_configs" in self.validated_data
         feature_configs = self.validated_data.pop("feature_configs", None)
@@ -1180,6 +1266,8 @@ class NimbusExperimentSerializer(
 
                 if self.is_preview_to_draft:
                     self.instance.published_dto = None
+
+            self.save_required_excluded_experiment_branches()
 
             experiment = super().save()
 
