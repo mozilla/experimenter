@@ -526,7 +526,7 @@ input ExperimentInput {
   countries: [String]
   documentationLinks: [DocumentationLinkInput]
   excludedExperiments: [Int!]
-  excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedInput]
+  excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedInput!]
   featureConfigIds: [Int]
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
@@ -555,7 +555,7 @@ input ExperimentInput {
   qaStatus: NimbusExperimentQAStatusEnum
   referenceBranch: BranchInput = null
   requiredExperiments: [Int!]
-  requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredInput]
+  requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredInput!]
   riskBrand: Boolean
   riskMitigationLink: String
   riskPartnerRelated: Boolean

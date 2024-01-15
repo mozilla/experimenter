@@ -88,7 +88,7 @@ class ExperimentInput(graphene.InputObjectType):
     reference_branch = graphene.Field(BranchInput)
     required_experiments = graphene.List(graphene.NonNull(graphene.Int))
     required_experiments_branches = graphene.List(
-        NimbusExperimentBranchThroughRequiredInput
+        graphene.NonNull(NimbusExperimentBranchThroughRequiredInput)
     )
     risk_brand = graphene.Boolean()
     risk_mitigation_link = graphene.String()
