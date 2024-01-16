@@ -15,7 +15,12 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
+from experimenter.experiments.models import (
+    NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
+    NimbusFeatureConfig,
+)
 from experimenter.experiments.tests.factories import (
     TINY_PNG,
     NimbusExperimentFactory,
@@ -1201,6 +1206,88 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.get(id=experiment.id)
 
         self.assertEqual(experiment.prevent_pref_conflicts, True)
+
+    def test_update_required_excluded_experiments_without_branches(self):
+        user_email = "user@example.com"
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "requiredExperimentsBranches": [
+                        {"requiredExperiment": required.id, "branchSlug": None}
+                    ],
+                    "excludedExperimentsBranches": [
+                        {"excludedExperiment": excluded.id, "branchSlug": None}
+                    ],
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=experiment, child_experiment=required, branch_slug=None
+        ).get()
+        NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=experiment, child_experiment=excluded, branch_slug=None
+        ).get()
+
+    def test_update_required_excluded_experiments_with_branches(self):
+        user_email = "user@example.com"
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "requiredExperimentsBranches": [
+                        {
+                            "requiredExperiment": required.id,
+                            "branchSlug": required.reference_branch.slug,
+                        }
+                    ],
+                    "excludedExperimentsBranches": [
+                        {
+                            "excludedExperiment": excluded.id,
+                            "branchSlug": excluded.reference_branch.slug,
+                        }
+                    ],
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=experiment,
+            child_experiment=required,
+            branch_slug=required.reference_branch.slug,
+        ).get()
+        NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=experiment,
+            child_experiment=excluded,
+            branch_slug=excluded.reference_branch.slug,
+        ).get()
 
 
 @mock_valid_outcomes

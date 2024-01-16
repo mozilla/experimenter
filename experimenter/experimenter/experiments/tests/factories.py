@@ -26,6 +26,8 @@ from experimenter.experiments.models import (
     NimbusChangeLog,
     NimbusDocumentationLink,
     NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
@@ -114,6 +116,7 @@ class NimbusVersionedSchemaFactory(factory.django.DjangoModelFactory):
     )
     schema = factory.LazyAttribute(lambda o: FAKER_JSON_SCHEMA)
     sets_prefs = factory.LazyAttribute(lambda o: [])
+    is_early_startup = False
 
     class Meta:
         model = NimbusVersionedSchema
@@ -495,6 +498,34 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
         if extracted:
             self.languages.add(*extracted)
+
+    @factory.post_generation
+    def required_experiments_branches(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            for required in extracted:
+                NimbusExperimentBranchThroughRequired.objects.create(
+                    parent_experiment=self,
+                    child_experiment=required,
+                    branch_slug=required.reference_branch.slug,
+                )
+
+    @factory.post_generation
+    def excluded_experiments_branches(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            for excluded in extracted:
+                NimbusExperimentBranchThroughExcluded.objects.create(
+                    parent_experiment=self,
+                    child_experiment=excluded,
+                    branch_slug=excluded.reference_branch.slug,
+                )
 
     @classmethod
     def create(

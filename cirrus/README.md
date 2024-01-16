@@ -25,6 +25,8 @@ To set up the Cirrus environment, follow these steps:
    CIRRUS_FML_PATH=./feature_manifest/sample.fml.yaml
    CIRRUS_SENTRY_DSN=dsn_url
    CIRRUS_INSTANCE_NAME=cirrus_pod_app_v1
+   CIRRUS_ENV_NAME=test_app_stage
+
    ```
 
    Here's what each variable represents:
@@ -37,6 +39,7 @@ To set up the Cirrus environment, follow these steps:
    - `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.fml.yaml` or specify the correct path to your feature manifest file.
    - `CIRRUS_SENTRY_DSN`: Replace `dsn_url` with the appropriate DSN value.
    - `CIRRUS_INSTANCE_NAME`: Replace with the instance name.
+   - `CIRRUS_ENV_NAME:` Replace with the concatenation of project and environment name
 
    Adjust the values of these variables according to your specific configuration requirements.
 

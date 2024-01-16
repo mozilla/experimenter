@@ -72,6 +72,7 @@ type NimbusExperimentType {
   computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
   excludedExperiments: [NimbusExperimentType!]!
+  excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedType!]!
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
   isWeb: Boolean!
@@ -81,6 +82,7 @@ type NimbusExperimentType {
   recipeJson: String
   rejection: NimbusChangeLogType
   requiredExperiments: [NimbusExperimentType!]!
+  requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredType!]!
   resultsExpectedDate: DateTime
   resultsReady: Boolean
   reviewRequest: NimbusChangeLogType
@@ -411,6 +413,11 @@ schema (one of the key benefits of GraphQL).
 """
 scalar JSONString
 
+type NimbusExperimentBranchThroughExcludedType {
+  branchSlug: String
+  excludedExperiment: NimbusExperimentType!
+}
+
 type NimbusReviewType {
   message: ObjectField
   warnings: ObjectField
@@ -419,6 +426,11 @@ type NimbusReviewType {
 
 """Utilized to serialize out Serializer errors"""
 scalar ObjectField
+
+type NimbusExperimentBranchThroughRequiredType {
+  branchSlug: String
+  requiredExperiment: NimbusExperimentType!
+}
 
 type NimbusSignoffRecommendationsType {
   qaSignoff: Boolean
@@ -514,6 +526,7 @@ input ExperimentInput {
   countries: [String]
   documentationLinks: [DocumentationLinkInput]
   excludedExperiments: [Int!]
+  excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedInput!]
   featureConfigIds: [Int]
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
@@ -542,6 +555,7 @@ input ExperimentInput {
   qaStatus: NimbusExperimentQAStatusEnum
   referenceBranch: BranchInput = null
   requiredExperiments: [Int!]
+  requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredInput!]
   riskBrand: Boolean
   riskMitigationLink: String
   riskPartnerRelated: Boolean
@@ -562,6 +576,11 @@ input ExperimentInput {
 input DocumentationLinkInput {
   title: NimbusExperimentDocumentationLinkEnum!
   link: String!
+}
+
+input NimbusExperimentBranchThroughExcludedInput {
+  excludedExperiment: Int!
+  branchSlug: String
 }
 
 input BranchInput {
@@ -589,6 +608,11 @@ Create scalar that ignores normal serialization/deserialization, since
 that will be handled by the multipart request spec
 """
 scalar Upload
+
+input NimbusExperimentBranchThroughRequiredInput {
+  requiredExperiment: Int!
+  branchSlug: String
+}
 
 type UpdateExperiment {
   nimbusExperiment: NimbusExperimentType
