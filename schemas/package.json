@@ -1,6 +1,6 @@
 {
   "name": "@mozilla/nimbus-schemas",
-  "version": "2024.1.2",
+  "version": "2024.1.3",
   "description": "Schemas used by Mozilla Nimbus and related projects.",
   "main": "index.d.ts",
   "repository": {
