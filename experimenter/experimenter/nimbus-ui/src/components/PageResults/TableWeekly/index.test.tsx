@@ -76,4 +76,49 @@ describe("TableWeekly", () => {
 
     expect(screen.getAllByText(ERROR_TEXT)).toHaveLength(2);
   });
+
+  it("sorts week indices numerically", () => {
+    const modifications = {
+      treatment: {
+        is_control: false,
+        branch_data: {
+          search_metrics: {
+            search_count: WEEKLY_TREATMENT,
+          },
+          other_metrics: {
+            identity: WEEKLY_IDENTITY,
+            feature_d: WEEKLY_TREATMENT,
+            retained: WONKY_WEEKLY_TREATMENT,
+            days_of_use: WEEKLY_TREATMENT,
+          },
+        },
+      },
+    };
+
+    const analysis = mockAnalysis({
+      weekly: { enrollments: { all: weeklyMockAnalysis(modifications) } },
+    });
+
+    render(
+      <RouterSlugProvider>
+        <MockResultsContextProvider {...{ analysis }}>
+          <TableWeekly
+            metricKey="retained"
+            metricName="Retention"
+            group={GROUP.OTHER}
+            branchComparison={BRANCH_COMPARISON.UPLIFT}
+          />
+        </MockResultsContextProvider>
+      </RouterSlugProvider>,
+    );
+
+    const weekHeadings = screen.getAllByRole("columnheader").slice(1); // Exclude the first column
+
+    const weekIndices = weekHeadings.map((heading) => {
+      const weekText = heading.textContent?.replace("Week ", "");
+      return weekText ? parseInt(weekText, 10) : NaN;
+    });
+
+    expect(weekIndices).toEqual(weekIndices.slice().sort((a, b) => a - b));
+  });
 });
