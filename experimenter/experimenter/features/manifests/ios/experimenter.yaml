@@ -66,6 +66,9 @@ homescreenFeature:
     pocket-sponsored-stories:
       type: boolean
       description: "This property defines whether pocket sponsored stories appear on the homepage.\n"
+    prefer-switch-to-open-tab:
+      type: boolean
+      description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
