@@ -1,3 +1,4 @@
+from distutils.version import Version
 import json
 import logging
 import re
@@ -16,7 +17,7 @@ from django.db.models import Prefetch
 from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework_dataclasses.serializers import DataclassSerializer
-
+from manifesttool import version as manifesttool_version
 from experimenter.base.models import (
     Country,
     Language,
@@ -1607,7 +1608,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     feature_config=feature_config,
                 )
             ]
-        errors = defaultdict(list)
+        errors = []
 
         for version in schemas_in_range.unsupported_versions:
             errors.append(
@@ -1617,30 +1618,43 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 )
             )
 
+        errs_with_version: dict[str, list[NimbusFeatureVersion]] = dict()
         for schema in schemas_in_range.schemas:
             version = schema.version
             if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
-                for e in fml_errors:
-                    errors[e].append(version)
-                # errors.extend(
-                #     [
-                #         f"{NimbusExperiment.ERROR_FML_VALIDATION}: {e.message} at line "
-                #         f"{e.line+1} column {e.col} at version {version}"
-                #         for e in fml_errors
-                #     ]
-                # )
+                for e in fml_errors: 
+                    if e.message in errs_with_version:
+                        errs_with_version[e.message].append(version)
+                    else:
+                        errs_with_version[e.message] = [version]
+        
 
+        formatted_errs = self._format_grouped_errors(errs_with_version)
+        for e in formatted_errs:
+            errors.append(e)
         return errors
 
     def _format_grouped_errors(self, errs: dict[str, list[NimbusFeatureVersion]]):
         formatted = []
         for err, versions in errs.items():
             if len(versions) > 1:
-                formatted.append(f"{err} between versions {min(versions)} and {max(versions)}")
+                formatted.append(
+                    NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION_RANGE.format(
+                        err=err,
+                        min_version=min(versions),
+                        max_version=max(versions),
+                    )
+                )
             elif len(versions) == 1:
-                formatted.append(f"{err} at version {versions[0]}")
+                formatted.append(
+                    NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION_RANGE.format(
+                        err=err,
+                        version=versions[0],
+                    )
+                )
             else:
                 formatted.append(err)
+        return formatted
 
     def _validate_schema(
         self, obj: Any, schema: dict[str, Any], version: Optional[NimbusFeatureVersion]

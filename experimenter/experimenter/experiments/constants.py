@@ -652,3 +652,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION = (
         "Feature {feature_config} is not supported in version {version}."
     )
+
+    ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION_RANGE = (
+        "{err} between versions {min_version} and {max_version}"
+    )
+
+    ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_SINGLE_VERSION = (
+        "{err} at version {version}"
+    )
