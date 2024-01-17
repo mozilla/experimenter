@@ -1881,6 +1881,23 @@ IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+VIEWPOINT_SURVEY_DESKTOP = NimbusTargetingConfig(
+    name="User Research Viewpoint Survey (Rolling Enrollment)",
+    slug="viewpoint_survey_desktop",
+    description=(
+        "Rolling enrollment based on date. Only for use by User Research Viewpoint "
+        "surveys."
+    ),
+    targeting=(
+        "['rolling-viewpoint', userId]|"
+        "bucketSample(19468 + currentDate / (24 * 60 * 60 * 1000) + 1, 7, 7000)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
