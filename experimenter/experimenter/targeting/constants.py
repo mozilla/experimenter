@@ -1898,6 +1898,23 @@ VIEWPOINT_SURVEY_DESKTOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+VIEWPOINT_SURVEY_MOBILE = NimbusTargetingConfig(
+    name="User Research Viewpoint Survey (Rolling Enrollment)",
+    slug="viewpoint_survey_mobile",
+    description=(
+        "Rolling enrollment based on date. Only for use by User Research Viewpoint "
+        "surveys."
+    ),
+    targeting=(
+        "['rolling-viewpoint', nimbus_id]"
+        "|bucketSample(current_date / (24 * 60 * 60 * 1000), 7, 3500)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name, Application.FENIX.name),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
