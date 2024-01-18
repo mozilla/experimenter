@@ -1,11 +1,11 @@
 import copy
 import datetime
 import os.path
+import re
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
-import re
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 from urllib.parse import urljoin
 from uuid import uuid4
 
@@ -29,6 +29,7 @@ from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import ChangeEventType, NimbusConstants
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
+
 
 class FilterMixin:
     def has_filter(self, query_filter):
@@ -1445,7 +1446,7 @@ class NimbusFeatureVersion(models.Model):
     patch = models.IntegerField(null=False)
 
     objects = NimbusFeatureVersionManager()
-    
+
     class Meta:
         verbose_name = "Nimbus Feature Version"
         verbose_name_plural = "Nimbus Feature Versions"
@@ -1453,12 +1454,15 @@ class NimbusFeatureVersion(models.Model):
 
     @classmethod
     def parse(cls, s: str) -> "NimbusFeatureVersion":
-        VERSION_RE = re.compile(r"^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?")
-        if m := cls.VERSION_RE.match(s):
+        VERSION_RE = re.compile(
+            r"^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?"
+        )
+        if m := VERSION_RE.match(s):
             return cls.from_match(m.groupdict())
         return "0.0.0"
 
-    def as_tuple(self) -> (int, int, int):
+    # todo: tests
+    def as_tuple(self) -> Tuple[int, int, int]:
         """Return the version as a (major, minor, patch) tuple."""
         return (self.major, self.minor, self.patch)
 
@@ -1467,7 +1471,7 @@ class NimbusFeatureVersion(models.Model):
 
     def __str__(self):  # pragma: no cover
         return f"{self.major}.{self.minor}.{self.patch}"
-    
+
     def __hash__(self) -> int:
         return hash(self.as_tuple())
 

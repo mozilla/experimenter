@@ -1,4 +1,3 @@
-from distutils.version import Version
 import json
 import logging
 import re
@@ -17,7 +16,7 @@ from django.db.models import Prefetch
 from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework_dataclasses.serializers import DataclassSerializer
-from manifesttool import version as manifesttool_version
+
 from experimenter.base.models import (
     Country,
     Language,
@@ -1522,6 +1521,20 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return value
 
+    def add_to_versioned_errs(
+        self,
+        errs: list[str],
+        version: NimbusFeatureVersion,
+        existing_errs_with_version: dict[str, list[NimbusFeatureVersion]],
+    ) -> dict[str, list[NimbusFeatureVersion]]:
+        errs_with_version = existing_errs_with_version
+        for e in errs:
+            if e in errs_with_version:
+                errs_with_version[e].append(version)
+            else:
+                errs_with_version[e] = [version]
+        return errs_with_version
+
     def _validate_feature_value_against_schema(
         self,
         feature_config: NimbusFeatureConfig,
@@ -1551,16 +1564,21 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
 
         json_value = json.loads(value)
+        errs_with_version: dict[str, list[NimbusFeatureVersion]] = {}
 
         for schema in schemas_in_range.schemas:
             if schema.schema is None:  # Only in tests.
                 continue
 
             json_schema = json.loads(schema.schema)
+            version = schema.version
             if not localizations:
-                errors.extend(
-                    self._validate_schema(json_value, json_schema, schema.version)
+                errs_with_version = self.add_to_versioned_errs(
+                    self._validate_schema(json_value, json_schema),
+                    version,
+                    errs_with_version,
                 )
+
             else:
                 for locale_code, substitutions in localizations.items():
                     try:
@@ -1572,19 +1590,28 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         continue
 
                     if schema_errors := self._validate_schema(
-                        substituted_value, json_schema, schema.version
+                        substituted_value, json_schema
                     ):
                         err_msg = (
                             f"Schema validation errors occured during locale "
                             f"substitution for locale {locale_code}"
                         )
 
-                        if schema.version is not None:
-                            err_msg += f" at version {schema.version}"
+                        if version is not None:
+                            errs_with_version = self.add_to_versioned_errs(
+                                # covered by test_validate_feature_versioned_localized
+                                [*schema_errors, err_msg], # pragma: no cover
+                                version,
+                                errs_with_version,
+                            )
+                        else:
+                            errors.append(err_msg)
+                            errors.extend(schema_errors)
 
-                        errors.append(err_msg)
-                        errors.extend(schema_errors)
-
+        if len(errs_with_version.keys()) > 0:
+            formatted_errs = self._format_grouped_errors(errs_with_version)
+            for e in formatted_errs:
+                errors.append(e)
         if errors:
             return errors
 
@@ -1618,16 +1645,15 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 )
             )
 
-        errs_with_version: dict[str, list[NimbusFeatureVersion]] = dict()
+        errs_with_version: dict[str, list[NimbusFeatureVersion]] = {}
         for schema in schemas_in_range.schemas:
             version = schema.version
             if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
-                for e in fml_errors: 
+                for e in fml_errors:
                     if e.message in errs_with_version:
                         errs_with_version[e.message].append(version)
                     else:
                         errs_with_version[e.message] = [version]
-        
 
         formatted_errs = self._format_grouped_errors(errs_with_version)
         for e in formatted_errs:
@@ -1647,7 +1673,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 )
             elif len(versions) == 1:
                 formatted.append(
-                    NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION_RANGE.format(
+                    NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_SINGLE_VERSION.format(
                         err=err,
                         version=versions[0],
                     )
@@ -1656,19 +1682,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 formatted.append(err)
         return formatted
 
-    def _validate_schema(
-        self, obj: Any, schema: dict[str, Any], version: Optional[NimbusFeatureVersion]
-    ) -> list[str]:
+    def _validate_schema(self, obj: Any, schema: dict[str, Any]) -> list[str]:
+        errors = []
         try:
             jsonschema.validate(obj, schema, resolver=NestedRefResolver(schema))
         except jsonschema.ValidationError as e:
-            err_msg = e.message
-            if version is not None:
-                err_msg += f" at version {version}"
-
-            return [err_msg]
-
-        return []
+            errors.append(e.message)
+        return errors
 
     def _validate_feature_configs(self, data):
         application = data.get("application")
