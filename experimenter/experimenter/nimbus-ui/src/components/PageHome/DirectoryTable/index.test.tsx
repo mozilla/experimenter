@@ -104,10 +104,7 @@ describe("DirectoryColumnQA", () => {
   it("renders nothing if qa status is not set", () => {
     render(
       <TestTable>
-        <DirectoryColumnQA
-          {...experiment}
-          qaStatus={NimbusExperimentQAStatusEnum.NOT_SET}
-        />
+        <DirectoryColumnQA {...experiment} qaStatus={null} />
       </TestTable>,
     );
     expect(screen.queryByTestId("directory-table-cell-qa")).toHaveTextContent(

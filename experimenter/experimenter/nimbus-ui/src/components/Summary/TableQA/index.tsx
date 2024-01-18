@@ -15,7 +15,7 @@ import {
 
 type TableQAProps = {
   publishStatus: NimbusExperimentPublishStatusEnum | null;
-  qaStatus: NimbusExperimentQAStatusEnum | null;
+  qaStatus?: NimbusExperimentQAStatusEnum | null;
   qaComment?: string | null;
 } & UseQAResult;
 
@@ -69,8 +69,7 @@ const TableQA = (props: TableQAProps) => {
                   colSpan={4}
                   className="border-top-0 border-bottom-2"
                 >
-                  {qaStatus &&
-                  qaStatus !== NimbusExperimentQAStatusEnum.NOT_SET ? (
+                  {qaStatus ? (
                     QA_STATUS_PROPERTIES[qaStatus].description
                   ) : (
                     <NotSet />

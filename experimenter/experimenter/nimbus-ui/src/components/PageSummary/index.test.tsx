@@ -740,18 +740,6 @@ describe("PageSummary", () => {
     },
   );
 
-  it("does not render qa status pill when QA status is not set", async () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.LIVE,
-      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
-      qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
-      statusNext: null,
-    });
-
-    render(<Subject mocks={[mock]} />);
-    expect(screen.queryByTestId("pill-qa-status")).not.toBeInTheDocument();
-  });
-
   it.each([
     [NimbusExperimentStatusEnum.DRAFT],
     [NimbusExperimentStatusEnum.LIVE],

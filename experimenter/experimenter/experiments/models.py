@@ -322,7 +322,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     qa_status = models.CharField(
         "QA Status",
         max_length=255,
-        default=NimbusConstants.QAStatus.NOT_SET,
+        blank=True,
+        null=True,
         choices=NimbusConstants.QAStatus.choices,
     )
     qa_comment = models.TextField("QA Comment", blank=True, null=True)
@@ -901,7 +902,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned._start_date = None
         cloned._end_date = None
         cloned._enrollment_end_date = None
-        cloned.qa_status = NimbusExperiment.QAStatus.NOT_SET
+        cloned.qa_status = None
         cloned.qa_comment = None
         cloned.save()
 

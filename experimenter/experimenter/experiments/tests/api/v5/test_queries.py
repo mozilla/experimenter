@@ -178,7 +178,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 "publishStatus": NimbusExperiment.PublishStatus(
                     experiment.publish_status
                 ).name,
-                "qaStatus": NimbusExperiment.QAStatus(experiment.qa_status).name,
+                "qaStatus": None,
                 "resultsExpectedDate": (
                     str(experiment.results_expected_date)
                     if experiment.results_expected_date is not None
@@ -969,7 +969,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "publishStatus": NimbusExperiment.PublishStatus(
                     experiment.publish_status
                 ).name,
-                "qaStatus": NimbusExperiment.QAStatus(experiment.qa_status).name,
+                "qaStatus": experiment.qa_status,
                 "readyForReview": {
                     "message": review_serializer.errors,
                     "ready": review_ready,

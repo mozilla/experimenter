@@ -40,7 +40,7 @@ const Subject = ({
 const qaStatus = NimbusExperimentQAStatusEnum.GREEN;
 const qaComment = "Out of this world!";
 const { experiment } = mockExperimentQuery("demo-slug", {
-  qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
+  qaStatus: null,
   qaComment: null,
 });
 
@@ -163,7 +163,8 @@ describe("QAEditor", () => {
 
   it("updates qa status and saves as expected", async () => {
     const onSubmit = jest.fn();
-    const expectedStatus = NimbusExperimentQAStatusEnum.NOT_SET;
+    const expectedStatus = NimbusExperimentQAStatusEnum.GREEN.toString();
+    const expectedVal = { qaStatus: NimbusExperimentQAStatusEnum.GREEN };
     render(
       <Subject
         {...{
@@ -174,7 +175,7 @@ describe("QAEditor", () => {
     );
 
     const select = await screen.findByTestId("qa-status");
-    expect(select).toHaveTextContent("Not set");
+    expect(select).toHaveTextContent("Choose a score");
     fireEvent.change(select, {
       target: { value: expectedStatus },
     });

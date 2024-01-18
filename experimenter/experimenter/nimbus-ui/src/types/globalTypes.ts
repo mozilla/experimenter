@@ -213,7 +213,6 @@ export enum NimbusExperimentPublishStatusEnum {
 
 export enum NimbusExperimentQAStatusEnum {
   GREEN = "GREEN",
-  NOT_SET = "NOT_SET",
   RED = "RED",
   YELLOW = "YELLOW",
 }
