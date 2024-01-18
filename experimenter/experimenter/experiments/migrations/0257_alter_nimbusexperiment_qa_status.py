@@ -7,10 +7,9 @@ from experimenter.experiments.constants import NimbusConstants
 
 def set_default_qa_status(apps, schema_editor):
     NimbusExperiment = apps.get_model("experiments", "NimbusExperiment")
-    for experiment in NimbusExperiment.objects.all():
-        if experiment.qa_status is None or experiment.qa_status == "":
-            experiment.qa_status = NimbusConstants.QAStatus.NOT_SET
-            experiment.save()
+    NimbusExperiment.objects.filter(qa_status=None).update(
+        qa_status=NimbusConstants.QAStatus.NOT_SET
+    )
 
 
 class Migration(migrations.Migration):
