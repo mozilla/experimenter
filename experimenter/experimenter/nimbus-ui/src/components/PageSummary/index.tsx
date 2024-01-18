@@ -30,6 +30,7 @@ import { getStatus, getSummaryAction, StatusCheck } from "src/lib/experiment";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   NimbusExperimentPublishStatusEnum,
+  NimbusExperimentQAStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
 
@@ -216,13 +217,15 @@ const PageSummary = (props: RouteComponentProps) => {
         {qaStatus != null &&
           (() => {
             const qaStatusProps = QA_STATUS_PROPERTIES[qaStatus!];
-            return (
-              <StatusPill
-                testId="pill-qa-status"
-                label={qaStatusProps.description}
-                color={qaStatusProps.className}
-              />
-            );
+            if (qaStatus !== NimbusExperimentQAStatusEnum.NOT_SET) {
+              return (
+                <StatusPill
+                  testId="pill-qa-status"
+                  label={qaStatusProps.description}
+                  color={qaStatusProps.className}
+                />
+              );
+            }
           })()}
       </h5>
 
