@@ -373,6 +373,7 @@ enum NimbusExperimentQAStatusEnum {
   RED
   YELLOW
   GREEN
+  NOT_SET
 }
 
 type NimbusDocumentationLinkType {
