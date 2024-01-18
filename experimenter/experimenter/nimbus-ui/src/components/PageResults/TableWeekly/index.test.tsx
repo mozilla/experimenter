@@ -82,14 +82,8 @@ describe("TableWeekly", () => {
       treatment: {
         is_control: false,
         branch_data: {
-          search_metrics: {
-            search_count: WEEKLY_TREATMENT,
-          },
           other_metrics: {
-            identity: WEEKLY_IDENTITY,
-            feature_d: WEEKLY_TREATMENT,
-            retained: WONKY_WEEKLY_TREATMENT,
-            days_of_use: WEEKLY_TREATMENT,
+            retained: WEEKLY_EXTRA_LONG,
           },
         },
       },
