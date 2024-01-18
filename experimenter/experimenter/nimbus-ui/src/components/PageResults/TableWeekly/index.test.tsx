@@ -14,6 +14,7 @@ import {
   WEEKLY_IDENTITY,
   WEEKLY_TREATMENT,
   WONKY_WEEKLY_TREATMENT,
+  WEEKLY_EXTRA_LONG,
 } from "src/lib/visualization/mocks";
 
 describe("TableWeekly", () => {
@@ -83,6 +84,7 @@ describe("TableWeekly", () => {
         is_control: false,
         branch_data: {
           other_metrics: {
+            identity: WEEKLY_EXTRA_LONG,
             retained: WEEKLY_EXTRA_LONG,
           },
         },
