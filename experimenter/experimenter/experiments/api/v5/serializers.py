@@ -952,7 +952,6 @@ class NimbusExperimentSerializer(
     )
     qa_status = serializers.ChoiceField(
         choices=NimbusExperiment.QAStatus.choices,
-        allow_null=True,
         required=False,
     )
     qa_comment = serializers.CharField(
