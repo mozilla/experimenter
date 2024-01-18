@@ -1453,7 +1453,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         self.assertTrue(serializer.is_valid())
         self.mock_fml_errors.assert_not_called()
 
-    def test_serializer_no_fml_validation_on_non_mobile(self):
+    def test_serializer_fml_validation_on_cirrus(self):
         fml_errors = [
             NimbusFmlErrorDataClass(
                 line=0,
@@ -1492,6 +1492,9 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         reference_feature_value.value = json.dumps({"bar": {"baz": "baz", "qux": 123}})
         reference_feature_value.save()
 
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(
@@ -1500,8 +1503,31 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer.is_valid())
-        self.mock_fml_errors.assert_not_called()
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_values": [
+                        {
+                            "value": [
+                                (
+                                    "Feature Manifest errors occurred during "
+                                    "validation: "
+                                    "Incorrect value at line 1 column 0 at version None"
+                                ),
+                                (
+                                    "Feature Manifest errors occurred during "
+                                    "validation: "
+                                    "Type not allowed at line 1 column 0 at version None"
+                                ),
+                            ]
+                        }
+                    ]
+                }
+            },
+        )
+        self.mock_fml_errors.assert_called()
 
     def test_serializer_fml_does_not_validate_desktop(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
