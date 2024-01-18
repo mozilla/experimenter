@@ -293,14 +293,12 @@ class NimbusConstants:
         "is_archived",
         "changelog_message",
         "qa_status",
-        "qa_comment",
     )
 
     class QAStatus(models.TextChoices):
         RED = "RED"
         YELLOW = "YELLOW"
         GREEN = "GREEN"
-        NOT_SET = "NOT SET"
 
     APPLICATION_CONFIGS = {
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,

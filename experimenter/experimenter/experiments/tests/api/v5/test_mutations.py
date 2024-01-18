@@ -1508,7 +1508,7 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
         )
-        self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.NOT_SET)
+        self.assertIsNone(experiment.qa_status)
 
         new_status = NimbusExperiment.QAStatus.YELLOW
         response = self.query(

@@ -73,6 +73,7 @@ class NimbusExperimentResource(resources.ModelResource):
     #   which breaks the Nimbus UI type validation
     status_next = fields.Field()
     conclusion_recommendation = fields.Field()
+    qa_status = fields.Field()
 
     def get_diff_headers(self):
         skip_list = ["reference_branch_slug"]
@@ -106,6 +107,12 @@ class NimbusExperimentResource(resources.ModelResource):
         if experiment.status_next not in dict(NimbusConstants.Status.choices):
             return None
         return experiment.status_next
+
+    def dehydrate_qa_status(self, experiment):
+        """Return None instead of empty string for nullable enums"""
+        if experiment.qa_status not in dict(NimbusConstants.QAStatus.choices):
+            return None
+        return experiment.qa_status
 
     def dehydrate_conclusion_recommendation(self, experiment):
         """Return None instead of empty string for nullable enums"""
@@ -272,11 +279,6 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     )
     conclusion_recommendation = forms.ChoiceField(
         choices=NimbusExperiment.ConclusionRecommendation.choices, required=False
-    )
-    qa_status = forms.ChoiceField(
-        choices=NimbusExperiment.QAStatus.choices,
-        required=False,
-        initial=NimbusExperiment.QAStatus.NOT_SET,
     )
 
     def __init__(self, *args, **kwargs):

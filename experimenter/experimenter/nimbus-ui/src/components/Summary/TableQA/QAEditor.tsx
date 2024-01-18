@@ -56,10 +56,9 @@ export const QAEditor = ({
 
   const qaStatusOptions = [
     {
-      label: NimbusExperimentQAStatusEnum.NOT_SET,
-      value: NimbusExperimentQAStatusEnum.NOT_SET,
-      description:
-        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.NOT_SET].description,
+      label: "Choose a score",
+      value: "",
+      description: "Choose a score",
     },
     {
       label: NimbusExperimentQAStatusEnum.RED,
@@ -157,7 +156,7 @@ export const QAEditor = ({
                   setQaStatus(
                     e.target
                       ? (e.target.value as NimbusExperimentQAStatusEnum)
-                      : NimbusExperimentQAStatusEnum.NOT_SET,
+                      : null,
                   )
                 }
                 id="qa-status-select"

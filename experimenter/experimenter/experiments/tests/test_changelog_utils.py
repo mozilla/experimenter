@@ -81,7 +81,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "publish_status": NimbusExperiment.PublishStatus.IDLE,
                 "published_dto": None,
                 "qa_comment": None,
-                "qa_status": NimbusExperiment.QAStatus.NOT_SET,
+                "qa_status": None,
                 "reference_branch": None,
                 "required_experiments": [],
                 "results_data": None,
