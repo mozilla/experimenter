@@ -1521,7 +1521,34 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return value
 
-    def _validate_feature_value_against_schema(
+    def _validate_feature_value(
+        self,
+        application: str,
+        feature_config: NimbusFeatureConfig,
+        value: str,
+        min_version: packaging.version.Version,
+        max_version: Optional[packaging.version.Version],
+        localizations: Optional[dict[str, Any]],
+        channel: str,
+    ) -> Optional[list[str]]:
+        if application == NimbusExperiment.Application.DESKTOP:
+            return self._validate_feature_value_with_schema(
+                feature_config,
+                value,
+                localizations,
+                min_version,
+                max_version,
+            )
+        else:
+            return self._validate_feature_value_with_fml(
+                NimbusFmlLoader.create_loader(application, channel),
+                feature_config,
+                value,
+                min_version,
+                max_version,
+            )
+
+    def _validate_feature_value_with_schema(
         self,
         feature_config: NimbusFeatureConfig,
         value: str,
@@ -1589,7 +1616,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return None
 
-    def _validate_with_fml(
+    def _validate_feature_value_with_fml(
         self,
         loader: NimbusFmlLoader,
         feature_config,
@@ -1676,36 +1703,25 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             localizations = None
 
         application = data.get("application")
-        loader = NimbusFmlLoader.create_loader(application, data.get("channel"))
+        channel = data.get("channel")
 
         reference_branch_errors = []
 
         for feature_value_data in data.get("reference_branch", {}).get(
             "feature_values", []
         ):
-            if application == NimbusExperiment.Application.DESKTOP:
-                if schema_errors := self._validate_feature_value_against_schema(
-                    feature_value_data["feature_config"],
-                    feature_value_data["value"],
-                    localizations,
-                    min_version,
-                    max_version,
-                ):
-                    reference_branch_errors.append({"value": schema_errors})
-                    continue
-
-            elif NimbusExperiment.Application.is_mobile(application):
-                if fml_errors := self._validate_with_fml(
-                    loader,
-                    feature_value_data["feature_config"],
-                    feature_value_data["value"],
-                    min_version,
-                    max_version,
-                ):
-                    reference_branch_errors.append({"value": fml_errors})
-                    continue
-
-            reference_branch_errors.append({})
+            if feature_errors := self._validate_feature_value(
+                application,
+                feature_value_data["feature_config"],
+                feature_value_data["value"],
+                min_version,
+                max_version,
+                localizations,
+                channel,
+            ):
+                reference_branch_errors.append({"value": feature_errors})
+            else:
+                reference_branch_errors.append({})
 
         if any(reference_branch_errors):
             errors["reference_branch"] = {"feature_values": reference_branch_errors}
@@ -1716,31 +1732,19 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             treatment_branch_errors = []
 
             for feature_value_data in treatment_branch_data["feature_values"]:
-                if application == NimbusExperiment.Application.DESKTOP:
-                    if schema_errors := self._validate_feature_value_against_schema(
-                        feature_value_data["feature_config"],
-                        feature_value_data["value"],
-                        localizations,
-                        min_version,
-                        max_version,
-                    ):
-                        treatment_branch_errors.append({"value": schema_errors})
-                        treatment_branches_errors_found = True
-                        continue
-
-                elif NimbusExperiment.Application.is_mobile(application):
-                    if fml_errors := self._validate_with_fml(
-                        loader,
-                        feature_value_data["feature_config"],
-                        feature_value_data["value"],
-                        min_version,
-                        max_version,
-                    ):
-                        treatment_branch_errors.append({"value": fml_errors})
-                        treatment_branches_errors_found = True
-                        continue
-
-                treatment_branch_errors.append({})
+                if feature_errors := self._validate_feature_value(
+                    application,
+                    feature_value_data["feature_config"],
+                    feature_value_data["value"],
+                    min_version,
+                    max_version,
+                    localizations,
+                    channel,
+                ):
+                    treatment_branch_errors.append({"value": feature_errors})
+                    treatment_branches_errors_found = True
+                else:
+                    treatment_branch_errors.append({})
 
             treatment_branches_errors.append({"feature_values": treatment_branch_errors})
 
