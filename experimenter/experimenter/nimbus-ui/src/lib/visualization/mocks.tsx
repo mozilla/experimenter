@@ -365,6 +365,117 @@ export const WEEKLY_IDENTITY = {
   percent: 50,
 };
 
+export const WEEKLY_EXTRA_LONG = {
+  absolute: {
+    first: {
+      point: 0.049019607843137254,
+      lower: 0.023872203557007872,
+      upper: 0.08249069209461024,
+      count: 10,
+      window_index: 1,
+    },
+    all: [
+      {
+        point: 0.049019607843137254,
+        lower: 0.023872203557007872,
+        upper: 0.08249069209461024,
+        count: 10,
+        window_index: 1,
+      },
+      {
+        point: 0.06019607843137254,
+        lower: 0.023872203557007872,
+        upper: 0.08249069209461024,
+        count: 10,
+        window_index: 5,
+      },
+      {
+        point: 0.07019607843137254,
+        lower: 0.023872203557007872,
+        upper: 0.08249069209461024,
+        count: 10,
+        window_index: 10,
+      },
+      {
+        point: 0.08019607843137254,
+        lower: 0.023872203557007872,
+        upper: 0.08249069209461024,
+        count: 10,
+        window_index: 15,
+      },
+    ],
+  },
+  difference: {
+    first: {
+      point: -0.0006569487628876534,
+      upper: 0.04316381736512019,
+      lower: 0.04175095963994029,
+      window_index: 1,
+    },
+    all: [
+      {
+        point: -0.0006569487628876534,
+        upper: 0.04316381736512019,
+        lower: -0.04175095963994029,
+        window_index: 1,
+      },
+      {
+        point: -0.0006569487628876534,
+        upper: 0.04316381736512019,
+        lower: -0.04175095963994029,
+        window_index: 5,
+      },
+      {
+        point: -0.0006569487628876534,
+        upper: 0.04316381736512019,
+        lower: -0.04175095963994029,
+        window_index: 10,
+      },
+      {
+        point: -0.0006569487628876534,
+        upper: 0.04316381736512019,
+        lower: -0.04175095963994029,
+        window_index: 15,
+      },
+    ],
+  },
+  relative_uplift: {
+    first: {
+      lower: -0.455210299676828,
+      upper: 0.5104985718410426,
+      point: -0.06233954570562385,
+      window_index: 1,
+    },
+    all: [
+      {
+        lower: -0.455210299676828,
+        upper: 0.5104985718410426,
+        point: -0.06233954570562385,
+        window_index: 1,
+      },
+      {
+        lower: -0.455210299676828,
+        upper: 0.5104985718410426,
+        point: -0.06233954570562385,
+        window_index: 5,
+      },
+      {
+        lower: -0.455210299676828,
+        upper: 0.5104985718410426,
+        point: -0.06233954570562385,
+        window_index: 10,
+      },
+      {
+        lower: -0.455210299676828,
+        upper: 0.5104985718410426,
+        point: -0.06233954570562385,
+        window_index: 15,
+      },
+    ],
+  },
+  significance: { overall: {}, weekly: { "1": "negative" } },
+};
+
 export const MOCK_SIZING_DATA: SizingByUserType = {
   new: {
     target_recipe: {
