@@ -40,7 +40,7 @@ class MetricsConfiguration:
     channel: str = channel
     data_dir: str = "/var/glean"
     log_level: Union[str, int] = logging.getLevelName("WARNING")
-    max_events_buffer: int = glean_max_events_buffer
+    max_events_buffer: int = int(glean_max_events_buffer)
     server_endpoint: Optional[str] = None
     upload_enabled: bool = True
     version: str = "1.0"
