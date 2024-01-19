@@ -30,7 +30,9 @@ instance_name: str = cast(
     str, config("CIRRUS_INSTANCE_NAME", default="instance name not defined")
 )
 env_name = cast(str, config("CIRRUS_ENV_NAME", default="production"))
-glean_max_events_buffer = config("CIRRUS_GLEAN_MAX_EVENTS_BUFFER", default=10, cast=int)
+glean_max_events_buffer: int = int(
+    config("CIRRUS_GLEAN_MAX_EVENTS_BUFFER", default=10)  # type: ignore
+)
 
 
 @dataclass
