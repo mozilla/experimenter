@@ -75,10 +75,27 @@ class TestLoadFeatureConfigs(TestCase):
             sorted(["nimbus.test.string", "nimbus.test.int", "nimbus.test.boolean"]),
         )
 
+        self.assertEqual(
+            schema.set_pref_vars,
+            {
+                "string": "nimbus.test.string",
+                "int": "nimbus.test.int",
+                "boolean": "nimbus.test.boolean",
+            },
+        )
+
         feature_config = NimbusFeatureConfig.objects.get(slug="setPrefFeature")
         schema = feature_config.schemas.get(version=None)
         self.assertEqual(
             sorted(schema.sets_prefs), sorted(["nimbus.user", "nimbus.default"])
+        )
+
+        self.assertEqual(
+            schema.set_pref_vars,
+            {
+                "user": "nimbus.user",
+                "default": "nimbus.default",
+            },
         )
 
     def test_updates_existing_feature_configs(self):
@@ -140,10 +157,20 @@ class TestLoadFeatureConfigs(TestCase):
         self.assertTrue(schema.is_early_startup)
 
         feature_config = NimbusFeatureConfig.objects.get(slug="oldSetPrefFeature")
+        schema = feature_config.schemas.get(version=None)
 
         self.assertEqual(
-            sorted(feature_config.schemas.get(version=None).sets_prefs),
+            sorted(schema.sets_prefs),
             sorted(["nimbus.test.string", "nimbus.test.int", "nimbus.test.boolean"]),
+        )
+
+        self.assertEqual(
+            schema.set_pref_vars,
+            {
+                "string": "nimbus.test.string",
+                "int": "nimbus.test.int",
+                "boolean": "nimbus.test.boolean",
+            },
         )
 
     def test_handles_existing_features_with_same_slug_different_name(self):
