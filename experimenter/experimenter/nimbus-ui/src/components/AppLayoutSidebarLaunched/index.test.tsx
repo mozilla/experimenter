@@ -105,7 +105,9 @@ describe("AppLayoutSidebarLaunched", () => {
         `${BASE_PATH}/my-special-slug`,
       );
 
-      screen.getByText("Analysis results are not available for rollouts.", { exact: false });
+      screen.getByText("Analysis results are not available for rollouts.", {
+        exact: false,
+      });
 
       screen.getByText(humanDate(expectedDate));
     });
