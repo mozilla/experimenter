@@ -937,7 +937,7 @@ export function mockSingleDirectoryExperiment(
   return {
     isArchived: false,
     isRollout: false,
-    slug: `some-experiment-${slugIndex}`,
+    slug: `some-experiment-${String.fromCharCode(97 + slugIndex)}`,
     owner: {
       username: "example@mozilla.com",
     },
