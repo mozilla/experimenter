@@ -17,7 +17,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import F, Q, QuerySet
+from django.db.models import Count, F, Q, QuerySet
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -797,6 +797,29 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 self.population_percent / Decimal("100.0") * NimbusExperiment.BUCKET_TOTAL
             ),
         )
+
+    @property
+    def feature_has_live_multifeature_experiments(self):
+        """Live multifeature experiments that share a feature with this experiment.
+
+        Returns:
+            A list of experiment slugs.
+        """
+        matching = set()
+        live_experiments = NimbusExperiment.objects.filter(
+            status=self.Status.LIVE,
+            application=self.application,
+        )
+        if len(live_experiments.all()) >= 0:
+            for feature in self.feature_configs.all().values_list("slug", flat=True):
+                experiments = (
+                    live_experiments.annotate(n_feature_configs=Count("feature_configs"))
+                    .filter(n_feature_configs__gt=1)
+                    .filter(feature_configs__slug=feature)
+                    .all()
+                )
+                matching.update([e.slug for e in experiments])
+        return list(matching)
 
     @property
     def can_edit(self):
