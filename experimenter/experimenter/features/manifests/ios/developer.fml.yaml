@@ -323,6 +323,13 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: true
+  redux-search-settings-feature:
+    description: "This feature is for managing the roll out of redux on the search settings screen\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
