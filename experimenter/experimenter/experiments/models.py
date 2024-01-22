@@ -326,7 +326,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         choices=NimbusConstants.QAStatus.choices,
     )
     qa_comment = models.TextField("QA Comment", blank=True, null=True)
-
+    subscribers = models.ManyToManyField(
+        User,
+        related_name="subscribed_nimbusexperiments",
+        blank=True,
+        verbose_name="Subscribers",
+    )
     objects = NimbusExperimentManager()
 
     class Meta:
@@ -957,6 +962,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             cloned.locales.add(*self.locales.all())
         cloned.languages.add(*self.languages.all())
         cloned.projects.add(*self.projects.all())
+        cloned.subscribers.remove(*self.subscribers.all())
 
         if rollout_branch_slug:
             generate_nimbus_changelog(

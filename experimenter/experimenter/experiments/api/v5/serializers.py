@@ -961,6 +961,12 @@ class NimbusExperimentSerializer(
         allow_blank=True,
         allow_null=True,
     )
+    subscribers = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        many=True,
+        allow_null=True,
+        required=False,
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -1011,6 +1017,7 @@ class NimbusExperimentSerializer(
             "slug",
             "status_next",
             "status",
+            "subscribers",
             "takeaways_gain_amount",
             "takeaways_metric_gain",
             "takeaways_qbr_learning",
