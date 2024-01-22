@@ -112,6 +112,14 @@ mr2022:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
+nimbus-is-ready:
+  description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    event-count:
+      type: int
+      description: The number of events that should be sent.
 nimbus-system:
   description: "Configuration of the Nimbus System in Android.\n"
   hasExposure: true
