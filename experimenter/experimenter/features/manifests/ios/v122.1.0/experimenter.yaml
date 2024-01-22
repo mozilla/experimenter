@@ -1,12 +1,4 @@
 ---
-account-settings-redux-feature:
-  description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 address-autofill-feature:
   description: This property defines the address card autofill feature
   hasExposure: true
@@ -15,14 +7,6 @@ address-autofill-feature:
     status:
       type: boolean
       description: "If true, we will allow user to use the address autofill feature"
-back-forward-list-coordinator-refactor-feature:
-  description: "Feature for managing the roll out of the BackForewardList presentation from coordinator\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 contextual-hint-feature:
   description: This set holds all features pertaining to contextual hints.
   hasExposure: true
@@ -74,9 +58,6 @@ homescreenFeature:
     pocket-sponsored-stories:
       type: boolean
       description: "This property defines whether pocket sponsored stories appear on the homepage.\n"
-    prefer-switch-to-open-tab:
-      type: boolean
-      description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
@@ -211,6 +192,17 @@ tabTrayFeature:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
+wallpaper-feature:
+  description: This property defines the configuration for the wallpaper feature
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    configuration:
+      type: json
+      description: This property defines the configuration for the wallpaper feature
+    onboarding-sheet:
+      type: boolean
+      description: This property defines whether the wallpaper onboarding is shown or not
 zoom-feature:
   description: "The configuration for the status of the zoom feature\n"
   hasExposure: true

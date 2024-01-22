@@ -1,4 +1,12 @@
 ---
+account-settings-redux-feature:
+  description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 address-autofill-feature:
   description: This property defines the address card autofill feature
   hasExposure: true
