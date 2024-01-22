@@ -293,6 +293,13 @@ features:
           jump-back-in-cfr: true
           tcp-cfr: true
           tcp-feature: true
+  nimbus-is-ready:
+    description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
+    variables:
+      event-count:
+        description: The number of events that should be sent.
+        type: Int
+        default: 1
   nimbus-system:
     description: "Configuration of the Nimbus System in Android.\n"
     variables:
