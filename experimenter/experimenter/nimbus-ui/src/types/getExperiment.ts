@@ -13,6 +13,10 @@ export interface getExperiment_experimentBySlug_owner {
   email: string;
 }
 
+export interface getExperiment_experimentBySlug_subscribers {
+  email: string;
+}
+
 export interface getExperiment_experimentBySlug_parent {
   name: string;
   slug: string;
@@ -227,6 +231,7 @@ export interface getExperiment_experimentBySlug {
   takeawaysQbrLearning: boolean;
   takeawaysSummary: string | null;
   owner: getExperiment_experimentBySlug_owner;
+  subscribers: getExperiment_experimentBySlug_subscribers[];
   parent: getExperiment_experimentBySlug_parent | null;
   warnFeatureSchema: boolean | null;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;

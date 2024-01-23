@@ -55,6 +55,9 @@ export const GET_EXPERIMENT_QUERY = gql`
       owner {
         email
       }
+      subscribers {
+        email
+      }
 
       parent {
         name

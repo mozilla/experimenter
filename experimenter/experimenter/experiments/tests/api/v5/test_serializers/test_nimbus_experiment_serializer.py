@@ -167,6 +167,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "locales": [],
             "languages": [],
             "projects": [],
+            "subscribers": [],
         }
 
         serializer = NimbusExperimentSerializer(
@@ -203,6 +204,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(list(experiment.locales.all()), [])
         self.assertEqual(list(experiment.languages.all()), [])
         self.assertEqual(list(experiment.projects.all()), [])
+        self.assertEqual(list(experiment.subscribers.all()), [])
 
     def test_serializer_rejects_bad_name(self):
         data = {

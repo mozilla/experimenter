@@ -541,6 +541,9 @@ class NimbusExperimentType(DjangoObjectType):
     secondary_outcomes = graphene.List(graphene.String)
     show_results_url = graphene.Boolean()
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
+    subscribers = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusUserType))
+    )
     slug = graphene.String(required=True)
     start_date = graphene.DateTime()
     status = NimbusExperimentStatusEnum()
@@ -622,6 +625,7 @@ class NimbusExperimentType(DjangoObjectType):
             "start_date",
             "status_next",
             "status",
+            "subscribers",
             "takeaways_metric_gain",
             "takeaways_gain_amount",
             "takeaways_qbr_learning",
@@ -755,3 +759,6 @@ class NimbusExperimentType(DjangoObjectType):
         return NimbusExperimentBranchThroughRequired.objects.filter(
             parent_experiment=self
         )
+
+    def resolve_subscribers(self, info):
+        return self.subscribers.all().order_by("username")
