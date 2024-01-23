@@ -25,9 +25,7 @@ testFeature:
       description: Int pref used by platform API tests
     testSetString:
       type: string
-      setPref:
-        branch: user
-        pref: nimbus.testing.testSetString
+      setPref: nimbus.testing.testSetString
       description: A string pref set by Nimbus tests
 
 nimbus-qa-1:
@@ -37,9 +35,7 @@ nimbus-qa-1:
   variables:
     value:
       type: string
-      setPref:
-        branch: default
-        pref: nimbus.qa.pref-1
+      setPref: nimbus.qa.pref-1
       description: The value to set for the pref.
 
 nimbus-qa-2:
@@ -50,9 +46,7 @@ nimbus-qa-2:
   variables:
     value:
       type: string
-      setPref:
-        branch: user
-        pref: nimbus.qa.pref-2
+      setPref: nimbus.qa.pref-2
       description: The value to set for the pref.
 
 feature-with-exposure:
