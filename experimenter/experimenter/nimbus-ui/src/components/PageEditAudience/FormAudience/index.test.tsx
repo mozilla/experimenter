@@ -107,6 +107,49 @@ describe("FormAudience", () => {
       ).toBeUndefined();
     });
 
+    it("only displays one option for experiments with one branch", async () => {
+      const experiment = {
+        ...MOCK_EXPERIMENT,
+        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
+        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
+        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+      };
+
+      const experimentsByApplication = [
+        { ...MOCK_EXPERIMENTS_BY_APPLICATION[1], treatmentBranches: [] },
+      ];
+
+      const { container } = render(
+        <Subject
+          experiment={experiment}
+          experimentsByApplication={{
+            allExperiments: experimentsByApplication,
+          }}
+        />,
+      );
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+      await selectEvent.openMenu(excluded);
+      let options = container.querySelectorAll(query("excludedExperiments"));
+      expect(options.length).toEqual(1);
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${experiment.slug})`),
+        ),
+      ).toBeUndefined();
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+      options = container.querySelectorAll(query("requiredExperiments"));
+      expect(options.length).toEqual(1);
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${experiment.slug})`),
+        ),
+      ).toBeUndefined();
+    });
+
     it("saves required and excluded experiments with all branches for experiments", async () => {
       const onSubmit = jest.fn();
       const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_experimentsByApplication[] =

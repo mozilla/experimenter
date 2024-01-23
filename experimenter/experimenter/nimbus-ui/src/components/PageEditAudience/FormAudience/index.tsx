@@ -118,12 +118,21 @@ const toSelectExperimentBranchOption: (
 
 const toSelectExperimentBranchOptions: (
   experiment: getAllExperimentsByApplication_experimentsByApplication,
-) => SelectExperimentBranchOption[] = (experiment) =>
-  [
-    null,
-    experiment.referenceBranch!.slug,
-    ...experiment.treatmentBranches!.map((branch) => branch!.slug),
-  ].map((branchSlug) => toSelectExperimentBranchOption(experiment, branchSlug));
+) => SelectExperimentBranchOption[] = (experiment) => {
+  let experimentBranchOptions;
+  if (experiment.treatmentBranches!.length === 0) {
+    experimentBranchOptions = [experiment.referenceBranch!.slug];
+  } else {
+    experimentBranchOptions = [
+      null,
+      experiment.referenceBranch!.slug,
+      ...experiment.treatmentBranches!.map((branch) => branch!.slug),
+    ];
+  }
+  return experimentBranchOptions.map((branchSlug) =>
+    toSelectExperimentBranchOption(experiment, branchSlug),
+  );
+};
 
 const selectOptions = (items: SelectIdItems) =>
   items.map((item) => ({
