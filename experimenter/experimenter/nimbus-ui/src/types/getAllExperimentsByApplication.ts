@@ -9,11 +9,21 @@ import { NimbusExperimentApplicationEnum } from "./globalTypes";
 // GraphQL query operation: getAllExperimentsByApplication
 // ====================================================
 
+export interface getAllExperimentsByApplication_experimentsByApplication_referenceBranch {
+  slug: string;
+}
+
+export interface getAllExperimentsByApplication_experimentsByApplication_treatmentBranches {
+  slug: string;
+}
+
 export interface getAllExperimentsByApplication_experimentsByApplication {
   id: number;
   name: string;
   slug: string;
   publicDescription: string | null;
+  referenceBranch: getAllExperimentsByApplication_experimentsByApplication_referenceBranch | null;
+  treatmentBranches: (getAllExperimentsByApplication_experimentsByApplication_treatmentBranches | null)[] | null;
 }
 
 export interface getAllExperimentsByApplication {

@@ -88,16 +88,48 @@ export interface getExperiment_experimentBySlug_targetingConfig {
   isFirstRunRequired: boolean | null;
 }
 
-export interface getExperiment_experimentBySlug_excludedExperiments {
-  id: number;
+export interface getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_referenceBranch {
   slug: string;
-  name: string;
 }
 
-export interface getExperiment_experimentBySlug_requiredExperiments {
+export interface getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_treatmentBranches {
+  slug: string;
+}
+
+export interface getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment {
   id: number;
   slug: string;
   name: string;
+  publicDescription: string | null;
+  referenceBranch: getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_referenceBranch | null;
+  treatmentBranches: (getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_treatmentBranches | null)[] | null;
+}
+
+export interface getExperiment_experimentBySlug_excludedExperimentsBranches {
+  excludedExperiment: getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment;
+  branchSlug: string | null;
+}
+
+export interface getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_referenceBranch {
+  slug: string;
+}
+
+export interface getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_treatmentBranches {
+  slug: string;
+}
+
+export interface getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment {
+  id: number;
+  slug: string;
+  name: string;
+  publicDescription: string | null;
+  referenceBranch: getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_referenceBranch | null;
+  treatmentBranches: (getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_treatmentBranches | null)[] | null;
+}
+
+export interface getExperiment_experimentBySlug_requiredExperimentsBranches {
+  requiredExperiment: getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment;
+  branchSlug: string | null;
 }
 
 export interface getExperiment_experimentBySlug_readyForReview {
@@ -211,8 +243,8 @@ export interface getExperiment_experimentBySlug {
   isSticky: boolean | null;
   isFirstRun: boolean;
   isWeb: boolean;
-  excludedExperiments: getExperiment_experimentBySlug_excludedExperiments[];
-  requiredExperiments: getExperiment_experimentBySlug_requiredExperiments[];
+  excludedExperimentsBranches: getExperiment_experimentBySlug_excludedExperimentsBranches[];
+  requiredExperimentsBranches: getExperiment_experimentBySlug_requiredExperimentsBranches[];
   jexlTargetingExpression: string | null;
   populationPercent: string | null;
   totalEnrolledClients: number;
