@@ -10,6 +10,7 @@ export type LogSource = "jetstream" | "sizing" | "jetstream-preview";
 export type AnalysisErrors = AnalysisError[];
 export type Feature = FeatureWithExposure | FeatureWithoutExposure;
 export type FeatureVariableType = "int" | "string" | "boolean" | "json";
+export type PrefBranch = "default" | "user";
 export type SizingReleaseChannel = "release" | "beta" | "nightly";
 export type SizingUserType = "new" | "existing";
 export type Statistics = Statistic[];
@@ -58,7 +59,11 @@ export interface FeatureVariable {
   enum?: string[];
   fallbackPref?: string;
   type?: FeatureVariableType;
-  setPref?: string;
+  setPref?: string | SetPref;
+}
+export interface SetPref {
+  branch: PrefBranch;
+  pref: string;
 }
 export interface NimbusFeatureSchema {
   uri: string;
