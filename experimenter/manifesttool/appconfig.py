@@ -5,6 +5,8 @@ from typing import Any, Literal, Optional, Union
 import yaml
 from pydantic import BaseModel, Field, root_validator
 
+from manifesttool.version import Version
+
 
 class RepositoryType(str, Enum):
     HGMO = "hgmo"  # hg.mozilla.org
@@ -77,6 +79,7 @@ class TaggedDiscoveryStrategy(BaseModel):
     tag_re: Optional[str]
     ignored_branches: Optional[list[str]]
     ignored_tags: Optional[list[str]]
+    ignored_versions: Optional[list[Version]]
 
 
 class BranchedDiscoveryStrategy(BaseModel):
@@ -97,6 +100,7 @@ class DiscoveryStrategy(BaseModel):
         tag_re: Optional[str] = None,
         ignored_branches: Optional[list[str]] = None,
         ignored_tags: Optional[list[str]] = None,
+        ignored_versions: Optional[list[Version]] = None,
     ):  # pragma: no cover
         return cls(
             __root__=TaggedDiscoveryStrategy(
@@ -105,6 +109,7 @@ class DiscoveryStrategy(BaseModel):
                 tag_re=tag_re,
                 ignored_branches=ignored_branches,
                 ignored_tags=ignored_tags,
+                ignored_versions=ignored_versions,
             )
         )
 

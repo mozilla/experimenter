@@ -1,3 +1,5 @@
+from typing import Optional
+
 from manifesttool import github_api, hgmo_api
 from manifesttool.appconfig import (
     AppConfig,
@@ -12,6 +14,20 @@ from manifesttool.version import (
     find_versioned_refs,
     resolve_ref_versions,
 )
+
+
+def _filter_ignored_versions(
+    app_name: str,
+    versions: dict[Version, Ref],
+    ignored_versions: Optional[list[Version]],
+):
+    if ignored_versions:
+        for ignored_version in ignored_versions:
+            try:
+                ref = versions.pop(ignored_version)
+                print(f"fetch: {app_name}: Ignored version {ignored_version} at {ref}")
+            except KeyError:
+                pass
 
 
 def discover_tagged_releases(
@@ -30,6 +46,8 @@ def discover_tagged_releases(
         strategy.branch_re,
         strategy.ignored_branches,
     )
+
+    _filter_ignored_versions(app_name, versions, strategy.ignored_versions)
 
     # Limit to the last 5 major versions.
     #
@@ -53,6 +71,8 @@ def discover_tagged_releases(
         tags = github_api.get_tags(app_config.repo.name)
         tag_versions = find_versioned_refs(tags, strategy.tag_re, strategy.ignored_tags)
         tag_versions = filter_versioned_refs(tag_versions, min_version)
+
+        _filter_ignored_versions(app_name, tag_versions, strategy.ignored_versions)
 
         versions.update(tag_versions)
 

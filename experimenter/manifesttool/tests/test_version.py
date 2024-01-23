@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import Any, Optional
 from unittest import TestCase
 
 import responses
 from parameterized import parameterized
 from responses import matchers
+from pydantic import BaseModel, ValidationError
 
 from manifesttool.appconfig import (
     AppConfig,
@@ -27,6 +28,10 @@ from manifesttool.version import (
     parse_version_file,
     resolve_ref_versions,
 )
+
+
+class VersionModel(BaseModel):
+    version: Version
 
 
 class VersionTests(TestCase):
@@ -366,9 +371,35 @@ class VersionTests(TestCase):
             ("1.2.1a1", Version(1, 2, 1)),
         ]
     )
-    def test_version_parse(self, s: str, expected: Optional[Version]):
-        """Testing Version.parse."""
+    def test_version_parse_validate(self, s: str, expected: Optional[Version]):
+        """Testing Version.parse and Version.validate"""
         self.assertEqual(Version.parse(s), expected)
+
+        obj = {"version": s}
+
+        if expected:
+            model = VersionModel.parse_obj(obj)
+            self.assertEqual(model.version, expected)
+        else:
+            with self.assertRaisesRegexp(ValidationError, f"Invalid version {repr(s)}"):
+                VersionModel.parse_obj(obj)
+
+    @parameterized.expand(
+        [
+            1,
+            True,
+            None,
+        ]
+    )
+    def test_validate_invalid_types(self, v: Any):
+        """Testing Version.validate with invalid input types."""
+        with self.assertRaises(ValidationError):
+            VersionModel.parse_obj({"version": v})
+
+    def test_validate_version(self):
+        """Testing Version.validate allows Version instances."""
+        model = VersionModel(version=Version(1, 2, 3))
+        self.assertEqual(model.version, Version(1, 2, 3))
 
     @parameterized.expand(
         [
