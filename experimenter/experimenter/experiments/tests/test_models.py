@@ -27,6 +27,8 @@ from experimenter.experiments.models import (
     NimbusBranchScreenshot,
     NimbusBucketRange,
     NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
     NimbusFeatureVersion,
     NimbusIsolationGroup,
@@ -321,6 +323,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, f"(app_version|versionCompare('{version}') >= 0)"
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_min_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -338,6 +341,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.!') >= 0)"
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_max_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -355,6 +359,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.*') <= 0)"
         )
+        JEXLParser().parse(experiment.targeting)
 
     @parameterized.expand(
         [
@@ -389,6 +394,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             f"(app_version|versionCompare('{version.replace('!', '*')}') <= 0)",
         )
+        JEXLParser().parse(experiment.targeting)
 
     @parameterized.expand(
         [
@@ -426,6 +432,7 @@ class TestNimbusExperiment(TestCase):
                 f"&& (app_version|versionCompare('{version}') >= 0)"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_without_firefox_min_version(
         self,
@@ -805,26 +812,65 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (application, require, exclude, expected_targeting)
-            for (application, (require, exclude, expected_targeting)) in product(
-                list(NimbusExperiment.Application),
-                [
-                    ([], [], "true"),
-                    (["foo"], [], "('foo' in enrollments)"),
-                    ([], ["bar"], "(('bar' in enrollments) == false)"),
-                    (
-                        ["foo", "bar"],
-                        ["baz"],
+            for (application, (require, exclude, expected_targeting)) in [
+                *product(
+                    list(NimbusExperiment.Application),
+                    [
+                        ([], [], "true"),
+                        ([("foo", None)], [], "('foo' in enrollments)"),
+                        ([], [("bar", None)], "(('bar' in enrollments) == false)"),
                         (
-                            "(('baz' in enrollments) == false) && "
-                            "('foo' in enrollments) && "
-                            "('bar' in enrollments)"
+                            [("foo", None), ("bar", None)],
+                            [("baz", None)],
+                            (
+                                "(('baz' in enrollments) == false) && "
+                                "('foo' in enrollments) && "
+                                "('bar' in enrollments)"
+                            ),
+                        ),
+                    ],
+                ),
+                *[
+                    (
+                        NimbusExperiment.Application.DESKTOP,
+                        (
+                            [("foo", "control")],
+                            [],
+                            "(enrollmentsMap['foo'] == 'control')",
+                        ),
+                    ),
+                    (
+                        NimbusExperiment.Application.DESKTOP,
+                        (
+                            [],
+                            [("foo", "control")],
+                            "((enrollmentsMap['foo'] == 'control') == false)",
                         ),
                     ),
                 ],
-            )
+                *product(
+                    [
+                        app
+                        for app in NimbusExperiment.Application
+                        if app != NimbusExperiment.Application.DESKTOP
+                    ],
+                    [
+                        (
+                            [("foo", "control")],
+                            [],
+                            "(enrollments_map['foo'] == 'control')",
+                        ),
+                        (
+                            [],
+                            [("foo", "control")],
+                            "((enrollments_map['foo'] == 'control') == false)",
+                        ),
+                    ],
+                ),
+            ]
         ]
     )
-    def test_targeting_excluded_required_experiments(
+    def test_targeting_excluded_required_experiments_branches(
         self, application, require, exclude, expected_targeting
     ):
         experiments = {
@@ -844,12 +890,23 @@ class TestNimbusExperiment(TestCase):
             slug="slug",
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            required_experiments=[experiments[slug] for slug in require],
-            excluded_experiments=[experiments[slug] for slug in exclude],
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
+        for required_slug, required_branch_slug in require:
+            NimbusExperimentBranchThroughRequired.objects.create(
+                parent_experiment=experiment,
+                child_experiment=experiments[required_slug],
+                branch_slug=required_branch_slug,
+            )
+        for excluded_slug, excluded_branch_slug in exclude:
+            NimbusExperimentBranchThroughExcluded.objects.create(
+                parent_experiment=experiment,
+                child_experiment=experiments[excluded_slug],
+                branch_slug=excluded_branch_slug,
+            )
 
         self.assertEqual(experiment.targeting, expected_targeting)
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"
