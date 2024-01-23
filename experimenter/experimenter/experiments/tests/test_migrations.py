@@ -35,7 +35,6 @@ class TestMigrations(MigratorTestCase):
     def test_migration(self):
         """Run the test itself."""
         experiment = NimbusExperiment.objects.get(slug="test-experiment")
-        
         self.assertEqual(
             experiment.proposed_duration, 20
         )  # Expecting the proposed_duration to be updated
