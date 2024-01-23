@@ -53,6 +53,29 @@ class CreateExperiment(graphene.Mutation):
         return handle_with_serializer(cls, serializer)
 
 
+class SubscribeToExperiment(graphene.Mutation):
+    nimbus_experiment = graphene.Field(NimbusExperimentType)
+    message = ObjectField()
+
+    class Arguments:
+        input = ExperimentInput(required=True)
+
+    @classmethod
+    def mutate(cls, root, info, input: ExperimentInput):  # noqa: A002
+        experiment = NimbusExperiment.objects.get(id=input.id)
+        if "reference_branch" in input and input["reference_branch"] is None:
+            input.pop("reference_branch")
+
+        if "subscribed" in input:
+            input["subscribed"] = input.pop("subscribed")
+
+        serializer = NimbusExperimentSerializer(
+            experiment, data=input, partial=True, context={"user": info.context.user}
+        )
+
+        return handle_with_serializer(cls, serializer)
+
+
 class UpdateExperiment(graphene.Mutation):
     nimbus_experiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
@@ -97,3 +120,6 @@ class Mutation(graphene.ObjectType):
     )
     update_experiment = UpdateExperiment.Field(description="Update a Nimbus Experiment.")
     clone_experiment = CloneExperiment.Field(description="Clone an experiment.")
+    subscribe_to_experiment = SubscribeToExperiment.Field(
+        description="Subscribe to an experiment."
+    )

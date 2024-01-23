@@ -2,27 +2,75 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { Card, Table } from "react-bootstrap";
+import React, { useMemo, useState } from "react";
+import { Button, Card, Table } from "react-bootstrap";
+import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
 import NotSet from "src/components/NotSet";
 import RichText from "src/components/RichText";
 import { displayConfigLabelOrNotSet } from "src/components/Summary";
-import { useConfig, useOutcomes } from "src/hooks";
-import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { useCommonForm, useConfig, useOutcomes } from "src/hooks";
+import { getExperiment_experimentBySlug, getExperiment_experimentBySlug_subscribers } from "src/types/getExperiment";
 
 type TableOverviewProps = {
   experiment: getExperiment_experimentBySlug;
+  submitErrors: SerializerMessages;
+  setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  isServerValid: boolean;
+  isLoading: boolean;
+  onSave: (params: SubscriberParams) => void;
+};
+
+type SubscriberParams = {
+  subscribers: (getExperiment_experimentBySlug_subscribers | null)[];
 };
 
 interface DocSlugs {
   [key: string]: string;
 }
 
+export const overviewFieldNames = ["subscribers"] as const;
+type OverviewFieldName = typeof overviewFieldNames[number];
+
 // `<tr>`s showing optional fields that are not set are not displayed.
 
-const TableOverview = ({ experiment }: TableOverviewProps) => {
+const TableOverview = ({
+  experiment,
+  isLoading,
+  isServerValid,
+  submitErrors,
+  setSubmitErrors,
+  onSave,
+}: TableOverviewProps) => {
   const { applications } = useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
+  const defaultValues: SubscriberParams = {
+    subscribers: experiment?.subscribers || [],
+  };
+  type DefaultValues = typeof defaultValues;
+
+  const [subscribers, setSubscribers] = useState(experiment!.subscribers ?? []);
+
+  const { FormErrors, formControlAttrs, handleSubmit, formMethods, getValues } =
+    useCommonForm<OverviewFieldName>(
+      defaultValues,
+      isServerValid,
+      submitErrors,
+      setSubmitErrors,
+    );
+
+  const { trigger } = formMethods;
+  const handleSave = handleSubmit(onSave);
+
+  // const [handleSave, handleSaveNext] = useMemo(
+  //   () =>
+  //     [false, true].map((next) =>
+  //       handleSubmit(
+  //         (dataIn: DefaultValues) =>
+  //           !isLoading && onSubmit({ ...dataIn, subscribers }, next),
+  //       ),
+  //     ),
+  //   [handleSubmit, isLoading, onSubmit, subscribers],
+  // );
 
   const docSlugs: DocSlugs = {
     DESKTOP: "firefox_desktop",
@@ -187,6 +235,17 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
                 ) : (
                   <NotSet />
                 )}
+                <td className="ml-0 pl-0 border-top-0">
+                  <Button
+                    size="sm"
+                    variant="outline-primary"
+                    data-testid="add-subscriber-button"
+                    onClick={handleSave}
+                  >
+                    <ExpandPlus />
+                    Subscribe
+                  </Button>
+                </td>
               </td>
             </tr>
           </tbody>
