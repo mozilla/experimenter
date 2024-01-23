@@ -13,7 +13,8 @@ import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
 import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
 import {
   getExperiment_experimentBySlug,
-  getExperiment_experimentBySlug_excludedExperiments,
+  getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment,
+  getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment,
 } from "src/types/getExperiment";
 import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
@@ -170,11 +171,25 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
             <tr>
               <th>Required Experiments</th>
               <td>
-                <ExperimentList experiments={experiment.requiredExperiments} />
+                <ExperimentList
+                  experimentsBranches={experiment.requiredExperimentsBranches.map(
+                    (eb) => ({
+                      experiment: eb.requiredExperiment,
+                      branchSlug: eb.branchSlug,
+                    }),
+                  )}
+                />
               </td>
               <th>Excluded Experiments</th>
               <td>
-                <ExperimentList experiments={experiment.excludedExperiments} />
+                <ExperimentList
+                  experimentsBranches={experiment.excludedExperimentsBranches.map(
+                    (eb) => ({
+                      experiment: eb.excludedExperiment,
+                      branchSlug: eb.branchSlug,
+                    }),
+                  )}
+                />
               </td>
             </tr>
 
@@ -248,20 +263,32 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
 };
 
 interface ExperimentListProps {
-  experiments: getExperiment_experimentBySlug_excludedExperiments[];
+  experimentsBranches: {
+    experiment:
+      | getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment
+      | getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment;
+    branchSlug: string | null;
+  }[];
 }
-function ExperimentList({ experiments }: ExperimentListProps) {
-  if (experiments.length === 0) {
+function ExperimentList({ experimentsBranches }: ExperimentListProps) {
+  if (experimentsBranches.length === 0) {
     return <span>None</span>;
   }
 
   return (
     <>
-      {experiments.map((experiment) => (
-        <p key={experiment.slug}>
-          <a href={`/nimbus/${experiment.slug}/summary`}>{experiment.name}</a>
-        </p>
-      ))}
+      {experimentsBranches.map((experimentBranch) => {
+        const branchLabel = experimentBranch.branchSlug
+          ? `${experimentBranch.branchSlug} branch`
+          : "All branches";
+        return (
+          <p key={experimentBranch.experiment.slug}>
+            <a href={`/nimbus/${experimentBranch.experiment.slug}/summary`}>
+              {experimentBranch.experiment.name} ({branchLabel})
+            </a>
+          </p>
+        );
+      })}
     </>
   );
 }
