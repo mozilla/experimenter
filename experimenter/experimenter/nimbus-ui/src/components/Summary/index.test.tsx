@@ -728,15 +728,55 @@ describe("Summary", () => {
     });
   });
 
-  it("render the required and excluded experiments", () => {
+  it("render the required and excluded experiments all branches", () => {
     const experiment = {
       ...MOCK_EXPERIMENT,
-      requiredExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1]],
-      excludedExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[2]],
+      requiredExperimentsBranches: [
+        {
+          requiredExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[1],
+          branchSlug: null,
+        },
+      ],
+      excludedExperimentsBranches: [
+        {
+          excludedExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[2],
+          branchSlug: null,
+        },
+      ],
     };
     render(<Subject props={experiment} />);
 
-    screen.getByRole("link", { name: MOCK_EXPERIMENTS_BY_APPLICATION[1].name });
-    screen.getByRole("link", { name: MOCK_EXPERIMENTS_BY_APPLICATION[2].name });
+    screen.getByRole("link", {
+      name: `${MOCK_EXPERIMENTS_BY_APPLICATION[1].name} (All branches)`,
+    });
+    screen.getByRole("link", {
+      name: `${MOCK_EXPERIMENTS_BY_APPLICATION[2].name} (All branches)`,
+    });
+  });
+
+  it("render the required and excluded experiments specific branches", () => {
+    const experiment = {
+      ...MOCK_EXPERIMENT,
+      requiredExperimentsBranches: [
+        {
+          requiredExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[1],
+          branchSlug: "control",
+        },
+      ],
+      excludedExperimentsBranches: [
+        {
+          excludedExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[2],
+          branchSlug: "treatment",
+        },
+      ],
+    };
+    render(<Subject props={experiment} />);
+
+    screen.getByRole("link", {
+      name: `${MOCK_EXPERIMENTS_BY_APPLICATION[1].name} (control branch)`,
+    });
+    screen.getByRole("link", {
+      name: `${MOCK_EXPERIMENTS_BY_APPLICATION[2].name} (treatment branch)`,
+    });
   });
 });

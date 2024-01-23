@@ -669,8 +669,8 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   projects: [{ name: "Pocket", id: "1" }],
   isLocalized: false,
   localizations: null,
-  requiredExperiments: [],
-  excludedExperiments: [],
+  requiredExperimentsBranches: [],
+  excludedExperimentsBranches: [],
   takeawaysQbrLearning: false,
   takeawaysMetricGain: false,
   takeawaysGainAmount: null,
@@ -781,8 +781,8 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   countries: [{ name: "Canada", id: "1", code: "Ca" }],
   languages: [{ name: "English", id: "1", code: "En" }],
   projects: [{ name: "Pocket", id: "1" }],
-  requiredExperiments: [],
-  excludedExperiments: [],
+  requiredExperimentsBranches: [],
+  excludedExperimentsBranches: [],
   qaComment: null,
   qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
 };
@@ -1109,6 +1109,8 @@ export const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_exp
     name: experiment.name,
     slug: experiment.slug ?? experiment.name.toLowerCase().replace(" ", "-"),
     publicDescription: "mock description",
+    referenceBranch: { slug: "control" },
+    treatmentBranches: [{ slug: "treatment" }],
   }));
 
 // Basically the same as useOutcomes, but uses the mocked config values
