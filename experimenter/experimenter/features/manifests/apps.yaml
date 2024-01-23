@@ -79,6 +79,8 @@ focus_ios:
           - "releases_v999" # nimbus.fml.yaml missing. Breaks "last 5 releases" logic.
         ignored_tags:
           - "v999.0.0" # nimbus.fml.yaml missing.
+        ignored_versions:
+          - "9000.0.0"
 
 monitor_cirrus:
   slug: "monitor-web"

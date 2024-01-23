@@ -1,13 +1,17 @@
+from __future__ import annotations
+
 import plistlib
 import re
 from dataclasses import dataclass
-from typing import Iterable, Optional
+from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 from requests import HTTPError
 
 from manifesttool import github_api, hgmo_api
-from manifesttool.appconfig import AppConfig, RepositoryType, VersionFile, VersionFileType
 from manifesttool.repository import Ref
+
+if TYPE_CHECKING:  # pragma: no cover
+    from manifesttool.appconfig import AppConfig, VersionFile
 
 
 @dataclass
@@ -81,6 +85,24 @@ class Version:
     def __str__(self):  # pragma: no cover
         return f"{self.major}.{self.minor}.{self.patch}"
 
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any):
+        if isinstance(value, cls):
+            # Allow using Version directly in app configurations in tests.
+            return value
+
+        if not isinstance(value, str):
+            raise TypeError("string required")
+
+        if version := cls.parse(value):
+            return version
+
+        raise ValueError(f"Invalid version {repr(value)}")
+
 
 def find_versioned_refs(
     refs: list[Ref],
@@ -145,6 +167,8 @@ def parse_version_file(f: VersionFile, contents: str) -> Optional[Version]:
     Returns:
         The parsed Version.
     """
+    from manifesttool.appconfig import VersionFileType
+
     if f.__root__.type == VersionFileType.PLAIN_TEXT:
         return _parse_plain_text_version_file(contents)
     elif f.__root__.type == VersionFileType.PLIST:
@@ -175,6 +199,8 @@ def resolve_ref_versions(
     Returns:
         A mapping of Versions to the Refs.
     """
+    from manifesttool.appconfig import RepositoryType
+
     if app_config.repo.type == RepositoryType.GITHUB:
         fetch_file = github_api.fetch_file
     elif app_config.repo.type == RepositoryType.HGMO:
