@@ -931,18 +931,6 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
-    excluded_experiments = serializers.PrimaryKeyRelatedField(
-        queryset=NimbusExperiment.objects.all(),
-        many=True,
-        allow_empty=True,
-        required=False,
-    )
-    required_experiments = serializers.PrimaryKeyRelatedField(
-        queryset=NimbusExperiment.objects.all(),
-        many=True,
-        allow_empty=True,
-        required=False,
-    )
     excluded_experiments_branches = NimbusExperimentBranchThroughExcludedSerializer(
         many=True,
         required=False,
@@ -978,7 +966,6 @@ class NimbusExperimentSerializer(
             "countries",
             "documentation_links",
             "excluded_experiments_branches",
-            "excluded_experiments",
             "feature_config",
             "feature_configs",
             "firefox_max_version",
@@ -1008,7 +995,6 @@ class NimbusExperimentSerializer(
             "qa_status",
             "reference_branch",
             "required_experiments_branches",
-            "required_experiments",
             "risk_brand",
             "risk_mitigation_link",
             "risk_partner_related",
