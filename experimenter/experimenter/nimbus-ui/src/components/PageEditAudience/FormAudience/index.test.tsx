@@ -464,66 +464,75 @@ describe("FormAudience", () => {
       });
     });
 
-    it("excludes selected required experiments from the exclude field options", async () => {
+    it("filters selected required experiment branches from the exclude field options", async () => {
       const experiment = {
         ...MOCK_EXPERIMENT,
         name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
         slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
         id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
-        excludedExperimentsBranches: [
-          {
-            excludedExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[1],
-            branchSlug: null,
-          },
-        ],
+        excludedExperimentsBranches: [],
+        requiredExperimentsBranches: [],
       };
+      const requiredExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[1];
 
       const { container } = render(<Subject experiment={experiment} />);
       const required = screen.getByLabelText(/Require users to be enrolled/);
-
       await selectEvent.openMenu(required);
+      await selectEvent.select(required, [
+        `${requiredExperiment.name} (All branches)`,
+      ]);
 
-      const options = container.querySelectorAll(query("requiredExperiments"));
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+      await selectEvent.openMenu(excluded);
+
+      const options = container.querySelectorAll(query("excludedExperiments"));
+
       expect(options.length).toEqual(
-        countBranches(MOCK_EXPERIMENTS_BY_APPLICATION) - 4,
+        countBranches(MOCK_EXPERIMENTS_BY_APPLICATION) - 6,
       );
-
-      expect(
-        Array.from(options, (e) => e.textContent).find((text) =>
-          text?.includes(`(${MOCK_EXPERIMENTS_BY_APPLICATION[1].slug})`),
-        ),
-      ).toBeUndefined();
+      [experiment, requiredExperiment].forEach((filteredExperiment) => {
+        expect(
+          Array.from(options, (e) => e.textContent).filter((text) =>
+            text?.includes(filteredExperiment.slug),
+          ).length,
+        ).toEqual(0);
+      });
     });
 
-    it("excludes selected excluded experiment branch from the required field options", async () => {
+    it("filters selected excluded experiment branch from the required field options", async () => {
       const experiment = {
         ...MOCK_EXPERIMENT,
         name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
         slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
         id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
-        requiredExperimentsBranches: [
-          {
-            requiredExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[1],
-            branchSlug: null,
-          },
-        ],
+        excludedExperimentsBranches: [],
+        requiredExperimentsBranches: [],
       };
+      const excludedExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[1];
 
       const { container } = render(<Subject experiment={experiment} />);
       const excluded = screen.getByLabelText(/Exclude users enrolled/);
 
       await selectEvent.openMenu(excluded);
+      await selectEvent.select(excluded, [
+        `${excludedExperiment.name} (All branches)`,
+      ]);
 
-      const options = container.querySelectorAll(query("excludedExperiments"));
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+
+      const options = container.querySelectorAll(query("requiredExperiments"));
+
       expect(options.length).toEqual(
-        countBranches(MOCK_EXPERIMENTS_BY_APPLICATION) - 4,
+        countBranches(MOCK_EXPERIMENTS_BY_APPLICATION) - 6,
       );
-
-      expect(
-        Array.from(options, (e) => e.textContent).find((text) =>
-          text?.includes(`(${MOCK_EXPERIMENTS_BY_APPLICATION[1].slug})`),
-        ),
-      ).toBeUndefined();
+      [experiment, excludedExperiment].forEach((filteredExperiment) => {
+        expect(
+          Array.from(options, (e) => e.textContent).filter((text) =>
+            text?.includes(filteredExperiment.slug),
+          ).length,
+        ).toEqual(0);
+      });
     });
   });
 

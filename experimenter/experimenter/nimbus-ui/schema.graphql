@@ -61,6 +61,7 @@ type NimbusExperimentType {
   localizations: String
   qaStatus: NimbusExperimentQAStatusEnum
   qaComment: String
+  subscribers: [NimbusUserType!]!
   documentationLinks: [NimbusDocumentationLinkType!]
   changes: [NimbusChangeLogType]
   canArchive: Boolean

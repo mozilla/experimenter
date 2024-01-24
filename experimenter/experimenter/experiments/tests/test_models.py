@@ -2168,6 +2168,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.languages.all().count(), 0)
         self.assertEqual(child.projects.all().count(), 0)
         self.assertEqual(child.branches.all().count(), 0)
+        self.assertEqual(child.subscribers.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
         self.assertIsNone(child.takeaways_gain_amount)
@@ -2285,6 +2286,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             set(child.projects.all().values_list("slug", flat=True)),
             set(parent.projects.all().values_list("slug", flat=True)),
+        )
+        self.assertEqual(
+            set(child.subscribers.all().values_list("id", flat=True)),
+            set(),
         )
 
         self.assertEqual(child.is_rollout, parent.is_rollout)

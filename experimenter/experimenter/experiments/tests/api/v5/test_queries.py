@@ -49,10 +49,12 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         project = ProjectFactory.create()
+        subscriber = UserFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
             feature_configs=[feature_config],
             projects=[project],
+            subscribers=[subscriber],
         )
 
         response = self.query(
@@ -118,6 +120,9 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     requiredExperiments {
                         id
                         slug
+                    }
+                    subscribers {
+                        email
                     }
                 }
             }
@@ -201,6 +206,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     if experiment.status_next is not None
                     else None
                 ),
+                "subscribers": [{"email": str(subscriber.email)}],
                 "targetingConfig": [
                     {
                         "applicationValues": list(
@@ -525,6 +531,31 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 {"slug": project.slug, "name": project.name},
                 experiment_data["projects"],
             )
+
+    def test_experiment_returns_subscribers(self):
+        subscriber = UserFactory.create()
+        NimbusExperimentFactory.create(subscribers=[subscriber])
+
+        response = self.query(
+            """
+            query {
+                experiments {
+                    subscribers {
+                        email
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experiments"][0]
+
+        self.assertIn(
+            {"email": subscriber.email},
+            experiment_data["subscribers"],
+        )
 
     def test_query_excluded_required_experiments(self):
         excluded = NimbusExperimentFactory.create_with_lifecycle(
