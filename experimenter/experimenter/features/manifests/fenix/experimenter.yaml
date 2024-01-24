@@ -161,14 +161,6 @@ pdfjs:
     open-in-app-button:
       type: boolean
       description: Open in app button
-pre-permission-notification-prompt:
-  description: A feature that shows the pre-permission notification prompt.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "if true, the pre-permission notification prompt is shown to the user."
 print:
   description: A feature for printing from the share or browser menu.
   hasExposure: true
