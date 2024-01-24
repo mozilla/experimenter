@@ -182,8 +182,8 @@ function filterExperimentOptions(
   options: SelectExperimentBranchOption[],
   exclude: SelectExperimentBranchOption[],
 ): SelectExperimentBranchOption[] {
-  const excludeSlugs = new Set(exclude.map((e) => e.value));
-  return options.filter((option) => !excludeSlugs.has(option.value));
+  const excludeSlugs = new Set(exclude.map((e) => e.slug));
+  return options.filter((option) => !excludeSlugs.has(option.slug));
 }
 
 function formatExperimentOptionLabel(
