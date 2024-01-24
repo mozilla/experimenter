@@ -95,7 +95,5 @@ class Mutation(graphene.ObjectType):
     create_experiment = CreateExperiment.Field(
         description="Create a new Nimbus Experiment."
     )
-    update_experiment = UpdateExperiment.Field(
-        description="Update a Nimbus Experiment."
-    )
+    update_experiment = UpdateExperiment.Field(description="Update a Nimbus Experiment.")
     clone_experiment = CloneExperiment.Field(description="Clone an experiment.")
