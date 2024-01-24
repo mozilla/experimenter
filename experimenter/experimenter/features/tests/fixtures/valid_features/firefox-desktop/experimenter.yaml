@@ -30,8 +30,8 @@ missingVariables:
   exposureDescription: An exposure event
   isEarlyStartup: true
   variables: {}
-prefSettingFeature:
-  description: A feature that sets prefs
+oldSetPrefFeature:
+  description: A feature that sets prefs via the old setPref schema
   hasExposure: true
   exposureDescription: An exposure event
   variables:
@@ -47,3 +47,17 @@ prefSettingFeature:
       type: boolean
       setPref: nimbus.test.boolean
       description: Boolean property
+setPrefFeature:
+  description: A feature that sets prefs
+  hasExposure: false
+  variables:
+    user:
+      type: string
+      setPref:
+        branch: user
+        pref: nimbus.user
+    default:
+      type: string
+      setPref:
+        branch: default
+        pref: nimbus.default

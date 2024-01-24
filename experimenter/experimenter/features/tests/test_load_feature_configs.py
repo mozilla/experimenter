@@ -67,12 +67,18 @@ class TestLoadFeatureConfigs(TestCase):
         )
 
         self.assertTrue(schema.is_early_startup)
-        feature_config = NimbusFeatureConfig.objects.get(slug="prefSettingFeature")
+        feature_config = NimbusFeatureConfig.objects.get(slug="oldSetPrefFeature")
         schema = feature_config.schemas.get(version=None)
 
         self.assertEqual(
             sorted(schema.sets_prefs),
             sorted(["nimbus.test.string", "nimbus.test.int", "nimbus.test.boolean"]),
+        )
+
+        feature_config = NimbusFeatureConfig.objects.get(slug="setPrefFeature")
+        schema = feature_config.schemas.get(version=None)
+        self.assertEqual(
+            sorted(schema.sets_prefs), sorted(["nimbus.user", "nimbus.default"])
         )
 
     def test_updates_existing_feature_configs(self):
@@ -88,8 +94,8 @@ class TestLoadFeatureConfigs(TestCase):
             ],
         )
         NimbusFeatureConfigFactory.create(
-            name="prefSettingFeature",
-            slug="prefSettingFeature",
+            name="oldSetPrefFeature",
+            slug="oldSetPrefeature",
             application=NimbusExperiment.Application.DESKTOP,
             schemas=[
                 NimbusVersionedSchemaFactory.build(
@@ -133,7 +139,7 @@ class TestLoadFeatureConfigs(TestCase):
         )
         self.assertTrue(schema.is_early_startup)
 
-        feature_config = NimbusFeatureConfig.objects.get(slug="prefSettingFeature")
+        feature_config = NimbusFeatureConfig.objects.get(slug="oldSetPrefFeature")
 
         self.assertEqual(
             sorted(feature_config.schemas.get(version=None).sets_prefs),
