@@ -27,6 +27,7 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
     NimbusVersionedSchemaFactory,
 )
+from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
@@ -1288,6 +1289,179 @@ class TestUpdateExperimentMutationSingleFeature(
             child_experiment=excluded,
             branch_slug=excluded.reference_branch.slug,
         ).get()
+
+    def test_subscribe_to_experiment_empty_subscribers(self):
+        current_user = UserFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            subscribers=[],
+        )
+        self.assertEqual(list(experiment.subscribers.all()), [])
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "name": "test subscribe",
+                    "subscribers": [
+                        {
+                            "email": current_user.email,
+                            "subscribed": True,
+                        }
+                    ],
+                    "changelogMessage": "test subscribe",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: current_user.email},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get()
+        self.assertEqual(list(experiment.subscribers.all()), [current_user])
+
+    def test_subscribe_to_experiment_with_existing_subscribers(self):
+        current_user = UserFactory.create()
+        existing_subscriber = UserFactory.create()
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            subscribers=[existing_subscriber],
+        )
+        self.assertEqual(list(experiment.subscribers.all()), [existing_subscriber])
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "subscribers": [
+                        {
+                            "email": current_user.email,
+                            "subscribed": True,
+                        }
+                    ],
+                    "changelogMessage": "test subscribe",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: current_user.email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get()
+        expected_subscribers = [current_user, existing_subscriber]
+
+        self.assertEqual(set(experiment.subscribers.all()), set(expected_subscribers))
+
+    def test_subscribe_to_experiment_that_is_already_subscribed(self):
+        current_user = UserFactory.create()
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            subscribers=[current_user],
+        )
+        self.assertEqual(list(experiment.subscribers.all()), [current_user])
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "subscribers": [
+                        {
+                            "email": current_user.email,
+                            "subscribed": True,
+                        }
+                    ],
+                    "changelogMessage": "test subscribe",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: current_user.email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get()
+        self.assertEqual(list(experiment.subscribers.all()), [current_user])
+
+    def test_unsubscribe_to_experiment(self):
+        current_user = UserFactory.create()
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            subscribers=[current_user],
+        )
+        self.assertEqual(list(experiment.subscribers.all()), [current_user])
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "subscribers": [
+                        {
+                            "email": current_user.email,
+                            "subscribed": False,
+                        }
+                    ],
+                    "changelogMessage": "test subscribe",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: current_user.email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get()
+        self.assertEqual(list(experiment.subscribers.all()), [])
+
+    def test_unsubscribe_to_experiment_when_not_subscribed(self):
+        current_user = UserFactory.create()
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE, subscribers=[]
+        )
+        self.assertEqual(list(experiment.subscribers.all()), [])
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "subscribers": [
+                        {
+                            "email": current_user.email,
+                            "subscribed": False,
+                        }
+                    ],
+                    "changelogMessage": "test subscribe",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: current_user.email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get()
+        self.assertEqual(list(experiment.subscribers.all()), [])
 
 
 @mock_valid_outcomes
