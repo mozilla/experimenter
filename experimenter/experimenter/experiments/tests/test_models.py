@@ -762,7 +762,7 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[
                 NimbusFeatureConfig.objects.get(
                     application=NimbusExperiment.Application.DESKTOP,
-                    slug="prefSettingFeature",
+                    slug="oldSetPrefFeature",
                 )
             ],
         )
@@ -798,7 +798,7 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[
                 NimbusFeatureConfig.objects.get(
                     application=NimbusExperiment.Application.DESKTOP,
-                    slug="prefSettingFeature",
+                    slug="oldSetPrefFeature",
                 )
             ],
         )

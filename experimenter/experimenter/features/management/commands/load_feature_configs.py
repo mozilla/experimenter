@@ -1,9 +1,10 @@
 import itertools
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from mozilla_nimbus_schemas.experiments.feature_manifests import SetPref
 
 from experimenter.experiments.constants import NO_FEATURE_SLUG
 from experimenter.experiments.models import (
@@ -170,8 +171,14 @@ class Command(BaseCommand):
                     schema.schema = jsonschema
                     dirty_fields.append("schema")
 
+            def set_pref_name(v: Union[SetPref, str]) -> str:
+                if isinstance(v, SetPref):
+                    return v.pref
+                else:
+                    return v
+
             sets_prefs = [
-                v.set_pref
+                set_pref_name(v.set_pref)
                 for v in feature.model.variables.values()
                 if v.set_pref is not None
             ]
