@@ -55,7 +55,6 @@ class ExperimentInput(graphene.InputObjectType):
     conclusion_recommendation = NimbusExperimentConclusionRecommendationEnum()
     countries = graphene.List(graphene.String)
     documentation_links = graphene.List(DocumentationLinkInput)
-    excluded_experiments = graphene.List(graphene.NonNull(graphene.Int))
     excluded_experiments_branches = graphene.List(
         graphene.NonNull(NimbusExperimentBranchThroughExcludedInput)
     )
@@ -86,7 +85,6 @@ class ExperimentInput(graphene.InputObjectType):
     qa_comment = graphene.String()
     qa_status = NimbusExperimentQAStatusEnum()
     reference_branch = graphene.Field(BranchInput)
-    required_experiments = graphene.List(graphene.NonNull(graphene.Int))
     required_experiments_branches = graphene.List(
         graphene.NonNull(NimbusExperimentBranchThroughRequiredInput)
     )

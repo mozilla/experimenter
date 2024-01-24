@@ -113,14 +113,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         name
                     }
                     hypothesis
-                    excludedExperiments {
-                        id
-                        slug
-                    }
-                    requiredExperiments {
-                        id
-                        slug
-                    }
                     subscribers {
                         email
                     }
@@ -223,8 +215,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 ],
                 "projects": [{"id": str(project.id), "name": project.name}],
                 "hypothesis": experiment.hypothesis,
-                "requiredExperiments": [],
-                "excludedExperiments": [],
             },
         )
         self.assertEqual(experiment_data["hypothesis"], experiment.hypothesis)
@@ -555,83 +545,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         self.assertIn(
             {"email": subscriber.email},
             experiment_data["subscribers"],
-        )
-
-    def test_query_excluded_required_experiments(self):
-        excluded = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        required = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            excluded_experiments=[excluded],
-            required_experiments=[required],
-        )
-
-        response = self.query(
-            """
-            query getAllExperiments {
-                experiments {
-                    id
-                    excludedExperiments {
-                        id
-                        slug
-                    }
-                    requiredExperiments {
-                        id
-                        slug
-                    }
-                }
-            }
-            """,
-            headers={settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
-        )
-
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-
-        experiments = content["data"]["experiments"]
-
-        self.assertEqual(len(experiments), 3)
-
-        self.assertIn(
-            {
-                "id": excluded.id,
-                "excludedExperiments": [],
-                "requiredExperiments": [],
-            },
-            experiments,
-        )
-        self.assertIn(
-            {
-                "id": required.id,
-                "excludedExperiments": [],
-                "requiredExperiments": [],
-            },
-            experiments,
-        )
-        self.assertIn(
-            {
-                "id": experiment.id,
-                "excludedExperiments": [
-                    {
-                        "id": excluded.id,
-                        "slug": excluded.slug,
-                    }
-                ],
-                "requiredExperiments": [
-                    {
-                        "id": required.id,
-                        "slug": required.slug,
-                    },
-                ],
-            },
-            experiments,
         )
 
 
