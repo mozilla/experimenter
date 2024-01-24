@@ -72,7 +72,6 @@ type NimbusExperimentType {
   computedEnrollmentDays: Int
   computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
-  excludedExperiments: [NimbusExperimentType!]!
   excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedType!]!
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
@@ -82,7 +81,6 @@ type NimbusExperimentType {
   readyForReview: NimbusReviewType
   recipeJson: String
   rejection: NimbusChangeLogType
-  requiredExperiments: [NimbusExperimentType!]!
   requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredType!]!
   resultsExpectedDate: DateTime
   resultsReady: Boolean
@@ -527,7 +525,6 @@ input ExperimentInput {
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   countries: [String]
   documentationLinks: [DocumentationLinkInput]
-  excludedExperiments: [Int!]
   excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedInput!]
   featureConfigIds: [Int]
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
@@ -556,7 +553,6 @@ input ExperimentInput {
   qaComment: String
   qaStatus: NimbusExperimentQAStatusEnum
   referenceBranch: BranchInput = null
-  requiredExperiments: [Int!]
   requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredInput!]
   riskBrand: Boolean
   riskMitigationLink: String
