@@ -11,7 +11,7 @@ def update_proposed_duration(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("experiments", "0257_alter_nimbusexperiment_qa_status"),
+        ("experiments", "0258_nimbusexperiment_subscribers"),
     ]
 
     operations = [

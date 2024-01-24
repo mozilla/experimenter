@@ -70,6 +70,9 @@ class UpdateExperiment(graphene.Mutation):
         if "feature_config_ids" in input:
             input["feature_configs"] = input.pop("feature_config_ids", None)
 
+        if "subscribed" in input:
+            input["subscribed"] = input.pop("subscribed")
+
         serializer = NimbusExperimentSerializer(
             experiment, data=input, partial=True, context={"user": info.context.user}
         )
@@ -95,5 +98,7 @@ class Mutation(graphene.ObjectType):
     create_experiment = CreateExperiment.Field(
         description="Create a new Nimbus Experiment."
     )
-    update_experiment = UpdateExperiment.Field(description="Update a Nimbus Experiment.")
+    update_experiment = UpdateExperiment.Field(
+        description="Update a Nimbus Experiment."
+    )
     clone_experiment = CloneExperiment.Field(description="Clone an experiment.")
