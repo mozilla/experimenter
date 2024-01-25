@@ -108,6 +108,8 @@ def handle_pending_review(applications):
     if experiment := NimbusExperiment.objects.waiting(applications).first():
         if experiment.should_timeout:
             experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+            if experiment.status == experiment.Status.DRAFT:
+                experiment.published_date = None
             experiment.save()
 
             generate_nimbus_changelog(
@@ -139,6 +141,8 @@ def handle_rejection(applications, kinto_client):
         experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         experiment.status_next = None
         experiment.is_paused = False
+        if experiment.status == experiment.Status.DRAFT:
+            experiment.published_date = None
         experiment.save()
 
         generate_nimbus_changelog(
@@ -237,6 +241,8 @@ def handle_waiting_experiments(applications):
     for experiment in waiting_experiments:
         experiment.status_next = None
         experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        if experiment.status == experiment.Status.DRAFT:
+            experiment.published_date = None
         experiment.save()
 
         generate_nimbus_changelog(
