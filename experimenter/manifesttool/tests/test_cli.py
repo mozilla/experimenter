@@ -24,22 +24,22 @@ from manifesttool.tests.test_fetch import FML_APP_CONFIG, LEGACY_APP_CONFIG, moc
 from manifesttool.version import Version
 
 
-def make_app_configs(app_config: AppConfig) -> AppConfigs:
+def make_app_configs(app_configs: list[AppConfig]) -> AppConfigs:
     """Generate the AppConfigs for a single app."""
     return AppConfigs(
         __root__={
-            app_config.slug.replace("-", "_"): app_config,
+            app_config.slug.replace("-", "_"): app_config for app_config in app_configs
         }
     )
 
 
 @contextmanager
-def cli_runner(*, app_config: AppConfig, manifest_path: Path = Path(".")):
+def cli_runner(*, app_configs: AppConfig, manifest_path: Path = Path(".")):
     """Create a CliRunner with an isolated filesystem.
 
     The given AppConfigs will be written to disk before yielding the runner.
     """
-    app_configs = make_app_configs(app_config)
+    app_configs = make_app_configs(app_configs)
     runner = CliRunner()
     with runner.isolated_filesystem():
         with manifest_path.joinpath("apps.yaml").open("w") as f:
@@ -64,7 +64,7 @@ class CliTests(TestCase):
         side_effect=lambda *args: mock_fetch(*args, ref=Ref("main", "resolved")),
     )
     def test_fetch_fml(self, fetch_fml_app, fetch_releases):
-        with cli_runner(app_config=FML_APP_CONFIG) as runner:
+        with cli_runner(app_configs=[FML_APP_CONFIG]) as runner:
             result = runner.invoke(main, ["--manifest-dir", ".", "fetch"])
 
         self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
@@ -92,7 +92,7 @@ class CliTests(TestCase):
     )
     def test_fetch_fml_failure(self, fetch_releases):
         """Testing the fetch command with an FML app when a failure occurs."""
-        with cli_runner(app_config=FML_APP_CONFIG) as runner:
+        with cli_runner(app_configs=[FML_APP_CONFIG]) as runner:
             result = runner.invoke(main, ["--manifest-dir", ".", "fetch"])
 
         self.assertEqual(result.exit_code, 1, result.exception or result.stdout)
@@ -114,7 +114,7 @@ class CliTests(TestCase):
     )
     def test_fetch_legacy(self, fetch_legacy_app, fetch_releases):
         """Testing the fetch command with a legacy app."""
-        with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
+        with cli_runner(app_configs=[LEGACY_APP_CONFIG]) as runner:
             result = runner.invoke(main, ["--manifest-dir", ".", "fetch"])
 
         self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
@@ -142,7 +142,7 @@ class CliTests(TestCase):
     )
     def test_fetch_legacy_failure(self, fetch_releases):
         """Testing the fetch command with a legacy app when a failure occurs."""
-        with cli_runner(app_config=LEGACY_APP_CONFIG) as runner:
+        with cli_runner(app_configs=[LEGACY_APP_CONFIG]) as runner:
             result = runner.invoke(main, ["--manifest-dir", ".", "fetch"])
 
         self.assertEqual(result.exit_code, 1, result.exception or result.stdout)
@@ -189,7 +189,7 @@ class CliTests(TestCase):
             ),
         )
 
-        with cli_runner(app_config=app_config) as runner:
+        with cli_runner(app_configs=[app_config]) as runner:
             result = runner.invoke(main, ["--manifest-dir", ".", "fetch"])
             self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
@@ -246,7 +246,7 @@ class CliTests(TestCase):
             ),
         )
 
-        with cli_runner(app_config=app_config) as runner:
+        with cli_runner(app_configs=[app_config]) as runner:
             result = runner.invoke(
                 main, ["--manifest-dir", ".", "fetch", "--summary", "summary.txt"]
             )
@@ -266,3 +266,39 @@ class CliTests(TestCase):
             "fml_app at main (quux) version None\n"
             "oh no\n\n",
         )
+
+    @patch.object(
+        manifesttool.cli,
+        "fetch_fml_app",
+        side_effect=lambda *args: mock_fetch(*args, ref=Ref("main", "resolved")),
+    )
+    @patch.object(manifesttool.cli, "fetch_legacy_app")
+    def test_fetch_specific_apps(self, fetch_legacy_app, fetch_fml_app):
+        with cli_runner(app_configs=[LEGACY_APP_CONFIG, FML_APP_CONFIG]) as runner:
+            result = runner.invoke(
+                main, ["--manifest-dir", ".", "fetch", "--app", "fml_app"]
+            )
+
+        self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
+
+        fetch_legacy_app.assert_not_called()
+        fetch_fml_app.assert_called_once_with(Path("."), "fml_app", FML_APP_CONFIG)
+
+        self.assertIn(
+            "SUMMARY:\n\n" "SUCCESS:\n\n" "fml_app at main (resolved) version None\n\n",
+            result.stdout,
+        )
+
+        self.assertNotIn("CACHED:", result.stdout)
+        self.assertNotIn("FAILURES:", result.stdout)
+
+    def test_fetch_app_does_not_existt(self):
+        with cli_runner(app_configs=[LEGACY_APP_CONFIG]) as runner:
+            result = runner.invoke(
+                main, ["--manifest-dir", ".", "fetch", "--app", "does_not_exist"]
+            )
+
+        self.assertEqual(result.exit_code, 1, result.exception or result.stdout)
+
+        self.assertIn("fetch: unknown app does_not_exist", result.stdout)
+        self.assertNotIn("SUMMARY", result.stdout)

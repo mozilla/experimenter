@@ -45,13 +45,30 @@ def main(ctx: click.Context, *, manifest_dir: Path):
 @click.option(
     "--summary", "summary_filename", type=Path, help="Write a summary to this file."
 )
-def fetch(ctx: click.Context, *, summary_filename: Optional[Path]):
+@click.option(
+    "--app",
+    "app_names",
+    type=str,
+    multiple=True,
+    help="Only fetch updates for the specified app(s).",
+)
+def fetch(ctx: click.Context, *, summary_filename: Optional[Path], app_names: list[str]):
     """Fetch the FML manifests and generate experimenter.yaml files."""
     context = ctx.find_object(Context)
 
     results = []
 
-    for app_name, app_config in context.app_configs.__root__.items():
+    if app_names:
+        for app_name in app_names:
+            if app_name not in context.app_configs.__root__.keys():
+                print(f"fetch: unknown app {app_name}", file=sys.stderr)
+                sys.exit(1)
+    else:
+        app_names = context.app_configs.__root__.keys()
+
+    for app_name in app_names:
+        app_config = context.app_configs.__root__[app_name]
+
         app_dir = context.manifest_dir.joinpath(app_config.slug)
         app_dir.mkdir(exist_ok=True)
 
