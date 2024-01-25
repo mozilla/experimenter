@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import timezone
 from parameterized import parameterized
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -768,22 +769,23 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
 
 
 class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
-    def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_accepted(
+    def test_push_experiment_to_kinto(
         self,
     ):
+        """Push desktop experiment to Kinto and validate its outgoing publish status,
+        published_date, and changelogs"""
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
+            published_date=None,
         )
 
         tasks.nimbus_push_experiment_to_kinto(
             settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
         )
 
-        data = NimbusExperimentSerializer(experiment).data
-
         self.mock_kinto_client.create_record.assert_called_with(
-            data=data,
+            data=mock.ANY,
             collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
             if_not_exists=True,
@@ -800,6 +802,40 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
                 message=NimbusChangeLog.Messages.LAUNCHING_TO_KINTO,
             ).exists()
         )
+        self.assertIsNotNone(experiment.published_date)
+
+    def test_push_experiment_to_kinto_overwrites_existing_published_date_for_draft(self):
+        existing_published_date = timezone.now()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_date=existing_published_date,
+        )
+
+        tasks.nimbus_push_experiment_to_kinto(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
+        )
+
+        self.mock_kinto_client.create_record.assert_called_with(
+            data=mock.ANY,
+            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            if_not_exists=True,
+        )
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.WAITING
+        )
+        self.assertTrue(
+            experiment.changes.filter(
+                old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
+                new_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                message=NimbusChangeLog.Messages.LAUNCHING_TO_KINTO,
+            ).exists()
+        )
+        self.assertIsNotNone(experiment.published_date)
+        self.assertNotEqual(experiment.published_date, existing_published_date)
 
     def test_push_experiment_to_kinto_reraises_exception(self):
         experiment = NimbusExperimentFactory.create(
@@ -814,9 +850,11 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
 
 class TestNimbusUpdateExperimentInKinto(MockKintoClientMixin, TestCase):
     def test_updates_experiment_record_in_kinto(self):
+        existing_published_date = timezone.now()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
+            published_date=existing_published_date,
         )
 
         tasks.nimbus_update_experiment_in_kinto(
@@ -850,6 +888,7 @@ class TestNimbusUpdateExperimentInKinto(MockKintoClientMixin, TestCase):
                 message=NimbusChangeLog.Messages.UPDATING_IN_KINTO,
             ).exists()
         )
+        self.assertEqual(experiment.published_date, existing_published_date)
 
     def test_push_experiment_to_kinto_reraises_exception(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
