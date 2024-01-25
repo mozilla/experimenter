@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 import jsonschema
-import packaging
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -1475,6 +1474,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         self.warnings = defaultdict(list)
 
+        self.schemas_by_feature_id: dict[
+            str, NimbusFeatureConfig.VersionedSchemaRange
+        ] = {}
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["feature_config"] = None
@@ -1548,39 +1551,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         application: str,
         feature_config: NimbusFeatureConfig,
         value: str,
-        min_version: packaging.version.Version,
-        max_version: Optional[packaging.version.Version],
+        schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         localizations: Optional[dict[str, Any]],
         channel: str,
-    ) -> Optional[list[str]]:
-        if application == NimbusExperiment.Application.DESKTOP:
-            return self._validate_feature_value_with_schema(
-                feature_config,
-                value,
-                localizations,
-                min_version,
-                max_version,
-            )
-        else:
-            return self._validate_feature_value_with_fml(
-                NimbusFmlLoader.create_loader(application, channel),
-                feature_config,
-                value,
-                min_version,
-                max_version,
-            )
-
-    def _validate_feature_value_with_schema(
-        self,
-        feature_config: NimbusFeatureConfig,
-        value: str,
-        localizations: Optional[dict[str, Any]],
-        min_version: packaging.version.Version,
-        max_version: Optional[packaging.version.Version],
-    ):
-        schemas_in_range = feature_config.get_versioned_schema_range(
-            min_version, max_version
-        )
+    ) -> list[str]:
         if schemas_in_range.unsupported_in_range:
             return [
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
@@ -1589,7 +1563,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             ]
 
         errors = []
-
         for version in schemas_in_range.unsupported_versions:
             errors.append(
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
@@ -1598,8 +1571,35 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 )
             )
 
-        json_value = json.loads(value)
+        if application == NimbusExperiment.Application.DESKTOP:
+            errors.extend(
+                self._validate_feature_value_with_schema(
+                    schemas_in_range,
+                    value,
+                    localizations,
+                )
+            )
+        else:
+            errors.extend(
+                self._validate_feature_value_with_fml(
+                    schemas_in_range,
+                    NimbusFmlLoader.create_loader(application, channel),
+                    feature_config,
+                    value,
+                )
+            )
 
+        return errors
+
+    def _validate_feature_value_with_schema(
+        self,
+        schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
+        value: str,
+        localizations: Optional[dict[str, Any]],
+    ) -> list[str]:
+        errors = []
+
+        json_value = json.loads(value)
         for schema in schemas_in_range.schemas:
             if schema.schema is None:  # Only in tests.
                 continue
@@ -1633,39 +1633,16 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         errors.append(err_msg)
                         errors.extend(schema_errors)
 
-        if errors:
-            return errors
-
-        return None
+        return errors
 
     def _validate_feature_value_with_fml(
         self,
+        schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         loader: NimbusFmlLoader,
-        feature_config,
+        feature_config: NimbusFeatureConfig,
         blob: str,
-        min_version: packaging.version.Version,
-        max_version: Optional[packaging.version.Version],
-    ):
-        schemas_in_range = feature_config.get_versioned_schema_range(
-            min_version, max_version
-        )
-
-        if schemas_in_range.unsupported_in_range:
-            return [
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
-                    feature_config=feature_config,
-                )
-            ]
+    ) -> list[str]:
         errors = []
-
-        for version in schemas_in_range.unsupported_versions:
-            errors.append(
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
-                    feature_config=feature_config,
-                    version=version,
-                )
-            )
-
         for schema in schemas_in_range.schemas:
             version = schema.version
             if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
@@ -1732,12 +1709,19 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         for feature_value_data in data.get("reference_branch", {}).get(
             "feature_values", []
         ):
+            # Cache the versioned schema range for each feature so we can re-use
+            # them in the treatment branch validation below without performing
+            # the queries again.
+            feature_config: NimbusFeatureConfig = feature_value_data["feature_config"]
+            self.schemas_by_feature_id[
+                feature_config.id
+            ] = feature_config.get_versioned_schema_range(min_version, max_version)
+
             if feature_errors := self._validate_feature_value(
                 application,
-                feature_value_data["feature_config"],
+                feature_config,
                 feature_value_data["value"],
-                min_version,
-                max_version,
+                self.schemas_by_feature_id[feature_config.id],
                 localizations,
                 channel,
             ):
@@ -1754,12 +1738,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             treatment_branch_errors = []
 
             for feature_value_data in treatment_branch_data["feature_values"]:
+                feature_config: NimbusFeatureConfig = feature_value_data["feature_config"]
+
                 if feature_errors := self._validate_feature_value(
                     application,
-                    feature_value_data["feature_config"],
+                    feature_config,
                     feature_value_data["value"],
-                    min_version,
-                    max_version,
+                    self.schemas_by_feature_id[feature_config.id],
                     localizations,
                     channel,
                 ):
