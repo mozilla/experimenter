@@ -102,6 +102,9 @@ update_kinto:  ## Update latest Kinto/Remote Settings container
 compose_build:  ## Build containers
 	$(COMPOSE) build
 
+build_megazords:
+	$(DOCKER_BUILD) -f application-services/Dockerfile -t experimenter:megazords application-services/
+
 build_dev: ssl
 	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
