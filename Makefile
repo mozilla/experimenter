@@ -108,6 +108,9 @@ build_megazords:
 build_dev: ssl
 	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
+build_integration_test: ssl build_megazords
+	$(DOCKER_BUILD) -f experimenter/tests/integration/Dockerfile -t experimenter:integration-tests experimenter/
+
 build_test: ssl
 	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
@@ -220,8 +223,8 @@ integration_test_legacy: build_prod
 integration_test_nimbus: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "if [ \"$$UPDATE_FIREFOX_VERSION\" = \"true\" ]; then sudo ./experimenter/tests/integration/nimbus/utils/nightly-install.sh; fi; firefox -V; sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/experimenter/tests/integration/.tox;sudo mkdir -m a+rwx /code/experimenter/tests/integration/test-reports;PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) tox -c experimenter/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
 
-integration_test_nimbus_rust: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod -R a+rwx /code/experimenter/tests/integration/;sudo mkdir -m a+rwx /code/experimenter/tests/integration/test-reports;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
+integration_test_nimbus_rust: build_integration_test build_prod
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run -it rust-sdk tox -vv -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)
 
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&
