@@ -471,9 +471,7 @@ describe("PageSummary", () => {
     mutationMock.result.errors = [new Error("Boo")];
     render(<Subject mocks={[mock, mutationMock]} />);
     await launchFromDraftToReview();
-    await waitFor(() =>
-      expect(screen.getByTestId("submit-error")).toBeInTheDocument(),
-    );
+    await waitFor(() => screen.getByTestId("submit-error-warning"));
   });
 
   // TODO: #6802
@@ -912,7 +910,7 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mock]} />);
-    expect(screen.queryByTestId("bucketing-warning")).toBeInTheDocument();
+    screen.getByTestId("bucketing-warning");
   });
 
   it("displays no duplicate rollout warning for experiments", async () => {
@@ -934,7 +932,7 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mock]} />);
-    expect(screen.queryByTestId("bucketing-warning")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("bucketing-warning")).toBeNull();
   });
 
   it("displays a warning for desktop rollouts under v114", async () => {
@@ -954,11 +952,7 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mockRollout]} />);
-    await waitFor(() =>
-      expect(
-        screen.queryByTestId("desktop-min-version-warning"),
-      ).toBeInTheDocument(),
-    );
+    await waitFor(() => screen.queryByTestId("desktop-min-version-warning"));
   });
 
   it("displays no warning for desktop rollouts above v113", async () => {
@@ -976,9 +970,7 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mockRollout]} />);
-    expect(
-      screen.queryByTestId("desktop-min-version-warning"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("desktop-min-version-warning")).toBeNull();
   });
 
   it("displays no min version warning for non-desktop rollouts", async () => {
@@ -996,8 +988,6 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mock]} />);
-    expect(
-      screen.queryByTestId("desktop-min-version-warning"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("desktop-min-version-warning")).toBeNull();
   });
 });
