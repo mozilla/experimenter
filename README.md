@@ -437,6 +437,12 @@ Run the integration test suite for nimbus inside a containerized instance of Fir
 
 FIREFOX_VERSION should either be `nimbus-firefox-release` or `nimbus-firefox-beta`. If you want to run your tests against nightly, please set the variable `UPDATE_FIREFOX_VERSION` to `true` and include it in the make command.
 
+#### make FIREFOX_VERSION integration_test_nimbus_rust
+
+Run the Nimbus SDK integration tests, which tests the advanced targeting configurations against the Nimbus SDK.
+
+FIREFOX_VERSION should either be `nimbus-firefox-release` or `nimbus-firefox-beta`. If you want to run your tests against nightly, please set the variable `UPDATE_FIREFOX_VERSION` to `true` and include it in the make command.
+
 #### make FIREFOX_VERSION integration_vnc_up
 
 First start a prod instance of Experimenter with:
