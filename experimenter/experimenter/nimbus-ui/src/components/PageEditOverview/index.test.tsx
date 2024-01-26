@@ -13,6 +13,7 @@ import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
 import { mockExperimentMutation, mockExperimentQuery } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
+import { ExperimentInput } from "src/types/globalTypes";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
@@ -21,8 +22,7 @@ jest.mock("@reach/router", () => ({
   navigate: jest.fn(),
 }));
 
-let mockMutationData: Record<string, string | boolean> = {};
-let mockSubmitData: Record<string, string> = {};
+let mockMutationData: ExperimentInput = {};
 const mockSubmit = jest.fn();
 
 describe("PageEditOverview", () => {
@@ -57,15 +57,7 @@ describe("PageEditOverview", () => {
       riskBrand: experiment.riskBrand!,
       riskRevenue: experiment.riskRevenue!,
       riskPartnerRelated: experiment.riskPartnerRelated!,
-      projects: String(experiment.projects!.map((v) => "" + v!.id)),
-    };
-    mockSubmitData = {
-      ...mockMutationData,
-      ...{
-        riskBrand: String(experiment.riskBrand!),
-        riskRevenue: String(experiment.riskRevenue!),
-        riskPartnerRelated: String(experiment.riskPartnerRelated!),
-      },
+      projects: experiment.projects!.map((v) => "" + v!.id),
     };
     mutationMock = mockExperimentMutation(
       UPDATE_EXPERIMENT_MUTATION,
@@ -90,6 +82,62 @@ describe("PageEditOverview", () => {
   });
 
   it("handles form submission", async () => {
+    render(<Subject mocks={[mock, mutationMock]} />);
+    await screen.findByTestId("PageEditOverview");
+    fireEvent.click(screen.getByTestId("submit"));
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalled());
+  });
+
+  it("handles form submission with boolean risks", async () => {
+    mockMutationData = {
+      ...mockMutationData,
+      ...{
+        riskBrand: false,
+        riskRevenue: false,
+        riskPartnerRelated: false,
+      },
+    };
+    mutationMock = mockExperimentMutation(
+      UPDATE_EXPERIMENT_MUTATION,
+      {
+        ...mockMutationData,
+        id: experiment.id,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_OVERVIEW,
+      },
+      "updateExperiment",
+      {
+        experiment: mockMutationData,
+      },
+    );
+
+    render(<Subject mocks={[mock, mutationMock]} />);
+    await screen.findByTestId("PageEditOverview");
+    fireEvent.click(screen.getByTestId("submit"));
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalled());
+  });
+
+  it("handles form submission with undefined risks", async () => {
+    mockMutationData = {
+      ...mockMutationData,
+      ...{
+        riskBrand: undefined,
+        riskRevenue: undefined,
+        riskPartnerRelated: undefined,
+      },
+    };
+    mutationMock = mockExperimentMutation(
+      UPDATE_EXPERIMENT_MUTATION,
+      {
+        ...mockMutationData,
+        id: experiment.id,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_OVERVIEW,
+      },
+      "updateExperiment",
+      {
+        experiment: mockMutationData,
+      },
+    );
+
     render(<Subject mocks={[mock, mutationMock]} />);
     await screen.findByTestId("PageEditOverview");
     fireEvent.click(screen.getByTestId("submit"));
@@ -154,12 +202,12 @@ jest.mock("../FormOverview", () => ({
     const handleSubmit = (ev: React.FormEvent) => {
       ev.preventDefault();
       mockSubmit();
-      props.onSubmit(mockSubmitData, false);
+      props.onSubmit(mockMutationData, false);
     };
     const handleNext = (ev: React.FormEvent) => {
       ev.preventDefault();
       mockSubmit();
-      props.onSubmit(mockSubmitData, true);
+      props.onSubmit(mockMutationData, true);
     };
     return (
       <div data-testid="FormOverview">
