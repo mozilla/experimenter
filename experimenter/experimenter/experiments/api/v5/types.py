@@ -334,6 +334,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
     population_sizing_data = graphene.String()
     qa_status = graphene.List(NimbusLabelValueType)
+    user = graphene.NonNull(graphene.String)
 
     def _text_choices_to_label_value_list(self, text_choices):
         return [
@@ -343,6 +344,9 @@ class NimbusConfigurationType(graphene.ObjectType):
             )
             for name in text_choices.names
         ]
+
+    def resolve_user(self, info):
+        return info.context.user.email
 
     def resolve_applications(self, info):
         return self._text_choices_to_label_value_list(NimbusExperiment.Application)

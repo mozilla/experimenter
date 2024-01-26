@@ -472,6 +472,7 @@ type NimbusConfigurationType {
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
   populationSizingData: String
   qaStatus: [NimbusLabelValueType]
+  user: String!
 }
 
 type NimbusExperimentApplicationConfigType {
@@ -514,9 +515,6 @@ type Mutation {
 
   """Clone an experiment."""
   cloneExperiment(input: ExperimentCloneInput!): CloneExperiment
-
-  """Subscribe to an experiment."""
-  subscribeToExperiment(input: ExperimentInput!): SubscribeToExperiment
 }
 
 type CreateExperiment {
@@ -638,9 +636,4 @@ input ExperimentCloneInput {
   parentSlug: String!
   name: String!
   rolloutBranchSlug: String
-}
-
-type SubscribeToExperiment {
-  nimbusExperiment: NimbusExperimentType
-  message: ObjectField
 }

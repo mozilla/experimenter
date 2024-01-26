@@ -2,75 +2,103 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useMemo, useState } from "react";
-import { Button, Card, Table } from "react-bootstrap";
-import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
+import { useMutation } from "@apollo/client";
+import { navigate } from "@reach/router";
+import React, { useState } from "react";
+import { Alert, Button, Card, Table } from "react-bootstrap";
 import NotSet from "src/components/NotSet";
 import RichText from "src/components/RichText";
 import { displayConfigLabelOrNotSet } from "src/components/Summary";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import { useCommonForm, useConfig, useOutcomes } from "src/hooks";
-import { getExperiment_experimentBySlug, getExperiment_experimentBySlug_subscribers } from "src/types/getExperiment";
+import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
+import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import {
+  updateExperiment,
+  updateExperimentVariables,
+} from "src/types/updateExperiment";
 
 type TableOverviewProps = {
   experiment: getExperiment_experimentBySlug;
-  submitErrors: SerializerMessages;
-  setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-  isServerValid: boolean;
-  isLoading: boolean;
-  onSave: (params: SubscriberParams) => void;
-};
-
-type SubscriberParams = {
-  subscribers: (getExperiment_experimentBySlug_subscribers | null)[];
 };
 
 interface DocSlugs {
   [key: string]: string;
 }
 
-export const overviewFieldNames = ["subscribers"] as const;
-type OverviewFieldName = typeof overviewFieldNames[number];
+export type SubscriberParams = {
+  email: string;
+  subscribed: boolean;
+};
 
 // `<tr>`s showing optional fields that are not set are not displayed.
-
-const TableOverview = ({
-  experiment,
-  isLoading,
-  isServerValid,
-  submitErrors,
-  setSubmitErrors,
-  onSave,
-}: TableOverviewProps) => {
-  const { applications } = useConfig();
+const TableOverview = ({ experiment }: TableOverviewProps) => {
+  const { applications, user } = useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
+
+  const [subscribed, setSubscribed] = useState<boolean>(
+    experiment.subscribers.find((s) => s.email === user) ? true : false,
+  );
+  const [isServerValid, setIsServerValid] = useState(true);
+  const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
+
   const defaultValues: SubscriberParams = {
-    subscribers: experiment?.subscribers || [],
+    email: user,
+    subscribed: subscribed,
   };
-  type DefaultValues = typeof defaultValues;
 
-  const [subscribers, setSubscribers] = useState(experiment!.subscribers ?? []);
+  const { handleSubmit } = useCommonForm<keyof SubscriberParams>(
+    defaultValues,
+    isServerValid,
+    submitErrors,
+    setSubmitErrors,
+  );
 
-  const { FormErrors, formControlAttrs, handleSubmit, formMethods, getValues } =
-    useCommonForm<OverviewFieldName>(
-      defaultValues,
-      isServerValid,
-      submitErrors,
-      setSubmitErrors,
-    );
+  const [updateExperiment] = useMutation<
+    updateExperiment,
+    updateExperimentVariables
+  >(UPDATE_EXPERIMENT_MUTATION);
 
-  const { trigger } = formMethods;
+  const onSave = async () => {
+    setIsServerValid(true);
+    setSubmitErrors({});
+    try {
+      const result = await updateExperiment({
+        variables: {
+          input: {
+            id: experiment.id,
+            subscribers: [
+              {
+                email: user,
+                subscribed: !subscribed,
+              },
+            ],
+            changelogMessage: CHANGELOG_MESSAGES.UPDATE_SUBSCRIBERS,
+          },
+        },
+      });
+
+      // istanbul ignore next - can't figure out how to trigger this in a test
+      if (!result.data?.updateExperiment) {
+        throw new Error(SUBMIT_ERROR);
+      }
+
+      const { message } = result.data.updateExperiment;
+      if (message && message !== "success" && typeof message === "object") {
+        setIsServerValid(false);
+        return void setSubmitErrors(message);
+      } else {
+        await navigate(0);
+        setSubscribed(!subscribed);
+      }
+    } catch (error) {
+      setSubmitErrors({ "*": SUBMIT_ERROR });
+    }
+  };
+
   const handleSave = handleSubmit(onSave);
-
-  // const [handleSave, handleSaveNext] = useMemo(
-  //   () =>
-  //     [false, true].map((next) =>
-  //       handleSubmit(
-  //         (dataIn: DefaultValues) =>
-  //           !isLoading && onSubmit({ ...dataIn, subscribers }, next),
-  //       ),
-  //     ),
-  //   [handleSubmit, isLoading, onSubmit, subscribers],
-  // );
 
   const docSlugs: DocSlugs = {
     DESKTOP: "firefox_desktop",
@@ -229,7 +257,9 @@ const TableOverview = ({
                 {experiment.subscribers!.length > 0 ? (
                   <ul className="list-unstyled mb-0">
                     {experiment.subscribers!.map((subscriber) => (
-                      <li key={subscriber!.email}>{subscriber!.email}</li>
+                      <li data-testid="subscriber" key={subscriber!.email}>
+                        {subscriber!.email}
+                      </li>
                     ))}
                   </ul>
                 ) : (
@@ -242,10 +272,29 @@ const TableOverview = ({
                     data-testid="add-subscriber-button"
                     onClick={handleSave}
                   >
-                    <ExpandPlus />
-                    Subscribe
+                    {subscribed ? (
+                      <div>
+                        <CollapseMinus />
+                        Unsubscribe
+                      </div>
+                    ) : (
+                      <div>
+                        <ExpandPlus />
+                        Subscribe
+                      </div>
+                    )}
                   </Button>
                 </td>
+                {submitErrors["*"] && (
+                  <Alert data-testid="submit-error" variant="warning">
+                    {submitErrors["*"]}
+                  </Alert>
+                )}
+                {submitErrors["subscribers"] && (
+                  <Alert data-testid="submit-error" variant="warning">
+                    {submitErrors["subscribers"]}
+                  </Alert>
+                )}
               </td>
             </tr>
           </tbody>

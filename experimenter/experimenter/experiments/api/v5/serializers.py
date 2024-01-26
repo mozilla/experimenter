@@ -1033,7 +1033,6 @@ class NimbusExperimentSerializer(
             "slug",
             "status_next",
             "status",
-            "subscribed",
             "subscribers",
             "takeaways_gain_amount",
             "takeaways_metric_gain",
@@ -1204,6 +1203,7 @@ class NimbusExperimentSerializer(
                     )
                 }
             )
+
         return data
 
     def update(self, experiment, validated_data):
@@ -1221,14 +1221,6 @@ class NimbusExperimentSerializer(
             # can be Live Update (Dirty), End Enrollment, or End Experiment
             # (including rejections) if we don't check validated_data
             validated_data["is_rollout_dirty"] = True
-
-        if self.instance and validated_data.get("subscribed") is not None:
-            subscribed = validated_data["subscribed"]
-            current_user = self.context["user"]
-            if subscribed:
-                self.instance.subscribers.add(current_user)
-            else:
-                self.instance.subscribers.remove(current_user)
 
         self.changelog_message = validated_data.pop("changelog_message")
         return super().update(experiment, validated_data)
@@ -1300,6 +1292,7 @@ class NimbusExperimentSerializer(
             self.save_required_excluded_experiment_branches()
 
             experiment = super().save()
+
             if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
                 experiment.allocate_bucket_range()
 
