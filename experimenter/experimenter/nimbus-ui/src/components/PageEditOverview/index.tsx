@@ -16,6 +16,7 @@ import {
 import { ExperimentContext } from "src/lib/contexts";
 import { editCommonRedirects } from "src/lib/experiment";
 import { optionalStringBool } from "src/lib/utils";
+import { ExperimentInput } from "src/types/globalTypes";
 import {
   updateExperiment,
   updateExperimentVariables,
@@ -49,7 +50,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
         projects,
         isLocalized,
         localizations,
-      }: Record<string, any>,
+      }: ExperimentInput,
       next: boolean,
     ) => {
       try {

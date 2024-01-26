@@ -7,8 +7,16 @@ export function pluralize(count: number, singular: string, plural?: string) {
   return `${count} ${count === 1 ? singular : pluralVal}`;
 }
 
-export const optionalStringBool = (value: string): boolean | null => {
-  return value.length ? value === "true" : null;
+export const optionalStringBool = (
+  value: string | boolean | null | undefined,
+): boolean | null => {
+  if (typeof value === "string") {
+    return value?.length ? value === "true" : null;
+  } else if (typeof value === "boolean") {
+    return value;
+  } else {
+    return null;
+  }
 };
 
 export const optionalBoolString = (
