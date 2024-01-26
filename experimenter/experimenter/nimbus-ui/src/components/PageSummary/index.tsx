@@ -373,3 +373,27 @@ const StatusPill = ({
     {label}
   </Badge>
 );
+
+const AlertWarning = ({
+  text,
+  testId,
+  learnMoreLink,
+  learnMoreText = "Learn more",
+  color = "danger",
+}: {
+  text: string;
+  testId: string;
+  learnMoreLink?: string;
+  learnMoreText?: string;
+  color?: string;
+}) => (
+  <Alert data-testid={`warning-${testId}`} variant={color}>
+    {text as SerializerMessage}
+    {learnMoreLink && (
+      <LinkExternal href={learnMoreLink}>
+        <span className="mr-1">{learnMoreText}</span>
+        <ExternalIcon />
+      </LinkExternal>
+    )}
+  </Alert>
+);
