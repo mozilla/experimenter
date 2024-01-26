@@ -30,7 +30,7 @@ def nimbus_send_enrollment_ending_email(experiment):
 
 
 def nimbus_format_and_send_html_email(
-    experiment, file_string, template_vars, subject, email_type, cc_recipients=None
+    experiment, file_string, template_vars, subject, email_type
 ):
     content = render_to_string(file_string, template_vars)
 
@@ -39,7 +39,7 @@ def nimbus_format_and_send_html_email(
         content,
         settings.EMAIL_SENDER,
         [experiment.owner.email],
-        cc=cc_recipients,
+        cc=experiment.subscribers.all().values_list("email", flat=True),
     )
     email.content_subtype = "html"
     email.send(fail_silently=False)
