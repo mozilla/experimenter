@@ -8,7 +8,7 @@ import {
   SizingByUserType,
   SizingTarget,
 } from "@mozilla/nimbus-schemas";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
@@ -40,7 +40,10 @@ import {
   getConfig_nimbusConfig_targetingConfigs,
 } from "src/types/getConfig";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
+import {
+  ExperimentInput,
+  NimbusExperimentApplicationEnum,
+} from "src/types/globalTypes";
 
 type FormAudienceProps = {
   experiment: getExperiment_experimentBySlug;
@@ -48,7 +51,7 @@ type FormAudienceProps = {
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   isServerValid: boolean;
   isLoading: boolean;
-  onSubmit: (data: Record<string, any>, next: boolean) => void;
+  onSubmit: (data: ExperimentInput, next: boolean) => void;
 };
 
 type AudienceFieldName = typeof audienceFieldNames[number];
@@ -83,12 +86,53 @@ export const MOBILE_APPLICATIONS = [
   NimbusExperimentApplicationEnum.FOCUS_IOS,
 ];
 
-interface SelectExperimentOption {
+interface SelectExperimentBranchOption {
+  id: number;
   name: string;
   slug: string;
   description: string;
   value: string;
+  branchSlug: string | null;
 }
+
+const toExperimentBranchValue = (
+  experiment: getAllExperimentsByApplication_experimentsByApplication,
+  branchSlug: string | null,
+) => `${experiment.slug}:${branchSlug}`;
+
+const toSelectExperimentBranchOption: (
+  experiment: getAllExperimentsByApplication_experimentsByApplication,
+  branchSlug: string | null,
+) => SelectExperimentBranchOption = (experiment, branchSlug) => {
+  const branchLabel = branchSlug ? `${branchSlug} branch` : "All branches";
+
+  return {
+    id: experiment.id,
+    name: `${experiment.name} (${branchLabel})`,
+    slug: experiment.slug,
+    description: experiment.publicDescription ?? "",
+    value: toExperimentBranchValue(experiment, branchSlug),
+    branchSlug,
+  };
+};
+
+const toSelectExperimentBranchOptions: (
+  experiment: getAllExperimentsByApplication_experimentsByApplication,
+) => SelectExperimentBranchOption[] = (experiment) => {
+  let experimentBranchOptions;
+  if (experiment.treatmentBranches!.length === 0) {
+    experimentBranchOptions = [experiment.referenceBranch!.slug];
+  } else {
+    experimentBranchOptions = [
+      null,
+      experiment.referenceBranch!.slug,
+      ...experiment.treatmentBranches!.map((branch) => branch!.slug),
+    ];
+  }
+  return experimentBranchOptions.map((branchSlug) =>
+    toSelectExperimentBranchOption(experiment, branchSlug),
+  );
+};
 
 const selectOptions = (items: SelectIdItems) =>
   items.map((item) => ({
@@ -104,60 +148,61 @@ type FilterOptionOption<T> = {
   label: string;
   value: string;
 };
+
 const experimentOptionFilterConfig = {
-  stringify: (option: FilterOptionOption<SelectExperimentOption>): string => {
+  stringify: (
+    option: FilterOptionOption<SelectExperimentBranchOption>,
+  ): string => {
     return `${option.data.slug} ${option.data.name} ${option.data.description}`;
   },
 };
 
 function selectExperimentOptions(
   allExperiments: getAllExperimentsByApplication_experimentsByApplication[],
-  ids?: (number | string)[],
-): SelectExperimentOption[] {
-  let options: getAllExperimentsByApplication_experimentsByApplication[];
-  if (ids) {
-    options = ids.reduce((found, id) => {
-      const meta = allExperiments.find((experiment) => experiment?.id === +id);
-      if (meta) {
-        found.push(meta);
-      }
-      return found;
-    }, [] as getAllExperimentsByApplication_experimentsByApplication[]);
-  } else {
-    options = allExperiments;
+  selectedExperimentBranchValues?: string[],
+): SelectExperimentBranchOption[] {
+  let selectableExperimentBranchOptions = allExperiments.flatMap(
+    toSelectExperimentBranchOptions,
+  );
+
+  if (selectedExperimentBranchValues) {
+    const selectedExperimentBranchValuesSet = new Set(
+      selectedExperimentBranchValues,
+    );
+    selectableExperimentBranchOptions =
+      selectableExperimentBranchOptions.filter((option) =>
+        selectedExperimentBranchValuesSet.has(option.value),
+      );
   }
 
-  return options.map((experiment) => ({
-    name: experiment.name,
-    slug: experiment.slug,
-    description: experiment.publicDescription ?? "",
-    value: experiment.id.toString(),
-  }));
+  return selectableExperimentBranchOptions;
 }
 
 function filterExperimentOptions(
-  options: SelectExperimentOption[],
-  excludeIds: string[],
-): SelectExperimentOption[] {
-  return options.filter((option) => !excludeIds.includes(option.value));
+  options: SelectExperimentBranchOption[],
+  exclude: SelectExperimentBranchOption[],
+): SelectExperimentBranchOption[] {
+  const excludeSlugs = new Set(exclude.map((e) => e.slug));
+  return options.filter((option) => !excludeSlugs.has(option.slug));
 }
 
 function formatExperimentOptionLabel(
-  data: SelectExperimentOption,
-  meta: FormatOptionLabelMeta<SelectExperimentOption>,
+  data: SelectExperimentBranchOption,
+  meta: FormatOptionLabelMeta<SelectExperimentBranchOption>,
 ): React.ReactNode {
   if (meta.context === "menu") {
     return (
       <>
-        <b>{data.name}</b> (
-        <span className="required-excluded-experiment-slug">{data.slug}</span>)
+        <b>{data.name}</b>
+        <br />
+        <span className="required-excluded-experiment-slug">{data.slug}</span>
         <br />
         <i>{data.description}</i>
       </>
     );
   }
 
-  return <span className="required-excluded-experiment-slug">{data.slug}</span>;
+  return <span>{data.name}</span>;
 }
 
 export const FormAudience = ({
@@ -198,11 +243,20 @@ export const FormAudience = ({
     experiment.isSticky ?? false,
   );
 
-  const [excludedExperiments, setExcludedExperiments] = useState<string[]>(
-    experiment!.excludedExperiments.map((e) => e.id.toString()),
+  const [excludedExperiments, setExcludedExperiments] = useState<
+    SelectExperimentBranchOption[]
+  >(
+    experiment!.excludedExperimentsBranches.map((eb) =>
+      toSelectExperimentBranchOption(eb.excludedExperiment, eb.branchSlug),
+    ),
   );
-  const [requiredExperiments, setRequiredExperiments] = useState<string[]>(
-    experiment!.requiredExperiments.map((e) => e.id.toString()),
+
+  const [requiredExperiments, setRequiredExperiments] = useState<
+    SelectExperimentBranchOption[]
+  >(
+    experiment!.requiredExperimentsBranches.map((eb) =>
+      toSelectExperimentBranchOption(eb.requiredExperiment, eb.branchSlug),
+    ),
   );
 
   const experimentOptions = useMemo(
@@ -213,19 +267,51 @@ export const FormAudience = ({
   const requiredExperimentOptions = useMemo(
     () =>
       filterExperimentOptions(experimentOptions, [
-        experiment.id.toString(),
+        ...toSelectExperimentBranchOptions(experiment),
         ...excludedExperiments,
       ]),
-    [experiment.id, experimentOptions, excludedExperiments],
+    [experiment, experimentOptions, excludedExperiments],
+  );
+
+  const requiredExperimentIds = useMemo(
+    () => requiredExperiments.map((e) => e.value),
+    [requiredExperiments],
   );
 
   const excludedExperimentOptions = useMemo(
     () =>
       filterExperimentOptions(experimentOptions, [
-        experiment.id.toString(),
+        ...toSelectExperimentBranchOptions(experiment),
         ...requiredExperiments,
       ]),
-    [experiment.id, experimentOptions, requiredExperiments],
+    [experiment, experimentOptions, requiredExperiments],
+  );
+
+  const excludedExperimentIds = useMemo(
+    () => excludedExperiments.map((e) => e.value),
+    [excludedExperiments],
+  );
+
+  const setRequiredExperimentsCallback = useCallback(
+    (values) => {
+      setRequiredExperiments(
+        experimentOptions.filter((eo) =>
+          (values as string[]).includes(eo.value),
+        ),
+      );
+    },
+    [experimentOptions],
+  );
+
+  const setExcludedExperimentsCallback = useCallback(
+    (values) => {
+      setExcludedExperiments(
+        experimentOptions.filter((eo) =>
+          (values as string[]).includes(eo.value),
+        ),
+      );
+    },
+    [experimentOptions],
   );
 
   const [isFirstRun, setIsFirstRun] = useState<boolean>(
@@ -266,11 +352,15 @@ export const FormAudience = ({
       languages: selectOptions(experiment.languages as SelectIdItems),
       isSticky: experiment.isSticky,
       isFirstRun: experiment.isFirstRun,
-      excludedExperiments: selectExperimentOptions(
-        experiment.excludedExperiments as getAllExperimentsByApplication_experimentsByApplication[],
+      excludedExperimentsBranches: selectExperimentOptions(
+        experiment.excludedExperimentsBranches.map(
+          (eb) => eb.excludedExperiment,
+        ),
       ),
-      requiredExperiments: selectExperimentOptions(
-        experiment.requiredExperiments as getAllExperimentsByApplication_experimentsByApplication[],
+      requiredExperimentsBranches: selectExperimentOptions(
+        experiment.requiredExperimentsBranches.map(
+          (eb) => eb.requiredExperiment,
+        ),
       ),
     }),
     [experiment],
@@ -303,18 +393,28 @@ export const FormAudience = ({
             onSubmit(
               {
                 ...dataIn,
+                // dataIn.proposedDuration will be undefined for live rollouts
+                proposedDuration: dataIn.proposedDuration
+                  ? dataIn.proposedDuration.toString()
+                  : defaultValues.proposedDuration.toString(),
+                // dataIn.proposedEnrollment will be undefined for rollouts
+                proposedEnrollment: (
+                  dataIn.proposedEnrollment ?? defaultValues.proposedEnrollment
+                ).toString(),
                 isSticky,
                 populationPercent,
                 isFirstRun,
                 locales,
                 countries,
                 languages,
-                requiredExperiments: requiredExperiments.map((id) =>
-                  parseInt(id, 10),
-                ),
-                excludedExperiments: excludedExperiments.map((id) =>
-                  parseInt(id, 10),
-                ),
+                requiredExperimentsBranches: requiredExperiments.map((e) => ({
+                  requiredExperiment: e.id,
+                  branchSlug: e.branchSlug,
+                })),
+                excludedExperimentsBranches: excludedExperiments.map((e) => ({
+                  excludedExperiment: e.id,
+                  branchSlug: e.branchSlug,
+                })),
               },
               next,
             )
@@ -333,6 +433,8 @@ export const FormAudience = ({
       languages,
       excludedExperiments,
       requiredExperiments,
+      defaultValues.proposedDuration,
+      defaultValues.proposedEnrollment,
     ],
   );
 
@@ -627,9 +729,9 @@ export const FormAudience = ({
             <SelectExperimentField
               name="excludedExperiments"
               formSelectAttrs={formSelectAttrs}
-              setExperiments={setExcludedExperiments}
+              setExperiments={setExcludedExperimentsCallback}
               allExperiments={allExperimentMeta}
-              experimentIds={excludedExperiments}
+              experimentIds={excludedExperimentIds}
               options={excludedExperimentOptions}
               isDisabled={isLocked!}
             />
@@ -645,9 +747,9 @@ export const FormAudience = ({
             <SelectExperimentField
               name="requiredExperiments"
               formSelectAttrs={formSelectAttrs}
-              setExperiments={setRequiredExperiments}
+              setExperiments={setRequiredExperimentsCallback}
               allExperiments={allExperimentMeta}
-              experimentIds={requiredExperiments}
+              experimentIds={requiredExperimentIds}
               options={requiredExperimentOptions}
               isDisabled={isLocked!}
             />
@@ -1021,7 +1123,7 @@ interface SelectExperimentFieldProps {
   setExperiments: React.Dispatch<React.SetStateAction<string[]>>;
   allExperiments: getAllExperimentsByApplication_experimentsByApplication[];
   experimentIds: string[];
-  options: SelectExperimentOption[];
+  options: SelectExperimentBranchOption[];
   isDisabled?: boolean;
 }
 
@@ -1035,7 +1137,7 @@ function SelectExperimentField({
   isDisabled,
 }: SelectExperimentFieldProps) {
   return (
-    <Select<SelectExperimentOption, true>
+    <Select<SelectExperimentBranchOption, true>
       isMulti
       placeholder="Experiments..."
       {...formSelectAttrs(name, setExperiments)}
@@ -1047,7 +1149,7 @@ function SelectExperimentField({
       name={name}
       inputId={name}
       classNamePrefix="react-select"
-      filterOption={createFilter<SelectExperimentOption>(
+      filterOption={createFilter<SelectExperimentBranchOption>(
         experimentOptionFilterConfig,
       )}
     />

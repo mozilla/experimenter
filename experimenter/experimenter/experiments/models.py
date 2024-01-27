@@ -302,6 +302,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     is_localized = models.BooleanField("Is Localized Flag", default=False)
     localizations = models.TextField("Localizations", blank=True, null=True)
+    published_date = models.DateTimeField("Date First Published", blank=True, null=True)
 
     required_experiments = models.ManyToManyField["NimbusExperiment"](
         "NimbusExperiment",
@@ -326,7 +327,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         choices=NimbusConstants.QAStatus.choices,
     )
     qa_comment = models.TextField("QA Comment", blank=True, null=True)
-
+    subscribers = models.ManyToManyField(
+        User,
+        related_name="subscribed_nimbusexperiments",
+        blank=True,
+        verbose_name="Subscribers",
+    )
     objects = NimbusExperimentManager()
 
     class Meta:
@@ -484,19 +490,38 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             ]
             sticky_expressions.append(f"region in {countries}")
 
-        if excluded_experiments := self.excluded_experiments.order_by("id").values_list(
-            "slug", flat=True
-        ):
-            # Mobile does not support ! in expressions.
-            sticky_expressions.extend(
-                f"('{slug}' in enrollments) == false" for slug in excluded_experiments
-            )
-        if required_experiments := self.required_experiments.order_by("id").values_list(
-            "slug", flat=True
-        ):
-            sticky_expressions.extend(
-                f"'{slug}' in enrollments" for slug in required_experiments
-            )
+        enrollments_map_key = "enrollments_map"
+        if is_desktop:
+            enrollments_map_key = "enrollmentsMap"
+
+        if excluded_experiments := NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=self
+        ).order_by("id"):
+            for excluded in excluded_experiments:
+                if excluded.branch_slug:
+                    sticky_expressions.append(
+                        f"({enrollments_map_key}['{excluded.child_experiment.slug}'] "
+                        f"== '{excluded.branch_slug}') == false"
+                    )
+                else:
+                    sticky_expressions.append(
+                        f"('{excluded.child_experiment.slug}' in enrollments) == false"
+                    )
+
+        if required_experiments := NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=self
+        ).order_by("id"):
+            for required in required_experiments:
+                if required.branch_slug:
+                    sticky_expressions.append(
+                        f"{enrollments_map_key}['{required.child_experiment.slug}'] "
+                        f"== '{required.branch_slug}'"
+                    )
+                else:
+                    sticky_expressions.append(
+                        f"'{required.child_experiment.slug}' in enrollments"
+                    )
+
         if self.is_sticky and sticky_expressions:
             expressions.append(
                 make_sticky_targeting_expression(
@@ -938,6 +963,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             cloned.locales.add(*self.locales.all())
         cloned.languages.add(*self.languages.all())
         cloned.projects.add(*self.projects.all())
+        cloned.subscribers.remove(*self.subscribers.all())
 
         if rollout_branch_slug:
             generate_nimbus_changelog(

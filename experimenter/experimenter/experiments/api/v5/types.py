@@ -486,9 +486,6 @@ class NimbusExperimentType(DjangoObjectType):
     countries = graphene.List(graphene.NonNull(NimbusCountryType), required=True)
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     enrollment_end_date = graphene.DateTime()
-    excluded_experiments = graphene.NonNull(
-        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
-    )
     excluded_experiments_branches = graphene.NonNull(
         lambda: graphene.List(graphene.NonNull(NimbusExperimentBranchThroughExcludedType))
     )
@@ -526,9 +523,6 @@ class NimbusExperimentType(DjangoObjectType):
     recipe_json = graphene.String()
     reference_branch = graphene.Field(NimbusBranchType)
     rejection = graphene.Field(NimbusChangeLogType)
-    required_experiments = graphene.NonNull(
-        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
-    )
     required_experiments_branches = graphene.NonNull(
         lambda: graphene.List(graphene.NonNull(NimbusExperimentBranchThroughRequiredType))
     )
@@ -541,6 +535,9 @@ class NimbusExperimentType(DjangoObjectType):
     secondary_outcomes = graphene.List(graphene.String)
     show_results_url = graphene.Boolean()
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
+    subscribers = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusUserType))
+    )
     slug = graphene.String(required=True)
     start_date = graphene.DateTime()
     status = NimbusExperimentStatusEnum()
@@ -622,6 +619,7 @@ class NimbusExperimentType(DjangoObjectType):
             "start_date",
             "status_next",
             "status",
+            "subscribers",
             "takeaways_metric_gain",
             "takeaways_gain_amount",
             "takeaways_qbr_learning",
@@ -740,12 +738,6 @@ class NimbusExperimentType(DjangoObjectType):
     def resolve_changes(self, info):
         return self.changes.all().order_by("changed_on")
 
-    def resolve_excluded_experiments(self, info):
-        return self.excluded_experiments.only("id", "slug", "name", "public_description")
-
-    def resolve_required_experiments(self, info):
-        return self.required_experiments.only("id", "slug", "name", "public_description")
-
     def resolve_excluded_experiments_branches(self, info):
         return NimbusExperimentBranchThroughExcluded.objects.filter(
             parent_experiment=self
@@ -755,3 +747,6 @@ class NimbusExperimentType(DjangoObjectType):
         return NimbusExperimentBranchThroughRequired.objects.filter(
             parent_experiment=self
         )
+
+    def resolve_subscribers(self, info):
+        return self.subscribers.all().order_by("username")

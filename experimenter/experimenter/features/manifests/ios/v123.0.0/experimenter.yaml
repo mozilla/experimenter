@@ -1,4 +1,12 @@
 ---
+account-settings-redux-feature:
+  description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 address-autofill-feature:
   description: This property defines the address card autofill feature
   hasExposure: true
@@ -117,6 +125,14 @@ onboarding-framework-feature:
       description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
 qr-code-coordinator-refactor:
   description: "The feature for managing the roll out of the qrCode coordinator.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
+redux-search-settings-feature:
+  description: "This feature is for managing the roll out of redux on the search settings screen\n"
   hasExposure: true
   exposureDescription: ""
   variables:

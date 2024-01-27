@@ -434,6 +434,19 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     ]
 
     @factory.post_generation
+    def subscribers(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if isinstance(extracted, Iterable):
+            for subscriber in extracted:
+                self.subscribers.add(subscriber)
+        else:
+            for _ in range(3):
+                self.subscribers.add(UserFactory.create())
+
+    @factory.post_generation
     def projects(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.

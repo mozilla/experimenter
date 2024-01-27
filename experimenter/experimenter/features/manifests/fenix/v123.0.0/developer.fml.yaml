@@ -21,12 +21,12 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<CookieBannersSection, Int>"
         default:
+          feature-ui: 1
+          feature-setting-value: 0
+          feature-setting-value-pbm: 1
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
-          feature-setting-value: 0
-          feature-setting-value-pbm: 1
-          feature-ui: 1
   fx-strong-password:
     description: A feature that provides a generated strong password on sign up.
     variables:
@@ -66,12 +66,12 @@ features:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
         type: "Map<HomeScreenSection, Boolean>"
         default:
+          top-sites: true
           jump-back-in: true
+          recently-saved: true
+          recent-explorations: true
           pocket: true
           pocket-sponsored-stories: true
-          recent-explorations: true
-          recently-saved: true
-          top-sites: true
   juno-onboarding:
     description: A feature that shows the onboarding flow.
     variables:
@@ -79,39 +79,58 @@ features:
         description: Collection of user facing onboarding cards.
         type: "Map<OnboardingCardKey, OnboardingCardData>"
         default:
-          add-search-widget:
-            body: juno_onboarding_add_search_widget_description
-            card-type: add-search-widget
-            enabled: false
-            image-res: ic_onboarding_search_widget
-            ordering: 15
-            primary-button-label: juno_onboarding_add_search_widget_positive_button
-            secondary-button-label: juno_onboarding_add_search_widget_negative_button
-            title: juno_onboarding_add_search_widget_title
           default-browser:
             body: juno_onboarding_default_browser_description_nimbus_3
             card-type: default-browser
+            disqualifiers:
+              - NEVER
+            enabled: true
             image-res: ic_onboarding_welcome
             ordering: 10
+            prerequisites:
+              - ALWAYS
             primary-button-label: juno_onboarding_default_browser_positive_button
             secondary-button-label: juno_onboarding_default_browser_negative_button
             title: juno_onboarding_default_browser_title_nimbus_2
-          notification-permission:
-            body: juno_onboarding_enable_notifications_description_nimbus_2
-            card-type: notification-permission
-            image-res: ic_notification_permission
-            ordering: 30
-            primary-button-label: juno_onboarding_enable_notifications_positive_button
-            secondary-button-label: juno_onboarding_enable_notifications_negative_button
-            title: juno_onboarding_enable_notifications_title_nimbus_2
+          add-search-widget:
+            body: juno_onboarding_add_search_widget_description
+            card-type: add-search-widget
+            disqualifiers:
+              - NEVER
+            enabled: false
+            image-res: ic_onboarding_search_widget
+            ordering: 15
+            prerequisites:
+              - ALWAYS
+            primary-button-label: juno_onboarding_add_search_widget_positive_button
+            secondary-button-label: juno_onboarding_add_search_widget_negative_button
+            title: juno_onboarding_add_search_widget_title
           sync-sign-in:
             body: juno_onboarding_sign_in_description_2
             card-type: sync-sign-in
+            disqualifiers:
+              - NEVER
+            enabled: true
             image-res: ic_onboarding_sync
             ordering: 20
+            prerequisites:
+              - ALWAYS
             primary-button-label: juno_onboarding_sign_in_positive_button
             secondary-button-label: juno_onboarding_sign_in_negative_button
             title: juno_onboarding_sign_in_title_2
+          notification-permission:
+            body: juno_onboarding_enable_notifications_description_nimbus_2
+            card-type: notification-permission
+            disqualifiers:
+              - NEVER
+            enabled: true
+            image-res: ic_notification_permission
+            ordering: 30
+            prerequisites:
+              - ALWAYS
+            primary-button-label: juno_onboarding_enable_notifications_positive_button
+            secondary-button-label: juno_onboarding_enable_notifications_negative_button
+            title: juno_onboarding_enable_notifications_title_nimbus_2
         string-alias: OnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
@@ -143,7 +162,10 @@ features:
           ENABLE_PRIVATE_BROWSING: "://enable_private_browsing"
           INSTALL_SEARCH_WIDGET: "://install_search_widget"
           MAKE_DEFAULT_BROWSER: "://make_default_browser"
-          OPEN_SETTINGS: "://settings"
+          VIEW_BOOKMARKS: "://urls_bookmarks"
+          VIEW_COLLECTIONS: "://home_collections"
+          VIEW_HISTORY: "://urls_history"
+          VIEW_HOMESCREEN: "://home"
           OPEN_SETTINGS_ACCESSIBILITY: "://settings_accessibility"
           OPEN_SETTINGS_ADDON_MANAGER: "://settings_addon_manager"
           OPEN_SETTINGS_DELETE_BROWSING_DATA: "://settings_delete_browsing_data"
@@ -153,11 +175,8 @@ features:
           OPEN_SETTINGS_SEARCH_ENGINE: "://settings_search_engine"
           OPEN_SETTINGS_TRACKING_PROTECTION: "://settings_tracking_protection"
           OPEN_SETTINGS_WALLPAPERS: "://settings_wallpapers"
+          OPEN_SETTINGS: "://settings"
           TURN_ON_SYNC: "://turn_on_sync"
-          VIEW_BOOKMARKS: "://urls_bookmarks"
-          VIEW_COLLECTIONS: "://home_collections"
-          VIEW_HISTORY: "://urls_history"
-          VIEW_HOMESCREEN: "://home"
         string-alias: ActionName
       message-under-experiment:
         description: "Deprecated in favor of `MessageData#experiment`. This will be removed in future releases."
@@ -168,23 +187,23 @@ features:
         type: "Map<MessageKey, MessageData>"
         default:
           default-browser:
-            action: MAKE_DEFAULT_BROWSER
-            button-label: preferences_set_as_default_browser
-            style: PERSISTENT
-            surface: homescreen
             text: default_browser_experiment_card_text
+            surface: homescreen
+            action: MAKE_DEFAULT_BROWSER
             trigger:
               - I_AM_NOT_DEFAULT_BROWSER
               - USER_ESTABLISHED_INSTALL
+            style: PERSISTENT
+            button-label: preferences_set_as_default_browser
           default-browser-notification:
-            action: MAKE_DEFAULT_BROWSER
-            style: NOTIFICATION
-            surface: notification
-            text: nimbus_notification_default_browser_text
             title: nimbus_notification_default_browser_title
+            text: nimbus_notification_default_browser_text
+            surface: notification
+            style: NOTIFICATION
             trigger:
               - I_AM_NOT_DEFAULT_BROWSER
               - DAY_3_AFTER_INSTALL
+            action: MAKE_DEFAULT_BROWSER
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -200,65 +219,65 @@ features:
         type: "Map<StyleName, StyleData>"
         default:
           DEFAULT:
+            priority: 50
             max-display-count: 100
-            priority: 50
-          EXPIRES_QUICKLY:
-            max-display-count: 1
-            priority: 100
-          NOTIFICATION:
-            max-display-count: 1
-            priority: 50
-          PERSISTENT:
-            max-display-count: 20
-            priority: 50
           SURVEY:
-            max-display-count: 1
             priority: 55
-          URGENT:
-            max-display-count: 10
-            priority: 100
+            max-display-count: 1
+          PERSISTENT:
+            priority: 50
+            max-display-count: 20
           WARNING:
-            max-display-count: 10
             priority: 60
+            max-display-count: 10
+          URGENT:
+            priority: 100
+            max-display-count: 10
+          NOTIFICATION:
+            priority: 50
+            max-display-count: 1
+          EXPIRES_QUICKLY:
+            priority: 100
+            max-display-count: 1
         string-alias: StyleName
       triggers:
         description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
         type: "Map<TriggerName, String>"
         default:
+          USER_ESTABLISHED_INSTALL: number_of_app_launches >=4
+          USER_RECENTLY_INSTALLED: days_since_install < 7
+          USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
+          USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
+          USER_EN_SPEAKER: "'en' in locale"
+          USER_ES_SPEAKER: "'es' in locale"
+          USER_DE_SPEAKER: "'de' in locale"
+          USER_FR_SPEAKER: "'fr' in locale"
+          DEVICE_ANDROID: "os == 'Android'"
+          DEVICE_IOS: "os == 'iOS'"
           ALWAYS: "true"
+          NEVER: "false"
           DAY_1_AFTER_INSTALL: days_since_install == 1
           DAY_2_AFTER_INSTALL: days_since_install == 2
           DAY_3_AFTER_INSTALL: days_since_install == 3
           DAY_4_AFTER_INSTALL: days_since_install == 4
           DAY_5_AFTER_INSTALL: days_since_install == 5
-          DEVICE_ANDROID: "os == 'Android'"
-          DEVICE_IOS: "os == 'iOS'"
-          FUNNEL_ORGANIC: "adjust_campaign == ''"
+          MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
+          I_AM_DEFAULT_BROWSER: is_default_browser
+          I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
           FUNNEL_PAID: "adjust_campaign != ''"
-          FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
-          FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
+          FUNNEL_ORGANIC: "adjust_campaign == ''"
           INACTIVE_1_DAY: "'app_launched'|eventLastSeen('Hours') >= 24"
           INACTIVE_2_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 2"
           INACTIVE_3_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 3"
           INACTIVE_4_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 4"
           INACTIVE_5_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 5"
-          I_AM_DEFAULT_BROWSER: is_default_browser
-          I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
-          LAUNCHED_ONCE_THIS_WEEK: "'app_launched'|eventSum('Days', 7) == 1"
-          MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
-          NEVER: "false"
-          USER_CASUAL: "'app_launched'|eventCountNonZero('Days', 28) >= 7 && 'app_launched'|eventCountNonZero('Days', 28) < 14"
-          USER_CORE_ACTIVE: "'app_launched'|eventCountNonZero('Days', 28) >= 21"
-          USER_DE_SPEAKER: "'de' in locale"
-          USER_EN_SPEAKER: "'en' in locale"
-          USER_ESTABLISHED_INSTALL: number_of_app_launches >=4
-          USER_ES_SPEAKER: "'es' in locale"
-          USER_FR_SPEAKER: "'fr' in locale"
+          FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
+          FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
           USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"
-          USER_RECENTLY_INSTALLED: days_since_install < 7
-          USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
+          USER_CASUAL: "'app_launched'|eventCountNonZero('Days', 28) >= 7 && 'app_launched'|eventCountNonZero('Days', 28) < 14"
           USER_REGULAR: "'app_launched'|eventCountNonZero('Days', 28) >= 14 && 'app_launched'|eventCountNonZero('Days', 28) < 21"
-          USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
+          USER_CORE_ACTIVE: "'app_launched'|eventCountNonZero('Days', 28) >= 21"
+          LAUNCHED_ONCE_THIS_WEEK: "'app_launched'|eventSum('Days', 7) == 1"
         string-alias: TriggerName
     allow-coenrollment: true
   mr2022:
@@ -269,11 +288,18 @@ features:
         type: "Map<MR2022Section, Boolean>"
         default:
           home-onboarding-dialog-existing-users: true
-          jump-back-in-cfr: true
           sync-cfr: true
+          wallpapers-selection-tool: true
+          jump-back-in-cfr: true
           tcp-cfr: true
           tcp-feature: true
-          wallpapers-selection-tool: true
+  nimbus-is-ready:
+    description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
+    variables:
+      event-count:
+        description: The number of events that should be sent.
+        type: Int
+        default: 1
   nimbus-system:
     description: "Configuration of the Nimbus System in Android.\n"
     variables:
@@ -352,8 +378,8 @@ features:
         type: "Map<QueryParameterStrippingSection, String>"
         default:
           query-parameter-stripping: "0"
-          query-parameter-stripping-allow-list: ""
           query-parameter-stripping-pmb: "0"
+          query-parameter-stripping-allow-list: ""
           query-parameter-stripping-strip-list: ""
   re-engagement-notification:
     description: A feature that shows the re-engagement notification if the user is inactive.

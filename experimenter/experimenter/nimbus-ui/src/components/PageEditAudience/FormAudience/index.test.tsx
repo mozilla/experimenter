@@ -27,9 +27,17 @@ import {
   FIELD_MESSAGES,
   TOOLTIP_DURATION,
 } from "src/lib/constants";
-import { MOCK_CONFIG, MOCK_EXPERIMENTS_BY_APPLICATION } from "src/lib/mocks";
-import { assertSerializerMessages } from "src/lib/test-utils";
 import {
+  mockDirectoryExperiments,
+  mockExperimentQuery,
+  MOCK_CONFIG,
+  MOCK_EXPERIMENTS_BY_APPLICATION,
+} from "src/lib/mocks";
+import { assertSerializerMessages } from "src/lib/test-utils";
+import { getAllExperimentsByApplication_experimentsByApplication } from "src/types/getAllExperimentsByApplication";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import {
+  ExperimentInput,
   NimbusExperimentApplicationEnum,
   NimbusExperimentChannelEnum,
   NimbusExperimentFirefoxVersionEnum,
@@ -47,6 +55,485 @@ describe("FormAudience", () => {
 
   afterEach(() => {
     global.window.open = origWindowOpen;
+  });
+
+  describe("excluded and required experiments fields", () => {
+    const sum = (items: number[]) =>
+      items.reduce((acc: number, curr: number) => acc + curr);
+    const countBranches = (
+      experiments: getAllExperimentsByApplication_experimentsByApplication[],
+    ) => sum(experiments.map((e) => e.treatmentBranches!.length + 2));
+    const query = (field: string) =>
+      `#react-select-${field}-listbox .react-select__option`;
+
+    it("fields renders options", async () => {
+      const experiment = {
+        ...MOCK_EXPERIMENT,
+        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
+        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
+        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+      };
+
+      const { container } = render(<Subject experiment={experiment} />);
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+
+      let options = container.querySelectorAll(query("excludedExperiments"));
+      expect(options.length).toEqual(0);
+      await selectEvent.openMenu(excluded);
+      options = container.querySelectorAll(query("excludedExperiments"));
+      expect(options.length).toEqual(
+        countBranches(MOCK_EXPERIMENTS_BY_APPLICATION) - 3,
+      );
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${experiment.slug})`),
+        ),
+      ).toBeUndefined();
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      options = container.querySelectorAll(query("requiredExperiments"));
+      expect(options.length).toEqual(0);
+      await selectEvent.openMenu(required);
+      options = container.querySelectorAll(query("requiredExperiments"));
+      expect(options.length).toEqual(
+        countBranches(MOCK_EXPERIMENTS_BY_APPLICATION) - 3,
+      );
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${experiment.slug})`),
+        ),
+      ).toBeUndefined();
+    });
+
+    it("only displays one option for experiments with one branch", async () => {
+      const experiment = {
+        ...MOCK_EXPERIMENT,
+        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
+        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
+        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+      };
+
+      const experimentsByApplication = [
+        { ...MOCK_EXPERIMENTS_BY_APPLICATION[1], treatmentBranches: [] },
+      ];
+
+      const { container } = render(
+        <Subject
+          experiment={experiment}
+          experimentsByApplication={{
+            allExperiments: experimentsByApplication,
+          }}
+        />,
+      );
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+      await selectEvent.openMenu(excluded);
+      let options = container.querySelectorAll(query("excludedExperiments"));
+      expect(options.length).toEqual(1);
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${experiment.slug})`),
+        ),
+      ).toBeUndefined();
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+      options = container.querySelectorAll(query("requiredExperiments"));
+      expect(options.length).toEqual(1);
+
+      expect(
+        Array.from(options, (e) => e.textContent).find((text) =>
+          text?.includes(`(${experiment.slug})`),
+        ),
+      ).toBeUndefined();
+    });
+
+    it("saves required and excluded experiments with all branches for experiments", async () => {
+      const onSubmit = jest.fn();
+      const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_experimentsByApplication[] =
+        Array.from(mockDirectoryExperiments().entries()).map(
+          ([idx, experiment]) => ({
+            id: idx + 1,
+            name: experiment.name,
+            slug:
+              experiment.slug ??
+              experiment.name.toLowerCase().replace(" ", "-"),
+            publicDescription: "mock description",
+            referenceBranch: { slug: "control" },
+            treatmentBranches: [{ slug: "treatment" }],
+          }),
+        );
+      const experiment: getExperiment_experimentBySlug = mockExperimentQuery(
+        "demo-slug",
+        {
+          excludedExperimentsBranches: [],
+          requiredExperimentsBranches: [],
+        },
+      ).experiment;
+      const requiredExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[1];
+      const excludedExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[2];
+
+      const expected: ExperimentInput = {
+        channel: experiment.channel,
+        firefoxMinVersion: experiment.firefoxMinVersion,
+        firefoxMaxVersion: experiment.firefoxMaxVersion,
+        targetingConfigSlug: experiment.targetingConfigSlug,
+        populationPercent: experiment.populationPercent,
+        totalEnrolledClients: experiment.totalEnrolledClients,
+        proposedEnrollment: "" + experiment.proposedEnrollment,
+        proposedDuration: "" + experiment.proposedDuration,
+        countries: experiment.countries.map((v) => "" + v.id),
+        locales: experiment.locales.map((v) => "" + v.id),
+        languages: experiment.languages.map((v) => "" + v.id),
+        isSticky: experiment.isSticky,
+        isFirstRun: experiment.isFirstRun,
+        requiredExperimentsBranches: [
+          {
+            requiredExperiment: requiredExperiment.id,
+            branchSlug: null,
+          },
+        ],
+        excludedExperimentsBranches: [
+          {
+            excludedExperiment: excludedExperiment.id,
+            branchSlug: null,
+          },
+        ],
+      };
+
+      render(<Subject {...{ experiment, onSubmit }} />);
+      await screen.findByTestId("FormAudience");
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+      await selectEvent.select(required, [
+        `${requiredExperiment.name} (All branches)`,
+      ]);
+
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+      await selectEvent.openMenu(excluded);
+      await selectEvent.select(excluded, [
+        `${excludedExperiment.name} (All branches)`,
+      ]);
+
+      const submitButton = screen.getByTestId("submit-button");
+
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledTimes(1);
+        expect(onSubmit.mock.calls).toEqual([[expected, false]]);
+      });
+    });
+
+    it("saves required and excluded experiments with all branches for rollouts", async () => {
+      const onSubmit = jest.fn();
+      const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_experimentsByApplication[] =
+        Array.from(mockDirectoryExperiments().entries()).map(
+          ([idx, experiment]) => ({
+            id: idx + 1,
+            name: experiment.name,
+            slug:
+              experiment.slug ??
+              experiment.name.toLowerCase().replace(" ", "-"),
+            publicDescription: "mock description",
+            referenceBranch: { slug: "control" },
+            treatmentBranches: [{ slug: "treatment" }],
+          }),
+        );
+      const experiment: getExperiment_experimentBySlug = mockExperimentQuery(
+        "demo-slug",
+        {
+          isRollout: true,
+          excludedExperimentsBranches: [],
+          requiredExperimentsBranches: [],
+        },
+      ).experiment;
+      const requiredExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[1];
+      const excludedExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[2];
+
+      const expected: ExperimentInput = {
+        channel: experiment.channel,
+        firefoxMinVersion: experiment.firefoxMinVersion,
+        firefoxMaxVersion: experiment.firefoxMaxVersion,
+        targetingConfigSlug: experiment.targetingConfigSlug,
+        populationPercent: experiment.populationPercent,
+        totalEnrolledClients: experiment.totalEnrolledClients,
+        proposedEnrollment: "" + experiment.proposedEnrollment,
+        proposedDuration: "" + experiment.proposedDuration,
+        countries: experiment.countries.map((v) => "" + v.id),
+        locales: experiment.locales.map((v) => "" + v.id),
+        languages: experiment.languages.map((v) => "" + v.id),
+        isSticky: experiment.isSticky,
+        isFirstRun: experiment.isFirstRun,
+        requiredExperimentsBranches: [
+          {
+            requiredExperiment: requiredExperiment.id,
+            branchSlug: null,
+          },
+        ],
+        excludedExperimentsBranches: [
+          {
+            excludedExperiment: excludedExperiment.id,
+            branchSlug: null,
+          },
+        ],
+      };
+
+      render(<Subject {...{ experiment, onSubmit }} />);
+      await screen.findByTestId("FormAudience");
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+      await selectEvent.select(required, [
+        `${requiredExperiment.name} (All branches)`,
+      ]);
+
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+      await selectEvent.openMenu(excluded);
+      await selectEvent.select(excluded, [
+        `${excludedExperiment.name} (All branches)`,
+      ]);
+
+      const submitButton = screen.getByTestId("submit-button");
+
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledTimes(1);
+        expect(onSubmit.mock.calls).toEqual([[expected, false]]);
+      });
+    });
+
+    it("saves required and excluded experiments with specific branches for experiments", async () => {
+      const onSubmit = jest.fn();
+      const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_experimentsByApplication[] =
+        Array.from(mockDirectoryExperiments().entries()).map(
+          ([idx, experiment]) => ({
+            id: idx + 1,
+            name: experiment.name,
+            slug:
+              experiment.slug ??
+              experiment.name.toLowerCase().replace(" ", "-"),
+            publicDescription: "mock description",
+            referenceBranch: { slug: "control" },
+            treatmentBranches: [{ slug: "treatment" }],
+          }),
+        );
+      const experiment: getExperiment_experimentBySlug = mockExperimentQuery(
+        "demo-slug",
+        {
+          excludedExperimentsBranches: [],
+          requiredExperimentsBranches: [],
+        },
+      ).experiment;
+      const requiredExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[1];
+      const excludedExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[2];
+
+      const expected: ExperimentInput = {
+        channel: experiment.channel,
+        firefoxMinVersion: experiment.firefoxMinVersion,
+        firefoxMaxVersion: experiment.firefoxMaxVersion,
+        targetingConfigSlug: experiment.targetingConfigSlug,
+        populationPercent: experiment.populationPercent,
+        totalEnrolledClients: experiment.totalEnrolledClients,
+        proposedEnrollment: "" + experiment.proposedEnrollment,
+        proposedDuration: "" + experiment.proposedDuration,
+        countries: experiment.countries.map((v) => "" + v.id),
+        locales: experiment.locales.map((v) => "" + v.id),
+        languages: experiment.languages.map((v) => "" + v.id),
+        isSticky: experiment.isSticky,
+        isFirstRun: experiment.isFirstRun,
+        requiredExperimentsBranches: [
+          {
+            requiredExperiment: requiredExperiment.id,
+            branchSlug: "control",
+          },
+        ],
+        excludedExperimentsBranches: [
+          {
+            excludedExperiment: excludedExperiment.id,
+            branchSlug: "treatment",
+          },
+        ],
+      };
+
+      render(<Subject {...{ experiment, onSubmit }} />);
+      await screen.findByTestId("FormAudience");
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+      await selectEvent.select(required, [
+        `${requiredExperiment.name} (control branch)`,
+      ]);
+
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+      await selectEvent.openMenu(excluded);
+      await selectEvent.select(excluded, [
+        `${excludedExperiment.name} (treatment branch)`,
+      ]);
+
+      const submitButton = screen.getByTestId("submit-button");
+
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledTimes(1);
+        expect(onSubmit.mock.calls).toEqual([[expected, false]]);
+      });
+    });
+
+    it("saves required and excluded experiments with specific branches for rollouts", async () => {
+      const onSubmit = jest.fn();
+      const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_experimentsByApplication[] =
+        Array.from(mockDirectoryExperiments().entries()).map(
+          ([idx, experiment]) => ({
+            id: idx + 1,
+            name: experiment.name,
+            slug:
+              experiment.slug ??
+              experiment.name.toLowerCase().replace(" ", "-"),
+            publicDescription: "mock description",
+            referenceBranch: { slug: "control" },
+            treatmentBranches: [{ slug: "treatment" }],
+          }),
+        );
+      const experiment: getExperiment_experimentBySlug = mockExperimentQuery(
+        "demo-slug",
+        {
+          isRollout: true,
+          excludedExperimentsBranches: [],
+          requiredExperimentsBranches: [],
+        },
+      ).experiment;
+      const requiredExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[1];
+      const excludedExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[2];
+
+      const expected: ExperimentInput = {
+        channel: experiment.channel,
+        firefoxMinVersion: experiment.firefoxMinVersion,
+        firefoxMaxVersion: experiment.firefoxMaxVersion,
+        targetingConfigSlug: experiment.targetingConfigSlug,
+        populationPercent: experiment.populationPercent,
+        totalEnrolledClients: experiment.totalEnrolledClients,
+        proposedEnrollment: "" + experiment.proposedEnrollment,
+        proposedDuration: "" + experiment.proposedDuration,
+        countries: experiment.countries.map((v) => "" + v.id),
+        locales: experiment.locales.map((v) => "" + v.id),
+        languages: experiment.languages.map((v) => "" + v.id),
+        isSticky: experiment.isSticky,
+        isFirstRun: experiment.isFirstRun,
+        requiredExperimentsBranches: [
+          {
+            requiredExperiment: requiredExperiment.id,
+            branchSlug: "control",
+          },
+        ],
+        excludedExperimentsBranches: [
+          {
+            excludedExperiment: excludedExperiment.id,
+            branchSlug: "treatment",
+          },
+        ],
+      };
+
+      render(<Subject {...{ experiment, onSubmit }} />);
+      await screen.findByTestId("FormAudience");
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+      await selectEvent.select(required, [
+        `${requiredExperiment.name} (control branch)`,
+      ]);
+
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+      await selectEvent.openMenu(excluded);
+      await selectEvent.select(excluded, [
+        `${excludedExperiment.name} (treatment branch)`,
+      ]);
+
+      const submitButton = screen.getByTestId("submit-button");
+
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledTimes(1);
+        expect(onSubmit.mock.calls).toEqual([[expected, false]]);
+      });
+    });
+
+    it("filters selected required experiment branches from the exclude field options", async () => {
+      const experiment = {
+        ...MOCK_EXPERIMENT,
+        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
+        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
+        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+        excludedExperimentsBranches: [],
+        requiredExperimentsBranches: [],
+      };
+      const requiredExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[1];
+
+      const { container } = render(<Subject experiment={experiment} />);
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+      await selectEvent.select(required, [
+        `${requiredExperiment.name} (All branches)`,
+      ]);
+
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+      await selectEvent.openMenu(excluded);
+
+      const options = container.querySelectorAll(query("excludedExperiments"));
+
+      expect(options.length).toEqual(
+        countBranches(MOCK_EXPERIMENTS_BY_APPLICATION) - 6,
+      );
+      [experiment, requiredExperiment].forEach((filteredExperiment) => {
+        expect(
+          Array.from(options, (e) => e.textContent).filter((text) =>
+            text?.includes(filteredExperiment.slug),
+          ).length,
+        ).toEqual(0);
+      });
+    });
+
+    it("filters selected excluded experiment branch from the required field options", async () => {
+      const experiment = {
+        ...MOCK_EXPERIMENT,
+        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
+        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
+        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+        excludedExperimentsBranches: [],
+        requiredExperimentsBranches: [],
+      };
+      const excludedExperiment = MOCK_EXPERIMENTS_BY_APPLICATION[1];
+
+      const { container } = render(<Subject experiment={experiment} />);
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+
+      await selectEvent.openMenu(excluded);
+      await selectEvent.select(excluded, [
+        `${excludedExperiment.name} (All branches)`,
+      ]);
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+
+      const options = container.querySelectorAll(query("requiredExperiments"));
+
+      expect(options.length).toEqual(
+        countBranches(MOCK_EXPERIMENTS_BY_APPLICATION) - 6,
+      );
+      [experiment, excludedExperiment].forEach((filteredExperiment) => {
+        expect(
+          Array.from(options, (e) => e.textContent).filter((text) =>
+            text?.includes(filteredExperiment.slug),
+          ).length,
+        ).toEqual(0);
+      });
+    });
   });
 
   it("renders without error", async () => {
@@ -908,7 +1395,7 @@ describe("FormAudience", () => {
 
   it("calls onSubmit when save and next buttons are clicked", async () => {
     const onSubmit = jest.fn();
-    const expected = {
+    const expected: ExperimentInput = {
       channel: MOCK_EXPERIMENT.channel,
       firefoxMinVersion: MOCK_EXPERIMENT.firefoxMinVersion,
       firefoxMaxVersion: MOCK_EXPERIMENT.firefoxMaxVersion,
@@ -922,13 +1409,33 @@ describe("FormAudience", () => {
       languages: MOCK_EXPERIMENT.languages.map((v) => "" + v.id),
       isSticky: MOCK_EXPERIMENT.isSticky,
       isFirstRun: MOCK_EXPERIMENT.isFirstRun,
-      excludedExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[0].id],
-      requiredExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1].id],
+      excludedExperimentsBranches: [
+        {
+          excludedExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+          branchSlug: null,
+        },
+      ],
+      requiredExperimentsBranches: [
+        {
+          requiredExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[1].id,
+          branchSlug: null,
+        },
+      ],
     };
-    const experiment = {
+    const experiment: getExperiment_experimentBySlug = {
       ...MOCK_EXPERIMENT,
-      excludedExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[0]],
-      requiredExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1]],
+      excludedExperimentsBranches: [
+        {
+          excludedExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[0],
+          branchSlug: null,
+        },
+      ],
+      requiredExperimentsBranches: [
+        {
+          requiredExperiment: MOCK_EXPERIMENTS_BY_APPLICATION[1],
+          branchSlug: null,
+        },
+      ],
     };
     render(<Subject {...{ experiment, onSubmit }} />);
     await screen.findByTestId("FormAudience");
@@ -1817,104 +2324,6 @@ describe("FormAudience", () => {
       channel: ["Underneath the electric stars."],
       countries: ["Just come with me"],
       locales: ["We can shake it loose right away"],
-    });
-  });
-
-  describe("excluded and required experiments fields", () => {
-    const query = (field: string) =>
-      `#react-select-${field}-listbox .react-select__option`;
-
-    it("fields renders options", async () => {
-      const experiment = {
-        ...MOCK_EXPERIMENT,
-        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
-        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
-        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
-      };
-
-      const { container } = render(<Subject experiment={experiment} />);
-      const excluded = screen.getByLabelText(/Exclude users enrolled/);
-
-      let options = container.querySelectorAll(query("excludedExperiments"));
-      expect(options.length).toEqual(0);
-      await selectEvent.openMenu(excluded);
-      options = container.querySelectorAll(query("excludedExperiments"));
-      expect(options.length).toEqual(
-        MOCK_EXPERIMENTS_BY_APPLICATION.length - 1,
-      );
-
-      expect(
-        Array.from(options, (e) => e.textContent).find((text) =>
-          text?.includes(`(${experiment.slug})`),
-        ),
-      ).toBeUndefined();
-
-      const required = screen.getByLabelText(/Require users to be enrolled/);
-      options = container.querySelectorAll(query("requiredExperiments"));
-      expect(options.length).toEqual(0);
-      await selectEvent.openMenu(required);
-      options = container.querySelectorAll(query("requiredExperiments"));
-      expect(options.length).toEqual(
-        MOCK_EXPERIMENTS_BY_APPLICATION.length - 1,
-      );
-
-      expect(
-        Array.from(options, (e) => e.textContent).find((text) =>
-          text?.includes(`(${experiment.slug})`),
-        ),
-      ).toBeUndefined();
-    });
-
-    it("excludes selected required experiments from the exclude field options", async () => {
-      const experiment = {
-        ...MOCK_EXPERIMENT,
-        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
-        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
-        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
-        excludedExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1]],
-      };
-
-      const { container } = render(<Subject experiment={experiment} />);
-      const required = screen.getByLabelText(/Require users to be enrolled/);
-
-      await selectEvent.openMenu(required);
-
-      const options = container.querySelectorAll(query("requiredExperiments"));
-      expect(options.length).toEqual(
-        MOCK_EXPERIMENTS_BY_APPLICATION.length - 2,
-      );
-
-      expect(
-        Array.from(options, (e) => e.textContent).find((text) =>
-          text?.includes(`(${MOCK_EXPERIMENTS_BY_APPLICATION[1].slug})`),
-        ),
-      ).toBeUndefined();
-    });
-
-    it("excludes selected excluded experiment from the required field options", async () => {
-      const experiment = {
-        ...MOCK_EXPERIMENT,
-        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
-        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
-        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
-        requiredExperiments: [MOCK_EXPERIMENTS_BY_APPLICATION[1]],
-      };
-
-      const { container } = render(<Subject experiment={experiment} />);
-      const excluded = screen.getByLabelText(/Exclude users enrolled/);
-
-      await selectEvent.openMenu(excluded);
-
-      const options = container.querySelectorAll(query("excludedExperiments"));
-      expect(options.length).toEqual(
-        MOCK_EXPERIMENTS_BY_APPLICATION.length - 2,
-      );
-
-      expect(
-        Array.from(options, (e) => e.textContent).find((text) =>
-          text?.includes(`(${MOCK_EXPERIMENTS_BY_APPLICATION[1].slug})`),
-        ),
-      ).toBeUndefined();
     });
   });
 });

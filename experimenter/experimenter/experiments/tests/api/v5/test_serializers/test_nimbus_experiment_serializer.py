@@ -167,6 +167,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "locales": [],
             "languages": [],
             "projects": [],
+            "subscribers": [],
         }
 
         serializer = NimbusExperimentSerializer(
@@ -203,6 +204,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(list(experiment.locales.all()), [])
         self.assertEqual(list(experiment.languages.all()), [])
         self.assertEqual(list(experiment.projects.all()), [])
+        self.assertEqual(list(experiment.subscribers.all()), [])
 
     def test_serializer_rejects_bad_name(self):
         data = {
@@ -1515,36 +1517,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = serializer.save()
         self.assertIsNone(experiment.published_dto)
         self.assertEqual(experiment.proposed_release_date, None)
-
-    def test_can_set_excluded_required_experiments(self):
-        excluded = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        required = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            {
-                "excluded_experiments": [excluded.id],
-                "required_experiments": [required.id],
-                "changelog_message": "Test changelog",
-            },
-            context={"user": self.user},
-        )
-
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-        experiment = serializer.save()
-
-        self.assertEqual(experiment.excluded_experiments.get(), excluded)
-        self.assertEqual(experiment.required_experiments.get(), required)
 
     def test_can_set_excluded_required_experiments_all_branches(self):
         excluded = NimbusExperimentFactory.create_with_lifecycle(

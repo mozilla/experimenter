@@ -26,6 +26,7 @@ To set up the Cirrus environment, follow these steps:
    CIRRUS_SENTRY_DSN=dsn_url
    CIRRUS_INSTANCE_NAME=cirrus_pod_app_v1
    CIRRUS_ENV_NAME=test_app_stage
+   CIRRUS_GLEAN_MAX_EVENTS_BUFFER=10
 
    ```
 
@@ -40,6 +41,7 @@ To set up the Cirrus environment, follow these steps:
    - `CIRRUS_SENTRY_DSN`: Replace `dsn_url` with the appropriate DSN value.
    - `CIRRUS_INSTANCE_NAME`: Replace with the instance name.
    - `CIRRUS_ENV_NAME:` Replace with the concatenation of project and environment name
+   - `CIRRUS_GLEAN_MAX_EVENTS_BUFFER`: This value represents the max events buffer size for glean. You can set the value from range 1 to 500, by default Cirrus sets it to 10.
 
    Adjust the values of these variables according to your specific configuration requirements.
 
@@ -65,7 +67,7 @@ The following are the available commands for working with Cirrus:
 
   - Usage: `make cirrus_test`
 
-- **cirrus_check**: Performs various checks on the Cirrus application including Ruff linting, Black code formatting check, Pyright static type checking, pytest tests, and documentation generation..
+- **cirrus_check**: Performs various checks on the Cirrus application including Ruff linting, Black code formatting check, Pyright static type checking, pytest tests, and documentation generation.
 
   - Usage: `make cirrus_check`
 

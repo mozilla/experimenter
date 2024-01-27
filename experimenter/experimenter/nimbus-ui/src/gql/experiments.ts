@@ -55,6 +55,9 @@ export const GET_EXPERIMENT_QUERY = gql`
       owner {
         email
       }
+      subscribers {
+        email
+      }
 
       parent {
         name
@@ -132,15 +135,35 @@ export const GET_EXPERIMENT_QUERY = gql`
       isSticky
       isFirstRun
       isWeb
-      excludedExperiments {
-        id
-        slug
-        name
+      excludedExperimentsBranches {
+        excludedExperiment {
+          id
+          slug
+          name
+          publicDescription
+          referenceBranch {
+            slug
+          }
+          treatmentBranches {
+            slug
+          }
+        }
+        branchSlug
       }
-      requiredExperiments {
-        id
-        slug
-        name
+      requiredExperimentsBranches {
+        requiredExperiment {
+          id
+          slug
+          name
+          publicDescription
+          referenceBranch {
+            slug
+          }
+          treatmentBranches {
+            slug
+          }
+        }
+        branchSlug
       }
       jexlTargetingExpression
 
@@ -305,6 +328,12 @@ export const GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY = gql`
       name
       slug
       publicDescription
+      referenceBranch {
+        slug
+      }
+      treatmentBranches {
+        slug
+      }
     }
   }
 `;

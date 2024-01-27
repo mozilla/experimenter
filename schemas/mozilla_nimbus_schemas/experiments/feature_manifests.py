@@ -11,12 +11,22 @@ class FeatureVariableType(Enum):
     JSON = "json"
 
 
+class PrefBranch(Enum):
+    DEFAULT = "default"
+    USER = "user"
+
+
+class SetPref(BaseModel):
+    branch: PrefBranch
+    pref: str
+
+
 class FeatureVariable(BaseModel):
     description: Optional[str]
     enum: Optional[list[str]]
     fallback_pref: Optional[str] = Field(alias="fallbackPref")
     type: Optional[FeatureVariableType]
-    set_pref: Optional[str] = Field(alias="setPref")
+    set_pref: Optional[Union[str, SetPref]] = Field(alias="setPref")
 
 
 class NimbusFeatureSchema(BaseModel):
