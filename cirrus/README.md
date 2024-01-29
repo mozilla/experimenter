@@ -129,7 +129,40 @@ Example input:
   }
 }
 ```
+- To target clients based on `languages` you can use key as `language` and it supports [list of languages](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes)
 
+Example input:
+```json
+{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "language": "en"
+  }
+}
+```
+- To target clients based on `country` you can use key as `region` and it supports [list of countries](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes)
+
+Example input:
+```json
+{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "region": "US"
+  }
+}
+```
+- To target client based on both `language` and `country`
+
+Example input:
+```json
+{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "language": "en",
+    "region": "US"
+  }
+}
+```
 ## Output
 
 The output will be a JSON object with the following properties:
