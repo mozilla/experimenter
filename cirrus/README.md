@@ -130,6 +130,7 @@ Example input:
 }
 ```
 - To target clients based on `languages` you can use key as `language` and it supports [list of languages](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes)
+
 Example input:
 ```json
 {
@@ -140,6 +141,7 @@ Example input:
 }
 ```
 - To target clients based on `country` you can use key as `region` and it supports [list of countries](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes)
+
 Example input:
 ```json
 {
@@ -150,6 +152,7 @@ Example input:
 }
 ```
 - To target client based on both `language` and `country`
+
 Example input:
 ```json
 {
