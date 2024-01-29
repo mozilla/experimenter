@@ -185,10 +185,10 @@ def test_compute_feature_configurations_targeting_doesnt_match(fml_setup):
     "targeting, targeting_context",
     [
         (
-            '(locale in ["en", "fa"])',
+            '(language in ["en", "fa"])',
             {
                 "clientId": "test",
-                "requestContext": {"locale": "en"},
+                "requestContext": {"language": "en"},
             },
         ),
         (
@@ -199,10 +199,10 @@ def test_compute_feature_configurations_targeting_doesnt_match(fml_setup):
             },
         ),
         (
-            '(locale in ["en", "fa"]) && (region in ["CA", "US"])',
+            '(language in ["en", "fa"]) && (region in ["CA", "US"])',
             {
                 "clientId": "test",
-                "requestContext": {"locale": "en", "region": "US"},
+                "requestContext": {"language": "en", "region": "US"},
             },
         ),
     ],
