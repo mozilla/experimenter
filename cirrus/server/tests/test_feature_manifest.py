@@ -181,6 +181,111 @@ def test_compute_feature_configurations_targeting_doesnt_match(fml_setup):
     assert len(fml.merge_errors) == 0
 
 
+@pytest.mark.parametrize(
+    "targeting, targeting_context",
+    [
+        (
+            '(language in ["en", "fa"])',
+            {
+                "clientId": "test",
+                "requestContext": {"language": "en"},
+            },
+        ),
+        (
+            '(region in ["CA", "US"])',
+            {
+                "clientId": "test",
+                "requestContext": {"region": "US"},
+            },
+        ),
+        (
+            '(language in ["en", "fa"]) && (region in ["CA", "US"])',
+            {
+                "clientId": "test",
+                "requestContext": {"language": "en", "region": "US"},
+            },
+        ),
+    ],
+)
+def test_compute_feature_configurations_targeting_locale(
+    fml_setup, targeting, targeting_context
+):
+    fml, sdk = fml_setup
+    bucket_config = {
+        "randomizationUnit": "user_id",
+        "count": 100,
+        "namespace": "",
+        "start": 1,
+        "total": 100,
+    }
+
+    branches = [
+        {
+            "slug": "control",
+            "ratio": 1,
+            "feature": {
+                "featureId": "example-feature",
+                "value": {"enabled": False, "something": "You are enrolled"},
+            },
+        },
+    ]
+
+    experiment = {
+        "schemaVersion": "1.0.0",
+        "slug": "experiment-slug",
+        "userFacingName": "",
+        "userFacingDescription": "",
+        "appId": "test_app_id",
+        "appName": "test_app_name",
+        "channel": "developer",
+        "targeting": targeting,
+        "bucketConfig": bucket_config,
+        "isRollout": True,
+        "isEnrollmentPaused": False,
+        "proposedEnrollment": 10,
+        "branches": branches,
+        "featureIds": ["example-feature"],
+    }
+
+    data = json.dumps({"data": [experiment]})
+    sdk.set_experiments(data)
+    enrolled_partial_configuration = sdk.compute_enrollments(targeting_context)
+    assert enrolled_partial_configuration == {
+        "enrolledFeatureConfigMap": {
+            "example-feature": {
+                "branch": None,
+                "feature": {
+                    "featureId": "example-feature",
+                    "value": {"enabled": False, "something": "You are enrolled"},
+                },
+                "featureId": "example-feature",
+                "slug": "experiment-slug",
+            }
+        },
+        "enrollments": [
+            {
+                "slug": "experiment-slug",
+                "status": {"Enrolled": {"branch": "control", "reason": "Qualified"}},
+            }
+        ],
+        "events": [
+            {
+                "branch_slug": "control",
+                "change": "Enrollment",
+                "experiment_slug": "experiment-slug",
+                "reason": None,
+            }
+        ],
+    }
+
+    result = fml.compute_feature_configurations(enrolled_partial_configuration)
+
+    assert result == {
+        "example-feature": {"enabled": False, "something": "You are enrolled"}
+    }
+    assert len(fml.merge_errors) == 0
+
+
 def test_coenrolling_feature_ids(fml_with_coenrolling_features):
     fml = fml_with_coenrolling_features
     assert fml.get_coenrolling_feature_ids() == ["coenrolling-feature"]
