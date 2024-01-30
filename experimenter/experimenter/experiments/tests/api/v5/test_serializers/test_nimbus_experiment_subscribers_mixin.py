@@ -1,5 +1,5 @@
-from django.contrib.auth.models import User
 from django.test import TestCase
+from parameterized import parameterized
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
@@ -12,108 +12,53 @@ class TestNimbusExperimentSubscribersMixin(TestCase):
         super().setUp()
         self.user = UserFactory()
 
-    def test_can_update_subscribers_with_existing_subscribers(self):
-        subscriber: User = UserFactory.create()
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            subscribers=[subscriber],
-        )
-        new_subscriber: User = UserFactory.create()
-
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            {
-                "subscribers": [{"email": new_subscriber.email, "subscribed": True}],
-                "changelog_message": "Test unsubscribe",
-            },
-            context={"user": new_subscriber},
-        )
-
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-        experiment = serializer.save()
-        self.assertEqual(list(experiment.subscribers.all()), [subscriber, new_subscriber])
-
-    def test_can_update_subscribers_when_already_subscribed(self):
-        subscriber: User = UserFactory.create()
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            subscribers=[subscriber],
-        )
-
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            {
-                "subscribers": [{"email": subscriber.email, "subscribed": True}],
-                "changelog_message": "Test unsubscribe",
-            },
-            context={"user": subscriber},
-        )
-
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-        experiment = serializer.save()
-        self.assertEqual(list(experiment.subscribers.all()), [subscriber])
-
-    def test_can_remove_subscribers(self):
-        subscriber = UserFactory.create()
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            subscribers=[subscriber],
-        )
-
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            {
-                "subscribers": [{"email": subscriber.email, "subscribed": False}],
-                "changelog_message": "Test unsubscribe",
-            },
-            context={"user": subscriber},
-        )
-
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-        experiment = serializer.save()
-        self.assertEqual(list(experiment.subscribers.all()), [])
-
-    def test_can_remove_subscribers_with_no_existing_subscribers(self):
+    @parameterized.expand([True, False])
+    def test_subscribe_and_unsubscribe(self, subscribed):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             subscribers=[],
         )
-        new_subscriber = UserFactory.create()
-
+        current_user = UserFactory.create()
+        self.assertFalse(
+            current_user.email
+            in experiment.subscribers.all().values_list("email", flat=True),
+        )
         serializer = NimbusExperimentSerializer(
             experiment,
             {
-                "subscribers": [{"email": new_subscriber.email, "subscribed": False}],
+                "subscribers": [{"email": current_user.email, "subscribed": subscribed}],
                 "changelog_message": "Test unsubscribe",
             },
-            context={"user": new_subscriber},
+            context={"user": current_user},
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
-        self.assertEqual(list(experiment.subscribers.all()), [])
+        self.assertEqual(current_user in list(experiment.subscribers.all()), subscribed)
 
-    def test_can_update_subscribers_with_no_existing_subscribers(self):
-        subscriber: User = UserFactory.create()
+    @parameterized.expand([True, False])
+    def test_can_update_subscribers_when_already_subscribed(self, subscribed):
+        current_user = UserFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            subscribers=[],
+            subscribers=[current_user],
+        )
+        self.assertTrue(
+            current_user.email
+            in experiment.subscribers.all().values_list("email", flat=True),
         )
 
         serializer = NimbusExperimentSerializer(
             experiment,
             {
-                "subscribers": [{"email": subscriber.email, "subscribed": True}],
+                "subscribers": [{"email": current_user.email, "subscribed": subscribed}],
                 "changelog_message": "Test unsubscribe",
             },
-            context={"user": subscriber},
+            context={"user": current_user},
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
-        self.assertEqual(list(experiment.subscribers.all()), [subscriber])
+        self.assertEqual(current_user in list(experiment.subscribers.all()), subscribed)
