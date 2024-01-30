@@ -145,6 +145,7 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_allows_empty_values_for_all_fields_existing_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            subscribers=[],
         )
         data = {
             "name": "",
