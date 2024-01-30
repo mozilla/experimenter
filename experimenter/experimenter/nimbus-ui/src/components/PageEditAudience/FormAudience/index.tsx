@@ -651,53 +651,25 @@ export const FormAudience = ({
           )}
           {!isDesktop && (
             <Form.Group as={Col} controlId="languages" data-testid="languages">
-              <Form.Label>
-                Languages
-                {experiment.isWeb && (
-                  <>
-                    <Info
-                      data-tip={TOOLTIP_DISABLED_FOR_WEBAPP}
-                      data-testid="tooltip-disabled-languages"
-                      width="20"
-                      height="20"
-                      className="ml-1"
-                    />
-                    <ReactTooltip />
-                  </>
-                )}
-              </Form.Label>
+              <Form.Label>Languages</Form.Label>
               <Select
                 placeholder="All Languages"
                 isMulti
                 {...formSelectAttrs("languages", setLanguages)}
                 options={selectOptions(config.languages as SelectIdItems)}
-                isDisabled={isLocked! || experiment.isWeb}
+                isDisabled={isLocked!}
               />
               <FormErrors name="languages" />
             </Form.Group>
           )}
           <Form.Group as={Col} controlId="countries" data-testid="countries">
-            <Form.Label>
-              Countries
-              {experiment.isWeb && (
-                <>
-                  <Info
-                    data-tip={TOOLTIP_DISABLED_FOR_WEBAPP}
-                    data-testid="tooltip-disabled-countries"
-                    width="20"
-                    height="20"
-                    className="ml-1"
-                  />
-                  <ReactTooltip />
-                </>
-              )}
-            </Form.Label>
+            <Form.Label>Countries</Form.Label>
             <Select
               placeholder="All Countries"
               isMulti
               {...formSelectAttrs("countries", setCountries)}
               options={selectOptions(config.countries as SelectIdItems)}
-              isDisabled={isLocked! || experiment.isWeb}
+              isDisabled={isLocked!}
             />
 
             <FormErrors name="countries" />
