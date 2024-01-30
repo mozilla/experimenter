@@ -563,6 +563,7 @@ input ExperimentInput {
   secondaryOutcomes: [String]
   status: NimbusExperimentStatusEnum
   statusNext: NimbusExperimentStatusEnum
+  subscribers: [NimbusExperimentSubscriberInput!]
   takeawaysMetricGain: Boolean
   takeawaysGainAmount: String
   takeawaysQbrLearning: Boolean
@@ -612,6 +613,11 @@ scalar Upload
 input NimbusExperimentBranchThroughRequiredInput {
   requiredExperiment: Int!
   branchSlug: String
+}
+
+input NimbusExperimentSubscriberInput {
+  email: String!
+  subscribed: Boolean!
 }
 
 type UpdateExperiment {

@@ -110,6 +110,7 @@ class TransitionConstants:
             "status_next",
             "status",
             "conclusion_recommendation",
+            "subscribers",
             "takeaways_summary",
             "takeaways_metric_gain",
             "takeaways_qbr_learning",
@@ -687,6 +688,36 @@ class NimbusExperimentDocumentationLinkMixin:
         return experiment
 
 
+class NimbusExperimentSubscriberSerializer(serializers.Serializer):
+    email = serializers.SlugRelatedField(
+        queryset=User.objects.all(),
+        slug_field="email",
+        required=True,
+    )
+    subscribed = serializers.BooleanField(required=True)
+
+
+class NimbusExperimentSubscribersMixin:
+    def update(self, experiment, data):
+        subscribers = data.pop("subscribers", None)
+        experiment = super().update(experiment, data)
+
+        if self.instance and subscribers is not None:
+            for subscriber in subscribers:
+                if (
+                    subscriber["subscribed"]
+                    and subscriber["email"] not in self.instance.subscribers.all()
+                ):
+                    self.instance.subscribers.add(subscriber["email"])
+                elif (
+                    not subscriber["subscribed"]
+                    and subscriber["email"] in self.instance.subscribers.all()
+                ):
+                    self.instance.subscribers.remove(subscriber["email"])
+
+        return experiment
+
+
 class NimbusStatusValidationMixin:
     """
     This will only validate certain statuses, and the validation does not
@@ -825,6 +856,7 @@ class NimbusExperimentSerializer(
     NimbusExperimentBranchMixin,
     NimbusStatusValidationMixin,
     NimbusExperimentDocumentationLinkMixin,
+    NimbusExperimentSubscribersMixin,
     ExperimentNameValidatorMixin[NimbusExperiment],
     serializers.ModelSerializer,
 ):
@@ -949,10 +981,8 @@ class NimbusExperimentSerializer(
         allow_blank=True,
         allow_null=True,
     )
-    subscribers = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        many=True,
-        allow_null=True,
+    subscribers = serializers.ListField(
+        child=NimbusExperimentSubscriberSerializer(),
         required=False,
     )
 
