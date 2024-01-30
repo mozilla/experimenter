@@ -13,7 +13,7 @@ RUN chmod -R 555 /experimenter \
 
 #-------------------------
 # System packages
-FROM python:3.11.1 AS system-builder
+FROM python:3.11-bullseye AS system-builder
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
@@ -73,25 +73,6 @@ COPY --from=file-loader /experimenter/experimenter/theme/static_src/yarn.lock /e
 RUN yarn install --frozen-lockfile --cwd /experimenter/experimenter/theme/static_src
 
 
-
-# Rust image
-#-------------------------
-FROM system-builder AS rust-builder
-WORKDIR /application-services
-
-# Rust packages
-# Checkout application services at a locked commit
-RUN git clone https://github.com/mozilla/application-services.git .
-RUN git fetch && git checkout faf2308045236e47cefc2efffb3d1454157ef2e4
-
-RUN git submodule init
-RUN git submodule update --recursive
-
-RUN mkdir -p /application-services/megazord
-
-RUN cargo build --manifest-path /application-services/megazords/nimbus-experimenter/Cargo.toml --release
-RUN cargo uniffi-bindgen generate --library /application-services/target/release/libnimbus_experimenter.so --language python --out-dir /application-services/megazord
-
 # Dev image
 #-------------------------
 FROM system-builder AS dev
@@ -112,13 +93,11 @@ COPY --from=node-builder /experimenter/experimenter/nimbus-ui/node_modules/ /exp
 COPY --from=node-builder /experimenter/node_modules/ /experimenter/node_modules/
 
 # Rust packages
-COPY --from=rust-builder /application-services/megazord/fml.py /application-services/megazord/rust_fml.py
-COPY --from=rust-builder /application-services/megazord/nimbus.py /application-services/megazord/rust_sdk.py
-COPY --from=rust-builder /application-services/megazord/errorsupport.py /application-services/megazord/rust_errorsupport.py
-COPY --from=rust-builder /application-services/megazord/remote_settings.py /application-services/megazord/rust_remote_settings.py
-# The uniffi.toml file setting cdylib_name is set to "cirrus", which means the generated python is expecting
-# the library to be called libcirrus.so.
-COPY --from=rust-builder /application-services/target/release/libnimbus_experimenter.so /application-services/megazord/libcirrus.so
+COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/libnimbus_experimenter.so /application-services/megazord/
+COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/fml.py /application-services/megazord/rust_fml.py
+COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/nimbus.py /application-services/megazord/rust_sdk.py
+COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/errorsupport.py /application-services/megazord/rust_errorsupport.py
+COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/remote_settings.py /application-services/megazord/remote_settings.py
 ENV PYTHONPATH=$PYTHONPATH:/application-services/megazord
 
 # Install nimbus-cli
