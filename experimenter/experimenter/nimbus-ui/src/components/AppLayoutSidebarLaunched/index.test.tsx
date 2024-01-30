@@ -79,7 +79,7 @@ const Subject = ({
 
 describe("AppLayoutSidebarLaunched", () => {
   describe("navigation links", () => {
-    it("when live, hides edit links, displays summary link and disabled results item", () => {
+    it("when live, hides edit links, displays summary link and disabled results item for experiment", () => {
       const expectedDate = "2023-01-01T00:00:00.000+0000";
       render(
         <Subject
@@ -87,6 +87,7 @@ describe("AppLayoutSidebarLaunched", () => {
           experiment={
             mockExperimentQuery("my-special-slug/design", {
               resultsExpectedDate: expectedDate,
+              isRollout: false,
             }).experiment
           }
         />,
@@ -105,7 +106,44 @@ describe("AppLayoutSidebarLaunched", () => {
         `${BASE_PATH}/my-special-slug`,
       );
 
-      screen.getByText("Experiment analysis not ready yet.", { exact: false });
+      screen.getByText("Experiment analysis not ready yet.", {
+        exact: false,
+      });
+
+      screen.getByText(humanDate(expectedDate));
+    });
+
+    it("when live, hides edit links, displays summary link and disabled results item for rollout", () => {
+      const expectedDate = "2023-01-01T00:00:00.000+0000";
+      render(
+        <Subject
+          status={NimbusExperimentStatusEnum.LIVE}
+          experiment={
+            mockExperimentQuery("my-special-slug/design", {
+              resultsExpectedDate: expectedDate,
+              isRollout: true,
+            }).experiment
+          }
+        />,
+      );
+      ["Overview", "Branches", "Metrics"].forEach((text) => {
+        expect(
+          screen.queryByText(text, { selector: navLinkSelector }),
+        ).not.toBeInTheDocument();
+      });
+
+      expect(screen.queryByText("Audience")).toBeInTheDocument();
+      const navSummary = screen.getByText("Summary", {
+        selector: navLinkSelector,
+      });
+      expect(navSummary).toHaveAttribute(
+        "href",
+        `${BASE_PATH}/my-special-slug`,
+      );
+
+      screen.getByText("Analysis results are not available for rollouts.", {
+        exact: false,
+      });
 
       screen.getByText(humanDate(expectedDate));
     });
