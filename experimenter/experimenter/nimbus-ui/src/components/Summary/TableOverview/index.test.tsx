@@ -206,6 +206,34 @@ describe("TableOverview", () => {
       ).toHaveTextContent("Not set");
     });
   });
+
+  describe("renders 'Subscribers' as expected", () => {
+    it("with no subscribers", () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-subscribers")).toHaveTextContent(
+        "Not set",
+      );
+    });
+    it("with multiple subscribers", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        subscribers: [
+          {
+            email: "example1@mozilla.com",
+          },
+          {
+            email: "example2@mozilla.com",
+          },
+        ],
+      });
+      render(<Subject {...{ experiment }} />);
+      experiment.subscribers!.forEach((subscriber) =>
+        within(screen.getByTestId("experiment-subscribers")).findByText(
+          subscriber!.email!,
+        ),
+      );
+    });
+  });
 });
 
 const Subject = ({
