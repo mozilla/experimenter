@@ -677,6 +677,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   qaComment: null,
   qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
   isWeb: false,
+  subscribers: [],
 };
 
 export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
@@ -785,6 +786,7 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   excludedExperimentsBranches: [],
   qaComment: null,
   qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
+  subscribers: [],
 };
 
 export function mockExperiment<
