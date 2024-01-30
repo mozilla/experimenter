@@ -33,6 +33,11 @@ class BranchInput(graphene.InputObjectType):
     screenshots = graphene.List(BranchScreenshotInput)
 
 
+class NimbusExperimentSubscriberInput(graphene.InputObjectType):
+    email = graphene.String(required=True)
+    subscribed = graphene.Boolean(required=True)
+
+
 class DocumentationLinkInput(graphene.InputObjectType):
     title = NimbusExperimentDocumentationLinkEnum(required=True)
     link = graphene.String(required=True)
@@ -95,6 +100,10 @@ class ExperimentInput(graphene.InputObjectType):
     secondary_outcomes = graphene.List(graphene.String)
     status = NimbusExperimentStatusEnum()
     status_next = NimbusExperimentStatusEnum()
+    subscribers = graphene.List(
+        graphene.NonNull(NimbusExperimentSubscriberInput),
+        required=False,
+    )
     takeaways_metric_gain = graphene.Boolean(required=False)
     takeaways_gain_amount = graphene.String()
     takeaways_qbr_learning = graphene.Boolean(required=False)
