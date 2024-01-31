@@ -235,7 +235,9 @@ export const AppLayoutSidebarLaunched = ({
                     "Experiment analysis was skipped"
                   ) : (
                     <>
-                      Experiment analysis not ready yet.
+                      {experiment.isRollout
+                        ? "Analysis results are not available for rollouts."
+                        : "Experiment analysis not ready yet."}
                       {experiment.resultsExpectedDate && (
                         <>
                           {" "}

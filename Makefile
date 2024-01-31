@@ -105,19 +105,19 @@ compose_build:  ## Build containers
 build_megazords:
 	$(DOCKER_BUILD) -f application-services/Dockerfile -t experimenter:megazords application-services/
 
-build_dev: ssl
+build_dev: ssl build_megazords
 	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
 build_integration_test: ssl build_megazords
 	$(DOCKER_BUILD) -f experimenter/tests/integration/Dockerfile -t experimenter:integration-tests experimenter/
 
-build_test: ssl
+build_test: ssl build_megazords
 	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
 build_ui: ssl
 	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
 
-build_prod: ssl
+build_prod: ssl build_megazords
 	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
@@ -237,10 +237,10 @@ CIRRUS_PYTHON_TYPECHECK = pyright -p .
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
-cirrus_build:
+cirrus_build: build_megazords
 	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
-cirrus_build_test:
+cirrus_build_test: build_megazords
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
 
 cirrus_bash: cirrus_build
