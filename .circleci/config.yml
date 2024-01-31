@@ -89,7 +89,7 @@ jobs:
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check -v
+            make cirrus_check
 
   check_cirrus_aarch64:
     machine:
@@ -104,7 +104,7 @@ jobs:
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check -v
+            make cirrus_check
 
   check_schemas:
     machine:
