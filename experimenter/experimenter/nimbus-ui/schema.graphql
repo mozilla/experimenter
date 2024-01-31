@@ -73,6 +73,7 @@ type NimbusExperimentType {
   computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
   excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedType!]!
+  excludedLiveDeliveries: [String!]!
   featureHasLiveMultifeatureExperiments: [String!]!
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean

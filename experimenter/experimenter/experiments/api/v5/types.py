@@ -493,6 +493,9 @@ class NimbusExperimentType(DjangoObjectType):
     excluded_experiments_branches = graphene.NonNull(
         lambda: graphene.List(graphene.NonNull(NimbusExperimentBranchThroughExcludedType))
     )
+    excluded_live_deliveries = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(graphene.String))
+    )
     feature_configs = DjangoListField(NimbusFeatureConfigType)
     feature_has_live_multifeature_experiments = graphene.NonNull(
         lambda: graphene.List(graphene.NonNull(graphene.String))
@@ -573,6 +576,7 @@ class NimbusExperimentType(DjangoObjectType):
             "countries",
             "documentation_links",
             "enrollment_end_date",
+            "excluded_live_deliveries",
             "feature_configs",
             "feature_has_live_multifeature_experiments",
             "firefox_max_version",

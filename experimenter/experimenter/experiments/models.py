@@ -823,6 +823,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return matching
 
     @property
+    def excluded_live_deliveries(self):
+        """Live experiments that are excluded by the current experiment.
+
+        Returns:
+            A list of experiment slugs.
+        """
+        matching = []
+        if self.excluded_experiments.exists():
+            matching = (
+                self.excluded_experiments.filter(
+                    status=NimbusExperiment.Status.LIVE,
+                    application=self.application,
+                )
+                .values_list("slug", flat=True)
+                .distinct()
+                .order_by("slug")
+            )
+        return matching
+
+    @property
     def can_edit(self):
         return (
             (
