@@ -838,6 +838,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return matching
 
     @property
+    def live_experiments_in_namespace(self):
+        matching = []
+        isolation_groups = NimbusIsolationGroup.objects.filter(
+            name=self.bucket_namespace, application=self.application
+        )
+        if isolation_groups.exists():
+            experiment_ids = NimbusBucketRange.objects.filter(
+                isolation_group__in=isolation_groups
+            ).values_list("experiment_id")
+            matching = (
+                NimbusExperiment.objects.filter(
+                    id__in=experiment_ids,
+                    status=NimbusExperiment.Status.LIVE,
+                )
+                .exclude(id=self.id)
+                .values_list("slug", flat=True)
+                .distinct()
+                .order_by("slug")
+            )
+        return matching
+
+    @property
     def can_edit(self):
         return (
             (

@@ -805,6 +805,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     }
                     excludedLiveDeliveries
                     featureHasLiveMultifeatureExperiments
+                    liveExperimentsInNamespace
                 }
             }
             """,
@@ -898,6 +899,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 ].is_web,
                 "jexlTargetingExpression": experiment.targeting,
                 "languages": [{"id": str(language.id), "name": language.name}],
+                "liveExperimentsInNamespace": [],
                 "locales": [{"id": str(locale.id), "name": locale.name}],
                 "localizations": experiment.localizations,
                 "monitoringDashboardUrl": experiment.monitoring_dashboard_url,

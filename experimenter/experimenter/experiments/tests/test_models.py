@@ -2680,6 +2680,119 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(len(excluded_live_experiments), 0)
         self.assertEqual(excluded_live_experiments, [])
 
+    def test_get_live_experiments_in_previous_namespaces(self):
+        feature = NimbusFeatureConfigFactory.create()
+        experiments = {
+            slug: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                application=NimbusExperiment.Application.DESKTOP,
+                channel=NimbusExperiment.Channel.RELEASE,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+                feature_configs=[feature],
+            )
+            for slug in ("foo", "bar", "baz")
+        }
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            feature_configs=[feature],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 3)
+        self.assertEqual(
+            list(matching_experiments.values_list("slug", flat=True)),
+            sorted(
+                [
+                    experiments["bar"].slug,
+                    experiments["baz"].slug,
+                    experiments["foo"].slug,
+                ]
+            ),
+        )
+
+    def test_get_live_experiments_do_not_exist_in_previous_namespaces(self):
+        feature = NimbusFeatureConfigFactory.create()
+
+        for slug in ("foo", "bar", "baz"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                channel=NimbusExperiment.Channel.RELEASE,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+                feature_configs=[feature],
+            )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 0)
+
+    def test_get_live_experiments_in_different_namespaces(self):
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+
+        for slug in ("foo", "bar", "baz"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                channel=NimbusExperiment.Channel.RELEASE,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+                feature_configs=[feature1],
+            )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature2],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 0)
+
+    def test_get_live_experiments_in_different_namespaces_excludes_self(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[NimbusFeatureConfigFactory.create()],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 0)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
