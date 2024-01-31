@@ -1045,6 +1045,36 @@ describe("PageSummary Warnings", () => {
     );
   });
 
+  it("displays warnings for live multifeature audience overlap", async () => {
+    const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(
+      "my-slimy-slug, smooth-slug",
+    );
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      featureHasLiveMultifeatureExperiments: ["my-slimy-slug", "smooth-slug"],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("live-multifeature-warning"));
+      expect(screen.getByText(warning));
+    });
+  });
+
+  it("displays no warning when no live multifeature audience overlap", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      featureHasLiveMultifeatureExperiments: [],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(screen.queryByTestId("live-multifeature-warning")).toBeNull(),
+    );
+  });
+
   it.each([
     [
       NimbusExperimentStatusEnum.DRAFT,
@@ -1084,17 +1114,20 @@ describe("PageSummary Warnings", () => {
         status: status,
         publishStatus: publishStatus,
         excludedLiveDeliveries: ["my-silly-slug"],
+        featureHasLiveMultifeatureExperiments: ["my-slimy-slug"],
       });
       render(<Subject mocks={[mock]} />);
       if (displayWarning) {
         await waitFor(() => {
           expect(screen.queryByTestId("excluding-live-experiments-warning"));
+          expect(screen.queryByTestId("live-multifeature-warning"));
         });
       } else {
         await waitFor(() => {
           expect(
             screen.queryByTestId("excluding-live-experiments-warning"),
           ).toBeNull();
+          expect(screen.queryByTestId("live-multifeature-warning")).toBeNull();
         });
       }
     },
