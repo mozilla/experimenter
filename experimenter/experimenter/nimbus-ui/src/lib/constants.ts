@@ -98,6 +98,9 @@ export const AUDIENCE_OVERLAP_WARNINGS = {
   EXCLUDING_EXPERIMENTS_WARNING: (slugs: string) => {
     return `The following experiments are being excluded by your experiment and may cause audience overlap: ${slugs}`;
   },
+  LIVE_EXPERIMENTS_BUCKET_WARNING: (slugs: string) => {
+    return `The following experiments are LIVE and may cause audience overlap with your experiment: ${slugs}`;
+  },
   LIVE_MULTIFEATURE_WARNING: (slugs: string) => {
     return `The following multi-feature experiments are LIVE and may cause audience overlap with your experiment: ${slugs}`;
   },
