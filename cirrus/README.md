@@ -67,7 +67,7 @@ The following are the available commands for working with Cirrus:
 
   - Usage: `make cirrus_test`
 
-- **cirrus_check**: Performs various checks on the Cirrus application including Ruff linting, Black code formatting check, Pyright static type checking, pytest tests, and documentation generation.
+- **cirrus_check**: Performs various checks on the Cirrus application including Ruff linting, Black code formatting check, Pyright static type checking, pytest tests, and documentation generation..
 
   - Usage: `make cirrus_check`
 
