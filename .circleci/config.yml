@@ -545,8 +545,6 @@ jobs:
       - run:
           name: Check for Application Services update
           command: |
-            git checkout main
-            git pull origin main
             make update_application_services
             if (($(git status --porcelain | wc -c) > 0)); then
               git checkout -B update-application-services
@@ -648,6 +646,8 @@ workflows:
 
   build:
     jobs:
+      - update_application_services:
+          name: TEST ONLY update application services
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
