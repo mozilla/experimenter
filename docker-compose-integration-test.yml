@@ -2,7 +2,7 @@ version: "3"
 
 services:
   firefox:
-    image: mozilla/experimenter:${FIREFOX_VERSION}
+    image: mozilla/experimenter:${FIREFOX_VERSION:-nimbus-firefox-release}
     env_file: .env
     environment:
       - MOZ_HEADLESS
