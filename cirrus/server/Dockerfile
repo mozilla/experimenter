@@ -9,6 +9,10 @@ RUN apt-get update && \
     apt-get -y install curl bash build-essential && \
     rm -rf /var/lib/apt/lists/*
 
+# Rust is required to build some Python packages on arm64 Linux.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y --no-modify-path
+ENV PATH=$PATH:/root/.cargo/bin
+
 # Install poetry package management tool
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.6.0
 

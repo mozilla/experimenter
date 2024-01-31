@@ -240,7 +240,7 @@ CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 cirrus_build: build_megazords
 	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
-cirrus_build_test:
+cirrus_build_test: build_megazords
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
 
 cirrus_bash: cirrus_build
