@@ -146,6 +146,7 @@ export const CHANGELOG_MESSAGES = {
   UNARCHIVING_EXPERIMENT: "Unarchiving experiment",
   UPDATED_TAKEAWAYS: "Updated Takeaways",
   UPDATED_QA_STATUS: "Updated QA Status",
+  UPDATE_SUBSCRIBERS: "Updated Subscribers",
   CANCEL_REVIEW: "Cancelled Review Request",
 } as const;
 

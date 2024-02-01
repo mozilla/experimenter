@@ -49,12 +49,10 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         project = ProjectFactory.create()
-        subscriber = UserFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
             feature_configs=[feature_config],
             projects=[project],
-            subscribers=[subscriber],
         )
 
         response = self.query(
@@ -113,9 +111,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         name
                     }
                     hypothesis
-                    subscribers {
-                        email
-                    }
                 }
             }
             """,
@@ -198,7 +193,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     if experiment.status_next is not None
                     else None
                 ),
-                "subscribers": [{"email": str(subscriber.email)}],
                 "targetingConfig": [
                     {
                         "applicationValues": list(
@@ -577,6 +571,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             projects=[project],
             required_experiments_branches=[required],
             excluded_experiments_branches=[excluded],
+            subscribers=[],
         )
 
         review_request_change = experiment.changes.latest_review_request()
@@ -802,6 +797,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         }
                         branchSlug
                     }
+                    subscribers {
+                        email
+                    }
                 }
             }
             """,
@@ -1002,6 +1000,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     NimbusExperiment.Status(experiment.status_next).name
                     if experiment.status_next is not None
                     else None
+                ),
+                "subscribers": list(
+                    experiment.subscribers.all().values_list("email", flat=True)
                 ),
                 "takeawaysGainAmount": experiment.takeaways_gain_amount,
                 "takeawaysMetricGain": experiment.takeaways_metric_gain,
@@ -2410,6 +2411,7 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
                         rollouts
                     }
                     populationSizingData
+                    user
                 }
             }
             """,
@@ -2562,3 +2564,4 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
             self.assertIn(
                 {"id": str(project.id), "name": project.name}, config["projects"]
             )
+        self.assertEqual(config["user"], user_email)
