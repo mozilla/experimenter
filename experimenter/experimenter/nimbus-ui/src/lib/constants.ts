@@ -189,7 +189,8 @@ export const URL_FIELD = {
 
 export const IMAGE_UPLOAD_ACCEPT = ".gif,.jpg,.jpeg,.png";
 
-export const POLL_INTERVAL = 30000;
+export const START_POLL_INTERVAL = 30000; // 30 seconds
+export const MAX_POLL_INTERVAL = 3600000; // 1 hour
 
 interface QAStatusProperties {
   emoji: string;

@@ -9,7 +9,6 @@ import AppLayoutSidebarLaunched from "src/components/AppLayoutSidebarLaunched";
 import AppLayoutWithSidebar from "src/components/AppLayoutWithSidebar";
 import Head from "src/components/Head";
 import HeaderExperiment from "src/components/HeaderExperiment";
-import { POLL_INTERVAL } from "src/lib/constants";
 import { ExperimentContext } from "src/lib/contexts";
 import { StatusCheck } from "src/lib/experiment";
 import { AnalysisData } from "src/lib/visualization/types";
@@ -93,10 +92,7 @@ const AppLayoutWithExperiment = ({
               but ran into an error. This usually happens when Experimenter is
               mid-deploy.
             </p>
-            <p>
-              Polling will be retried automatically in {POLL_INTERVAL / 1000}{" "}
-              seconds.
-            </p>
+            <p>Polling will be retried automatically.</p>
           </Alert>
         )}
         {title && <h2 className="mt-3 mb-4 h3">{title}</h2>}

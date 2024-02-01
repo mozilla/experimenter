@@ -16,7 +16,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React, { useContext, useRef, useState } from "react";
 import ExperimentRoot from "src/components/App/ExperimentRoot";
-import { BASE_PATH, POLL_INTERVAL } from "src/lib/constants";
+import { BASE_PATH, START_POLL_INTERVAL } from "src/lib/constants";
 import { ExperimentContext } from "src/lib/contexts";
 import { MockedCache, mockExperimentQuery } from "src/lib/mocks";
 import {
@@ -254,7 +254,7 @@ describe("ExperimentRoot", () => {
     });
 
     // Travel forward in time and assert that polling fetched the update
-    jest.advanceTimersByTime(POLL_INTERVAL);
+    jest.advanceTimersByTime(START_POLL_INTERVAL);
     await waitFor(() => {
       expect(screen.getByTestId("publishStatus")).toHaveTextContent(
         updatedExperiment!.publishStatus!,
@@ -269,7 +269,7 @@ describe("ExperimentRoot", () => {
     });
 
     // Travel forward in time and assert that polling did not fetch again
-    jest.advanceTimersByTime(POLL_INTERVAL * 2);
+    jest.advanceTimersByTime(START_POLL_INTERVAL * 2);
     await waitFor(() => {
       expect(screen.getByTestId("publishStatus")).not.toHaveTextContent(
         ignoredExperiment!.publishStatus!,
