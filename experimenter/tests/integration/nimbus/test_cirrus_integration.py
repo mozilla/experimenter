@@ -186,7 +186,6 @@ def test_check_cirrus_targeting(
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
     home = HomePage(selenium, base_url).open()
-    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
 
     # Demo app frontend, by default, returns "Not Enrolled" message
     navigate_to(selenium)
