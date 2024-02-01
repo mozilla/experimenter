@@ -454,6 +454,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: NimbusExperimentQAStatusEnum.NOT_SET,
     },
   ],
+  user: "dev@example.com",
 };
 
 // Disabling this rule for now because we'll eventually

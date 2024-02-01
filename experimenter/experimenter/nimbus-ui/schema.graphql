@@ -472,6 +472,7 @@ type NimbusConfigurationType {
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
   populationSizingData: String
   qaStatus: [NimbusLabelValueType]
+  user: String!
 }
 
 type NimbusExperimentApplicationConfigType {
