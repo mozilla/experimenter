@@ -205,6 +205,13 @@ def test_compute_feature_configurations_targeting_doesnt_match(fml_setup):
                 "requestContext": {"language": "en", "region": "US"},
             },
         ),
+        (
+            'random_key in ["test1", "test2"]',
+            {
+                "clientId": "test",
+                "requestContext": {"random_key": "test1"},
+            },
+        ),
     ],
 )
 def test_compute_feature_configurations_targeting_locale(

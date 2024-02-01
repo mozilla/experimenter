@@ -110,6 +110,8 @@ The input should be a JSON object with the following properties:
 - `client_id` (string): Used for bucketing calculation.
 - `context` (object): Used for context. It can have any key-value pair.
   - `any-key` (anytype).
+  - `language` (string): Optional field
+  - `region` (string): Optional field
 
 Note: Make sure to provide a key-value pair when making a call, setting the `context` value as `{}` will be considered as `False` value. For testing you can set value such as
 ```json
@@ -160,6 +162,16 @@ Example input:
   "context": {
     "language": "en",
     "region": "US"
+  }
+}
+```
+- You can make your custom field to target too. Prepare what fields you want to be be able to target on, and then work backwards to construct it and populate a targeting context that will satisfy that.
+Example input:
+```json
+{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "random_key": "random_value",
   }
 }
 ```
