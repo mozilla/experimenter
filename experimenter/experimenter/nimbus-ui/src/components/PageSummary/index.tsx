@@ -232,30 +232,38 @@ const PageSummary = (props: RouteComponentProps) => {
       <SummaryTimeline {...{ experiment }} />
 
       {submitError && (
-        <Alert data-testid="submit-error" variant="warning">
-          {submitError}
-        </Alert>
+        <Warning
+          {...{
+            text: submitError,
+            testId: "submit-error",
+            variant: "warning",
+          }}
+        />
       )}
 
       {experiment.isRollout &&
         (status.draft || status.preview) &&
         fieldWarnings.bucketing?.length > 0 && (
-          <Alert data-testid="bucketing-warning" variant="danger">
-            {fieldWarnings.bucketing as SerializerMessage}
-            <LinkExternal href={EXTERNAL_URLS.BUCKET_WARNING_EXPLANATION}>
-              <span className="mr-1">Learn more</span>
-              <ExternalIcon />
-            </LinkExternal>
-          </Alert>
+          <Warning
+            {...{
+              text: fieldWarnings.bucketing as SerializerMessage,
+              testId: "bucketing",
+              learnMoreLink: EXTERNAL_URLS.BUCKET_WARNING_EXPLANATION,
+            }}
+          />
         )}
 
       {experiment.isRollout &&
         (experiment.status === NimbusExperimentStatusEnum.DRAFT ||
           experiment.status === NimbusExperimentStatusEnum.PREVIEW) &&
         fieldWarnings.firefox_min_version?.length > 0 && (
-          <Alert data-testid="desktop-min-version-warning" variant="warning">
-            {fieldWarnings.firefox_min_version as SerializerMessage}
-          </Alert>
+          <Warning
+            {...{
+              text: fieldWarnings.firefox_min_version as SerializerMessage,
+              testId: "desktop-min-version",
+              variant: "warning",
+            }}
+          />
         )}
 
       {summaryAction && (
@@ -372,4 +380,28 @@ const StatusPill = ({
   >
     {label}
   </Badge>
+);
+
+const Warning = ({
+  text,
+  testId,
+  learnMoreLink,
+  learnMoreText = "Learn more",
+  variant = "danger",
+}: {
+  text: string | SerializerMessage;
+  testId: string;
+  learnMoreLink?: string;
+  learnMoreText?: string;
+  variant?: string;
+}) => (
+  <Alert data-testid={`${testId}-warning`} variant={variant}>
+    {text}{" "}
+    {learnMoreLink && (
+      <LinkExternal href={learnMoreLink}>
+        <span className="mr-1">{learnMoreText}</span>
+        <ExternalIcon />
+      </LinkExternal>
+    )}
+  </Alert>
 );
