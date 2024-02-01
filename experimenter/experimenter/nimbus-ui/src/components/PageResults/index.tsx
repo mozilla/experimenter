@@ -73,7 +73,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     analysis,
     sortedBranchNames,
     controlBranchName:
-      sortedBranchNames.length > 0 ? sortedBranchNames[0] : undefined,
+      (sortedBranchNames.length > 0
+        ? sortedBranchNames[0]
+        : experiment.referenceBranch?.slug) || "",
   };
 
   // list of metrics (slugs) with errors that would not otherwise be displayed
@@ -354,6 +356,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   className="mb-2 border-top-0"
                   analysisBasis={selectedAnalysisBasis}
                   segment={selectedSegment}
+                  referenceBranch={resultsContextValue.controlBranchName}
                 />
               )}
             <TableHighlightsOverview {...{ experiment }} />
@@ -376,6 +379,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       experiment.application ===
                       NimbusExperimentApplicationEnum.DESKTOP
                     }
+                    referenceBranch={resultsContextValue.controlBranchName}
                   />
                 )}
 
@@ -392,6 +396,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       experiment.application ===
                       NimbusExperimentApplicationEnum.DESKTOP
                     }
+                    referenceBranch={resultsContextValue.controlBranchName}
                   />
                 )}
             </div>
@@ -447,6 +452,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                           metricType={METRIC_TYPE.PRIMARY}
                           analysisBasis={selectedAnalysisBasis}
                           segment={selectedSegment}
+                          referenceBranch={
+                            resultsContextValue.controlBranchName
+                          }
                         />
                       );
                     });
@@ -474,6 +482,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                         metricType={METRIC_TYPE.DEFAULT_SECONDARY}
                         analysisBasis={selectedAnalysisBasis}
                         segment={selectedSegment}
+                        referenceBranch={resultsContextValue.controlBranchName}
                       />
                     );
                   })
@@ -535,6 +544,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                                   {...{ group }}
                                   analysisBasis={selectedAnalysisBasis}
                                   segment={selectedSegment}
+                                  referenceBranch={
+                                    resultsContextValue.controlBranchName
+                                  }
                                 />
                               ),
                             )}

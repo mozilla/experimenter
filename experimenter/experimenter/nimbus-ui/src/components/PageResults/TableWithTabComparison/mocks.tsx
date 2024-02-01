@@ -18,7 +18,10 @@ export const Subject = ({
   return (
     <RouterSlugProvider mocks={[mock]}>
       <MockResultsContextProvider>
-        <TableWithTabComparison {...{ experiment, Table, className }} />
+        <TableWithTabComparison
+          {...{ experiment, Table, className }}
+          referenceBranch="control"
+        />
       </MockResultsContextProvider>
     </RouterSlugProvider>
   );

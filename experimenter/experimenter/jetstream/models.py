@@ -229,13 +229,6 @@ class ResultsObjectModelBase(BaseModel):
                     upper=jetstream_data_point.upper,
                     point=jetstream_data_point.point,
                 )
-                comparison_to_reference = (
-                    experiment.reference_branch.slug == comparison_to_branch
-                )
-                comparison_to_reference_or_absolute = (
-                    experiment.reference_branch.slug == comparison_to_branch
-                    or branch_comparison == BranchComparison.ABSOLUTE
-                )
 
                 # Set window_index (always 1 for OVERALL). Used by weekly DataPoint
                 # objects and for storing significance for each window.
@@ -265,10 +258,6 @@ class ResultsObjectModelBase(BaseModel):
                     and data_point.has_bounds()
                 ):
                     significance = compute_significance(data_point)
-                    if comparison_to_reference:
-                        getattr(metric_data.significance, window)[
-                            window_index
-                        ] = significance
                     if comparison_to_branch is not None:
                         significance_to_branch = getattr(
                             metric_data.significance, comparison_to_branch
@@ -281,7 +270,7 @@ class ResultsObjectModelBase(BaseModel):
                     data_point.set_window_index(window_index)
 
                 comparison_data = getattr(metric_data, branch_comparison)
-                if comparison_to_reference_or_absolute:
+                if branch_comparison == BranchComparison.ABSOLUTE:
                     if len(comparison_data.all) == 0:
                         comparison_data.first = data_point
 
@@ -305,6 +294,7 @@ class ResultsObjectModelBase(BaseModel):
                     ):
                         comparison_data.all.append(data_point)
 
+                # this is effectively an `else`, but we'll check just in case
                 if comparison_to_branch is not None:
                     pairwise_comparison_data = getattr(
                         comparison_data, comparison_to_branch
@@ -382,24 +372,27 @@ def create_results_object_model(data: JetstreamData):
     for jetstream_data_point in data:
         branches[jetstream_data_point.branch] = {}
 
-    # create a dynamic model that extends BranchComparisonData with all branches
+    # create a dynamic model with all branches, leveraging BranchComparisonData
     branches_data = {b: BranchComparisonData() for b in branches}
     PairwiseBranchComparisonData = create_model(
         "PairwiseBranchComparisonData",
         **branches_data,
-        __base__=BranchComparisonData,
     )
 
-    # create a dynamic model that extends SignificanceData with all branches
+    # create a dynamic model with all branches, leveraging SignificanceData
     branches_significance_data = {b: SignificanceData() for b in branches}
     PairwiseSignificanceData = create_model(
         "PairwiseSignificanceData",
         **branches_significance_data,
-        __base__=SignificanceData,
     )
 
+    class PairwiseMetricData(MetricData):
+        difference: PairwiseBranchComparisonData
+        relative_uplift: PairwiseBranchComparisonData
+        significance: PairwiseSignificanceData
+
     for jetstream_data_point in data:
-        metrics[jetstream_data_point.metric] = MetricData(
+        metrics[jetstream_data_point.metric] = PairwiseMetricData(
             absolute=BranchComparisonData(),
             difference=PairwiseBranchComparisonData(),
             relative_uplift=PairwiseBranchComparisonData(),
