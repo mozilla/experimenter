@@ -241,11 +241,11 @@ def default_data(application, experiment_name, load_experiment_outcomes):
 def create_experiment(base_url, default_data):
     def _create_experiment(
         selenium,
-        reference_branch_value="{}",
-        treatment_branch_value="{}",
         languages=False,
         countries=False,
         is_rollout=False,
+        reference_branch_value="{}",
+        treatment_branch_value="{}",
     ):
         home = HomePage(selenium, base_url).open()
         experiment = home.create_new_button()
@@ -283,12 +283,8 @@ def create_experiment(base_url, default_data):
         # Fill Metrics page
         metrics = branches.save_and_continue()
         if default_data.metrics.primary_outcomes:
-            metrics.set_primary_outcomes(
-                values=default_data.metrics.primary_outcomes[0]
-            )
-            assert (
-                metrics.primary_outcomes.text != ""
-            ), "The primary outcome was not set"
+            metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
+            assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
             metrics.set_secondary_outcomes(
                 values=default_data.metrics.secondary_outcomes[0]
             )
