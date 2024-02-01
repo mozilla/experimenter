@@ -291,10 +291,8 @@ export const GET_EXPERIMENTS_QUERY = gql`
       startDate
       isRolloutDirty
       isEnrollmentPausePending
-      isEnrollmentPaused
       proposedDuration
       proposedEnrollment
-      proposedReleaseDate
       computedEndDate
       computedEnrollmentEndDate
       status
@@ -303,7 +301,6 @@ export const GET_EXPERIMENTS_QUERY = gql`
       qaStatus
       monitoringDashboardUrl
       rolloutMonitoringDashboardUrl
-      resultsExpectedDate
       resultsReady
       showResultsUrl
       channel
@@ -312,7 +309,6 @@ export const GET_EXPERIMENTS_QUERY = gql`
         id
         name
       }
-      hypothesis
       takeawaysMetricGain
       takeawaysQbrLearning
     }
