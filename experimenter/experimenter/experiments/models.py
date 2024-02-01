@@ -954,8 +954,23 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             link.experiment = cloned
             link.save()
 
-        cloned.required_experiments.add(*self.required_experiments.all())
-        cloned.excluded_experiments.add(*self.excluded_experiments.all())
+        for (
+            required_experiment_branch
+        ) in NimbusExperimentBranchThroughRequired.objects.filter(parent_experiment=self):
+            NimbusExperimentBranchThroughRequired.objects.create(
+                parent_experiment=cloned,
+                child_experiment=required_experiment_branch.child_experiment,
+                branch_slug=required_experiment_branch.branch_slug,
+            )
+
+        for (
+            excluded_experiment_branch
+        ) in NimbusExperimentBranchThroughExcluded.objects.filter(parent_experiment=self):
+            NimbusExperimentBranchThroughExcluded.objects.create(
+                parent_experiment=cloned,
+                child_experiment=excluded_experiment_branch.child_experiment,
+                branch_slug=excluded_experiment_branch.branch_slug,
+            )
 
         cloned.feature_configs.add(*self.feature_configs.all())
         cloned.countries.add(*self.countries.all())
