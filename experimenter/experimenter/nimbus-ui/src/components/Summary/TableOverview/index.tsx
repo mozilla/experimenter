@@ -2,13 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { Card, Table } from "react-bootstrap";
+import { useMutation } from "@apollo/client";
+import { navigate } from "@reach/router";
+import React, { useState } from "react";
+import { Alert, Button, Card, Table } from "react-bootstrap";
 import NotSet from "src/components/NotSet";
 import RichText from "src/components/RichText";
 import { displayConfigLabelOrNotSet } from "src/components/Summary";
-import { useConfig, useOutcomes } from "src/hooks";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { useCommonForm, useConfig, useOutcomes } from "src/hooks";
+import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
+import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import {
+  updateExperiment,
+  updateExperimentVariables,
+} from "src/types/updateExperiment";
 
 type TableOverviewProps = {
   experiment: getExperiment_experimentBySlug;
@@ -18,11 +28,77 @@ interface DocSlugs {
   [key: string]: string;
 }
 
-// `<tr>`s showing optional fields that are not set are not displayed.
+export type SubscriberParams = {
+  email: string;
+  subscribed: boolean;
+};
 
+// `<tr>`s showing optional fields that are not set are not displayed.
 const TableOverview = ({ experiment }: TableOverviewProps) => {
-  const { applications } = useConfig();
+  const { applications, user } = useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
+
+  const [subscribed, setSubscribed] = useState<boolean>(
+    experiment.subscribers.find((s) => s.email === user) ? true : false,
+  );
+  const [isServerValid, setIsServerValid] = useState(true);
+  const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
+
+  const defaultValues: SubscriberParams = {
+    email: user,
+    subscribed: subscribed,
+  };
+
+  const { handleSubmit } = useCommonForm<keyof SubscriberParams>(
+    defaultValues,
+    isServerValid,
+    submitErrors,
+    setSubmitErrors,
+  );
+
+  const [updateExperiment] = useMutation<
+    updateExperiment,
+    updateExperimentVariables
+  >(UPDATE_EXPERIMENT_MUTATION);
+
+  const onSave = async () => {
+    setIsServerValid(true);
+    setSubmitErrors({});
+    try {
+      const result = await updateExperiment({
+        variables: {
+          input: {
+            id: experiment.id,
+            subscribers: [
+              {
+                email: user,
+                subscribed: !subscribed,
+              },
+            ],
+            changelogMessage: CHANGELOG_MESSAGES.UPDATE_SUBSCRIBERS,
+          },
+        },
+      });
+
+      // istanbul ignore next - can't figure out how to trigger this in a test
+      if (!result.data?.updateExperiment) {
+        throw new Error(SUBMIT_ERROR);
+      }
+
+      const { message } = result.data.updateExperiment;
+      if (message && message !== "success" && typeof message === "object") {
+        setIsServerValid(false);
+        return void setSubmitErrors(message);
+      } else {
+        await navigate(0);
+        setSubscribed(!subscribed);
+      }
+    } catch (error) {
+      setSubmitErrors({ "*": SUBMIT_ERROR });
+    }
+  };
+
+  const handleSave = handleSubmit(onSave);
 
   const docSlugs: DocSlugs = {
     DESKTOP: "firefox_desktop",
@@ -181,11 +257,43 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
                 {experiment.subscribers!.length > 0 ? (
                   <ul className="list-unstyled mb-0">
                     {experiment.subscribers!.map((subscriber) => (
-                      <li key={subscriber!.email}>{subscriber!.email}</li>
+                      <li data-testid="subscriber" key={subscriber!.email}>
+                        {subscriber!.email}
+                      </li>
                     ))}
                   </ul>
                 ) : (
                   <NotSet />
+                )}
+                <td className="ml-0 pl-0 border-top-0">
+                  <Button
+                    size="sm"
+                    variant="outline-primary"
+                    data-testid="add-subscriber-button"
+                    onClick={handleSave}
+                  >
+                    {subscribed ? (
+                      <div>
+                        <CollapseMinus />
+                        Unsubscribe
+                      </div>
+                    ) : (
+                      <div>
+                        <ExpandPlus />
+                        Subscribe
+                      </div>
+                    )}
+                  </Button>
+                </td>
+                {submitErrors["*"] && (
+                  <Alert data-testid="submit-error" variant="warning">
+                    {submitErrors["*"]}
+                  </Alert>
+                )}
+                {submitErrors["subscribers"] && (
+                  <Alert data-testid="submit-error" variant="warning">
+                    {submitErrors["subscribers"]}
+                  </Alert>
                 )}
               </td>
             </tr>
