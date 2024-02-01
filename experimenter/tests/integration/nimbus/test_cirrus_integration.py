@@ -185,7 +185,7 @@ def test_check_cirrus_targeting(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    home = HomePage(selenium, base_url).open()
+    HomePage(selenium, base_url).open()
 
     # Demo app frontend, by default, returns "Not Enrolled" message
     navigate_to(selenium)
