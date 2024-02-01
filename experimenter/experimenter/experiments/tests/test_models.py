@@ -2129,8 +2129,17 @@ class TestNimbusExperiment(TestCase):
             conclusion_recommendation="RERUN",
             takeaways_summary="takeaway",
         )
-        parent.required_experiments.add(required_experiment)
-        parent.excluded_experiments.add(excluded_experiment)
+        NimbusExperimentBranchThroughRequired.objects.create(
+            parent_experiment=parent,
+            child_experiment=required_experiment,
+            branch_slug=required_experiment.reference_branch.slug,
+        )
+        NimbusExperimentBranchThroughExcluded.objects.create(
+            parent_experiment=parent,
+            child_experiment=excluded_experiment,
+            branch_slug=excluded_experiment.reference_branch.slug,
+        )
+
         child = self._clone_experiment_and_assert_common_expectations(parent)
 
         # Specifically assert default values for a clone of a newly-created experiment
@@ -2295,12 +2304,32 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.is_rollout, parent.is_rollout)
 
         self.assertEqual(
-            set(parent.required_experiments.all().values_list("slug", flat=True)),
-            set(child.required_experiments.all().values_list("slug", flat=True)),
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughRequired.objects.filter(
+                    parent_experiment=parent
+                )
+            },
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughRequired.objects.filter(
+                    parent_experiment=child
+                )
+            },
         )
         self.assertEqual(
-            set(parent.excluded_experiments.all().values_list("slug", flat=True)),
-            set(child.excluded_experiments.all().values_list("slug", flat=True)),
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughExcluded.objects.filter(
+                    parent_experiment=parent
+                )
+            },
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughExcluded.objects.filter(
+                    parent_experiment=child
+                )
+            },
         )
 
         for parent_link in parent.documentation_links.all():
