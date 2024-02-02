@@ -241,6 +241,8 @@ def default_data(application, experiment_name, load_experiment_outcomes):
 def create_experiment(base_url, default_data):
     def _create_experiment(
         selenium,
+        languages=False,
+        countries=False,
         is_rollout=False,
         reference_branch_value="{}",
         treatment_branch_value="{}",
@@ -309,6 +311,12 @@ def create_experiment(base_url, default_data):
                 audience.languages = ["English"]
             else:
                 audience.locales = ["English (US)"]
+        else:
+            if languages:
+                audience.languages = ["English"]
+            if countries:
+                audience.countries = ["Canada"]
+
         return audience.save_and_continue()
 
     return _create_experiment
