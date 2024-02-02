@@ -496,6 +496,9 @@ class NimbusConstants:
         Application.FOCUS_ANDROID: Version.FIREFOX_102,
         Application.IOS: Version.FIREFOX_101,
         Application.FOCUS_IOS: Version.FIREFOX_101,
+        Application.DEMO_APP: Version.NO_VERSION,
+        Application.MONITOR: Version.NO_VERSION,
+        Application.VPN: Version.NO_VERSION,
     }
 
     COUNTRIES_APPLICATION_SUPPORTED_VERSION = {
@@ -503,6 +506,9 @@ class NimbusConstants:
         Application.FOCUS_ANDROID: Version.FIREFOX_102,
         Application.IOS: Version.FIREFOX_101,
         Application.FOCUS_IOS: Version.FIREFOX_101,
+        Application.DEMO_APP: Version.NO_VERSION,
+        Application.MONITOR: Version.NO_VERSION,
+        Application.VPN: Version.NO_VERSION,
     }
 
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
