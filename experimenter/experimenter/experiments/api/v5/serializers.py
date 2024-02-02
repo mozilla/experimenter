@@ -2111,6 +2111,21 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             ]
         return data
 
+    def _validate_desktop_pref_rollouts(self, data):
+        if self.instance.is_rollout:
+            any_feature_sets_prefs = any(
+                schema.sets_prefs
+                for schemas_in_range in self.schemas_by_feature_id.values()
+                for schema in schemas_in_range.schemas
+            )
+
+            if any_feature_sets_prefs and not data.get("prevent_pref_conflicts"):
+                self.warnings["pref_rollout_reenroll"] = [
+                    NimbusConstants.WARNING_ROLLOUT_PREF_REENROLL
+                ]
+
+        return data
+
     def validate(self, data):
         if self.instance.status == self.instance.Status.DRAFT:
             application = data.get("application")
@@ -2128,7 +2143,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_rollout_version_support(data)
             data = self._validate_bucket_duplicates(data)
             data = self._validate_proposed_release_date(data)
-            if application != NimbusExperiment.Application.DESKTOP:
+            if application == NimbusExperiment.Application.DESKTOP:
+                data = self._validate_desktop_pref_rollouts(data)
+            else:
                 data = self._validate_languages_versions(data)
                 data = self._validate_countries_versions(data)
         return data

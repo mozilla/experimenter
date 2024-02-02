@@ -50,6 +50,8 @@ export const EXTERNAL_URLS = {
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Isthisstudypartnerrelated?riskPARTNER",
   RISK_REVENUE:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-riskREV",
+  ROLLOUT_SETPREF_REENROLL_EXPLANATION:
+    "https://experimenter.info/faq/rollouts/rollout-setpref-reenroll",
   SIGNOFF_QA:
     "https://docs.google.com/document/d/1oz1YyaaBI-oHUDsktWA-dLtX7WzhYqs7C121yOPKo2w/edit",
   SIGNOFF_VP:

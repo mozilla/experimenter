@@ -231,40 +231,7 @@ const PageSummary = (props: RouteComponentProps) => {
 
       <SummaryTimeline {...{ experiment }} />
 
-      {submitError && (
-        <Warning
-          {...{
-            text: submitError,
-            testId: "submit-error",
-            variant: "warning",
-          }}
-        />
-      )}
-
-      {experiment.isRollout &&
-        (status.draft || status.preview) &&
-        fieldWarnings.bucketing?.length > 0 && (
-          <Warning
-            {...{
-              text: fieldWarnings.bucketing as SerializerMessage,
-              testId: "bucketing",
-              learnMoreLink: EXTERNAL_URLS.BUCKET_WARNING_EXPLANATION,
-            }}
-          />
-        )}
-
-      {experiment.isRollout &&
-        (experiment.status === NimbusExperimentStatusEnum.DRAFT ||
-          experiment.status === NimbusExperimentStatusEnum.PREVIEW) &&
-        fieldWarnings.firefox_min_version?.length > 0 && (
-          <Warning
-            {...{
-              text: fieldWarnings.firefox_min_version as SerializerMessage,
-              testId: "desktop-min-version",
-              variant: "warning",
-            }}
-          />
-        )}
+      <WarningList {...{ experiment, submitError, fieldWarnings, status }} />
 
       {summaryAction && (
         <h5 className="mt-3 mb-4 ml-3">
@@ -405,3 +372,71 @@ const Warning = ({
     )}
   </Alert>
 );
+
+type WarningsProps = {
+  experiment: getExperiment_experimentBySlug;
+  submitError: string | null;
+  fieldWarnings: ReturnType<typeof useReviewCheck>["fieldWarnings"];
+  status: ReturnType<typeof getStatus>;
+};
+
+const WarningList = ({
+  experiment,
+  submitError,
+  fieldWarnings,
+  status,
+}: WarningsProps) => {
+  const warnings: JSX.Element[] = [];
+
+  if (submitError) {
+    warnings.push(
+      <Warning
+        {...{
+          text: submitError,
+          testId: "submit-error",
+          variant: "warning",
+        }}
+      />,
+    );
+  }
+
+  if (experiment.isRollout && (status.draft || status.preview)) {
+    if (fieldWarnings.bucketing?.length) {
+      warnings.push(
+        <Warning
+          {...{
+            text: fieldWarnings.bucketing as SerializerMessage,
+            testId: "bucketing",
+            learnMoreLink: EXTERNAL_URLS.BUCKET_WARNING_EXPLANATION,
+          }}
+        />,
+      );
+    }
+
+    if (fieldWarnings.firefox_min_version?.length) {
+      warnings.push(
+        <Warning
+          {...{
+            text: fieldWarnings.firefox_min_version as SerializerMessage,
+            testId: "desktop-min-version",
+            variant: "warning",
+          }}
+        />,
+      );
+    }
+
+    if (fieldWarnings.pref_rollout_reenroll?.length) {
+      warnings.push(
+        <Warning
+          {...{
+            text: fieldWarnings.pref_rollout_reenroll as SerializerMessage,
+            testId: "rollout-setpref-reenroll",
+            learnMoreLink: EXTERNAL_URLS.ROLLOUT_SETPREF_REENROLL_EXPLANATION,
+          }}
+        />,
+      );
+    }
+  }
+
+  return <>{warnings}</>;
+};
