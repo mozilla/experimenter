@@ -189,7 +189,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": experiment.slug,
                 "status": experiment.status,
                 "status_next": experiment.status_next,
-                "subscribers": [subscriber.id],
+                "subscribers": [subscriber.email],
                 "takeaways_gain_amount": None,
                 "takeaways_metric_gain": False,
                 "takeaways_qbr_learning": False,
