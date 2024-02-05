@@ -805,21 +805,22 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         Returns:
             A list of experiment slugs.
         """
-        matching = set()
+        matching = []
         live_experiments = NimbusExperiment.objects.filter(
             status=self.Status.LIVE,
             application=self.application,
         )
-        if len(live_experiments.all()) >= 0:
-            for feature in self.feature_configs.all().values_list("slug", flat=True):
-                experiments = (
-                    live_experiments.annotate(n_feature_configs=Count("feature_configs"))
-                    .filter(n_feature_configs__gt=1)
-                    .filter(feature_configs__slug=feature)
-                    .all()
-                )
-                matching.update([e.slug for e in experiments])
-        return list(matching)
+        if live_experiments.exists():
+            feature_slugs = self.feature_configs.all().values_list("slug", flat=True)
+            matching = (
+                live_experiments.annotate(n_feature_configs=Count("feature_configs"))
+                .filter(n_feature_configs__gt=1)
+                .filter(feature_configs__slug__in=feature_slugs)
+                .values_list("slug", flat=True)
+                .distinct()
+                .order_by("slug")
+            )
+        return matching
 
     @property
     def can_edit(self):

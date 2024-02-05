@@ -758,6 +758,3 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_subscribers(self, info):
         return self.subscribers.all().order_by("username")
-
-    def resolve_feature_has_live_multifeature_experiments(self, info):
-        return self.feature_has_live_multifeature_experiments
