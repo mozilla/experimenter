@@ -559,7 +559,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         language = LanguageFactory.create()
         project = ProjectFactory.create()
         required = NimbusExperimentFactory.create(application=application)
-        excluded = NimbusExperimentFactory.create(application=application)
+        excluded = NimbusExperimentFactory.create(
+            application=application,
+            status=NimbusExperiment.Status.COMPLETE,
+        )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
             parent=NimbusExperimentFactory.create(),
@@ -800,6 +803,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     subscribers {
                         email
                     }
+                    excludedLiveDeliveries
                     featureHasLiveMultifeatureExperiments
                 }
             }
@@ -855,6 +859,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         "branchSlug": excluded.reference_branch.slug,
                     }
                 ],
+                "excludedLiveDeliveries": [],
                 "featureConfigs": [
                     {
                         "application": NimbusExperiment.Application(
