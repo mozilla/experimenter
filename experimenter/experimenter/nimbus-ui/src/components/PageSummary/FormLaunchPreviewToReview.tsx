@@ -5,8 +5,10 @@
 import React, { useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
+import LinkExternal from "src/components/LinkExternal";
 import FormLaunchConfirmationCheckboxes from "src/components/PageSummary/FormLaunchConfirmationCheckboxes";
 import { ReactComponent as Check } from "src/images/check.svg";
+import { EXTERNAL_URLS } from "src/lib/constants";
 
 const FormLaunchPreviewToReview = ({
   isLoading,
@@ -36,9 +38,15 @@ const FormLaunchPreviewToReview = ({
         <Form className="text-body">
           <p className="my-1">
             This experiment is currently <strong>live for testing</strong>, but
-            you will need to let QA know in your PI request. When you have
-            received a sign-off, click “Request launch” to launch the
-            experiment.{" "}
+            you will need to let QA know in your{" "}
+            <LinkExternal
+              href={EXTERNAL_URLS.QA_PI_DOC}
+              data-testid="qa-pi-link"
+            >
+              PI request
+            </LinkExternal>
+            . When you have received a sign-off, click “Request
+            launch” to launch the experiment.{" "}
             <strong>
               Note: It can take up to an hour before clients receive a preview
               experiment.
