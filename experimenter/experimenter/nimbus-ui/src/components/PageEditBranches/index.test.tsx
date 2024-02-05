@@ -52,7 +52,7 @@ describe("PageEditBranches", () => {
     expect(screen.getByTestId("feature-config")).toBeInTheDocument();
     expect(screen.getByTestId("learn-more-link")).toHaveAttribute(
       "href",
-      EXTERNAL_URLS.BRANCHES_GOOGLE_DOC,
+      EXTERNAL_URLS.BRANCHES_EXPERIMENTER_DOC,
     );
 
     for (const feature of MOCK_CONFIG!.allFeatureConfigs!) {

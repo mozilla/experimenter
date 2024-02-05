@@ -82,7 +82,7 @@ describe("PageEditMetrics", () => {
       expect(screen.getByTestId("header-experiment")).toBeInTheDocument();
       expect(screen.getByTestId("core-metrics-link")).toHaveAttribute(
         "href",
-        EXTERNAL_URLS.METRICS_GOOGLE_DOC,
+        EXTERNAL_URLS.METRICS_EXPERIMENTER_DOC,
       );
     });
   });
