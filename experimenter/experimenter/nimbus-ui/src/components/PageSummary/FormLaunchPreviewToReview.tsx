@@ -45,8 +45,8 @@ const FormLaunchPreviewToReview = ({
             >
               PI request
             </LinkExternal>
-            . When you have received a sign-off, click “Request
-            launch” to launch the experiment.{" "}
+            . When you have received a sign-off, click “Request launch” to
+            launch the experiment.{" "}
             <strong>
               Note: It can take up to an hour before clients receive a preview
               experiment.
