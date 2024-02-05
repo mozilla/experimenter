@@ -2539,6 +2539,99 @@ class TestNimbusExperiment(TestCase):
             ],
         )
 
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.FENIX, 3),
+            (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.DESKTOP, 0),
+        ]
+    )
+    def test_get_live_multifeature_experiments_for_feature(
+        self,
+        application1,
+        application2,
+        expected_matches,
+    ):
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application2,
+            feature_configs=[feature1],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), expected_matches)
+
+    def test_get_live_multifeature_experiments_for_feature_no_live(self):
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature1, feature2],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature1, feature2],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), 0)
+
+    def test_get_live_multifeature_experiments_for_feature_no_live_multifeature(self):
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            feature_configs=[feature1],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature1, feature2],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature1],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), 0)
+
+    def test_get_live_multifeature_experiments_none(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[NimbusFeatureConfigFactory.create()],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), 0)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
