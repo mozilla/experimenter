@@ -2632,6 +2632,54 @@ class TestNimbusExperiment(TestCase):
         experiments = experiment.feature_has_live_multifeature_experiments
         self.assertEqual(len(experiments), 0)
 
+    def test_get_live_excluded_experiments(self):
+        experiments = {
+            slug: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                application=NimbusExperiment.Application.DESKTOP,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            )
+            for slug in ("foo", "bar", "baz")
+        }
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="slug",
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        for excluded_slug, excluded_branch_slug in [("foo", "control")]:
+            NimbusExperimentBranchThroughExcluded.objects.create(
+                parent_experiment=experiment,
+                child_experiment=experiments[excluded_slug],
+                branch_slug=excluded_branch_slug,
+            )
+
+        excluded_live_experiments = experiment.excluded_live_deliveries
+        self.assertEqual(len(excluded_live_experiments), 1)
+        self.assertEqual(excluded_live_experiments.first(), experiments["foo"].slug)
+
+    def test_get_no_live_excluded_experiments(self):
+        for slug in ("foo", "bar", "baz"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="slug",
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        excluded_live_experiments = experiment.excluded_live_deliveries
+        self.assertEqual(len(excluded_live_experiments), 0)
+        self.assertEqual(excluded_live_experiments, [])
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):

@@ -255,6 +255,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       isRolloutDirty
       qaComment
       qaStatus
+      excludedLiveDeliveries
       featureHasLiveMultifeatureExperiments
     }
   }
