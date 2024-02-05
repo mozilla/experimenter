@@ -103,7 +103,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         You must select at least one <strong>feature</strong> configuration for
         your experiment.{" "}
         <LinkExternal
-          href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
+          href={EXTERNAL_URLS.BRANCHES_EXPERIMENTER_DOC}
           data-testid="learn-more-link"
         >
           Learn more

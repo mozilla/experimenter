@@ -35,15 +35,13 @@ export const SERVER_ERRORS = {
 };
 
 export const EXTERNAL_URLS = {
-  TRAINING_AND_PLANNING_DOC:
-    "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Onboarding",
+  TRAINING_AND_PLANNING_DOC: "https://experimenter.info/for-product",
   NIMBUS_MANA_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
   WORKFLOW_MANA_DOC:
     "https://experimenter.info/data-scientists/#sample-size-recommendations",
-  BRANCHES_GOOGLE_DOC:
-    "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.i8g4ppfvkq0x",
-  METRICS_GOOGLE_DOC:
-    "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.uq23fsvh16rc",
+  BRANCHES_EXPERIMENTER_DOC: "https://experimenter.info/feature-definition/",
+  METRICS_EXPERIMENTER_DOC:
+    "https://experimenter.info/deep-dives/jetstream/metrics",
   // EXP-866 TBD URL
   PREVIEW_LAUNCH_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
   RISK_BRAND:
@@ -73,6 +71,8 @@ export const EXTERNAL_URLS = {
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/implementing/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
+  QA_PI_DOC:
+    "https://mozilla-hub.atlassian.net/jira/software/c/projects/QA/boards/261",
 };
 
 export const RISK_QUESTIONS = {

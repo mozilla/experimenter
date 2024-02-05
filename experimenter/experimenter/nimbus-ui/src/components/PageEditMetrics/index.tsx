@@ -85,7 +85,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
         impacted <strong>Retention, Search Count, and Ad Click</strong> metrics.
         Get more information on{" "}
         <LinkExternal
-          href={EXTERNAL_URLS.METRICS_GOOGLE_DOC}
+          href={EXTERNAL_URLS.METRICS_EXPERIMENTER_DOC}
           data-testid="core-metrics-link"
         >
           Core Firefox Metrics
