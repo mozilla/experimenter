@@ -800,6 +800,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     subscribers {
                         email
                     }
+                    featureHasLiveMultifeatureExperiments
                 }
             }
             """,
@@ -870,6 +871,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         "slug": feature_config.slug,
                     }
                 ],
+                "featureHasLiveMultifeatureExperiments": [],
                 "firefoxMaxVersion": NimbusExperiment.Version(
                     experiment.firefox_max_version
                 ).name,
