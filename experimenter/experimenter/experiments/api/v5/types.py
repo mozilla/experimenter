@@ -494,6 +494,9 @@ class NimbusExperimentType(DjangoObjectType):
         lambda: graphene.List(graphene.NonNull(NimbusExperimentBranchThroughExcludedType))
     )
     feature_configs = DjangoListField(NimbusFeatureConfigType)
+    feature_has_live_multifeature_experiments = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(graphene.String))
+    )
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
     hypothesis = graphene.String()
@@ -571,6 +574,7 @@ class NimbusExperimentType(DjangoObjectType):
             "documentation_links",
             "enrollment_end_date",
             "feature_configs",
+            "feature_has_live_multifeature_experiments",
             "firefox_max_version",
             "firefox_min_version",
             "hypothesis",
