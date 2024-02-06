@@ -2686,6 +2686,54 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             },
         )
 
+    @parameterized.expand((False, True))
+    def test_setpref_rollout_warning(self, prevent_pref_conflicts):
+        self.maxDiff = None
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.ROLLOUT_SUPPORT_VERSION[
+                NimbusExperiment.Application.DESKTOP
+            ],
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            is_rollout=True,
+            prevent_pref_conflicts=prevent_pref_conflicts,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                            sets_prefs=["foo.bar.baz"],
+                        ),
+                    ],
+                ),
+            ],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        if prevent_pref_conflicts:
+            self.assertNotIn("pref_rollout_reenroll", serializer.warnings)
+        else:
+            self.assertEqual(
+                serializer.warnings["pref_rollout_reenroll"],
+                [NimbusExperiment.WARNING_ROLLOUT_PREF_REENROLL],
+            )
+
 
 class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
     maxDiff = None
