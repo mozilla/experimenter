@@ -79,6 +79,7 @@ type NimbusExperimentType {
   isEnrollmentPaused: Boolean
   isWeb: Boolean!
   jexlTargetingExpression: String
+  liveExperimentsInNamespace: [String!]!
   monitoringDashboardUrl: String
   readyForReview: NimbusReviewType
   recipeJson: String
