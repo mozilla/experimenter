@@ -514,6 +514,9 @@ class NimbusExperimentType(DjangoObjectType):
     is_web = graphene.NonNull(graphene.Boolean)
     jexl_targeting_expression = graphene.String()
     languages = graphene.List(graphene.NonNull(NimbusLanguageType), required=True)
+    live_experiments_in_namespace = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(graphene.String))
+    )
     locales = graphene.List(graphene.NonNull(NimbusLocaleType), required=True)
     localizations = graphene.String()
     monitoring_dashboard_url = graphene.String()
@@ -594,6 +597,7 @@ class NimbusExperimentType(DjangoObjectType):
             "is_web",
             "jexl_targeting_expression",
             "languages",
+            "live_experiments_in_namespace",
             "locales",
             "localizations",
             "monitoring_dashboard_url",
