@@ -990,4 +990,24 @@ describe("PageSummary", () => {
     render(<Subject mocks={[mock]} />);
     expect(screen.queryByTestId("desktop-min-version-warning")).toBeNull();
   });
+
+  it("displays rollout setpref warning", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      readyForReview: {
+        ready: true,
+        message: {},
+        warnings: {
+          pref_rollout_reenroll: ["uh oh"],
+        },
+      },
+      isRollout: true,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+    });
+
+    render(<Subject mocks={[mock]} />);
+
+    screen.queryByTestId("rollout-setpref-reenroll-warnings");
+  });
 });

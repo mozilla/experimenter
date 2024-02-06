@@ -663,3 +663,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION = (
         "Feature {feature_config} is not supported in version {version}."
     )
+
+    WARNING_ROLLOUT_PREF_REENROLL = (
+        "WARNING: One or more features of this rollouts sets prefs and this rollout is "
+        "not configured to prevent pref conflicts. Users that change prefs set by this "
+        "rollout will re-enroll in this rollout, which will result in overriding their "
+        "changes."
+    )
