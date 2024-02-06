@@ -800,11 +800,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def feature_has_live_multifeature_experiments(self):
-        """Live multifeature experiments that share a feature with this experiment.
-
-        Returns:
-            A list of experiment slugs.
-        """
         matching = []
         live_experiments = NimbusExperiment.objects.filter(
             status=self.Status.LIVE,
@@ -816,6 +811,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 live_experiments.annotate(n_feature_configs=Count("feature_configs"))
                 .filter(n_feature_configs__gt=1)
                 .filter(feature_configs__slug__in=feature_slugs)
+                .exclude(id=self.id)
                 .values_list("slug", flat=True)
                 .distinct()
                 .order_by("slug")
@@ -831,6 +827,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     status=NimbusExperiment.Status.LIVE,
                     application=self.application,
                 )
+                .exclude(id=self.id)
                 .values_list("slug", flat=True)
                 .distinct()
                 .order_by("slug")
