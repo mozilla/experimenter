@@ -388,9 +388,15 @@ const WarningList = ({
   status,
 }: WarningsProps) => {
   const warnings: JSX.Element[] = [];
+
   const excludedLiveDeliveries = experiment.excludedLiveDeliveries
     ?.toString()
-    .replace(",", ", ");
+    .replaceAll(",", ", ");
+
+  const featureHasLiveMultifeatureExperiments =
+    experiment.featureHasLiveMultifeatureExperiments
+      ?.toString()
+      .replaceAll(",", ", ");
 
   if (submitError) {
     warnings.push(
@@ -453,6 +459,23 @@ const WarningList = ({
             excludedLiveDeliveries,
           ),
           testId: "excluding-live-experiments",
+          variant: "warning",
+        }}
+      />,
+    );
+  }
+
+  if (
+    (status.draft || status.preview || status.review) &&
+    featureHasLiveMultifeatureExperiments
+  ) {
+    warnings.push(
+      <Warning
+        {...{
+          text: AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(
+            featureHasLiveMultifeatureExperiments,
+          ),
+          testId: "live-multifeature",
           variant: "warning",
         }}
       />,
