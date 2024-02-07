@@ -389,14 +389,18 @@ const WarningList = ({
 }: WarningsProps) => {
   const warnings: JSX.Element[] = [];
 
-  const excludedLiveDeliveries = experiment.excludedLiveDeliveries
-    ?.toString()
-    .replaceAll(",", ", ");
+  const excludedLiveDeliveries: string =
+    experiment.excludedLiveDeliveries?.join(", ");
 
   const featureHasLiveMultifeatureExperiments =
-    experiment.featureHasLiveMultifeatureExperiments
-      ?.toString()
-      .replaceAll(",", ", ");
+    experiment.featureHasLiveMultifeatureExperiments?.join(", ");
+
+  const liveExperimentsInNamespace =
+    experiment.liveExperimentsInNamespace?.join(", ");
+
+  const overlappingWarnings = featureHasLiveMultifeatureExperiments?.includes(
+    liveExperimentsInNamespace,
+  );
 
   if (submitError) {
     warnings.push(
@@ -447,39 +451,51 @@ const WarningList = ({
       );
     }
   }
+  if (status.draft || status.preview || status.review) {
+    if (excludedLiveDeliveries) {
+      warnings.push(
+        <Warning
+          {...{
+            text: AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING(
+              excludedLiveDeliveries,
+            ),
+            testId: "excluding-live-experiments",
+            variant: "warning",
+            learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
+          }}
+        />,
+      );
+    }
 
-  if (
-    (status.draft || status.preview || status.review) &&
-    excludedLiveDeliveries
-  ) {
-    warnings.push(
-      <Warning
-        {...{
-          text: AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING(
-            excludedLiveDeliveries,
-          ),
-          testId: "excluding-live-experiments",
-          variant: "warning",
-        }}
-      />,
-    );
-  }
+    if (liveExperimentsInNamespace && !overlappingWarnings) {
+      warnings.push(
+        <Warning
+          {...{
+            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING(
+              liveExperimentsInNamespace,
+            ),
+            testId: "live-experiments-in-bucket",
+            variant: "warning",
+            learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
+          }}
+        />,
+      );
+    }
 
-  if (
-    (status.draft || status.preview || status.review) &&
-    featureHasLiveMultifeatureExperiments
-  ) {
-    warnings.push(
-      <Warning
-        {...{
-          text: AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(
-            featureHasLiveMultifeatureExperiments,
-          ),
-          testId: "live-multifeature",
-          variant: "warning",
-        }}
-      />,
-    );
+    if (featureHasLiveMultifeatureExperiments) {
+      warnings.push(
+        <Warning
+          {...{
+            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(
+              featureHasLiveMultifeatureExperiments,
+            ),
+            testId: "live-multifeature",
+            variant: "warning",
+            learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
+          }}
+        />,
+      );
+    }
   }
 
   return <>{warnings}</>;
