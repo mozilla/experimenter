@@ -265,26 +265,28 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
                 ) : (
                   <NotSet />
                 )}
-                <td className="ml-0 pl-0 border-top-0">
-                  <Button
-                    size="sm"
-                    variant="outline-primary"
-                    data-testid="add-subscriber-button"
-                    onClick={handleSave}
-                  >
-                    {subscribed ? (
-                      <div>
-                        <CollapseMinus />
-                        Unsubscribe
-                      </div>
-                    ) : (
-                      <div>
-                        <ExpandPlus />
-                        Subscribe
-                      </div>
-                    )}
-                  </Button>
-                </td>
+                {!experiment.isArchived && (
+                  <td className="ml-0 pl-0 border-top-0">
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      data-testid="add-subscriber-button"
+                      onClick={handleSave}
+                    >
+                      {subscribed ? (
+                        <div>
+                          <CollapseMinus />
+                          Unsubscribe
+                        </div>
+                      ) : (
+                        <div>
+                          <ExpandPlus />
+                          Subscribe
+                        </div>
+                      )}
+                    </Button>
+                  </td>
+                )}
                 {submitErrors["*"] && (
                   <Alert data-testid="submit-error" variant="warning">
                     {submitErrors["*"]}
