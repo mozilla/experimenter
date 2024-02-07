@@ -70,6 +70,8 @@ export const EXTERNAL_URLS = {
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
     "https://experimenter.info/faq/warnings#rollout-bucketing-warning",
+  AUDIENCE_OVERLAP_WARNING:
+    "https://experimenter.info/faq/warnings/#audience-overlap",
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/implementing/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",

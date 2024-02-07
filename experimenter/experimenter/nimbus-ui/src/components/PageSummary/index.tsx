@@ -389,18 +389,14 @@ const WarningList = ({
 }: WarningsProps) => {
   const warnings: JSX.Element[] = [];
 
-  const excludedLiveDeliveries = experiment.excludedLiveDeliveries
-    ?.toString()
-    .replaceAll(",", ", ");
+  const excludedLiveDeliveries: string =
+    experiment.excludedLiveDeliveries?.join(", ");
 
   const featureHasLiveMultifeatureExperiments =
-    experiment.featureHasLiveMultifeatureExperiments
-      ?.toString()
-      .replaceAll(",", ", ");
+    experiment.featureHasLiveMultifeatureExperiments?.join(", ");
 
-  const liveExperimentsInNamespace = experiment.liveExperimentsInNamespace
-    ?.toString()
-    .replaceAll(",", ", ");
+  const liveExperimentsInNamespace =
+    experiment.liveExperimentsInNamespace?.join(", ");
 
   const overlappingWarnings = featureHasLiveMultifeatureExperiments?.includes(
     liveExperimentsInNamespace,
@@ -465,6 +461,7 @@ const WarningList = ({
             ),
             testId: "excluding-live-experiments",
             variant: "warning",
+            learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
           }}
         />,
       );
@@ -479,6 +476,7 @@ const WarningList = ({
             ),
             testId: "live-experiments-in-bucket",
             variant: "warning",
+            learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
           }}
         />,
       );
@@ -493,6 +491,7 @@ const WarningList = ({
             ),
             testId: "live-multifeature",
             variant: "warning",
+            learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
           }}
         />,
       );
