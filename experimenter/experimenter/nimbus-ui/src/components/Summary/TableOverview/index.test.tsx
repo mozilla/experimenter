@@ -330,6 +330,16 @@ describe("TableOverview", () => {
       });
     });
 
+    it("when experiment is archived", async () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        isArchived: true,
+      });
+      expect(experiment.subscribers).toEqual([]);
+
+      render(<Subject {...{ experiment }} />);
+      expect(screen.queryByTestId("add-subscriber-button")).toBeNull();
+    });
+
     it("subscribes as expected", async () => {
       const { mock, experiment } = mockExperimentQuery("demo-slug");
       const currentUser = "dev@example.com";
