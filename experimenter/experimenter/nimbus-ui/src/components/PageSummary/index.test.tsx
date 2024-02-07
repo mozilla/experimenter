@@ -22,6 +22,7 @@ import {
 } from "src/components/PageSummary/mocks";
 import { createMutationMock } from "src/components/Summary/mocks";
 import {
+  AUDIENCE_OVERLAP_WARNINGS,
   CHANGELOG_MESSAGES,
   QA_STATUS_PROPERTIES,
   SERVER_ERRORS,
@@ -890,7 +891,9 @@ describe("PageSummary", () => {
       ).not.toBeInTheDocument();
     },
   );
+});
 
+describe("PageSummary Warnings", () => {
   it("displays a warning for rollouts that will be in the same bucket", async () => {
     const BUCKET_WARNING =
       "A rollout already exists for this combination of rollout, ...";
@@ -1010,4 +1013,90 @@ describe("PageSummary", () => {
 
     screen.queryByTestId("rollout-setpref-reenroll-warnings");
   });
+
+  it("displays warnings for excluded live experiments audience overlap", async () => {
+    const warning =
+      AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING("my-slimy-slug");
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      excludedLiveDeliveries: ["my-slimy-slug"],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("excluding-live-experiments-warning"));
+      expect(screen.getByText(warning));
+    });
+  });
+
+  it("displays no warning when no excluded live experiments audience overlap", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      excludedLiveDeliveries: [],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId("excluding-live-experiments-warning"),
+      ).toBeNull(),
+    );
+  });
+
+  it.each([
+    [
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      true,
+    ],
+    [
+      NimbusExperimentStatusEnum.PREVIEW,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      true,
+    ],
+    [
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      false,
+    ],
+    [
+      NimbusExperimentStatusEnum.COMPLETE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      false,
+    ],
+    [
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentPublishStatusEnum.REVIEW,
+      true,
+    ],
+  ])(
+    "displays audience overlap warnings in status",
+    async (
+      status: NimbusExperimentStatusEnum,
+      publishStatus: NimbusExperimentPublishStatusEnum,
+      displayWarning: boolean,
+    ) => {
+      const { mock } = mockExperimentQuery("demo-slug", {
+        application: NimbusExperimentApplicationEnum.DESKTOP,
+        channel: NimbusExperimentChannelEnum.NIGHTLY,
+        status: status,
+        publishStatus: publishStatus,
+        excludedLiveDeliveries: ["my-silly-slug"],
+      });
+      render(<Subject mocks={[mock]} />);
+      if (displayWarning) {
+        await waitFor(() => {
+          expect(screen.queryByTestId("excluding-live-experiments-warning"));
+        });
+      } else {
+        await waitFor(() => {
+          expect(
+            screen.queryByTestId("excluding-live-experiments-warning"),
+          ).toBeNull();
+        });
+      }
+    },
+  );
 });
