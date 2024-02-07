@@ -1289,6 +1289,33 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return value
 
+    def _validate_branch(
+        self,
+        application: str,
+        branch: dict[str, Any],
+        localizations: Optional[dict[str, Any]],
+        channel: str,
+    ) -> list[str]:
+        errors = []
+
+        feature_values = branch.get("feature_values", [])
+        for feature_value_data in feature_values:
+            feature_config: NimbusFeatureConfig = feature_value_data["feature_config"]
+
+            if feature_errors := self._validate_feature_value(
+                application,
+                feature_config,
+                feature_value_data["value"],
+                self.schemas_by_feature_id[feature_config.id],
+                localizations,
+                channel,
+            ):
+                errors.append({"value": feature_errors})
+            else:
+                errors.append({})
+
+        return errors
+
     def _validate_feature_value(
         self,
         application: str,
@@ -1447,58 +1474,50 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         application = data.get("application")
         channel = data.get("channel")
 
-        reference_branch_errors = []
+        reference_branch = data.get("reference_branch", {})
 
-        for feature_value_data in data.get("reference_branch", {}).get(
-            "feature_values", []
-        ):
-            # Cache the versioned schema range for each feature so we can re-use
-            # them in the treatment branch validation below without performing
-            # the queries again.
-            feature_config: NimbusFeatureConfig = feature_value_data["feature_config"]
-            self.schemas_by_feature_id[
-                feature_config.id
-            ] = feature_config.get_versioned_schema_range(min_version, max_version)
+        # Cache the versioned schema range for each feature so we can re-use
+        # them in the validation for each branch.
+        self.schemas_by_feature_id = {
+            feature_config.id: feature_config.get_versioned_schema_range(
+                min_version,
+                max_version,
+            )
+            for feature_config in (
+                feature_value_data["feature_config"]
+                for feature_value_data in reference_branch.get(
+                    "feature_values",
+                    [],
+                )
+            )
+        }
 
-            if feature_errors := self._validate_feature_value(
-                application,
-                feature_config,
-                feature_value_data["value"],
-                self.schemas_by_feature_id[feature_config.id],
-                localizations,
-                channel,
-            ):
-                reference_branch_errors.append({"value": feature_errors})
-            else:
-                reference_branch_errors.append({})
-
+        reference_branch_errors = self._validate_branch(
+            application,
+            data.get("reference_branch", {}),
+            localizations,
+            channel,
+        )
         if any(reference_branch_errors):
             errors["reference_branch"] = {"feature_values": reference_branch_errors}
 
+        treatment_branches = data.get("treatment_branches", [])
         treatment_branches_errors = []
-        treatment_branches_errors_found = False
-        for treatment_branch_data in data.get("treatment_branches", []):
-            treatment_branch_errors = []
+        treatment_branch_errors_found = False
+        for treatment_branch in treatment_branches:
+            treatment_branch_errors = self._validate_branch(
+                application,
+                treatment_branch,
+                localizations,
+                channel,
+            )
 
-            for feature_value_data in treatment_branch_data["feature_values"]:
-                feature_config: NimbusFeatureConfig = feature_value_data["feature_config"]
-
-                if feature_errors := self._validate_feature_value(
-                    application,
-                    feature_config,
-                    feature_value_data["value"],
-                    self.schemas_by_feature_id[feature_config.id],
-                    localizations,
-                    channel,
-                ):
-                    treatment_branch_errors.append({"value": feature_errors})
-                    treatment_branches_errors_found = True
-                else:
-                    treatment_branch_errors.append({})
+            if any(treatment_branch_errors):
+                treatment_branch_errors_found = True
 
             treatment_branches_errors.append({"feature_values": treatment_branch_errors})
 
-        if treatment_branches_errors_found:
+        if treatment_branch_errors_found:
             errors["treatment_branches"] = treatment_branches_errors
 
         if any(errors):
