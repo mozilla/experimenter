@@ -51,7 +51,7 @@ export const EXTERNAL_URLS = {
   RISK_REVENUE:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-riskREV",
   ROLLOUT_SETPREF_REENROLL_EXPLANATION:
-    "https://experimenter.info/faq/rollouts/rollout-setpref-reenroll",
+    "https://experimenter.info/faq/warnings#rollouts-and-setpref-interaction-desktop",
   SIGNOFF_QA:
     "https://docs.google.com/document/d/1oz1YyaaBI-oHUDsktWA-dLtX7WzhYqs7C121yOPKo2w/edit",
   SIGNOFF_VP:
@@ -69,7 +69,7 @@ export const EXTERNAL_URLS = {
   LAUNCH_DOCUMENTATION:
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
-    "https://experimenter.info/rollouts/rollouts-bucketing-warning",
+    "https://experimenter.info/faq/warnings#rollout-bucketing-warning",
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/implementing/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
