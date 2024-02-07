@@ -2604,19 +2604,26 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(len(experiments), 0)
 
     def test_get_live_multifeature_experiments_for_feature_no_live_multifeature(self):
-        feature1 = NimbusFeatureConfigFactory.create()
-        feature2 = NimbusFeatureConfigFactory.create()
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
 
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature1],
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature1, feature2],
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature1],
         )
 
@@ -2626,7 +2633,12 @@ class TestNimbusExperiment(TestCase):
     def test_get_live_multifeature_experiments_none(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            feature_configs=[NimbusFeatureConfigFactory.create()],
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
 
         experiments = experiment.feature_has_live_multifeature_experiments
@@ -2643,6 +2655,7 @@ class TestNimbusExperiment(TestCase):
         }
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
             slug="slug",
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
@@ -2671,6 +2684,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             slug="slug",
+            application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -2681,7 +2695,9 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(excluded_live_experiments, [])
 
     def test_get_live_experiments_in_previous_namespaces(self):
-        feature = NimbusFeatureConfigFactory.create()
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
         experiments = {
             slug: NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
@@ -2720,7 +2736,9 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_get_live_experiments_do_not_exist_in_previous_namespaces(self):
-        feature = NimbusFeatureConfigFactory.create()
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
 
         for slug in ("foo", "bar", "baz"):
             NimbusExperimentFactory.create_with_lifecycle(
@@ -2749,8 +2767,12 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(len(matching_experiments), 0)
 
     def test_get_live_experiments_in_different_namespaces(self):
-        feature1 = NimbusFeatureConfigFactory.create()
-        feature2 = NimbusFeatureConfigFactory.create()
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
 
         for slug in ("foo", "bar", "baz"):
             NimbusExperimentFactory.create_with_lifecycle(
