@@ -70,6 +70,8 @@ export const EXTERNAL_URLS = {
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
     "https://experimenter.info/faq/warnings#rollout-bucketing-warning",
+  AUDIENCE_OVERLAP_WARNING:
+    "https://experimenter.info/faq/warnings/#audience-overlap",
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/implementing/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
@@ -97,6 +99,9 @@ export const TOOLTIP_RELEASE_DATE =
 export const AUDIENCE_OVERLAP_WARNINGS = {
   EXCLUDING_EXPERIMENTS_WARNING: (slugs: string) => {
     return `The following experiments are being excluded by your experiment and may cause audience overlap: ${slugs}`;
+  },
+  LIVE_EXPERIMENTS_BUCKET_WARNING: (slugs: string) => {
+    return `The following experiments are LIVE and may cause audience overlap with your experiment: ${slugs}`;
   },
   LIVE_MULTIFEATURE_WARNING: (slugs: string) => {
     return `The following multi-feature experiments are LIVE and may cause audience overlap with your experiment: ${slugs}`;

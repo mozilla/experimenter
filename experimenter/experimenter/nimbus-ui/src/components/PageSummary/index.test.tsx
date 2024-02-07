@@ -1045,6 +1045,59 @@ describe("PageSummary Warnings", () => {
     );
   });
 
+  it("displays warnings for live experiments in bucket audience overlap", async () => {
+    const warning =
+      AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING(
+        "my-slimy-slug",
+      );
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      liveExperimentsInNamespace: ["my-slimy-slug"],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("live-experiments-in-bucket-warning"));
+      expect(screen.getByText(warning));
+    });
+  });
+
+  it("displays no warning when no live experiments in bucket audience overlap", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      liveExperimentsInNamespace: [],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId("live-experiments-in-bucket-warning"),
+      ).toBeNull(),
+    );
+  });
+
+  it("displays just the multifeature warning when there are multiple audience overlaps", async () => {
+    const multifeatureWarning =
+      AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING("my-slimy-slug");
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      liveExperimentsInNamespace: ["my-slimy-slug"],
+      featureHasLiveMultifeatureExperiments: ["my-slimy-slug"],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("live-experiments-in-bucket-warning"),
+      ).toBeNull();
+      expect(screen.queryByTestId("live-multifeature-warning"));
+      expect(screen.getByText(multifeatureWarning));
+    });
+  });
+
   it("displays warnings for live multifeature audience overlap", async () => {
     const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(
       "my-slimy-slug, smooth-slug",
@@ -1115,17 +1168,22 @@ describe("PageSummary Warnings", () => {
         publishStatus: publishStatus,
         excludedLiveDeliveries: ["my-silly-slug"],
         featureHasLiveMultifeatureExperiments: ["my-slimy-slug"],
+        liveExperimentsInNamespace: ["my-scary-slug"],
       });
       render(<Subject mocks={[mock]} />);
       if (displayWarning) {
         await waitFor(() => {
           expect(screen.queryByTestId("excluding-live-experiments-warning"));
+          expect(screen.queryByTestId("live-experiments-in-bucket-warning"));
           expect(screen.queryByTestId("live-multifeature-warning"));
         });
       } else {
         await waitFor(() => {
           expect(
             screen.queryByTestId("excluding-live-experiments-warning"),
+          ).toBeNull();
+          expect(
+            screen.queryByTestId("live-experiments-in-bucket-warning"),
           ).toBeNull();
           expect(screen.queryByTestId("live-multifeature-warning")).toBeNull();
         });
