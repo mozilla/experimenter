@@ -94,6 +94,12 @@ export const TOOLTIP_DISABLED_FOR_WEBAPP =
 export const TOOLTIP_RELEASE_DATE =
   "This is the approximate release date of the version that is being targeted. Click here to find your date!";
 
+export const AUDIENCE_OVERLAP_WARNINGS = {
+  EXCLUDING_EXPERIMENTS_WARNING: (slugs: string) => {
+    return `The following experiments are being excluded by your experiment and may cause audience overlap: ${slugs}`;
+  },
+};
+
 export const LIFECYCLE_REVIEW_FLOWS = {
   LAUNCH: {
     buttonTitle: "Launch Experiment",

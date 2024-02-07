@@ -20,6 +20,7 @@ import { useChangeOperationMutation, useReviewCheck } from "src/hooks";
 import { ReactComponent as ExternalIcon } from "src/images/external.svg";
 import { ReactComponent as InfoCircle } from "src/images/info-circle.svg";
 import {
+  AUDIENCE_OVERLAP_WARNINGS,
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   LIFECYCLE_REVIEW_FLOWS,
@@ -387,6 +388,9 @@ const WarningList = ({
   status,
 }: WarningsProps) => {
   const warnings: JSX.Element[] = [];
+  const excludedLiveDeliveries = experiment.excludedLiveDeliveries
+    ?.toString()
+    .replace(",", ", ");
 
   if (submitError) {
     warnings.push(
@@ -436,6 +440,23 @@ const WarningList = ({
         />,
       );
     }
+  }
+
+  if (
+    (status.draft || status.preview || status.review) &&
+    excludedLiveDeliveries
+  ) {
+    warnings.push(
+      <Warning
+        {...{
+          text: AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING(
+            excludedLiveDeliveries,
+          ),
+          testId: "excluding-live-experiments",
+          variant: "warning",
+        }}
+      />,
+    );
   }
 
   return <>{warnings}</>;
