@@ -2129,8 +2129,17 @@ class TestNimbusExperiment(TestCase):
             conclusion_recommendation="RERUN",
             takeaways_summary="takeaway",
         )
-        parent.required_experiments.add(required_experiment)
-        parent.excluded_experiments.add(excluded_experiment)
+        NimbusExperimentBranchThroughRequired.objects.create(
+            parent_experiment=parent,
+            child_experiment=required_experiment,
+            branch_slug=required_experiment.reference_branch.slug,
+        )
+        NimbusExperimentBranchThroughExcluded.objects.create(
+            parent_experiment=parent,
+            child_experiment=excluded_experiment,
+            branch_slug=excluded_experiment.reference_branch.slug,
+        )
+
         child = self._clone_experiment_and_assert_common_expectations(parent)
 
         # Specifically assert default values for a clone of a newly-created experiment
@@ -2295,12 +2304,32 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.is_rollout, parent.is_rollout)
 
         self.assertEqual(
-            set(parent.required_experiments.all().values_list("slug", flat=True)),
-            set(child.required_experiments.all().values_list("slug", flat=True)),
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughRequired.objects.filter(
+                    parent_experiment=parent
+                )
+            },
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughRequired.objects.filter(
+                    parent_experiment=child
+                )
+            },
         )
         self.assertEqual(
-            set(parent.excluded_experiments.all().values_list("slug", flat=True)),
-            set(child.excluded_experiments.all().values_list("slug", flat=True)),
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughExcluded.objects.filter(
+                    parent_experiment=parent
+                )
+            },
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughExcluded.objects.filter(
+                    parent_experiment=child
+                )
+            },
         )
 
         for parent_link in parent.documentation_links.all():
@@ -2509,6 +2538,282 @@ class TestNimbusExperiment(TestCase):
                 }
             ],
         )
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.FENIX, 3),
+            (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.DESKTOP, 0),
+        ]
+    )
+    def test_get_live_multifeature_experiments_for_feature(
+        self,
+        application1,
+        application2,
+        expected_matches,
+    ):
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application2,
+            feature_configs=[feature1],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), expected_matches)
+
+    def test_get_live_multifeature_experiments_for_feature_no_live(self):
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature1, feature2],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature1, feature2],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), 0)
+
+    def test_get_live_multifeature_experiments_for_feature_no_live_multifeature(self):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1, feature2],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), 0)
+
+    def test_get_live_multifeature_experiments_none(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), 0)
+
+    def test_get_live_excluded_experiments(self):
+        experiments = {
+            slug: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                application=NimbusExperiment.Application.DESKTOP,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            )
+            for slug in ("foo", "bar", "baz")
+        }
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug",
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        for excluded_slug, excluded_branch_slug in [("foo", "control")]:
+            NimbusExperimentBranchThroughExcluded.objects.create(
+                parent_experiment=experiment,
+                child_experiment=experiments[excluded_slug],
+                branch_slug=excluded_branch_slug,
+            )
+
+        excluded_live_experiments = experiment.excluded_live_deliveries
+        self.assertEqual(len(excluded_live_experiments), 1)
+        self.assertEqual(excluded_live_experiments.first(), experiments["foo"].slug)
+
+    def test_get_no_live_excluded_experiments(self):
+        for slug in ("foo", "bar", "baz"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="slug",
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        excluded_live_experiments = experiment.excluded_live_deliveries
+        self.assertEqual(len(excluded_live_experiments), 0)
+        self.assertEqual(excluded_live_experiments, [])
+
+    def test_get_live_experiments_in_previous_namespaces(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        experiments = {
+            slug: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                application=NimbusExperiment.Application.DESKTOP,
+                channel=NimbusExperiment.Channel.RELEASE,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+                feature_configs=[feature],
+            )
+            for slug in ("foo", "bar", "baz")
+        }
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            feature_configs=[feature],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 3)
+        self.assertEqual(
+            list(matching_experiments.values_list("slug", flat=True)),
+            sorted(
+                [
+                    experiments["bar"].slug,
+                    experiments["baz"].slug,
+                    experiments["foo"].slug,
+                ]
+            ),
+        )
+
+    def test_get_live_experiments_do_not_exist_in_previous_namespaces(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+
+        for slug in ("foo", "bar", "baz"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                channel=NimbusExperiment.Channel.RELEASE,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+                feature_configs=[feature],
+            )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 0)
+
+    def test_get_live_experiments_in_different_namespaces(self):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+
+        for slug in ("foo", "bar", "baz"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                channel=NimbusExperiment.Channel.RELEASE,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+                feature_configs=[feature1],
+            )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature2],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 0)
+
+    def test_get_live_experiments_in_different_namespaces_excludes_self(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[NimbusFeatureConfigFactory.create()],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 0)
 
 
 class TestNimbusBranch(TestCase):

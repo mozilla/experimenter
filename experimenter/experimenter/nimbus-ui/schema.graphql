@@ -73,10 +73,13 @@ type NimbusExperimentType {
   computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
   excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedType!]!
+  excludedLiveDeliveries: [String!]!
+  featureHasLiveMultifeatureExperiments: [String!]!
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
   isWeb: Boolean!
   jexlTargetingExpression: String
+  liveExperimentsInNamespace: [String!]!
   monitoringDashboardUrl: String
   readyForReview: NimbusReviewType
   recipeJson: String
@@ -472,6 +475,7 @@ type NimbusConfigurationType {
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
   populationSizingData: String
   qaStatus: [NimbusLabelValueType]
+  user: String!
 }
 
 type NimbusExperimentApplicationConfigType {

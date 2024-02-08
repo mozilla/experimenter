@@ -22,6 +22,7 @@ import {
 } from "src/components/PageSummary/mocks";
 import { createMutationMock } from "src/components/Summary/mocks";
 import {
+  AUDIENCE_OVERLAP_WARNINGS,
   CHANGELOG_MESSAGES,
   QA_STATUS_PROPERTIES,
   SERVER_ERRORS,
@@ -471,9 +472,7 @@ describe("PageSummary", () => {
     mutationMock.result.errors = [new Error("Boo")];
     render(<Subject mocks={[mock, mutationMock]} />);
     await launchFromDraftToReview();
-    await waitFor(() =>
-      expect(screen.getByTestId("submit-error")).toBeInTheDocument(),
-    );
+    await waitFor(() => screen.getByTestId("submit-error-warning"));
   });
 
   // TODO: #6802
@@ -892,7 +891,9 @@ describe("PageSummary", () => {
       ).not.toBeInTheDocument();
     },
   );
+});
 
+describe("PageSummary Warnings", () => {
   it("displays a warning for rollouts that will be in the same bucket", async () => {
     const BUCKET_WARNING =
       "A rollout already exists for this combination of rollout, ...";
@@ -912,7 +913,7 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mock]} />);
-    expect(screen.queryByTestId("bucketing-warning")).toBeInTheDocument();
+    screen.getByTestId("bucketing-warning");
   });
 
   it("displays no duplicate rollout warning for experiments", async () => {
@@ -934,7 +935,7 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mock]} />);
-    expect(screen.queryByTestId("bucketing-warning")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("bucketing-warning")).toBeNull();
   });
 
   it("displays a warning for desktop rollouts under v114", async () => {
@@ -954,11 +955,7 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mockRollout]} />);
-    await waitFor(() =>
-      expect(
-        screen.queryByTestId("desktop-min-version-warning"),
-      ).toBeInTheDocument(),
-    );
+    await waitFor(() => screen.queryByTestId("desktop-min-version-warning"));
   });
 
   it("displays no warning for desktop rollouts above v113", async () => {
@@ -976,9 +973,7 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mockRollout]} />);
-    expect(
-      screen.queryByTestId("desktop-min-version-warning"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("desktop-min-version-warning")).toBeNull();
   });
 
   it("displays no min version warning for non-desktop rollouts", async () => {
@@ -996,8 +991,203 @@ describe("PageSummary", () => {
       targetingConfigSlug: "OH_NO",
     });
     render(<Subject mocks={[mock]} />);
-    expect(
-      screen.queryByTestId("desktop-min-version-warning"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("desktop-min-version-warning")).toBeNull();
   });
+
+  it("displays rollout setpref warning", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      readyForReview: {
+        ready: true,
+        message: {},
+        warnings: {
+          pref_rollout_reenroll: ["uh oh"],
+        },
+      },
+      isRollout: true,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+    });
+
+    render(<Subject mocks={[mock]} />);
+
+    screen.queryByTestId("rollout-setpref-reenroll-warnings");
+  });
+
+  it("displays warnings for excluded live experiments audience overlap", async () => {
+    const warning =
+      AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING("my-slimy-slug");
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      excludedLiveDeliveries: ["my-slimy-slug"],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("excluding-live-experiments-warning"));
+      expect(screen.getByText(warning));
+    });
+  });
+
+  it("displays no warning when no excluded live experiments audience overlap", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      excludedLiveDeliveries: [],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId("excluding-live-experiments-warning"),
+      ).toBeNull(),
+    );
+  });
+
+  it("displays warnings for live experiments in bucket audience overlap", async () => {
+    const warning =
+      AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING(
+        "my-slimy-slug",
+      );
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      liveExperimentsInNamespace: ["my-slimy-slug"],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("live-experiments-in-bucket-warning"));
+      expect(screen.getByText(warning));
+    });
+  });
+
+  it("displays no warning when no live experiments in bucket audience overlap", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      liveExperimentsInNamespace: [],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId("live-experiments-in-bucket-warning"),
+      ).toBeNull(),
+    );
+  });
+
+  it("displays just the multifeature warning when there are multiple audience overlaps", async () => {
+    const multifeatureWarning =
+      AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING("my-slimy-slug");
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      liveExperimentsInNamespace: ["my-slimy-slug"],
+      featureHasLiveMultifeatureExperiments: ["my-slimy-slug"],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("live-experiments-in-bucket-warning"),
+      ).toBeNull();
+      expect(screen.queryByTestId("live-multifeature-warning"));
+      expect(screen.getByText(multifeatureWarning));
+    });
+  });
+
+  it("displays warnings for live multifeature audience overlap", async () => {
+    const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(
+      "my-slimy-slug, smooth-slug",
+    );
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      featureHasLiveMultifeatureExperiments: ["my-slimy-slug", "smooth-slug"],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("live-multifeature-warning"));
+      expect(screen.getByText(warning));
+    });
+  });
+
+  it("displays no warning when no live multifeature audience overlap", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      featureHasLiveMultifeatureExperiments: [],
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(screen.queryByTestId("live-multifeature-warning")).toBeNull(),
+    );
+  });
+
+  it.each([
+    [
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      true,
+    ],
+    [
+      NimbusExperimentStatusEnum.PREVIEW,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      true,
+    ],
+    [
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      false,
+    ],
+    [
+      NimbusExperimentStatusEnum.COMPLETE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      false,
+    ],
+    [
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentPublishStatusEnum.REVIEW,
+      true,
+    ],
+  ])(
+    "displays audience overlap warnings in status",
+    async (
+      status: NimbusExperimentStatusEnum,
+      publishStatus: NimbusExperimentPublishStatusEnum,
+      displayWarning: boolean,
+    ) => {
+      const { mock } = mockExperimentQuery("demo-slug", {
+        application: NimbusExperimentApplicationEnum.DESKTOP,
+        channel: NimbusExperimentChannelEnum.NIGHTLY,
+        status: status,
+        publishStatus: publishStatus,
+        excludedLiveDeliveries: ["my-silly-slug"],
+        featureHasLiveMultifeatureExperiments: ["my-slimy-slug"],
+        liveExperimentsInNamespace: ["my-scary-slug"],
+      });
+      render(<Subject mocks={[mock]} />);
+      if (displayWarning) {
+        await waitFor(() => {
+          expect(screen.queryByTestId("excluding-live-experiments-warning"));
+          expect(screen.queryByTestId("live-experiments-in-bucket-warning"));
+          expect(screen.queryByTestId("live-multifeature-warning"));
+        });
+      } else {
+        await waitFor(() => {
+          expect(
+            screen.queryByTestId("excluding-live-experiments-warning"),
+          ).toBeNull();
+          expect(
+            screen.queryByTestId("live-experiments-in-bucket-warning"),
+          ).toBeNull();
+          expect(screen.queryByTestId("live-multifeature-warning")).toBeNull();
+        });
+      }
+    },
+  );
 });

@@ -153,6 +153,7 @@ export interface getConfig_nimbusConfig {
   populationSizingData: string | null;
   takeaways: (getConfig_nimbusConfig_takeaways | null)[] | null;
   qaStatus: (getConfig_nimbusConfig_qaStatus | null)[] | null;
+  user: string;
 }
 
 export interface getConfig {

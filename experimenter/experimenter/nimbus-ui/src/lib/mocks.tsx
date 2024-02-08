@@ -454,6 +454,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: NimbusExperimentQAStatusEnum.NOT_SET,
     },
   ],
+  user: "dev@example.com",
 };
 
 // Disabling this rule for now because we'll eventually
@@ -961,22 +962,18 @@ export function mockSingleDirectoryExperiment(
     publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
     targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
-    isEnrollmentPaused: false,
     isEnrollmentPausePending: false,
     isRolloutDirty: false,
     proposedEnrollment: 7,
     proposedDuration: 28,
     startDate: new Date(startTime).toISOString(),
-    proposedReleaseDate: new Date(startTime).toISOString(),
     computedEndDate: new Date(endTime).toISOString(),
     computedEnrollmentEndDate: new Date(enrollmentEndTime).toISOString(),
-    resultsExpectedDate: new Date(expectedResultsTime).toISOString(),
     resultsReady: false,
     showResultsUrl: false,
     takeawaysMetricGain: true,
     takeawaysQbrLearning: false,
     projects: [MOCK_CONFIG.projects![0]],
-    hypothesis: "test hypothesis",
     qaStatus: NimbusExperimentQAStatusEnum.GREEN,
     ...overrides,
   };

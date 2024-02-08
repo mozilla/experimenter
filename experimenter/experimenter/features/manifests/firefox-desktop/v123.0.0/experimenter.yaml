@@ -1800,6 +1800,11 @@ shopping2023:
       description: True if showing survey is enabled
       type: boolean
       fallbackPref: browser.shopping.experience2023.survey.enabled
+    autoOpenEnabled:
+      description: True if auto-open behavior for the sidebar is enabled
+      type: boolean
+      setPref: browser.shopping.experience2023.autoOpen.enabled
+
 shoppingOHTTP:
   description: Prefs to control the OHTTP URLs used for shopping.
   owner: gijs@mozilla.com
@@ -1977,6 +1982,10 @@ cookieBannerHandling:
       type: boolean
       setPref: browser.promo.cookiebanners.enabled
       description: Enables the cookie banner promo in about:privatebrowsing.
+    enableDesktopFeatureCallout:
+      type: boolean
+      setPref: cookiebanners.ui.desktop.showCallout
+      description: Enables the cookie banner feature callout on desktop.
 
 backgroundThreads:
   description: Prefs to control MacOS thread priorities for power savings.

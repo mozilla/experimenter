@@ -17,7 +17,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import F, Q, QuerySet
+from django.db.models import Count, F, Q, QuerySet
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -799,6 +799,59 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @property
+    def feature_has_live_multifeature_experiments(self):
+        matching = []
+        live_experiments = NimbusExperiment.objects.filter(
+            status=self.Status.LIVE,
+            application=self.application,
+        )
+        if live_experiments.exists():
+            feature_slugs = self.feature_configs.all().values_list("slug", flat=True)
+            matching = (
+                live_experiments.annotate(n_feature_configs=Count("feature_configs"))
+                .filter(n_feature_configs__gt=1)
+                .filter(feature_configs__slug__in=feature_slugs)
+                .exclude(id=self.id)
+                .values_list("slug", flat=True)
+                .distinct()
+                .order_by("slug")
+            )
+        return matching
+
+    @property
+    def excluded_live_deliveries(self):
+        matching = []
+        if self.excluded_experiments.exists():
+            matching = (
+                self.excluded_experiments.filter(
+                    status=NimbusExperiment.Status.LIVE,
+                    application=self.application,
+                )
+                .exclude(id=self.id)
+                .values_list("slug", flat=True)
+                .distinct()
+                .order_by("slug")
+            )
+        return matching
+
+    @property
+    def live_experiments_in_namespace(self):
+        experiment_ids = NimbusBucketRange.objects.filter(
+            isolation_group__name=self.bucket_namespace,
+            isolation_group__application=self.application,
+        ).values_list("experiment_id", flat=True)
+        return (
+            NimbusExperiment.objects.filter(
+                id__in=experiment_ids,
+                status=NimbusExperiment.Status.LIVE,
+            )
+            .exclude(id=self.id)
+            .values_list("slug", flat=True)
+            .distinct()
+            .order_by("slug")
+        )
+
+    @property
     def can_edit(self):
         return (
             (
@@ -954,8 +1007,23 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             link.experiment = cloned
             link.save()
 
-        cloned.required_experiments.add(*self.required_experiments.all())
-        cloned.excluded_experiments.add(*self.excluded_experiments.all())
+        for (
+            required_experiment_branch
+        ) in NimbusExperimentBranchThroughRequired.objects.filter(parent_experiment=self):
+            NimbusExperimentBranchThroughRequired.objects.create(
+                parent_experiment=cloned,
+                child_experiment=required_experiment_branch.child_experiment,
+                branch_slug=required_experiment_branch.branch_slug,
+            )
+
+        for (
+            excluded_experiment_branch
+        ) in NimbusExperimentBranchThroughExcluded.objects.filter(parent_experiment=self):
+            NimbusExperimentBranchThroughExcluded.objects.create(
+                parent_experiment=cloned,
+                child_experiment=excluded_experiment_branch.child_experiment,
+                branch_slug=excluded_experiment_branch.branch_slug,
+            )
 
         cloned.feature_configs.add(*self.feature_configs.all())
         cloned.countries.add(*self.countries.all())
@@ -1499,6 +1567,7 @@ class NimbusVersionedSchema(models.Model):
 
     # Desktop-only
     sets_prefs = ArrayField(models.CharField(max_length=255, null=False, default=list))
+    set_pref_vars = models.JSONField[Dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
 
     class Meta:

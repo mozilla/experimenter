@@ -286,6 +286,9 @@ export interface getExperiment_experimentBySlug {
   isRolloutDirty: boolean;
   qaComment: string | null;
   qaStatus: NimbusExperimentQAStatusEnum | null;
+  excludedLiveDeliveries: string[];
+  featureHasLiveMultifeatureExperiments: string[];
+  liveExperimentsInNamespace: string[];
 }
 
 export interface getExperiment {
