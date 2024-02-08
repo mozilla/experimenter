@@ -1,8 +1,8 @@
 import json
-import os
 from collections import defaultdict
 from datetime import datetime
 from itertools import chain
+from pathlib import Path
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -53,8 +53,8 @@ def validate_data(data_json):
 
 def get_data(slug, window):
     filename = f"statistics_{slug}_{window}.json"
-    path = os.path.join(STATISTICS_FOLDER, filename)
-    return validate_data(load_data_from_gcs(path))
+    path = Path(STATISTICS_FOLDER) / filename
+    return validate_data(load_data_from_gcs(str(path)))
 
 
 def validate_metadata(metadata_json):
@@ -65,8 +65,8 @@ def validate_metadata(metadata_json):
 
 def get_metadata(slug):
     filename = f"metadata_{slug}.json"
-    path = os.path.join(METADATA_FOLDER, filename)
-    return validate_metadata(load_data_from_gcs(path))
+    path = Path(METADATA_FOLDER) / filename
+    return validate_metadata(load_data_from_gcs(str(path)))
 
 
 def validate_analysis_errors(analysis_errors_json):
@@ -77,14 +77,14 @@ def validate_analysis_errors(analysis_errors_json):
 
 def get_analysis_errors(slug):
     filename = f"errors_{slug}.json"
-    path = os.path.join(ERRORS_FOLDER, filename)
-    return validate_analysis_errors(load_data_from_gcs(path))
+    path = Path(ERRORS_FOLDER) / filename
+    return validate_analysis_errors(load_data_from_gcs(str(path)))
 
 
 def get_sizing_data(suffix="latest"):
     filename = f"sample_sizes_auto_sizing_results_{suffix}.json"
-    path = os.path.join(SIZING_FOLDER, filename)
-    return load_data_from_gcs(path)
+    path = Path(SIZING_FOLDER) / filename
+    return load_data_from_gcs(str(path))
 
 
 def get_results_metrics_map(
@@ -315,9 +315,11 @@ def get_experiment_data(experiment: NimbusExperiment):
             else:
                 try:
                     analysis_start_time = datetime.fromisoformat(
-                        experiment_metadata.get("analysis_start_time")
-                        if experiment_metadata is not None
-                        else ""
+                        (
+                            experiment_metadata.get("analysis_start_time")
+                            if experiment_metadata is not None
+                            else ""
+                        ),
                     )
                     timestamp = datetime.fromisoformat(err.get("timestamp"))
 

@@ -9,8 +9,8 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
+
 import json
-import os
 from importlib import resources
 from pathlib import Path
 from urllib.parse import urljoin
@@ -33,10 +33,10 @@ for cls in [
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = Path(__file__).parent
 
 
-APP_VERSION_JSON_PATH = os.path.join(BASE_DIR, "version.json")
+APP_VERSION_JSON_PATH = BASE_DIR / "version.json"
 APP_VERSION = config("APP_VERSION", default=None)
 
 # Quick-start development settings - unsuitable for production
@@ -127,10 +127,10 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            os.path.join(BASE_DIR, "legacy", "legacy-ui", "templates"),
-            os.path.join(BASE_DIR, "nimbus-ui", "templates"),
-            os.path.join(BASE_DIR, "docs"),
-            os.path.join(BASE_DIR, "templates"),
+            BASE_DIR / "legacy" / "legacy-ui" / "templates",
+            BASE_DIR / "nimbus-ui" / "templates",
+            BASE_DIR / "docs",
+            BASE_DIR / "templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -215,17 +215,17 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = os.path.join(os.path.join(BASE_DIR, "served"), "static")
+STATIC_ROOT = BASE_DIR / "served" / "static"
 
 STATICFILES_DIRS = [
-    ("assets", os.path.join(BASE_DIR, "legacy", "legacy-ui", "assets")),
-    ("scripts", os.path.join(BASE_DIR, "legacy", "legacy-ui", "scripts")),
-    ("imgs", os.path.join(BASE_DIR, "legacy", "legacy-ui", "imgs")),
-    ("nimbus", os.path.join(BASE_DIR, "nimbus-ui", "build")),
-    os.path.join(BASE_DIR, "static"),
+    ("assets", BASE_DIR / "legacy" / "legacy-ui" / "assets"),
+    ("scripts", BASE_DIR / "legacy" / "legacy-ui" / "scripts"),
+    ("imgs", BASE_DIR / "legacy" / "legacy-ui" / "imgs"),
+    ("nimbus", BASE_DIR / "nimbus-ui" / "build"),
+    BASE_DIR / "static",
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 
 
@@ -486,9 +486,10 @@ NIMBUS_SCHEMA_VERSION = (
 
 
 # Jetstream config paths
-JETSTREAM_CONFIG_OUTCOMES_PATH = os.path.join(
-    BASE_DIR, "outcomes", "metric-hub-main", "jetstream", "outcomes"
+JETSTREAM_CONFIG_OUTCOMES_PATH = (
+    BASE_DIR / "outcomes" / "metric-hub-main" / "jetstream" / "outcomes"
 )
+
 
 # Feature Manifest path
 FEATURE_MANIFESTS_PATH = Path(BASE_DIR, "features", "manifests")

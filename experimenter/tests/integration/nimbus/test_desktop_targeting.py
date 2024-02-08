@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 
@@ -31,7 +32,7 @@ def test_check_advanced_targeting(
 
     # Inject filter expression
     selenium.get("about:blank")
-    with open("nimbus/utils/filter_expression.js") as js:
+    with Path.open("nimbus/utils/filter_expression.js") as js:
         result = Browser.execute_script(
             selenium,
             targeting,
@@ -83,7 +84,7 @@ def test_check_audience_targeting(
 
     # Inject filter expression
     selenium.get("about:blank")
-    with open("nimbus/utils/filter_expression.js") as js:
+    with Path.open("nimbus/utils/filter_expression.js") as js:
         result = Browser.execute_script(
             selenium,
             targeting,

@@ -143,12 +143,14 @@ select = [
     "PIE",
     "Q",
     "RET",
+    "RSE",
     "RUF",
     "SIM",
     "TID",
     "UP",
     "W",
     "YTT",
+    "PTH",
 ]
 ignore = [
     "A003",

@@ -1,5 +1,5 @@
 import json
-import os
+from pathlib import Path
 
 import pytest
 
@@ -29,7 +29,7 @@ class MockMetricsHandler(nimbus_rust.MetricsHandler):
 
 
 def client_info_list():
-    with open("nimbus/app_contexts.json") as file:
+    with Path.open("nimbus/app_contexts.json") as file:
         return [r["app_context"] for r in json.load(file)["query_result"]["data"]["rows"]]
 
 
@@ -63,7 +63,11 @@ def load_app_context():
 def fixture_sdk_client():
     def _client_helper(app_context):
         return nimbus_rust.NimbusClient(
-            app_context, [], os.getcwd(), None, MockMetricsHandler()
+            app_context,
+            [],
+            Path.cwd(),
+            None,
+            MockMetricsHandler(),
         )
 
     return _client_helper

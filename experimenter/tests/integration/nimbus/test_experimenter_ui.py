@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import pytest
 
@@ -79,7 +79,7 @@ def test_branch_screenshot(
     branches = summary.navigate_to_branches()
     branches.add_screenshot_buttons[0].click()
 
-    image_path = os.path.join(os.getcwd(), "example.jpg")
+    image_path = Path.cwd() / "example.jpg"
     branches.screenshot_image_field().send_keys(image_path)
 
     expected_description = "Example screenshot description text"

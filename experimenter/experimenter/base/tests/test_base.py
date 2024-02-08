@@ -16,7 +16,7 @@ class TestAppVersion(TestCase):
         expected_version = "8675309"
         version_json = f'{{"commit": "{expected_version}"}}'
         with self.settings(APP_VERSION=None), mock.patch(
-            "experimenter.base.open",
+            "experimenter.base.Path.open",
             mock.mock_open(read_data=version_json),
         ) as mf:
             version = app_version()
@@ -32,7 +32,7 @@ class TestAppVersion(TestCase):
         version_json = '{"commit": "INCORRECT"}'
 
         with self.settings(APP_VERSION=expected_version), mock.patch(
-            "experimenter.base.open",
+            "experimenter.base.Path.open",
             mock.mock_open(read_data=version_json),
         ) as mf:
             version = app_version()
@@ -42,7 +42,7 @@ class TestAppVersion(TestCase):
     def test_app_version_file_error(self):
         version_json = '{"commit": "INCORRECT"}'
         with self.settings(APP_VERSION=None), mock.patch(
-            "builtins.open",
+            "experimenter.base.Path.open",
             mock.mock_open(read_data=version_json),
         ) as mf:
             mf.side_effect = OSError()

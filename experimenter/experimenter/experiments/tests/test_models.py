@@ -1,7 +1,7 @@
 import datetime
-import os.path
 from decimal import Decimal
 from itertools import product
+from pathlib import Path
 from unittest import mock
 
 import packaging
@@ -3175,8 +3175,8 @@ class TestNimbusBranchScreenshot(TestCase):
         with mock.patch.object(self.screenshot.image.storage, "save") as mock_save:
             mock_uuid4.return_value = "predictable"
             mock_save.return_value = "saved/path/dontcare"
-            expected_filename = os.path.join(
-                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            expected_filename = str(
+                Path(self.experiment.slug) / f"{mock_uuid4.return_value}.png",
             )
             max_length = NimbusBranchScreenshot._meta.get_field("image").max_length
             self.screenshot.save()
@@ -3188,8 +3188,8 @@ class TestNimbusBranchScreenshot(TestCase):
     def test_nimbus_branch_screenshot_delete_previous_on_save_change(self, mock_uuid4):
         with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
             mock_uuid4.return_value = "predictable"
-            expected_filename = os.path.join(
-                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            expected_filename = str(
+                Path(self.experiment.slug) / f"{mock_uuid4.return_value}.png",
             )
             self.screenshot.save()
             new_image = SimpleUploadedFile("Capture2.PNG", b"fake new image")
@@ -3212,8 +3212,8 @@ class TestNimbusBranchScreenshot(TestCase):
     def test_nimbus_branch_screenshot_delete(self, mock_uuid4):
         with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
             mock_uuid4.return_value = "predictable"
-            expected_filename = os.path.join(
-                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            expected_filename = str(
+                Path(self.experiment.slug) / f"{mock_uuid4.return_value}.png",
             )
             self.screenshot.save()
             self.screenshot.delete()

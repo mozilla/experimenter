@@ -1,6 +1,6 @@
-import os
 import typing
 from dataclasses import dataclass
+from pathlib import Path
 
 import toml
 from django.conf import settings
@@ -36,14 +36,14 @@ class Outcomes:
         app_name_application_config = {
             a.app_name: a for a in NimbusConstants.APPLICATION_CONFIGS.values()
         }
-        for app_name in os.listdir(settings.JETSTREAM_CONFIG_OUTCOMES_PATH):
-            app_path = os.path.join(settings.JETSTREAM_CONFIG_OUTCOMES_PATH, app_name)
+        for app_name in settings.JETSTREAM_CONFIG_OUTCOMES_PATH.iterdir():
+            app_path = settings.JETSTREAM_CONFIG_OUTCOMES_PATH / app_name
 
-            for outcome_name in os.listdir(app_path):
-                if not outcome_name.endswith(".example"):
-                    outcome_path = os.path.join(app_path, outcome_name)
+            for outcome_name in app_path.iterdir():
+                if outcome_name.suffix != ".example":
+                    outcome_path = app_path / outcome_name
 
-                    with open(outcome_path) as outcome_file:
+                    with Path.open(outcome_path) as outcome_file:
                         outcome_toml = outcome_file.read()
                         outcome_data = toml.loads(outcome_toml)
 
@@ -64,10 +64,12 @@ class Outcomes:
 
                         outcomes.append(
                             Outcome(
-                                application=app_name_application_config[app_name].slug,
+                                application=app_name_application_config[
+                                    app_name.stem
+                                ].slug,
                                 description=outcome_data["description"],
                                 friendly_name=outcome_data["friendly_name"],
-                                slug=os.path.splitext(outcome_name)[0],
+                                slug=outcome_name.stem,
                                 is_default=False,
                                 metrics=metrics,
                             )

@@ -1,6 +1,6 @@
 import argparse
 import json
-import os
+from pathlib import Path
 
 import nimbus_rust as nimbus
 
@@ -12,8 +12,8 @@ def load_parser():
 
 
 def load_context():
-    if os.path.exists("app_context.json"):
-        with open("app_context.json") as file:
+    if Path.exists("app_context.json"):
+        with Path.open("app_context.json") as file:
             data = json.loads(file.read())["app_context"]
             return (
                 nimbus.AppContext(
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     randomization_units = nimbus.AvailableRandomizationUnits(None, 0)
 
-    client = nimbus.NimbusClient(context, os.getcwd(), None, randomization_units)
+    client = nimbus.NimbusClient(context, Path.cwd(), None, randomization_units)
 
     targeting_helper = client.create_targeting_helper(json.dumps(additional_targeting))
 
