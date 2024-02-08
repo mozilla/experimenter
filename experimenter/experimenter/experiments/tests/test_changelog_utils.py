@@ -81,7 +81,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "publish_status": NimbusExperiment.PublishStatus.IDLE,
                 "published_dto": None,
                 "qa_comment": None,
-                "qa_status": None,
+                "qa_status": NimbusExperiment.QAStatus.NOT_SET,
                 "reference_branch": None,
                 "required_experiments": [],
                 "results_data": None,
@@ -93,6 +93,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": "",
                 "status": NimbusExperiment.Status.DRAFT,
                 "status_next": None,
+                "subscribers": [],
                 "takeaways_gain_amount": None,
                 "takeaways_metric_gain": False,
                 "takeaways_qbr_learning": False,
@@ -100,6 +101,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
                 "total_enrolled_clients": 0,
                 "warn_feature_schema": False,
+                "published_date": None,
             },
         )
 
@@ -110,6 +112,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         primary_outcome = Outcomes.by_application(application)[0].slug
         secondary_outcome = Outcomes.by_application(application)[1].slug
         parent_experiment = NimbusExperimentFactory.create()
+        subscriber = UserFactory.create()
 
         updated_time = timezone.datetime(
             year=2022, month=1, day=2, hour=0, minute=0, second=0
@@ -127,6 +130,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 projects=[project],
                 primary_outcomes=[primary_outcome],
                 secondary_outcomes=[secondary_outcome],
+                subscribers=[subscriber],
                 parent=parent_experiment,
             )
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
@@ -185,6 +189,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": experiment.slug,
                 "status": experiment.status,
                 "status_next": experiment.status_next,
+                "subscribers": [subscriber.email],
                 "takeaways_gain_amount": None,
                 "takeaways_metric_gain": False,
                 "takeaways_qbr_learning": False,
@@ -192,6 +197,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "targeting_config_slug": experiment.targeting_config_slug,
                 "total_enrolled_clients": experiment.total_enrolled_clients,
                 "warn_feature_schema": False,
+                "published_date": experiment.published_date,
             },
         )
 

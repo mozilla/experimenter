@@ -18,7 +18,7 @@ def test_statistics():
     s0 = Statistic(
         metric="test-metric",
         statistic="test-statistic",
-        branch="test-branch",
+        branch="test-control",
         ci_width=0.95,
         point=1.0,
         lower=0.2,
@@ -41,7 +41,7 @@ def test_statistics():
     )
     s2 = Statistic(
         metric="test-metric",
-        statistic="test-statistic",
+        statistic="test-statistic-2",
         branch="test-branch",
         ci_width=0.95,
         point=1.0,

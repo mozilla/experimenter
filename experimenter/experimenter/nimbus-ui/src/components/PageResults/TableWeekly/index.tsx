@@ -31,7 +31,7 @@ const getWeekIndexList = (
   group: string,
   weeklyResults: { [branch: string]: BranchDescription },
 ) => {
-  const weekIndexSet = new Set();
+  const weekIndexSet = new Set<number>();
   Object.keys(weeklyResults).forEach((branch: string) => {
     if (!(metric in weeklyResults[branch].branch_data[group])) {
       return;
@@ -47,7 +47,7 @@ const getWeekIndexList = (
       });
     });
   });
-  return Array.from(weekIndexSet).sort();
+  return Array.from(weekIndexSet).sort((a, b) => a - b);
 };
 
 const TableWeekly = ({

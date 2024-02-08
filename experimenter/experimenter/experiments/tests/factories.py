@@ -26,6 +26,8 @@ from experimenter.experiments.models import (
     NimbusChangeLog,
     NimbusDocumentationLink,
     NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
@@ -114,6 +116,7 @@ class NimbusVersionedSchemaFactory(factory.django.DjangoModelFactory):
     )
     schema = factory.LazyAttribute(lambda o: FAKER_JSON_SCHEMA)
     sets_prefs = factory.LazyAttribute(lambda o: [])
+    is_early_startup = False
 
     class Meta:
         model = NimbusVersionedSchema
@@ -407,7 +410,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     risk_brand = factory.LazyAttribute(lambda o: random.choice([True, False]))
     is_localized = factory.LazyAttribute(lambda o: False)
     localizations = factory.LazyAttribute(lambda o: None)
-    qa_status = factory.LazyAttribute(lambda o: None)
+    qa_status = factory.LazyAttribute(
+        lambda o: random.choice(list(NimbusExperiment.QAStatus)).value
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -427,6 +432,19 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         Lifecycles.LAUNCH_APPROVE_TIMEOUT,
         Lifecycles.ENDING_APPROVE_APPROVE,
     ]
+
+    @factory.post_generation
+    def subscribers(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if isinstance(extracted, Iterable):
+            for subscriber in extracted:
+                self.subscribers.add(subscriber)
+        else:
+            for _ in range(3):
+                self.subscribers.add(UserFactory.create())
 
     @factory.post_generation
     def projects(self, create, extracted, **kwargs):
@@ -495,6 +513,34 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
         if extracted:
             self.languages.add(*extracted)
+
+    @factory.post_generation
+    def required_experiments_branches(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            for required in extracted:
+                NimbusExperimentBranchThroughRequired.objects.create(
+                    parent_experiment=self,
+                    child_experiment=required,
+                    branch_slug=required.reference_branch.slug,
+                )
+
+    @factory.post_generation
+    def excluded_experiments_branches(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            for excluded in extracted:
+                NimbusExperimentBranchThroughExcluded.objects.create(
+                    parent_experiment=self,
+                    child_experiment=excluded,
+                    branch_slug=excluded.reference_branch.slug,
+                )
 
     @classmethod
     def create(

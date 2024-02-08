@@ -20,6 +20,8 @@ from experimenter.experiments.models import (
     NimbusChangeLog,
     NimbusDocumentationLink,
     NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
 )
 from experimenter.outcomes import Outcomes
@@ -288,6 +290,28 @@ class NimbusStatusUpdateExemptFieldsType(graphene.ObjectType):
         return TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["rollouts"]
 
 
+class NimbusExperimentBranchThroughRequiredType(DjangoObjectType):
+    required_experiment = graphene.NonNull(lambda: NimbusExperimentType)
+
+    class Meta:
+        model = NimbusExperimentBranchThroughRequired
+        fields = ("required_experiment", "branch_slug")
+
+    def resolve_required_experiment(self, info):
+        return self.child_experiment
+
+
+class NimbusExperimentBranchThroughExcludedType(DjangoObjectType):
+    excluded_experiment = graphene.NonNull(lambda: NimbusExperimentType)
+
+    class Meta:
+        model = NimbusExperimentBranchThroughExcluded
+        fields = ("excluded_experiment", "branch_slug")
+
+    def resolve_excluded_experiment(self, info):
+        return self.child_experiment
+
+
 class NimbusConfigurationType(graphene.ObjectType):
     application_configs = graphene.List(NimbusExperimentApplicationConfigType)
     applications = graphene.List(NimbusLabelValueType)
@@ -309,6 +333,8 @@ class NimbusConfigurationType(graphene.ObjectType):
     types = graphene.List(NimbusLabelValueType)
     status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
     population_sizing_data = graphene.String()
+    qa_status = graphene.List(NimbusLabelValueType)
+    user = graphene.NonNull(graphene.String)
 
     def _text_choices_to_label_value_list(self, text_choices):
         return [
@@ -318,6 +344,9 @@ class NimbusConfigurationType(graphene.ObjectType):
             )
             for name in text_choices.names
         ]
+
+    def resolve_user(self, info):
+        return info.context.user.email
 
     def resolve_applications(self, info):
         return self._text_choices_to_label_value_list(NimbusExperiment.Application)
@@ -429,6 +458,9 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_takeaways(self, info):
         return self._text_choices_to_label_value_list(NimbusExperiment.Takeaways)
 
+    def resolve_qa_status(self, info):
+        return self._text_choices_to_label_value_list(NimbusExperiment.QAStatus)
+
     def resolve_status_update_exempt_fields(self, info):
         return [
             NimbusStatusUpdateExemptFieldsType(
@@ -458,10 +490,16 @@ class NimbusExperimentType(DjangoObjectType):
     countries = graphene.List(graphene.NonNull(NimbusCountryType), required=True)
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     enrollment_end_date = graphene.DateTime()
-    excluded_experiments = graphene.NonNull(
-        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
+    excluded_experiments_branches = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentBranchThroughExcludedType))
+    )
+    excluded_live_deliveries = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(graphene.String))
     )
     feature_configs = DjangoListField(NimbusFeatureConfigType)
+    feature_has_live_multifeature_experiments = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(graphene.String))
+    )
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
     hypothesis = graphene.String()
@@ -476,6 +514,9 @@ class NimbusExperimentType(DjangoObjectType):
     is_web = graphene.NonNull(graphene.Boolean)
     jexl_targeting_expression = graphene.String()
     languages = graphene.List(graphene.NonNull(NimbusLanguageType), required=True)
+    live_experiments_in_namespace = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(graphene.String))
+    )
     locales = graphene.List(graphene.NonNull(NimbusLocaleType), required=True)
     localizations = graphene.String()
     monitoring_dashboard_url = graphene.String()
@@ -495,8 +536,8 @@ class NimbusExperimentType(DjangoObjectType):
     recipe_json = graphene.String()
     reference_branch = graphene.Field(NimbusBranchType)
     rejection = graphene.Field(NimbusChangeLogType)
-    required_experiments = graphene.NonNull(
-        lambda: graphene.List(graphene.NonNull(NimbusExperimentType))
+    required_experiments_branches = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusExperimentBranchThroughRequiredType))
     )
     results_expected_date = graphene.DateTime()
     results_ready = graphene.Boolean()
@@ -507,6 +548,9 @@ class NimbusExperimentType(DjangoObjectType):
     secondary_outcomes = graphene.List(graphene.String)
     show_results_url = graphene.Boolean()
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
+    subscribers = graphene.NonNull(
+        lambda: graphene.List(graphene.NonNull(NimbusUserType))
+    )
     slug = graphene.String(required=True)
     start_date = graphene.DateTime()
     status = NimbusExperimentStatusEnum()
@@ -535,7 +579,9 @@ class NimbusExperimentType(DjangoObjectType):
             "countries",
             "documentation_links",
             "enrollment_end_date",
+            "excluded_live_deliveries",
             "feature_configs",
+            "feature_has_live_multifeature_experiments",
             "firefox_max_version",
             "firefox_min_version",
             "hypothesis",
@@ -551,6 +597,7 @@ class NimbusExperimentType(DjangoObjectType):
             "is_web",
             "jexl_targeting_expression",
             "languages",
+            "live_experiments_in_namespace",
             "locales",
             "localizations",
             "monitoring_dashboard_url",
@@ -588,6 +635,7 @@ class NimbusExperimentType(DjangoObjectType):
             "start_date",
             "status_next",
             "status",
+            "subscribers",
             "takeaways_metric_gain",
             "takeaways_gain_amount",
             "takeaways_qbr_learning",
@@ -706,8 +754,15 @@ class NimbusExperimentType(DjangoObjectType):
     def resolve_changes(self, info):
         return self.changes.all().order_by("changed_on")
 
-    def resolve_excluded_experiments(self, info):
-        return self.excluded_experiments.only("id", "slug", "name", "public_description")
+    def resolve_excluded_experiments_branches(self, info):
+        return NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=self
+        )
 
-    def resolve_required_experiments(self, info):
-        return self.required_experiments.only("id", "slug", "name", "public_description")
+    def resolve_required_experiments_branches(self, info):
+        return NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=self
+        )
+
+    def resolve_subscribers(self, info):
+        return self.subscribers.all().order_by("username")

@@ -29,6 +29,10 @@ cirrus_sentry_dsn: str = cast(str, config("CIRRUS_SENTRY_DSN", default=""))
 instance_name: str = cast(
     str, config("CIRRUS_INSTANCE_NAME", default="instance name not defined")
 )
+env_name = cast(str, config("CIRRUS_ENV_NAME", default="production"))
+glean_max_events_buffer: int = int(
+    config("CIRRUS_GLEAN_MAX_EVENTS_BUFFER", default=10)  # type: ignore
+)
 
 
 @dataclass
@@ -38,7 +42,7 @@ class MetricsConfiguration:
     channel: str = channel
     data_dir: str = "/var/glean"
     log_level: Union[str, int] = logging.getLevelName("WARNING")
-    max_events_buffer: int = 500
+    max_events_buffer: int = glean_max_events_buffer
     server_endpoint: Optional[str] = None
     upload_enabled: bool = True
     version: str = "1.0"

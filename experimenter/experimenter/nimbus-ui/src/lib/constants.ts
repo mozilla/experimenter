@@ -35,15 +35,13 @@ export const SERVER_ERRORS = {
 };
 
 export const EXTERNAL_URLS = {
-  TRAINING_AND_PLANNING_DOC:
-    "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Onboarding",
+  TRAINING_AND_PLANNING_DOC: "https://experimenter.info/for-product",
   NIMBUS_MANA_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
   WORKFLOW_MANA_DOC:
     "https://experimenter.info/data-scientists/#sample-size-recommendations",
-  BRANCHES_GOOGLE_DOC:
-    "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.i8g4ppfvkq0x",
-  METRICS_GOOGLE_DOC:
-    "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.uq23fsvh16rc",
+  BRANCHES_EXPERIMENTER_DOC: "https://experimenter.info/feature-definition/",
+  METRICS_EXPERIMENTER_DOC:
+    "https://experimenter.info/deep-dives/jetstream/metrics",
   // EXP-866 TBD URL
   PREVIEW_LAUNCH_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
   RISK_BRAND:
@@ -52,6 +50,8 @@ export const EXTERNAL_URLS = {
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Isthisstudypartnerrelated?riskPARTNER",
   RISK_REVENUE:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-riskREV",
+  ROLLOUT_SETPREF_REENROLL_EXPLANATION:
+    "https://experimenter.info/faq/warnings#rollouts-and-setpref-interaction-desktop",
   SIGNOFF_QA:
     "https://docs.google.com/document/d/1oz1YyaaBI-oHUDsktWA-dLtX7WzhYqs7C121yOPKo2w/edit",
   SIGNOFF_VP:
@@ -69,10 +69,14 @@ export const EXTERNAL_URLS = {
   LAUNCH_DOCUMENTATION:
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
-    "https://experimenter.info/rollouts/rollouts-bucketing-warning",
+    "https://experimenter.info/faq/warnings#rollout-bucketing-warning",
+  AUDIENCE_OVERLAP_WARNING:
+    "https://experimenter.info/faq/warnings/#audience-overlap",
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/implementing/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
+  QA_PI_DOC:
+    "https://mozilla-hub.atlassian.net/jira/software/c/projects/QA/boards/261",
 };
 
 export const RISK_QUESTIONS = {
@@ -91,6 +95,18 @@ export const TOOLTIP_DISABLED_FOR_WEBAPP =
   "This field is not applicable for web based application";
 export const TOOLTIP_RELEASE_DATE =
   "This is the approximate release date of the version that is being targeted. Click here to find your date!";
+
+export const AUDIENCE_OVERLAP_WARNINGS = {
+  EXCLUDING_EXPERIMENTS_WARNING: (slugs: string) => {
+    return `The following experiments are being excluded by your experiment and may cause audience overlap: ${slugs}`;
+  },
+  LIVE_EXPERIMENTS_BUCKET_WARNING: (slugs: string) => {
+    return `The following experiments are LIVE and may cause audience overlap with your experiment: ${slugs}`;
+  },
+  LIVE_MULTIFEATURE_WARNING: (slugs: string) => {
+    return `The following multi-feature experiments are LIVE and may cause audience overlap with your experiment: ${slugs}`;
+  },
+};
 
 export const LIFECYCLE_REVIEW_FLOWS = {
   LAUNCH: {
@@ -146,6 +162,7 @@ export const CHANGELOG_MESSAGES = {
   UNARCHIVING_EXPERIMENT: "Unarchiving experiment",
   UPDATED_TAKEAWAYS: "Updated Takeaways",
   UPDATED_QA_STATUS: "Updated QA Status",
+  UPDATE_SUBSCRIBERS: "Updated Subscribers",
   CANCEL_REVIEW: "Cancelled Review Request",
 } as const;
 
@@ -189,7 +206,8 @@ export const URL_FIELD = {
 
 export const IMAGE_UPLOAD_ACCEPT = ".gif,.jpg,.jpeg,.png";
 
-export const POLL_INTERVAL = 30000;
+export const START_POLL_INTERVAL = 30000; // 30 seconds
+export const MAX_POLL_INTERVAL = 3600000; // 1 hour
 
 interface QAStatusProperties {
   emoji: string;
@@ -215,5 +233,10 @@ export const QA_STATUS_PROPERTIES: Record<
     emoji: "❌",
     description: "❌ QA: Red",
     className: "danger",
+  },
+  [NimbusExperimentQAStatusEnum.NOT_SET]: {
+    emoji: "",
+    description: "Not set",
+    className: "",
   },
 };

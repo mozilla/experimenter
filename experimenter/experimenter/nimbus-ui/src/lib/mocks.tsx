@@ -436,6 +436,25 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   populationSizingData: JSON.stringify(MOCK_SIZING),
+  qaStatus: [
+    {
+      label: "RED",
+      value: NimbusExperimentQAStatusEnum.RED,
+    },
+    {
+      label: "YELLOW",
+      value: NimbusExperimentQAStatusEnum.YELLOW,
+    },
+    {
+      label: "GREEN",
+      value: NimbusExperimentQAStatusEnum.GREEN,
+    },
+    {
+      label: "NOT SET",
+      value: NimbusExperimentQAStatusEnum.NOT_SET,
+    },
+  ],
+  user: "dev@example.com",
 };
 
 // Disabling this rule for now because we'll eventually
@@ -651,14 +670,15 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   projects: [{ name: "Pocket", id: "1" }],
   isLocalized: false,
   localizations: null,
-  requiredExperiments: [],
-  excludedExperiments: [],
+  requiredExperimentsBranches: [],
+  excludedExperimentsBranches: [],
   takeawaysQbrLearning: false,
   takeawaysMetricGain: false,
   takeawaysGainAmount: null,
   qaComment: null,
-  qaStatus: null,
+  qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
   isWeb: false,
+  subscribers: [],
 };
 
 export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
@@ -763,10 +783,11 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   countries: [{ name: "Canada", id: "1", code: "Ca" }],
   languages: [{ name: "English", id: "1", code: "En" }],
   projects: [{ name: "Pocket", id: "1" }],
-  requiredExperiments: [],
-  excludedExperiments: [],
+  requiredExperimentsBranches: [],
+  excludedExperimentsBranches: [],
   qaComment: null,
-  qaStatus: null,
+  qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
+  subscribers: [],
 };
 
 export function mockExperiment<
@@ -919,7 +940,7 @@ export function mockSingleDirectoryExperiment(
   return {
     isArchived: false,
     isRollout: false,
-    slug: `some-experiment-${slugIndex}`,
+    slug: `some-experiment-${String.fromCharCode(97 + slugIndex)}`,
     owner: {
       username: "example@mozilla.com",
     },
@@ -941,23 +962,18 @@ export function mockSingleDirectoryExperiment(
     publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
     targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
-    isEnrollmentPaused: false,
     isEnrollmentPausePending: false,
     isRolloutDirty: false,
     proposedEnrollment: 7,
     proposedDuration: 28,
     startDate: new Date(startTime).toISOString(),
-    proposedReleaseDate: new Date(startTime).toISOString(),
     computedEndDate: new Date(endTime).toISOString(),
     computedEnrollmentEndDate: new Date(enrollmentEndTime).toISOString(),
-    resultsExpectedDate: new Date(expectedResultsTime).toISOString(),
     resultsReady: false,
     showResultsUrl: false,
     takeawaysMetricGain: true,
     takeawaysQbrLearning: false,
     projects: [MOCK_CONFIG.projects![0]],
-    hypothesis: "test hypothesis",
-    qaComment: null,
     qaStatus: NimbusExperimentQAStatusEnum.GREEN,
     ...overrides,
   };
@@ -1092,6 +1108,8 @@ export const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_exp
     name: experiment.name,
     slug: experiment.slug ?? experiment.name.toLowerCase().replace(" ", "-"),
     publicDescription: "mock description",
+    referenceBranch: { slug: "control" },
+    treatmentBranches: [{ slug: "treatment" }],
   }));
 
 // Basically the same as useOutcomes, but uses the mocked config values

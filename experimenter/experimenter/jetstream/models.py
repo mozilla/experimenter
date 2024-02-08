@@ -285,7 +285,25 @@ class ResultsObjectModelBase(BaseModel):
                     if len(comparison_data.all) == 0:
                         comparison_data.first = data_point
 
-                    comparison_data.all.append(data_point)
+                    # TODO: remove `if` when this bug is fixed:
+                    #    https://github.com/mozilla/experimenter/issues/10043
+                    # ignore duplicate results
+                    # - OVERALL can only have one
+                    # - WEEKLY should not have dupes for the same index
+                    if (
+                        window == AnalysisWindow.OVERALL and len(comparison_data.all) == 0
+                    ) or (
+                        window == AnalysisWindow.WEEKLY
+                        and len(
+                            [
+                                p
+                                for p in comparison_data.all
+                                if p.window_index == window_index
+                            ]
+                        )
+                        == 0
+                    ):
+                        comparison_data.all.append(data_point)
 
                 if comparison_to_branch is not None:
                     pairwise_comparison_data = getattr(
@@ -294,7 +312,26 @@ class ResultsObjectModelBase(BaseModel):
                     if len(pairwise_comparison_data.all) == 0:
                         pairwise_comparison_data.first = data_point
 
-                    pairwise_comparison_data.all.append(data_point)
+                    # TODO: remove `if` when this bug is fixed:
+                    #    https://github.com/mozilla/experimenter/issues/10043
+                    # ignore duplicate results
+                    # - OVERALL can only have one
+                    # - WEEKLY should not have dupes for the same index
+                    if (
+                        window == AnalysisWindow.OVERALL
+                        and len(pairwise_comparison_data.all) == 0
+                    ) or (
+                        window == AnalysisWindow.WEEKLY
+                        and len(
+                            [
+                                p
+                                for p in pairwise_comparison_data.all
+                                if p.window_index == window_index
+                            ]
+                        )
+                        == 0
+                    ):
+                        pairwise_comparison_data.all.append(data_point)
 
     def append_conversion_count(self, primary_metrics_set):
         for branch_name in self.dict():

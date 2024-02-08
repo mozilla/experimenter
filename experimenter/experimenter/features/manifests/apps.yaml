@@ -79,41 +79,15 @@ focus_ios:
           - "releases_v999" # nimbus.fml.yaml missing. Breaks "last 5 releases" logic.
         ignored_tags:
           - "v999.0.0" # nimbus.fml.yaml missing.
+        ignored_versions:
+          - "9000.0.0"
 
-# monitor_cirrus:
-#   slug: "monitor-web"
-#   repo:
-#     type: "github"
-#     name: "mozilla/blurts-server"
-#   fml_path: "config/nimbus.yaml"
-
-# firefox_desktop:
-#   slug: "firefox-desktop"
-#   repo:
-#     type: "hgmo"
-#     name: "mozilla-unified"
-#     default_branch: "central"
-#   experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
-#   release_discovery:
-#     version_file:
-#       type: "plaintext"
-#       path: "browser/config/version.txt"
-#     strategies:
-#       - type: "branched"
-#         branches:
-#           # The order here is important!
-#           #
-#           # When central is merging to beta or beta is merging to release, then
-#           # both of those will have the same version number for a period of
-#           # time.
-#           #
-#           # In this order, if two consecutive branches have the same version,
-#           # then the latter will take precedence. e.g., if both beta and release
-#           # report the same version, we will use the feature manifest from release.
-#           - "central"
-#           - "beta"
-#           - "release"
-#           - "esr115"
+monitor_cirrus:
+  slug: "monitor-web"
+  repo:
+    type: "github"
+    name: "mozilla/blurts-server"
+  fml_path: "config/nimbus.yaml"
 
 mozillavpn_backend_cirrus:
   slug: "vpn-web"
@@ -121,3 +95,31 @@ mozillavpn_backend_cirrus:
     type: "github"
     name: "mozilla-services/guardian-website"
   fml_path: "nimbus.yaml"
+
+firefox_desktop:
+  slug: "firefox-desktop"
+  repo:
+    type: "hgmo"
+    name: "mozilla-unified"
+    default_branch: "central"
+  experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
+  release_discovery:
+    version_file:
+      type: "plaintext"
+      path: "browser/config/version.txt"
+    strategies:
+      - type: "branched"
+        branches:
+          # The order here is important!
+          #
+          # When central is merging to beta or beta is merging to release, then
+          # both of those will have the same version number for a period of
+          # time.
+          #
+          # In this order, if two consecutive branches have the same version,
+          # then the latter will take precedence. e.g., if both beta and release
+          # report the same version, we will use the feature manifest from release.
+          - "central"
+          - "beta"
+          - "release"
+          - "esr115"

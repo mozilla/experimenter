@@ -53,26 +53,21 @@ export interface getAllExperiments_experiments {
   startDate: DateTime | null;
   isRolloutDirty: boolean;
   isEnrollmentPausePending: boolean | null;
-  isEnrollmentPaused: boolean | null;
   proposedDuration: number;
   proposedEnrollment: number;
-  proposedReleaseDate: string | null;
   computedEndDate: DateTime | null;
   computedEnrollmentEndDate: DateTime | null;
   status: NimbusExperimentStatusEnum | null;
   statusNext: NimbusExperimentStatusEnum | null;
   publishStatus: NimbusExperimentPublishStatusEnum | null;
-  qaComment: string | null;
   qaStatus: NimbusExperimentQAStatusEnum | null;
   monitoringDashboardUrl: string | null;
   rolloutMonitoringDashboardUrl: string | null;
-  resultsExpectedDate: DateTime | null;
   resultsReady: boolean | null;
   showResultsUrl: boolean | null;
   channel: NimbusExperimentChannelEnum | null;
   populationPercent: string | null;
   projects: (getAllExperiments_experiments_projects | null)[] | null;
-  hypothesis: string | null;
   takeawaysMetricGain: boolean;
   takeawaysQbrLearning: boolean;
 }

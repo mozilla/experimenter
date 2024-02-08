@@ -25,6 +25,9 @@ To set up the Cirrus environment, follow these steps:
    CIRRUS_FML_PATH=./feature_manifest/sample.fml.yaml
    CIRRUS_SENTRY_DSN=dsn_url
    CIRRUS_INSTANCE_NAME=cirrus_pod_app_v1
+   CIRRUS_ENV_NAME=test_app_stage
+   CIRRUS_GLEAN_MAX_EVENTS_BUFFER=10
+
    ```
 
    Here's what each variable represents:
@@ -37,6 +40,8 @@ To set up the Cirrus environment, follow these steps:
    - `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.fml.yaml` or specify the correct path to your feature manifest file.
    - `CIRRUS_SENTRY_DSN`: Replace `dsn_url` with the appropriate DSN value.
    - `CIRRUS_INSTANCE_NAME`: Replace with the instance name.
+   - `CIRRUS_ENV_NAME:` Replace with the concatenation of project and environment name
+   - `CIRRUS_GLEAN_MAX_EVENTS_BUFFER`: This value represents the max events buffer size for glean. You can set the value from range 1 to 500, by default Cirrus sets it to 10.
 
    Adjust the values of these variables according to your specific configuration requirements.
 
@@ -105,6 +110,8 @@ The input should be a JSON object with the following properties:
 - `client_id` (string): Used for bucketing calculation.
 - `context` (object): Used for context. It can have any key-value pair.
   - `any-key` (anytype).
+  - `language` (string): Optional field
+  - `region` (string): Optional field
 
 Note: Make sure to provide a key-value pair when making a call, setting the `context` value as `{}` will be considered as `False` value. For testing you can set value such as
 ```json
@@ -124,7 +131,50 @@ Example input:
   }
 }
 ```
+- To target clients based on `languages` you can use key as `language` and it supports [list of languages](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes)
 
+Example input:
+```json
+{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "language": "en"
+  }
+}
+```
+- To target clients based on `country` you can use key as `region` and it supports [list of countries](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes)
+
+Example input:
+```json
+{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "region": "US"
+  }
+}
+```
+- To target client based on both `language` and `country`
+
+Example input:
+```json
+{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "language": "en",
+    "region": "US"
+  }
+}
+```
+- You can make your custom field to target too. Prepare what fields you want to be be able to target on, and then work backwards to construct it and populate a targeting context that will satisfy that.
+Example input:
+```json
+{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "random_key": "random_value",
+  }
+}
+```
 ## Output
 
 The output will be a JSON object with the following properties:

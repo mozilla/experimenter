@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional
 
 from polyfactory.factories.pydantic_factory import ModelFactory
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, root_validator
 
 SCHEMA_VERSION = 4
 
@@ -31,6 +31,30 @@ class Statistic(BaseModel):
 
 class Statistics(BaseModel):
     __root__: list[Statistic]
+
+    @root_validator
+    def check_for_duplicates(cls, v):
+        if "__root__" in v:
+            dupes_by_metadata = {}
+            for stat in v["__root__"]:
+                meta = (
+                    stat.metric,
+                    stat.statistic,
+                    stat.branch,
+                    stat.parameter,
+                    stat.comparison,
+                    stat.comparison_to_branch,
+                    stat.ci_width,
+                    stat.segment,
+                    stat.analysis_basis,
+                    stat.window_index,
+                )
+                if dupes_by_metadata.get(meta):
+                    raise ValueError("List of Statistic objects has duplicate(s).")
+
+                dupes_by_metadata[meta] = True
+
+        return v
 
 
 class StatisticsFactory(ModelFactory[Statistics]):

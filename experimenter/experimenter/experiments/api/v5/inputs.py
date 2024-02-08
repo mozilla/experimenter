@@ -33,9 +33,24 @@ class BranchInput(graphene.InputObjectType):
     screenshots = graphene.List(BranchScreenshotInput)
 
 
+class NimbusExperimentSubscriberInput(graphene.InputObjectType):
+    email = graphene.String(required=True)
+    subscribed = graphene.Boolean(required=True)
+
+
 class DocumentationLinkInput(graphene.InputObjectType):
     title = NimbusExperimentDocumentationLinkEnum(required=True)
     link = graphene.String(required=True)
+
+
+class NimbusExperimentBranchThroughRequiredInput(graphene.InputObjectType):
+    required_experiment = graphene.NonNull(graphene.Int)
+    branch_slug = graphene.String()
+
+
+class NimbusExperimentBranchThroughExcludedInput(graphene.InputObjectType):
+    excluded_experiment = graphene.NonNull(graphene.Int)
+    branch_slug = graphene.String()
 
 
 class ExperimentInput(graphene.InputObjectType):
@@ -45,7 +60,9 @@ class ExperimentInput(graphene.InputObjectType):
     conclusion_recommendation = NimbusExperimentConclusionRecommendationEnum()
     countries = graphene.List(graphene.String)
     documentation_links = graphene.List(DocumentationLinkInput)
-    excluded_experiments = graphene.List(graphene.NonNull(graphene.Int))
+    excluded_experiments_branches = graphene.List(
+        graphene.NonNull(NimbusExperimentBranchThroughExcludedInput)
+    )
     feature_config_ids = graphene.List(graphene.Int)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
@@ -73,7 +90,9 @@ class ExperimentInput(graphene.InputObjectType):
     qa_comment = graphene.String()
     qa_status = NimbusExperimentQAStatusEnum()
     reference_branch = graphene.Field(BranchInput)
-    required_experiments = graphene.List(graphene.NonNull(graphene.Int))
+    required_experiments_branches = graphene.List(
+        graphene.NonNull(NimbusExperimentBranchThroughRequiredInput)
+    )
     risk_brand = graphene.Boolean()
     risk_mitigation_link = graphene.String()
     risk_partner_related = graphene.Boolean()
@@ -81,6 +100,10 @@ class ExperimentInput(graphene.InputObjectType):
     secondary_outcomes = graphene.List(graphene.String)
     status = NimbusExperimentStatusEnum()
     status_next = NimbusExperimentStatusEnum()
+    subscribers = graphene.List(
+        graphene.NonNull(NimbusExperimentSubscriberInput),
+        required=False,
+    )
     takeaways_metric_gain = graphene.Boolean(required=False)
     takeaways_gain_amount = graphene.String()
     takeaways_qbr_learning = graphene.Boolean(required=False)

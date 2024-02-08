@@ -1,5 +1,6 @@
 import datetime
 import json
+from dataclasses import dataclass
 from itertools import chain, product
 from unittest.mock import patch
 
@@ -11,10 +12,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.api.v5.serializers import (
-    NimbusFmlErrorDataClass,
-    NimbusReviewSerializer,
-)
+from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureVersion
 from experimenter.experiments.tests.api.v5.test_serializers.mixins import (
@@ -74,6 +72,14 @@ REF_JSON_SCHEMA = """\
   }
 }
 """
+
+
+@dataclass
+class NimbusFmlErrorDataClass:
+    line: int
+    col: int
+    message: str
+    highlight: str
 
 
 class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
@@ -1453,7 +1459,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         self.assertTrue(serializer.is_valid())
         self.mock_fml_errors.assert_not_called()
 
-    def test_serializer_no_fml_validation_on_non_mobile(self):
+    def test_serializer_fml_validation_on_cirrus(self):
         fml_errors = [
             NimbusFmlErrorDataClass(
                 line=0,
@@ -1492,6 +1498,9 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         reference_feature_value.value = json.dumps({"bar": {"baz": "baz", "qux": 123}})
         reference_feature_value.save()
 
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(
@@ -1500,8 +1509,31 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer.is_valid())
-        self.mock_fml_errors.assert_not_called()
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_values": [
+                        {
+                            "value": [
+                                (
+                                    "Feature Manifest errors occurred during "
+                                    "validation: "
+                                    "Incorrect value at line 1 column 0 at version None"
+                                ),
+                                (
+                                    "Feature Manifest errors occurred during "
+                                    "validation: "
+                                    "Type not allowed at line 1 column 0 at version None"
+                                ),
+                            ]
+                        }
+                    ]
+                }
+            },
+        )
+        self.mock_fml_errors.assert_called()
 
     def test_serializer_fml_does_not_validate_desktop(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -2659,6 +2691,54 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 ],
             },
         )
+
+    @parameterized.expand((False, True))
+    def test_setpref_rollout_warning(self, prevent_pref_conflicts):
+        self.maxDiff = None
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.ROLLOUT_SUPPORT_VERSION[
+                NimbusExperiment.Application.DESKTOP
+            ],
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            is_rollout=True,
+            prevent_pref_conflicts=prevent_pref_conflicts,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                            sets_prefs=["foo.bar.baz"],
+                        ),
+                    ],
+                ),
+            ],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        if prevent_pref_conflicts:
+            self.assertNotIn("pref_rollout_reenroll", serializer.warnings)
+        else:
+            self.assertEqual(
+                serializer.warnings["pref_rollout_reenroll"],
+                [NimbusExperiment.WARNING_ROLLOUT_PREF_REENROLL],
+            )
 
 
 class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
@@ -4238,4 +4318,60 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
                         NimbusExperiment.ERROR_MULTIFEATURE_TOO_MANY_FEATURES
                     ]
                 },
+            )
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.CREATED, False),
+            (NimbusExperimentFactory.Lifecycles.PREVIEW, True),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE, True),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE, True),
+        ]
+    )
+    def test_review_failures_are_skipped_for_non_draft(self, lifecycle, expected_valid):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.FENIX,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
+                ),
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.IOS,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(
+                            version=None,
+                            schema=None,
+                        )
+                    ],
+                ),
+            ],
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertEqual(serializer.is_valid(), expected_valid)
+        if not expected_valid:
+            self.assertEqual(
+                serializer.errors["feature_configs"],
+                [
+                    "Feature Config application ios does not "
+                    "match experiment application fenix."
+                ],
             )
