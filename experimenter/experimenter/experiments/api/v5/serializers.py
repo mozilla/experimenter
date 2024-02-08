@@ -226,7 +226,6 @@ class NimbusConfigurationDataClass:
     types: typing.List[LabelValueDataClass]
     qaStatus: typing.List[LabelValueDataClass]
     populationSizingData: str
-    subscribers: typing.List[str]
     hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
@@ -259,7 +258,6 @@ class NimbusConfigurationDataClass:
         self.populationSizingData = self._get_population_sizing_data()
         self.takeaways = self._enum_to_label_value(NimbusExperiment.Takeaways)
         self.qaStatus = self._enum_to_label_value(NimbusExperiment.QAStatus)
-        self.subscribers = self._get_subscribers()
 
     def _geo_model_to_dataclass(self, queryset):
         return [GeoDataClass(id=i.id, name=i.name, code=i.code) for i in queryset]
@@ -326,14 +324,6 @@ class NimbusConfigurationDataClass:
             .order_by("email")
         )
         return [UserDataClass(username=owner.username) for owner in owners]
-
-    def _get_subscribers(self):
-        subscribers = (
-            User.objects.filter(subscribed_nimbusexperiments__isnull=False)
-            .distinct()
-            .order_by("email")
-        )
-        return [UserDataClass(username=subscriber.username) for subscriber in subscribers]
 
     def _get_targeting_configs(self):
         return [
