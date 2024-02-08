@@ -69,8 +69,6 @@ class TestMigrations(MigratorTestCase):
             slug="test-experiment",
             application=Experiment.Application.DESKTOP,
             status=NimbusConstants.Status.DRAFT,
-            # reference_branch=reference_branch,
-            # branches=[reference_branch, treatment_branch],
             results_data={
                 "daily": {},
                 "weekly": old_data,
@@ -81,14 +79,10 @@ class TestMigrations(MigratorTestCase):
                 "errors": [],
             },
         )
-
         reference_branch = NimbusBranch.objects.create(
             slug="control", experiment_id=old.id
         )
-        treatment_branch = NimbusBranch.objects.create(
-            slug="treatment", experiment_id=old.id
-        )
-        old.branches.set([reference_branch, treatment_branch])
+        NimbusBranch.objects.create(slug="treatment", experiment_id=old.id)
         old.reference_branch = reference_branch
 
         new_data = {
@@ -149,8 +143,6 @@ class TestMigrations(MigratorTestCase):
             slug="another-experiment",
             application=Experiment.Application.DESKTOP,
             status=NimbusConstants.Status.DRAFT,
-            # reference_branch=reference_branch,
-            # branches=[reference_branch, treatment_branch],
             results_data={
                 "daily": {},
                 "weekly": new_data,
@@ -161,14 +153,10 @@ class TestMigrations(MigratorTestCase):
                 "errors": [],
             },
         )
-
         reference_branch = NimbusBranch.objects.create(
             slug="control", experiment_id=new.id
         )
-        treatment_branch = NimbusBranch.objects.create(
-            slug="treatment", experiment_id=new.id
-        )
-        new.branches.set([reference_branch, treatment_branch])
+        NimbusBranch.objects.create(slug="treatment", experiment_id=new.id)
         new.reference_branch = reference_branch
 
     def test_migration(self):
