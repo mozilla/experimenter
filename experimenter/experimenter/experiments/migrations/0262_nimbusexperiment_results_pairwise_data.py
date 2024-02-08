@@ -162,7 +162,7 @@ def update_results_data_schema(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("experiments", "0260_nimbusexperiment_published_date"),
+        ("experiments", "0261_nimbusversionedschema_set_pref_vars"),
     ]
 
     operations = [
