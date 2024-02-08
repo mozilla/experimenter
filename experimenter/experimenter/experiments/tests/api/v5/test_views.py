@@ -4,18 +4,13 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
-from experimenter.experiments.api.v5.serializers import (
-    NimbusConfigurationDataClass,
-    NimbusConfigurationSerializer,
-    NimbusExperimentCsvSerializer,
-)
+from experimenter.experiments.api.v5.serializers import NimbusExperimentCsvSerializer
 from experimenter.experiments.api.v5.views import NimbusExperimentCsvRenderer
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
-from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 
 
 class TestNimbusExperimentCsvListView(TestCase):
@@ -100,18 +95,3 @@ class TestNimbusExperimentCsvListView(TestCase):
             renderer_context={"header": NimbusExperimentCsvSerializer.Meta.fields},
         )
         self.assertEqual(csv_data, expected_csv_data)
-
-
-class TestNimbusConfigurationView(MockSizingDataMixin, TestCase):
-    def test_nimbus_configuration_view_returns_config_data(self):
-        user_email = "user@example.com"
-        response = self.client.get(
-            reverse("nimbus-api-config"),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.json(),
-            NimbusConfigurationSerializer(NimbusConfigurationDataClass()).data,
-        )

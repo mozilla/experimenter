@@ -1,5 +1,6 @@
 import datetime
 import json
+from dataclasses import dataclass
 from itertools import chain, product
 from unittest.mock import patch
 
@@ -11,10 +12,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.api.v5.serializers import (
-    NimbusFmlErrorDataClass,
-    NimbusReviewSerializer,
-)
+from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureVersion
 from experimenter.experiments.tests.api.v5.test_serializers.mixins import (
@@ -74,6 +72,14 @@ REF_JSON_SCHEMA = """\
   }
 }
 """
+
+
+@dataclass
+class NimbusFmlErrorDataClass:
+    line: int
+    col: int
+    message: str
+    highlight: str
 
 
 class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
