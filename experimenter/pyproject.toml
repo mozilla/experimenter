@@ -124,6 +124,12 @@ reportUntypedFunctionDecorator = false
 reportUnusedCallResult = false
 
 [tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = ["migrations", ".tox", "node_modules", "legacy", ".pyenv"]
+
+# Same as Black.
+line-length = 90
+[tool.ruff.lint]
 select = [
     "A",
     "B",
@@ -147,6 +153,7 @@ select = [
 ignore = [
     "A003",
     "B017",
+    "B035",
     "DJ001",
     "DJ006",
     "DJ012",
@@ -162,16 +169,9 @@ ignore = [
     "RET503",
     "RET504",
     "RET505",
-    "RUF011",
     "RUF012",
     "SIM102",
     "UP006",
     "UP007",
     "UP038",
 ]
-
-# Exclude a variety of commonly ignored directories.
-exclude = ["migrations", ".tox", "node_modules", "legacy", ".pyenv"]
-
-# Same as Black.
-line-length = 90

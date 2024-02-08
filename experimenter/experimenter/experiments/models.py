@@ -126,11 +126,11 @@ class NimbusExperimentBranchThrough(models.Model):
         unique_together = ("parent_experiment", "child_experiment", "branch_slug")
 
 
-class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):
+class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):  # noqa: DJ008
     pass
 
 
-class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):
+class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):  # noqa: DJ008
     pass
 
 
