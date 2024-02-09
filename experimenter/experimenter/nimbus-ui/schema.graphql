@@ -473,6 +473,7 @@ type NimbusConfigurationType {
   takeaways: [NimbusLabelValueType]
   types: [NimbusLabelValueType]
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
+  subscribers: [NimbusUserType]
   populationSizingData: String
   qaStatus: [NimbusLabelValueType]
   user: String!

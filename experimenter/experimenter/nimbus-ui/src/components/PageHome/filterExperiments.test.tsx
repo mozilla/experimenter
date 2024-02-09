@@ -22,6 +22,7 @@ const {
   types,
   targetingConfigs,
   projects,
+  subscribers,
 } = MOCK_CONFIG!;
 
 describe("getFilterValueFromParams", () => {
@@ -34,6 +35,7 @@ describe("getFilterValueFromParams", () => {
     params.set("types", "EXPERIMENT");
     params.set("projects", "Pocket");
     params.set("targetingConfigs", "MAC_ONLY");
+    params.set("subscribers", "best-pm-evr@mozilla.com");
 
     expect(getFilterValueFromParams(MOCK_CONFIG, params)).toEqual({
       owners: [owners![0], owners![1]],
@@ -43,6 +45,7 @@ describe("getFilterValueFromParams", () => {
       types: [types![0]],
       projects: [projects![0]],
       targetingConfigs: [targetingConfigs![0]],
+      subscribers: [subscribers![0]],
     });
   });
 });
@@ -59,6 +62,7 @@ describe("updateParamsFromFilterValue", () => {
       types: [types![0], types![1]],
       projects: [projects![0], projects![1]],
       targetingConfigs: [targetingConfigs![0], targetingConfigs![1]],
+      subscribers: [subscribers![0], subscribers![1]],
     });
     expect(params.get("owners")).toEqual(
       "alpha-example@mozilla.com,beta-example@mozilla.com",
@@ -71,6 +75,9 @@ describe("updateParamsFromFilterValue", () => {
     expect(params.get("types")).toEqual("EXPERIMENT,ROLLOUT");
     expect(params.get("projects")).toEqual("Pocket,Mdn");
     expect(params.get("targetingConfigs")).toEqual("MAC_ONLY,WIN_ONLY");
+    expect(params.get("subscribers")).toEqual(
+      "best-pm-evr@mozilla.com,mac-user-123@mozilla.com",
+    );
   });
 
   it("handles a roundtrip encoding with everything filtered", () => {
@@ -140,6 +147,9 @@ describe("filterExperiments", () => {
             break;
           case "qaStatus":
             expect(experiment.qaStatus).toEqual([MOCK_CONFIG!.qaStatus![0]]);
+            break;
+          case "subscribers":
+            expect(experiment.subscribers).toEqual(MOCK_CONFIG!.subscribers!);
             break;
         }
       }

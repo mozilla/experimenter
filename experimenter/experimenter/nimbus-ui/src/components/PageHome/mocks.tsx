@@ -20,6 +20,7 @@ export const DEFAULT_OPTIONS: FilterOptions = {
   projects: MOCK_CONFIG!.projects!,
   targetingConfigs: MOCK_CONFIG!.targetingConfigs,
   qaStatus: MOCK_CONFIG!.qaStatus,
+  subscribers: MOCK_CONFIG!.subscribers,
 };
 
 export const DEFAULT_VALUE: FilterValue = {
@@ -33,6 +34,7 @@ export const DEFAULT_VALUE: FilterValue = {
   projects: [],
   targetingConfigs: [],
   qaStatus: [],
+  subscribers: [],
 };
 
 export const EVERYTHING_SELECTED_VALUE: FilterValue = DEFAULT_OPTIONS;

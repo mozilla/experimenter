@@ -312,6 +312,9 @@ export const GET_EXPERIMENTS_QUERY = gql`
         id
         name
       }
+      subscribers {
+        username
+      }
       takeawaysMetricGain
       takeawaysQbrLearning
     }
