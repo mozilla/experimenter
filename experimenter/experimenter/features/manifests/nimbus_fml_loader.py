@@ -14,7 +14,7 @@ logger = logging.getLogger()
 
 
 class NimbusFmlLoader:
-    MANIFEST_PATH = Path(BASE_DIR, "features", "manifests")
+    MANIFEST_PATH = BASE_DIR / "features" / "manifests"
 
     def __init__(self, application: str, channel: str):
         self.application: str = (
@@ -33,7 +33,7 @@ class NimbusFmlLoader:
         """Get path to release feature manifest from experimenter (local)."""
 
         if self.application is not None:
-            path = Path(settings.FEATURE_MANIFESTS_PATH, self.application)
+            path = settings.FEATURE_MANIFESTS_PATH / self.application
             if version:
                 path /= f"v{version}"
             path /= f"{self.channel}.fml.yaml"

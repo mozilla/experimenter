@@ -492,7 +492,7 @@ JETSTREAM_CONFIG_OUTCOMES_PATH = (
 
 
 # Feature Manifest path
-FEATURE_MANIFESTS_PATH = Path(BASE_DIR, "features", "manifests")
+FEATURE_MANIFESTS_PATH = BASE_DIR / "features" / "manifests"
 
 SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
     "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False, cast=bool

@@ -40,9 +40,9 @@ class Command(BaseCommand):
     @staticmethod
     def generate_docs(options):
         api_json = Command.generateSchema()
-        docs_dir = Path(settings.BASE_DIR) / "docs"
-        schema_json_path = Path(docs_dir) / "openapi-schema.json"
-        swagger_html_path = Path(docs_dir) / "swagger-ui.html"
+        docs_dir = settings.BASE_DIR / "docs"
+        schema_json_path = docs_dir / "openapi-schema.json"
+        swagger_html_path = docs_dir / "swagger-ui.html"
 
         if options["check"]:
             with Path.open(schema_json_path) as f:

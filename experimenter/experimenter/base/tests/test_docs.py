@@ -1,4 +1,3 @@
-from pathlib import Path
 from unittest import mock
 
 from django.conf import settings
@@ -9,9 +8,9 @@ from django.test import TestCase
 class TestDocs(TestCase):
     def test_generate_docs(self):
 
-        docs_dir = Path(settings.BASE_DIR) / "docs"
-        schema_json_path = Path(docs_dir) / "openapi-schema.json"
-        swagger_html_path = Path(docs_dir) / "swagger-ui.html"
+        docs_dir = settings.BASE_DIR / "docs"
+        schema_json_path = docs_dir / "openapi-schema.json"
+        swagger_html_path = docs_dir / "swagger-ui.html"
 
         with mock.patch(
             "experimenter.base.management.commands.generate_docs.Path.open",
