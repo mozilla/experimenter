@@ -131,6 +131,13 @@ export interface getConfig_nimbusConfig_qaStatus {
   value: string | null;
 }
 
+export interface getConfig_nimbusConfig_subscribers {
+  /**
+   * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+   */
+  username: string;
+}
+
 export interface getConfig_nimbusConfig {
   applications: (getConfig_nimbusConfig_applications | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
@@ -153,6 +160,7 @@ export interface getConfig_nimbusConfig {
   populationSizingData: string | null;
   takeaways: (getConfig_nimbusConfig_takeaways | null)[] | null;
   qaStatus: (getConfig_nimbusConfig_qaStatus | null)[] | null;
+  subscribers: (getConfig_nimbusConfig_subscribers | null)[] | null;
   user: string;
 }
 

@@ -31,6 +31,7 @@ export const optionIndexKeys: {
   targetingConfigs: (option) => option.value,
   takeaways: (option) => option.value,
   qaStatus: (option) => option.value,
+  subscribers: (option) => option.username,
 };
 
 type ExperimentFilter<K extends FilterValueKeys> = (
@@ -74,6 +75,15 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
         experiment.projects.filter((f) => f?.name === option.name).length > 0;
     }
     return teamProjectsMatch;
+  },
+  subscribers: (option, experiment) => {
+    let findSubscriber = false;
+    if (experiment.subscribers?.length) {
+      findSubscriber =
+        experiment.subscribers.filter((s) => s?.username === option.username)
+          .length > 0;
+    }
+    return findSubscriber;
   },
   targetingConfigs: (option, experiment) => {
     let targetingConfigMatch = false;
@@ -173,6 +183,13 @@ export function getFilterValueFromParams(
           values as string[],
         );
         break;
+      case "subscribers":
+        filterValue[key] = selectFilterOptions<"subscribers">(
+          options[key],
+          optionIndexKeys[key],
+          values as string[],
+        );
+        break;
     }
   }
   return filterValue;
@@ -258,6 +275,12 @@ export function updateParamsFromFilterValue(
           break;
         case "qaStatus":
           values = indexFilterOptions<"qaStatus">(
+            filterValue[key],
+            optionIndexKeys[key],
+          );
+          break;
+        case "subscribers":
+          values = indexFilterOptions<"subscribers">(
             filterValue[key],
             optionIndexKeys[key],
           );
@@ -353,6 +376,13 @@ export function filterExperiments(
         break;
       case "qaStatus":
         filteredExperiments = filterExperimentsByOptions<"qaStatus">(
+          filterState[key],
+          experimentFilters[key],
+          filteredExperiments,
+        );
+        break;
+      case "subscribers":
+        filteredExperiments = filterExperimentsByOptions<"subscribers">(
           filterState[key],
           experimentFilters[key],
           filteredExperiments,

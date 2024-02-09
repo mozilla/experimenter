@@ -328,6 +328,11 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     { username: "beta-example@mozilla.com" },
     { username: "gamma-example@mozilla.com" },
   ],
+  subscribers: [
+    { username: "best-pm-evr@mozilla.com" },
+    { username: "mac-user-123@mozilla.com" },
+    { username: "fx-lvr@mozilla.com" },
+  ],
   targetingConfigs: [
     {
       label: "Mac Only",
@@ -975,6 +980,11 @@ export function mockSingleDirectoryExperiment(
     takeawaysQbrLearning: false,
     projects: [MOCK_CONFIG.projects![0]],
     qaStatus: NimbusExperimentQAStatusEnum.GREEN,
+    subscribers: [
+      { username: "best-pm-evr@mozilla.com" },
+      { username: "mac-user-123@mozilla.com" },
+      { username: "fx-lvr@mozilla.com" },
+    ],
     ...overrides,
   };
 }
@@ -987,6 +997,7 @@ export function mockDirectoryExperiments(
       owner: { username: "alpha-example@mozilla.com" },
       startDate: null,
       computedEndDate: null,
+      subscribers: [{ username: "mac-user-123@mozilla.com" }],
     },
     {
       name: "Ipsum dolor sit amet",
@@ -1073,6 +1084,7 @@ export function mockDirectoryExperiments(
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       owner: { username: "gamma-example@mozilla.com" },
+      subscribers: [{ username: "mac-user-123@mozilla.com" }],
     },
     {
       isArchived: true,
