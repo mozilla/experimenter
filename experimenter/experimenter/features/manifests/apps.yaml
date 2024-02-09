@@ -89,6 +89,13 @@ monitor_cirrus:
     name: "mozilla/blurts-server"
   fml_path: "config/nimbus.yaml"
 
+mozillavpn_backend_cirrus:
+  slug: "vpn-web"
+  repo:
+    type: "github"
+    name: "mozilla-services/guardian-website"
+  fml_path: "nimbus.yaml"
+
 firefox_desktop:
   slug: "firefox-desktop"
   repo:
