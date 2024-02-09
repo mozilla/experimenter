@@ -332,6 +332,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     takeaways = graphene.List(NimbusLabelValueType)
     types = graphene.List(NimbusLabelValueType)
     status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
+    subscribers = graphene.List(NimbusUserType)
     population_sizing_data = graphene.String()
     qa_status = graphene.List(NimbusLabelValueType)
     user = graphene.NonNull(graphene.String)
@@ -408,6 +409,13 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_owners(self, info):
         return (
             User.objects.filter(owned_nimbusexperiments__isnull=False)
+            .distinct()
+            .order_by("email")
+        )
+
+    def resolve_subscribers(self, info):
+        return (
+            User.objects.filter(subscribed_nimbusexperiments__isnull=False)
             .distinct()
             .order_by("email")
         )

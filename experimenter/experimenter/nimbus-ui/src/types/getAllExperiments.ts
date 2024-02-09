@@ -39,6 +39,13 @@ export interface getAllExperiments_experiments_projects {
   name: string | null;
 }
 
+export interface getAllExperiments_experiments_subscribers {
+  /**
+   * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+   */
+  username: string;
+}
+
 export interface getAllExperiments_experiments {
   isArchived: boolean | null;
   isRollout: boolean | null;
@@ -68,6 +75,7 @@ export interface getAllExperiments_experiments {
   channel: NimbusExperimentChannelEnum | null;
   populationPercent: string | null;
   projects: (getAllExperiments_experiments_projects | null)[] | null;
+  subscribers: getAllExperiments_experiments_subscribers[];
   takeawaysMetricGain: boolean;
   takeawaysQbrLearning: boolean;
 }

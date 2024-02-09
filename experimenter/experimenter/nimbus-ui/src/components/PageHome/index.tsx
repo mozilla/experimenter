@@ -109,6 +109,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     targetingConfigs: config!.targetingConfigs,
     takeaways: config!.takeaways,
     qaStatus: config!.qaStatus,
+    subscribers: config!.subscribers,
   };
 
   const { data, loading, error, refetch } = useQuery<{

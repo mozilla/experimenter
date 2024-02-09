@@ -15,6 +15,7 @@ export const filterValueKeys = [
   "targetingConfigs",
   "takeaways",
   "qaStatus",
+  "subscribers",
 ] as const;
 
 export type FilterValueKeys = typeof filterValueKeys[number];
