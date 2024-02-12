@@ -114,11 +114,13 @@ export const ChangeApprovalOperations: React.FC<
           className="bg-transparent text-success"
         >
           <p className="my-1" data-testid="in-review-label">
-            Please ask someone on your team with review privileges, or a{" "}
-            <LinkExternal href={EXTERNAL_URLS.EXPERIMENTER_REVIEWERS}>
-              qualified reviewer
-            </LinkExternal>
-            , to review and {actionDescription}.{" "}
+            Please ask someone on your team with{" "}
+            <LinkExternal href={EXTERNAL_URLS.REVIEW_PRIVILIGES}>
+              review privileges
+            </LinkExternal>{" "}
+            or a qualified reviewer to review and {actionDescription}. If you
+            don’t have a team reviewer, paste the experiment URL in
+            #ask-experimenter and ask for a review to launch your experiment.{" "}
             <a
               href="#copy"
               className="cursor-copy"
