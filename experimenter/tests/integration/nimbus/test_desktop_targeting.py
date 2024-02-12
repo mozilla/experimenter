@@ -84,7 +84,7 @@ def test_check_audience_targeting(
 
     # Inject filter expression
     selenium.get("about:blank")
-    with Path("nimbus", "utils", "filter_expression.js") as js:
+    with Path("nimbus", "utils", "filter_expression.js").open() as js:
         result = Browser.execute_script(
             selenium,
             targeting,

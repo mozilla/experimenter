@@ -65,7 +65,7 @@ def fixture_sdk_client():
         return nimbus_rust.NimbusClient(
             app_context,
             [],
-            Path.cwd(),
+            str(Path.cwd()),
             None,
             MockMetricsHandler(),
         )
