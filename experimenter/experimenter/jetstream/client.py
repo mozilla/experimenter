@@ -315,11 +315,9 @@ def get_experiment_data(experiment: NimbusExperiment):
             else:
                 try:
                     analysis_start_time = datetime.fromisoformat(
-                        (
-                            experiment_metadata.get("analysis_start_time")
-                            if experiment_metadata is not None
-                            else ""
-                        ),
+                        experiment_metadata.get("analysis_start_time")
+                        if experiment_metadata is not None
+                        else ""
                     )
                     timestamp = datetime.fromisoformat(err.get("timestamp"))
 
