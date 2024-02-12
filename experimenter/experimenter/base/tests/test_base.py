@@ -1,6 +1,5 @@
 from unittest import mock
 
-from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.test import TestCase, override_settings
 from inmemorystorage import InMemoryStorage
@@ -12,43 +11,36 @@ class TestAppVersion(TestCase):
     def setUp(self):
         app_version.cache_clear()
 
-    def test_app_version_file(self):
+    @mock.patch("experimenter.base.settings.APP_VERSION_JSON_PATH")
+    def test_app_version_file(self, mock_app_version_json_path):
         expected_version = "8675309"
         version_json = f'{{"commit": "{expected_version}"}}'
-        with self.settings(APP_VERSION=None), mock.patch(
-            "experimenter.base.Path.open",
-            mock.mock_open(read_data=version_json),
-        ) as mf:
-            version = app_version()
-            self.assertEqual(version, expected_version)
+        mock_app_version_json_path.open = mock.mock_open(read_data=version_json)
 
-            version_again = app_version()
-            self.assertEqual(version_again, expected_version)
+        version = app_version()
+        self.assertEqual(version, expected_version)
 
-            mf.assert_called_once_with(settings.APP_VERSION_JSON_PATH)
+        version_again = app_version()
+        self.assertEqual(version_again, expected_version)
 
-    def test_app_version_env_over_file(self):
+    @mock.patch("experimenter.base.settings.APP_VERSION_JSON_PATH")
+    def test_app_version_env_over_file(self, mock_app_version_json_path):
         expected_version = "thx1138"
         version_json = '{"commit": "INCORRECT"}'
+        mock_app_version_json_path.open = mock.mock_open(read_data=version_json)
 
-        with self.settings(APP_VERSION=expected_version), mock.patch(
-            "experimenter.base.Path.open",
-            mock.mock_open(read_data=version_json),
-        ) as mf:
+        with self.settings(APP_VERSION=expected_version):
             version = app_version()
-            mf.assert_not_called()
+            mock_app_version_json_path.assert_not_called()
             self.assertEqual(version, expected_version)
 
-    def test_app_version_file_error(self):
-        version_json = '{"commit": "INCORRECT"}'
-        with self.settings(APP_VERSION=None), mock.patch(
-            "experimenter.base.Path.open",
-            mock.mock_open(read_data=version_json),
-        ) as mf:
-            mf.side_effect = OSError()
-            version = app_version()
-            mf.assert_called_once_with(settings.APP_VERSION_JSON_PATH)
-            self.assertEqual(version, "")
+    @mock.patch("experimenter.base.settings.APP_VERSION_JSON_PATH")
+    def test_app_version_file_error(self, mock_app_version_json_path):
+        mock_app_version_json_path.open.side_effect = OSError()
+
+        version = app_version()
+        mock_app_version_json_path.open.assert_called_once()
+        self.assertEqual(version, "")
 
 
 class TestGetUploadsStorage(TestCase):

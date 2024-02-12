@@ -1,6 +1,5 @@
 import json
 from functools import cache
-from pathlib import Path
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage, get_storage_class
@@ -14,7 +13,7 @@ def app_version():
 
     if app_version is None:
         try:
-            with Path.open(settings.APP_VERSION_JSON_PATH) as version_json_file:
+            with settings.APP_VERSION_JSON_PATH.open() as version_json_file:
                 version_json = json.load(version_json_file)
                 app_version = version_json["commit"]
         except OSError:

@@ -1,6 +1,5 @@
 import json
 import logging
-from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -40,12 +39,9 @@ class Command(BaseCommand):
     @staticmethod
     def generate_docs(options):
         api_json = Command.generateSchema()
-        docs_dir = settings.BASE_DIR / "docs"
-        schema_json_path = docs_dir / "openapi-schema.json"
-        swagger_html_path = docs_dir / "swagger-ui.html"
 
         if options["check"]:
-            with Path.open(schema_json_path) as f:
+            with settings.SCHEMA_JSON_PATH.open() as f:
                 old_json = f.read()
                 if json.loads(api_json) != json.loads(old_json):
                     raise ValueError("Api Schemas have changed and have not been updated")
@@ -55,8 +51,8 @@ class Command(BaseCommand):
                 "swagger-ui-template.html", context={"spec": api_json}
             )
 
-            with Path.open(schema_json_path, "w+") as f:
+            with settings.SCHEMA_JSON_PATH.open("w+") as f:
                 f.write(api_json)
-            with Path.open(swagger_html_path, "w+") as f:
+            with settings.SWAGGER_HTML_PATH.open("w+") as f:
                 f.write(doc_rendered)
                 logger.info("Docs generated Successfully")

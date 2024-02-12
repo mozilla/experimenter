@@ -1,6 +1,5 @@
 import typing
 from dataclasses import dataclass
-from pathlib import Path
 
 import toml
 from django.conf import settings
@@ -43,7 +42,7 @@ class Outcomes:
                 if outcome_name.suffix != ".example":
                     outcome_path = app_path / outcome_name
 
-                    with Path.open(outcome_path) as outcome_file:
+                    with outcome_path.open() as outcome_file:
                         outcome_toml = outcome_file.read()
                         outcome_data = toml.loads(outcome_toml)
 

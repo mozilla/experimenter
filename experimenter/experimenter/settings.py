@@ -228,6 +228,10 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 
+DOCS_DIR = BASE_DIR / "docs"
+SCHEMA_JSON_PATH = DOCS_DIR / "openapi-schema.json"
+SWAGGER_HTML_PATH = DOCS_DIR / "swagger-ui.html"
+
 
 LOGGING_CONSOLE_LEVEL = config("LOGGING_CONSOLE_LEVEL", default="DEBUG")  # Legacy env var
 LOG_LEVEL = config("LOG_LEVEL", default=LOGGING_CONSOLE_LEVEL)
