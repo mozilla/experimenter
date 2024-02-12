@@ -39,7 +39,7 @@ const FormLaunchDraftToPreview = ({
               disabled={isLoading}
               onClick={onSubmit}
             >
-              Launch to Preview
+              Preview for Testing
             </button>
             <button
               data-testid="start-launch-draft-to-review"
