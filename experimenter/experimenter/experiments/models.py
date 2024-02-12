@@ -1154,7 +1154,7 @@ class NimbusBranch(models.Model):
 def nimbus_branch_screenshot_upload_to(screenshot, filename):
     screenshot_id = uuid4()
     ext = filename.split(".")[-1].lower()
-    return Path(screenshot.branch.experiment.slug) / f"{screenshot_id}.{ext}"
+    return Path(screenshot.branch.experiment.slug, f"{screenshot_id}.{ext}")
 
 
 class NimbusBranchFeatureValue(models.Model):

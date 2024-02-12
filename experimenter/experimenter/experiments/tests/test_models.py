@@ -3176,7 +3176,7 @@ class TestNimbusBranchScreenshot(TestCase):
             mock_uuid4.return_value = "predictable"
             mock_save.return_value = "saved/path/dontcare"
             expected_filename = str(
-                Path(self.experiment.slug) / f"{mock_uuid4.return_value}.png",
+                Path(self.experiment.slug, f"{mock_uuid4.return_value}.png"),
             )
             max_length = NimbusBranchScreenshot._meta.get_field("image").max_length
             self.screenshot.save()
@@ -3189,7 +3189,7 @@ class TestNimbusBranchScreenshot(TestCase):
         with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
             mock_uuid4.return_value = "predictable"
             expected_filename = str(
-                Path(self.experiment.slug) / f"{mock_uuid4.return_value}.png",
+                Path(self.experiment.slug, f"{mock_uuid4.return_value}.png"),
             )
             self.screenshot.save()
             new_image = SimpleUploadedFile("Capture2.PNG", b"fake new image")
@@ -3213,7 +3213,7 @@ class TestNimbusBranchScreenshot(TestCase):
         with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
             mock_uuid4.return_value = "predictable"
             expected_filename = str(
-                Path(self.experiment.slug) / f"{mock_uuid4.return_value}.png",
+                Path(self.experiment.slug, f"{mock_uuid4.return_value}.png"),
             )
             self.screenshot.save()
             self.screenshot.delete()
