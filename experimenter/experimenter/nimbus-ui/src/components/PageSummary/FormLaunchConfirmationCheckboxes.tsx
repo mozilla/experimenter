@@ -4,10 +4,12 @@
 
 import React, { useRef } from "react";
 import Form from "react-bootstrap/Form";
+import LinkExternal from "src/components/LinkExternal";
+import { EXTERNAL_URLS } from "src/lib/constants";
 
 const checkboxLabels = [
   "I understand the risks associated with launching an experiment",
-  "I have gone through the experiment onboarding program",
+  "I have gone through the",
 ];
 
 const FormLaunchConfirmationCheckboxes = ({
@@ -20,7 +22,11 @@ const FormLaunchConfirmationCheckboxes = ({
     (labelText: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
       event.persist();
       checkedBoxes.current[labelText] = event.target.checked;
-      onChange(checkboxLabels.every((label) => !!checkedBoxes.current[label]));
+      onChange(
+        checkboxLabels.every(
+          (label) => !!checkedBoxes.current[label as string],
+        ),
+      );
     };
 
   return (
@@ -34,7 +40,16 @@ const FormLaunchConfirmationCheckboxes = ({
         >
           <Form.Check
             type="checkbox"
-            label={labelText}
+            label={
+              <>
+                {labelText}{" "}
+                {index === 1 && (
+                  <LinkExternal href={EXTERNAL_URLS.TRAINING_AND_PLANNING_DOC}>
+                    experiment onboarding program
+                  </LinkExternal>
+                )}
+              </>
+            }
             onChange={handleConfirmChange(labelText)}
             {...{ "data-testid": "required-checkbox" }}
           />
