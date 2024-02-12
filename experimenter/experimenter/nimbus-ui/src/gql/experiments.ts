@@ -257,6 +257,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       qaStatus
       excludedLiveDeliveries
       featureHasLiveMultifeatureExperiments
+      liveExperimentsInNamespace
     }
   }
 `;
@@ -310,6 +311,9 @@ export const GET_EXPERIMENTS_QUERY = gql`
       projects {
         id
         name
+      }
+      subscribers {
+        username
       }
       takeawaysMetricGain
       takeawaysQbrLearning

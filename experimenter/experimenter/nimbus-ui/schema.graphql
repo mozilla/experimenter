@@ -79,6 +79,7 @@ type NimbusExperimentType {
   isEnrollmentPaused: Boolean
   isWeb: Boolean!
   jexlTargetingExpression: String
+  liveExperimentsInNamespace: [String!]!
   monitoringDashboardUrl: String
   readyForReview: NimbusReviewType
   recipeJson: String
@@ -472,6 +473,7 @@ type NimbusConfigurationType {
   takeaways: [NimbusLabelValueType]
   types: [NimbusLabelValueType]
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
+  subscribers: [NimbusUserType]
   populationSizingData: String
   qaStatus: [NimbusLabelValueType]
   user: String!

@@ -288,6 +288,7 @@ export interface getExperiment_experimentBySlug {
   qaStatus: NimbusExperimentQAStatusEnum | null;
   excludedLiveDeliveries: string[];
   featureHasLiveMultifeatureExperiments: string[];
+  liveExperimentsInNamespace: string[];
 }
 
 export interface getExperiment {

@@ -54,6 +54,8 @@ export const EXTERNAL_URLS = {
   SIGNOFF_VP: "https://experimenter.info/vp-sign-off",
   SIGNOFF_LEGAL: "https://experimenter.info/legal-sign-off",
   REVIEW_PRIVILIGES: "https://experimenter.info/access",
+  ROLLOUT_SETPREF_REENROLL_EXPLANATION:
+    "https://experimenter.info/faq/warnings#rollouts-and-setpref-interaction-desktop",
   EXPERIMENTER_DOCUMENTATION: "https://experimenter.info",
   ASK_EXPERIMENTER_SLACK: "https://slack.com/app_redirect?channel=CF94YGE03",
   FEEDBACK: "https://bit.ly/38dgkqR",
@@ -63,7 +65,9 @@ export const EXTERNAL_URLS = {
   LAUNCH_DOCUMENTATION:
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
-    "https://experimenter.info/rollouts/rollouts-bucketing-warning",
+    "https://experimenter.info/faq/warnings#rollout-bucketing-warning",
+  AUDIENCE_OVERLAP_WARNING:
+    "https://experimenter.info/faq/warnings/#audience-overlap",
   CUSTOM_AUDIENCES_EXPLANATION:
     "https://experimenter.info/workflow/implementing/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
@@ -87,6 +91,18 @@ export const TOOLTIP_DISABLED_FOR_WEBAPP =
   "This field is not applicable for web based application";
 export const TOOLTIP_RELEASE_DATE =
   "This is the approximate release date of the version that is being targeted. Click here to find your date!";
+
+export const AUDIENCE_OVERLAP_WARNINGS = {
+  EXCLUDING_EXPERIMENTS_WARNING: (slugs: string) => {
+    return `The following experiments are being excluded by your experiment and may cause audience overlap: ${slugs}`;
+  },
+  LIVE_EXPERIMENTS_BUCKET_WARNING: (slugs: string) => {
+    return `The following experiments are LIVE and may cause audience overlap with your experiment: ${slugs}`;
+  },
+  LIVE_MULTIFEATURE_WARNING: (slugs: string) => {
+    return `The following multi-feature experiments are LIVE and may cause audience overlap with your experiment: ${slugs}`;
+  },
+};
 
 export const LIFECYCLE_REVIEW_FLOWS = {
   LAUNCH: {

@@ -23,7 +23,7 @@ commands:
             echo "Changed files:"
             echo "$diff_output"
 
-            if echo "$diff_output" | grep -E '<< parameters.paths >>|^[^/]+$|^.circleci/'
+            if echo "$diff_output" | grep -E '<< parameters.paths >>|^[^/]+$|^.circleci/|application-services/'
               then
                 echo "Changes detected in << parameters.paths >> or .circleci or root directory. Running tests and linting."
               else

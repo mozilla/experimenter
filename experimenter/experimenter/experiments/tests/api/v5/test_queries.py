@@ -2,6 +2,7 @@ import datetime
 import json
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
 from parameterized import parameterized
@@ -49,10 +50,12 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         project = ProjectFactory.create()
+        subscriber = UserFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
             feature_configs=[feature_config],
             projects=[project],
+            subscribers=[subscriber],
         )
 
         response = self.query(
@@ -109,6 +112,9 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     projects {
                         id
                         name
+                    }
+                    subscribers {
+                        username
                     }
                     hypothesis
                 }
@@ -193,6 +199,9 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     if experiment.status_next is not None
                     else None
                 ),
+                "subscribers": [
+                    {"username": e.username for e in experiment.subscribers.all()}
+                ],
                 "targetingConfig": [
                     {
                         "applicationValues": list(
@@ -805,6 +814,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     }
                     excludedLiveDeliveries
                     featureHasLiveMultifeatureExperiments
+                    liveExperimentsInNamespace
                 }
             }
             """,
@@ -898,6 +908,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 ].is_web,
                 "jexlTargetingExpression": experiment.targeting,
                 "languages": [{"id": str(language.id), "name": language.name}],
+                "liveExperimentsInNamespace": [],
                 "locales": [{"id": str(locale.id), "name": locale.name}],
                 "localizations": experiment.localizations,
                 "monitoringDashboardUrl": experiment.monitoring_dashboard_url,
@@ -2418,6 +2429,9 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
                         rollouts
                     }
                     populationSizingData
+                    subscribers {
+                        username
+                    }
                     user
                 }
             }
@@ -2455,6 +2469,10 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
         self.assertEqual(
             TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS,
             config["statusUpdateExemptFields"][0],
+        )
+        self.assertEqual(
+            len(config["subscribers"]),
+            len(User.objects.filter(subscribed_nimbusexperiments__isnull=False).all()),
         )
         for _index, name in enumerate(NimbusExperiment.Version.names):
             self.assertIn(

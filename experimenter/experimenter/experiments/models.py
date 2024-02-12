@@ -800,11 +800,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def feature_has_live_multifeature_experiments(self):
-        """Live multifeature experiments that share a feature with this experiment.
-
-        Returns:
-            A list of experiment slugs.
-        """
         matching = []
         live_experiments = NimbusExperiment.objects.filter(
             status=self.Status.LIVE,
@@ -816,6 +811,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 live_experiments.annotate(n_feature_configs=Count("feature_configs"))
                 .filter(n_feature_configs__gt=1)
                 .filter(feature_configs__slug__in=feature_slugs)
+                .exclude(id=self.id)
                 .values_list("slug", flat=True)
                 .distinct()
                 .order_by("slug")
@@ -831,11 +827,29 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     status=NimbusExperiment.Status.LIVE,
                     application=self.application,
                 )
+                .exclude(id=self.id)
                 .values_list("slug", flat=True)
                 .distinct()
                 .order_by("slug")
             )
         return matching
+
+    @property
+    def live_experiments_in_namespace(self):
+        experiment_ids = NimbusBucketRange.objects.filter(
+            isolation_group__name=self.bucket_namespace,
+            isolation_group__application=self.application,
+        ).values_list("experiment_id", flat=True)
+        return (
+            NimbusExperiment.objects.filter(
+                id__in=experiment_ids,
+                status=NimbusExperiment.Status.LIVE,
+            )
+            .exclude(id=self.id)
+            .values_list("slug", flat=True)
+            .distinct()
+            .order_by("slug")
+        )
 
     @property
     def can_edit(self):
@@ -1553,6 +1567,7 @@ class NimbusVersionedSchema(models.Model):
 
     # Desktop-only
     sets_prefs = ArrayField(models.CharField(max_length=255, null=False, default=list))
+    set_pref_vars = models.JSONField[Dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
 
     class Meta:
