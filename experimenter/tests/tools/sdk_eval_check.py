@@ -12,8 +12,9 @@ def load_parser():
 
 
 def load_context():
-    if Path.exists("app_context.json"):
-        with Path.open("app_context.json") as file:
+    app_context_path = Path("app_context.json")
+    if app_context_path.exists():
+        with app_context_path.open() as file:
             data = json.loads(file.read())["app_context"]
             return (
                 nimbus.AppContext(

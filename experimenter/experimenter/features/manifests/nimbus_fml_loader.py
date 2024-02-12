@@ -37,7 +37,7 @@ class NimbusFmlLoader:
             if version:
                 path /= f"v{version}"
             path /= f"{self.channel}.fml.yaml"
-            if Path.exists(path):
+            if Path(path).exists():
                 return path
             else:
                 logger.error(f"Nimbus FML Loader: Invalid manifest path: {path}")
