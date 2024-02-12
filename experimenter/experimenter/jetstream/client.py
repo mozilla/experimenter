@@ -53,7 +53,7 @@ def validate_data(data_json):
 
 def get_data(slug, window):
     filename = f"statistics_{slug}_{window}.json"
-    path = Path(STATISTICS_FOLDER) / filename
+    path = Path(STATISTICS_FOLDER, filename)
     return validate_data(load_data_from_gcs(str(path)))
 
 
@@ -65,7 +65,7 @@ def validate_metadata(metadata_json):
 
 def get_metadata(slug):
     filename = f"metadata_{slug}.json"
-    path = Path(METADATA_FOLDER) / filename
+    path = Path(METADATA_FOLDER, filename)
     return validate_metadata(load_data_from_gcs(str(path)))
 
 
@@ -77,13 +77,13 @@ def validate_analysis_errors(analysis_errors_json):
 
 def get_analysis_errors(slug):
     filename = f"errors_{slug}.json"
-    path = Path(ERRORS_FOLDER) / filename
+    path = Path(ERRORS_FOLDER, filename)
     return validate_analysis_errors(load_data_from_gcs(str(path)))
 
 
 def get_sizing_data(suffix="latest"):
     filename = f"sample_sizes_auto_sizing_results_{suffix}.json"
-    path = Path(SIZING_FOLDER) / filename
+    path = Path(SIZING_FOLDER, filename)
     return load_data_from_gcs(str(path))
 
 
