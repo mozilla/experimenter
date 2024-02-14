@@ -23,7 +23,7 @@ DEFAULT_TEST_BRANCHES = ["control", "variant"]
 class JetstreamTestData:
     @classmethod
     def get_absolute_metric_data(cls, DATA_POINT):
-        return MetricData(
+        return cls.get_pairwise_metric_data()(
             absolute=BranchComparisonData(first=DATA_POINT, all=[DATA_POINT]),
             difference=cls.get_pairwise_branch_comparison_data()(),
             relative_uplift=cls.get_pairwise_branch_comparison_data()(),
@@ -43,18 +43,8 @@ class JetstreamTestData:
         if is_retention:
             all_data_points.append(DATA_POINT)
 
-        # set up dicts of non-pairwise data
-        # (populated if the comparison is to the reference control branch)
-        significance = (
-            deepcopy(SIGNIFICANCE.dict())
-            if comparison_to_branch == "control"
-            else SignificanceData().dict()
-        )
-        difference = (
-            BranchComparisonData(first=DATA_POINT, all=all_data_points).dict()
-            if comparison_to_branch == "control"
-            else BranchComparisonData().dict()
-        )
+        significance = cls.get_pairwise_significance_data()().dict()
+        difference = cls.get_pairwise_branch_comparison_data()().dict()
 
         # initialize pairwise branch comparisons inside dicts
         for branch in branches:
@@ -67,7 +57,7 @@ class JetstreamTestData:
             first=DATA_POINT, all=all_data_points
         ).dict()
 
-        return MetricData(
+        return cls.get_pairwise_metric_data()(
             absolute=BranchComparisonData(),
             difference=cls.get_pairwise_branch_comparison_data()(**difference),
             relative_uplift=cls.get_pairwise_branch_comparison_data()(),
@@ -82,7 +72,6 @@ class JetstreamTestData:
         return create_model(
             "PairwiseBranchComparisonData",
             **branches_data,
-            __base__=BranchComparisonData,
         )
 
     @classmethod
@@ -94,8 +83,19 @@ class JetstreamTestData:
         return create_model(
             "PairwiseSignificanceData",
             **branches_significance_data,
-            __base__=SignificanceData,
         )
+
+    @classmethod
+    def get_pairwise_metric_data(cls):
+        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
+        PairwiseSignificanceData = cls.get_pairwise_significance_data()
+
+        class PairwiseMetricData(MetricData):
+            difference: PairwiseBranchComparisonData
+            relative_uplift: PairwiseBranchComparisonData
+            significance: PairwiseSignificanceData
+
+        return PairwiseMetricData
 
     @classmethod
     def get_identity_row(cls):
@@ -254,7 +254,7 @@ class JetstreamTestData:
 
     @classmethod
     def get_metric_data(cls, data_point):
-        return MetricData(
+        return cls.get_pairwise_metric_data()(
             absolute=BranchComparisonData(first=data_point, all=[data_point]),
             difference=cls.get_pairwise_branch_comparison_data()(),
             relative_uplift=cls.get_pairwise_branch_comparison_data()(),
@@ -530,7 +530,7 @@ class JetstreamTestData:
         PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
         PairwiseSignificanceData = cls.get_pairwise_significance_data()
 
-        EMPTY_METRIC_DATA = MetricData(
+        EMPTY_METRIC_DATA = cls.get_pairwise_metric_data()(
             absolute=BranchComparisonData(),
             difference=PairwiseBranchComparisonData(),
             relative_uplift=PairwiseBranchComparisonData(),
@@ -865,7 +865,7 @@ class JetstreamTestData:
         PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
         PairwiseSignificanceData = cls.get_pairwise_significance_data()
 
-        EMPTY_METRIC_DATA = MetricData(
+        EMPTY_METRIC_DATA = cls.get_pairwise_metric_data()(
             absolute=BranchComparisonData(),
             difference=PairwiseBranchComparisonData(),
             relative_uplift=PairwiseBranchComparisonData(),

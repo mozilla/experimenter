@@ -24,6 +24,7 @@ from experimenter.jetstream.models import (
     Segment,
     Statistic,
     create_results_object_model,
+    create_results_object_model_old,
 )
 from experimenter.outcomes import Metric as OutcomeMetric
 from experimenter.outcomes import Outcomes
@@ -203,9 +204,17 @@ def get_experiment_data(experiment: NimbusExperiment):
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
     }
+    experiment_data_old = experiment_data = {
+        # DAILY included for backwards compatibility with UI
+        # TODO: remove DAILY after updating UI
+        AnalysisWindow.DAILY: {},
+        "show_analysis": settings.FEATURE_ANALYSIS,
+        "metadata": experiment_metadata,
+    }
 
     for window in windows:
         experiment_data[window] = {}
+        experiment_data_old[window] = {}
         data_from_jetstream = get_data(recipe_slug, window) or []
 
         segment_points_enrollments = defaultdict(list)
@@ -216,16 +225,18 @@ def get_experiment_data(experiment: NimbusExperiment):
             if point["analysis_basis"] == AnalysisBasis.ENROLLMENTS:
                 segment_points_enrollments[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.ENROLLMENTS] = {}
+                experiment_data_old[window][AnalysisBasis.ENROLLMENTS] = {}
                 raw_data[window][AnalysisBasis.ENROLLMENTS] = {}
             elif point["analysis_basis"] == AnalysisBasis.EXPOSURES:
                 segment_points_exposures[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.EXPOSURES] = {}
+                experiment_data_old[window][AnalysisBasis.EXPOSURES] = {}
                 raw_data[window][AnalysisBasis.EXPOSURES] = {}
 
         for segment, segment_data in segment_points_enrollments.items():
-            data = raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = JetstreamData(
-                __root__=(segment_data)
-            )
+            data = data_old = raw_data[window][AnalysisBasis.ENROLLMENTS][
+                segment
+            ] = JetstreamData(__root__=(segment_data))
             (
                 result_metrics,
                 primary_metrics_set,
@@ -242,22 +253,39 @@ def get_experiment_data(experiment: NimbusExperiment):
                 data.append_retention_data(
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
                 )
+                data_old.append_population_percentages()
+                data_old.append_retention_data(
+                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
+                )
 
                 # Create the output object (overall data)
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment)
                 data.append_conversion_count(primary_metrics_set)
 
+                ResultsObjectModelOld = create_results_object_model_old(data_old)
+                data_old = ResultsObjectModelOld(result_metrics, data_old, experiment)
+                data_old.append_conversion_count(primary_metrics_set)
+
                 if segment == Segment.ALL:
                     experiment_data["other_metrics"] = other_metrics
+                    experiment_data_old["other_metrics"] = other_metrics
             elif data and window == AnalysisWindow.WEEKLY:
                 # Create the output object (weekly data)
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
+                ResultsObjectModelOld = create_results_object_model_old(data_old)
+                data_old = ResultsObjectModelOld(
+                    result_metrics, data_old, experiment, window
+                )
+
                 # DAILY included for backwards compatibility with UI
                 # TODO: remove DAILY after updating UI
                 experiment_data[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS] = {
+                    "all": []
+                }
+                experiment_data_old[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS] = {
                     "all": []
                 }
 
@@ -265,10 +293,15 @@ def get_experiment_data(experiment: NimbusExperiment):
             transformed_data = data.dict(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
 
+            transformed_data_old = data_old.dict(exclude_none=True) or None
+            experiment_data_old[window][AnalysisBasis.ENROLLMENTS][
+                segment
+            ] = transformed_data_old
+
         for segment, segment_data in segment_points_exposures.items():
-            data = raw_data[window][AnalysisBasis.EXPOSURES][segment] = JetstreamData(
-                __root__=(segment_data)
-            )
+            data = data_old = raw_data[window][AnalysisBasis.EXPOSURES][
+                segment
+            ] = JetstreamData(__root__=(segment_data))
             (
                 result_metrics,
                 primary_metrics_set,
@@ -285,23 +318,42 @@ def get_experiment_data(experiment: NimbusExperiment):
                 data.append_retention_data(
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.EXPOSURES][segment]
                 )
+                data_old.append_population_percentages()
+                data_old.append_retention_data(
+                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.EXPOSURES][segment]
+                )
 
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment)
                 data.append_conversion_count(primary_metrics_set)
 
+                ResultsObjectModelOld = create_results_object_model_old(data_old)
+                data_old = ResultsObjectModelOld(result_metrics, data_old, experiment)
+                data_old.append_conversion_count(primary_metrics_set)
+
             elif data and window == AnalysisWindow.WEEKLY:
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
+                ResultsObjectModelOld = create_results_object_model_old(data_old)
+                data_old = ResultsObjectModelOld(
+                    result_metrics, data_old, experiment, window
+                )
 
                 # DAILY included for backwards compatibility with UI
                 # TODO: remove DAILY after updating UI
                 experiment_data[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES] = {
                     "all": []
                 }
+                experiment_data_old[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES] = {
+                    "all": []
+                }
 
             transformed_data = data.dict(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.EXPOSURES][segment] = transformed_data
+            transformed_data_old = data_old.dict(exclude_none=True) or None
+            experiment_data_old[window][AnalysisBasis.EXPOSURES][
+                segment
+            ] = transformed_data_old
 
     errors_by_metric = {}
     errors_experiment_overall = []
@@ -330,8 +382,12 @@ def get_experiment_data(experiment: NimbusExperiment):
     errors_by_metric["experiment"] = errors_experiment_overall
 
     experiment_data["errors"] = errors_by_metric
+    experiment_data_old["errors"] = errors_by_metric
 
-    return {"v2": experiment_data}
+    return {
+        "v2": experiment_data_old,
+        "v3": experiment_data,
+    }
 
 
 def get_population_sizing_data():
