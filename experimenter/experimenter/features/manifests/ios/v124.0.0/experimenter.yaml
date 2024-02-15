@@ -55,6 +55,9 @@ firefox-suggest-feature:
   hasExposure: true
   exposureDescription: ""
   variables:
+    available-suggestions-types:
+      type: json
+      description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
     status:
       type: boolean
       description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
