@@ -55,6 +55,12 @@ features:
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
+      available-suggestions-types:
+        description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
+        type: "Map<SuggestionType, Boolean>"
+        default:
+          amp: true
+          wikipedia: true
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
@@ -521,6 +527,13 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
+  SuggestionType:
+    description: The type of a Firefox Suggest search suggestion.
+    variants:
+      amp:
+        description: A Firefox Suggestion from adMarketplace.
+      wikipedia:
+        description: A Firefox Suggestion for a Wikipedia page.
   TabTraySection:
     description: The identifiers for the sections of the tab tray.
     variants:
