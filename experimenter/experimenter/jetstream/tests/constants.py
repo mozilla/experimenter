@@ -22,12 +22,12 @@ DEFAULT_TEST_BRANCHES = ["control", "variant"]
 
 class JetstreamTestData:
     @classmethod
-    def get_absolute_metric_data(cls, DATA_POINT):
-        return MetricData(
+    def get_absolute_metric_data(cls, DATA_POINT, is_v2=False):
+        return cls.get_pairwise_metric_data(is_v2=is_v2)(
             absolute=BranchComparisonData(first=DATA_POINT, all=[DATA_POINT]),
-            difference=cls.get_pairwise_branch_comparison_data()(),
-            relative_uplift=cls.get_pairwise_branch_comparison_data()(),
-            significance=cls.get_pairwise_significance_data()(),
+            difference=cls.get_pairwise_branch_comparison_data(is_v2=is_v2)(),
+            relative_uplift=cls.get_pairwise_branch_comparison_data(is_v2=is_v2)(),
+            significance=cls.get_pairwise_significance_data(is_v2=is_v2)(),
         )
 
     @classmethod
@@ -38,23 +38,14 @@ class JetstreamTestData:
         is_retention=False,
         branches=DEFAULT_TEST_BRANCHES,
         comparison_to_branch="control",
+        is_v2=False,
     ):
         all_data_points = [DATA_POINT]
         if is_retention:
             all_data_points.append(DATA_POINT)
 
-        # set up dicts of non-pairwise data
-        # (populated if the comparison is to the reference control branch)
-        significance = (
-            deepcopy(SIGNIFICANCE.dict())
-            if comparison_to_branch == "control"
-            else SignificanceData().dict()
-        )
-        difference = (
-            BranchComparisonData(first=DATA_POINT, all=all_data_points).dict()
-            if comparison_to_branch == "control"
-            else BranchComparisonData().dict()
-        )
+        significance = cls.get_pairwise_significance_data(is_v2=is_v2)().dict()
+        difference = cls.get_pairwise_branch_comparison_data(is_v2=is_v2)().dict()
 
         # initialize pairwise branch comparisons inside dicts
         for branch in branches:
@@ -67,35 +58,59 @@ class JetstreamTestData:
             first=DATA_POINT, all=all_data_points
         ).dict()
 
-        return MetricData(
+        return cls.get_pairwise_metric_data(is_v2=is_v2)(
             absolute=BranchComparisonData(),
-            difference=cls.get_pairwise_branch_comparison_data()(**difference),
-            relative_uplift=cls.get_pairwise_branch_comparison_data()(),
-            significance=cls.get_pairwise_significance_data()(**significance),
+            difference=cls.get_pairwise_branch_comparison_data(is_v2=is_v2)(**difference),
+            relative_uplift=cls.get_pairwise_branch_comparison_data(is_v2=is_v2)(),
+            significance=cls.get_pairwise_significance_data(is_v2=is_v2)(**significance),
         )
 
     @classmethod
-    def get_pairwise_branch_comparison_data(cls, branches=None):
+    def get_pairwise_branch_comparison_data(cls, branches=None, is_v2=False):
         if not branches:
             branches = DEFAULT_TEST_BRANCHES
         branches_data = {b: BranchComparisonData() for b in branches}
+        if is_v2:
+            return create_model(
+                "PairwiseBranchComparisonData",
+                **branches_data,
+                __base__=BranchComparisonData,
+            )
         return create_model(
             "PairwiseBranchComparisonData",
             **branches_data,
-            __base__=BranchComparisonData,
         )
 
     @classmethod
-    def get_pairwise_significance_data(cls, branches=None):
+    def get_pairwise_significance_data(cls, branches=None, is_v2=False):
         if not branches:
             branches = DEFAULT_TEST_BRANCHES
         # create a dynamic model that extends SignificanceData with all branches
         branches_significance_data = {b: SignificanceData() for b in branches}
+        if is_v2:
+            return create_model(
+                "PairwiseSignificanceData",
+                **branches_significance_data,
+                __base__=SignificanceData,
+            )
         return create_model(
             "PairwiseSignificanceData",
             **branches_significance_data,
-            __base__=SignificanceData,
         )
+
+    @classmethod
+    def get_pairwise_metric_data(cls, is_v2=False):
+        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data(
+            is_v2=is_v2
+        )
+        PairwiseSignificanceData = cls.get_pairwise_significance_data(is_v2=is_v2)
+
+        class PairwiseMetricData(MetricData):
+            difference: PairwiseBranchComparisonData
+            relative_uplift: PairwiseBranchComparisonData
+            significance: PairwiseSignificanceData
+
+        return PairwiseMetricData
 
     @classmethod
     def get_identity_row(cls):
@@ -137,7 +152,7 @@ class JetstreamTestData:
         )
 
     @classmethod
-    def get_data_points(cls):
+    def get_data_points(cls, is_v2=False):
         DATA_POINT_A = DataPoint(lower=10, point=12, upper=13, window_index=1)
         DATA_POINT_F = DATA_POINT_A.copy()
         DATA_POINT_F.window_index = None
@@ -150,8 +165,8 @@ class JetstreamTestData:
         DATA_POINT_D = DATA_POINT_C.copy()
         DATA_POINT_D.window_index = None
 
-        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
-        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
+        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A, is_v2=is_v2)
+        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F, is_v2=is_v2)
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 50.0
         return (
@@ -175,66 +190,79 @@ class JetstreamTestData:
         DATA_POINT_E,
         DATA_POINT_C,
         DATA_POINT_D,
+        is_v2=False,
     ):
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={"1": Significance.NEUTRAL.value}, overall={}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_A,
             SignificanceData(weekly={"1": Significance.POSITIVE.value}, overall={}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_C,
             SignificanceData(weekly={"1": Significance.NEGATIVE.value}, overall={}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={"1": Significance.NEUTRAL.value}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_F,
             SignificanceData(weekly={}, overall={"1": Significance.POSITIVE.value}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={"1": Significance.NEGATIVE.value}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={"1": Significance.NEUTRAL.value}, overall={}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_A,
             SignificanceData(weekly={"1": Significance.POSITIVE.value}, overall={}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_C,
             SignificanceData(weekly={"1": Significance.NEGATIVE.value}, overall={}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={"1": Significance.NEUTRAL.value}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_F,
             SignificanceData(weekly={}, overall={"1": Significance.POSITIVE.value}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={"1": Significance.NEGATIVE.value}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
 
         return (
@@ -253,12 +281,12 @@ class JetstreamTestData:
         )
 
     @classmethod
-    def get_metric_data(cls, data_point):
-        return MetricData(
+    def get_metric_data(cls, data_point, is_v2=False):
+        return cls.get_pairwise_metric_data(is_v2=is_v2)(
             absolute=BranchComparisonData(first=data_point, all=[data_point]),
-            difference=cls.get_pairwise_branch_comparison_data()(),
-            relative_uplift=cls.get_pairwise_branch_comparison_data()(),
-            significance=cls.get_pairwise_significance_data()(),
+            difference=cls.get_pairwise_branch_comparison_data(is_v2=is_v2)(),
+            relative_uplift=cls.get_pairwise_branch_comparison_data(is_v2=is_v2)(),
+            significance=cls.get_pairwise_significance_data(is_v2=is_v2)(),
         ).dict(exclude_none=True)
 
     @classmethod
@@ -355,7 +383,7 @@ class JetstreamTestData:
             )
 
     @classmethod
-    def get_test_data(cls, primary_outcomes):
+    def get_test_data(cls, primary_outcomes, is_v2=False):
         DATA_IDENTITY_ROW = cls.get_identity_row()
 
         CONTROL_DATA_ROW = DATA_IDENTITY_ROW.copy()
@@ -503,7 +531,7 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
-        ) = cls.get_data_points()
+        ) = cls.get_data_points(is_v2=is_v2)
 
         (
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL,
@@ -525,12 +553,15 @@ class JetstreamTestData:
             DATA_POINT_E,
             DATA_POINT_C,
             DATA_POINT_D,
+            is_v2=is_v2,
         )
 
-        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
-        PairwiseSignificanceData = cls.get_pairwise_significance_data()
+        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data(
+            is_v2=is_v2
+        )
+        PairwiseSignificanceData = cls.get_pairwise_significance_data(is_v2=is_v2)
 
-        EMPTY_METRIC_DATA = MetricData(
+        EMPTY_METRIC_DATA = cls.get_pairwise_metric_data(is_v2=is_v2)(
             absolute=BranchComparisonData(),
             difference=PairwiseBranchComparisonData(),
             relative_uplift=PairwiseBranchComparisonData(),
@@ -735,7 +766,7 @@ class JetstreamTestData:
         )
 
     @classmethod
-    def get_partial_exposures_test_data(cls, primary_outcomes):
+    def get_partial_exposures_test_data(cls, primary_outcomes, is_v2=False):
         # similar to above but missing weekly retention metric for exposures
         DATA_IDENTITY_ROW = cls.get_identity_row()
 
@@ -838,7 +869,7 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
-        ) = cls.get_data_points()
+        ) = cls.get_data_points(is_v2=is_v2)
 
         (
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL,
@@ -860,12 +891,15 @@ class JetstreamTestData:
             DATA_POINT_E,
             DATA_POINT_C,
             DATA_POINT_D,
+            is_v2=is_v2,
         )
 
-        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
-        PairwiseSignificanceData = cls.get_pairwise_significance_data()
+        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data(
+            is_v2=is_v2
+        )
+        PairwiseSignificanceData = cls.get_pairwise_significance_data(is_v2=is_v2)
 
-        EMPTY_METRIC_DATA = MetricData(
+        EMPTY_METRIC_DATA = cls.get_pairwise_metric_data(is_v2=is_v2)(
             absolute=BranchComparisonData(),
             difference=PairwiseBranchComparisonData(),
             relative_uplift=PairwiseBranchComparisonData(),
@@ -1075,7 +1109,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
         )
 
     @classmethod
-    def get_data_points(cls):
+    def get_data_points(cls, is_v2=False):
         DATA_POINT_A = DataPoint(lower=0, point=0, upper=0, window_index=1)
         DATA_POINT_F = DATA_POINT_A.copy()
         DATA_POINT_F.window_index = None
@@ -1088,8 +1122,8 @@ class ZeroJetstreamTestData(JetstreamTestData):
         DATA_POINT_D = DATA_POINT_C.copy()
         DATA_POINT_D.window_index = None
 
-        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
-        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
+        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A, is_v2=is_v2)
+        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F, is_v2=is_v2)
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 0.0
         return (
@@ -1113,66 +1147,79 @@ class ZeroJetstreamTestData(JetstreamTestData):
         DATA_POINT_E,
         DATA_POINT_C,
         DATA_POINT_D,
+        is_v2=False,
     ):
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_A,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_C,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_F,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_A,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_C,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_F,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_v2=is_v2,
         )
 
         return (
@@ -1245,7 +1292,7 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
         )
 
     @classmethod
-    def get_data_points(cls):
+    def get_data_points(cls, is_v2=False):
         DATA_POINT_A = DataPoint(lower=None, point=None, upper=None, window_index=None)
         DATA_POINT_F = DATA_POINT_A.copy()
         DATA_POINT_F.window_index = None
@@ -1258,8 +1305,8 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
         DATA_POINT_D = DATA_POINT_C.copy()
         DATA_POINT_D.window_index = None
 
-        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
-        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
+        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A, is_v2=is_v2)
+        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F, is_v2=is_v2)
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = None
         return (
