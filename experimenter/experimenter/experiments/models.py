@@ -1,9 +1,9 @@
 import copy
 import datetime
-import os.path
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
+from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import urljoin
 from uuid import uuid4
@@ -126,11 +126,11 @@ class NimbusExperimentBranchThrough(models.Model):
         unique_together = ("parent_experiment", "child_experiment", "branch_slug")
 
 
-class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):
+class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):  # noqa: DJ008
     pass
 
 
-class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):
+class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):  # noqa: DJ008
     pass
 
 
@@ -1154,7 +1154,7 @@ class NimbusBranch(models.Model):
 def nimbus_branch_screenshot_upload_to(screenshot, filename):
     screenshot_id = uuid4()
     ext = filename.split(".")[-1].lower()
-    return os.path.join(screenshot.branch.experiment.slug, f"{screenshot_id}.{ext}")
+    return Path(screenshot.branch.experiment.slug, f"{screenshot_id}.{ext}")
 
 
 class NimbusBranchFeatureValue(models.Model):
