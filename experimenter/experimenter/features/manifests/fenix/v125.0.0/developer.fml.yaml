@@ -1,0 +1,652 @@
+---
+version: 1.0.0
+about:
+  description: Nimbus Feature Manifest for Fenix (Firefox Android)
+channels:
+  - developer
+features:
+  awesomebar-suggestion-provider:
+    description: Configuration for the Firefox Suggest awesomebar suggestion provider.
+    variables:
+      available-suggestion-types:
+        description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
+        type: "Map<SuggestionType, Boolean>"
+        default:
+          amp: true
+          wikipedia: true
+  cookie-banners:
+    description: Features for cookie banner handling.
+    variables:
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled.
+        type: "Map<CookieBannersSection, Int>"
+        default:
+          feature-ui: 1
+          feature-setting-value: 0
+          feature-setting-value-pbm: 1
+          feature-setting-detect-only: 0
+          feature-setting-global-rules: 1
+          feature-setting-global-rules-sub-frames: 1
+  fx-strong-password:
+    description: A feature that provides a generated strong password on sign up.
+    variables:
+      enabled:
+        description: "When the feature is enabled and Firefox receives a Login event with an  empty saved logins list, a suggested strong password prompt will be shown,  allowing the user to use the generated password to fill in the password field  for the new account that will be created. When the feature is disabled,  there won't be any prompt displayed that would allow using a generated password.\n"
+        type: Boolean
+        default: true
+  fx-suggest:
+    description: A feature that provides Firefox Suggest search suggestions.
+    variables:
+      enabled:
+        description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
+        type: Boolean
+        default: true
+  glean:
+    description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
+    variables:
+      enable-event-timestamps:
+        description: Enables precise event timestamps for Glean events
+        type: Boolean
+        default: false
+      metrics-enabled:
+        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+        type: "Map<String, Boolean>"
+        default: {}
+  growth-data:
+    description: A feature measuring campaign growth data
+    variables:
+      enabled:
+        description: "If true, the feature is active"
+        type: Boolean
+        default: false
+  homescreen:
+    description: The homescreen that the user goes to when they press home or new tab.
+    variables:
+      sections-enabled:
+        description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
+        type: "Map<HomeScreenSection, Boolean>"
+        default:
+          top-sites: true
+          jump-back-in: true
+          recently-saved: true
+          recent-explorations: true
+          pocket: true
+          pocket-sponsored-stories: true
+  juno-onboarding:
+    description: A feature that shows the onboarding flow.
+    variables:
+      cards:
+        description: Collection of user facing onboarding cards.
+        type: "Map<OnboardingCardKey, OnboardingCardData>"
+        default:
+          default-browser:
+            body: juno_onboarding_default_browser_description_nimbus_3
+            card-type: default-browser
+            disqualifiers:
+              - NEVER
+            enabled: true
+            image-res: ic_onboarding_welcome
+            ordering: 10
+            prerequisites:
+              - ALWAYS
+            primary-button-label: juno_onboarding_default_browser_positive_button
+            secondary-button-label: juno_onboarding_default_browser_negative_button
+            title: juno_onboarding_default_browser_title_nimbus_2
+          add-search-widget:
+            body: juno_onboarding_add_search_widget_description
+            card-type: add-search-widget
+            disqualifiers:
+              - NEVER
+            enabled: false
+            image-res: ic_onboarding_search_widget
+            ordering: 15
+            prerequisites:
+              - ALWAYS
+            primary-button-label: juno_onboarding_add_search_widget_positive_button
+            secondary-button-label: juno_onboarding_add_search_widget_negative_button
+            title: juno_onboarding_add_search_widget_title
+          sync-sign-in:
+            body: juno_onboarding_sign_in_description_2
+            card-type: sync-sign-in
+            disqualifiers:
+              - NEVER
+            enabled: true
+            image-res: ic_onboarding_sync
+            ordering: 20
+            prerequisites:
+              - ALWAYS
+            primary-button-label: juno_onboarding_sign_in_positive_button
+            secondary-button-label: juno_onboarding_sign_in_negative_button
+            title: juno_onboarding_sign_in_title_2
+          notification-permission:
+            body: juno_onboarding_enable_notifications_description_nimbus_2
+            card-type: notification-permission
+            disqualifiers:
+              - NEVER
+            enabled: true
+            image-res: ic_notification_permission
+            ordering: 30
+            prerequisites:
+              - ALWAYS
+            primary-button-label: juno_onboarding_enable_notifications_positive_button
+            secondary-button-label: juno_onboarding_enable_notifications_negative_button
+            title: juno_onboarding_enable_notifications_title_nimbus_2
+        string-alias: OnboardingCardKey
+      conditions:
+        description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
+        type: "Map<ConditionName, String>"
+        default:
+          ALWAYS: "true"
+          NEVER: "false"
+        string-alias: ConditionName
+  messaging:
+    description: "The in-app messaging system.\n"
+    variables:
+      $$experiment:
+        description: "The only acceptable value for `MessageData#experiment`. This should not be set by experiment."
+        type: ExperimentSlug
+        default: "{experiment}"
+        string-alias: ExperimentSlug
+      $$surfaces:
+        description: "A list available surfaces for this app.\n\nThis should not be written to by experiments, and should be hidden to users.\n"
+        type: List<SurfaceName>
+        default:
+          - homescreen
+          - notification
+          - survey
+        string-alias: SurfaceName
+      actions:
+        description: A growable map of action URLs.
+        type: "Map<ActionName, String>"
+        default:
+          ENABLE_PRIVATE_BROWSING: "://enable_private_browsing"
+          INSTALL_SEARCH_WIDGET: "://install_search_widget"
+          MAKE_DEFAULT_BROWSER: "://make_default_browser"
+          VIEW_BOOKMARKS: "://urls_bookmarks"
+          VIEW_COLLECTIONS: "://home_collections"
+          VIEW_HISTORY: "://urls_history"
+          VIEW_HOMESCREEN: "://home"
+          OPEN_SETTINGS_ACCESSIBILITY: "://settings_accessibility"
+          OPEN_SETTINGS_ADDON_MANAGER: "://settings_addon_manager"
+          OPEN_SETTINGS_DELETE_BROWSING_DATA: "://settings_delete_browsing_data"
+          OPEN_SETTINGS_LOGINS: "://settings_logins"
+          OPEN_SETTINGS_NOTIFICATIONS: "://settings_notifications"
+          OPEN_SETTINGS_PRIVACY: "://settings_privacy"
+          OPEN_SETTINGS_SEARCH_ENGINE: "://settings_search_engine"
+          OPEN_SETTINGS_TRACKING_PROTECTION: "://settings_tracking_protection"
+          OPEN_SETTINGS_WALLPAPERS: "://settings_wallpapers"
+          OPEN_SETTINGS: "://settings"
+          TURN_ON_SYNC: "://turn_on_sync"
+        string-alias: ActionName
+      message-under-experiment:
+        description: "Deprecated in favor of `MessageData#experiment`. This will be removed in future releases."
+        type: Option<MessageKey>
+        default: ~
+      messages:
+        description: A growable collection of messages
+        type: "Map<MessageKey, MessageData>"
+        default:
+          default-browser:
+            title: default_browser_experiment_card_title
+            text: default_browser_experiment_card_text
+            surface: homescreen
+            action: MAKE_DEFAULT_BROWSER
+            trigger:
+              - I_AM_NOT_DEFAULT_BROWSER
+              - USER_ESTABLISHED_INSTALL
+            style: PERSISTENT
+            button-label: preferences_set_as_default_browser
+          default-browser-notification:
+            title: nimbus_notification_default_browser_title
+            text: nimbus_notification_default_browser_text
+            surface: notification
+            style: NOTIFICATION
+            trigger:
+              - I_AM_NOT_DEFAULT_BROWSER
+              - DAY_3_AFTER_INSTALL
+            action: MAKE_DEFAULT_BROWSER
+        string-alias: MessageKey
+      notification-config:
+        description: Configuration of the notification worker for all notification messages.
+        type: NotificationConfig
+        default:
+          refresh-interval: 120
+      on-control:
+        description: What should be displayed when a control message is selected.
+        type: ControlMessageBehavior
+        default: show-next-message
+      styles:
+        description: "A map of styles to configure message appearance.\n"
+        type: "Map<StyleName, StyleData>"
+        default:
+          DEFAULT:
+            priority: 50
+            max-display-count: 100
+          SURVEY:
+            priority: 55
+            max-display-count: 1
+          PERSISTENT:
+            priority: 50
+            max-display-count: 20
+          WARNING:
+            priority: 60
+            max-display-count: 10
+          URGENT:
+            priority: 100
+            max-display-count: 10
+          NOTIFICATION:
+            priority: 50
+            max-display-count: 1
+          EXPIRES_QUICKLY:
+            priority: 100
+            max-display-count: 1
+        string-alias: StyleName
+      triggers:
+        description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
+        type: "Map<TriggerName, String>"
+        default:
+          USER_ESTABLISHED_INSTALL: number_of_app_launches >=4
+          USER_RECENTLY_INSTALLED: days_since_install < 7
+          USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
+          USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
+          USER_EN_SPEAKER: "'en' in locale"
+          USER_ES_SPEAKER: "'es' in locale"
+          USER_DE_SPEAKER: "'de' in locale"
+          USER_FR_SPEAKER: "'fr' in locale"
+          DEVICE_ANDROID: "os == 'Android'"
+          DEVICE_IOS: "os == 'iOS'"
+          ALWAYS: "true"
+          NEVER: "false"
+          DAY_1_AFTER_INSTALL: days_since_install == 1
+          DAY_2_AFTER_INSTALL: days_since_install == 2
+          DAY_3_AFTER_INSTALL: days_since_install == 3
+          DAY_4_AFTER_INSTALL: days_since_install == 4
+          DAY_5_AFTER_INSTALL: days_since_install == 5
+          MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
+          I_AM_DEFAULT_BROWSER: is_default_browser
+          I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
+          FUNNEL_PAID: "adjust_campaign != ''"
+          FUNNEL_ORGANIC: "adjust_campaign == ''"
+          INACTIVE_1_DAY: "'app_launched'|eventLastSeen('Hours') >= 24"
+          INACTIVE_2_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 2"
+          INACTIVE_3_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 3"
+          INACTIVE_4_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 4"
+          INACTIVE_5_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 5"
+          FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
+          FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
+          USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"
+          USER_CASUAL: "'app_launched'|eventCountNonZero('Days', 28) >= 7 && 'app_launched'|eventCountNonZero('Days', 28) < 14"
+          USER_REGULAR: "'app_launched'|eventCountNonZero('Days', 28) >= 14 && 'app_launched'|eventCountNonZero('Days', 28) < 21"
+          USER_CORE_ACTIVE: "'app_launched'|eventCountNonZero('Days', 28) >= 21"
+          LAUNCHED_ONCE_THIS_WEEK: "'app_launched'|eventSum('Days', 7) == 1"
+        string-alias: TriggerName
+    allow-coenrollment: true
+  mr2022:
+    description: Features for MR 2022.
+    variables:
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled.
+        type: "Map<MR2022Section, Boolean>"
+        default:
+          home-onboarding-dialog-existing-users: true
+          sync-cfr: true
+          wallpapers-selection-tool: true
+          jump-back-in-cfr: true
+          tcp-cfr: true
+          tcp-feature: true
+  nimbus-is-ready:
+    description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
+    variables:
+      event-count:
+        description: The number of events that should be sent.
+        type: Int
+        default: 1
+  nimbus-system:
+    description: "Configuration of the Nimbus System in Android.\n"
+    variables:
+      refresh-interval-foreground:
+        description: "The minimum interval in minutes between fetching experiment \nrecipes in the foreground.\n"
+        type: Int
+        default: 60
+  nimbus-validation:
+    description: A feature that does not correspond to an application feature suitable for showing that Nimbus is working. This should never be used in production.
+    variables:
+      settings-icon:
+        description: The drawable displayed in the app menu for Settings
+        type: String
+        default: mozac_ic_settings
+      settings-punctuation:
+        description: The emoji displayed in the Settings screen title.
+        type: String
+        default: ""
+      settings-title:
+        description: The title of displayed in the Settings screen and app menu.
+        type: Text
+        default: browser_menu_settings
+  onboarding:
+    description: "A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments."
+    variables:
+      order:
+        description: Determines the order of the onboarding page panels
+        type: List<OnboardingPanel>
+        default:
+          - themes
+          - toolbar-placement
+          - sync
+          - tcp
+          - privacy-notice
+  pdfjs:
+    description: PDF.js features
+    variables:
+      download-button:
+        description: Download button
+        type: Boolean
+        default: true
+      open-in-app-button:
+        description: Open in app button
+        type: Boolean
+        default: true
+  print:
+    description: A feature for printing from the share or browser menu.
+    variables:
+      browser-print-enabled:
+        description: "If true, a print button from the browser menu is available."
+        type: Boolean
+        default: true
+      share-print-enabled:
+        description: "If true, a print button from the share menu is available."
+        type: Boolean
+        default: true
+  private-browsing:
+    description: Private Browsing Mode
+    variables:
+      felt-privacy-enabled:
+        description: "if true, enable felt privacy related UI"
+        type: Boolean
+        default: false
+  query-parameter-stripping:
+    description: Features for query parameter stripping.
+    variables:
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled.
+        type: "Map<QueryParameterStrippingSection, String>"
+        default:
+          query-parameter-stripping: "0"
+          query-parameter-stripping-pmb: "0"
+          query-parameter-stripping-allow-list: ""
+          query-parameter-stripping-strip-list: ""
+  re-engagement-notification:
+    description: A feature that shows the re-engagement notification if the user is inactive.
+    variables:
+      enabled:
+        description: "If true, the re-engagement notification is shown to the inactive user."
+        type: Boolean
+        default: false
+      type:
+        description: The type of re-engagement notification that is shown to the inactive user.
+        type: Int
+        default: 0
+  search-extra-params:
+    description: A feature that provides additional args for search.
+    variables:
+      channel-id:
+        description: The channel Id param name with arg.
+        type: "Map<String, String>"
+        default: {}
+      enabled:
+        description: "If true, the feature is active."
+        type: Boolean
+        default: false
+      feature-enabler:
+        description: "The feature enabler param name with arg, NOTE this map could be empty."
+        type: "Map<String, String>"
+        default: {}
+      search-engine:
+        description: The search engine name.
+        type: String
+        default: ""
+  search-term-groups:
+    description: A feature allowing the grouping of URLs around the search term that it came from.
+    variables:
+      enabled:
+        description: "If true, the feature shows up on the homescreen and on the new tab screen."
+        type: Boolean
+        default: true
+  shopping-experience:
+    description: A feature that shows product review quality information.
+    variables:
+      enabled:
+        description: "if true, the shopping experience feature is shown to the user."
+        type: Boolean
+        default: true
+      product-recommendations:
+        description: "if true, recommended products feature is enabled to be shown to the user based on their preference."
+        type: Boolean
+        default: true
+      product-recommendations-exposure:
+        description: "if true, we want to record recommended products inventory for opted-in users, even if product recommendations are disabled."
+        type: Boolean
+        default: true
+  splash-screen:
+    description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
+    variables:
+      enabled:
+        description: "If true, the feature is active."
+        type: Boolean
+        default: false
+      maximum_duration_ms:
+        description: The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
+        type: Int
+        default: 0
+  toolbar:
+    description: The searchbar/awesomebar that user uses to search.
+    variables:
+      toolbar-position-top:
+        description: "If true, toolbar appears at top of the screen."
+        type: Boolean
+        default: false
+  unified-search:
+    description: A feature allowing user to easily search for specified results directly in the search bar.
+    variables:
+      enabled:
+        description: "If true, the feature shows up in the search bar."
+        type: Boolean
+        default: true
+enums:
+  ControlMessageBehavior:
+    description: An enum to influence what should be displayed when a control message is selected.
+    variants:
+      show-next-message:
+        description: The next eligible message should be shown.
+      show-none:
+        description: The surface should show no message.
+  CookieBannersSection:
+    description: The identifiers for the sections of the MR 2022.
+    variants:
+      feature-setting-detect-only:
+        description: "An integer either 0 or 1 indicating if cookie banner detect only mode should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting."
+      feature-setting-global-rules:
+        description: "An integer either 0 or 1 indicating if cookie banner global rules should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting."
+      feature-setting-global-rules-sub-frames:
+        description: "An integer either 0 or 1 indicating if cookie banner global rules sub-frames should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting."
+      feature-setting-value:
+        description: "An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all."
+      feature-setting-value-pbm:
+        description: "An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all."
+      feature-ui:
+        description: "An integer either 0 or 1 indicating if the UI for cookie banner handling should be visible, 0 to hide the UI and 1 to show the UI. The actual UI is composed by cookie banner section in the settings page, the toolbar section and the re-engagement dialog."
+  HomeScreenSection:
+    description: The identifiers for the sections of the homescreen.
+    variants:
+      jump-back-in:
+        description: The tabs the user was looking immediately before being interrupted.
+      pocket:
+        description: The pocket section. This should only be available in the US.
+      pocket-sponsored-stories:
+        description: Subsection of the Pocket homescreen section which shows sponsored stories.
+      recent-explorations:
+        description: The tab groups
+      recently-saved:
+        description: The sites the user has bookmarked recently.
+      top-sites:
+        description: The frecency and pinned sites.
+  MR2022Section:
+    description: The identifiers for the sections of the MR 2022.
+    variants:
+      home-onboarding-dialog-existing-users:
+        description: Home onboarding dialog for upgraded users.
+      jump-back-in-cfr:
+        description: Jump back-in onboarding message.
+      sync-cfr:
+        description: CFR for the first time you see a synced tab on the home screen.
+      tcp-cfr:
+        description: CFR for the first time you use the browse with Total Cookie Protection on the browser screen.
+      tcp-feature:
+        description: Controls the Total Cookie Protection feature.
+      wallpapers-selection-tool:
+        description: Wallpapers selection dialog tool for the home screen.
+  OnboardingCardType:
+    description: An enum to describe a type of card.
+    variants:
+      add-search-widget:
+        description: Allows user to add search widget to homescreen.
+      default-browser:
+        description: Allows user to set Firefox as the default browser.
+      notification-permission:
+        description: Allows user to enable notification permission.
+      sync-sign-in:
+        description: Allows user to sync with a Firefox account.
+  OnboardingPanel:
+    description: The types of onboarding panels in the onboarding page
+    variants:
+      privacy-notice:
+        description: The onboarding panel where users can tap to view our privacy notice.
+      sync:
+        description: The onboarding panel where users can sign in to sync
+      tcp:
+        description: The onboarding panel where users can choose their total cookie protection settings
+      themes:
+        description: The themes onboarding panel where users pick themes
+      toolbar-placement:
+        description: The onboarding panel where users choose their toolbar placement (bottom or top)
+  QueryParameterStrippingSection:
+    description: The identifiers for the options for the Query Parameter Stripping feature.
+    variants:
+      query-parameter-stripping:
+        description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in normal mode. 0 for setting to be disabled, and 1 for enabling the setting."
+      query-parameter-stripping-allow-list:
+        description: An string separated by commas indicating the sites where should from query stripping should be exempted.
+      query-parameter-stripping-pmb:
+        description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in private mode. 0 for setting to be disabled, and 1 for enabling the setting."
+      query-parameter-stripping-strip-list:
+        description: An string separated by commas indicating the list of query params to be stripped from URIs. This list will be merged with records coming from RemoteSettings.
+  SuggestionType:
+    description: The type of a Firefox Suggest search suggestion.
+    variants:
+      amp:
+        description: A Firefox Suggestion from adMarketplace.
+      wikipedia:
+        description: A Firefox Suggestion for a Wikipedia page.
+objects:
+  MessageData:
+    description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
+    fields:
+      action:
+        description: "A URL of a page or a deeplink. This may have substitution variables in.\n"
+        type: Text
+        default: ""
+      button-label:
+        description: "The text on the button. If no text is present, the whole message is clickable.\n"
+        type: Option<Text>
+        default: ~
+      experiment:
+        description: The slug of the experiment that this message came from.
+        type: Option<ExperimentSlug>
+        default: ~
+      is-control:
+        description: "Indicates if this message is the control message, if true shouldn't be displayed"
+        type: Boolean
+        default: false
+      style:
+        description: "The style as described in a `StyleData` from the styles table.\n"
+        type: StyleName
+        default: DEFAULT
+      surface:
+        description: The surface identifier for this message.
+        type: SurfaceName
+        default: homescreen
+      text:
+        description: The message text displayed to the user
+        type: Text
+        default: ""
+      title:
+        description: The title text displayed to the user
+        type: Option<Text>
+        default: ~
+      trigger:
+        description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions `true`.\n"
+        type: List<TriggerName>
+        default: []
+  NotificationConfig:
+    description: Attributes controlling the global configuration of notification messages.
+    fields:
+      refresh-interval:
+        description: "How often, in minutes, the notification message worker will wake up and check for new messages.\n"
+        type: Int
+        default: 240
+  OnboardingCardData:
+    description: An object to describe a user facing onboarding card.
+    fields:
+      body:
+        description: The message text displayed to the user. May contain linkable text.
+        type: Text
+        default: ""
+      card-type:
+        description: The type of the card.
+        type: OnboardingCardType
+        default: default-browser
+      disqualifiers:
+        description: "A list of strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.\n"
+        type: List<ConditionName>
+        default:
+          - NEVER
+      enabled:
+        description: "If true, this card is shown to the user."
+        type: Boolean
+        default: true
+      image-res:
+        description: The resource id of the image to be displayed.
+        type: Image
+        default: ic_onboarding_welcome
+      ordering:
+        description: Used to sequence the cards.
+        type: Int
+        default: 0
+      prerequisites:
+        description: "A list of strings corresponding to targeting expressions. The card will be shown if all expressions are `true` and if no expressions in the `disqualifiers` table are true, or if the `disqualifiers` table is empty.\n"
+        type: List<ConditionName>
+        default:
+          - ALWAYS
+      primary-button-label:
+        description: The text to display on the primary button.
+        type: Text
+        default: ""
+      secondary-button-label:
+        description: The text to display on the secondary button.
+        type: Text
+        default: ""
+      title:
+        description: The title text displayed to the user.
+        type: Text
+        default: ""
+  StyleData:
+    description: "A group of properties (predominantly visual) to describe the style of the message.\n"
+    fields:
+      max-display-count:
+        description: "How many sessions will this message be shown to the user before it is expired.\n"
+        type: Int
+        default: 5
+      priority:
+        description: "The importance of this message. 0 is not very important, 100 is very important.\n"
+        type: Int
+        default: 50
