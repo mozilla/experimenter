@@ -39,11 +39,11 @@ class Feature:
 
     def load_remote_jsonschema(self):
         if self.model.json_schema is not None:
-            schema_path = Path(
-                settings.FEATURE_MANIFESTS_PATH,
-                self.application_slug,
-                "schemas",
-                self.model.json_schema.path,
+            schema_path = (
+                settings.FEATURE_MANIFESTS_PATH
+                / self.application_slug
+                / "schemas"
+                / self.model.json_schema.path
             )
 
             with schema_path.open() as f:
