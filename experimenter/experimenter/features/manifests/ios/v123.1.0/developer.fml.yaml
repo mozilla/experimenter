@@ -55,12 +55,6 @@ features:
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
-      available-suggestions-types:
-        description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
-        type: "Map<SuggestionType, Boolean>"
-        default:
-          amp: true
-          wikipedia: true
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
@@ -76,6 +70,10 @@ features:
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
+      pocket-sponsored-stories:
+        description: "This property defines whether pocket sponsored stories appear on the homepage.\n"
+        type: Boolean
+        default: true
       prefer-switch-to-open-tab:
         description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
         type: Boolean
@@ -103,6 +101,11 @@ features:
       - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_dismissed"
       - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_malformed"
     variables:
+      "$$experiment:":
+        description: Not to be set by experiment.
+        type: ExperimentSlug
+        default: "{experiment}"
+        string-alias: ExperimentSlug
       actions:
         description: A growable map of action URLs.
         type: "Map<ActionName, String>"
@@ -188,37 +191,28 @@ features:
         description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
         type: "Map<TriggerName, String>"
         default:
-          ALWAYS: "true"
-          NEVER: "false"
+          NOT_INSTALLED_TODAY: days_since_install > 0
+          DAY_3_AFTER_INSTALL: days_since_install >= 3
+          NOT_LAUNCHED_YESTERDAY: "'app_cycle.foreground'|eventLastSeen('Days', 1) > 1"
+          AFTER_THREE_LAUNCHES_THIS_WEEK: "'app_cycle.foreground'|eventSum('Weeks', 1, 0) >= 3"
+          ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
           USER_RECENTLY_INSTALLED: days_since_install < 7
           USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
+          MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
           USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
           USER_EN_SPEAKER: "'en' in locale"
-          USER_ES_SPEAKER: "'es' in locale"
           USER_DE_SPEAKER: "'de' in locale"
           USER_FR_SPEAKER: "'fr' in locale"
           DEVICE_ANDROID: "os == 'Android'"
           DEVICE_IOS: "os == 'iOS'"
-          DAY_1_AFTER_INSTALL: days_since_install == 1
-          DAY_2_AFTER_INSTALL: days_since_install == 2
-          DAY_3_AFTER_INSTALL: days_since_install == 3
-          DAY_4_AFTER_INSTALL: days_since_install == 4
-          DAY_5_AFTER_INSTALL: days_since_install == 5
-          MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
-          NOT_LAUNCHED_YESTERDAY: "'app_cycle.foreground'|eventLastSeen('Days', 1) > 1"
-          AFTER_THREE_LAUNCHES_THIS_WEEK: "'app_cycle.foreground'|eventSum('Weeks', 1, 0) >= 3"
           I_AM_DEFAULT_BROWSER: is_default_browser
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
           SUPPORTS_DEFAULT_BROWSER: "os_version|versionCompare('14.!') >= 0"
           INACTIVE_NEW_USER: is_inactive_new_user
           ALLOWED_TIPS_NOTIFICATIONS: allowed_tips_notifications
-          ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
+          ALWAYS: "true"
+          NEVER: "false"
         string-alias: TriggerName
-      ~~experiment:
-        description: Not to be set by experiment.
-        type: ExperimentSlug
-        default: "{experiment}"
-        string-alias: ExperimentSlug
     allow-coenrollment: true
   onboarding-framework-feature:
     description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
@@ -322,6 +316,13 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
+  qr-code-coordinator-refactor:
+    description: "The feature for managing the roll out of the qrCode coordinator.\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   redux-search-settings-feature:
     description: "This feature is for managing the roll out of redux on the search settings screen\n"
     variables:
@@ -343,6 +344,15 @@ features:
             is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
+  search-term-groups-feature:
+    description: The feature that controls whether or not search term groups are enabled.
+    variables:
+      grouping-enabled:
+        description: This property provides a lookup table of whether or not the given grouping should be enabled.
+        type: "Map<SearchTermGroups, Boolean>"
+        default:
+          history-groups: true
+          tab-tray-groups: true
   share-sheet:
     description: This feature define the redesign of the share sheet
     variables:
@@ -416,7 +426,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: true
+        default: false
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -531,13 +541,13 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
-  SuggestionType:
-    description: The type of a Firefox Suggest search suggestion.
+  SearchTermGroups:
+    description: The identifiers for the different types of search term groups.
     variants:
-      amp:
-        description: A Firefox Suggestion from adMarketplace.
-      wikipedia:
-        description: A Firefox Suggestion for a Wikipedia page.
+      history-groups:
+        description: Grouping for items in History and RecentlyVisited
+      tab-tray-groups:
+        description: Grouping for items in the Tab Tray and in JumpBackIn
   TabTraySection:
     description: The identifiers for the sections of the tab tray.
     variants:
