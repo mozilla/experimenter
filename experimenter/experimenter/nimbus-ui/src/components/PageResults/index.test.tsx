@@ -172,23 +172,23 @@ describe("PageResults", () => {
     expect(within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS));
     expect(within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS));
 
-    // enrollments checked by default
+    // exposures checked by default
     expect(
       within(analysisBasisSelectParent).getByTestId(
-        `${ENROLLMENTS_BASIS}-basis-radio`,
+        `${EXPOSURES_BASIS}-basis-radio`,
       ),
     ).toBeChecked();
 
     fireEvent.click(
       within(analysisBasisSelectParent).getByTestId(
-        `${EXPOSURES_BASIS}-basis-radio`,
+        `${ENROLLMENTS_BASIS}-basis-radio`,
       ),
     );
 
-    // exposures checked after click
+    // enrollments checked after click
     expect(
       within(analysisBasisSelectParent).getByTestId(
-        `${EXPOSURES_BASIS}-basis-radio`,
+        `${ENROLLMENTS_BASIS}-basis-radio`,
       ),
     ).toBeChecked();
   });
