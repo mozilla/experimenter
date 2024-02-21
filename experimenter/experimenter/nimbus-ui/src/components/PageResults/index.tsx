@@ -9,9 +9,9 @@ import Col from "react-bootstrap/Col";
 import Collapse from "react-bootstrap/Collapse";
 import Row from "react-bootstrap/Row";
 import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
+import LinkExternal from "src/components/LinkExternal";
 import AnalysisErrorAlert from "src/components/PageResults/AnalysisErrorAlert";
 import ExternalConfigAlert from "src/components/PageResults/ExternalConfigAlert";
-import LinkExternal from "src/components/LinkExternal";
 import TableHighlights from "src/components/PageResults/TableHighlights";
 import TableHighlightsOverview from "src/components/PageResults/TableHighlightsOverview";
 import TableMetricCount from "src/components/PageResults/TableMetricCount";
@@ -227,20 +227,25 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     <AppLayoutWithExperiment title="Analysis" testId="PageResults">
       <ResultsContext.Provider value={resultsContextValue}>
         <Alert variant="warning" data-testid="exposures-as-default-alert">
-          <Alert.Heading>Analysis Results now default to Exposures basis</Alert.Heading>
+          <Alert.Heading>
+            Analysis Results now default to Exposures basis
+          </Alert.Heading>
           <p>
-            The results shown on this page now default to the Exposures analysis basis.
-            This does not change the available results (i.e., results for Enrollments
-            are still available), and you can still select any available Analysis Basis
-            via the radio buttons on the left.
+            The results shown on this page now default to the Exposures analysis
+            basis. This does not change the available results (i.e., results for
+            Enrollments are still available), and you can still select any
+            available Analysis Basis via the radio buttons on the left.
           </p>
           <ul className="pl-0">
             <strong>Results not available or not what you expected?</strong>{" "}
-            <LinkExternal href={exposureEventsInfoUrl} data-testid="external-config-url">
+            <LinkExternal
+              href={exposureEventsInfoUrl}
+              data-testid="external-config-url"
+            >
               Click here
             </LinkExternal>{" "}
-            for more information about Exposure events, including how to set up experiments
-            that have exposure events analysis results.
+            for more information about Exposure events, including how to set up
+            experiments that have exposure events analysis results.
           </ul>
           <p>
             If you have questions about this, please ask data science in{" "}
