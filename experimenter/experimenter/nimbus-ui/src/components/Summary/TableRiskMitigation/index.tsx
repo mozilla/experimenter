@@ -43,6 +43,19 @@ const TableRiskMitigation = ({ experiment }: TableRiskMitigationProps) => {
               </td>
             </tr>
             <tr>
+              <th> {RISK_QUESTIONS.MESSAGE}</th>
+              <td
+                colSpan={3}
+                data-testid="experiment-risk-mitigation-question-4"
+              >
+                {experiment.riskMessage !== null ? (
+                  getRiskLabel(experiment.riskMessage)
+                ) : (
+                  <NotSet />
+                )}
+              </td>
+            </tr>
+            <tr>
               <th>{RISK_QUESTIONS.REVENUE}</th>
               <td
                 colSpan={3}
