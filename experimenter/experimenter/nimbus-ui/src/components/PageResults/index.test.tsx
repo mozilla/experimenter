@@ -152,7 +152,14 @@ describe("PageResults", () => {
   });
 
   it("hides the analysis basis selector when there are no exposures", async () => {
-    render(<Subject />);
+    render(
+      <Subject
+        mockAnalysisData={mockAnalysis({
+          weekly: { enrollments: { all: [] } },
+          overall: { enrollments: { all: [] } },
+        })}
+      />,
+    );
 
     expect(screen.queryByText("Analysis Basis")).not.toBeInTheDocument();
     expect(
@@ -219,6 +226,15 @@ describe("PageResults", () => {
       />,
     );
 
+    const analysisBasisSelectParent = screen.getByTestId(
+      "analysis-basis-results-selector",
+    );
+    fireEvent.click(
+      within(analysisBasisSelectParent).getByTestId(
+        `${ENROLLMENTS_BASIS}-basis-radio`,
+      ),
+    );
+
     expect(screen.getByText("NoEnrollmentPeriodException"));
     expect(
       screen.getByText(
@@ -246,6 +262,15 @@ describe("PageResults", () => {
           }).experiment
         }
       />,
+    );
+
+    const analysisBasisSelectParent = screen.getByTestId(
+      "analysis-basis-results-selector",
+    );
+    fireEvent.click(
+      within(analysisBasisSelectParent).getByTestId(
+        `${ENROLLMENTS_BASIS}-basis-radio`,
+      ),
     );
 
     expect(
@@ -305,7 +330,7 @@ describe("PageResults", () => {
                 metric: "bad_metric",
                 statistic: "test_statistic",
                 timestamp: "2022-11-04 00:00:00+00:00",
-                analysis_basis: "enrollments",
+                analysis_basis: "exposures",
                 segment: "all",
               },
             ],
