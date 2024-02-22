@@ -265,6 +265,7 @@ export interface getExperiment_experimentBySlug {
   riskMitigationLink: string | null;
   riskRevenue: boolean | null;
   riskBrand: boolean | null;
+  riskMessage: boolean | null;
   riskPartnerRelated: boolean | null;
   isLocalized: boolean | null;
   localizations: string | null;

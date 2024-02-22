@@ -297,6 +297,7 @@ export interface ExperimentInput {
   referenceBranch?: BranchInput | null;
   requiredExperimentsBranches?: NimbusExperimentBranchThroughRequiredInput[] | null;
   riskBrand?: boolean | null;
+  riskMessage?: boolean | null;
   riskMitigationLink?: string | null;
   riskPartnerRelated?: boolean | null;
   riskRevenue?: boolean | null;
