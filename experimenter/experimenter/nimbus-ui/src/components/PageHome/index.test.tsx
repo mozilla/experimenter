@@ -49,6 +49,7 @@ describe("PageHome", () => {
       ["drafts", screen.getByText("Draft (3)")],
       ["live", screen.getByText("Live (3)")],
       ["archived", screen.getByText("Archived (1)")],
+      ["owned", screen.getByText("My Experiments (1)")],
     ] as const;
 
   const findSearchTabs = () =>
@@ -59,12 +60,13 @@ describe("PageHome", () => {
       ["drafts", screen.getByText("Draft (0)")],
       ["live", screen.getByText("Live (0)")],
       ["archived", screen.getByText("Archived (0)")],
+      ["owned", screen.getByText("My Experiments (0)")],
     ] as const;
 
   it("displays five Directory Tables (one for each status type)", async () => {
     await renderAndWaitForLoaded();
     // renders all experiments
-    expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(6);
+    expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(7);
     for (const [tabKey, tab] of findTabs()) {
       expect(tab).toBeInTheDocument();
     }

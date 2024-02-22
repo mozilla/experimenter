@@ -61,9 +61,11 @@ export const Body: React.FC<BodyProps> = ({
     return ErrorAlert;
   }
 
-  const { live, complete, preview, review, draft, archived } = sortByStatus(
-    filterExperiments(searchedExperiments ?? [], filterValue),
-  );
+  const { live, complete, preview, review, draft, archived, owned } =
+    sortByStatus(
+      filterExperiments(searchedExperiments ?? [], filterValue),
+      config.user,
+    );
 
   return (
     <>
@@ -85,6 +87,9 @@ export const Body: React.FC<BodyProps> = ({
         </Tab>
         <Tab eventKey="archived" title={`Archived (${archived.length})`}>
           <DirectoryTable experiments={archived} />
+        </Tab>
+        <Tab eventKey="owned" title={`My Experiments (${owned.length})`}>
+          <DirectoryTable experiments={owned} />
         </Tab>
       </Tabs>
     </>
