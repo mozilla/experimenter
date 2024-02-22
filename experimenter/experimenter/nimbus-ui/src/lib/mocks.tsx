@@ -997,7 +997,10 @@ export function mockDirectoryExperiments(
       owner: { username: "alpha-example@mozilla.com" },
       startDate: null,
       computedEndDate: null,
-      subscribers: [{ username: "mac-user-123@mozilla.com" }],
+      subscribers: [
+        { username: "mac-user-123@mozilla.com" },
+        { username: "dev@example.com" },
+      ],
     },
     {
       name: "Ipsum dolor sit amet",
