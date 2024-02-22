@@ -55,6 +55,7 @@ describe("PageEditOverview", () => {
       hypothesis: experiment.hypothesis!,
       publicDescription: experiment.publicDescription!,
       riskBrand: experiment.riskBrand!,
+      riskMessage: experiment.riskMessage!,
       riskRevenue: experiment.riskRevenue!,
       riskPartnerRelated: experiment.riskPartnerRelated!,
       projects: experiment.projects!.map((v) => "" + v!.id),
@@ -93,6 +94,7 @@ describe("PageEditOverview", () => {
       ...mockMutationData,
       ...{
         riskBrand: false,
+        riskMessage: false,
         riskRevenue: false,
         riskPartnerRelated: false,
       },
@@ -121,6 +123,7 @@ describe("PageEditOverview", () => {
       ...mockMutationData,
       ...{
         riskBrand: undefined,
+        riskMessage: undefined,
         riskRevenue: undefined,
         riskPartnerRelated: undefined,
       },

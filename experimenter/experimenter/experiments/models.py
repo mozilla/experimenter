@@ -268,6 +268,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     risk_brand = models.BooleanField(
         "Is a Brand Risk Flag", default=None, blank=True, null=True
     )
+    risk_message = models.BooleanField(
+        "Is a Message Risk Flag", default=None, blank=True, null=True
+    )
     conclusion_recommendation = models.CharField(
         "Recommended Conclusion",
         max_length=255,
