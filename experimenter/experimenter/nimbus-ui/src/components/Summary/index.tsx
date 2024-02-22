@@ -72,9 +72,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
       statusNext:
         experiment.status === NimbusExperimentStatusEnum.LIVE
-          ? experiment.isRollout
-            ? null
-            : NimbusExperimentStatusEnum.LIVE
+          ? NimbusExperimentStatusEnum.LIVE
           : null,
       isEnrollmentPaused:
         experiment.statusNext === NimbusExperimentStatusEnum.COMPLETE
