@@ -51,6 +51,7 @@ export const overviewFieldNames = [
   "publicDescription",
   "documentationLinks",
   "riskBrand",
+  "riskMessage",
   "riskRevenue",
   "riskPartnerRelated",
   "projects",
@@ -85,6 +86,7 @@ const FormOverview = ({
     application: "",
     publicDescription: experiment?.publicDescription as string,
     riskBrand: optionalBoolString(experiment?.riskBrand),
+    riskMessage: optionalBoolString(experiment?.riskMessage),
     riskRevenue: optionalBoolString(experiment?.riskRevenue),
     riskPartnerRelated: optionalBoolString(experiment?.riskPartnerRelated),
     projects: selectOptions(experiment?.projects as SelectIdItems),
@@ -205,6 +207,22 @@ const FormOverview = ({
             {RISK_QUESTIONS.BRAND}{" "}
             <LinkExternal href={EXTERNAL_URLS.RISK_BRAND}>
               Learn more
+            </LinkExternal>
+          </InputRadios>
+        )}
+
+        {experiment && (
+          <InputRadios
+            name="riskMessage"
+            options={[
+              { label: "Yes", value: "true" },
+              { label: "No", value: "false" },
+            ]}
+            {...{ FormErrors, formControlAttrs }}
+          >
+            {RISK_QUESTIONS.MESSAGE}{" "}
+            <LinkExternal href={EXTERNAL_URLS.RISK_MESSAGE}>
+              Message Consult
             </LinkExternal>
           </InputRadios>
         )}

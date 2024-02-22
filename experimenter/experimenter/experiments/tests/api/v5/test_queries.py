@@ -730,6 +730,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     riskMitigationLink
                     riskRevenue
                     riskBrand
+                    riskMessage
                     riskPartnerRelated
 
                     signoffRecommendations {
@@ -999,6 +1000,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 ),
                 "reviewUrl": experiment.review_url,
                 "riskBrand": experiment.risk_brand,
+                "riskMessage": experiment.risk_message,
                 "riskMitigationLink": experiment.risk_mitigation_link,
                 "riskPartnerRelated": experiment.risk_partner_related,
                 "riskRevenue": experiment.risk_revenue,

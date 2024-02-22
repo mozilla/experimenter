@@ -4,9 +4,10 @@
 
 import React from "react";
 import { Card, Table } from "react-bootstrap";
+import LinkExternal from "src/components/LinkExternal";
 import NotSet from "src/components/NotSet";
 import { useConfig, useOutcomes } from "src/hooks";
-import { RISK_QUESTIONS } from "src/lib/constants";
+import { EXTERNAL_URLS, RISK_QUESTIONS } from "src/lib/constants";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type TableRiskMitigationProps = {
@@ -37,6 +38,25 @@ const TableRiskMitigation = ({ experiment }: TableRiskMitigationProps) => {
               >
                 {experiment.riskBrand !== null ? (
                   getRiskLabel(experiment.riskBrand)
+                ) : (
+                  <NotSet />
+                )}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                {" "}
+                {RISK_QUESTIONS.MESSAGE}{" "}
+                <LinkExternal href={EXTERNAL_URLS.RISK_MESSAGE}>
+                  Message Consult
+                </LinkExternal>
+              </th>
+              <td
+                colSpan={3}
+                data-testid="experiment-risk-mitigation-question-4"
+              >
+                {experiment.riskMessage !== null ? (
+                  getRiskLabel(experiment.riskMessage)
                 ) : (
                   <NotSet />
                 )}

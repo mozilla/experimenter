@@ -20,6 +20,7 @@ class OverviewPage(ExperimenterBase):
     )
     _public_description_locator = (By.CSS_SELECTOR, "#publicDescription")
     _risk_brand_locator = (By.CSS_SELECTOR, "#riskBrand-false")
+    _risk_message_locator = (By.CSS_SELECTOR, "#riskMessage-false")
     _risk_revenue_locator = (By.CSS_SELECTOR, "#riskRevenue-false")
     _risk_partner_locator = (By.CSS_SELECTOR, "#riskPartnerRelated-false")
     _projects_input_locator = (By.CSS_SELECTOR, "input[id^='react-select']")
@@ -53,6 +54,10 @@ class OverviewPage(ExperimenterBase):
 
     def select_risk_brand_false(self):
         el = self.wait_for_and_find_element(*self._risk_brand_locator)
+        el.click()
+
+    def select_risk_message_false(self):
+        el = self.wait_for_and_find_element(*self._risk_message_locator)
         el.click()
 
     def select_risk_revenue_false(self):

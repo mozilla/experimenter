@@ -256,6 +256,7 @@ def create_experiment(base_url, default_data):
         # Fill Overview Page
         overview = experiment.save_and_continue()
         overview.select_risk_brand_false()
+        overview.select_risk_message_false()
         overview.select_risk_revenue_false()
         overview.select_risk_partner_false()
         overview.public_description = default_data.public_description
@@ -356,6 +357,7 @@ def default_data_api(application):
         "riskRevenue": False,
         "riskPartnerRelated": False,
         "riskBrand": False,
+        "riskMessage": False,
         "featureConfigIds": [int(feature_config_id)],
         "referenceBranch": {
             "description": "reference branch",
