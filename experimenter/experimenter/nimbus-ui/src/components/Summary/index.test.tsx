@@ -249,7 +249,7 @@ describe("Summary", () => {
         rollout.id!,
         NimbusExperimentPublishStatusEnum.REVIEW,
         {
-          statusNext: NimbusExperimentStatusEnum.LIVE,
+          statusNext: null,
           changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
           isEnrollmentPaused: false,
         },
