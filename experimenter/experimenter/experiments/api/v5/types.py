@@ -632,6 +632,7 @@ class NimbusExperimentType(DjangoObjectType):
             "review_request",
             "review_url",
             "risk_brand",
+            "risk_message",
             "risk_mitigation_link",
             "risk_partner_related",
             "risk_revenue",
