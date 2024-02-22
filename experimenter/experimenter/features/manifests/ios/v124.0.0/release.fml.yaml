@@ -208,6 +208,13 @@ features:
           NEVER: "false"
         string-alias: TriggerName
     allow-coenrollment: true
+  night-mode-feature:
+    description: "Describes the night mode feature's configuration\n"
+    variables:
+      enabled:
+        description: "Whether night mode is available for users or not\n"
+        type: Boolean
+        default: true
   onboarding-framework-feature:
     description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
     variables:
