@@ -52,6 +52,7 @@ The following descriptions include the resulting state of the metric for the old
 ### Option 2: Add the new definition as a new metric
 - Duplicate the current metric definition and rename the new one
 - Modify the new metric with new definition
+- Add new metric as guardrail in Experimenter
 - Old definition: `metric_name`
 - New definition: `metric_name_v2`
 
