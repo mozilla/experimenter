@@ -177,6 +177,7 @@ describe("FormOverview", () => {
       publicDescription: experiment.publicDescription as string,
       documentationLinks: experiment.documentationLinks as Record<string, any>,
       riskBrand: optionalBoolString(experiment.riskBrand),
+      riskMessage: optionalBoolString(experiment.riskMessage),
       riskRevenue: optionalBoolString(experiment.riskRevenue),
       riskPartnerRelated: optionalBoolString(experiment.riskPartnerRelated),
       projects: experiment.projects!.map((v) => "" + v!.id),
@@ -496,6 +497,7 @@ describe("FormOverview", () => {
       application: ["Firefox for Palm Trio"],
       public_description: ["Give Carly Rae Jepson a sword"],
       risk_brand: ["Be nice to Foxy!"],
+      risk_message: ["Be nice to Foxy!"],
       risk_revenue: ["Racks on racks on racks.", "Yuh, yuh, yuh, let's go"],
       risk_partner_related: ["Be noice to your friends"],
       documentation_links: [

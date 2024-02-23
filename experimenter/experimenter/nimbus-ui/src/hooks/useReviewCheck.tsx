@@ -14,6 +14,7 @@ const fieldPageMap: { [page: string]: string[] } = {
   overview: [
     "public_description",
     "risk_brand",
+    "risk_message",
     "risk_revenue",
     "risk_partner_related",
   ],

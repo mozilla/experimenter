@@ -149,6 +149,7 @@ class TestUpdateExperimentMutationSingleFeature(
             hypothesis="old hypothesis",
             public_description="old public description",
             risk_brand=False,
+            risk_message=False,
             risk_revenue=False,
             risk_partner_related=False,
             is_localized=False,
@@ -164,6 +165,7 @@ class TestUpdateExperimentMutationSingleFeature(
                     "publicDescription": "new public description",
                     "changelogMessage": "test changelog message",
                     "riskBrand": True,
+                    "riskMessage": True,
                     "riskRevenue": True,
                     "riskPartnerRelated": True,
                     "conclusionRecommendation": "RERUN",
@@ -186,6 +188,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.hypothesis, "new hypothesis")
         self.assertEqual(experiment.public_description, "new public description")
         self.assertEqual(experiment.risk_brand, True)
+        self.assertEqual(experiment.risk_message, True)
         self.assertEqual(experiment.risk_revenue, True)
         self.assertEqual(experiment.risk_partner_related, True)
         self.assertEqual(
