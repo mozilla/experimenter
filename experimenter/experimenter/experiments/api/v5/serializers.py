@@ -949,10 +949,7 @@ class NimbusExperimentSerializer(
         ) and (
             not experiment.is_paused
             and experiment.status == NimbusExperiment.Status.LIVE
-            and (
-                experiment.status_next is None
-                or experiment.status_next == NimbusExperiment.Status.LIVE
-            )
+            and experiment.status_next is None
             and experiment.publish_status == NimbusExperiment.PublishStatus.IDLE
             and validated_data.get("publish_status")
             != NimbusConstants.PublishStatus.REVIEW

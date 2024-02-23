@@ -1153,8 +1153,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(experiment.is_rollout_dirty)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
 
-    @parameterized.expand([[NimbusExperiment.Status.LIVE], [None]])
-    def test_allow_live_rollout_to_be_dirty(self, status_next):
+    def test_allow_live_rollout_to_be_dirty(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             is_rollout=True,
@@ -1164,7 +1163,7 @@ class TestNimbusExperimentSerializer(TestCase):
             data={
                 "status": NimbusExperiment.Status.LIVE,
                 "publish_status": NimbusExperiment.PublishStatus.IDLE,
-                "status_next": status_next,
+                "status_next": NimbusExperiment.Status.LIVE,
                 "is_rollout_dirty": True,
                 "changelog_message": "test changelog message",
             },
