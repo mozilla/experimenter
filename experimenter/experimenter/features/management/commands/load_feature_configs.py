@@ -164,7 +164,6 @@ class Command(BaseCommand):
                     feature_config=feature_config,
                     version=feature_version,
                     is_early_startup=feature.model.is_early_startup or False,
-                    sets_prefs=[],
                     set_pref_vars={},
                 )
 
