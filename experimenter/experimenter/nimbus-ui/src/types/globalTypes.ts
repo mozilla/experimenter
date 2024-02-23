@@ -95,6 +95,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_122_1_0 = "FIREFOX_122_1_0",
   FIREFOX_122_2_0 = "FIREFOX_122_2_0",
   FIREFOX_123 = "FIREFOX_123",
+  FIREFOX_123_0_1 = "FIREFOX_123_0_1",
   FIREFOX_124 = "FIREFOX_124",
   FIREFOX_125 = "FIREFOX_125",
   FIREFOX_126 = "FIREFOX_126",
@@ -296,6 +297,7 @@ export interface ExperimentInput {
   referenceBranch?: BranchInput | null;
   requiredExperimentsBranches?: NimbusExperimentBranchThroughRequiredInput[] | null;
   riskBrand?: boolean | null;
+  riskMessage?: boolean | null;
   riskMitigationLink?: string | null;
   riskPartnerRelated?: boolean | null;
   riskRevenue?: boolean | null;

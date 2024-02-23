@@ -1135,6 +1135,11 @@ describe("PageSummary Warnings", () => {
       true,
     ],
     [
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentPublishStatusEnum.REVIEW,
+      true,
+    ],
+    [
       NimbusExperimentStatusEnum.PREVIEW,
       NimbusExperimentPublishStatusEnum.IDLE,
       true,
@@ -1145,14 +1150,14 @@ describe("PageSummary Warnings", () => {
       false,
     ],
     [
-      NimbusExperimentStatusEnum.COMPLETE,
-      NimbusExperimentPublishStatusEnum.IDLE,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.REVIEW,
       false,
     ],
     [
-      NimbusExperimentStatusEnum.DRAFT,
-      NimbusExperimentPublishStatusEnum.REVIEW,
-      true,
+      NimbusExperimentStatusEnum.COMPLETE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      false,
     ],
   ])(
     "displays audience overlap warnings in status",

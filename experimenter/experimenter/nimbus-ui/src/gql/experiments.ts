@@ -188,6 +188,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       riskMitigationLink
       riskRevenue
       riskBrand
+      riskMessage
       riskPartnerRelated
 
       isLocalized

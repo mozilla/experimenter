@@ -46,20 +46,18 @@ export const EXTERNAL_URLS = {
   PREVIEW_LAUNCH_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
   RISK_BRAND:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
+  RISK_MESSAGE:
+    "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation",
   RISK_PARTNER:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Isthisstudypartnerrelated?riskPARTNER",
   RISK_REVENUE:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-riskREV",
+  SIGNOFF_QA: "https://experimenter.info/qa-sign-off",
+  SIGNOFF_VP: "https://experimenter.info/vp-sign-off",
+  SIGNOFF_LEGAL: "https://experimenter.info/legal-sign-off",
+  REVIEW_PRIVILIGES: "https://experimenter.info/access",
   ROLLOUT_SETPREF_REENROLL_EXPLANATION:
     "https://experimenter.info/faq/warnings#rollouts-and-setpref-interaction-desktop",
-  SIGNOFF_QA:
-    "https://docs.google.com/document/d/1oz1YyaaBI-oHUDsktWA-dLtX7WzhYqs7C121yOPKo2w/edit",
-  SIGNOFF_VP:
-    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-VPSign-offsignVP",
-  SIGNOFF_LEGAL:
-    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-signLEGAL",
-  EXPERIMENTER_REVIEWERS:
-    "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Reviewers",
   EXPERIMENTER_DOCUMENTATION: "https://experimenter.info",
   ASK_EXPERIMENTER_SLACK: "https://slack.com/app_redirect?channel=CF94YGE03",
   FEEDBACK: "https://bit.ly/38dgkqR",
@@ -81,9 +79,11 @@ export const EXTERNAL_URLS = {
 
 export const RISK_QUESTIONS = {
   BRAND:
-    "If the public, users or press, were to discover this experiment and description, do you think it would negatively impact their perception of the brand?",
+    "If the public, users or press, were to discover this experiment and description, do you think it could negatively impact their perception of the brand?",
+  MESSAGE:
+    "Does your experiment include ANY messages? If yes, this requires the",
   PARTNER:
-    "Does this experiment impact or rely on a partner or outside company (e.g. Google, Amazon)?",
+    "Does this experiment impact or rely on a partner or outside company (e.g. Google, Amazon) or deliver any encryption or VPN?",
   REVENUE:
     "Does this experiment have a risk to negatively impact revenue (e.g. search, Pocket revenue)?",
 };

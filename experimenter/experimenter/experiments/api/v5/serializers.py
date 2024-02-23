@@ -263,7 +263,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
     def _save_screenshots(self, screenshots, branch):
         if screenshots is None:
             return
-        updated_screenshots = {x["id"]: x for x in screenshots if x.get("id", None)}
+        updated_screenshots = {x["id"]: x for x in screenshots if x.get("id")}
         for screenshot in branch.screenshots.all():
             screenshot_id = screenshot.id
             if screenshot_id not in updated_screenshots:
@@ -762,6 +762,7 @@ class NimbusExperimentSerializer(
             "reference_branch",
             "required_experiments_branches",
             "risk_brand",
+            "risk_message",
             "risk_mitigation_link",
             "risk_partner_related",
             "risk_revenue",
@@ -1184,6 +1185,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
     )
     risk_brand = serializers.BooleanField(
+        required=True,
+        allow_null=False,
+        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
+    )
+    risk_message = serializers.BooleanField(
         required=True,
         allow_null=False,
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},

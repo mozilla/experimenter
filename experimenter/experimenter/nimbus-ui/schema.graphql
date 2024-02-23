@@ -49,6 +49,7 @@ type NimbusExperimentType {
   riskPartnerRelated: Boolean
   riskRevenue: Boolean
   riskBrand: Boolean
+  riskMessage: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysMetricGain: Boolean!
   takeawaysGainAmount: String
@@ -261,6 +262,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_122_1_0
   FIREFOX_122_2_0
   FIREFOX_123
+  FIREFOX_123_0_1
   FIREFOX_124
   FIREFOX_125
   FIREFOX_126
@@ -563,6 +565,7 @@ input ExperimentInput {
   referenceBranch: BranchInput = null
   requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredInput!]
   riskBrand: Boolean
+  riskMessage: Boolean
   riskMitigationLink: String
   riskPartnerRelated: Boolean
   riskRevenue: Boolean
