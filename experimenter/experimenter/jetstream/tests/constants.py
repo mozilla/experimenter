@@ -53,10 +53,16 @@ class JetstreamTestData:
             difference[branch] = BranchComparisonData().dict()
 
         # set the comparison branch's data
-        significance[comparison_to_branch] = deepcopy(SIGNIFICANCE.dict())
-        difference[comparison_to_branch] = BranchComparisonData(
+        comparison_data = BranchComparisonData(
             first=DATA_POINT, all=all_data_points
         ).dict()
+        significance[comparison_to_branch] = deepcopy(SIGNIFICANCE.dict())
+        difference[comparison_to_branch] = comparison_data
+
+        # populate old v2 data
+        if is_v2 and comparison_to_branch == "control":
+            difference = difference | comparison_data
+            significance = significance | deepcopy(SIGNIFICANCE.dict())
 
         return cls.get_pairwise_metric_data(is_v2=is_v2)(
             absolute=BranchComparisonData(),
@@ -291,7 +297,7 @@ class JetstreamTestData:
 
     @classmethod
     def add_outcome_data(
-        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis
+        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis, is_v2=False
     ):
         primary_metrics = ["default_browser_action"]
         range_data = DataPoint(lower=2, point=4, upper=8)
@@ -307,13 +313,13 @@ class JetstreamTestData:
                 data_point_overall.count = 48.0
                 overall_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                ] = cls.get_metric_data(data_point_overall, is_v2=is_v2)
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
                 weekly_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                ] = cls.get_metric_data(data_point_weekly, is_v2=is_v2)
 
                 data.append(
                     JetstreamDataPoint(
@@ -329,7 +335,7 @@ class JetstreamTestData:
 
     @classmethod
     def add_outcome_data_mean(
-        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis
+        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis, is_v2=False
     ):
         primary_metrics = ["mozilla_default_browser"]
         range_data = DataPoint(lower=0, point=0, upper=0)
@@ -345,13 +351,13 @@ class JetstreamTestData:
                 data_point_overall.count = 0.0
                 overall_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                ] = cls.get_metric_data(data_point_overall, is_v2=is_v2)
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
                 weekly_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                ] = cls.get_metric_data(data_point_weekly, is_v2=is_v2)
 
                 data.append(
                     JetstreamDataPoint(
@@ -373,13 +379,24 @@ class JetstreamTestData:
         weekly_data,
         primary_outcomes,
         analysis_basis,
+        is_v2=False,
     ):
         for primary_outcome in primary_outcomes:
             cls.add_outcome_data(
-                data, overall_data, weekly_data, primary_outcome, analysis_basis
+                data,
+                overall_data,
+                weekly_data,
+                primary_outcome,
+                analysis_basis,
+                is_v2=is_v2,
             )
             cls.add_outcome_data_mean(
-                data, overall_data, weekly_data, primary_outcome, analysis_basis
+                data,
+                overall_data,
+                weekly_data,
+                primary_outcome,
+                analysis_basis,
+                is_v2=is_v2,
             )
 
     @classmethod
@@ -746,6 +763,7 @@ class JetstreamTestData:
             WEEKLY_DATA,
             primary_outcomes,
             AnalysisBasis.ENROLLMENTS,
+            is_v2=is_v2,
         )
         cls.add_all_outcome_data(
             DAILY_EXPOSURES_DATA,
@@ -753,6 +771,7 @@ class JetstreamTestData:
             WEEKLY_DATA,
             primary_outcomes,
             AnalysisBasis.EXPOSURES,
+            is_v2=is_v2,
         )
 
         return (
@@ -1048,6 +1067,7 @@ class JetstreamTestData:
             WEEKLY_DATA,
             primary_outcomes,
             AnalysisBasis.ENROLLMENTS,
+            is_v2=is_v2,
         )
         cls.add_all_outcome_data(
             DAILY_EXPOSURES_DATA,
@@ -1055,6 +1075,7 @@ class JetstreamTestData:
             WEEKLY_DATA,
             primary_outcomes,
             AnalysisBasis.EXPOSURES,
+            is_v2=is_v2,
         )
 
         return (
@@ -1239,7 +1260,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
 
     @classmethod
     def add_outcome_data(
-        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis
+        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis, is_v2=False
     ):
         primary_metrics = ["default_browser_action"]
         range_data = DataPoint(lower=0, point=0, upper=0)
@@ -1255,13 +1276,13 @@ class ZeroJetstreamTestData(JetstreamTestData):
                 data_point_overall.count = 0.0
                 overall_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                ] = cls.get_metric_data(data_point_overall, is_v2=is_v2)
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
                 weekly_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                ] = cls.get_metric_data(data_point_weekly, is_v2=is_v2)
 
                 data.append(
                     JetstreamDataPoint(
