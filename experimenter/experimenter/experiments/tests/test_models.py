@@ -772,9 +772,9 @@ class TestNimbusExperiment(TestCase):
             (
                 '(browserSettings.update.channel == "release") && '
                 "((experiment.slug in activeExperiments) || ("
-                "(!('nimbus.test.string'|preferenceIsUserSet)) && "
+                "(!('nimbus.test.boolean'|preferenceIsUserSet)) && "
                 "(!('nimbus.test.int'|preferenceIsUserSet)) && "
-                "(!('nimbus.test.boolean'|preferenceIsUserSet))))"
+                "(!('nimbus.test.string'|preferenceIsUserSet))))"
             ),
         )
         JEXLParser().parse(experiment.targeting)
@@ -3241,10 +3241,9 @@ class NimbusFeatureConfigTests(TestCase):
         schemas = {
             schema.version: schema
             for schema in NimbusVersionedSchema.objects.bulk_create(
-                NimbusVersionedSchema(
+                NimbusVersionedSchemaFactory.build(
                     feature_config=feature,
                     version=versions[(major, minor, patch)],
-                    sets_prefs=[],
                 )
                 for major in range(1, 3)
                 for minor in range(3)

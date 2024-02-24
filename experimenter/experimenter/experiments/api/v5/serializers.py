@@ -1857,7 +1857,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def _validate_desktop_pref_rollouts(self, data):
         if self.instance.is_rollout:
             any_feature_sets_prefs = any(
-                schema.sets_prefs
+                bool(schema.set_pref_vars)
                 for schemas_in_range in self.schemas_by_feature_id.values()
                 for schema in schemas_in_range.schemas
             )

@@ -71,11 +71,6 @@ class TestLoadFeatureConfigs(TestCase):
         schema = feature_config.schemas.get(version=None)
 
         self.assertEqual(
-            sorted(schema.sets_prefs),
-            sorted(["nimbus.test.string", "nimbus.test.int", "nimbus.test.boolean"]),
-        )
-
-        self.assertEqual(
             schema.set_pref_vars,
             {
                 "string": "nimbus.test.string",
@@ -86,10 +81,6 @@ class TestLoadFeatureConfigs(TestCase):
 
         feature_config = NimbusFeatureConfig.objects.get(slug="setPrefFeature")
         schema = feature_config.schemas.get(version=None)
-        self.assertEqual(
-            sorted(schema.sets_prefs), sorted(["nimbus.user", "nimbus.default"])
-        )
-
         self.assertEqual(
             schema.set_pref_vars,
             {
@@ -158,12 +149,6 @@ class TestLoadFeatureConfigs(TestCase):
 
         feature_config = NimbusFeatureConfig.objects.get(slug="oldSetPrefFeature")
         schema = feature_config.schemas.get(version=None)
-
-        self.assertEqual(
-            sorted(schema.sets_prefs),
-            sorted(["nimbus.test.string", "nimbus.test.int", "nimbus.test.boolean"]),
-        )
-
         self.assertEqual(
             schema.set_pref_vars,
             {
