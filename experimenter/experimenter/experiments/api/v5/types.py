@@ -167,7 +167,7 @@ class NimbusFeatureConfigType(DjangoObjectType):
     def resolve_sets_prefs(self, info):
         for schema in self.schemas.all():
             if schema.version is None:
-                return bool(schema.sets_prefs)
+                return bool(schema.set_pref_vars)
 
     def resolve_schema(self, info):
         for schema in self.schemas.all():

@@ -452,7 +452,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if self.prevent_pref_conflicts:
             for config in self.feature_configs.all():
-                prefs.extend(config.schemas.get(version=None).sets_prefs)
+                prefs.extend(config.schemas.get(version=None).set_pref_vars.values())
 
         return prefs
 
@@ -539,7 +539,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 make_sticky_targeting_expression(
                     is_desktop,
                     self.is_rollout,
-                    (f"!('{pref}'|preferenceIsUserSet)" for pref in prefs),
+                    (f"!('{pref}'|preferenceIsUserSet)" for pref in sorted(prefs)),
                 )
             )
 

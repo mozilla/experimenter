@@ -1183,7 +1183,7 @@ class TestUpdateExperimentMutationSingleFeature(
             schemas=[
                 NimbusVersionedSchemaFactory.build(
                     version=None,
-                    sets_prefs=["foo.bar.baz"],
+                    set_pref_vars={"baz": "foo.bar.baz"},
                 ),
             ],
         )
