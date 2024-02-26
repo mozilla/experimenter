@@ -115,7 +115,6 @@ class NimbusVersionedSchemaFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.Version)[1:]).value
     )
     schema = factory.LazyAttribute(lambda o: FAKER_JSON_SCHEMA)
-    sets_prefs = factory.LazyAttribute(lambda o: [])
     set_pref_vars = factory.LazyAttribute(lambda o: {})
     is_early_startup = False
 
