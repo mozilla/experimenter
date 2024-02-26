@@ -28,7 +28,11 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
             pass
 
         default_email = settings.DEV_USER_EMAIL if settings.DEBUG else None
-        openidc_email = request.META.get(settings.OPENIDC_EMAIL_HEADER, default_email)
+        openidc_email = request.META.get(
+            settings.OPENIDC_EMAIL_HEADER,
+            # The header may be prepended by `HTTP_` in tests
+            request.META.get(f"HTTP_{settings.OPENIDC_EMAIL_HEADER}", default_email),
+        )
 
         if openidc_email is None:
             # If a user has bypassed the OpenIDC flow entirely and no header
