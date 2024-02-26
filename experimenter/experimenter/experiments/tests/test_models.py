@@ -2701,6 +2701,7 @@ class TestNimbusExperiment(TestCase):
         experiments = {
             slug: NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
                 application=NimbusExperiment.Application.DESKTOP,
                 channel=NimbusExperiment.Channel.RELEASE,
                 firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
@@ -2714,7 +2715,6 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            slug="slug2",
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
@@ -2722,17 +2722,13 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[feature],
         )
 
-        matching_experiments = experiment.live_experiments_in_namespace
-        self.assertEqual(len(matching_experiments), 3)
         self.assertEqual(
-            list(matching_experiments.values_list("slug", flat=True)),
-            sorted(
-                [
-                    experiments["bar"].slug,
-                    experiments["baz"].slug,
-                    experiments["foo"].slug,
-                ]
-            ),
+            list(experiment.live_experiments_in_namespace),
+            [
+                experiments["bar"].slug,
+                experiments["baz"].slug,
+                experiments["foo"].slug,
+            ],
         )
 
     def test_get_live_experiments_do_not_exist_in_previous_namespaces(self):
