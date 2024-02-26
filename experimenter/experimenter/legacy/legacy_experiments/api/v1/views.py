@@ -9,7 +9,7 @@ from experimenter.legacy.normandy.serializers import ExperimentRecipeSerializer
 
 
 class ExperimentListView(ListAPIView):
-    filter_fields = ("status",)
+    filterset_fields = ("status",)
     queryset = Experiment.objects.get_prefetched()
     serializer_class = ExperimentSerializer
 

@@ -1081,6 +1081,92 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             },
         )
 
+    def test_get_experiment_with_default_branch_fixtures(self):
+        user = UserFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment.reference_branch = None
+        experiment.save()
+        experiment.branches.all().delete()
+
+        response = self.query(
+            """
+            query getExperiment($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    referenceBranch {
+                        id
+                        name
+                        slug
+                        description
+                        ratio
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            value
+                        }
+                        screenshots {
+                            id
+                            description
+                            image
+                        }
+                    }
+
+                    treatmentBranches {
+                        id
+                        name
+                        slug
+                        description
+                        ratio
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            value
+                        }
+                        screenshots {
+                            id
+                            description
+                            image
+                        }
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user.email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+
+        self.assertEqual(
+            experiment_data,
+            {
+                "referenceBranch": {
+                    "description": "",
+                    "featureValues": [],
+                    "id": None,
+                    "name": "Control",
+                    "ratio": 1,
+                    "screenshots": [],
+                    "slug": "",
+                },
+                "treatmentBranches": [
+                    {
+                        "description": "",
+                        "featureValues": [],
+                        "id": None,
+                        "name": "Treatment A",
+                        "ratio": 1,
+                        "screenshots": [],
+                        "slug": "",
+                    }
+                ],
+            },
+        )
+
     def test_experiment_by_slug_ready_for_review(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
