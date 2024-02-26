@@ -191,9 +191,10 @@ features:
             text: default_browser_experiment_card_text
             surface: homescreen
             action: MAKE_DEFAULT_BROWSER
-            trigger:
-              - I_AM_NOT_DEFAULT_BROWSER
+            trigger-if-all:
               - USER_ESTABLISHED_INSTALL
+            exclude-if-any:
+              - I_AM_DEFAULT_BROWSER
             style: PERSISTENT
             button-label: preferences_set_as_default_browser
           default-browser-notification:
@@ -201,9 +202,10 @@ features:
             text: nimbus_notification_default_browser_text
             surface: notification
             style: NOTIFICATION
-            trigger:
-              - I_AM_NOT_DEFAULT_BROWSER
+            trigger-if-all:
               - DAY_3_AFTER_INSTALL
+            exclude-if-any:
+              - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
         string-alias: MessageKey
       notification-config:
@@ -559,6 +561,10 @@ objects:
         description: "The text on the button. If no text is present, the whole message is clickable.\n"
         type: Option<Text>
         default: ~
+      exclude-if-any:
+        description: "A list of strings corresponding to targeting expressions. The message will not be shown if any of the expressions are `true`.\n"
+        type: List<TriggerName>
+        default: []
       experiment:
         description: The slug of the experiment that this message came from.
         type: Option<ExperimentSlug>
@@ -583,8 +589,8 @@ objects:
         description: The title text displayed to the user
         type: Option<Text>
         default: ~
-      trigger:
-        description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions `true`.\n"
+      trigger-if-all:
+        description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions are `true`.\n"
         type: List<TriggerName>
         default: []
   NotificationConfig:
