@@ -1569,7 +1569,6 @@ class NimbusVersionedSchema(models.Model):
     schema = models.TextField(blank=True, null=True)
 
     # Desktop-only
-    sets_prefs = ArrayField(models.CharField(max_length=255, null=False, default=list))
     set_pref_vars = models.JSONField[Dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
 
