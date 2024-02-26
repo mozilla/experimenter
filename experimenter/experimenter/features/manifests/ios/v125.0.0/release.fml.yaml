@@ -116,6 +116,7 @@ features:
           OPEN_SETTINGS_PRIVACY: "://deep-link?url=settings/clear-private-data"
           OPEN_SETTINGS_FXA: "://deep-link?url=settings/fxa"
           OPEN_SETTINGS_THEME: "://deep-link?url=settings/theme"
+          OPEN_URL: "://open-url"
           VIEW_BOOKMARKS: "://deep-link?url=homepanel/bookmarks"
           VIEW_TOP_SITES: "://deep-link?url=homepanel/top-sites"
           VIEW_READING_LIST: "://deep-link?url=homepanel/reading-list"
@@ -137,10 +138,11 @@ features:
           default-browser:
             surface: new-tab-card
             style: FALLBACK
-            trigger:
-              - I_AM_NOT_DEFAULT_BROWSER
+            trigger-if-all:
               - SUPPORTS_DEFAULT_BROWSER
               - ON_FOURTH_LAUNCH_THIS_YEAR
+            except-if-any:
+              - I_AM_DEFAULT_BROWSER
             title: Default Browser/DefaultBrowserCard.Title
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
@@ -576,13 +578,21 @@ objects:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
     fields:
       action:
-        description: "A URL of a page or a deeplink. This may have substitution variables in.\n"
-        type: String
-        default: ""
+        description: "The name of a deeplink URL to be opened if the button is clicked.\n"
+        type: ActionName
+        default: OPEN_URL
+      action-params:
+        description: Query parameters appended to the deeplink action URL
+        type: "Map<String, String>"
+        default: {}
       button-label:
         description: "The text on the button. If no text is present, the whole message is clickable.\n"
         type: Option<Text>
         default: ~
+      except-if-any:
+        description: "A list of strings corresponding to targeting expressions. If any of these expressions evaluate to `true`, the message will not be eligible.\n"
+        type: List<TriggerName>
+        default: []
       experiment:
         description: The experiment slug that this message is involved in.
         type: Option<ExperimentSlug>
@@ -607,10 +617,11 @@ objects:
         description: The title text displayed to the user
         type: Option<Text>
         default: ~
-      trigger:
-        description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions `true`.\n"
+      trigger-if-all:
+        description: "A list of strings corresponding to targeting expressions. All named expressions must evaluate to true if the message is to be eligible to be shown.\n"
         type: List<TriggerName>
-        default: []
+        default:
+          - ALWAYS
   NimbusInstructionPopup:
     description: "The object outlining the content of the instruction card.\n"
     fields:
