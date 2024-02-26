@@ -230,8 +230,9 @@ class ResultsObjectModelBase(BaseModel):
                     point=jetstream_data_point.point,
                 )
 
-                # Set window_index (always 1 for OVERALL). Used by weekly DataPoint
-                # objects and for storing significance for each window.
+                # Need window index for weekly DataPoint objects and for storing
+                # significance for each window. Overall should always be 1 because
+                # there is only ever one overall window.
                 window_index = (
                     1
                     if window == AnalysisWindow.OVERALL
@@ -324,7 +325,7 @@ class ResultsObjectModelBase(BaseModel):
                         pairwise_comparison_data.all.append(data_point)
 
     def append_conversion_count(self, primary_metrics_set):
-        for branch_name in self.dict():
+        for branch_name in self.__fields__:
             branch = getattr(self, branch_name)
             branch_data = branch.branch_data
             for primary_metric in primary_metrics_set:
@@ -395,8 +396,9 @@ class ResultsObjectModelBaseOld(BaseModel):
                     or branch_comparison == BranchComparison.ABSOLUTE
                 )
 
-                # Set window_index (always 1 for OVERALL). Used by weekly DataPoint
-                # objects and for storing significance for each window.
+                # Need window index for weekly DataPoint objects and for storing
+                # significance for each window. Overall should always be 1 because
+                # there is only ever one overall window.
                 window_index = (
                     1
                     if window == AnalysisWindow.OVERALL
@@ -492,7 +494,7 @@ class ResultsObjectModelBaseOld(BaseModel):
                         pairwise_comparison_data.all.append(data_point)
 
     def append_conversion_count(self, primary_metrics_set):
-        for branch_name in self.dict():
+        for branch_name in self.__fields__:
             branch = getattr(self, branch_name)
             branch_data = branch.branch_data
             for primary_metric in primary_metrics_set:

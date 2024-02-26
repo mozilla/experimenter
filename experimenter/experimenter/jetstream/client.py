@@ -200,6 +200,7 @@ def get_experiment_data(experiment: NimbusExperiment):
     experiment_data = {
         # DAILY included for backwards compatibility with UI
         # TODO: remove DAILY after updating UI
+        #     - https://github.com/mozilla/experimenter/issues/9861
         AnalysisWindow.DAILY: {},
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
@@ -207,6 +208,7 @@ def get_experiment_data(experiment: NimbusExperiment):
     experiment_data_old = experiment_data = {
         # DAILY included for backwards compatibility with UI
         # TODO: remove DAILY after updating UI
+        #     - https://github.com/mozilla/experimenter/issues/9861
         AnalysisWindow.DAILY: {},
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
@@ -282,6 +284,7 @@ def get_experiment_data(experiment: NimbusExperiment):
 
                 # DAILY included for backwards compatibility with UI
                 # TODO: remove DAILY after updating UI
+                #     - https://github.com/mozilla/experimenter/issues/9861
                 experiment_data[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS] = {
                     "all": []
                 }
@@ -341,6 +344,7 @@ def get_experiment_data(experiment: NimbusExperiment):
 
                 # DAILY included for backwards compatibility with UI
                 # TODO: remove DAILY after updating UI
+                #     - https://github.com/mozilla/experimenter/issues/9861
                 experiment_data[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES] = {
                     "all": []
                 }

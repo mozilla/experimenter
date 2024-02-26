@@ -73,7 +73,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             _,
             _,
             _,
-        ) = JetstreamTestData.get_test_data(primary_outcomes, is_v2=True)
+        ) = JetstreamTestData.get_test_data(primary_outcomes, is_old_version=True)
 
         FULL_DATA = {
             "v2": {
@@ -1244,7 +1244,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             # OVERALL_EXPOSURES_DATA_V2,
             # OVERALL_EXPOSURES_SEGMENT_DATA_V2,
         ) = JetstreamTestData.get_partial_exposures_test_data(
-            primary_outcomes, is_v2=True
+            primary_outcomes, is_old_version=True
         )
 
         FULL_DATA = {
@@ -1347,7 +1347,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             _,
             _,
             _,
-        ) = ZeroJetstreamTestData.get_test_data(primary_outcomes, is_v2=True)
+        ) = ZeroJetstreamTestData.get_test_data(primary_outcomes, is_old_version=True)
 
         FULL_DATA = {
             "v2": {
