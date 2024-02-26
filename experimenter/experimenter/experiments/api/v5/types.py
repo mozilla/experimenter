@@ -216,8 +216,15 @@ class NimbusBranchType(DjangoObjectType):
             "slug",
         )
 
+    def resolve_screenshots(self, info):
+        if self.id:
+            return self.screenshots.all()
+        return []
+
     def resolve_feature_values(self, info):
-        return self.feature_values.all().order_by("feature_config__id")
+        if self.id:
+            return self.feature_values.all().order_by("feature_config__id")
+        return []
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
