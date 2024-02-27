@@ -109,6 +109,14 @@ messaging:
     triggers:
       type: json
       description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
+night-mode-feature:
+  description: "Describes the night mode feature's configuration\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether night mode is available for users or not\n"
 onboarding-framework-feature:
   description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
   hasExposure: true
