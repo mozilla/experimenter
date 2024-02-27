@@ -1314,10 +1314,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         else:
             localizations = None
 
-        kwargs = dict(
-            localizations=localizations,
-            channel=data.get("channel"),
-        )
+        kwargs = {
+            "localizations": localizations,
+            "channel": data.get("channel"),
+            "suppress_errors": data.get("warn_feature_schema", False),
+        }
 
         result = self._validate_branch(
             branch=data.get("reference_branch", {}),
@@ -1378,6 +1379,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         branch: dict[str, Any],
         channel: str,
         localizations: Optional[dict[str, Any]],
+        suppress_errors: bool,
     ) -> ValidateBranchResult:
         results = self.ValidateBranchResult()
 
@@ -1392,6 +1394,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 feature_value=feature_value_data["value"],
                 localizations=localizations,
                 schemas_in_range=self.schemas_by_feature_id[feature_config.id],
+                suppress_errors=suppress_errors,
             )
 
             results.append(feature_result)
@@ -1403,6 +1406,12 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         errors: list[str] = dataclasses.field(default_factory=list)
         warnings: list[str] = dataclasses.field(default_factory=list)
 
+        def append(self, msg: str, warning: bool):
+            if warning:
+                self.warnings.append(msg)
+            else:
+                self.errors.append(msg)
+
     @classmethod
     def _validate_feature_value(
         cls,
@@ -1413,45 +1422,48 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         feature_value: str,
         schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         localizations: Optional[dict[str, Any]],
+        suppress_errors: bool,
     ) -> ValidateFeatureResult:
-        if schemas_in_range.unsupported_in_range:
-            return cls.ValidateFeatureResult(
-                [
-                    NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
-                        feature_config=feature_config,
-                    )
-                ],
-                [],
-            )
+        result = cls.ValidateFeatureResult()
 
-        errors = []
+        if schemas_in_range.unsupported_in_range:
+            result.append(
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
+                    feature_config=feature_config,
+                ),
+                suppress_errors,
+            )
+            return result
+
         for version in schemas_in_range.unsupported_versions:
-            errors.append(
+            result.append(
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
                     feature_config=feature_config,
                     version=version,
-                )
+                ),
+                suppress_errors,
             )
 
         if application == NimbusExperiment.Application.DESKTOP:
-            errors.extend(
-                cls._validate_feature_value_with_schema(
-                    schemas_in_range,
-                    feature_value,
-                    localizations,
-                )
+            value_errors = cls._validate_feature_value_with_schema(
+                schemas_in_range,
+                feature_value,
+                localizations,
             )
         else:
-            errors.extend(
-                cls._validate_feature_value_with_fml(
-                    schemas_in_range,
-                    NimbusFmlLoader.create_loader(application, channel),
-                    feature_config,
-                    feature_value,
-                )
+            value_errors = cls._validate_feature_value_with_fml(
+                schemas_in_range,
+                NimbusFmlLoader.create_loader(application, channel),
+                feature_config,
+                feature_value,
             )
 
-        return cls.ValidateFeatureResult(errors, [])
+        if suppress_errors:
+            result.warnings.extend(value_errors)
+        else:
+            result.errors.extend(value_errors)
+
+        return result
 
     @classmethod
     def _validate_feature_value_with_schema(
@@ -1586,10 +1598,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             self.warnings.update(result.warnings)
 
         if any(result.errors):
-            if data.get("warn_feature_schema", False):
-                self.warnings.update(result.errors)
-            else:
-                raise serializers.ValidationError(result.errors)
+            raise serializers.ValidationError(result.errors)
 
         return data
 
