@@ -7,7 +7,7 @@ import re
 import typing
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, NotRequired, Optional, TypedDict
+from typing import Any, NotRequired, Optional, Self, TypedDict
 
 import jsonschema
 from django.conf import settings
@@ -1406,6 +1406,16 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         errors: list[str] = dataclasses.field(default_factory=list)
         warnings: list[str] = dataclasses.field(default_factory=list)
 
+        def extend(self, result: Self):
+            self.errors.extend(result.errors)
+            self.warnings.extend(result.warnings)
+
+        def extend_with(self, msgs: list[str], warning: bool):
+            if warning:
+                self.warnings.extend(msgs)
+            else:
+                self.errors.extend(msgs)
+
         def append(self, msg: str, warning: bool):
             if warning:
                 self.warnings.append(msg)
@@ -1445,10 +1455,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
 
         if application == NimbusExperiment.Application.DESKTOP:
-            value_errors = cls._validate_feature_value_with_schema(
-                schemas_in_range,
-                feature_value,
-                localizations,
+            result.extend(
+                cls._validate_feature_value_with_schema(
+                    schemas_in_range,
+                    feature_value,
+                    localizations,
+                    suppress_errors,
+                ),
             )
         else:
             value_errors = cls._validate_feature_value_with_fml(
@@ -1458,10 +1471,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 feature_value,
             )
 
-        if suppress_errors:
-            result.warnings.extend(value_errors)
-        else:
-            result.errors.extend(value_errors)
+            if suppress_errors:
+                result.warnings.extend(value_errors)
+            else:
+                result.errors.extend(value_errors)
 
         return result
 
@@ -1471,8 +1484,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         value: str,
         localizations: Optional[dict[str, Any]],
-    ) -> list[str]:
-        errors = []
+        suppress_errors: bool,
+    ) -> ValidateFeatureResult:
+        result = cls.ValidateFeatureResult()
 
         json_value = json.loads(value)
         for schema in schemas_in_range.schemas:
@@ -1481,8 +1495,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
             json_schema = json.loads(schema.schema)
             if not localizations:
-                errors.extend(
-                    cls._validate_schema(json_value, json_schema, schema.version)
+                result.extend_with(
+                    cls._validate_schema(json_value, json_schema, schema.version),
+                    suppress_errors
                 )
             else:
                 for locale_code, substitutions in localizations.items():
@@ -1491,7 +1506,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                             json_value, substitutions, locale_code
                         )
                     except LocalizationError as e:
-                        errors.append(str(e))
+                        result.append(str(e), suppress_errors)
                         continue
 
                     if schema_errors := cls._validate_schema(
@@ -1505,10 +1520,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         if schema.version is not None:
                             err_msg += f" at version {schema.version}"
 
-                        errors.append(err_msg)
-                        errors.extend(schema_errors)
+                        result.append(err_msg, suppress_errors)
+                        result.extend(schema_errors, suppress_errors)
 
-        return errors
+        return result
 
     @classmethod
     def _validate_feature_value_with_fml(
