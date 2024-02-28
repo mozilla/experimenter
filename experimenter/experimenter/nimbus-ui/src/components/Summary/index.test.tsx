@@ -84,7 +84,7 @@ describe("Summary", () => {
     fireEvent.click(legalSignoffCheckbox);
     fireEvent.click(qaSignoffCheckbox);
     fireEvent.click(vpSignoffCheckbox);
-    
+
     expect(legalSignoffCheckbox).toBeChecked();
     expect(qaSignoffCheckbox).toBeChecked();
     expect(vpSignoffCheckbox).toBeChecked();

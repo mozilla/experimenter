@@ -86,7 +86,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
         },
       });
     } catch (error) {
-      // Handle error
       console.error("Error updating sign-off values:", error);
     }
   };
