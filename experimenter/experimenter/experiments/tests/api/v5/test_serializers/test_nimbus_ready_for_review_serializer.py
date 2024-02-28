@@ -2769,26 +2769,33 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         }
 
     @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Version.FIREFOX_120,
-                NimbusExperiment.Version.NO_VERSION,
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
-                    feature_config="FEATURE",
-                    version="121.0.0",
-                ),
-            ),
-            (
-                NimbusExperiment.Version.FIREFOX_121,
-                NimbusExperiment.Version.FIREFOX_122,
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
-                    feature_config="FEATURE",
-                ),
-            ),
-        ]
+        chain(
+            *(
+                (
+                    (
+                        NimbusExperiment.Version.FIREFOX_120,
+                        NimbusExperiment.Version.NO_VERSION,
+                        NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
+                            feature_config="FEATURE",
+                            version="121.0.0",
+                        ),
+                        as_warning,
+                    ),
+                    (
+                        NimbusExperiment.Version.FIREFOX_121,
+                        NimbusExperiment.Version.FIREFOX_122,
+                        NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
+                            feature_config="FEATURE",
+                        ),
+                        as_warning,
+                    ),
+                )
+                for as_warning in (True, False)
+            )
+        )
     )
     def test_validate_feature_versioned_unsupported_versions(
-        self, min_version, max_version, expected_error
+        self, min_version, max_version, expected_error, as_warning
     ):
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
@@ -2828,6 +2835,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             firefox_min_version=min_version,
             firefox_max_version=max_version,
             feature_configs=[feature],
+            warn_feature_schema=as_warning,
         )
 
         for branch in experiment.treatment_branches:
@@ -2839,9 +2847,15 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             context={"user", self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        if as_warning:
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+            target = serializer.warnings
+        else:
+            self.assertFalse(serializer.is_valid())
+            target = serializer.errors
+
         self.assertEqual(
-            serializer.errors,
+            target,
             {
                 "reference_branch": {
                     "feature_values": [
