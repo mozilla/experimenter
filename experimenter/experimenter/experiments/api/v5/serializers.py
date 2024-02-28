@@ -1,9 +1,13 @@
+from __future__ import annotations
+
+import dataclasses
 import json
 import logging
 import re
 import typing
 from collections import defaultdict
-from typing import Any, Optional
+from dataclasses import dataclass
+from typing import Any, NotRequired, Optional, TypedDict
 
 import jsonschema
 from django.conf import settings
@@ -1289,53 +1293,181 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return value
 
-    def _validate_feature_value(
+    @dataclass
+    class ValidateBranchesResult:
+        class Fields(TypedDict):
+            reference_branch: NotRequired[dict[str, Any]]
+            treatment_branches: NotRequired[list[dict[str, Any]]]
+
+        errors: Fields = dataclasses.field(default_factory=Fields)
+        warnings: Fields = dataclasses.field(default_factory=Fields)
+
+    def _validate_branches(
         self,
+        *,
+        data: dict[str, Any],
+    ) -> ValidateBranchesResult:
+        results = self.ValidateBranchesResult()
+
+        if data.get("is_localized"):
+            localizations = json.loads(data.get("localizations"))
+        else:
+            localizations = None
+
+        kwargs = {
+            "localizations": localizations,
+            "channel": data.get("channel"),
+            "suppress_errors": data.get("warn_feature_schema", False),
+        }
+
+        result = self._validate_branch(
+            branch=data.get("reference_branch", {}),
+            **kwargs,
+        )
+        if any(result.errors):
+            results.errors["reference_branch"] = {"feature_values": result.errors}
+
+        if any(result.warnings):
+            results.warnings["reference_branch"] = {"feature_values": result.warnings}
+
+        treatment_branches_errors = []
+        treatment_branches_warnings = []
+
+        for treatment_branch in data.get("treatment_branches", []):
+            result = self._validate_branch(branch=treatment_branch, **kwargs)
+
+            if any(result.errors):
+                treatment_branches_errors.append({"feature_values": result.errors})
+            else:
+                treatment_branches_errors.append({})
+
+            if any(result.warnings):
+                treatment_branches_warnings.append({"feature_values": result.warnings})
+            else:
+                treatment_branches_warnings.append({})
+
+        if any(treatment_branches_errors):
+            results.errors["treatment_branches"] = treatment_branches_errors
+
+        if any(treatment_branches_warnings):
+            results.warnings["treatment_branches"] = treatment_branches_warnings
+
+        return results
+
+    @dataclass
+    class ValidateBranchResult:
+        class Fields(TypedDict):
+            value: NotRequired[list[str]]
+
+        errors: list[Fields] = dataclasses.field(default_factory=list)
+        warnings: list[Fields] = dataclasses.field(default_factory=list)
+
+        def append(self, result: NimbusReviewSerializer.ValidateFeatureResult):
+            if result.errors:
+                self.errors.append({"value": result.errors})
+            else:
+                self.errors.append({})
+
+            if result.warnings:
+                self.warnings.append({"value": result.warnings})
+            else:
+                self.warnings.append({})
+
+    def _validate_branch(
+        self,
+        *,
+        branch: dict[str, Any],
+        channel: str,
+        localizations: Optional[dict[str, Any]],
+        suppress_errors: bool,
+    ) -> ValidateBranchResult:
+        results = self.ValidateBranchResult()
+
+        feature_values = branch.get("feature_values", [])
+        for feature_value_data in feature_values:
+            feature_config: NimbusFeatureConfig = feature_value_data["feature_config"]
+
+            feature_result = self._validate_feature_value(
+                application=self.instance.application,
+                channel=channel,
+                feature_config=feature_config,
+                feature_value=feature_value_data["value"],
+                localizations=localizations,
+                schemas_in_range=self.schemas_by_feature_id[feature_config.id],
+                suppress_errors=suppress_errors,
+            )
+
+            results.append(feature_result)
+
+        return results
+
+    @dataclass
+    class ValidateFeatureResult:
+        errors: list[str] = dataclasses.field(default_factory=list)
+        warnings: list[str] = dataclasses.field(default_factory=list)
+
+        def append(self, msg: str, warning: bool):
+            if warning:
+                self.warnings.append(msg)
+            else:
+                self.errors.append(msg)
+
+    @classmethod
+    def _validate_feature_value(
+        cls,
+        *,
         application: str,
+        channel: str,
         feature_config: NimbusFeatureConfig,
-        value: str,
+        feature_value: str,
         schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         localizations: Optional[dict[str, Any]],
-        channel: str,
-    ) -> list[str]:
+        suppress_errors: bool,
+    ) -> ValidateFeatureResult:
+        result = cls.ValidateFeatureResult()
+
         if schemas_in_range.unsupported_in_range:
-            return [
+            result.append(
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
                     feature_config=feature_config,
-                )
-            ]
+                ),
+                suppress_errors,
+            )
+            return result
 
-        errors = []
         for version in schemas_in_range.unsupported_versions:
-            errors.append(
+            result.append(
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
                     feature_config=feature_config,
                     version=version,
-                )
+                ),
+                suppress_errors,
             )
 
         if application == NimbusExperiment.Application.DESKTOP:
-            errors.extend(
-                self._validate_feature_value_with_schema(
-                    schemas_in_range,
-                    value,
-                    localizations,
-                )
+            value_errors = cls._validate_feature_value_with_schema(
+                schemas_in_range,
+                feature_value,
+                localizations,
             )
         else:
-            errors.extend(
-                self._validate_feature_value_with_fml(
-                    schemas_in_range,
-                    NimbusFmlLoader.create_loader(application, channel),
-                    feature_config,
-                    value,
-                )
+            value_errors = cls._validate_feature_value_with_fml(
+                schemas_in_range,
+                NimbusFmlLoader.create_loader(application, channel),
+                feature_config,
+                feature_value,
             )
 
-        return errors
+        if suppress_errors:
+            result.warnings.extend(value_errors)
+        else:
+            result.errors.extend(value_errors)
 
+        return result
+
+    @classmethod
     def _validate_feature_value_with_schema(
-        self,
+        cls,
         schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         value: str,
         localizations: Optional[dict[str, Any]],
@@ -1350,19 +1482,19 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             json_schema = json.loads(schema.schema)
             if not localizations:
                 errors.extend(
-                    self._validate_schema(json_value, json_schema, schema.version)
+                    cls._validate_schema(json_value, json_schema, schema.version)
                 )
             else:
                 for locale_code, substitutions in localizations.items():
                     try:
-                        substituted_value = self._substitute_localizations(
+                        substituted_value = cls._substitute_localizations(
                             json_value, substitutions, locale_code
                         )
                     except LocalizationError as e:
                         errors.append(str(e))
                         continue
 
-                    if schema_errors := self._validate_schema(
+                    if schema_errors := cls._validate_schema(
                         substituted_value, json_schema, schema.version
                     ):
                         err_msg = (
@@ -1378,8 +1510,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return errors
 
+    @classmethod
     def _validate_feature_value_with_fml(
-        self,
+        cls,
         schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         loader: NimbusFmlLoader,
         feature_config: NimbusFeatureConfig,
@@ -1399,8 +1532,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return errors
 
+    @classmethod
     def _validate_schema(
-        self, obj: Any, schema: dict[str, Any], version: Optional[NimbusFeatureVersion]
+        cls, obj: Any, schema: dict[str, Any], version: Optional[NimbusFeatureVersion]
     ) -> list[str]:
         try:
             jsonschema.validate(obj, schema, resolver=NestedRefResolver(schema))
@@ -1414,12 +1548,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return []
 
     def _validate_feature_configs(self, data):
-        application = data.get("application")
         feature_configs = data.get("feature_configs", [])
 
         min_version = None
         max_version = None
-        if not NimbusExperiment.Application.is_web(application):
+        if not NimbusExperiment.Application.is_web(self.instance.application):
             raw_min_version = data.get("firefox_min_version", "")
             raw_max_version = data.get("firefox_max_version", "")
 
@@ -1427,8 +1560,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             min_version = NimbusExperiment.Version.parse(raw_min_version)
             if raw_max_version:
                 max_version = NimbusExperiment.Version.parse(raw_max_version)
-
-        warn_feature_schema = data.get("warn_feature_schema", False)
 
         errors = {
             "feature_configs": [
@@ -1439,73 +1570,35 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             for feature_config in feature_configs
             if self.instance.application != feature_config.application
         }
-        if data.get("is_localized"):
-            localizations = json.loads(data.get("localizations"))
-        else:
-            localizations = None
+        if errors:
+            # This error can't be dismissed by the warn_feature_schema flag.
+            raise serializers.ValidationError(errors)
 
-        application = data.get("application")
-        channel = data.get("channel")
+        reference_branch = data.get("reference_branch", {})
 
-        reference_branch_errors = []
+        # Cache the versioned schema range for each feature so we can re-use
+        # them in the validation for each branch.
+        self.schemas_by_feature_id = {
+            feature_config.id: feature_config.get_versioned_schema_range(
+                min_version,
+                max_version,
+            )
+            for feature_config in (
+                feature_value_data["feature_config"]
+                for feature_value_data in reference_branch.get(
+                    "feature_values",
+                    [],
+                )
+            )
+        }
 
-        for feature_value_data in data.get("reference_branch", {}).get(
-            "feature_values", []
-        ):
-            # Cache the versioned schema range for each feature so we can re-use
-            # them in the treatment branch validation below without performing
-            # the queries again.
-            feature_config: NimbusFeatureConfig = feature_value_data["feature_config"]
-            self.schemas_by_feature_id[
-                feature_config.id
-            ] = feature_config.get_versioned_schema_range(min_version, max_version)
+        result = self._validate_branches(data=data)
 
-            if feature_errors := self._validate_feature_value(
-                application,
-                feature_config,
-                feature_value_data["value"],
-                self.schemas_by_feature_id[feature_config.id],
-                localizations,
-                channel,
-            ):
-                reference_branch_errors.append({"value": feature_errors})
-            else:
-                reference_branch_errors.append({})
+        if any(result.warnings):
+            self.warnings.update(result.warnings)
 
-        if any(reference_branch_errors):
-            errors["reference_branch"] = {"feature_values": reference_branch_errors}
-
-        treatment_branches_errors = []
-        treatment_branches_errors_found = False
-        for treatment_branch_data in data.get("treatment_branches", []):
-            treatment_branch_errors = []
-
-            for feature_value_data in treatment_branch_data["feature_values"]:
-                feature_config: NimbusFeatureConfig = feature_value_data["feature_config"]
-
-                if feature_errors := self._validate_feature_value(
-                    application,
-                    feature_config,
-                    feature_value_data["value"],
-                    self.schemas_by_feature_id[feature_config.id],
-                    localizations,
-                    channel,
-                ):
-                    treatment_branch_errors.append({"value": feature_errors})
-                    treatment_branches_errors_found = True
-                else:
-                    treatment_branch_errors.append({})
-
-            treatment_branches_errors.append({"feature_values": treatment_branch_errors})
-
-        if treatment_branches_errors_found:
-            errors["treatment_branches"] = treatment_branches_errors
-
-        if any(errors):
-            if warn_feature_schema:
-                self.warnings = errors
-            else:
-                raise serializers.ValidationError(errors)
+        if any(result.errors):
+            raise serializers.ValidationError(result.errors)
 
         return data
 
