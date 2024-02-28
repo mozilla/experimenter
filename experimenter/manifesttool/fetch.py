@@ -276,6 +276,11 @@ def summarize_results(results: list[FetchResult], file: TextIO) -> (int, int, in
 
     print("SUMMARY:\n", file=file)
 
+    if failures:
+        print("FAILURES:\n", file=file)
+        for result in failures:
+            print(result, file=file)
+
     if successes:
         print("SUCCESS:\n", file=file)
         for result in successes:
@@ -286,13 +291,6 @@ def summarize_results(results: list[FetchResult], file: TextIO) -> (int, int, in
     if cached:
         print("CACHED:\n", file=file)
         for result in cached:
-            print(result, file=file)
-
-        print(file=file)
-
-    if failures:
-        print("FAILURES:\n", file=file)
-        for result in failures:
             print(result, file=file)
 
     return (len(successes), len(cached), len(failures))
