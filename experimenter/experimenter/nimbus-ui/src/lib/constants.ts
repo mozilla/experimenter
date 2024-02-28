@@ -163,6 +163,7 @@ export const CHANGELOG_MESSAGES = {
   UPDATED_TAKEAWAYS: "Updated Takeaways",
   UPDATED_QA_STATUS: "Updated QA Status",
   UPDATE_SUBSCRIBERS: "Updated Subscribers",
+  UPDATE_SIGNOFF:"Updated Signoffs",
   CANCEL_REVIEW: "Cancelled Review Request",
 } as const;
 

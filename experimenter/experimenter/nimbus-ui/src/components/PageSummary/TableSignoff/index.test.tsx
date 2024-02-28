@@ -2,11 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import TableSignoff from "src/components/PageSummary/TableSignoff";
 
 describe("TableSignoff", () => {
+  it("handles signoff change events", async () => {
+    const handleLegalSignoffChangeMock = jest.fn();
+    const handleQaSignoffChangeMock = jest.fn();
+    const handleVpSignoffChangeMock = jest.fn();
+
+    render(
+      <TableSignoff
+        signoffRecommendations={{
+          qaSignoff: false,
+          vpSignoff: false,
+          legalSignoff: false,
+        }}
+        legalSignoff={false}
+        qaSignoff={false}
+        vpSignoff={false}
+        onLegalSignoffChange={handleLegalSignoffChangeMock}
+        onQaSignoffChange={handleQaSignoffChangeMock}
+        onVpSignoffChange={handleVpSignoffChangeMock}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("is-legalsignoff-checkbox"));
+    fireEvent.click(screen.getByTestId("is-qasignoff-checkbox"));
+    fireEvent.click(screen.getByTestId("is-vpsignoff-checkbox"));
+
+    expect(handleLegalSignoffChangeMock).toHaveBeenCalledWith(true);
+    expect(handleQaSignoffChangeMock).toHaveBeenCalledWith(true);
+    expect(handleVpSignoffChangeMock).toHaveBeenCalledWith(true);
+  });
+
   it("shows no recommended signoff", async () => {
     render(
       <TableSignoff
@@ -15,6 +45,12 @@ describe("TableSignoff", () => {
           vpSignoff: false,
           legalSignoff: false,
         }}
+        legalSignoff={false}
+        qaSignoff={false}
+        vpSignoff={false}
+        onLegalSignoffChange={() => {}}
+        onQaSignoffChange={() => {}}
+        onVpSignoffChange={() => {}}
       />,
     );
     await waitFor(() =>
@@ -32,6 +68,12 @@ describe("TableSignoff", () => {
           vpSignoff: false,
           legalSignoff: false,
         }}
+        legalSignoff={false}
+        qaSignoff={false}
+        vpSignoff={false}
+        onLegalSignoffChange={() => {}}
+        onQaSignoffChange={() => {}}
+        onVpSignoffChange={() => {}}
       />,
     );
     await waitFor(() =>
@@ -49,6 +91,12 @@ describe("TableSignoff", () => {
           vpSignoff: true,
           legalSignoff: false,
         }}
+        legalSignoff={false}
+        qaSignoff={false}
+        vpSignoff={false}
+        onLegalSignoffChange={() => {}}
+        onQaSignoffChange={() => {}}
+        onVpSignoffChange={() => {}}
       />,
     );
     await waitFor(() =>
@@ -66,6 +114,12 @@ describe("TableSignoff", () => {
           vpSignoff: false,
           legalSignoff: true,
         }}
+        legalSignoff={false}
+        qaSignoff={false}
+        vpSignoff={false}
+        onLegalSignoffChange={() => {}}
+        onQaSignoffChange={() => {}}
+        onVpSignoffChange={() => {}}
       />,
     );
     await waitFor(() =>

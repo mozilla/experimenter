@@ -74,6 +74,23 @@ describe("Summary", () => {
       screen.queryByTestId("summary-page-signoff-not-launched"),
     ).toBeInTheDocument();
   });
+  it("updates legal signoff state correctly", async () => {
+    render(<Subject />);
+    const legalSignoffCheckbox = screen.getByTestId("is-legalsignoff-checkbox");
+    const qaSignoffCheckbox = screen.getByTestId("is-qasignoff-checkbox");
+    const vpSignoffCheckbox = screen.getByTestId("is-vpsignoff-checkbox");
+
+
+    fireEvent.click(legalSignoffCheckbox);
+    fireEvent.click(qaSignoffCheckbox);
+    fireEvent.click(vpSignoffCheckbox);
+    
+    expect(legalSignoffCheckbox).toBeChecked();
+    expect(qaSignoffCheckbox).toBeChecked();
+    expect(vpSignoffCheckbox).toBeChecked();
+  });
+
+
 
   it("renders the end experiment button if the experiment is live and idle", async () => {
     render(

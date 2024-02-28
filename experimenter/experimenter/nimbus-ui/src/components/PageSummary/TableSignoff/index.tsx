@@ -1,24 +1,41 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import React from "react";
 import { Card, Table } from "react-bootstrap";
+import Form from "react-bootstrap/Form";
 import LinkExternal from "src/components/LinkExternal";
 import { EXTERNAL_URLS } from "src/lib/constants";
 import { getExperiment_experimentBySlug_signoffRecommendations } from "src/types/getExperiment";
 
 type TableSignoffProps = {
   signoffRecommendations: getExperiment_experimentBySlug_signoffRecommendations | null;
+  legalSignoff: boolean | null;
+  qaSignoff: boolean | null;
+  vpSignoff: boolean | null;
+  onLegalSignoffChange: (value: boolean) => void;
+  onQaSignoffChange: (value: boolean) => void;
+  onVpSignoffChange: (value: boolean) => void;
 };
 
-const TableSignoff = ({ signoffRecommendations }: TableSignoffProps) => (
+const TableSignoff = ({
+  signoffRecommendations,
+  legalSignoff,
+  qaSignoff,
+  vpSignoff,
+  onLegalSignoffChange,
+  onQaSignoffChange,
+  onVpSignoffChange,
+}: TableSignoffProps) => (
   <Card.Body>
     <Table data-testid="table-signoff">
       <tbody>
         <tr data-testid="table-signoff-qa">
           <th className="border-top-0">QA Sign-off</th>
-          <td className="border-top-0">
+          <td className="border-top-0 d-flex">
+            <Form.Check
+              type="checkbox"
+              data-testid="is-qasignoff-checkbox"
+              checked={!!qaSignoff}
+              onChange={(e) => onQaSignoffChange(e.target.checked)}
+            />
             {signoffRecommendations?.qaSignoff && (
               <span className="text-success">Recommended: </span>
             )}
@@ -30,7 +47,13 @@ const TableSignoff = ({ signoffRecommendations }: TableSignoffProps) => (
         </tr>
         <tr data-testid="table-signoff-vp">
           <th>VP Sign-off</th>
-          <td>
+          <td className="d-flex">
+            <Form.Check
+              type="checkbox"
+              data-testid="is-vpsignoff-checkbox"
+              checked={!!vpSignoff}
+              onChange={(e) => onVpSignoffChange(e.target.checked)}
+            />
             {signoffRecommendations?.vpSignoff && (
               <span className="text-success">Recommended: </span>
             )}
@@ -42,7 +65,13 @@ const TableSignoff = ({ signoffRecommendations }: TableSignoffProps) => (
         </tr>
         <tr data-testid="table-signoff-legal">
           <th>Legal Sign-off</th>
-          <td>
+          <td className="d-flex">
+            <Form.Check
+              type="checkbox"
+              data-testid="is-legalsignoff-checkbox"
+              checked={!!legalSignoff}
+              onChange={(e) => onLegalSignoffChange(e.target.checked)}
+            />
             {signoffRecommendations?.legalSignoff && (
               <span className="text-success">Recommended: </span>
             )}

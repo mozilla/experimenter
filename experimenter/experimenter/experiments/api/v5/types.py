@@ -522,6 +522,7 @@ class NimbusExperimentType(DjangoObjectType):
     is_web = graphene.NonNull(graphene.Boolean)
     jexl_targeting_expression = graphene.String()
     languages = graphene.List(graphene.NonNull(NimbusLanguageType), required=True)
+    legal_signoff = graphene.Boolean()
     live_experiments_in_namespace = graphene.NonNull(
         lambda: graphene.List(graphene.NonNull(graphene.String))
     )
@@ -539,6 +540,7 @@ class NimbusExperimentType(DjangoObjectType):
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
     qa_comment = graphene.String()
+    qa_signoff = graphene.Boolean()
     qa_status = NimbusExperimentQAStatusEnum()
     ready_for_review = graphene.Field(NimbusReviewType)
     recipe_json = graphene.String()
@@ -567,6 +569,7 @@ class NimbusExperimentType(DjangoObjectType):
     targeting_config_slug = graphene.String()
     timeout = graphene.Field(NimbusChangeLogType)
     treatment_branches = graphene.List(NimbusBranchType)
+    vp_signoff = graphene.Boolean()
     warn_feature_schema = graphene.Boolean()
 
     class Meta:
