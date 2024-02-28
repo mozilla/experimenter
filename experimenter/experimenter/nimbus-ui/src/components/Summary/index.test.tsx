@@ -80,7 +80,6 @@ describe("Summary", () => {
     const qaSignoffCheckbox = screen.getByTestId("is-qasignoff-checkbox");
     const vpSignoffCheckbox = screen.getByTestId("is-vpsignoff-checkbox");
 
-
     fireEvent.click(legalSignoffCheckbox);
     fireEvent.click(qaSignoffCheckbox);
     fireEvent.click(vpSignoffCheckbox);
@@ -89,8 +88,6 @@ describe("Summary", () => {
     expect(qaSignoffCheckbox).toBeChecked();
     expect(vpSignoffCheckbox).toBeChecked();
   });
-
-
 
   it("renders the end experiment button if the experiment is live and idle", async () => {
     render(
