@@ -290,9 +290,9 @@ export interface getExperiment_experimentBySlug {
   excludedLiveDeliveries: string[];
   featureHasLiveMultifeatureExperiments: string[];
   liveExperimentsInNamespace: string[];
-  legalSignoff: boolean | null;
-  qaSignoff: boolean | null;
-  vpSignoff: boolean | null;
+  legalSignoff: boolean;
+  qaSignoff: boolean;
+  vpSignoff: boolean;
 }
 
 export interface getExperiment {

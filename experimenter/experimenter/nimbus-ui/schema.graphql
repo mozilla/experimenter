@@ -80,10 +80,10 @@ type NimbusExperimentType {
   isEnrollmentPaused: Boolean
   isWeb: Boolean!
   jexlTargetingExpression: String
-  legalSignoff: Boolean
+  legalSignoff: Boolean!
   liveExperimentsInNamespace: [String!]!
   monitoringDashboardUrl: String
-  qaSignoff: Boolean
+  qaSignoff: Boolean!
   readyForReview: NimbusReviewType
   recipeJson: String
   rejection: NimbusChangeLogType
@@ -99,7 +99,7 @@ type NimbusExperimentType {
   targetingConfig: [NimbusExperimentTargetingConfigType]
   timeout: NimbusChangeLogType
   treatmentBranches: [NimbusBranchType]
-  vpSignoff: Boolean
+  vpSignoff: Boolean!
 }
 
 type NimbusUserType {
