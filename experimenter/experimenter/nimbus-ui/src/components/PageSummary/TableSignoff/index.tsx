@@ -37,7 +37,7 @@ const TableSignoff = ({
               onChange={(e) => onQaSignoffChange(e.target.checked)}
             />
             {signoffRecommendations?.qaSignoff && (
-              <span className="text-success">Recommended:{" "}</span>
+              <span className="text-success">Recommended: </span>
             )}
             Please file a QA request.{" "}
             <LinkExternal href={EXTERNAL_URLS.SIGNOFF_QA}>
@@ -55,7 +55,7 @@ const TableSignoff = ({
               onChange={(e) => onVpSignoffChange(e.target.checked)}
             />
             {signoffRecommendations?.vpSignoff && (
-              <span className="text-success">Recommended:{" "}</span>
+              <span className="text-success">Recommended: </span>
             )}
             Please email your VP.{" "}
             <LinkExternal href={EXTERNAL_URLS.SIGNOFF_VP}>
@@ -73,7 +73,7 @@ const TableSignoff = ({
               onChange={(e) => onLegalSignoffChange(e.target.checked)}
             />
             {signoffRecommendations?.legalSignoff && (
-              <span className="text-success">Recommended:{" "}</span>
+              <span className="text-success">Recommended: </span>
             )}
             Please email legal.{" "}
             <LinkExternal href={EXTERNAL_URLS.SIGNOFF_LEGAL}>
