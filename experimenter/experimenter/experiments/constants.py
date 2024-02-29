@@ -671,3 +671,20 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "rollout will re-enroll in this rollout, which will result in overriding their "
         "changes."
     )
+
+    # There is a maximum size for prefs that Desktop can write. It will warn at
+    # 4KiB and hard error at 1MiB.
+    # https://searchfox.org/mozilla-central/rev/6b8a3f804789fb865f42af54e9d2fef9dd3ec74d/modules/libpref/Preferences.cpp#161-164
+    LARGE_PREF_WARNING_LEN = 4 * 1024
+    LARGE_PREF_ERROR_LEN = 1024 * 1024
+
+    WARNING_LARGE_PREF = (
+        "The variable '{variable}' will cause Firefox to write a pref over "
+        "4KB size because {reason}. This should be avoided if possible."
+    )
+    ERROR_LARGE_PREF = (
+        "The variable '{variable}' will cause Firefox to write a pref over "
+        "1MB in size because {reason}. This will cause errors in the client."
+    )
+    IS_EARLY_STARTUP_REASON = "the feature {feature} is marked isEarlyStartup"
+    SET_PREF_REASON = "the variable is a setPref variable"
