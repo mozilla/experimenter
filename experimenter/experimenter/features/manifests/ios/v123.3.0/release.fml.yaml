@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - developer
+  - release
 features:
   account-settings-redux-feature:
     description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
@@ -17,6 +17,13 @@ features:
     variables:
       status:
         description: "If true, we will allow user to use the address autofill feature"
+        type: Boolean
+        default: false
+  back-forward-list-coordinator-refactor-feature:
+    description: "Feature for managing the roll out of the BackForewardList presentation from coordinator\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
         type: Boolean
         default: true
   contextual-hint-feature:
@@ -33,32 +40,25 @@ features:
       credit-card-autofill-status:
         description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
-        default: true
+        default: false
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
       felt-deletion-enabled:
         description: "If true, enable Felt Deletion part of Felt Privacy"
         type: Boolean
-        default: true
+        default: false
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: true
+        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
-      available-suggestions-types:
-        description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
-        type: "Map<SuggestionType, Boolean>"
-        default:
-          amp: true
-          ampMobile: false
-          wikipedia: true
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -66,14 +66,18 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: true
+          status: false
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
+      pocket-sponsored-stories:
+        description: "This property defines whether pocket sponsored stories appear on the homepage.\n"
+        type: Boolean
+        default: false
       prefer-switch-to-open-tab:
         description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
         type: Boolean
-        default: true
+        default: false
       sections-enabled:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
         type: "Map<HomeScreenSection, Boolean>"
@@ -97,6 +101,11 @@ features:
       - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_dismissed"
       - "https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_malformed"
     variables:
+      "$$experiment:":
+        description: Not to be set by experiment.
+        type: ExperimentSlug
+        default: "{experiment}"
+        string-alias: ExperimentSlug
       actions:
         description: A growable map of action URLs.
         type: "Map<ActionName, String>"
@@ -110,7 +119,6 @@ features:
           OPEN_SETTINGS_PRIVACY: "://deep-link?url=settings/clear-private-data"
           OPEN_SETTINGS_FXA: "://deep-link?url=settings/fxa"
           OPEN_SETTINGS_THEME: "://deep-link?url=settings/theme"
-          OPEN_URL: "://open-url"
           VIEW_BOOKMARKS: "://deep-link?url=homepanel/bookmarks"
           VIEW_TOP_SITES: "://deep-link?url=homepanel/top-sites"
           VIEW_READING_LIST: "://deep-link?url=homepanel/reading-list"
@@ -132,25 +140,14 @@ features:
           default-browser:
             surface: new-tab-card
             style: FALLBACK
-            trigger-if-all:
+            trigger:
+              - I_AM_NOT_DEFAULT_BROWSER
               - SUPPORTS_DEFAULT_BROWSER
               - ON_FOURTH_LAUNCH_THIS_YEAR
-            except-if-any:
-              - I_AM_DEFAULT_BROWSER
             title: Default Browser/DefaultBrowserCard.Title
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
             action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
-          survey-surface-message:
-            surface: survey
-            style: SURVEY
-            trigger-if-all:
-              - NEVER
-            text: ResearchSurface/Body.Text.v112
-            button-label: ResearchSurface/PrimaryButton.Label.v112
-            action: OPEN_URL
-            action-params:
-              url: "https://www.macrumors.com"
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -186,37 +183,28 @@ features:
         description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
         type: "Map<TriggerName, String>"
         default:
-          ALWAYS: "true"
-          NEVER: "false"
+          NOT_INSTALLED_TODAY: days_since_install > 0
+          DAY_3_AFTER_INSTALL: days_since_install >= 3
+          NOT_LAUNCHED_YESTERDAY: "'app_cycle.foreground'|eventLastSeen('Days', 1) > 1"
+          AFTER_THREE_LAUNCHES_THIS_WEEK: "'app_cycle.foreground'|eventSum('Weeks', 1, 0) >= 3"
+          ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
           USER_RECENTLY_INSTALLED: days_since_install < 7
           USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
+          MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
           USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
           USER_EN_SPEAKER: "'en' in locale"
-          USER_ES_SPEAKER: "'es' in locale"
           USER_DE_SPEAKER: "'de' in locale"
           USER_FR_SPEAKER: "'fr' in locale"
           DEVICE_ANDROID: "os == 'Android'"
           DEVICE_IOS: "os == 'iOS'"
-          DAY_1_AFTER_INSTALL: days_since_install == 1
-          DAY_2_AFTER_INSTALL: days_since_install == 2
-          DAY_3_AFTER_INSTALL: days_since_install == 3
-          DAY_4_AFTER_INSTALL: days_since_install == 4
-          DAY_5_AFTER_INSTALL: days_since_install == 5
-          MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
-          NOT_LAUNCHED_YESTERDAY: "'app_cycle.foreground'|eventLastSeen('Days', 1) > 1"
-          AFTER_THREE_LAUNCHES_THIS_WEEK: "'app_cycle.foreground'|eventSum('Weeks', 1, 0) >= 3"
           I_AM_DEFAULT_BROWSER: is_default_browser
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
           SUPPORTS_DEFAULT_BROWSER: "os_version|versionCompare('14.!') >= 0"
           INACTIVE_NEW_USER: is_inactive_new_user
           ALLOWED_TIPS_NOTIFICATIONS: allowed_tips_notifications
-          ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
+          ALWAYS: "true"
+          NEVER: "false"
         string-alias: TriggerName
-      ~~experiment:
-        description: Not to be set by experiment.
-        type: ExperimentSlug
-        default: "{experiment}"
-        string-alias: ExperimentSlug
     allow-coenrollment: true
   night-mode-feature:
     description: "Describes the night mode feature's configuration\n"
@@ -327,6 +315,13 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
+  qr-code-coordinator-refactor:
+    description: "The feature for managing the roll out of the qrCode coordinator.\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   redux-search-settings-feature:
     description: "This feature is for managing the roll out of redux on the search settings screen\n"
     variables:
@@ -343,11 +338,20 @@ features:
         default:
           min-search-term: 3
           position:
-            is-bottom: false
+            is-bottom: true
             is-position-feature-enabled: true
             is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
+  search-term-groups-feature:
+    description: The feature that controls whether or not search term groups are enabled.
+    variables:
+      grouping-enabled:
+        description: This property provides a lookup table of whether or not the given grouping should be enabled.
+        type: "Map<SearchTermGroups, Boolean>"
+        default:
+          history-groups: true
+          tab-tray-groups: false
   share-sheet:
     description: This feature define the redesign of the share sheet
     variables:
@@ -365,7 +369,7 @@ features:
       back_in_stock_reporting:
         description: "If true, enables for users the reporting feature for products back in stock.\n"
         type: Boolean
-        default: true
+        default: false
       config:
         description: "A Map of website configurations\n"
         type: "Map<String, WebsiteConfig>"
@@ -387,7 +391,7 @@ features:
       product_ads:
         description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
         type: Boolean
-        default: true
+        default: false
       relay:
         description: "Configurable relay URL for production environment\n"
         type: String
@@ -395,18 +399,18 @@ features:
       status:
         description: "Whether the Fakespot feature is enabled or disabled\n"
         type: Boolean
-        default: true
+        default: false
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: "If this is true, then on each page load adds a new item to Spotlight."
         type: Boolean
-        default: true
+        default: false
       icon-type:
         description: "The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.\n"
         type: Option<IconType>
-        default: screenshot
+        default: letter
       keep-for-days:
         description: "Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.\n"
         type: Option<Int>
@@ -421,7 +425,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: true
+        default: false
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -536,15 +540,13 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
-  SuggestionType:
-    description: The type of a Firefox Suggest search suggestion.
+  SearchTermGroups:
+    description: The identifiers for the different types of search term groups.
     variants:
-      amp:
-        description: A Firefox Suggestion for desktop from adMarketplace.
-      ampMobile:
-        description: A Firefox Suggestion specifically for mobile from adMarketplace.
-      wikipedia:
-        description: A Firefox Suggestion for a Wikipedia page.
+      history-groups:
+        description: Grouping for items in History and RecentlyVisited
+      tab-tray-groups:
+        description: Grouping for items in the Tab Tray and in JumpBackIn
   TabTraySection:
     description: The identifiers for the sections of the tab tray.
     variants:
@@ -584,21 +586,13 @@ objects:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
     fields:
       action:
-        description: "The name of a deeplink URL to be opened if the button is clicked.\n"
-        type: ActionName
-        default: OPEN_URL
-      action-params:
-        description: Query parameters appended to the deeplink action URL
-        type: "Map<String, String>"
-        default: {}
+        description: "A URL of a page or a deeplink. This may have substitution variables in.\n"
+        type: String
+        default: ""
       button-label:
         description: "The text on the button. If no text is present, the whole message is clickable.\n"
         type: Option<Text>
         default: ~
-      except-if-any:
-        description: "A list of strings corresponding to targeting expressions. If any of these expressions evaluate to `true`, the message will not be eligible.\n"
-        type: List<TriggerName>
-        default: []
       experiment:
         description: The experiment slug that this message is involved in.
         type: Option<ExperimentSlug>
@@ -623,11 +617,10 @@ objects:
         description: The title text displayed to the user
         type: Option<Text>
         default: ~
-      trigger-if-all:
-        description: "A list of strings corresponding to targeting expressions. All named expressions must evaluate to true if the message is to be eligible to be shown.\n"
+      trigger:
+        description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions `true`.\n"
         type: List<TriggerName>
-        default:
-          - ALWAYS
+        default: []
   NimbusInstructionPopup:
     description: "The object outlining the content of the instruction card.\n"
     fields:
