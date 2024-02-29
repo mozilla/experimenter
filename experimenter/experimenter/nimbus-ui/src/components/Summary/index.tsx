@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useMutation } from "@apollo/client";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { Card } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import NotSet from "src/components/NotSet";
@@ -54,56 +54,41 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
     updateExperimentVariables
   >(UPDATE_EXPERIMENT_MUTATION);
 
-  const updateExperimentSignoff = useCallback(
-    async (legal: boolean, qa: boolean, vp: boolean) => {
-      try {
-        const result = await updateExperiment({
-          variables: {
-            input: {
-              id: experiment.id,
-              legalSignoff: legal,
-              qaSignoff: qa,
-              vpSignoff: vp,
-              changelogMessage: CHANGELOG_MESSAGES.UPDATE_SIGNOFF,
-            },
+  const handleLegalSignoffChange = (value: boolean) => {
+    setLegalSignoff(value);
+    updateExperimentSignoff(value, qaSignoff, vpSignoff);
+  };
+  const handleQaSignoffChange = (value: boolean) => {
+    setQaSignoff(value);
+    updateExperimentSignoff(legalSignoff, value, vpSignoff);
+  };
+  const handleVpSignoffChange = (value: boolean) => {
+    setVpSignoff(value);
+    updateExperimentSignoff(legalSignoff, qaSignoff, value);
+  };
+
+  const updateExperimentSignoff = async (
+    legal: boolean,
+    qa: boolean,
+    vp: boolean,
+  ) => {
+    try {
+      await updateExperiment({
+        variables: {
+          input: {
+            id: experiment.id,
+            legalSignoff: legal,
+            qaSignoff: qa,
+            vpSignoff: vp,
+            changelogMessage: CHANGELOG_MESSAGES.UPDATE_SIGNOFF,
           },
-        });
-        setLegalSignoff(legal);
-        setQaSignoff(qa);
-        setVpSignoff(vp);
-      } catch (error) {
-        console.error("Error updating sign-off values:", error);
-      }
-    },
-    [
-      updateExperiment,
-      experiment.id,
-      setLegalSignoff,
-      setQaSignoff,
-      setVpSignoff,
-    ],
-  );
+        },
+      });
+    } catch (error) {
+      console.error("Error updating sign-off values:", error);
+    }
+  };
 
-  const handleLegalSignoffChange = useCallback(
-    (value: boolean) => {
-      updateExperimentSignoff(value, qaSignoff, vpSignoff);
-    },
-    [updateExperimentSignoff, qaSignoff, vpSignoff],
-  );
-
-  const handleQaSignoffChange = useCallback(
-    (value: boolean) => {
-      updateExperimentSignoff(legalSignoff, value, vpSignoff);
-    },
-    [updateExperimentSignoff, legalSignoff, vpSignoff],
-  );
-
-  const handleVpSignoffChange = useCallback(
-    (value: boolean) => {
-      updateExperimentSignoff(legalSignoff, qaSignoff, value);
-    },
-    [updateExperimentSignoff, legalSignoff, qaSignoff],
-  );
   const shouldDisableUpdateButton =
     !status.dirty || status.review || status.approved || status.waiting;
 
