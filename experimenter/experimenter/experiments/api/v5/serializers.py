@@ -7,7 +7,7 @@ import re
 import typing
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, NotRequired, Optional, TypedDict
+from typing import Any, NotRequired, Optional, Self, TypedDict
 
 import jsonschema
 from django.conf import settings
@@ -35,6 +35,7 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
     NimbusFeatureVersion,
+    NimbusVersionedSchema,
 )
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
 from experimenter.kinto.tasks import (
@@ -1406,6 +1407,16 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         errors: list[str] = dataclasses.field(default_factory=list)
         warnings: list[str] = dataclasses.field(default_factory=list)
 
+        def extend_with_result(self, result: Self):
+            self.errors.extend(result.errors)
+            self.warnings.extend(result.warnings)
+
+        def extend(self, msgs: list[str], warning: bool):
+            if warning:
+                self.warnings.extend(msgs)
+            else:
+                self.errors.extend(msgs)
+
         def append(self, msg: str, warning: bool):
             if warning:
                 self.warnings.append(msg)
@@ -1445,70 +1456,149 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
 
         if application == NimbusExperiment.Application.DESKTOP:
-            value_errors = cls._validate_feature_value_with_schema(
-                schemas_in_range,
-                feature_value,
-                localizations,
+            result.extend_with_result(
+                cls._validate_feature_value_with_schema(
+                    feature_config,
+                    schemas_in_range,
+                    feature_value,
+                    localizations,
+                    suppress_errors,
+                ),
             )
         else:
-            value_errors = cls._validate_feature_value_with_fml(
-                schemas_in_range,
-                NimbusFmlLoader.create_loader(application, channel),
-                feature_config,
-                feature_value,
+            result.extend(
+                cls._validate_feature_value_with_fml(
+                    schemas_in_range,
+                    NimbusFmlLoader.create_loader(application, channel),
+                    feature_config,
+                    feature_value,
+                ),
+                suppress_errors,
             )
-
-        if suppress_errors:
-            result.warnings.extend(value_errors)
-        else:
-            result.errors.extend(value_errors)
 
         return result
 
     @classmethod
     def _validate_feature_value_with_schema(
         cls,
+        feature_config: NimbusFeatureConfig,
         schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         value: str,
         localizations: Optional[dict[str, Any]],
-    ) -> list[str]:
-        errors = []
+        suppress_errors: bool,
+    ) -> ValidateFeatureResult:
+        result = cls.ValidateFeatureResult()
 
         json_value = json.loads(value)
         for schema in schemas_in_range.schemas:
-            if schema.schema is None:  # Only in tests.
+            if schema.schema:  # Only None in tests.
+                json_schema = json.loads(schema.schema)
+                if not localizations:
+                    result.extend(
+                        cls._validate_schema(json_value, json_schema, schema.version),
+                        suppress_errors,
+                    )
+                else:
+                    for locale_code, substitutions in localizations.items():
+                        try:
+                            substituted_value = cls._substitute_localizations(
+                                json_value, substitutions, locale_code
+                            )
+                        except LocalizationError as e:
+                            result.append(str(e), suppress_errors)
+                            continue
+
+                        if schema_errors := cls._validate_schema(
+                            substituted_value, json_schema, schema.version
+                        ):
+                            err_msg = (
+                                f"Schema validation errors occured during locale "
+                                f"substitution for locale {locale_code}"
+                            )
+
+                            if schema.version is not None:
+                                err_msg += f" at version {schema.version}"
+
+                            result.append(err_msg, suppress_errors)
+                            result.extend(schema_errors, suppress_errors)
+
+            if not schema.is_early_startup:
+                # Normally localized experiments cannot set prefs, but
+                # isEarlyStartup features will always set prefs for all the
+                # variables in the experiment
+                if localizations:
+                    continue
+
+                # If the feature schema is not marked isEarlyStartup and it does
+                # not have any setPref variables, then there is nothing to
+                # check.
+                if not schema.set_pref_vars:
+                    continue
+
+            result.extend_with_result(
+                cls._validate_desktop_feature_value_pref_lengths(
+                    feature_config,
+                    schema,
+                    json_value,
+                    suppress_errors,
+                ),
+            )
+
+        return result
+
+    @classmethod
+    def _validate_desktop_feature_value_pref_lengths(
+        cls,
+        feature_config: NimbusFeatureConfig,
+        schema: NimbusVersionedSchema,
+        feature_value: dict[str, Any],
+        suppress_errors: bool,
+    ) -> ValidateFeatureResult:
+        result = cls.ValidateFeatureResult()
+
+        for variable_name, variable_value in feature_value.items():
+            if not schema.is_early_startup and variable_name not in schema.set_pref_vars:
                 continue
 
-            json_schema = json.loads(schema.schema)
-            if not localizations:
-                errors.extend(
-                    cls._validate_schema(json_value, json_schema, schema.version)
+            if isinstance(variable_value, (list, dict)):
+                variable_value = json.dumps(variable_value)
+            elif not isinstance(variable_value, str):
+                # int and bool are not serialized to strings
+                continue
+
+            pref_len = len(variable_value)
+
+            if pref_len > NimbusConstants.LARGE_PREF_ERROR_LEN:
+                message_fmt = NimbusConstants.ERROR_LARGE_PREF
+            elif pref_len > NimbusConstants.LARGE_PREF_WARNING_LEN:
+                message_fmt = NimbusConstants.WARNING_LARGE_PREF
+            else:
+                continue
+
+            if schema.is_early_startup:
+                reason = NimbusConstants.IS_EARLY_STARTUP_REASON.format(
+                    feature=feature_config.name
                 )
             else:
-                for locale_code, substitutions in localizations.items():
-                    try:
-                        substituted_value = cls._substitute_localizations(
-                            json_value, substitutions, locale_code
-                        )
-                    except LocalizationError as e:
-                        errors.append(str(e))
-                        continue
+                reason = NimbusConstants.SET_PREF_REASON
 
-                    if schema_errors := cls._validate_schema(
-                        substituted_value, json_schema, schema.version
-                    ):
-                        err_msg = (
-                            f"Schema validation errors occured during locale "
-                            f"substitution for locale {locale_code}"
-                        )
+            message = message_fmt.format(
+                variable=variable_name,
+                reason=reason,
+            )
 
-                        if schema.version is not None:
-                            err_msg += f" at version {schema.version}"
+            if schema.version:
+                message += f" at version {schema.version}"
 
-                        errors.append(err_msg)
-                        errors.extend(schema_errors)
+            # If the pref is over the error threshold, then this error cannot be
+            # supressed as a warning.
+            as_warning = (
+                suppress_errors and pref_len <= NimbusConstants.LARGE_PREF_ERROR_LEN
+            )
 
-        return errors
+            result.append(message, as_warning)
+
+        return result
 
     @classmethod
     def _validate_feature_value_with_fml(
