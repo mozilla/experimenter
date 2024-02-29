@@ -74,7 +74,7 @@ describe("Summary", () => {
       screen.queryByTestId("summary-page-signoff-not-launched"),
     ).toBeInTheDocument();
   });
-  it("updates legal signoff state correctly", async () => {
+  it("updates signoff checklist state correctly", async () => {
     render(<Subject />);
     const legalSignoffCheckbox = screen.getByTestId("is-legalsignoff-checkbox");
     const qaSignoffCheckbox = screen.getByTestId("is-qasignoff-checkbox");
