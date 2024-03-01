@@ -421,6 +421,11 @@ urlbar:
         If neither Nimbus nor remote settings defines a cap, no cap will be
         used, and the user will be able to increment the minimum length without
         any limit.
+    weatherSimpleUI:
+      type: boolean
+      description: >-
+        If true, show the weather suggestion by simple UI edition as follows.
+        * Remove the forcast text from the summary text.
     yelpMinKeywordLength:
       type: int
       fallbackPref: browser.urlbar.yelp.minKeywordLength
@@ -441,6 +446,12 @@ urlbar:
         will be able to click the "Show less frequently" command for Yelp
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
+    yelpSuggestNonPriorityIndex:
+      type: int
+      fallbackPref: browser.urlbar.yelp.suggestedIndex
+      description: >-
+        The group-relative suggestedIndex of Yelp suggestions within the Firefox
+        Suggest section. Ignored when `yelpSuggestPriority` is true.
     yelpSuggestPriority:
       type: boolean
       fallbackPref: browser.urlbar.yelp.priority
@@ -1079,6 +1090,20 @@ fullPageTranslationAutomaticPopup:
       setPref:
         branch: user
         pref: browser.translations.automaticallyPopup
+
+pdfjs:
+  description: The Firefox pdf reader.
+  owner: pdfjs-team@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Exposure is sent each time a pdf is displayed.
+  variables:
+    addHighlight:
+      description: Set to true to highlight some text or something else in an existing pdf.
+      type: boolean
+      setPref:
+        branch: default
+        pref: pdfjs.enableHighlightEditor
 
 addAnImageInPDF:
   description: Add an image in an existing pdf.

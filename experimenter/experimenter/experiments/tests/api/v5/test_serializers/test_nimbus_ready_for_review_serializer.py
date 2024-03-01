@@ -2,6 +2,7 @@ import datetime
 import json
 from dataclasses import dataclass
 from itertools import chain, product
+from typing import Literal, Optional, Union
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -2747,6 +2748,238 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 [NimbusExperiment.WARNING_ROLLOUT_PREF_REENROLL],
             )
 
+    SET_PREF_WARNING_MSG = NimbusConstants.WARNING_LARGE_PREF.format(
+        variable="foo",
+        reason=NimbusConstants.SET_PREF_REASON,
+    )
+    SET_PREF_ERROR_MSG = NimbusConstants.ERROR_LARGE_PREF.format(
+        variable="foo",
+        reason=NimbusConstants.SET_PREF_REASON,
+    )
+
+    IS_EARLY_STARTUP_WARNING_MSG = NimbusConstants.WARNING_LARGE_PREF.format(
+        variable="foo",
+        reason=NimbusConstants.IS_EARLY_STARTUP_REASON.format(feature="feature"),
+    )
+    IS_EARLY_STARTUP_ERROR_MSG = NimbusConstants.ERROR_LARGE_PREF.format(
+        variable="foo",
+        reason=NimbusConstants.IS_EARLY_STARTUP_REASON.format(feature="feature"),
+    )
+
+    @parameterized.expand(
+        [
+            # No prefs set
+            *(
+                (None, schema_version, pref_type, pref_len, False, True, None, None)
+                for schema_version in (None, 120)
+                for pref_type in (str, list, dict)
+                for pref_len in (0, 4097, 1024 * 1024 + 1)
+            ),
+            # Prefs <= 4kB do not cause any warnings or errors.
+            *(
+                (mode, schema_version, pref_type, 4096, False, True, None, None)
+                for mode in ("setPref", "isEarlyStartup", "both")
+                for schema_version in (None, 120)
+                for pref_type in (str, list, dict)
+            ),
+            # Prefs > 4kB <= 1 mB cause errors when errors are not supressed.
+            *(
+                (mode, schema_version, pref_type, pref_len, False, False, None, msg)
+                for mode, msg in (
+                    ("setPref", SET_PREF_WARNING_MSG),
+                    ("isEarlyStartup", IS_EARLY_STARTUP_WARNING_MSG),
+                    ("both", IS_EARLY_STARTUP_WARNING_MSG),
+                )
+                for schema_version in (None, 120)
+                for pref_type in (str, list, dict)
+                for pref_len in (4097, 1024 * 1024)
+            ),
+            # Prefs > 4kB <= 1mB cause warnings when errors are suppressed.
+            *(
+                (mode, schema_version, pref_type, pref_len, True, True, msg, None)
+                for mode, msg in (
+                    ("setPref", SET_PREF_WARNING_MSG),
+                    ("isEarlyStartup", IS_EARLY_STARTUP_WARNING_MSG),
+                    ("both", IS_EARLY_STARTUP_WARNING_MSG),
+                )
+                for schema_version in (None, 120)
+                for pref_type in (str, list, dict)
+                for pref_len in (4097, 1024 * 1024)
+            ),
+            # Prefs > 1mB cause errors when errors are not supressed and cannot
+            # be suppressed.
+            *(
+                (
+                    mode,
+                    schema_version,
+                    pref_type,
+                    1024 * 1024 + 1,
+                    supress_errors,
+                    False,
+                    None,
+                    msg,
+                )
+                for mode, msg in (
+                    ("setPref", SET_PREF_ERROR_MSG),
+                    ("isEarlyStartup", IS_EARLY_STARTUP_ERROR_MSG),
+                    ("both", IS_EARLY_STARTUP_ERROR_MSG),
+                )
+                for schema_version in (None, 120)
+                for pref_type in (str, list, dict)
+                for supress_errors in (True, False)
+            ),
+        ]
+    )
+    def test_desktop_large_prefs(
+        self,
+        mode: Optional[
+            Union[Literal["setPref"], Literal["isEarlyStartup"], Literal["both"]]
+        ],
+        schema_version: Optional[int],
+        pref_type: type,
+        value_len: int,
+        suppress_errors: bool,
+        expected_valid: bool,
+        expected_warning: Optional[str],
+        expected_error: Optional[str],
+    ):
+        self.assertIn(mode, (None, "setPref", "isEarlyStartup", "both"))
+
+        set_pref_vars = {"bar": "pref.bar", "baz": "pref.baz"}
+        if mode in ("setPref", "both"):
+            set_pref_vars["foo"] = "pref.foo"
+
+        is_early_startup = mode in ("isEarlyStartup", "both")
+        schemas = [
+            # An unversioned schema always exists.
+            NimbusVersionedSchemaFactory.build(
+                version=None,
+                schema=None,
+                is_early_startup=is_early_startup,
+                set_pref_vars=set_pref_vars,
+            ),
+        ]
+
+        if schema_version is not None:
+            schemas.append(
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=schema_version,
+                        minor=0,
+                        patch=0,
+                    ),
+                    schema=None,
+                    is_early_startup=is_early_startup,
+                    set_pref_vars=set_pref_vars,
+                ),
+            )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            warn_feature_schema=suppress_errors,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.DESKTOP,
+                    slug="feature",
+                    name="feature",
+                    schemas=schemas,
+                ),
+            ],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        # Ensure the serialized value is *exactly* value_len in length because
+        # we are testing different thresholds
+        if pref_type == str:
+            foo_value = "a" * value_len
+        else:
+            self.assertIn(
+                pref_type, (list, dict), "only str, list, dict supported for pref_type"
+            )
+
+            if pref_type == list:
+                # But for values this short, we're always going to be under the
+                # warning threshold, so it is ok if we bump it up slightly.
+                if value_len <= 4:
+                    value_len = 4
+
+                foo_value = ["a" * (value_len - 4)]
+            elif pref_type == dict:
+                if value_len <= 9:
+                    value_len = 9
+
+                foo_value = {"a": "a" * (value_len - 9)}
+
+            self.assertEqual(len(json.dumps(foo_value)), value_len)
+
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps(
+            {
+                "foo": foo_value,
+                "bar": 1,
+                "baz": True,
+            }
+        )
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        if expected_valid:
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+        else:
+            self.assertFalse(serializer.is_valid())
+
+        if expected_error is None:
+            self.assertEqual(serializer.errors, {})
+        else:
+            if schema_version is not None:
+                expected_error += f" at version {schema_version}.0.0"
+
+            self.assertEqual(
+                serializer.errors,
+                {
+                    "reference_branch": {
+                        "feature_values": [
+                            {
+                                "value": [expected_error],
+                            }
+                        ],
+                    },
+                },
+            )
+
+        if expected_warning is None:
+            self.assertEqual(serializer.warnings, {})
+        else:
+            if schema_version is not None:
+                expected_warning += f" at version {schema_version}.0.0"
+
+            self.assertEqual(
+                serializer.warnings,
+                {
+                    "reference_branch": {
+                        "feature_values": [
+                            {
+                                "value": [expected_warning],
+                            }
+                        ]
+                    },
+                },
+            )
+
 
 class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
     maxDiff = None
@@ -2769,26 +3002,33 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         }
 
     @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Version.FIREFOX_120,
-                NimbusExperiment.Version.NO_VERSION,
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
-                    feature_config="FEATURE",
-                    version="121.0.0",
-                ),
-            ),
-            (
-                NimbusExperiment.Version.FIREFOX_121,
-                NimbusExperiment.Version.FIREFOX_122,
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
-                    feature_config="FEATURE",
-                ),
-            ),
-        ]
+        chain(
+            *(
+                (
+                    (
+                        NimbusExperiment.Version.FIREFOX_120,
+                        NimbusExperiment.Version.NO_VERSION,
+                        NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
+                            feature_config="FEATURE",
+                            version="121.0.0",
+                        ),
+                        as_warning,
+                    ),
+                    (
+                        NimbusExperiment.Version.FIREFOX_121,
+                        NimbusExperiment.Version.FIREFOX_122,
+                        NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
+                            feature_config="FEATURE",
+                        ),
+                        as_warning,
+                    ),
+                )
+                for as_warning in (True, False)
+            )
+        )
     )
     def test_validate_feature_versioned_unsupported_versions(
-        self, min_version, max_version, expected_error
+        self, min_version, max_version, expected_error, as_warning
     ):
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
@@ -2828,6 +3068,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             firefox_min_version=min_version,
             firefox_max_version=max_version,
             feature_configs=[feature],
+            warn_feature_schema=as_warning,
         )
 
         for branch in experiment.treatment_branches:
@@ -2839,9 +3080,15 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             context={"user", self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        if as_warning:
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+            target = serializer.warnings
+        else:
+            self.assertFalse(serializer.is_valid())
+            target = serializer.errors
+
         self.assertEqual(
-            serializer.errors,
+            target,
             {
                 "reference_branch": {
                     "feature_values": [

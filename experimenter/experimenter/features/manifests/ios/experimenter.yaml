@@ -15,14 +15,6 @@ address-autofill-feature:
     status:
       type: boolean
       description: "If true, we will allow user to use the address autofill feature"
-back-forward-list-coordinator-refactor-feature:
-  description: "Feature for managing the roll out of the BackForewardList presentation from coordinator\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 contextual-hint-feature:
   description: This set holds all features pertaining to contextual hints.
   hasExposure: true
@@ -80,6 +72,14 @@ homescreenFeature:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
+login-autofill:
+  description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    login-autofill-status:
+      type: boolean
+      description: "If true, allows the user to use the login autofill feature for usernames and passwords."
 messaging:
   description: "The in-app messaging system\n"
   hasExposure: true
