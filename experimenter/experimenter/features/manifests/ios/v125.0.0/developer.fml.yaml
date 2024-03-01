@@ -80,6 +80,13 @@ features:
         default:
           jump-back-in: true
           recent-explorations: false
+  login-autofill:
+    description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+    variables:
+      login-autofill-status:
+        description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+        type: Boolean
+        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
