@@ -330,6 +330,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         choices=NimbusConstants.QAStatus.choices,
     )
     qa_comment = models.TextField("QA Comment", blank=True, null=True)
+    qa_signoff = models.BooleanField("QA Sign-off", default=False)
+    vp_signoff = models.BooleanField("VP Sign-off", default=False)
+    legal_signoff = models.BooleanField("Legal Sign-off", default=False)
     subscribers = models.ManyToManyField(
         User,
         related_name="subscribed_nimbusexperiments",

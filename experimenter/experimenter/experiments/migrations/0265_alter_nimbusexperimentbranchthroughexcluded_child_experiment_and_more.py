@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("experiments", "0263_remove_nimbusversionedschema_sets_prefs"),
+        ("experiments", "0264_auto_20240226_1931"),
     ]
 
     operations = [

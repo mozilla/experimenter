@@ -9,6 +9,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 import { createMutationMock, Subject } from "src/components/Summary/mocks";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
@@ -73,6 +74,21 @@ describe("Summary", () => {
     expect(
       screen.queryByTestId("summary-page-signoff-not-launched"),
     ).toBeInTheDocument();
+  });
+  it("updates signoff checklist state correctly", async () => {
+    render(<Subject />);
+    const legalSignoffCheckbox = screen.getByTestId("is-legalsignoff-checkbox");
+    const qaSignoffCheckbox = screen.getByTestId("is-qasignoff-checkbox");
+    const vpSignoffCheckbox = screen.getByTestId("is-vpsignoff-checkbox");
+
+    await userEvent.click(legalSignoffCheckbox);
+    await waitFor(() => expect(legalSignoffCheckbox).toBeChecked());
+
+    await userEvent.click(qaSignoffCheckbox);
+    await waitFor(() => expect(qaSignoffCheckbox).toBeChecked());
+
+    await userEvent.click(vpSignoffCheckbox);
+    await waitFor(() => expect(vpSignoffCheckbox).toBeChecked());
   });
 
   it("renders the end experiment button if the experiment is live and idle", async () => {
