@@ -8,7 +8,7 @@ import React from "react";
 import TableSignoff from "src/components/PageSummary/TableSignoff";
 
 describe("TableSignoff", () => {
-  it("handles signoff change events", () => {
+  it("handles signoff change events", async () => {
     const handleLegalSignoffChangeMock = jest.fn();
     const handleQaSignoffChangeMock = jest.fn();
     const handleVpSignoffChangeMock = jest.fn();
@@ -31,10 +31,10 @@ describe("TableSignoff", () => {
 
     await userEvent.click(screen.getByTestId("is-legalsignoff-checkbox"));
     expect(handleLegalSignoffChangeMock).toHaveBeenCalledWith(true);
-    
+
     await userEvent.click(screen.getByTestId("is-qasignoff-checkbox"));
     expect(handleQaSignoffChangeMock).toHaveBeenCalledWith(true);
-    
+
     await userEvent.click(screen.getByTestId("is-vpsignoff-checkbox"));
     expect(handleVpSignoffChangeMock).toHaveBeenCalledWith(true);
   });

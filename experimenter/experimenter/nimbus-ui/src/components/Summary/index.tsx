@@ -55,16 +55,19 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
   >(UPDATE_EXPERIMENT_MUTATION);
 
   const handleLegalSignoffChange = (value: boolean) => {
-    setLegalSignoff(value);
-    updateExperimentSignoff(value, qaSignoff, vpSignoff);
+    updateExperimentSignoff(value, qaSignoff, vpSignoff).then(() =>
+      setLegalSignoff(value),
+    );
   };
   const handleQaSignoffChange = (value: boolean) => {
-    setQaSignoff(value);
-    updateExperimentSignoff(legalSignoff, value, vpSignoff);
+    updateExperimentSignoff(legalSignoff, value, vpSignoff).then(() =>
+      setQaSignoff(value),
+    );
   };
   const handleVpSignoffChange = (value: boolean) => {
-    setVpSignoff(value);
-    updateExperimentSignoff(legalSignoff, qaSignoff, value);
+    updateExperimentSignoff(legalSignoff, qaSignoff, value).then(() =>
+      setVpSignoff(value),
+    );
   };
 
   const updateExperimentSignoff = async (
