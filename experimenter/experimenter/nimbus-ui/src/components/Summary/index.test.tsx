@@ -75,20 +75,20 @@ describe("Summary", () => {
       screen.queryByTestId("summary-page-signoff-not-launched"),
     ).toBeInTheDocument();
   });
-  it("updates signoff checklist state correctly", () => {
+  it("updates signoff checklist state correctly", async () => {
     render(<Subject />);
     const legalSignoffCheckbox = screen.getByTestId("is-legalsignoff-checkbox");
     const qaSignoffCheckbox = screen.getByTestId("is-qasignoff-checkbox");
     const vpSignoffCheckbox = screen.getByTestId("is-vpsignoff-checkbox");
 
-    userEvent.click(legalSignoffCheckbox);
-    expect(legalSignoffCheckbox).toBeChecked();
+    await userEvent.click(legalSignoffCheckbox);
+    await waitFor(() => expect(legalSignoffCheckbox).toBeChecked());
 
-    userEvent.click(qaSignoffCheckbox);
-    expect(qaSignoffCheckbox).toBeChecked();
+    await userEvent.click(qaSignoffCheckbox);
+    await waitFor(() => expect(qaSignoffCheckbox).toBeChecked());
 
-    userEvent.click(vpSignoffCheckbox);
-    expect(vpSignoffCheckbox).toBeChecked();
+    await userEvent.click(vpSignoffCheckbox);
+    await waitFor(() => expect(vpSignoffCheckbox).toBeChecked());
   });
 
   it("renders the end experiment button if the experiment is live and idle", async () => {
