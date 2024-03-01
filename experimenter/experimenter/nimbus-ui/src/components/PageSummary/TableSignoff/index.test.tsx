@@ -29,12 +29,13 @@ describe("TableSignoff", () => {
       />,
     );
 
-    userEvent.click(screen.getByTestId("is-legalsignoff-checkbox"));
-    userEvent.click(screen.getByTestId("is-qasignoff-checkbox"));
-    userEvent.click(screen.getByTestId("is-vpsignoff-checkbox"));
-
+    await userEvent.click(screen.getByTestId("is-legalsignoff-checkbox"));
     expect(handleLegalSignoffChangeMock).toHaveBeenCalledWith(true);
+    
+    await userEvent.click(screen.getByTestId("is-qasignoff-checkbox"));
     expect(handleQaSignoffChangeMock).toHaveBeenCalledWith(true);
+    
+    await userEvent.click(screen.getByTestId("is-vpsignoff-checkbox"));
     expect(handleVpSignoffChangeMock).toHaveBeenCalledWith(true);
   });
 
