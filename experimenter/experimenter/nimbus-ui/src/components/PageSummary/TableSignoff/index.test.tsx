@@ -8,7 +8,7 @@ import React from "react";
 import TableSignoff from "src/components/PageSummary/TableSignoff";
 
 describe("TableSignoff", () => {
-  it("handles signoff change events", async () => {
+  it("handles signoff change events", () => {
     const handleLegalSignoffChangeMock = jest.fn();
     const handleQaSignoffChangeMock = jest.fn();
     const handleVpSignoffChangeMock = jest.fn();

@@ -82,11 +82,12 @@ describe("Summary", () => {
     const vpSignoffCheckbox = screen.getByTestId("is-vpsignoff-checkbox");
 
     userEvent.click(legalSignoffCheckbox);
-    userEvent.click(qaSignoffCheckbox);
-    userEvent.click(vpSignoffCheckbox);
-
     expect(legalSignoffCheckbox).toBeChecked();
+
+    userEvent.click(qaSignoffCheckbox);
     expect(qaSignoffCheckbox).toBeChecked();
+
+    userEvent.click(vpSignoffCheckbox);
     expect(vpSignoffCheckbox).toBeChecked();
   });
 
