@@ -259,6 +259,10 @@ export const GET_EXPERIMENT_QUERY = gql`
       excludedLiveDeliveries
       featureHasLiveMultifeatureExperiments
       liveExperimentsInNamespace
+
+      legalSignoff
+      qaSignoff
+      vpSignoff
     }
   }
 `;

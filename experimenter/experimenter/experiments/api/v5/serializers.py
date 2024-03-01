@@ -750,6 +750,7 @@ class NimbusExperimentSerializer(
             "is_rollout",
             "is_sticky",
             "languages",
+            "legal_signoff",
             "locales",
             "localizations",
             "name",
@@ -763,6 +764,7 @@ class NimbusExperimentSerializer(
             "public_description",
             "publish_status",
             "qa_comment",
+            "qa_signoff",
             "qa_status",
             "reference_branch",
             "required_experiments_branches",
@@ -783,6 +785,7 @@ class NimbusExperimentSerializer(
             "targeting_config_slug",
             "total_enrolled_clients",
             "treatment_branches",
+            "vp_signoff",
             "warn_feature_schema",
         ]
 

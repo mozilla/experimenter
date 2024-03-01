@@ -80,8 +80,10 @@ type NimbusExperimentType {
   isEnrollmentPaused: Boolean
   isWeb: Boolean!
   jexlTargetingExpression: String
+  legalSignoff: Boolean!
   liveExperimentsInNamespace: [String!]!
   monitoringDashboardUrl: String
+  qaSignoff: Boolean!
   readyForReview: NimbusReviewType
   recipeJson: String
   rejection: NimbusChangeLogType
@@ -97,6 +99,7 @@ type NimbusExperimentType {
   targetingConfig: [NimbusExperimentTargetingConfigType]
   timeout: NimbusChangeLogType
   treatmentBranches: [NimbusBranchType]
+  vpSignoff: Boolean!
 }
 
 type NimbusUserType {
@@ -548,6 +551,7 @@ input ExperimentInput {
   isRollout: Boolean
   isSticky: Boolean
   languages: [String]
+  legalSignoff: Boolean
   locales: [String]
   localizations: String
   name: String
@@ -561,6 +565,7 @@ input ExperimentInput {
   publicDescription: String
   publishStatus: NimbusExperimentPublishStatusEnum
   qaComment: String
+  qaSignoff: Boolean
   qaStatus: NimbusExperimentQAStatusEnum
   referenceBranch: BranchInput = null
   requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredInput!]
@@ -580,6 +585,7 @@ input ExperimentInput {
   targetingConfigSlug: String
   totalEnrolledClients: Int
   treatmentBranches: [BranchInput]
+  vpSignoff: Boolean
   warnFeatureSchema: Boolean
 }
 
