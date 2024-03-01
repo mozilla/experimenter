@@ -280,6 +280,7 @@ export interface ExperimentInput {
   isRollout?: boolean | null;
   isSticky?: boolean | null;
   languages?: (string | null)[] | null;
+  legalSignoff?: boolean | null;
   locales?: (string | null)[] | null;
   localizations?: string | null;
   name?: string | null;
@@ -293,6 +294,7 @@ export interface ExperimentInput {
   publicDescription?: string | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
   qaComment?: string | null;
+  qaSignoff?: boolean | null;
   qaStatus?: NimbusExperimentQAStatusEnum | null;
   referenceBranch?: BranchInput | null;
   requiredExperimentsBranches?: NimbusExperimentBranchThroughRequiredInput[] | null;
@@ -312,6 +314,7 @@ export interface ExperimentInput {
   targetingConfigSlug?: string | null;
   totalEnrolledClients?: number | null;
   treatmentBranches?: (BranchInput | null)[] | null;
+  vpSignoff?: boolean | null;
   warnFeatureSchema?: boolean | null;
 }
 

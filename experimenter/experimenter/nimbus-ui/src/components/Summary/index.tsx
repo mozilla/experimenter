@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import { useMutation } from "@apollo/client";
+import React, { useState } from "react";
 import { Card } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import NotSet from "src/components/NotSet";
@@ -19,6 +20,7 @@ import TableOverview from "src/components/Summary/TableOverview";
 import TableQA from "src/components/Summary/TableQA";
 import useQA from "src/components/Summary/TableQA/useQA";
 import TableRiskMitigation from "src/components/Summary/TableRiskMitigation";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import { useChangeOperationMutation } from "src/hooks";
 import { CHANGELOG_MESSAGES } from "src/lib/constants";
 import { getStatus } from "src/lib/experiment";
@@ -28,6 +30,10 @@ import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
+import {
+  updateExperiment,
+  updateExperimentVariables,
+} from "src/types/updateExperiment";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -38,6 +44,54 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
   const takeawaysProps = useTakeaways(experiment, refetch);
   const qaProps = useQA(experiment, refetch);
   const status = getStatus(experiment);
+  const [legalSignoff, setLegalSignoff] = useState(
+    experiment.legalSignoff || false,
+  );
+  const [qaSignoff, setQaSignoff] = useState(experiment.qaSignoff || false);
+  const [vpSignoff, setVpSignoff] = useState(experiment.vpSignoff || false);
+  const [updateExperiment] = useMutation<
+    updateExperiment,
+    updateExperimentVariables
+  >(UPDATE_EXPERIMENT_MUTATION);
+
+  const handleLegalSignoffChange = (value: boolean) => {
+    updateExperimentSignoff(value, qaSignoff, vpSignoff).then(() =>
+      setLegalSignoff(value),
+    );
+  };
+  const handleQaSignoffChange = (value: boolean) => {
+    updateExperimentSignoff(legalSignoff, value, vpSignoff).then(() =>
+      setQaSignoff(value),
+    );
+  };
+  const handleVpSignoffChange = (value: boolean) => {
+    updateExperimentSignoff(legalSignoff, qaSignoff, value).then(() =>
+      setVpSignoff(value),
+    );
+  };
+
+  const updateExperimentSignoff = async (
+    legal: boolean,
+    qa: boolean,
+    vp: boolean,
+  ) => {
+    try {
+      await updateExperiment({
+        variables: {
+          input: {
+            id: experiment.id,
+            legalSignoff: legal,
+            qaSignoff: qa,
+            vpSignoff: vp,
+            changelogMessage: CHANGELOG_MESSAGES.UPDATE_SIGNOFF,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error updating sign-off values:", error);
+    }
+  };
+
   const shouldDisableUpdateButton =
     !status.dirty || status.review || status.approved || status.waiting;
 
@@ -151,6 +205,12 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
 
           <TableSignoff
             signoffRecommendations={experiment.signoffRecommendations}
+            legalSignoff={legalSignoff}
+            qaSignoff={qaSignoff}
+            vpSignoff={vpSignoff}
+            onLegalSignoffChange={handleLegalSignoffChange}
+            onQaSignoffChange={handleQaSignoffChange}
+            onVpSignoffChange={handleVpSignoffChange}
           />
         </Card>
       )}
@@ -167,6 +227,12 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
 
           <TableSignoff
             signoffRecommendations={experiment.signoffRecommendations}
+            legalSignoff={legalSignoff}
+            qaSignoff={qaSignoff}
+            vpSignoff={vpSignoff}
+            onLegalSignoffChange={handleLegalSignoffChange}
+            onQaSignoffChange={handleQaSignoffChange}
+            onVpSignoffChange={handleVpSignoffChange}
           />
         </Card>
       )}
