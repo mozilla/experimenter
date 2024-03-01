@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 import TableSignoff from "src/components/PageSummary/TableSignoff";
 
@@ -28,9 +29,9 @@ describe("TableSignoff", () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId("is-legalsignoff-checkbox"));
-    fireEvent.click(screen.getByTestId("is-qasignoff-checkbox"));
-    fireEvent.click(screen.getByTestId("is-vpsignoff-checkbox"));
+    userEvent.click(screen.getByTestId("is-legalsignoff-checkbox"));
+    userEvent.click(screen.getByTestId("is-qasignoff-checkbox"));
+    userEvent.click(screen.getByTestId("is-vpsignoff-checkbox"));
 
     expect(handleLegalSignoffChangeMock).toHaveBeenCalledWith(true);
     expect(handleQaSignoffChangeMock).toHaveBeenCalledWith(true);
