@@ -160,6 +160,7 @@ features:
         description: A growable map of action URLs.
         type: "Map<ActionName, String>"
         default:
+          OPEN_URL: "://open"
           ENABLE_PRIVATE_BROWSING: "://enable_private_browsing"
           INSTALL_SEARCH_WIDGET: "://install_search_widget"
           MAKE_DEFAULT_BROWSER: "://make_default_browser"
@@ -555,8 +556,12 @@ objects:
     fields:
       action:
         description: "A URL of a page or a deeplink. This may have substitution variables in.\n"
-        type: Text
-        default: ""
+        type: ActionName
+        default: OPEN_URL
+      action-params:
+        description: "A string map containing query parameters that will be appended to the action URL. This is useful for opening URLs in tabs, or specifying that the tab should be private. The values may have substitutions, e.g. \"url\": \"https://example.com/id={uuid}\", \"private\": \"true\".\nThe params and their values are all determined downstream of the messaging component, by the embedding app's deeplink processing machinery.\n"
+        type: "Map<String, String>"
+        default: {}
       button-label:
         description: "The text on the button. If no text is present, the whole message is clickable.\n"
         type: Option<Text>
