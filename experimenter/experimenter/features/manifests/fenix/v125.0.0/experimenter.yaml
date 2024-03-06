@@ -257,6 +257,32 @@ toolbar:
     toolbar-position-top:
       type: boolean
       description: "If true, toolbar appears at top of the screen."
+translations:
+  description: The feature that allows on-device translations of web content.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    downloads-enabled:
+      type: boolean
+      description: "Show the global language model download options entry point for translations. ('Download languages' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.\n"
+    global-lang-settings-enabled:
+      type: boolean
+      description: "Show the global language options entry point for automatically translating. ('Automatic Translation' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.\n"
+    global-settings-enabled:
+      type: boolean
+      description: "Show the global settings entry point within the translations feature. ('Translation Settings' on the page settings view.) 'page-settings-enabled' must also be enabled for users to access this feature.\n"
+    global-site-settings-enabled:
+      type: boolean
+      description: "Show the global never translate this site options entry point for site management. ('Never translate these sites' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.\n"
+    main-flow-browser-menu-enabled:
+      type: boolean
+      description: "Show the browser menu entry point into the translations feature. ('Translate Page' on browser menu.)\n"
+    main-flow-toolbar-enabled:
+      type: boolean
+      description: "Show the primary toolbar entry point into the translations feature. (Translations icon on URL toolbar.)\n"
+    page-settings-enabled:
+      type: boolean
+      description: "Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.\n"
 unified-search:
   description: A feature allowing user to easily search for specified results directly in the search bar.
   hasExposure: true
