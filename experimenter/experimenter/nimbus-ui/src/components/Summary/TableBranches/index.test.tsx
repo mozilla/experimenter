@@ -151,6 +151,9 @@ describe("TableBranches", () => {
         },
       ];
 
+    // needs URI component encoding to exercise the code completely
+    const branchSlug = "expected`slug";
+
     render(
       <Subject
         experiment={{
@@ -159,7 +162,7 @@ describe("TableBranches", () => {
             {
               id: 456,
               name: "expected name",
-              slug: "expected slug",
+              slug: branchSlug,
               description: "expected description",
               ratio: 42,
               featureValues: [
@@ -177,6 +180,23 @@ describe("TableBranches", () => {
     expect(branchTables).toHaveLength(3);
 
     const subjectTable = branchTables[1];
+
+    const screenshotsAnchorId = `branch-${encodeURIComponent(
+      branchSlug,
+    )}-screenshots`;
+    const screenshotsAnchors = screen.getAllByTestId(
+      "branch-screenshots-anchor",
+    );
+
+    // Note that although there are three screenshot on this branch, there
+    // is only one section, and therefore a single anchor.
+    expect(screenshotsAnchors).toHaveLength(1);
+    expect(screenshotsAnchors[0]).toHaveAttribute("id", screenshotsAnchorId);
+    expect(screenshotsAnchors[0]).toHaveAttribute(
+      "href",
+      `#${screenshotsAnchorId}`,
+    );
+
     const screenshotsRow = subjectTable.querySelector(
       "[data-testid='branch-screenshots']",
     );
