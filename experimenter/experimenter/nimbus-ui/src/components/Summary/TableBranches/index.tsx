@@ -222,7 +222,16 @@ const TableBranch = ({
 
         {screenshots && screenshots.length > 0 && (
           <tr>
-            <th>Screenshots</th>
+            <th>
+              Screenshots{" "}
+              <a
+                id={`branch-${encodeURIComponent(slug)}-screenshots`}
+                data-testid="branch-screenshots-anchor"
+                href={`#branch-${encodeURIComponent(slug)}-screenshots`}
+              >
+                #
+              </a>
+            </th>
             <td colSpan={3} data-testid="branch-screenshots">
               {screenshots.map((screenshot, idx) => (
                 <Figure
