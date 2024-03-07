@@ -259,7 +259,7 @@ def navigate_to(selenium):
 def test_check_telemetry_enrollment_unenrollment(
     selenium,
     kinto_client,
-    telemetry_event_check,
+    telemetry_event_check_cirrus,
     check_ping_for_experiment,
     experiment_slug,
     experiment_url,
@@ -305,7 +305,7 @@ def test_check_telemetry_enrollment_unenrollment(
     control = False
     timeout = time.time() + 60 * 5
     while not control:
-        control = telemetry_event_check(experiment_slug, "enroll")
+        control = telemetry_event_check_cirrus(experiment_slug, "enroll")
         if time.time() > timeout:
             raise AssertionError("Experiment enrollment was never seen in ping Data")
     # check experiment exists, this means it is enrolled
@@ -348,6 +348,6 @@ def test_check_telemetry_enrollment_unenrollment(
     control = False
     timeout = time.time() + 60 * 5
     while not control:
-        control = telemetry_event_check(experiment_slug, "unenroll")
+        control = telemetry_event_check_cirrus(experiment_slug, "unenroll")
         if time.time() > timeout:
             raise AssertionError("Experiment enrollment was never seen in ping Data")

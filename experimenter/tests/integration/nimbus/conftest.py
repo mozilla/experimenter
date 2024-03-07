@@ -420,6 +420,33 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
             return False
 
     return _telemetry_event_check
+import requests
+import time
+
+import pytest
+
+
+@pytest.fixture(name="telemetry_event_check_cirrus")
+def fixture_telemetry_event_check_cirrus(trigger_experiment_loader):
+    def _telemetry_event_check_cirrus(experiment=None, event=None):
+        telemetry = requests.get("http://ping-server:5000/pings").json()
+
+        try:
+            for ping in telemetry:
+                payload = ping.get("payload", {})
+                events = payload.get("events", {}).get("parent", [])
+
+                for _event in events:
+                    if experiment and event in _event:
+                        return True
+        except Exception as e:
+            print(f"Error occurred while parsing telemetry events: {e}")
+
+        # If the telemetry event is not found, trigger experiment loader and return False
+        trigger_experiment_loader()
+        return False
+
+    return _telemetry_event_check_cirrus
 
 
 @pytest.fixture
