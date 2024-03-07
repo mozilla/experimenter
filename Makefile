@@ -213,7 +213,7 @@ integration_sdk_shell: build_prod
 	$(PYTHON_PATH_SDK) $(COMPOSE_INTEGRATION) run rust-sdk bash
 
 integration_vnc_up: build_prod
-	$(COMPOSE_INTEGRATION) up
+	$(COMPOSE_INTEGRATION) up firefox
 
 integration_vnc_up_detached: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
