@@ -86,9 +86,11 @@ def update_results_data_schema(apps, schema_editor):
                                                     "difference",
                                                     "relative_uplift",
                                                 ]:
-                                                    data["v3"][key][basis][segment][cur_branch][
-                                                        "branch_data"
-                                                    ][metrics_group][metric][
+                                                    data["v3"][key][basis][segment][
+                                                        cur_branch
+                                                    ]["branch_data"][metrics_group][
+                                                        metric
+                                                    ][
                                                         comparison
                                                     ] = {}
                                                     for branch in branches:
@@ -97,9 +99,9 @@ def update_results_data_schema(apps, schema_editor):
                                                             and cur_branch
                                                             != reference_branch
                                                         ):
-                                                            data["v3"][key][basis][segment][
-                                                                cur_branch
-                                                            ]["branch_data"][
+                                                            data["v3"][key][basis][
+                                                                segment
+                                                            ][cur_branch]["branch_data"][
                                                                 metrics_group
                                                             ][
                                                                 metric
@@ -109,9 +111,9 @@ def update_results_data_schema(apps, schema_editor):
                                                                 reference_branch
                                                             ] = comparison_data_value
                                                         else:
-                                                            data["v3"][key][basis][segment][
-                                                                cur_branch
-                                                            ]["branch_data"][
+                                                            data["v3"][key][basis][
+                                                                segment
+                                                            ][cur_branch]["branch_data"][
                                                                 metrics_group
                                                             ][
                                                                 metric
@@ -122,9 +124,11 @@ def update_results_data_schema(apps, schema_editor):
                                                             ] = comparison_default
 
                                                 elif comparison == "significance":
-                                                    data["v3"][key][basis][segment][cur_branch][
-                                                        "branch_data"
-                                                    ][metrics_group][metric][
+                                                    data["v3"][key][basis][segment][
+                                                        cur_branch
+                                                    ]["branch_data"][metrics_group][
+                                                        metric
+                                                    ][
                                                         comparison
                                                     ] = {}
                                                     for branch in branches:
@@ -133,9 +137,9 @@ def update_results_data_schema(apps, schema_editor):
                                                             and cur_branch
                                                             != reference_branch
                                                         ):
-                                                            data["v3"][key][basis][segment][
-                                                                cur_branch
-                                                            ]["branch_data"][
+                                                            data["v3"][key][basis][
+                                                                segment
+                                                            ][cur_branch]["branch_data"][
                                                                 metrics_group
                                                             ][
                                                                 metric
@@ -145,9 +149,9 @@ def update_results_data_schema(apps, schema_editor):
                                                                 reference_branch
                                                             ] = comparison_data_value
                                                         else:
-                                                            data["v3"][key][basis][segment][
-                                                                cur_branch
-                                                            ]["branch_data"][
+                                                            data["v3"][key][basis][
+                                                                segment
+                                                            ][cur_branch]["branch_data"][
                                                                 metrics_group
                                                             ][
                                                                 metric
@@ -163,7 +167,10 @@ def update_results_data_schema(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("experiments", "0265_alter_nimbusexperimentbranchthroughexcluded_child_experiment_and_more"),
+        (
+            "experiments",
+            "0265_alter_nimbusexperimentbranchthroughexcluded_child_experiment_and_more",
+        ),
     ]
 
     operations = [

@@ -181,7 +181,9 @@ class TestMigrations(MigratorTestCase):
             "experiments", "NimbusExperiment"
         )
 
-        prechange_data = NimbusExperimentOld.objects.get(slug="test-experiment").results_data
+        prechange_data = NimbusExperimentOld.objects.get(
+            slug="test-experiment"
+        ).results_data
         changed_data = NimbusExperiment.objects.get(slug="test-experiment").results_data
         self.assertDictEqual(changed_data["v2"], prechange_data["v2"])
         changes = changed_data["v3"]["weekly"]["enrollments"]["all"]
