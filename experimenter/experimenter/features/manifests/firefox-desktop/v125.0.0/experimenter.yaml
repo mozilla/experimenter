@@ -608,7 +608,6 @@ windowsJumpList:
   description: "Controls for the Windows Jump List integration."
   owner: mconley@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     legacyBackend:
       type: boolean
@@ -1068,7 +1067,6 @@ fullPageTranslation:
   description: This feature opens a popup panel to offer to translate a page.
   owner: gtatum@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     boolean:
       description: Set to true to enable the translations feature
@@ -1081,7 +1079,6 @@ fullPageTranslationAutomaticPopup:
   description: Controls whether the popup automatically shows for translations.
   owner: gtatum@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     boolean:
       description: Set to true to automatically popup, and false to only show the button.
@@ -1689,7 +1686,6 @@ fxaButtonVisibility:
   description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.
   owner: mconley@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     boolean:
       description: True if the Firefox Accounts toolbar button should be visible when not signed in.
@@ -1827,7 +1823,6 @@ migrationWizard:
   description: Prefs to control the Migration Wizard UI.
   owner: mconley@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     showImportAll:
       description: True if the "Variant 2" of the Migration Wizard browser / profile selection UI should be used. This is only meaningful in the new Migration Wizard.
@@ -2103,7 +2098,6 @@ gc:
 jsParallelParsing:
   description: Pref to toggle JS parallel parsing.
   owner: dpalmeiro@mozilla.com, nbp@mozilla.com
-  isEarlyStartup: true
   hasExposure: false
   variables:
     enabled:
@@ -2116,7 +2110,6 @@ jsParallelParsing:
 jitThresholds:
   description: Prefs that control jit tier thresholds.
   owner: dpalmeiro@mozilla.com, jdemooij@mozilla.com
-  isEarlyStartup: true
   hasExposure: false
   variables:
     blinterp_threshold:
@@ -2159,7 +2152,6 @@ jitThresholds:
 jitHintsCache:
   description: Pref to toggle the JIT hints cache.
   owner: dpalmeiro@mozilla.com
-  isEarlyStartup: true
   hasExposure: false
   variables:
     enabled:
@@ -2265,7 +2257,6 @@ shoppingOHTTP:
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
   owner: farre@mozilla.com
-  isEarlyStartup: true
   hasExposure: true
   exposureDescription: Exposure is sent when a response is blocked
   variables:
@@ -2320,7 +2311,6 @@ powerSaver:
   description: Prefs to control power saving behaviors
   owner: florian@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     reduceFrameRates:
       type: int
@@ -2361,7 +2351,6 @@ backgroundUpdate:
     feature is enabled and the service registry key (Mozilla Maintenance
     Service) is *not* available for this installation. That is the first time
     the feature can impact Firefox behaviour and the user experience.
-  isEarlyStartup: true
   variables:
     enableUpdatesForUnelevatedInstallations:
       description: >-
@@ -2370,7 +2359,7 @@ backgroundUpdate:
         directory can be written.
       type: boolean
       setPref:
-        branch: default
+        branch: user
         pref: app.update.background.allowUpdatesForUnelevatedInstallations
 
 defaultAgent:
@@ -2391,7 +2380,6 @@ bookmarks:
   description: Prefs to control aspects of the bookmarks system.
   owner: omc@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     enableBookmarksToolbar:
       type: string
@@ -2470,7 +2458,6 @@ backgroundThreads:
   description: Prefs to control MacOS thread priorities for power savings.
   owner: kwright@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     use_low_power:
       description: >-
@@ -2492,7 +2479,6 @@ reportBrokenSite:
   description: The Report Broken Site feature
   owner: twisniewski@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     enabled:
       type: boolean
@@ -2545,7 +2531,6 @@ phc:
   description: Prefs to control the Probabalistic Heap Checker (PHC)
   owner: pbone@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     phcEnabled:
       description: Whether to enable PHC
