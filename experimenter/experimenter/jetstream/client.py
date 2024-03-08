@@ -1,6 +1,7 @@
 import json
 import os
 from collections import defaultdict
+from copy import deepcopy
 from datetime import datetime
 from itertools import chain
 
@@ -198,21 +199,20 @@ def get_experiment_data(experiment: NimbusExperiment):
     experiment_errors = get_analysis_errors(recipe_slug)
 
     experiment_data = {
-        # DAILY included for backwards compatibility with UI
-        # TODO: remove DAILY after updating UI
-        #     - https://github.com/mozilla/experimenter/issues/9861
+        "show_analysis": settings.FEATURE_ANALYSIS,
+        "metadata": experiment_metadata,
+    }
+    # TODO: remove _old after updating UI
+    #     - https://github.com/mozilla/experimenter/issues/9861
+    experiment_data_old = {
         AnalysisWindow.DAILY: {},
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
     }
-    experiment_data_old = experiment_data = {
-        # DAILY included for backwards compatibility with UI
-        # TODO: remove DAILY after updating UI
-        #     - https://github.com/mozilla/experimenter/issues/9861
-        AnalysisWindow.DAILY: {},
-        "show_analysis": settings.FEATURE_ANALYSIS,
-        "metadata": experiment_metadata,
-    }
+
+    # import ipdb
+
+    # ipdb.set_trace()
 
     for window in windows:
         experiment_data[window] = {}
@@ -236,9 +236,11 @@ def get_experiment_data(experiment: NimbusExperiment):
                 raw_data[window][AnalysisBasis.EXPOSURES] = {}
 
         for segment, segment_data in segment_points_enrollments.items():
-            data = data_old = raw_data[window][AnalysisBasis.ENROLLMENTS][
-                segment
-            ] = JetstreamData(__root__=(segment_data))
+            data = raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = JetstreamData(
+                __root__=(segment_data)
+            )
+            data_new = deepcopy(data)
+            data_old = deepcopy(data)
             (
                 result_metrics,
                 primary_metrics_set,
@@ -255,18 +257,14 @@ def get_experiment_data(experiment: NimbusExperiment):
                 data.append_retention_data(
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
                 )
-                data_old.append_population_percentages()
-                data_old.append_retention_data(
-                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
-                )
-
                 # Create the output object (overall data)
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(result_metrics, data, experiment)
-                data.append_conversion_count(primary_metrics_set)
+                ResultsObjectModelOld = create_results_object_model_old(data)
 
-                ResultsObjectModelOld = create_results_object_model_old(data_old)
-                data_old = ResultsObjectModelOld(result_metrics, data_old, experiment)
+                data_new = ResultsObjectModel(result_metrics, data, experiment)
+                data_new.append_conversion_count(primary_metrics_set)
+
+                data_old = ResultsObjectModelOld(result_metrics, data, experiment)
                 data_old.append_conversion_count(primary_metrics_set)
 
                 if segment == Segment.ALL:
@@ -275,25 +273,20 @@ def get_experiment_data(experiment: NimbusExperiment):
             elif data and window == AnalysisWindow.WEEKLY:
                 # Create the output object (weekly data)
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(result_metrics, data, experiment, window)
+                ResultsObjectModelOld = create_results_object_model_old(data)
 
-                ResultsObjectModelOld = create_results_object_model_old(data_old)
-                data_old = ResultsObjectModelOld(
-                    result_metrics, data_old, experiment, window
-                )
+                data_new = ResultsObjectModel(result_metrics, data, experiment, window)
 
-                # DAILY included for backwards compatibility with UI
-                # TODO: remove DAILY after updating UI
+                data_old = ResultsObjectModelOld(result_metrics, data, experiment, window)
+
+                # TODO: remove _old after updating UI
                 #     - https://github.com/mozilla/experimenter/issues/9861
-                experiment_data[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS] = {
-                    "all": []
-                }
                 experiment_data_old[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS] = {
                     "all": []
                 }
 
             # Convert output object to dict and put into the final object
-            transformed_data = data.dict(exclude_none=True) or None
+            transformed_data = data_new.dict(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
 
             transformed_data_old = data_old.dict(exclude_none=True) or None
@@ -302,9 +295,11 @@ def get_experiment_data(experiment: NimbusExperiment):
             ] = transformed_data_old
 
         for segment, segment_data in segment_points_exposures.items():
-            data = data_old = raw_data[window][AnalysisBasis.EXPOSURES][
-                segment
-            ] = JetstreamData(__root__=(segment_data))
+            data = raw_data[window][AnalysisBasis.EXPOSURES][segment] = JetstreamData(
+                __root__=(segment_data)
+            )
+            data_new = deepcopy(data)
+            data_old = deepcopy(data)
             (
                 result_metrics,
                 primary_metrics_set,
@@ -321,39 +316,32 @@ def get_experiment_data(experiment: NimbusExperiment):
                 data.append_retention_data(
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.EXPOSURES][segment]
                 )
-                data_old.append_population_percentages()
-                data_old.append_retention_data(
-                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.EXPOSURES][segment]
-                )
 
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(result_metrics, data, experiment)
-                data.append_conversion_count(primary_metrics_set)
+                ResultsObjectModelOld = create_results_object_model_old(data)
 
-                ResultsObjectModelOld = create_results_object_model_old(data_old)
-                data_old = ResultsObjectModelOld(result_metrics, data_old, experiment)
+                data_new = ResultsObjectModel(result_metrics, data, experiment)
+                data_new.append_conversion_count(primary_metrics_set)
+
+                data_old = ResultsObjectModelOld(result_metrics, data, experiment)
                 data_old.append_conversion_count(primary_metrics_set)
 
             elif data and window == AnalysisWindow.WEEKLY:
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(result_metrics, data, experiment, window)
-                ResultsObjectModelOld = create_results_object_model_old(data_old)
-                data_old = ResultsObjectModelOld(
-                    result_metrics, data_old, experiment, window
-                )
+                ResultsObjectModelOld = create_results_object_model_old(data)
 
-                # DAILY included for backwards compatibility with UI
-                # TODO: remove DAILY after updating UI
+                data_new = ResultsObjectModel(result_metrics, data, experiment, window)
+                data_old = ResultsObjectModelOld(result_metrics, data, experiment, window)
+
+                # TODO: remove _old after updating UI
                 #     - https://github.com/mozilla/experimenter/issues/9861
-                experiment_data[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES] = {
-                    "all": []
-                }
                 experiment_data_old[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES] = {
                     "all": []
                 }
 
-            transformed_data = data.dict(exclude_none=True) or None
+            transformed_data = data_new.dict(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.EXPOSURES][segment] = transformed_data
+
             transformed_data_old = data_old.dict(exclude_none=True) or None
             experiment_data_old[window][AnalysisBasis.EXPOSURES][
                 segment

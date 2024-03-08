@@ -275,25 +275,7 @@ class ResultsObjectModelBase(BaseModel):
                     if len(comparison_data.all) == 0:
                         comparison_data.first = data_point
 
-                    # TODO: remove `if` when this bug is fixed:
-                    #    https://github.com/mozilla/experimenter/issues/10043
-                    # ignore duplicate results
-                    # - OVERALL can only have one
-                    # - WEEKLY should not have dupes for the same index
-                    if (
-                        window == AnalysisWindow.OVERALL and len(comparison_data.all) == 0
-                    ) or (
-                        window == AnalysisWindow.WEEKLY
-                        and len(
-                            [
-                                p
-                                for p in comparison_data.all
-                                if p.window_index == window_index
-                            ]
-                        )
-                        == 0
-                    ):
-                        comparison_data.all.append(data_point)
+                    comparison_data.all.append(data_point)
 
                 # this is effectively an `else`, but we'll check just in case
                 if comparison_to_branch is not None:
@@ -303,26 +285,7 @@ class ResultsObjectModelBase(BaseModel):
                     if len(pairwise_comparison_data.all) == 0:
                         pairwise_comparison_data.first = data_point
 
-                    # TODO: remove `if` when this bug is fixed:
-                    #    https://github.com/mozilla/experimenter/issues/10043
-                    # ignore duplicate results
-                    # - OVERALL can only have one
-                    # - WEEKLY should not have dupes for the same index
-                    if (
-                        window == AnalysisWindow.OVERALL
-                        and len(pairwise_comparison_data.all) == 0
-                    ) or (
-                        window == AnalysisWindow.WEEKLY
-                        and len(
-                            [
-                                p
-                                for p in pairwise_comparison_data.all
-                                if p.window_index == window_index
-                            ]
-                        )
-                        == 0
-                    ):
-                        pairwise_comparison_data.all.append(data_point)
+                    pairwise_comparison_data.all.append(data_point)
 
     def append_conversion_count(self, primary_metrics_set):
         for branch_name in self.__fields__:
@@ -445,25 +408,7 @@ class ResultsObjectModelBaseOld(BaseModel):
                     if len(comparison_data.all) == 0:
                         comparison_data.first = data_point
 
-                    # TODO: remove `if` when this bug is fixed:
-                    #    https://github.com/mozilla/experimenter/issues/10043
-                    # ignore duplicate results
-                    # - OVERALL can only have one
-                    # - WEEKLY should not have dupes for the same index
-                    if (
-                        window == AnalysisWindow.OVERALL and len(comparison_data.all) == 0
-                    ) or (
-                        window == AnalysisWindow.WEEKLY
-                        and len(
-                            [
-                                p
-                                for p in comparison_data.all
-                                if p.window_index == window_index
-                            ]
-                        )
-                        == 0
-                    ):
-                        comparison_data.all.append(data_point)
+                    comparison_data.all.append(data_point)
 
                 if comparison_to_branch is not None:
                     pairwise_comparison_data = getattr(
@@ -472,26 +417,7 @@ class ResultsObjectModelBaseOld(BaseModel):
                     if len(pairwise_comparison_data.all) == 0:
                         pairwise_comparison_data.first = data_point
 
-                    # TODO: remove `if` when this bug is fixed:
-                    #    https://github.com/mozilla/experimenter/issues/10043
-                    # ignore duplicate results
-                    # - OVERALL can only have one
-                    # - WEEKLY should not have dupes for the same index
-                    if (
-                        window == AnalysisWindow.OVERALL
-                        and len(pairwise_comparison_data.all) == 0
-                    ) or (
-                        window == AnalysisWindow.WEEKLY
-                        and len(
-                            [
-                                p
-                                for p in pairwise_comparison_data.all
-                                if p.window_index == window_index
-                            ]
-                        )
-                        == 0
-                    ):
-                        pairwise_comparison_data.all.append(data_point)
+                    pairwise_comparison_data.all.append(data_point)
 
     def append_conversion_count(self, primary_metrics_set):
         for branch_name in self.__fields__:
@@ -614,16 +540,16 @@ def create_results_object_model_old(data: JetstreamData):
 
     # create a dynamic model that extends BranchComparisonData with all branches
     branches_data = {b: BranchComparisonData() for b in branches}
-    PairwiseBranchComparisonData = create_model(
-        "PairwiseBranchComparisonData",
+    PairwiseBranchComparisonDataOld = create_model(
+        "PairwiseBranchComparisonDataOld",
         **branches_data,
         __base__=BranchComparisonData,
     )
 
     # create a dynamic model that extends SignificanceData with all branches
     branches_significance_data = {b: SignificanceData() for b in branches}
-    PairwiseSignificanceData = create_model(
-        "PairwiseSignificanceData",
+    PairwiseSignificanceDataOld = create_model(
+        "PairwiseSignificanceDataOld",
         **branches_significance_data,
         __base__=SignificanceData,
     )
@@ -631,9 +557,9 @@ def create_results_object_model_old(data: JetstreamData):
     for jetstream_data_point in data:
         metrics[jetstream_data_point.metric] = MetricData(
             absolute=BranchComparisonData(),
-            difference=PairwiseBranchComparisonData(),
-            relative_uplift=PairwiseBranchComparisonData(),
-            significance=PairwiseSignificanceData(),
+            difference=PairwiseBranchComparisonDataOld(),
+            relative_uplift=PairwiseBranchComparisonDataOld(),
+            significance=PairwiseSignificanceDataOld(),
         )
 
     search_data = {k: v for k, v in metrics.items() if k in SEARCH_METRICS}
@@ -670,5 +596,5 @@ def create_results_object_model_old(data: JetstreamData):
     # Create ResultsObjectModel model which is dependent on
     # branches available for a given experiment
     return create_model(
-        "ResultsObjectModel", **branches, __base__=ResultsObjectModelBaseOld
+        "ResultsObjectModelOld", **branches, __base__=ResultsObjectModelBaseOld
     )

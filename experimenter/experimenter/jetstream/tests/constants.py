@@ -253,6 +253,7 @@ class JetstreamTestData:
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={"1": Significance.NEGATIVE.value}),
+            is_retention=True,
             comparison_to_branch="control",
             is_old_version=is_old_version,
         )
@@ -277,6 +278,7 @@ class JetstreamTestData:
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={"1": Significance.NEUTRAL.value}),
+            is_retention=True,
             comparison_to_branch="variant",
             is_old_version=is_old_version,
         )
@@ -1251,6 +1253,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={}),
+            is_retention=True,
             comparison_to_branch="control",
             is_old_version=is_old_version,
         )
@@ -1275,6 +1278,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={}),
+            is_retention=True,
             comparison_to_branch="variant",
             is_old_version=is_old_version,
         )

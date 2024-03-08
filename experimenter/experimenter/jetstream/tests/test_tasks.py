@@ -103,14 +103,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -148,14 +154,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -198,14 +210,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -243,14 +261,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -293,14 +317,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -337,14 +367,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -386,14 +422,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -430,14 +472,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -486,7 +534,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "errors": ERRORS,
             },
             "v3": {
-                "daily": {"enrollments": {"all": []}, "exposures": {"all": []}},
                 "weekly": {
                     "enrollments": {
                         "all": WEEKLY_DATA,
@@ -1092,7 +1139,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 },
             },
             "v3": {
-                "daily": {},
                 "weekly": {},
                 "overall": {},
                 "metadata": {
@@ -1236,9 +1282,9 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             WEEKLY_DATA_V2,
             OVERALL_DATA_V2,
             ERRORS_V2,
-            # SEGMENT_DATA_V2,
-            # DAILY_EXPOSURES_DATA_V2,
-            # SEGMENT_EXPOSURES_DATA_V2,
+            _,
+            _,
+            _,
             # WEEKLY_EXPOSURES_DATA_V2,
             # WEEKLY_EXPOSURES_SEGMENT_DATA_V2,
             # OVERALL_EXPOSURES_DATA_V2,
@@ -1263,7 +1309,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "errors": ERRORS_V2,
             },
             "v3": {
-                "daily": {"enrollments": {"all": []}, "exposures": {"all": []}},
                 "weekly": WEEKLY_DATA,
                 "overall": OVERALL_DATA,
                 "other_metrics": {
@@ -1377,14 +1422,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -1422,14 +1473,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -1472,14 +1529,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -1516,14 +1579,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "control": {"all": [], "first": {}},
                                                 "variant": {"all": [], "first": {}},
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -1555,7 +1624,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "errors": {"experiment": []},
             },
             "v3": {
-                "daily": {"enrollments": {"all": []}},
                 "weekly": {
                     "enrollments": {
                         "all": WEEKLY_DATA,
@@ -2104,6 +2172,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "treatment-a": {
                                                     "all": [
                                                         {
@@ -2142,6 +2212,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "treatment-a": {
                                                     "all": [
                                                         {
@@ -2180,6 +2252,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "treatment-a": {
                                                     "overall": {},
                                                     "weekly": {"1": "negative"},
@@ -2221,6 +2295,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [
+                                                    {
+                                                        "lower": -10.0,
+                                                        "point": 0.1,
+                                                        "upper": 10.2,
+                                                        "window_index": "1",
+                                                    },
+                                                ],
+                                                "first": {
+                                                    "lower": -10.0,
+                                                    "point": 0.1,
+                                                    "upper": 10.2,
+                                                    "window_index": "1",
+                                                },
                                                 "control": {
                                                     "all": [
                                                         {
@@ -2259,6 +2347,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "relative_uplift": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.1,
+                                                        "point": 0.2,
+                                                        "upper": 0.3,
+                                                        "window_index": "1",
+                                                    },
+                                                ],
+                                                "first": {
+                                                    "lower": 0.1,
+                                                    "point": 0.2,
+                                                    "upper": 0.3,
+                                                    "window_index": "1",
+                                                },
                                                 "control": {
                                                     "all": [
                                                         {
@@ -2297,6 +2399,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {"1": "neutral"},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {"1": "neutral"},
@@ -2338,6 +2442,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.5,
+                                                        "window_index": "1",
+                                                    },
+                                                ],
+                                                "first": {
+                                                    "lower": 1.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.5,
+                                                    "window_index": "1",
+                                                },
                                                 "control": {
                                                     "all": [
                                                         {
@@ -2376,6 +2494,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "relative_uplift": {
+                                                "all": [
+                                                    {
+                                                        "lower": 2.2,
+                                                        "point": 0.1,
+                                                        "upper": 0.02,
+                                                        "window_index": "1",
+                                                    },
+                                                ],
+                                                "first": {
+                                                    "lower": 2.2,
+                                                    "point": 0.1,
+                                                    "upper": 0.02,
+                                                    "window_index": "1",
+                                                },
                                                 "control": {
                                                     "all": [
                                                         {
@@ -2414,6 +2546,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {"1": "positive"},
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {"1": "positive"},
@@ -2459,6 +2593,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [],
+                                                "first": {},
                                                 "treatment-a": {
                                                     "all": [
                                                         {
@@ -2493,6 +2629,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "relative_uplift": {
+                                                "all": [],
+                                                "first": {},
                                                 "treatment-a": {
                                                     "all": [
                                                         {
@@ -2527,6 +2665,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "significance": {
+                                                "overall": {},
+                                                "weekly": {},
                                                 "treatment-a": {
                                                     "overall": {"1": "negative"},
                                                     "weekly": {},
@@ -2566,6 +2706,18 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [
+                                                    {
+                                                        "lower": -10.0,
+                                                        "point": 0.1,
+                                                        "upper": 10.2,
+                                                    },
+                                                ],
+                                                "first": {
+                                                    "lower": -10.0,
+                                                    "point": 0.1,
+                                                    "upper": 10.2,
+                                                },
                                                 "control": {
                                                     "all": [
                                                         {
@@ -2600,6 +2752,18 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "relative_uplift": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.1,
+                                                        "point": 0.2,
+                                                        "upper": 0.3,
+                                                    },
+                                                ],
+                                                "first": {
+                                                    "lower": 0.1,
+                                                    "point": 0.2,
+                                                    "upper": 0.3,
+                                                },
                                                 "control": {
                                                     "all": [
                                                         {
@@ -2634,6 +2798,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "significance": {
+                                                "overall": {"1": "neutral"},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {"1": "neutral"},
                                                     "weekly": {},
@@ -2673,6 +2839,18 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "difference": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.5,
+                                                    },
+                                                ],
+                                                "first": {
+                                                    "lower": 1.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.5,
+                                                },
                                                 "control": {
                                                     "all": [
                                                         {
@@ -2707,6 +2885,18 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "relative_uplift": {
+                                                "all": [
+                                                    {
+                                                        "lower": 2.2,
+                                                        "point": 0.1,
+                                                        "upper": 0.02,
+                                                    },
+                                                ],
+                                                "first": {
+                                                    "lower": 2.2,
+                                                    "point": 0.1,
+                                                    "upper": 0.02,
+                                                },
                                                 "control": {
                                                     "all": [
                                                         {
@@ -2741,6 +2931,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 },
                                             },
                                             "significance": {
+                                                "overall": {"1": "positive"},
+                                                "weekly": {},
                                                 "control": {
                                                     "overall": {"1": "positive"},
                                                     "weekly": {},
@@ -2774,7 +2966,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "show_analysis": False,
             },
             "v3": {
-                "daily": {"enrollments": {"all": []}},
                 "weekly": {
                     "enrollments": {
                         "all": {
@@ -3524,7 +3715,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "errors": {"experiment": []},
                 },
                 "v3": {
-                    "daily": {},
                     "metadata": None,
                     "overall": {},
                     "show_analysis": False,
@@ -3592,7 +3782,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "weekly": None,
             },
             "v3": {
-                "daily": None,
                 "metadata": None,
                 "overall": None,
                 "show_analysis": False,
