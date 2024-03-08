@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from experimenter.legacy.legacy_experiments.api.v1.views import (
     ExperimentDetailView,
@@ -7,15 +7,15 @@ from experimenter.legacy.legacy_experiments.api.v1.views import (
 )
 
 urlpatterns = [
-    url(
+    re_path(
         r"^(?P<slug>[\w-]+)/recipe/$",
         ExperimentRecipeView.as_view(),
         name="experiments-api-recipe",
     ),
-    url(
+    re_path(
         r"^(?P<slug>[\w-]+)/$",
         ExperimentDetailView.as_view(),
         name="experiments-api-detail",
     ),
-    url(r"^$", ExperimentListView.as_view(), name="experiments-api-list"),
+    re_path(r"^$", ExperimentListView.as_view(), name="experiments-api-list"),
 ]

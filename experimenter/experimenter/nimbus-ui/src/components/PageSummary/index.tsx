@@ -451,7 +451,7 @@ const WarningList = ({
       );
     }
   }
-  if (status.draft || status.preview || status.review) {
+  if (status.draft || status.preview) {
     if (excludedLiveDeliveries) {
       warnings.push(
         <Warning

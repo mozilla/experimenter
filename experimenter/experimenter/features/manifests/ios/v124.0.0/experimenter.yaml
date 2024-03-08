@@ -55,6 +55,9 @@ firefox-suggest-feature:
   hasExposure: true
   exposureDescription: ""
   variables:
+    available-suggestions-types:
+      type: json
+      description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
     status:
       type: boolean
       description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
@@ -77,6 +80,14 @@ homescreenFeature:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
+login-autofill:
+  description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    login-autofill-status:
+      type: boolean
+      description: "If true, allows the user to use the login autofill feature for usernames and passwords."
 messaging:
   description: "The in-app messaging system\n"
   hasExposure: true
@@ -106,6 +117,14 @@ messaging:
     triggers:
       type: json
       description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
+night-mode-feature:
+  description: "Describes the night mode feature's configuration\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether night mode is available for users or not\n"
 onboarding-framework-feature:
   description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
   hasExposure: true

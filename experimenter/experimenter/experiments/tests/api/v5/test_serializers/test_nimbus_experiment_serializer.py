@@ -283,7 +283,8 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             schemas=[
                 NimbusVersionedSchemaFactory.build(
-                    version=None, sets_prefs=["foo.bar.baz"]
+                    version=None,
+                    set_pref_vars={"baz": "foo.bar.baz"},
                 ),
             ],
         )

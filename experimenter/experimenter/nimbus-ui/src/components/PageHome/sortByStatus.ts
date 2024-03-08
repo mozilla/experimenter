@@ -6,14 +6,18 @@ import { getStatus } from "src/lib/experiment";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 
 export type ExperimentCollector = Record<
-  "draft" | "preview" | "review" | "live" | "complete" | "archived",
+  "draft" | "preview" | "review" | "live" | "complete" | "archived" | "owned",
   getAllExperiments_experiments[]
 >;
 
-function sortByStatus(experiments: getAllExperiments_experiments[] = []) {
+function sortByStatus(
+  experiments: getAllExperiments_experiments[] = [],
+  owner: string,
+) {
   return experiments.reduce<ExperimentCollector>(
     (collector, experiment) => {
       const status = getStatus(experiment);
+
       if (status.archived) {
         collector.archived.push(experiment);
       } else if (status.live) {
@@ -27,6 +31,13 @@ function sortByStatus(experiments: getAllExperiments_experiments[] = []) {
       } else {
         collector.draft.push(experiment);
       }
+
+      if (
+        experiment.owner.username === owner ||
+        experiment.subscribers.map((s) => s.username).includes(owner)
+      ) {
+        collector.owned.push(experiment);
+      }
       return collector;
     },
     {
@@ -36,6 +47,7 @@ function sortByStatus(experiments: getAllExperiments_experiments[] = []) {
       live: [],
       complete: [],
       archived: [],
+      owned: [],
     },
   );
 }

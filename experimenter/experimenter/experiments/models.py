@@ -1,9 +1,9 @@
 import copy
 import datetime
-import os.path
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
+from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import urljoin
 from uuid import uuid4
@@ -126,11 +126,11 @@ class NimbusExperimentBranchThrough(models.Model):
         unique_together = ("parent_experiment", "child_experiment", "branch_slug")
 
 
-class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):
+class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):  # noqa: DJ008
     pass
 
 
-class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):
+class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):  # noqa: DJ008
     pass
 
 
@@ -268,6 +268,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     risk_brand = models.BooleanField(
         "Is a Brand Risk Flag", default=None, blank=True, null=True
     )
+    risk_message = models.BooleanField(
+        "Is a Message Risk Flag", default=None, blank=True, null=True
+    )
     conclusion_recommendation = models.CharField(
         "Recommended Conclusion",
         max_length=255,
@@ -327,6 +330,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         choices=NimbusConstants.QAStatus.choices,
     )
     qa_comment = models.TextField("QA Comment", blank=True, null=True)
+    qa_signoff = models.BooleanField("QA Sign-off", default=False)
+    vp_signoff = models.BooleanField("VP Sign-off", default=False)
+    legal_signoff = models.BooleanField("Legal Sign-off", default=False)
     subscribers = models.ManyToManyField(
         User,
         related_name="subscribed_nimbusexperiments",
@@ -449,7 +455,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if self.prevent_pref_conflicts:
             for config in self.feature_configs.all():
-                prefs.extend(config.schemas.get(version=None).sets_prefs)
+                prefs.extend(config.schemas.get(version=None).set_pref_vars.values())
 
         return prefs
 
@@ -536,7 +542,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 make_sticky_targeting_expression(
                     is_desktop,
                     self.is_rollout,
-                    (f"!('{pref}'|preferenceIsUserSet)" for pref in prefs),
+                    (f"!('{pref}'|preferenceIsUserSet)" for pref in sorted(prefs)),
                 )
             )
 
@@ -1154,7 +1160,7 @@ class NimbusBranch(models.Model):
 def nimbus_branch_screenshot_upload_to(screenshot, filename):
     screenshot_id = uuid4()
     ext = filename.split(".")[-1].lower()
-    return os.path.join(screenshot.branch.experiment.slug, f"{screenshot_id}.{ext}")
+    return Path(screenshot.branch.experiment.slug, f"{screenshot_id}.{ext}")
 
 
 class NimbusBranchFeatureValue(models.Model):
@@ -1566,7 +1572,6 @@ class NimbusVersionedSchema(models.Model):
     schema = models.TextField(blank=True, null=True)
 
     # Desktop-only
-    sets_prefs = ArrayField(models.CharField(max_length=255, null=False, default=list))
     set_pref_vars = models.JSONField[Dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
 

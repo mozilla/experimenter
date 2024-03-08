@@ -730,6 +730,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     riskMitigationLink
                     riskRevenue
                     riskBrand
+                    riskMessage
                     riskPartnerRelated
 
                     signoffRecommendations {
@@ -881,7 +882,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         "ownerEmail": feature_config.owner_email,
                         "schema": feature_config.schemas.get(version=None).schema,
                         "setsPrefs": bool(
-                            feature_config.schemas.get(version=None).sets_prefs
+                            feature_config.schemas.get(version=None).set_pref_vars
                         ),
                         "slug": feature_config.slug,
                     }
@@ -999,6 +1000,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 ),
                 "reviewUrl": experiment.review_url,
                 "riskBrand": experiment.risk_brand,
+                "riskMessage": experiment.risk_message,
                 "riskMitigationLink": experiment.risk_mitigation_link,
                 "riskPartnerRelated": experiment.risk_partner_related,
                 "riskRevenue": experiment.risk_revenue,
@@ -1076,6 +1078,92 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     }
                 ],
                 "warnFeatureSchema": False,
+            },
+        )
+
+    def test_get_experiment_with_default_branch_fixtures(self):
+        user = UserFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment.reference_branch = None
+        experiment.save()
+        experiment.branches.all().delete()
+
+        response = self.query(
+            """
+            query getExperiment($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    referenceBranch {
+                        id
+                        name
+                        slug
+                        description
+                        ratio
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            value
+                        }
+                        screenshots {
+                            id
+                            description
+                            image
+                        }
+                    }
+
+                    treatmentBranches {
+                        id
+                        name
+                        slug
+                        description
+                        ratio
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            value
+                        }
+                        screenshots {
+                            id
+                            description
+                            image
+                        }
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user.email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+
+        self.assertEqual(
+            experiment_data,
+            {
+                "referenceBranch": {
+                    "description": "",
+                    "featureValues": [],
+                    "id": None,
+                    "name": "Control",
+                    "ratio": 1,
+                    "screenshots": [],
+                    "slug": "",
+                },
+                "treatmentBranches": [
+                    {
+                        "description": "",
+                        "featureValues": [],
+                        "id": None,
+                        "name": "Treatment A",
+                        "ratio": 1,
+                        "screenshots": [],
+                        "slug": "",
+                    }
+                ],
             },
         )
 
@@ -1978,7 +2066,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             schemas=[
                 NimbusVersionedSchemaFactory.build(
                     version=None,
-                    sets_prefs=["foo.bar.baz"],
+                    set_pref_vars={
+                        "baz": "foo.bar.baz",
+                    },
                 ),
             ],
         )
@@ -2541,7 +2631,7 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
                     "ownerEmail": feature_config.owner_email,
                     "schema": feature_config.schemas.get(version=None).schema,
                     "setsPrefs": bool(
-                        feature_config.schemas.get(version=None).sets_prefs
+                        feature_config.schemas.get(version=None).set_pref_vars
                     ),
                 },
                 config["allFeatureConfigs"],

@@ -4,7 +4,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.postgres import forms as pgforms
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportMixin
 from import_export.widgets import DecimalWidget, ForeignKeyWidget
@@ -77,9 +77,9 @@ class NimbusExperimentResource(resources.ModelResource):
     def get_diff_headers(self):
         skip_list = ["reference_branch_slug"]
         return [
-            force_text(field.column_name)
+            force_str(field.column_name)
             for field in self.get_export_fields()
-            if force_text(field.column_name) not in skip_list
+            if force_str(field.column_name) not in skip_list
         ]
 
     class Meta:
@@ -329,7 +329,6 @@ class NimbusExperimentAdmin(
     form = NimbusExperimentAdminForm
     actions = [force_fetch_jetstream_data]
     resource_class = NimbusExperimentResource
-    filter_horizontal = ("excluded_experiments", "required_experiments")
 
 
 class NimbusFeatureVersionAdmin(

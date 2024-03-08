@@ -258,13 +258,13 @@ class CliTests(TestCase):
         self.assertEqual(
             summary,
             "SUMMARY:\n\n"
+            "FAILURES:\n\n"
+            "fml_app at main (quux) version None\n"
+            "oh no\n\n"
             "SUCCESS:\n\n"
             "fml_app at baz (qux) version 2.0.0\n\n"
             "CACHED:\n\n"
-            "fml_app at foo (bar) version 1.0.0 (cached)\n\n"
-            "FAILURES:\n\n"
-            "fml_app at main (quux) version None\n"
-            "oh no\n\n",
+            "fml_app at foo (bar) version 1.0.0 (cached)\n",
         )
 
     @patch.object(

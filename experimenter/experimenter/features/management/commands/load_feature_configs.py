@@ -164,7 +164,6 @@ class Command(BaseCommand):
                     feature_config=feature_config,
                     version=feature_version,
                     is_early_startup=feature.model.is_early_startup or False,
-                    sets_prefs=[],
                     set_pref_vars={},
                 )
 
@@ -174,16 +173,6 @@ class Command(BaseCommand):
                     dirty_fields.append("schema")
 
             if feature_config.application == Application.DESKTOP:
-                sets_prefs = [
-                    _set_pref_name(v.set_pref)
-                    for v in feature.model.variables.values()
-                    if v.set_pref is not None
-                ]
-
-                if schema.sets_prefs != sets_prefs:
-                    schema.sets_prefs = sets_prefs
-                    dirty_fields.append("sets_prefs")
-
                 set_pref_vars = {
                     var_name: _set_pref_name(var.set_pref)
                     for var_name, var in feature.model.variables.items()

@@ -208,9 +208,9 @@ pytest-forked==1.6.0 \
     --hash=sha256:810958f66a91afb1a1e2ae83089d8dc1cd2437ac96b12963042fbb9fb4d16af0
 apipkg==1.5\
     --hash=sha256:58587dd4dc3daefad0487f6d9ae32b4542b185e1c36db6993290e7c41ca2b47c
-python-dateutil==2.8.1 \
-    --hash=sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c \
-    --hash=sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a
+python-dateutil==2.9.0.post0 \
+    --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
+    --hash=sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427
 pydantic==1.9.0 \
     --hash=sha256:cb23bcc093697cdea2708baae4f9ba0e972960a835af22560f6ae4e7e47d33f5 \
     --hash=sha256:1d5278bd9f0eee04a44c712982343103bba63507480bfd2fc2790fa70cd64cf4 \
@@ -272,9 +272,9 @@ Unidecode==1.3.4 \
 dataclasses-json==0.6.0 \
     --hash=sha256:5bcd5c1d946a69ef94d8cbb726d87af1256f7ba0898809c7695d299ab9b45122 \
     --hash=sha256:77cbc80041007c27db90abad79eeed9ea00d4627324b1208266379a6ebdc81e4
-marshmallow==3.19.0 \
-    --hash=sha256:90032c0fd650ce94b6ec6dc8dfeb0e3ff50c144586462c389b81a07205bedb78 \
-    --hash=sha256:93f0958568da045b0021ec6aeb7ac37c81bfcccbb9a0e7ed8559885070b3a19b
+marshmallow==3.21.0 \
+    --hash=sha256:20f53be28c6e374a711a16165fb22a8dc6003e3f7cda1285e3ca777b9193885b \
+    --hash=sha256:e7997f83571c7fd476042c2c188e4ee8a78900ca5e74bd9c8097afa56624e9bd
 marshmallow-enum==1.5.1 \
     --hash=sha256:57161ab3dbfde4f57adeb12090f39592e992b9c86d206d02f6bd03ebec60f072
 typing-inspect==0.9.0 \

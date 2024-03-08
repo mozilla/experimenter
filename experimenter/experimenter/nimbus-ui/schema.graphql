@@ -49,6 +49,7 @@ type NimbusExperimentType {
   riskPartnerRelated: Boolean
   riskRevenue: Boolean
   riskBrand: Boolean
+  riskMessage: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysMetricGain: Boolean!
   takeawaysGainAmount: String
@@ -79,8 +80,10 @@ type NimbusExperimentType {
   isEnrollmentPaused: Boolean
   isWeb: Boolean!
   jexlTargetingExpression: String
+  legalSignoff: Boolean!
   liveExperimentsInNamespace: [String!]!
   monitoringDashboardUrl: String
+  qaSignoff: Boolean!
   readyForReview: NimbusReviewType
   recipeJson: String
   rejection: NimbusChangeLogType
@@ -96,6 +99,7 @@ type NimbusExperimentType {
   targetingConfig: [NimbusExperimentTargetingConfigType]
   timeout: NimbusChangeLogType
   treatmentBranches: [NimbusBranchType]
+  vpSignoff: Boolean!
 }
 
 type NimbusUserType {
@@ -261,6 +265,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_122_1_0
   FIREFOX_122_2_0
   FIREFOX_123
+  FIREFOX_123_0_1
   FIREFOX_124
   FIREFOX_125
   FIREFOX_126
@@ -546,6 +551,7 @@ input ExperimentInput {
   isRollout: Boolean
   isSticky: Boolean
   languages: [String]
+  legalSignoff: Boolean
   locales: [String]
   localizations: String
   name: String
@@ -559,10 +565,12 @@ input ExperimentInput {
   publicDescription: String
   publishStatus: NimbusExperimentPublishStatusEnum
   qaComment: String
+  qaSignoff: Boolean
   qaStatus: NimbusExperimentQAStatusEnum
   referenceBranch: BranchInput = null
   requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredInput!]
   riskBrand: Boolean
+  riskMessage: Boolean
   riskMitigationLink: String
   riskPartnerRelated: Boolean
   riskRevenue: Boolean
@@ -577,6 +585,7 @@ input ExperimentInput {
   targetingConfigSlug: String
   totalEnrolledClients: Int
   treatmentBranches: [BranchInput]
+  vpSignoff: Boolean
   warnFeatureSchema: Boolean
 }
 

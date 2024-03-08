@@ -14,6 +14,7 @@ describe("TableRiskMitigation", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         riskRevenue: null,
         riskBrand: null,
+        riskMessage: null,
         riskPartnerRelated: null,
       });
       render(<Subject {...{ experiment }} />);
@@ -32,6 +33,7 @@ describe("TableRiskMitigation", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         riskRevenue: false,
         riskBrand: false,
+        riskMessage: false,
         riskPartnerRelated: false,
       });
       render(<Subject {...{ experiment }} />);
@@ -49,6 +51,7 @@ describe("TableRiskMitigation", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         riskRevenue: true,
         riskBrand: true,
+        riskMessage: true,
         riskPartnerRelated: true,
       });
       render(<Subject {...{ experiment }} />);
@@ -60,6 +63,9 @@ describe("TableRiskMitigation", () => {
       ).toHaveTextContent("Yes");
       expect(
         screen.getByTestId("experiment-risk-mitigation-question-3"),
+      ).toHaveTextContent("Yes");
+      expect(
+        screen.getByTestId("experiment-risk-mitigation-question-4"),
       ).toHaveTextContent("Yes");
     });
   });

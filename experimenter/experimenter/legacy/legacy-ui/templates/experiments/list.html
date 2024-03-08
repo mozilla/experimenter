@@ -156,7 +156,7 @@
           </li>
         {% endif %}
         {% for page_num in page_obj.paginator.page_range %}
-          <li class="page-item {% ifequal page_obj.number page_num %}active{% endifequal %}">
+          <li class="page-item {% if page_obj.number == page_num %}active{% endif %}">
             <a class="page-link" href="{% pagination_url page_num %}">{{ page_num }}</a>
           </li>
         {% endfor %}

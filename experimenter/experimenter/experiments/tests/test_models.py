@@ -1,7 +1,7 @@
 import datetime
-import os.path
 from decimal import Decimal
 from itertools import product
+from pathlib import Path
 from unittest import mock
 
 import packaging
@@ -772,9 +772,9 @@ class TestNimbusExperiment(TestCase):
             (
                 '(browserSettings.update.channel == "release") && '
                 "((experiment.slug in activeExperiments) || ("
-                "(!('nimbus.test.string'|preferenceIsUserSet)) && "
+                "(!('nimbus.test.boolean'|preferenceIsUserSet)) && "
                 "(!('nimbus.test.int'|preferenceIsUserSet)) && "
-                "(!('nimbus.test.boolean'|preferenceIsUserSet))))"
+                "(!('nimbus.test.string'|preferenceIsUserSet))))"
             ),
         )
         JEXLParser().parse(experiment.targeting)
@@ -2701,6 +2701,7 @@ class TestNimbusExperiment(TestCase):
         experiments = {
             slug: NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
                 application=NimbusExperiment.Application.DESKTOP,
                 channel=NimbusExperiment.Channel.RELEASE,
                 firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
@@ -2714,7 +2715,6 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            slug="slug2",
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
@@ -2722,17 +2722,13 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[feature],
         )
 
-        matching_experiments = experiment.live_experiments_in_namespace
-        self.assertEqual(len(matching_experiments), 3)
         self.assertEqual(
-            list(matching_experiments.values_list("slug", flat=True)),
-            sorted(
-                [
-                    experiments["bar"].slug,
-                    experiments["baz"].slug,
-                    experiments["foo"].slug,
-                ]
-            ),
+            list(experiment.live_experiments_in_namespace),
+            [
+                experiments["bar"].slug,
+                experiments["baz"].slug,
+                experiments["foo"].slug,
+            ],
         )
 
     def test_get_live_experiments_do_not_exist_in_previous_namespaces(self):
@@ -3175,8 +3171,8 @@ class TestNimbusBranchScreenshot(TestCase):
         with mock.patch.object(self.screenshot.image.storage, "save") as mock_save:
             mock_uuid4.return_value = "predictable"
             mock_save.return_value = "saved/path/dontcare"
-            expected_filename = os.path.join(
-                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            expected_filename = str(
+                Path(self.experiment.slug, f"{mock_uuid4.return_value}.png"),
             )
             max_length = NimbusBranchScreenshot._meta.get_field("image").max_length
             self.screenshot.save()
@@ -3188,8 +3184,8 @@ class TestNimbusBranchScreenshot(TestCase):
     def test_nimbus_branch_screenshot_delete_previous_on_save_change(self, mock_uuid4):
         with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
             mock_uuid4.return_value = "predictable"
-            expected_filename = os.path.join(
-                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            expected_filename = str(
+                Path(self.experiment.slug, f"{mock_uuid4.return_value}.png"),
             )
             self.screenshot.save()
             new_image = SimpleUploadedFile("Capture2.PNG", b"fake new image")
@@ -3212,8 +3208,8 @@ class TestNimbusBranchScreenshot(TestCase):
     def test_nimbus_branch_screenshot_delete(self, mock_uuid4):
         with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
             mock_uuid4.return_value = "predictable"
-            expected_filename = os.path.join(
-                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            expected_filename = str(
+                Path(self.experiment.slug, f"{mock_uuid4.return_value}.png"),
             )
             self.screenshot.save()
             self.screenshot.delete()
@@ -3241,10 +3237,9 @@ class NimbusFeatureConfigTests(TestCase):
         schemas = {
             schema.version: schema
             for schema in NimbusVersionedSchema.objects.bulk_create(
-                NimbusVersionedSchema(
+                NimbusVersionedSchemaFactory.build(
                     feature_config=feature,
                     version=versions[(major, minor, patch)],
-                    sets_prefs=[],
                 )
                 for major in range(1, 3)
                 for minor in range(3)

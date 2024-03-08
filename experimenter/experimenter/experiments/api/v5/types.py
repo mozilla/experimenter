@@ -167,7 +167,7 @@ class NimbusFeatureConfigType(DjangoObjectType):
     def resolve_sets_prefs(self, info):
         for schema in self.schemas.all():
             if schema.version is None:
-                return bool(schema.sets_prefs)
+                return bool(schema.set_pref_vars)
 
     def resolve_schema(self, info):
         for schema in self.schemas.all():
@@ -216,8 +216,15 @@ class NimbusBranchType(DjangoObjectType):
             "slug",
         )
 
+    def resolve_screenshots(self, info):
+        if self.id:
+            return self.screenshots.all()
+        return []
+
     def resolve_feature_values(self, info):
-        return self.feature_values.all().order_by("feature_config__id")
+        if self.id:
+            return self.feature_values.all().order_by("feature_config__id")
+        return []
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
@@ -522,6 +529,7 @@ class NimbusExperimentType(DjangoObjectType):
     is_web = graphene.NonNull(graphene.Boolean)
     jexl_targeting_expression = graphene.String()
     languages = graphene.List(graphene.NonNull(NimbusLanguageType), required=True)
+    legal_signoff = graphene.NonNull(graphene.Boolean)
     live_experiments_in_namespace = graphene.NonNull(
         lambda: graphene.List(graphene.NonNull(graphene.String))
     )
@@ -539,6 +547,7 @@ class NimbusExperimentType(DjangoObjectType):
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
     qa_comment = graphene.String()
+    qa_signoff = graphene.NonNull(graphene.Boolean)
     qa_status = NimbusExperimentQAStatusEnum()
     ready_for_review = graphene.Field(NimbusReviewType)
     recipe_json = graphene.String()
@@ -567,6 +576,7 @@ class NimbusExperimentType(DjangoObjectType):
     targeting_config_slug = graphene.String()
     timeout = graphene.Field(NimbusChangeLogType)
     treatment_branches = graphene.List(NimbusBranchType)
+    vp_signoff = graphene.NonNull(graphene.Boolean)
     warn_feature_schema = graphene.Boolean()
 
     class Meta:
@@ -632,6 +642,7 @@ class NimbusExperimentType(DjangoObjectType):
             "review_request",
             "review_url",
             "risk_brand",
+            "risk_message",
             "risk_mitigation_link",
             "risk_partner_related",
             "risk_revenue",

@@ -75,6 +75,7 @@ class ExperimentInput(graphene.InputObjectType):
     is_rollout = graphene.Boolean()
     is_sticky = graphene.Boolean()
     languages = graphene.List(graphene.String)
+    legal_signoff = graphene.Boolean()
     locales = graphene.List(graphene.String)
     localizations = graphene.String()
     name = graphene.String()
@@ -88,12 +89,14 @@ class ExperimentInput(graphene.InputObjectType):
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
     qa_comment = graphene.String()
+    qa_signoff = graphene.Boolean()
     qa_status = NimbusExperimentQAStatusEnum()
     reference_branch = graphene.Field(BranchInput)
     required_experiments_branches = graphene.List(
         graphene.NonNull(NimbusExperimentBranchThroughRequiredInput)
     )
     risk_brand = graphene.Boolean()
+    risk_message = graphene.Boolean()
     risk_mitigation_link = graphene.String()
     risk_partner_related = graphene.Boolean()
     risk_revenue = graphene.Boolean()
@@ -111,6 +114,7 @@ class ExperimentInput(graphene.InputObjectType):
     targeting_config_slug = graphene.String()
     total_enrolled_clients = graphene.Int()
     treatment_branches = graphene.List(BranchInput)
+    vp_signoff = graphene.Boolean()
     warn_feature_schema = graphene.Boolean()
 
 

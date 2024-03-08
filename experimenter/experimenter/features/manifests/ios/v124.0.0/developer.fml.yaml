@@ -55,6 +55,13 @@ features:
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
+      available-suggestions-types:
+        description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
+        type: "Map<SuggestionType, Boolean>"
+        default:
+          amp: true
+          ampMobile: false
+          wikipedia: true
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
@@ -80,6 +87,13 @@ features:
         default:
           jump-back-in: true
           recent-explorations: false
+  login-autofill:
+    description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+    variables:
+      login-autofill-status:
+        description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+        type: Boolean
+        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -210,6 +224,13 @@ features:
           NEVER: "false"
         string-alias: TriggerName
     allow-coenrollment: true
+  night-mode-feature:
+    description: "Describes the night mode feature's configuration\n"
+    variables:
+      enabled:
+        description: "Whether night mode is available for users or not\n"
+        type: Boolean
+        default: true
   onboarding-framework-feature:
     description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
     variables:
@@ -521,6 +542,15 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
+  SuggestionType:
+    description: The type of a Firefox Suggest search suggestion.
+    variants:
+      amp:
+        description: A Firefox Suggestion for desktop from adMarketplace.
+      ampMobile:
+        description: A Firefox Suggestion specifically for mobile from adMarketplace.
+      wikipedia:
+        description: A Firefox Suggestion for a Wikipedia page.
   TabTraySection:
     description: The identifiers for the sections of the tab tray.
     variants:

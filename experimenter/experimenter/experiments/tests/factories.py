@@ -115,7 +115,7 @@ class NimbusVersionedSchemaFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.Version)[1:]).value
     )
     schema = factory.LazyAttribute(lambda o: FAKER_JSON_SCHEMA)
-    sets_prefs = factory.LazyAttribute(lambda o: [])
+    set_pref_vars = factory.LazyAttribute(lambda o: {})
     is_early_startup = False
 
     class Meta:
@@ -408,6 +408,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     risk_partner_related = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_revenue = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_brand = factory.LazyAttribute(lambda o: random.choice([True, False]))
+    risk_message = factory.LazyAttribute(lambda o: random.choice([True, False]))
     is_localized = factory.LazyAttribute(lambda o: False)
     localizations = factory.LazyAttribute(lambda o: None)
     qa_status = factory.LazyAttribute(

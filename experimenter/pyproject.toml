@@ -6,17 +6,14 @@ authors = [""]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-Django = "3.2.24"
 black = "22.12.0"
 celery = "5.3.0"
 chardet = "4.0.0"
 click = "8.1.6"
 coverage = "6.5"
 django-cors-headers = "3.14.0"
-django-filter = "2.4.0"
 django-widget-tweaks = "1.5.0"
 djangorestframework = "3.14.0"
-dockerflow = "2020.10.0"
 factory_boy = "3.3.0"
 gunicorn = "20.1.0"
 ipdb = "0.13.9"
@@ -29,7 +26,7 @@ pytest-watch = "4.2.0"
 python-decouple = "3.8"
 redis = "4.6.0"
 requests = { version = "2.31.0", extras = ["security"] }
-responses = "0.24.0"
+responses = "0.25.0"
 whitenoise = "5.3.0"
 parameterized = "0.9.0"
 pytest-cov = "2.12.1"
@@ -72,7 +69,10 @@ mozilla-nimbus-schemas = "2024.1.4"
 django-redis = "^5.4.0"
 fontawesomefree = "6.4.0"
 django-tailwind = "^3.8.0"
-ruff = "^0.1.0"
+ruff = "^0.3.0"
+django = "^5.0.2"
+dockerflow = "^2024.3.0"
+django-filter = "^23.5"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
@@ -124,6 +124,12 @@ reportUntypedFunctionDecorator = false
 reportUnusedCallResult = false
 
 [tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = ["migrations", ".tox", "node_modules", "legacy", ".pyenv"]
+
+# Same as Black.
+line-length = 90
+[tool.ruff.lint]
 select = [
     "A",
     "B",
@@ -137,16 +143,19 @@ select = [
     "PIE",
     "Q",
     "RET",
+    "RSE",
     "RUF",
     "SIM",
     "TID",
     "UP",
     "W",
     "YTT",
+    "PTH",
 ]
 ignore = [
     "A003",
     "B017",
+    "B035",
     "DJ001",
     "DJ006",
     "DJ012",
@@ -162,16 +171,9 @@ ignore = [
     "RET503",
     "RET504",
     "RET505",
-    "RUF011",
     "RUF012",
     "SIM102",
     "UP006",
     "UP007",
     "UP038",
 ]
-
-# Exclude a variety of commonly ignored directories.
-exclude = ["migrations", ".tox", "node_modules", "legacy", ".pyenv"]
-
-# Same as Black.
-line-length = 90
