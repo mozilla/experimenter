@@ -22,12 +22,18 @@ DEFAULT_TEST_BRANCHES = ["control", "variant"]
 
 class JetstreamTestData:
     @classmethod
-    def get_absolute_metric_data(cls, DATA_POINT):
-        return MetricData(
+    def get_absolute_metric_data(cls, DATA_POINT, is_old_version=False):
+        return cls.get_pairwise_metric_data(is_old_version=is_old_version)(
             absolute=BranchComparisonData(first=DATA_POINT, all=[DATA_POINT]),
-            difference=cls.get_pairwise_branch_comparison_data()(),
-            relative_uplift=cls.get_pairwise_branch_comparison_data()(),
-            significance=cls.get_pairwise_significance_data()(),
+            difference=cls.get_pairwise_branch_comparison_data(
+                is_old_version=is_old_version
+            )(),
+            relative_uplift=cls.get_pairwise_branch_comparison_data(
+                is_old_version=is_old_version
+            )(),
+            significance=cls.get_pairwise_significance_data(
+                is_old_version=is_old_version
+            )(),
         )
 
     @classmethod
@@ -38,23 +44,18 @@ class JetstreamTestData:
         is_retention=False,
         branches=DEFAULT_TEST_BRANCHES,
         comparison_to_branch="control",
+        is_old_version=False,
     ):
         all_data_points = [DATA_POINT]
         if is_retention:
             all_data_points.append(DATA_POINT)
 
-        # set up dicts of non-pairwise data
-        # (populated if the comparison is to the reference control branch)
-        significance = (
-            deepcopy(SIGNIFICANCE.dict())
-            if comparison_to_branch == "control"
-            else SignificanceData().dict()
-        )
-        difference = (
-            BranchComparisonData(first=DATA_POINT, all=all_data_points).dict()
-            if comparison_to_branch == "control"
-            else BranchComparisonData().dict()
-        )
+        significance = cls.get_pairwise_significance_data(
+            is_old_version=is_old_version
+        )().dict()
+        difference = cls.get_pairwise_branch_comparison_data(
+            is_old_version=is_old_version
+        )().dict()
 
         # initialize pairwise branch comparisons inside dicts
         for branch in branches:
@@ -62,40 +63,78 @@ class JetstreamTestData:
             difference[branch] = BranchComparisonData().dict()
 
         # set the comparison branch's data
-        significance[comparison_to_branch] = deepcopy(SIGNIFICANCE.dict())
-        difference[comparison_to_branch] = BranchComparisonData(
+        comparison_data = BranchComparisonData(
             first=DATA_POINT, all=all_data_points
         ).dict()
+        significance[comparison_to_branch] = deepcopy(SIGNIFICANCE.dict())
+        difference[comparison_to_branch] = comparison_data
 
-        return MetricData(
+        # populate old v2 data
+        if is_old_version and comparison_to_branch == "control":
+            difference = difference | comparison_data
+            significance = significance | deepcopy(SIGNIFICANCE.dict())
+
+        return cls.get_pairwise_metric_data(is_old_version=is_old_version)(
             absolute=BranchComparisonData(),
-            difference=cls.get_pairwise_branch_comparison_data()(**difference),
-            relative_uplift=cls.get_pairwise_branch_comparison_data()(),
-            significance=cls.get_pairwise_significance_data()(**significance),
+            difference=cls.get_pairwise_branch_comparison_data(
+                is_old_version=is_old_version
+            )(**difference),
+            relative_uplift=cls.get_pairwise_branch_comparison_data(
+                is_old_version=is_old_version
+            )(),
+            significance=cls.get_pairwise_significance_data(
+                is_old_version=is_old_version
+            )(**significance),
         )
 
     @classmethod
-    def get_pairwise_branch_comparison_data(cls, branches=None):
+    def get_pairwise_branch_comparison_data(cls, branches=None, is_old_version=False):
         if not branches:
             branches = DEFAULT_TEST_BRANCHES
         branches_data = {b: BranchComparisonData() for b in branches}
+        if is_old_version:
+            return create_model(
+                "PairwiseBranchComparisonData",
+                **branches_data,
+                __base__=BranchComparisonData,
+            )
         return create_model(
             "PairwiseBranchComparisonData",
             **branches_data,
-            __base__=BranchComparisonData,
         )
 
     @classmethod
-    def get_pairwise_significance_data(cls, branches=None):
+    def get_pairwise_significance_data(cls, branches=None, is_old_version=False):
         if not branches:
             branches = DEFAULT_TEST_BRANCHES
         # create a dynamic model that extends SignificanceData with all branches
         branches_significance_data = {b: SignificanceData() for b in branches}
+        if is_old_version:
+            return create_model(
+                "PairwiseSignificanceData",
+                **branches_significance_data,
+                __base__=SignificanceData,
+            )
         return create_model(
             "PairwiseSignificanceData",
             **branches_significance_data,
-            __base__=SignificanceData,
         )
+
+    @classmethod
+    def get_pairwise_metric_data(cls, is_old_version=False):
+        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data(
+            is_old_version=is_old_version
+        )
+        PairwiseSignificanceData = cls.get_pairwise_significance_data(
+            is_old_version=is_old_version
+        )
+
+        class PairwiseMetricData(MetricData):
+            difference: PairwiseBranchComparisonData
+            relative_uplift: PairwiseBranchComparisonData
+            significance: PairwiseSignificanceData
+
+        return PairwiseMetricData
 
     @classmethod
     def get_identity_row(cls):
@@ -137,7 +176,7 @@ class JetstreamTestData:
         )
 
     @classmethod
-    def get_data_points(cls):
+    def get_data_points(cls, is_old_version=False):
         DATA_POINT_A = DataPoint(lower=10, point=12, upper=13, window_index=1)
         DATA_POINT_F = DATA_POINT_A.copy()
         DATA_POINT_F.window_index = None
@@ -150,8 +189,12 @@ class JetstreamTestData:
         DATA_POINT_D = DATA_POINT_C.copy()
         DATA_POINT_D.window_index = None
 
-        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
-        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
+        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(
+            DATA_POINT_A, is_old_version=is_old_version
+        )
+        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(
+            DATA_POINT_F, is_old_version=is_old_version
+        )
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 50.0
         return (
@@ -175,66 +218,81 @@ class JetstreamTestData:
         DATA_POINT_E,
         DATA_POINT_C,
         DATA_POINT_D,
+        is_old_version=False,
     ):
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={"1": Significance.NEUTRAL.value}, overall={}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_A,
             SignificanceData(weekly={"1": Significance.POSITIVE.value}, overall={}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_C,
             SignificanceData(weekly={"1": Significance.NEGATIVE.value}, overall={}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={"1": Significance.NEUTRAL.value}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_F,
             SignificanceData(weekly={}, overall={"1": Significance.POSITIVE.value}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={"1": Significance.NEGATIVE.value}),
+            is_retention=True,
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={"1": Significance.NEUTRAL.value}, overall={}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_A,
             SignificanceData(weekly={"1": Significance.POSITIVE.value}, overall={}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_C,
             SignificanceData(weekly={"1": Significance.NEGATIVE.value}, overall={}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={"1": Significance.NEUTRAL.value}),
+            is_retention=True,
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_F,
             SignificanceData(weekly={}, overall={"1": Significance.POSITIVE.value}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={"1": Significance.NEGATIVE.value}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
 
         return (
@@ -253,17 +311,29 @@ class JetstreamTestData:
         )
 
     @classmethod
-    def get_metric_data(cls, data_point):
-        return MetricData(
+    def get_metric_data(cls, data_point, is_old_version=False):
+        return cls.get_pairwise_metric_data(is_old_version=is_old_version)(
             absolute=BranchComparisonData(first=data_point, all=[data_point]),
-            difference=cls.get_pairwise_branch_comparison_data()(),
-            relative_uplift=cls.get_pairwise_branch_comparison_data()(),
-            significance=cls.get_pairwise_significance_data()(),
+            difference=cls.get_pairwise_branch_comparison_data(
+                is_old_version=is_old_version
+            )(),
+            relative_uplift=cls.get_pairwise_branch_comparison_data(
+                is_old_version=is_old_version
+            )(),
+            significance=cls.get_pairwise_significance_data(
+                is_old_version=is_old_version
+            )(),
         ).dict(exclude_none=True)
 
     @classmethod
     def add_outcome_data(
-        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis
+        cls,
+        data,
+        overall_data,
+        weekly_data,
+        primary_outcome,
+        analysis_basis,
+        is_old_version=False,
     ):
         primary_metrics = ["default_browser_action"]
         range_data = DataPoint(lower=2, point=4, upper=8)
@@ -279,13 +349,13 @@ class JetstreamTestData:
                 data_point_overall.count = 48.0
                 overall_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                ] = cls.get_metric_data(data_point_overall, is_old_version=is_old_version)
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
                 weekly_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                ] = cls.get_metric_data(data_point_weekly, is_old_version=is_old_version)
 
                 data.append(
                     JetstreamDataPoint(
@@ -301,7 +371,13 @@ class JetstreamTestData:
 
     @classmethod
     def add_outcome_data_mean(
-        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis
+        cls,
+        data,
+        overall_data,
+        weekly_data,
+        primary_outcome,
+        analysis_basis,
+        is_old_version=False,
     ):
         primary_metrics = ["mozilla_default_browser"]
         range_data = DataPoint(lower=0, point=0, upper=0)
@@ -317,13 +393,13 @@ class JetstreamTestData:
                 data_point_overall.count = 0.0
                 overall_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                ] = cls.get_metric_data(data_point_overall, is_old_version=is_old_version)
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
                 weekly_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                ] = cls.get_metric_data(data_point_weekly, is_old_version=is_old_version)
 
                 data.append(
                     JetstreamDataPoint(
@@ -345,17 +421,28 @@ class JetstreamTestData:
         weekly_data,
         primary_outcomes,
         analysis_basis,
+        is_old_version=False,
     ):
         for primary_outcome in primary_outcomes:
             cls.add_outcome_data(
-                data, overall_data, weekly_data, primary_outcome, analysis_basis
+                data,
+                overall_data,
+                weekly_data,
+                primary_outcome,
+                analysis_basis,
+                is_old_version=is_old_version,
             )
             cls.add_outcome_data_mean(
-                data, overall_data, weekly_data, primary_outcome, analysis_basis
+                data,
+                overall_data,
+                weekly_data,
+                primary_outcome,
+                analysis_basis,
+                is_old_version=is_old_version,
             )
 
     @classmethod
-    def get_test_data(cls, primary_outcomes):
+    def get_test_data(cls, primary_outcomes, is_old_version=False):
         DATA_IDENTITY_ROW = cls.get_identity_row()
 
         CONTROL_DATA_ROW = DATA_IDENTITY_ROW.copy()
@@ -503,7 +590,7 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
-        ) = cls.get_data_points()
+        ) = cls.get_data_points(is_old_version=is_old_version)
 
         (
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL,
@@ -525,12 +612,17 @@ class JetstreamTestData:
             DATA_POINT_E,
             DATA_POINT_C,
             DATA_POINT_D,
+            is_old_version=is_old_version,
         )
 
-        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
-        PairwiseSignificanceData = cls.get_pairwise_significance_data()
+        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data(
+            is_old_version=is_old_version
+        )
+        PairwiseSignificanceData = cls.get_pairwise_significance_data(
+            is_old_version=is_old_version
+        )
 
-        EMPTY_METRIC_DATA = MetricData(
+        EMPTY_METRIC_DATA = cls.get_pairwise_metric_data(is_old_version=is_old_version)(
             absolute=BranchComparisonData(),
             difference=PairwiseBranchComparisonData(),
             relative_uplift=PairwiseBranchComparisonData(),
@@ -715,6 +807,7 @@ class JetstreamTestData:
             WEEKLY_DATA,
             primary_outcomes,
             AnalysisBasis.ENROLLMENTS,
+            is_old_version=is_old_version,
         )
         cls.add_all_outcome_data(
             DAILY_EXPOSURES_DATA,
@@ -722,6 +815,7 @@ class JetstreamTestData:
             WEEKLY_DATA,
             primary_outcomes,
             AnalysisBasis.EXPOSURES,
+            is_old_version=is_old_version,
         )
 
         return (
@@ -735,7 +829,7 @@ class JetstreamTestData:
         )
 
     @classmethod
-    def get_partial_exposures_test_data(cls, primary_outcomes):
+    def get_partial_exposures_test_data(cls, primary_outcomes, is_old_version=False):
         # similar to above but missing weekly retention metric for exposures
         DATA_IDENTITY_ROW = cls.get_identity_row()
 
@@ -838,7 +932,7 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
-        ) = cls.get_data_points()
+        ) = cls.get_data_points(is_old_version=is_old_version)
 
         (
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL,
@@ -860,12 +954,17 @@ class JetstreamTestData:
             DATA_POINT_E,
             DATA_POINT_C,
             DATA_POINT_D,
+            is_old_version=is_old_version,
         )
 
-        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
-        PairwiseSignificanceData = cls.get_pairwise_significance_data()
+        PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data(
+            is_old_version=is_old_version
+        )
+        PairwiseSignificanceData = cls.get_pairwise_significance_data(
+            is_old_version=is_old_version
+        )
 
-        EMPTY_METRIC_DATA = MetricData(
+        EMPTY_METRIC_DATA = cls.get_pairwise_metric_data(is_old_version=is_old_version)(
             absolute=BranchComparisonData(),
             difference=PairwiseBranchComparisonData(),
             relative_uplift=PairwiseBranchComparisonData(),
@@ -1014,6 +1113,7 @@ class JetstreamTestData:
             WEEKLY_DATA,
             primary_outcomes,
             AnalysisBasis.ENROLLMENTS,
+            is_old_version=is_old_version,
         )
         cls.add_all_outcome_data(
             DAILY_EXPOSURES_DATA,
@@ -1021,6 +1121,7 @@ class JetstreamTestData:
             WEEKLY_DATA,
             primary_outcomes,
             AnalysisBasis.EXPOSURES,
+            is_old_version=is_old_version,
         )
 
         return (
@@ -1075,7 +1176,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
         )
 
     @classmethod
-    def get_data_points(cls):
+    def get_data_points(cls, is_old_version=False):
         DATA_POINT_A = DataPoint(lower=0, point=0, upper=0, window_index=1)
         DATA_POINT_F = DATA_POINT_A.copy()
         DATA_POINT_F.window_index = None
@@ -1088,8 +1189,12 @@ class ZeroJetstreamTestData(JetstreamTestData):
         DATA_POINT_D = DATA_POINT_C.copy()
         DATA_POINT_D.window_index = None
 
-        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
-        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
+        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(
+            DATA_POINT_A, is_old_version=is_old_version
+        )
+        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(
+            DATA_POINT_F, is_old_version=is_old_version
+        )
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 0.0
         return (
@@ -1113,66 +1218,81 @@ class ZeroJetstreamTestData(JetstreamTestData):
         DATA_POINT_E,
         DATA_POINT_C,
         DATA_POINT_D,
+        is_old_version=False,
     ):
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_A,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_C,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_F,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={}),
+            is_retention=True,
             comparison_to_branch="control",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_A,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_C,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_E,
             SignificanceData(weekly={}, overall={}),
+            is_retention=True,
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_F,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_D,
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
+            is_old_version=is_old_version,
         )
 
         return (
@@ -1192,7 +1312,13 @@ class ZeroJetstreamTestData(JetstreamTestData):
 
     @classmethod
     def add_outcome_data(
-        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis
+        cls,
+        data,
+        overall_data,
+        weekly_data,
+        primary_outcome,
+        analysis_basis,
+        is_old_version=False,
     ):
         primary_metrics = ["default_browser_action"]
         range_data = DataPoint(lower=0, point=0, upper=0)
@@ -1208,13 +1334,13 @@ class ZeroJetstreamTestData(JetstreamTestData):
                 data_point_overall.count = 0.0
                 overall_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                ] = cls.get_metric_data(data_point_overall, is_old_version=is_old_version)
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
                 weekly_data[branch]["branch_data"][Group.OTHER.value][
                     primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                ] = cls.get_metric_data(data_point_weekly, is_old_version=is_old_version)
 
                 data.append(
                     JetstreamDataPoint(
@@ -1245,7 +1371,7 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
         )
 
     @classmethod
-    def get_data_points(cls):
+    def get_data_points(cls, is_old_version=False):
         DATA_POINT_A = DataPoint(lower=None, point=None, upper=None, window_index=None)
         DATA_POINT_F = DATA_POINT_A.copy()
         DATA_POINT_F.window_index = None
@@ -1258,8 +1384,12 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
         DATA_POINT_D = DATA_POINT_C.copy()
         DATA_POINT_D.window_index = None
 
-        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
-        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
+        ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(
+            DATA_POINT_A, is_old_version=is_old_version
+        )
+        ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(
+            DATA_POINT_F, is_old_version=is_old_version
+        )
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = None
         return (

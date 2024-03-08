@@ -65,13 +65,22 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             DAILY_EXPOSURES_DATA,
             SEGMENT_EXPOSURES_DATA,
         ) = JetstreamTestData.get_test_data(primary_outcomes)
+        (
+            _,
+            WEEKLY_DATA_V2,
+            OVERALL_DATA_V2,
+            _,
+            _,
+            _,
+            _,
+        ) = JetstreamTestData.get_test_data(primary_outcomes, is_old_version=True)
 
         FULL_DATA = {
             "v2": {
                 "daily": {"enrollments": {"all": []}, "exposures": {"all": []}},
                 "weekly": {
                     "enrollments": {
-                        "all": WEEKLY_DATA,
+                        "all": WEEKLY_DATA_V2,
                         "some_segment": {
                             "control": {
                                 "branch_data": {
@@ -178,7 +187,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         },
                     },
                     "exposures": {
-                        "all": WEEKLY_DATA,
+                        "all": WEEKLY_DATA_V2,
                         "some_segment": {
                             "control": {
                                 "branch_data": {
@@ -287,7 +296,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 },
                 "overall": {
                     "enrollments": {
-                        "all": OVERALL_DATA,
+                        "all": OVERALL_DATA_V2,
                         "some_segment": {
                             "control": {
                                 "branch_data": {
@@ -392,7 +401,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         },
                     },
                     "exposures": {
-                        "all": OVERALL_DATA,
+                        "all": OVERALL_DATA_V2,
                         "some_segment": {
                             "control": {
                                 "branch_data": {
@@ -477,6 +486,414 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                             "significance": {
                                                 "overall": {},
                                                 "weekly": {},
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                            "percent": 50.0,
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    },
+                },
+                "other_metrics": {
+                    Group.OTHER.value: {
+                        "some_count": "Some Count",
+                        "another_count": "Another Count",
+                    },
+                },
+                "metadata": {
+                    "outcomes": {
+                        "default-browser": {
+                            "metrics": [
+                                "default_browser_action",
+                                "mozilla_default_browser",
+                                "default_browser_null",
+                                "custom_metric",
+                            ],
+                            "default_metrics": [],
+                            "description": "default browser outcome",
+                            "friendly_name": "Default Browser",
+                            "slug": "default-browser",
+                        }
+                    },
+                    "analysis_start_time": "2022-08-31T04:30:03+00:00",
+                    "metrics": {},
+                },
+                "show_analysis": False,
+                "errors": ERRORS,
+            },
+            "v3": {
+                "weekly": {
+                    "enrollments": {
+                        "all": WEEKLY_DATA,
+                        "some_segment": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                        "window_index": "1",
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                    "window_index": "1",
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "variant": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                        "window_index": "1",
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                    "window_index": "1",
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    },
+                    "exposures": {
+                        "all": WEEKLY_DATA,
+                        "some_segment": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                        "window_index": "1",
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                    "window_index": "1",
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "variant": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                        "window_index": "1",
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                    "window_index": "1",
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    },
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": OVERALL_DATA,
+                        "some_segment": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                            "percent": 50.0,
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "variant": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                            "percent": 50.0,
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    },
+                    "exposures": {
+                        "all": OVERALL_DATA,
+                        "some_segment": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                            "percent": 50.0,
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "variant": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -721,6 +1138,47 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     ],
                 },
             },
+            "v3": {
+                "weekly": {},
+                "overall": {},
+                "metadata": {
+                    "outcomes": {
+                        "default-browser": {
+                            "metrics": [
+                                "default_browser_action",
+                                "mozilla_default_browser",
+                                "default_browser_null",
+                                "custom_metric",
+                            ],
+                            "default_metrics": [],
+                            "description": "default browser outcome",
+                            "friendly_name": "Default Browser",
+                            "slug": "default-browser",
+                        }
+                    },
+                    "analysis_start_time": analysis_start_time,
+                    "metrics": {},
+                },
+                "show_analysis": False,
+                "errors": {
+                    "experiment": [
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": None,
+                            "statistic": None,
+                            "timestamp": error_timestamp,
+                            "analysis_basis": "enrollments",
+                            "segment": "all",
+                        }
+                    ],
+                },
+            },
         }
 
         class File:
@@ -819,10 +1277,38 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             # OVERALL_EXPOSURES_DATA,
             # OVERALL_EXPOSURES_SEGMENT_DATA,
         ) = JetstreamTestData.get_partial_exposures_test_data(primary_outcomes)
+        (
+            _,
+            WEEKLY_DATA_V2,
+            OVERALL_DATA_V2,
+            ERRORS_V2,
+            _,
+            _,
+            _,
+            # WEEKLY_EXPOSURES_DATA_V2,
+            # WEEKLY_EXPOSURES_SEGMENT_DATA_V2,
+            # OVERALL_EXPOSURES_DATA_V2,
+            # OVERALL_EXPOSURES_SEGMENT_DATA_V2,
+        ) = JetstreamTestData.get_partial_exposures_test_data(
+            primary_outcomes, is_old_version=True
+        )
 
         FULL_DATA = {
             "v2": {
                 "daily": {"enrollments": {"all": []}, "exposures": {"all": []}},
+                "weekly": WEEKLY_DATA_V2,
+                "overall": OVERALL_DATA_V2,
+                "other_metrics": {
+                    Group.OTHER.value: {
+                        "some_count": "Some Count",
+                        "another_count": "Another Count",
+                    },
+                },
+                "metadata": {},
+                "show_analysis": False,
+                "errors": ERRORS_V2,
+            },
+            "v3": {
                 "weekly": WEEKLY_DATA,
                 "overall": OVERALL_DATA,
                 "other_metrics": {
@@ -898,12 +1384,22 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             _,
         ) = ZeroJetstreamTestData.get_test_data(primary_outcomes)
 
+        (
+            _,
+            WEEKLY_DATA_V2,
+            OVERALL_DATA_V2,
+            _,
+            _,
+            _,
+            _,
+        ) = ZeroJetstreamTestData.get_test_data(primary_outcomes, is_old_version=True)
+
         FULL_DATA = {
             "v2": {
                 "daily": {"enrollments": {"all": []}},
                 "weekly": {
                     "enrollments": {
-                        "all": WEEKLY_DATA,
+                        "all": WEEKLY_DATA_V2,
                         "some_segment": {
                             "control": {
                                 "branch_data": {
@@ -1012,7 +1508,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 },
                 "overall": {
                     "enrollments": {
-                        "all": OVERALL_DATA,
+                        "all": OVERALL_DATA_V2,
                         "some_segment": {
                             "control": {
                                 "branch_data": {
@@ -1097,6 +1593,209 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                             "significance": {
                                                 "overall": {},
                                                 "weekly": {},
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                            "percent": 0.0,
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    },
+                },
+                "other_metrics": {
+                    Group.OTHER.value: {
+                        "some_count": "Some Count",
+                        "another_count": "Another Count",
+                    },
+                },
+                "metadata": {},
+                "show_analysis": False,
+                "errors": {"experiment": []},
+            },
+            "v3": {
+                "weekly": {
+                    "enrollments": {
+                        "all": WEEKLY_DATA,
+                        "some_segment": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.0,
+                                                        "window_index": "1",
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.0,
+                                                    "window_index": "1",
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "variant": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.0,
+                                                        "window_index": "1",
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.0,
+                                                    "window_index": "1",
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    },
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": OVERALL_DATA,
+                        "some_segment": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                            "percent": 0.0,
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "variant": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
@@ -1238,11 +1937,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         treatment_branch_a = experiment.treatment_branches[0]
         treatment_branch_a.slug = "treatment-a"
         treatment_branch_a.save()
-
-        # raise ValueError(
-        #     experiment.reference_branch.slug,
-        #     [b.slug for b in experiment.treatment_branches],
-        # )
 
         RESULTS_DATA = [
             {
@@ -2270,7 +2964,701 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 },
                 "other_metrics": {"other_metrics": {"test": "Test"}},
                 "show_analysis": False,
-            }
+            },
+            "v3": {
+                "weekly": {
+                    "enrollments": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "test": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.855,
+                                                        "point": 0.856,
+                                                        "upper": 0.8575,
+                                                        "window_index": "1",
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.855,
+                                                    "point": 0.856,
+                                                    "upper": 0.8575,
+                                                    "window_index": "1",
+                                                },
+                                            },
+                                            "difference": {
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -10.2,
+                                                            "point": -0.1,
+                                                            "upper": -0.01,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -10.2,
+                                                        "point": -0.1,
+                                                        "upper": -0.01,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -1.2,
+                                                            "point": -1.1,
+                                                            "upper": -1.01,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -1.2,
+                                                        "point": -1.1,
+                                                        "upper": -1.01,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "control": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.3,
+                                                            "point": -0.2,
+                                                            "upper": -0.1,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.3,
+                                                        "point": -0.2,
+                                                        "upper": -0.1,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -2.2,
+                                                            "point": -2.1,
+                                                            "upper": -2.01,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -2.2,
+                                                        "point": -2.1,
+                                                        "upper": -2.01,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "control": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "significance": {
+                                                "treatment-a": {
+                                                    "overall": {},
+                                                    "weekly": {"1": "negative"},
+                                                },
+                                                "treatment-b": {
+                                                    "overall": {},
+                                                    "weekly": {"1": "negative"},
+                                                },
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "treatment-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "test": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.857,
+                                                        "point": 0.858,
+                                                        "upper": 0.8596,
+                                                        "window_index": "1",
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.857,
+                                                    "point": 0.858,
+                                                    "upper": 0.8596,
+                                                    "window_index": "1",
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -10.0,
+                                                            "point": 0.1,
+                                                            "upper": 10.2,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -10.0,
+                                                        "point": 0.1,
+                                                        "upper": 10.2,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 2.5,
+                                                            "point": 0.1,
+                                                            "upper": 1.0,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 2.5,
+                                                        "point": 0.1,
+                                                        "upper": 1.0,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.1,
+                                                            "point": 0.2,
+                                                            "upper": 0.3,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 0.1,
+                                                        "point": 0.2,
+                                                        "upper": 0.3,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 3.141592653589793,
+                                                            "point": 0.1111111111111111,
+                                                            "upper": 0.2222222222222222,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 3.141592653589793,
+                                                        "point": 0.1111111111111111,
+                                                        "upper": 0.2222222222222222,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {"1": "neutral"},
+                                                },
+                                                "treatment-b": {
+                                                    "overall": {},
+                                                    "weekly": {"1": "positive"},
+                                                },
+                                                "treatment-a": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                            "treatment-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "test": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.856,
+                                                        "point": 0.857,
+                                                        "upper": 0.8589,
+                                                        "window_index": "1",
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.856,
+                                                    "point": 0.857,
+                                                    "upper": 0.8589,
+                                                    "window_index": "1",
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 1.0,
+                                                            "point": 0.0,
+                                                            "upper": 0.5,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 1.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.5,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.9,
+                                                            "point": -0.8,
+                                                            "upper": -0.5,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.9,
+                                                        "point": -0.8,
+                                                        "upper": -0.5,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 2.2,
+                                                            "point": 0.1,
+                                                            "upper": 0.02,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 2.2,
+                                                        "point": 0.1,
+                                                        "upper": 0.02,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.2,
+                                                            "point": -0.1,
+                                                            "upper": -0.01,
+                                                            "window_index": "1",
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.2,
+                                                        "point": -0.1,
+                                                        "upper": -0.01,
+                                                        "window_index": "1",
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {"1": "positive"},
+                                                },
+                                                "treatment-a": {
+                                                    "overall": {},
+                                                    "weekly": {"1": "negative"},
+                                                },
+                                                "treatment-b": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    }
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "test": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.855,
+                                                        "point": 0.856,
+                                                        "upper": 0.8575,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.855,
+                                                    "point": 0.856,
+                                                    "upper": 0.8575,
+                                                },
+                                            },
+                                            "difference": {
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -10.2,
+                                                            "point": -0.1,
+                                                            "upper": -0.01,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -10.2,
+                                                        "point": -0.1,
+                                                        "upper": -0.01,
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -1.2,
+                                                            "point": -1.1,
+                                                            "upper": -1.01,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -1.2,
+                                                        "point": -1.1,
+                                                        "upper": -1.01,
+                                                    },
+                                                },
+                                                "control": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.3,
+                                                            "point": -0.2,
+                                                            "upper": -0.1,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.3,
+                                                        "point": -0.2,
+                                                        "upper": -0.1,
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -2.2,
+                                                            "point": -2.1,
+                                                            "upper": -2.01,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -2.2,
+                                                        "point": -2.1,
+                                                        "upper": -2.01,
+                                                    },
+                                                },
+                                                "control": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "significance": {
+                                                "treatment-a": {
+                                                    "overall": {"1": "negative"},
+                                                    "weekly": {},
+                                                },
+                                                "treatment-b": {
+                                                    "overall": {"1": "negative"},
+                                                    "weekly": {},
+                                                },
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "treatment-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "test": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.857,
+                                                        "point": 0.858,
+                                                        "upper": 0.8596,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.857,
+                                                    "point": 0.858,
+                                                    "upper": 0.8596,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -10.0,
+                                                            "point": 0.1,
+                                                            "upper": 10.2,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -10.0,
+                                                        "point": 0.1,
+                                                        "upper": 10.2,
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 2.5,
+                                                            "point": 0.1,
+                                                            "upper": 1.0,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 2.5,
+                                                        "point": 0.1,
+                                                        "upper": 1.0,
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.1,
+                                                            "point": 0.2,
+                                                            "upper": 0.3,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 0.1,
+                                                        "point": 0.2,
+                                                        "upper": 0.3,
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 3.141592653589793,
+                                                            "point": 0.1111111111111111,
+                                                            "upper": 0.2222222222222222,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 3.141592653589793,
+                                                        "point": 0.1111111111111111,
+                                                        "upper": 0.2222222222222222,
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {"1": "neutral"},
+                                                    "weekly": {},
+                                                },
+                                                "treatment-b": {
+                                                    "overall": {"1": "positive"},
+                                                    "weekly": {},
+                                                },
+                                                "treatment-a": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                            "treatment-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "test": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.856,
+                                                        "point": 0.857,
+                                                        "upper": 0.8589,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.856,
+                                                    "point": 0.857,
+                                                    "upper": 0.8589,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 1.0,
+                                                            "point": 0.0,
+                                                            "upper": 0.5,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 1.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.5,
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.9,
+                                                            "point": -0.8,
+                                                            "upper": -0.5,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.9,
+                                                        "point": -0.8,
+                                                        "upper": -0.5,
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 2.2,
+                                                            "point": 0.1,
+                                                            "upper": 0.02,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": 2.2,
+                                                        "point": 0.1,
+                                                        "upper": 0.02,
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.2,
+                                                            "point": -0.1,
+                                                            "upper": -0.01,
+                                                        },
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.2,
+                                                        "point": -0.1,
+                                                        "upper": -0.01,
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [],
+                                                    "first": {},
+                                                },
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {"1": "positive"},
+                                                    "weekly": {},
+                                                },
+                                                "treatment-a": {
+                                                    "overall": {"1": "negative"},
+                                                    "weekly": {},
+                                                },
+                                                "treatment-b": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    }
+                },
+                "errors": {"experiment": []},
+                "metadata": {
+                    "outcomes": {
+                        "default-browser": {"default_metrics": [], "metrics": ["test"]}
+                    }
+                },
+                "other_metrics": {"other_metrics": {"test": "Test"}},
+                "show_analysis": False,
+            },
         }
 
         class File:
@@ -2320,6 +3708,13 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             {
                 "v2": {
                     "daily": {},
+                    "metadata": None,
+                    "overall": {},
+                    "show_analysis": False,
+                    "weekly": {},
+                    "errors": {"experiment": []},
+                },
+                "v3": {
                     "metadata": None,
                     "overall": {},
                     "show_analysis": False,
@@ -2381,6 +3776,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         experiment.results_data = {
             "v2": {
                 "daily": None,
+                "metadata": None,
+                "overall": None,
+                "show_analysis": False,
+                "weekly": None,
+            },
+            "v3": {
                 "metadata": None,
                 "overall": None,
                 "show_analysis": False,
