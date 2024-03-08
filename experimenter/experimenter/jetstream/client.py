@@ -210,10 +210,6 @@ def get_experiment_data(experiment: NimbusExperiment):
         "metadata": experiment_metadata,
     }
 
-    # import ipdb
-
-    # ipdb.set_trace()
-
     for window in windows:
         experiment_data[window] = {}
         experiment_data_old[window] = {}
