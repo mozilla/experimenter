@@ -403,6 +403,17 @@ features:
         description: "Whether the Fakespot feature is enabled or disabled\n"
         type: Boolean
         default: true
+  splash-screen:
+    description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
+    variables:
+      enabled:
+        description: "If true, the feature is active.\n"
+        type: Boolean
+        default: false
+      maximum_duration_ms:
+        description: "The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.\n"
+        type: Int
+        default: 6000
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
