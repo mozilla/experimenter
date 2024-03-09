@@ -178,6 +178,17 @@ shopping2023:
     status:
       type: boolean
       description: "Whether the Fakespot feature is enabled or disabled\n"
+splash-screen:
+  description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the feature is active.\n"
+    maximum_duration_ms:
+      type: int
+      description: "The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.\n"
 spotlight-search:
   description: Add pages as items findable with Spotlight.
   hasExposure: true
