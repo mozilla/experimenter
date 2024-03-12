@@ -454,6 +454,7 @@ export const FormBranches = ({
           {referenceBranch && (
             <FormBranch
               {...{
+                experiment,
                 ...commonBranchProps,
                 fieldNamePrefix: "referenceBranch",
                 // react-hook-form types seem broken for nested fields
@@ -488,6 +489,7 @@ export const FormBranches = ({
                 <FormBranch
                   key={branch.key}
                   {...{
+                    experiment,
                     ...commonBranchProps,
                     fieldNamePrefix: `treatmentBranches[${idx}]`,
                     //@ts-ignore react-hook-form types seem broken for nested fields
