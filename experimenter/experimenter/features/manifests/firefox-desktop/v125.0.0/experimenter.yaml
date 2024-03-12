@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+# yaml-language-server: $schema=schemas/ExperimentFeatureManifest.schema.json
+
 # Features must be added here to be accessible through the NimbusFeature API.
 
 "no-feature-firefox-desktop":
@@ -2184,17 +2186,6 @@ httpSpeculativeParallelLimit:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
-
-deviceMigration:
-  description: Prefs to control aspects of the new device migration experiment
-  owner: hjones@mozilla.com
-  hasExposure: false
-  isEarlyStartup: true
-  variables:
-    helpMenuHidden:
-      description: True if new help menu item should be hidden
-      type: boolean
-      fallbackPref: browser.device-migration.help-menu.hidden
 
 shopping2023:
   description: Prefs to control the 2023 shopping experiment.
