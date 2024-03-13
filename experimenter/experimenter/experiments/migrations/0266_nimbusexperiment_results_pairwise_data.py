@@ -46,7 +46,8 @@ def update_results_data_schema(apps, schema_editor):
                                                 "weekly": {},
                                                 "overall: {}
                                             }
-                                        }
+                                        },
+                                        "percent": 0.0
             """
 
             comparison_default = {"first": {}, "all": []}
@@ -73,6 +74,8 @@ def update_results_data_schema(apps, schema_editor):
                                             comparison,
                                             comparison_data,
                                         ) in metric_data.items():
+                                            if not isinstance(comparison_data, dict):
+                                                continue
                                             metric_data_keys = [
                                                 k for k in comparison_data.keys()
                                             ]

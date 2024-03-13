@@ -41,6 +41,7 @@ class TestMigrations(MigratorTestCase):
                                     "difference": data_point,
                                     "relative_uplift": data_point,
                                     "significance": significance,
+                                    "percent": 0.0,
                                 }
                             }
                         },
@@ -54,6 +55,7 @@ class TestMigrations(MigratorTestCase):
                                     "difference": data_point,
                                     "relative_uplift": data_point,
                                     "significance": significance,
+                                    "percent": 0.0,
                                 }
                             }
                         },
@@ -108,6 +110,7 @@ class TestMigrations(MigratorTestCase):
                                         "control": empty_significance,
                                         "treatment": significance,
                                     },
+                                    "percent": 0.0,
                                 }
                             }
                         },
@@ -130,6 +133,7 @@ class TestMigrations(MigratorTestCase):
                                         "control": significance,
                                         "treatment": empty_significance,
                                     },
+                                    "percent": 0.0,
                                 }
                             }
                         },
