@@ -193,6 +193,8 @@ class TestMigrations(MigratorTestCase):
         changes = changed_data["v3"]["weekly"]["enrollments"]["all"]
 
         changes_control = changes["control"]["branch_data"]["other_metrics"]["identity"]
+        self.assertTrue("percent" in changes_control)
+
         self.assertTrue("control" in changes_control["difference"])
         self.assertTrue("treatment" in changes_control["difference"])
         self.assertEqual(
@@ -225,6 +227,7 @@ class TestMigrations(MigratorTestCase):
         changes_treatment = changes["treatment"]["branch_data"]["other_metrics"][
             "identity"
         ]
+        self.assertTrue("percent" in changes_treatment)
         self.assertTrue("control" in changes_treatment["difference"])
         self.assertTrue("treatment" in changes_treatment["difference"])
         self.assertFalse("all" in changes_treatment["difference"])
