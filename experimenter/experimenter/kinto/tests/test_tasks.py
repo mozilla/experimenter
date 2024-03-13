@@ -983,9 +983,11 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestC
     ):
         should_publish_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PREVIEW,
+            published_date=None,
         )
         should_unpublish_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            published_date=timezone.now(),
         )
 
         self.setup_kinto_get_main_records([should_unpublish_experiment.slug])
@@ -998,10 +1000,13 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestC
             id=should_publish_experiment.id
         )
         self.assertEqual(should_publish_experiment.published_dto, data)
+        self.assertIsNotNone(should_publish_experiment.published_date)
 
         should_unpublish_experiment = NimbusExperiment.objects.get(
             id=should_unpublish_experiment.id
         )
+
+        self.assertIsNone(should_unpublish_experiment.published_date)
 
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
