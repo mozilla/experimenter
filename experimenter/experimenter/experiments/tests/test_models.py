@@ -2244,6 +2244,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.release_date, None)
         self.assertEqual(child.enrollment_start_date, None)
         self.assertEqual(child.published_dto, None)
+        self.assertEqual(child.published_date, None)
         self.assertEqual(child.results_data, None)
         self.assertEqual(child.takeaways_gain_amount, None)
         self.assertEqual(child.takeaways_metric_gain, False)

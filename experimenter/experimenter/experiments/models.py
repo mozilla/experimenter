@@ -976,6 +976,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.reference_branch = None
         cloned.proposed_release_date = None
         cloned.published_dto = None
+        cloned.published_date = None
         cloned.results_data = None
         cloned.takeaways_summary = None
         cloned.conclusion_recommendation = None
