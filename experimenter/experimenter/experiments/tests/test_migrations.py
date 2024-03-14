@@ -204,73 +204,73 @@ class TestMigrations(MigratorTestCase):
             slug="test-experiment"
         ).results_data
         changed_data = NimbusExperiment.objects.get(slug="test-experiment").results_data
-        self.assertDictEqual(changed_data["v2"], prechange_data["v2"])
+        self.assertEqual(changed_data["v2"], prechange_data["v2"])
         changes = changed_data["v3"]["weekly"]["enrollments"]["all"]
 
         changes_control = changes["control"]["branch_data"]["other_metrics"]["identity"]
-        self.assertTrue("percent" in changes_control)
+        self.assertIn("percent", changes_control)
 
-        self.assertTrue("control" in changes_control["difference"])
-        self.assertTrue("treatment" in changes_control["difference"])
+        self.assertIn("control", changes_control["difference"])
+        self.assertIn("treatment", changes_control["difference"])
         self.assertEqual(
             ["control", "treatment"], list(changes_control["difference"].keys())
         )
-        self.assertFalse("all" in changes_control["difference"])
-        self.assertFalse("first" in changes_control["difference"])
-        self.assertTrue("all" in changes_control["difference"]["control"])
-        self.assertTrue("first" in changes_control["difference"]["control"])
-        self.assertTrue("all" in changes_control["difference"]["treatment"])
-        self.assertTrue("first" in changes_control["difference"]["treatment"])
-        self.assertFalse("point" in changes_control["difference"]["treatment"]["first"])
+        self.assertNotIn("all", changes_control["difference"])
+        self.assertNotIn("first", changes_control["difference"])
+        self.assertIn("all", changes_control["difference"]["control"])
+        self.assertIn("first", changes_control["difference"]["control"])
+        self.assertIn("all", changes_control["difference"]["treatment"])
+        self.assertIn("first", changes_control["difference"]["treatment"])
+        self.assertNotIn("point", changes_control["difference"]["treatment"]["first"])
 
-        self.assertTrue("control" in changes_control["relative_uplift"])
-        self.assertTrue("treatment" in changes_control["relative_uplift"])
-        self.assertFalse("all" in changes_control["relative_uplift"])
-        self.assertFalse("first" in changes_control["relative_uplift"])
-        self.assertFalse(
-            "point" in changes_control["relative_uplift"]["treatment"]["first"]
+        self.assertIn("control", changes_control["relative_uplift"])
+        self.assertIn("treatment", changes_control["relative_uplift"])
+        self.assertNotIn("all", changes_control["relative_uplift"])
+        self.assertNotIn("first", changes_control["relative_uplift"])
+        self.assertNotIn(
+            "point", changes_control["relative_uplift"]["treatment"]["first"]
         )
 
-        self.assertTrue("control" in changes_control["significance"])
-        self.assertTrue("treatment" in changes_control["significance"])
-        self.assertFalse("weekly" in changes_control["significance"])
-        self.assertFalse("overall" in changes_control["significance"])
-        self.assertTrue("weekly" in changes_control["significance"]["treatment"])
-        self.assertTrue("overall" in changes_control["significance"]["treatment"])
-        self.assertFalse("1" in changes_control["significance"]["control"]["weekly"])
+        self.assertIn("control", changes_control["significance"])
+        self.assertIn("treatment", changes_control["significance"])
+        self.assertNotIn("weekly", changes_control["significance"])
+        self.assertNotIn("overall", changes_control["significance"])
+        self.assertIn("weekly", changes_control["significance"]["treatment"])
+        self.assertIn("overall", changes_control["significance"]["treatment"])
+        self.assertNotIn("1", changes_control["significance"]["control"]["weekly"])
 
         changes_treatment = changes["treatment"]["branch_data"]["other_metrics"][
             "identity"
         ]
-        self.assertTrue("percent" in changes_treatment)
-        self.assertTrue("control" in changes_treatment["difference"])
-        self.assertTrue("treatment" in changes_treatment["difference"])
-        self.assertFalse("all" in changes_treatment["difference"])
-        self.assertFalse("first" in changes_treatment["difference"])
+        self.assertIn("percent", changes_treatment)
+        self.assertIn("control", changes_treatment["difference"])
+        self.assertIn("treatment", changes_treatment["difference"])
+        self.assertNotIn("all", changes_treatment["difference"])
+        self.assertNotIn("first", changes_treatment["difference"])
         self.assertEqual(
             ["all", "first"], list(changes_treatment["difference"]["control"].keys())
         )
-        self.assertTrue("all" in changes_treatment["difference"]["control"])
-        self.assertTrue("first" in changes_treatment["difference"]["control"])
-        self.assertTrue("all" in changes_treatment["difference"]["treatment"])
-        self.assertTrue("first" in changes_treatment["difference"]["treatment"])
-        self.assertTrue("point" in changes_treatment["difference"]["control"]["first"])
+        self.assertIn("all", changes_treatment["difference"]["control"])
+        self.assertIn("first", changes_treatment["difference"]["control"])
+        self.assertIn("all", changes_treatment["difference"]["treatment"])
+        self.assertIn("first", changes_treatment["difference"]["treatment"])
+        self.assertIn("point", changes_treatment["difference"]["control"]["first"])
 
-        self.assertTrue("control" in changes_treatment["relative_uplift"])
-        self.assertTrue("treatment" in changes_treatment["relative_uplift"])
-        self.assertFalse("all" in changes_treatment["relative_uplift"])
-        self.assertFalse("first" in changes_treatment["relative_uplift"])
-        self.assertFalse(
-            "point" in changes_treatment["relative_uplift"]["treatment"]["first"]
+        self.assertIn("control", changes_treatment["relative_uplift"])
+        self.assertIn("treatment", changes_treatment["relative_uplift"])
+        self.assertNotIn("all", changes_treatment["relative_uplift"])
+        self.assertNotIn("first", changes_treatment["relative_uplift"])
+        self.assertNotIn(
+            "point", changes_treatment["relative_uplift"]["treatment"]["first"]
         )
 
-        self.assertTrue("control" in changes_treatment["significance"])
-        self.assertTrue("treatment" in changes_treatment["significance"])
-        self.assertFalse("weekly" in changes_treatment["significance"])
-        self.assertFalse("overall" in changes_treatment["significance"])
-        self.assertTrue("weekly" in changes_treatment["significance"]["treatment"])
-        self.assertTrue("overall" in changes_treatment["significance"]["treatment"])
-        self.assertTrue("1" in changes_treatment["significance"]["control"]["weekly"])
+        self.assertIn("control", changes_treatment["significance"])
+        self.assertIn("treatment", changes_treatment["significance"])
+        self.assertNotIn("weekly", changes_treatment["significance"])
+        self.assertNotIn("overall", changes_treatment["significance"])
+        self.assertIn("weekly", changes_treatment["significance"]["treatment"])
+        self.assertIn("overall", changes_treatment["significance"]["treatment"])
+        self.assertIn("1", changes_treatment["significance"]["control"]["weekly"])
 
         unchanged_data = NimbusExperiment.objects.get(
             slug="another-experiment"
@@ -279,32 +279,32 @@ class TestMigrations(MigratorTestCase):
             "branch_data"
         ]["other_metrics"]["identity"]
 
-        self.assertTrue("control" in nonchanges["difference"])
-        self.assertTrue("treatment" in nonchanges["difference"])
-        self.assertFalse("all" in nonchanges["difference"])
-        self.assertFalse("first" in nonchanges["difference"])
-        self.assertTrue("all" in nonchanges["difference"]["control"])
-        self.assertTrue("first" in nonchanges["difference"]["control"])
-        self.assertTrue("all" in nonchanges["difference"]["treatment"])
-        self.assertTrue("first" in nonchanges["difference"]["treatment"])
-        self.assertTrue("point" in nonchanges["difference"]["treatment"]["first"])
+        self.assertIn("control", nonchanges["difference"])
+        self.assertIn("treatment", nonchanges["difference"])
+        self.assertNotIn("all", nonchanges["difference"])
+        self.assertNotIn("first", nonchanges["difference"])
+        self.assertIn("all", nonchanges["difference"]["control"])
+        self.assertIn("first", nonchanges["difference"]["control"])
+        self.assertIn("all", nonchanges["difference"]["treatment"])
+        self.assertIn("first", nonchanges["difference"]["treatment"])
+        self.assertIn("point", nonchanges["difference"]["treatment"]["first"])
 
-        self.assertTrue("control" in nonchanges["relative_uplift"])
-        self.assertTrue("treatment" in nonchanges["relative_uplift"])
-        self.assertFalse("all" in nonchanges["relative_uplift"])
-        self.assertFalse("first" in nonchanges["relative_uplift"])
-        self.assertFalse("point" in nonchanges["relative_uplift"]["control"]["first"])
+        self.assertIn("control", nonchanges["relative_uplift"])
+        self.assertIn("treatment", nonchanges["relative_uplift"])
+        self.assertNotIn("all", nonchanges["relative_uplift"])
+        self.assertNotIn("first", nonchanges["relative_uplift"])
+        self.assertNotIn("point", nonchanges["relative_uplift"]["control"]["first"])
 
-        self.assertTrue("control" in nonchanges["significance"])
-        self.assertTrue("treatment" in nonchanges["significance"])
-        self.assertFalse("weekly" in nonchanges["significance"])
-        self.assertFalse("overall" in nonchanges["significance"])
-        self.assertTrue("1" in nonchanges["significance"]["treatment"]["weekly"])
+        self.assertIn("control", nonchanges["significance"])
+        self.assertIn("treatment", nonchanges["significance"])
+        self.assertNotIn("weekly", nonchanges["significance"])
+        self.assertNotIn("overall", nonchanges["significance"])
+        self.assertIn("1", nonchanges["significance"]["treatment"]["weekly"])
 
         prechange_data = NimbusExperimentOld.objects.get(
             slug="another-experiment"
         ).results_data
-        self.assertDictEqual(unchanged_data, prechange_data)
+        self.assertEqual(unchanged_data, prechange_data)
 
         unchanged_data = NimbusExperiment.objects.get(
             slug="empty-experiment"
@@ -312,4 +312,4 @@ class TestMigrations(MigratorTestCase):
         prechange_data = NimbusExperimentOld.objects.get(
             slug="empty-experiment"
         ).results_data
-        self.assertDictEqual(unchanged_data, prechange_data)
+        self.assertEqual(unchanged_data, prechange_data)
