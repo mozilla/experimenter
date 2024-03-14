@@ -5,6 +5,7 @@ import { Diagnostic } from "@codemirror/lint";
 import { Text } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import jsonToAst from "json-to-ast";
+import { getConfig_nimbusConfig_allFeatureConfigs } from "src/types/getConfig";
 import { z } from "zod";
 
 /**
@@ -347,26 +348,36 @@ export function schemaAutocomplete(schema: Record<string, unknown>) {
   };
 }
 
-/**
- * Parse from FML errors to Diagnostics
- */
-function parseFmlErrors(view: TestableEditorView): Diagnostic[] {
-  const diagnostics: Diagnostic[] = [];
+export function fmlLinter(
+  slug: string,
+  feature: getConfig_nimbusConfig_allFeatureConfigs,
+) {
+  return async function (view: TestableEditorView) {
+    const url = `/api/v5/fml-errors/${slug}/`;
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        featureSlug: feature.slug,
+        featureValue: view.state.doc.toString(),
+      }),
+    });
+    const errors: Record<string, any>[] = await response.json();
 
-  const doc = view.state.doc;
-  const text = doc.toString();
-  const from = text.indexOf("error");
-  if (from === -1) return diagnostics;
+    return errors.map((e: Record<string, any>) => {
+      const position = documentPosition(
+        view.state.doc,
+        e["line"] + 1,
+        e["col"],
+      );
 
-  const to = from + "error".length;
-
-  diagnostics.push(createDiagnostic(from, to, "oh no!"));
-  return diagnostics;
-}
-
-export function fmlLinter() {
-  return function (view: TestableEditorView) {
-    // TODO call endpoint to retrieve errors, remove temp error highlighting
-    return parseFmlErrors(view);
+      return createDiagnostic(
+        position,
+        position + e["highlight"].length,
+        e["message"],
+      );
+    });
   };
 }

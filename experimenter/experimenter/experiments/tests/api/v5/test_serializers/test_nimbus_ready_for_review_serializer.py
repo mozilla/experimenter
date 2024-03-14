@@ -1,9 +1,7 @@
 import datetime
 import json
-from dataclasses import dataclass
 from itertools import chain, product
 from typing import Literal, Optional, Union
-from unittest.mock import patch
 
 from django.test import TestCase
 from parameterized import parameterized
@@ -24,6 +22,7 @@ from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusFmlErrorDataClass,
     NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
@@ -73,14 +72,6 @@ REF_JSON_SCHEMA = """\
   }
 }
 """
-
-
-@dataclass
-class NimbusFmlErrorDataClass:
-    line: int
-    col: int
-    message: str
-    highlight: str
 
 
 class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
@@ -3507,21 +3498,17 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             serializer.errors,
         )
 
-    @patch(
-        "experimenter.features.manifests.nimbus_fml_loader.NimbusFmlLoader.get_fml_errors",
-    )
-    def test_fml_validate_feature_versioned_truncated_range(
-        self,
-        mock_fml_errors,
-    ):
-        mock_fml_errors.return_value = [
-            NimbusFmlErrorDataClass(
-                line=1,
-                col=0,
-                message="Incorrect value!",
-                highlight="enabled",
-            ),
-        ]
+    def test_fml_validate_feature_versioned_truncated_range(self):
+        self.setup_get_fml_errors(
+            [
+                NimbusFmlErrorDataClass(
+                    line=1,
+                    col=0,
+                    message="Incorrect value!",
+                    highlight="enabled",
+                ),
+            ]
+        )
         application = NimbusExperiment.Application.IOS
         min_version = NimbusExperiment.Version.FIREFOX_110
         max_version = NimbusExperiment.Version.NO_VERSION

@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from django.conf import settings
 from django.test import TestCase
@@ -7,9 +8,13 @@ from django.urls import reverse
 from experimenter.experiments.api.v5.serializers import NimbusExperimentCsvSerializer
 from experimenter.experiments.api.v5.views import NimbusExperimentCsvRenderer
 from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.tests.api.v5.test_serializers.mixins import (
+    MockFmlErrorMixin,
+)
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusFmlErrorDataClass,
 )
 
 
@@ -95,3 +100,43 @@ class TestNimbusExperimentCsvListView(TestCase):
             renderer_context={"header": NimbusExperimentCsvSerializer.Meta.fields},
         )
         self.assertEqual(csv_data, expected_csv_data)
+
+
+class TestFmlErrorsView(MockFmlErrorMixin, TestCase):
+    def test_returns_fml_errors(self):
+        user_email = "user@example.com"
+        self.setup_get_fml_errors(
+            [
+                NimbusFmlErrorDataClass(
+                    line=1,
+                    col=0,
+                    message="Incorrect value!",
+                    highlight="enabled",
+                ),
+            ]
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+        )
+
+        response = self.client.put(
+            reverse("nimbus-fml-errors", kwargs={"slug": experiment.slug}),
+            {"featureSlug": "blerp", "featureValue": json.dumps({"some": "value"})},
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "line": 1,
+                    "col": 0,
+                    "highlight": "enabled",
+                    "message": "Incorrect value!",
+                }
+            ],
+        )
