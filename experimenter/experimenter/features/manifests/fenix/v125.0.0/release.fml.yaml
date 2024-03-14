@@ -98,7 +98,7 @@ features:
             card-type: add-search-widget
             disqualifiers:
               - NEVER
-            enabled: false
+            enabled: true
             image-res: ic_onboarding_search_widget
             ordering: 15
             prerequisites:
