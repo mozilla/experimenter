@@ -169,7 +169,8 @@ describe("hooks/useCommonForm", () => {
     });
 
     it("FormBranch", () => {
-      render(<BranchSubject />);
+      const { experiment } = mockExperimentQuery("boo", {});
+      render(<BranchSubject experiment={experiment} />);
 
       branchFieldNames.forEach((name) => {
         const fieldName = `referenceBranch.${name}`;

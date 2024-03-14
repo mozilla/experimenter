@@ -15,10 +15,10 @@ import {
   schemaAutocomplete,
   schemaLinter,
 } from "src/components/PageEditBranches/FormBranches/FormFeatureValue/validators";
-
-const allowFmlLinting = false;
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export default function RichFeatureValueEditor({
+  experiment,
   featureConfig,
   defaultValues,
   fieldNamePrefix,
@@ -84,11 +84,12 @@ export default function RichFeatureValueEditor({
     ];
 
     if (schema) {
-      if (allowFmlLinting) {
-        extensions.push(linter(fmlLinter()));
-      } else {
+      if (experiment.application === NimbusExperimentApplicationEnum.DESKTOP) {
         extensions.push(linter(schemaLinter(schema)));
+      } else {
+        extensions.push(linter(fmlLinter(experiment.slug, featureConfig)));
       }
+
       const completionSource = schemaAutocomplete(schema);
       if (completionSource) {
         extensions.push(
@@ -100,7 +101,14 @@ export default function RichFeatureValueEditor({
     }
 
     return extensions;
-  }, [field, hideSubmitErrors, schema]);
+  }, [
+    field,
+    hideSubmitErrors,
+    schema,
+    featureConfig,
+    experiment.slug,
+    experiment.application,
+  ]);
 
   // We can't use formControlAttrs() because this isn't actually a form component
   // -- it is actually a bunch of divs, so there is no <input> to pass the return

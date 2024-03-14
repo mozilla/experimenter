@@ -11,6 +11,7 @@ import { formBranchesActionReducer } from "src/components/PageEditBranches/FormB
 import { FormBranchesState } from "src/components/PageEditBranches/FormBranches/reducer/state";
 import { useForm } from "src/hooks";
 import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
@@ -103,6 +104,7 @@ const MOCK_STATE: FormBranchesState = {
 type FormBranchProps = React.ComponentProps<typeof FormBranch>;
 
 export const SubjectBranch = ({
+  experiment,
   fieldNamePrefix = "referenceBranch",
   branch = MOCK_ANNOTATED_BRANCH,
   equalRatio = false,
@@ -113,6 +115,7 @@ export const SubjectBranch = ({
   isDesktop = true,
   config = MOCK_CONFIG,
 }: Partial<React.ComponentProps<typeof FormBranch>> & {
+  experiment: getExperiment_experimentBySlug;
   config?: typeof MOCK_CONFIG;
 }) => {
   const defaultValues = {
@@ -138,6 +141,7 @@ export const SubjectBranch = ({
         <form className="p-5">
           <FormBranch
             {...{
+              experiment,
               fieldNamePrefix,
               // react-hook-form types seem broken for nested fields
               errors: (errors.referenceBranch ||

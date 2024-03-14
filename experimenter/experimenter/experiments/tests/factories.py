@@ -4,6 +4,7 @@ import decimal
 import json
 import random
 from collections.abc import Iterable
+from dataclasses import dataclass
 from enum import Enum
 
 import factory
@@ -749,3 +750,11 @@ class NimbusChangeLogFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusChangeLog
+
+
+@dataclass
+class NimbusFmlErrorDataClass:
+    line: int
+    col: int
+    message: str
+    highlight: str
