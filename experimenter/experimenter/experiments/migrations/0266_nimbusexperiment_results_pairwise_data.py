@@ -11,7 +11,7 @@ def update_results_data_schema(apps, schema_editor):
         branches = [b.slug for b in experiment.branches.all()]
         reference_branch = experiment.reference_branch
         data = experiment.results_data
-        if data is not None and "v3" not in data:
+        if data is not None and "v3" not in data and "v2" in data:
             data["v3"] = data["v2"]
             """
             data for v3 looks like this (with changes vs v2 noted):

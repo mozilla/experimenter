@@ -176,6 +176,21 @@ class TestMigrations(MigratorTestCase):
         NimbusBranch.objects.create(slug="treatment", experiment_id=new.id)
         new.reference_branch = reference_branch
 
+        # create experiment with empty (but not None) results
+        empty = NimbusExperiment.objects.create(
+            owner=user,
+            name="empty experiment",
+            slug="empty-experiment",
+            application=Experiment.Application.DESKTOP,
+            status=NimbusConstants.Status.DRAFT,
+            results_data={},
+        )
+        reference_branch = NimbusBranch.objects.create(
+            slug="control", experiment_id=empty.id
+        )
+        NimbusBranch.objects.create(slug="treatment", experiment_id=empty.id)
+        empty.reference_branch = reference_branch
+
     def test_migration(self):
         """Run the test itself."""
         NimbusExperimentOld = self.old_state.apps.get_model(
@@ -288,5 +303,13 @@ class TestMigrations(MigratorTestCase):
 
         prechange_data = NimbusExperimentOld.objects.get(
             slug="another-experiment"
+        ).results_data
+        self.assertDictEqual(unchanged_data, prechange_data)
+
+        unchanged_data = NimbusExperiment.objects.get(
+            slug="empty-experiment"
+        ).results_data
+        prechange_data = NimbusExperimentOld.objects.get(
+            slug="empty-experiment"
         ).results_data
         self.assertDictEqual(unchanged_data, prechange_data)
