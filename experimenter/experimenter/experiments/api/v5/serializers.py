@@ -2122,3 +2122,25 @@ class NimbusExperimentCloneSerializer(
 
 class LocalizationError(Exception):
     """An error that occurs during localization substitution."""
+
+
+class FmlErrorSerializer(serializers.Serializer):
+    line = serializers.IntegerField()
+    col = serializers.IntegerField()
+    highlight = serializers.CharField()
+    message = serializers.CharField()
+
+
+class FmlFeatureValueSerializer(serializers.Serializer):
+    featureSlug = serializers.CharField()
+    featureValue = serializers.CharField()
+
+    def update(self, instance, validated_data):
+        fml_loader = NimbusFmlLoader.create_loader(instance.application, instance.channel)
+        feature_slug = validated_data["featureSlug"]
+        feature_value = validated_data["featureValue"]
+        return fml_loader.get_fml_errors(feature_value, feature_slug)
+
+    @property
+    def data(self):
+        return FmlErrorSerializer(self.instance, many=True).data

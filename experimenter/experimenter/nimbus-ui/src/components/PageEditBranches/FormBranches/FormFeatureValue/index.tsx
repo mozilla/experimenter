@@ -16,6 +16,7 @@ export const featureValueFieldNames = ["featureConfig", "value"] as const;
 type FeatureValueFieldName = typeof featureValueFieldNames[number];
 
 export const FormFeatureValue = ({
+  experiment,
   featureId,
   ...commonProps
 }: FormFeatureValueProps) => {
@@ -59,7 +60,11 @@ export const FormFeatureValue = ({
             </Col>
           </Row>
         </Form.Label>
-        <FeatureValueEditor featureConfig={featureConfig!} {...commonProps} />
+        <FeatureValueEditor
+          experiment={experiment}
+          featureConfig={featureConfig!}
+          {...commonProps}
+        />
         <FormErrors name="value" />
       </Form.Group>
     </Form.Group>

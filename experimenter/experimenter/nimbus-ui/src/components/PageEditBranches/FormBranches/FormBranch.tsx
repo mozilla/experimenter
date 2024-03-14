@@ -18,12 +18,14 @@ import { AnnotatedBranch } from "src/components/PageEditBranches/FormBranches/re
 import { useCommonNestedForm } from "src/hooks";
 import { ReactComponent as DeleteIcon } from "src/images/x.svg";
 import { NUMBER_FIELD, REQUIRED_FIELD } from "src/lib/constants";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export const branchFieldNames = ["name", "description", "ratio"] as const;
 
 type BranchFieldName = typeof branchFieldNames[number];
 
 export const FormBranch = ({
+  experiment,
   fieldNamePrefix,
   touched,
   errors,
@@ -39,6 +41,7 @@ export const FormBranch = ({
   defaultValues,
   setSubmitErrors,
 }: {
+  experiment: getExperiment_experimentBySlug;
   fieldNamePrefix: string;
   touched: Record<string, boolean>;
   errors: Record<string, FieldError>;
@@ -171,6 +174,7 @@ export const FormBranch = ({
               <div key={idx}>
                 <FormFeatureValue
                   {...{
+                    experiment,
                     featureId: parseInt(featureValue!.featureConfig!, 10),
                     fieldNamePrefix: `${fieldNamePrefix}.featureValues[${idx}]`,
                     defaultValues: defaultValues.featureValues?.[idx] || {},
