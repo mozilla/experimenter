@@ -33,6 +33,9 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
     MOBILE_APPLICATIONS.includes(experiment.application);
 
   const [expand, setExpand] = useState(false);
+  const [expandLocale, setExpandLocale] = useState(false);
+  const [expandCountry, setExpandCountry] = useState(false);
+  const [expandLanguage, setExpandLanguage] = useState(false);
 
   return (
     <Card className="border-left-0 border-right-0 border-bottom-0">
@@ -80,11 +83,67 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                   <th>Locales</th>
                   <td data-testid="experiment-locales">
                     {experiment.locales.length > 0 ? (
-                      <ul className="list-unstyled mb-0">
-                        {experiment.locales.map((l) => (
-                          <li key={l.id}>{l.name}</li>
-                        ))}
-                      </ul>
+                      experiment.locales.length > 10 ? (
+                        <>
+                          <Accordion>
+                            <Accordion.Toggle
+                              as={Accordion}
+                              eventKey="0"
+                              onClick={() => setExpandLocale(!expandLocale)}
+                            >
+                              {expandLocale ? (
+                                <>
+                                  <div className="float-right">
+                                    <Button
+                                      size="sm"
+                                      variant="outline-primary"
+                                      data-testid="locales-hide"
+                                    >
+                                      <CollapseMinus />
+                                      Hide
+                                    </Button>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="float-right">
+                                    <Button
+                                      size="sm"
+                                      variant="outline-primary"
+                                      data-testid="locales-show-more"
+                                    >
+                                      <ExpandPlus />
+                                      Show More
+                                    </Button>
+                                  </div>
+                                  <ul className="list-unstyled mb-0">
+                                    {experiment.locales
+                                      .slice(0, 10)
+                                      .map((l) => (
+                                        <li key={l.id}>{l.name}</li>
+                                      ))}{" "}
+                                    ...
+                                  </ul>
+                                </>
+                              )}
+                            </Accordion.Toggle>
+
+                            <Accordion.Collapse eventKey="0">
+                              <ul className="list-unstyled mb-0">
+                                {experiment.locales.map((l) => (
+                                  <li key={l.id}>{l.name}</li>
+                                ))}
+                              </ul>
+                            </Accordion.Collapse>
+                          </Accordion>
+                        </>
+                      ) : (
+                        <ul className="list-unstyled mb-0">
+                          {experiment.locales.map((l) => (
+                            <li key={l.id}>{l.name}</li>
+                          ))}
+                        </ul>
+                      )
                     ) : (
                       "All locales"
                     )}
@@ -96,11 +155,67 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                   <th>Languages</th>
                   <td data-testid="experiment-languages">
                     {experiment.languages.length > 0 ? (
-                      <ul className="list-unstyled mb-0">
-                        {experiment.languages.map((l) => (
-                          <li key={l.id}>{l.name}</li>
-                        ))}
-                      </ul>
+                      experiment.languages.length > 10 ? (
+                        <>
+                          <Accordion>
+                            <Accordion.Toggle
+                              as={Accordion}
+                              eventKey="0"
+                              onClick={() => setExpandLanguage(!expandLanguage)}
+                            >
+                              {expandLanguage ? (
+                                <>
+                                  <div className="float-right">
+                                    <Button
+                                      size="sm"
+                                      variant="outline-primary"
+                                      data-testid="languages-hide"
+                                    >
+                                      <CollapseMinus />
+                                      Hide
+                                    </Button>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="float-right">
+                                    <Button
+                                      size="sm"
+                                      variant="outline-primary"
+                                      data-testid="languages-show-more"
+                                    >
+                                      <ExpandPlus />
+                                      Show More
+                                    </Button>
+                                  </div>
+                                  <ul className="list-unstyled mb-0">
+                                    {experiment.languages
+                                      .slice(0, 10)
+                                      .map((l) => (
+                                        <li key={l.id}>{l.name}</li>
+                                      ))}{" "}
+                                    ...
+                                  </ul>
+                                </>
+                              )}
+                            </Accordion.Toggle>
+
+                            <Accordion.Collapse eventKey="0">
+                              <ul className="list-unstyled mb-0">
+                                {experiment.languages.map((l) => (
+                                  <li key={l.id}>{l.name}</li>
+                                ))}
+                              </ul>
+                            </Accordion.Collapse>
+                          </Accordion>
+                        </>
+                      ) : (
+                        <ul className="list-unstyled mb-0">
+                          {experiment.languages.map((l) => (
+                            <li key={l.id}>{l.name}</li>
+                          ))}
+                        </ul>
+                      )
                     ) : (
                       "All Languages"
                     )}
@@ -111,11 +226,65 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               <th>Countries</th>
               <td data-testid="experiment-countries">
                 {experiment.countries.length > 0 ? (
-                  <ul className="list-unstyled mb-0">
-                    {experiment.countries.map((c) => (
-                      <li key={c.id}>{c.name}</li>
-                    ))}
-                  </ul>
+                  experiment.countries.length > 10 ? (
+                    <>
+                      <Accordion>
+                        <Accordion.Toggle
+                          as={Accordion}
+                          eventKey="0"
+                          onClick={() => setExpandCountry(!expandCountry)}
+                        >
+                          {expandCountry ? (
+                            <>
+                              <div className="float-right">
+                                <Button
+                                  size="sm"
+                                  variant="outline-primary"
+                                  data-testid="countries-hide"
+                                >
+                                  <CollapseMinus />
+                                  Hide
+                                </Button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="float-right">
+                                <Button
+                                  size="sm"
+                                  variant="outline-primary"
+                                  data-testid="countries-show-more"
+                                >
+                                  <ExpandPlus />
+                                  Show More
+                                </Button>
+                              </div>
+                              <ul className="list-unstyled mb-0">
+                                {experiment.countries.slice(0, 10).map((l) => (
+                                  <li key={l.id}>{l.name}</li>
+                                ))}{" "}
+                                ...
+                              </ul>
+                            </>
+                          )}
+                        </Accordion.Toggle>
+
+                        <Accordion.Collapse eventKey="0">
+                          <ul className="list-unstyled mb-0">
+                            {experiment.countries.map((l) => (
+                              <li key={l.id}>{l.name}</li>
+                            ))}
+                          </ul>
+                        </Accordion.Collapse>
+                      </Accordion>
+                    </>
+                  ) : (
+                    <ul className="list-unstyled mb-0">
+                      {experiment.countries.map((l) => (
+                        <li key={l.id}>{l.name}</li>
+                      ))}
+                    </ul>
+                  )
                 ) : (
                   "All countries"
                 )}
