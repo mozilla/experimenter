@@ -19,6 +19,7 @@ from celery.schedules import crontab
 from decouple import config
 from django.contrib.admin import ModelAdmin, StackedInline, TabularInline
 from django.db.models import DecimalField, ForeignKey, JSONField, ManyToManyField
+from import_export.formats.base_formats import JSON
 
 for cls in [
     DecimalField,
@@ -515,3 +516,6 @@ EXPERIMENT_SCHEMA_PATH = (
 )
 
 EXPERIMENT_SCHEMA = json.loads(EXPERIMENT_SCHEMA_PATH.read_text())
+
+# Only allow JSON for the experiment import/export admin tool
+IMPORT_EXPORT_FORMATS = [JSON]
