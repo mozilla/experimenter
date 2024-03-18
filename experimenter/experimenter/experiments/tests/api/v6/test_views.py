@@ -1,6 +1,7 @@
 import json
 
-from django.test import TestCase
+from django.core.cache import cache
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -8,7 +9,20 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 
 
-class TestNimbusExperimentViewSet(TestCase):
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+)
+class CachedViewSetTest(TestCase):
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+
+
+class TestNimbusExperimentViewSet(CachedViewSetTest):
     maxDiff = None
 
     def test_list_view_serializes_experiments(self):
@@ -74,7 +88,7 @@ class TestNimbusExperimentViewSet(TestCase):
         self.assertEqual(json_data[0]["slug"], first_run_experiment.slug)
 
 
-class TestNimbusExperimentDraftViewSet(TestCase):
+class TestNimbusExperimentDraftViewSet(CachedViewSetTest):
     maxDiff = None
 
     def test_detail_view_serializes_draft_experiments(self):
@@ -150,7 +164,7 @@ class TestNimbusExperimentDraftViewSet(TestCase):
         self.assertEqual(slugs, ["localized_experiment"])
 
 
-class TestNimbusExperimentFirstRunViewSet(TestCase):
+class TestNimbusExperimentFirstRunViewSet(CachedViewSetTest):
     maxDiff = None
 
     def test_list_view_serializes_live_first_run_experiments(self):

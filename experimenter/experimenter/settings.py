@@ -358,6 +358,7 @@ CACHES = {
         "TIMEOUT": None,
     },
 }
+V6_API_CACHE_DURATION = 60 * 60
 SIZING_DATA_KEY = "population_sizing"
 
 # Celery
