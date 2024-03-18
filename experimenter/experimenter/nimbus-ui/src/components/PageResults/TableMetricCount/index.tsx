@@ -39,6 +39,7 @@ type TableMetricCountProps = {
   metricType?: MetricTypes;
   analysisBasis?: AnalysisBases;
   segment?: string;
+  referenceBranch: string;
 };
 
 const getStatistics = (slug: string): Array<CountMetricStatistic> => {
@@ -60,12 +61,12 @@ const TableMetricCount = ({
   metricType = METRIC_TYPE.DEFAULT_SECONDARY,
   analysisBasis = "enrollments",
   segment = "all",
+  referenceBranch,
 }: TableMetricCountProps) => {
   const countMetricStatistics = getStatistics(outcomeSlug);
   const {
     analysis: { metadata, overall, weekly },
     sortedBranchNames,
-    controlBranchName,
   } = useContext(ResultsContext);
   const overallResults = overall![analysisBasis]?.[segment]!;
   const weeklyBasis = weekly![analysisBasis];
@@ -76,6 +77,7 @@ const TableMetricCount = ({
     outcomeSlug,
     group,
     segment,
+    referenceBranch,
   );
   const outcomeName =
     metadata?.metrics[outcomeSlug]?.friendly_name || outcomeDefaultName;
@@ -106,7 +108,7 @@ const TableMetricCount = ({
         <tbody>
           {group &&
             sortedBranchNames.map((branch) => {
-              const isControlBranch = branch === controlBranchName;
+              const isReferenceBranch = branch === referenceBranch;
               return (
                 overallResults[branch].branch_data[group] && (
                   <tr key={`${branch}-${group}`}>
@@ -125,8 +127,9 @@ const TableMetricCount = ({
                             branchComparison,
                             bounds,
                             group,
-                            isControlBranch,
                           }}
+                          isControlBranch={isReferenceBranch}
+                          referenceBranch={referenceBranch}
                         />
                       ),
                     )}
@@ -139,6 +142,7 @@ const TableMetricCount = ({
       {weeklyBasis?.all && (
         <GraphsWeekly
           weeklyResults={weeklyBasis}
+          referenceBranch={referenceBranch}
           {...{ outcomeSlug, outcomeName, group }}
         />
       )}
