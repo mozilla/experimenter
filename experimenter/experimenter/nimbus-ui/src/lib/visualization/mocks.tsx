@@ -1753,12 +1753,24 @@ export const mockAnalysis = (modifications = {}) =>
                       },
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     percent: 45,
                   },
@@ -1778,12 +1790,24 @@ export const mockAnalysis = (modifications = {}) =>
                       },
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   picture_in_picture_ever_used: {
@@ -1804,12 +1828,24 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   picture_in_picture: {
@@ -1830,12 +1866,24 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   feature_b_ever_used: {
@@ -1856,12 +1904,24 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   feature_b: {
@@ -1882,12 +1942,24 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   feature_c_ever_used: {
@@ -1908,12 +1980,24 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   feature_c: CONTROL_NEUTRAL,
@@ -1935,12 +2019,24 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   outcome_d: {
@@ -1961,12 +2057,24 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   days_of_use: CONTROL_NEUTRAL,
@@ -1989,12 +2097,24 @@ export const mockAnalysis = (modifications = {}) =>
                       },
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                 },
@@ -2016,12 +2136,24 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     percent: 55,
                   },
@@ -2044,34 +2176,55 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "positive" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "positive" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   picture_in_picture: {
                     absolute: {
@@ -2091,34 +2244,55 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "positive" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "positive" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   feature_b_ever_used: {
                     absolute: {
@@ -2138,34 +2312,55 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "negative" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "negative" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   feature_b: {
                     absolute: {
@@ -2185,34 +2380,55 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "negative" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "negative" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   feature_c_ever_used: {
                     absolute: {
@@ -2232,34 +2448,55 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "neutral" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "neutral" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   feature_c: TREATMENT_NEUTRAL,
                   days_of_use: TREATMENT_NEUTRAL,
@@ -2282,34 +2519,55 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "positive" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "positive" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   outcome_d: {
                     absolute: {
@@ -2329,34 +2587,55 @@ export const mockAnalysis = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "positive" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "positive" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                 },
                 search_metrics: {
@@ -8111,12 +8390,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       },
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     percent: 45,
                   },
@@ -8136,12 +8427,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       },
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   picture_in_picture_ever_used: {
@@ -8162,12 +8465,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   feature_b_ever_used: {
@@ -8188,12 +8503,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   feature_b: {
@@ -8214,12 +8541,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   feature_c_ever_used: {
@@ -8240,12 +8579,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   feature_c: CONTROL_NEUTRAL,
@@ -8267,12 +8618,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   outcome_d: {
@@ -8293,12 +8656,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                   days_of_use: CONTROL_NEUTRAL,
@@ -8321,12 +8696,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       },
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                   },
                 },
@@ -8348,12 +8735,24 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {},
-                      all: [],
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     percent: 55,
                   },
@@ -8376,34 +8775,55 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "positive" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "positive" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   picture_in_picture: {
                     absolute: {
@@ -8423,34 +8843,55 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "positive" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "positive" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   feature_b_ever_used: {
                     absolute: {
@@ -8470,34 +8911,55 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "negative" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "negative" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   feature_b: {
                     absolute: {
@@ -8517,34 +8979,55 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "negative" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "negative" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   feature_c_ever_used: {
                     absolute: {
@@ -8564,34 +9047,55 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "neutral" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "neutral" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   feature_c: TREATMENT_NEUTRAL,
                   days_of_use: TREATMENT_NEUTRAL,
@@ -8614,34 +9118,55 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "positive" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "positive" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                   outcome_d: {
                     absolute: {
@@ -8661,34 +9186,55 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
                       ],
                     },
                     difference: {
-                      first: {
-                        point: -0.0006569487628876534,
-                        upper: 0.04316381736512019,
-                        lower: 0.04175095963994029,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           point: -0.0006569487628876534,
                           upper: 0.04316381736512019,
                           lower: 0.04175095963994029,
                         },
-                      ],
+                        all: [
+                          {
+                            point: -0.0006569487628876534,
+                            upper: 0.04316381736512019,
+                            lower: 0.04175095963994029,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
                     relative_uplift: {
-                      first: {
-                        lower: -0.455210299676828,
-                        upper: 0.5104985718410426,
-                        point: -0.06233954570562385,
-                      },
-                      all: [
-                        {
+                      control: {
+                        first: {
                           lower: -0.455210299676828,
                           upper: 0.5104985718410426,
                           point: -0.06233954570562385,
                         },
-                      ],
+                        all: [
+                          {
+                            lower: -0.455210299676828,
+                            upper: 0.5104985718410426,
+                            point: -0.06233954570562385,
+                          },
+                        ],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
                     },
-                    significance: { overall: { "1": "positive" }, weekly: {} },
+                    significance: {
+                      control: {
+                        overall: { "1": "positive" },
+                        weekly: {},
+                      },
+                      treatment: {
+                        overall: {},
+                        weekly: {},
+                      },
+                    },
                   },
                 },
                 search_metrics: {

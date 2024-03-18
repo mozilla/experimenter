@@ -5,7 +5,6 @@
 import { BRANCH_COMPARISON } from "src/lib/visualization/constants";
 
 export interface AnalysisData {
-  daily: AnalysisBasisData | null;
   weekly: AggregatedAnalysisBasisData | null;
   overall: AggregatedAnalysisBasisData | null;
   show_analysis: boolean;

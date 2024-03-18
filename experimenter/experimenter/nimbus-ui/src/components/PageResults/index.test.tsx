@@ -213,6 +213,46 @@ describe("PageResults", () => {
     expect(within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS));
   });
 
+  it("displays the reference branch options properly", async () => {
+    render(<Subject mockAnalysisData={mockAnalysisWithExposures} />);
+
+    expect(screen.getByText("Analysis Basis"));
+    const referenceBranchSelectParent = screen.getByTestId(
+      "reference-branch-results-selector",
+    );
+
+    // both exist
+    expect(within(referenceBranchSelectParent).getByText("control"));
+    expect(within(referenceBranchSelectParent).getByText("treatment"));
+
+    // control checked by default
+    expect(
+      within(referenceBranchSelectParent).getByTestId("control-branch-radio"),
+    ).toBeChecked();
+
+    fireEvent.click(
+      within(referenceBranchSelectParent).getByTestId("treatment-branch-radio"),
+    );
+
+    // treatment checked after click
+    expect(
+      within(referenceBranchSelectParent).getByTestId("treatment-branch-radio"),
+    ).toBeChecked();
+  });
+
+  it("displays the reference branch options for weekly results", async () => {
+    render(<Subject mockAnalysisData={mockAnalysisWithWeeklyExposures} />);
+
+    expect(screen.getByText("Analysis Basis"));
+    const referenceBranchSelectParent = screen.getByTestId(
+      "reference-branch-results-selector",
+    );
+
+    // both exist
+    expect(within(referenceBranchSelectParent).getByText("control"));
+    expect(within(referenceBranchSelectParent).getByText("treatment"));
+  });
+
   it("displays analysis errors", async () => {
     render(
       <Subject
