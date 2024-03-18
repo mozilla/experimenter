@@ -24,12 +24,14 @@ type TableWeeklyProps = {
   branchComparison: BranchComparisonValues;
   analysisBasis?: AnalysisBases;
   segment?: string;
+  referenceBranch: string;
 };
 
 const getWeekIndexList = (
   metric: string,
   group: string,
   weeklyResults: { [branch: string]: BranchDescription },
+  referenceBranch: string,
 ) => {
   const weekIndexSet = new Set<number>();
   Object.keys(weeklyResults).forEach((branch: string) => {
@@ -39,7 +41,12 @@ const getWeekIndexList = (
 
     Object.values(BRANCH_COMPARISON).forEach((branchComparison) => {
       const branchData =
-        weeklyResults[branch].branch_data[group][metric][branchComparison].all;
+        branchComparison === BRANCH_COMPARISON.ABSOLUTE
+          ? weeklyResults[branch].branch_data[group][metric][branchComparison]
+              .all
+          : weeklyResults[branch].branch_data[group][metric][branchComparison][
+              referenceBranch
+            ].all;
       branchData.forEach((dataPoint: FormattedAnalysisPoint) => {
         const weekIndex: number =
           "window_index" in dataPoint ? dataPoint["window_index"]! : 0;
@@ -57,14 +64,19 @@ const TableWeekly = ({
   branchComparison,
   analysisBasis = "enrollments",
   segment = "all",
+  referenceBranch,
 }: TableWeeklyProps) => {
   const {
     analysis: { weekly },
     sortedBranchNames,
-    controlBranchName,
   } = useContext(ResultsContext);
   const weeklyResults = weekly![analysisBasis]![segment]!;
-  const weekIndexList = getWeekIndexList(metricKey, group, weeklyResults);
+  const weekIndexList = getWeekIndexList(
+    metricKey,
+    group,
+    weeklyResults,
+    referenceBranch,
+  );
   const tableLabel = TABLE_LABEL.RESULTS;
 
   return (
@@ -85,7 +97,7 @@ const TableWeekly = ({
       </thead>
       <tbody>
         {sortedBranchNames.map((branch) => {
-          const isControlBranch = branch === controlBranchName;
+          const isReferenceBranch = branch === referenceBranch;
           const displayType = getTableDisplayType(metricKey, branchComparison);
 
           const TableRow = () => (
@@ -98,8 +110,9 @@ const TableWeekly = ({
                 metricKey,
                 displayType,
                 branchComparison,
-                isControlBranch,
               }}
+              isControlBranch={isReferenceBranch}
+              referenceBranch={referenceBranch}
             />
           );
 
@@ -110,7 +123,7 @@ const TableWeekly = ({
               </th>
               {/* This case returns the default (baseline) text, and we need the number of
               cells to match the number of weeks */}
-              {isControlBranch &&
+              {isReferenceBranch &&
               branchComparison === BRANCH_COMPARISON.UPLIFT ? (
                 weekIndexList.map((weekIndex) => (
                   <TableRow key={`${displayType}-${metricKey}-${weekIndex}}`} />

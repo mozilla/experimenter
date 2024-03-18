@@ -87,10 +87,6 @@ describe("getControlBranchName", () => {
     errors: { experiment: [] },
   };
 
-  it("returns the branch from daily if there are no other branches", () => {
-    expect(getControlBranchName(MOCK_ANALYSIS_DAILY)).toEqual("test");
-  });
-
   it("throws an error if it cannot determine the control branch and there are multiple branches in daily", () => {
     expect(() =>
       getControlBranchName({

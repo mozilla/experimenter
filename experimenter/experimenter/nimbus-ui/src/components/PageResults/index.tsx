@@ -59,6 +59,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const [selectedAnalysisBasis, setSelectedAnalysisBasis] =
     useState<AnalysisBases>("exposures");
 
+  const [selectedReferenceBranch, setSelectedReferenceBranch] =
+    useState<string>("");
+
   // For testing - users will be redirected if the analysis is unavailable
   // before reaching this return, but tests reach this return and
   // analysis.overall is expected to be an object (EXP-800)
@@ -70,11 +73,16 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     return null;
 
   const sortedBranchNames = getSortedBranchNames(analysis);
+  if (selectedReferenceBranch === "") {
+    setSelectedReferenceBranch(sortedBranchNames[0]);
+  }
   const resultsContextValue: ResultsContextType = {
     analysis,
     sortedBranchNames,
     controlBranchName:
-      sortedBranchNames.length > 0 ? sortedBranchNames[0] : undefined,
+      (sortedBranchNames.length > 0
+        ? sortedBranchNames[0]
+        : experiment.referenceBranch?.slug) || "",
   };
 
   // list of metrics (slugs) with errors that would not otherwise be displayed
@@ -125,6 +133,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     ) : null;
 
   const { external_config: externalConfig } = analysis.metadata || {};
+
+  const referenceBranchHelpMarkdown =
+    "Select the **reference branch** to set it as the reference for results. By default this is the experiment's configured reference branch.";
 
   const allAnalysisBases: AnalysisBases[] =
     Object.keys(analysis?.overall || {}).length > 0
@@ -316,6 +327,42 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                     </div>
                   </>
                 )}
+                {sortedBranchNames.length > 1 && (
+                  <>
+                    <div style={{ marginTop: "1rem" }}>
+                      <b>Reference Branch</b>:
+                      <span className="align-middle">
+                        <Info
+                          className="align-baseline"
+                          data-tip
+                          data-for="reference-branch-help"
+                        />
+                      </span>
+                      <TooltipWithMarkdown
+                        tooltipId="reference-branch-help"
+                        markdown={referenceBranchHelpMarkdown}
+                      />
+                    </div>
+                    <div data-testid="reference-branch-results-selector">
+                      {sortedBranchNames.map((branch) => (
+                        <div
+                          style={{ marginTop: "0.25rem", marginLeft: "0.5rem" }}
+                          key={`${branch}_branch_radio_option`}
+                        >
+                          <Form.Check
+                            inline
+                            radioGroup="reference-branch-group"
+                            type="radio"
+                            onChange={() => setSelectedReferenceBranch(branch)}
+                            label={branch}
+                            checked={branch === selectedReferenceBranch}
+                            data-testid={`${branch}-branch-radio`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
                 {allSegments.length > 1 && (
                   <>
                     <div style={{ marginTop: "1rem" }}>
@@ -387,6 +434,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   className="mb-2 border-top-0"
                   analysisBasis={selectedAnalysisBasis}
                   segment={selectedSegment}
+                  referenceBranch={selectedReferenceBranch}
                 />
               )}
             <TableHighlightsOverview {...{ experiment }} />
@@ -409,6 +457,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       experiment.application ===
                       NimbusExperimentApplicationEnum.DESKTOP
                     }
+                    referenceBranch={selectedReferenceBranch}
                   />
                 )}
 
@@ -425,6 +474,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       experiment.application ===
                       NimbusExperimentApplicationEnum.DESKTOP
                     }
+                    referenceBranch={selectedReferenceBranch}
                   />
                 )}
             </div>
@@ -445,7 +495,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       if (
                         !analysis!.overall![selectedAnalysisBasis]?.[
                           selectedSegment
-                        ]?.[resultsContextValue.controlBranchName].branch_data[
+                        ]?.[resultsContextValue.controlBranchName]?.branch_data[
                           GROUP.OTHER
                         ][metric?.slug!]
                       ) {
@@ -480,6 +530,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                           metricType={METRIC_TYPE.PRIMARY}
                           analysisBasis={selectedAnalysisBasis}
                           segment={selectedSegment}
+                          referenceBranch={selectedReferenceBranch}
                         />
                       );
                     });
@@ -507,6 +558,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                         metricType={METRIC_TYPE.DEFAULT_SECONDARY}
                         analysisBasis={selectedAnalysisBasis}
                         segment={selectedSegment}
+                        referenceBranch={selectedReferenceBranch}
                       />
                     );
                   })
@@ -568,6 +620,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                                   {...{ group }}
                                   analysisBasis={selectedAnalysisBasis}
                                   segment={selectedSegment}
+                                  referenceBranch={selectedReferenceBranch}
                                 />
                               ),
                             )}

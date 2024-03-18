@@ -107,26 +107,34 @@ export interface FormattedAnalysisPoint {
   window_index?: number;
 }
 
+interface AnalysisPointData {
+  first: FormattedAnalysisPoint;
+  all: FormattedAnalysisPoint[];
+}
+interface PairwiseAnalysisPointData {
+  [comparison_branch: string]: AnalysisPointData;
+}
+
+interface SignificanceByWindow {
+  [window_index: string]: string;
+}
+interface SignificanceData {
+  [window: string]: SignificanceByWindow;
+}
+interface PairwiseSignificanceData {
+  [comparison_branch: string]: SignificanceData;
+}
 export interface BranchDescription {
   is_control: boolean;
   branch_data: {
     [group: string]: {
       [metric: string]: {
         [index: string]: any;
-        absolute: {
-          first: FormattedAnalysisPoint;
-          all: FormattedAnalysisPoint[];
-        };
-        difference: {
-          first: FormattedAnalysisPoint;
-          all: FormattedAnalysisPoint[];
-        };
-        relative_uplift: {
-          first: FormattedAnalysisPoint;
-          all: FormattedAnalysisPoint[];
-        };
+        absolute: AnalysisPointData;
+        difference: PairwiseAnalysisPointData;
+        relative_uplift: PairwiseAnalysisPointData;
         percent?: number;
-        significance?: { [window: string]: { [window_index: string]: string } };
+        significance?: PairwiseSignificanceData;
       };
     };
   };

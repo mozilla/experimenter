@@ -32,6 +32,7 @@ const getMergedBranchData = (
   outcomeSlug: string,
   group: string,
   weeklyResults: { [branch: string]: BranchDescription },
+  referenceBranch: string,
 ) => {
   const mergedBranchData: { [graphID: string]: FormattedAnalysisPoint[] } = {};
   let maxWeeks = 0;
@@ -39,10 +40,11 @@ const getMergedBranchData = (
     if (outcomeSlug in weeklyResults[branch].branch_data[group]) {
       Object.values(BRANCH_COMPARISON).forEach((branchComparison) => {
         const graphID = getGraphID(outcomeSlug, branchComparison);
+        const groupData = weeklyResults[branch].branch_data[group][outcomeSlug];
         const branchData =
-          weeklyResults[branch].branch_data[group][outcomeSlug][
-            branchComparison
-          ].all;
+          branchComparison === BRANCH_COMPARISON.ABSOLUTE
+            ? groupData[branchComparison].all
+            : groupData[branchComparison][referenceBranch].all;
         branchData.forEach((dataPoint: FormattedAnalysisPoint) => {
           dataPoint["branch"] = branch;
           const weekIndex: number =
@@ -89,6 +91,7 @@ type GraphsWeeklyProps = {
   outcomeSlug: string;
   outcomeName: string;
   group: string;
+  referenceBranch: string;
 };
 
 const GraphsWeekly = ({
@@ -96,11 +99,13 @@ const GraphsWeekly = ({
   outcomeSlug,
   outcomeName,
   group,
+  referenceBranch,
 }: GraphsWeeklyProps) => {
   const mergedBranchData = getMergedBranchData(
     outcomeSlug,
     group,
     weeklyResults.all!,
+    referenceBranch,
   );
 
   const [open, setOpen] = useState(false);
