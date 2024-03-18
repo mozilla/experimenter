@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 
@@ -19,6 +22,10 @@ class NimbusExperimentViewSet(
     serializer_class = NimbusExperimentSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["is_first_run"]
+
+    @method_decorator(cache_page(settings.V6_API_CACHE_DURATION))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
 
 class NimbusExperimentDraftViewSet(NimbusExperimentViewSet):
