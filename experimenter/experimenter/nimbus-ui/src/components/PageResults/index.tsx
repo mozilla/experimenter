@@ -59,6 +59,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const [selectedAnalysisBasis, setSelectedAnalysisBasis] =
     useState<AnalysisBases>("exposures");
 
+  const [selectedReferenceBranch, setSelectedReferenceBranch] =
+    useState<string>("");
+
   // For testing - users will be redirected if the analysis is unavailable
   // before reaching this return, but tests reach this return and
   // analysis.overall is expected to be an object (EXP-800)
@@ -70,11 +73,17 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     return null;
 
   const sortedBranchNames = getSortedBranchNames(analysis);
+  const controlBranchSlug =
+    sortedBranchNames.length > 0
+      ? sortedBranchNames[0]
+      : experiment.referenceBranch?.slug;
+  if (selectedReferenceBranch === "" && controlBranchSlug) {
+    setSelectedReferenceBranch(controlBranchSlug);
+  }
   const resultsContextValue: ResultsContextType = {
     analysis,
     sortedBranchNames,
-    controlBranchName:
-      sortedBranchNames.length > 0 ? sortedBranchNames[0] : undefined,
+    controlBranchName: controlBranchSlug || "",
   };
 
   // list of metrics (slugs) with errors that would not otherwise be displayed
@@ -387,6 +396,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   className="mb-2 border-top-0"
                   analysisBasis={selectedAnalysisBasis}
                   segment={selectedSegment}
+                  referenceBranch={selectedReferenceBranch}
                 />
               )}
             <TableHighlightsOverview {...{ experiment }} />
@@ -409,6 +419,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       experiment.application ===
                       NimbusExperimentApplicationEnum.DESKTOP
                     }
+                    referenceBranch={selectedReferenceBranch}
                   />
                 )}
 
@@ -425,6 +436,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       experiment.application ===
                       NimbusExperimentApplicationEnum.DESKTOP
                     }
+                    referenceBranch={selectedReferenceBranch}
                   />
                 )}
             </div>
@@ -445,7 +457,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       if (
                         !analysis!.overall![selectedAnalysisBasis]?.[
                           selectedSegment
-                        ]?.[resultsContextValue.controlBranchName].branch_data[
+                        ]?.[resultsContextValue.controlBranchName]?.branch_data[
                           GROUP.OTHER
                         ][metric?.slug!]
                       ) {
@@ -480,6 +492,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                           metricType={METRIC_TYPE.PRIMARY}
                           analysisBasis={selectedAnalysisBasis}
                           segment={selectedSegment}
+                          referenceBranch={selectedReferenceBranch}
                         />
                       );
                     });
@@ -507,6 +520,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                         metricType={METRIC_TYPE.DEFAULT_SECONDARY}
                         analysisBasis={selectedAnalysisBasis}
                         segment={selectedSegment}
+                        referenceBranch={selectedReferenceBranch}
                       />
                     );
                   })
@@ -568,6 +582,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                                   {...{ group }}
                                   analysisBasis={selectedAnalysisBasis}
                                   segment={selectedSegment}
+                                  referenceBranch={selectedReferenceBranch}
                                 />
                               ),
                             )}
