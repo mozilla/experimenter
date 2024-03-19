@@ -49,6 +49,7 @@ describe("TableWeekly", () => {
             metricName="Retention"
             group={GROUP.OTHER}
             branchComparison={BRANCH_COMPARISON.UPLIFT}
+            referenceBranch="control"
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -70,6 +71,7 @@ describe("TableWeekly", () => {
             metricKey="fake"
             metricName="Some Made Up Metric"
             group={GROUP.OTHER}
+            referenceBranch="control"
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -103,6 +105,7 @@ describe("TableWeekly", () => {
             metricName="Retention"
             group={GROUP.OTHER}
             branchComparison={BRANCH_COMPARISON.UPLIFT}
+            referenceBranch="control"
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,

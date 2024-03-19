@@ -21,6 +21,7 @@ describe("GraphsWeekly", () => {
           outcomeSlug="feature_d"
           outcomeName="Feature D"
           group={GROUP.OTHER}
+          referenceBranch="control"
         />
       </RouterSlugProvider>,
     );

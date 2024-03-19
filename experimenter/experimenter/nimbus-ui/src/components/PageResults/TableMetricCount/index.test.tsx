@@ -27,6 +27,7 @@ describe("TableMetricCount", () => {
             outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
             metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
             group={GROUP.OTHER}
+            referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -49,6 +50,7 @@ describe("TableMetricCount", () => {
             outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
             group={GROUP.OTHER}
             metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+            referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -74,6 +76,7 @@ describe("TableMetricCount", () => {
             outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
             group={GROUP.OTHER}
             metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+            referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -95,6 +98,7 @@ describe("TableMetricCount", () => {
             outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
             group={GROUP.OTHER}
             metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+            referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -120,6 +124,7 @@ describe("TableMetricCount", () => {
             outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
             group={GROUP.OTHER}
             metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+            referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -141,6 +146,7 @@ describe("TableMetricCount", () => {
             outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
             group={GROUP.OTHER}
             metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+            referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,

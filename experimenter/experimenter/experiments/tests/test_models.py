@@ -1767,8 +1767,8 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            ({"v2": {"overall": {"enrollments": {"all": {}}}}},),
-            ({"v2": {"weekly": {"enrollments": {"all": {}}}}},),
+            ({"v3": {"overall": {"enrollments": {"all": {}}}}},),
+            ({"v3": {"weekly": {"enrollments": {"all": {}}}}},),
         ]
     )
     def test_has_displayable_results_true(self, results_data):
@@ -1781,13 +1781,13 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             ({},),
-            ({"v2": {}},),
-            ({"v2": {"overall": {}}},),
-            ({"v2": {"weekly": {}}},),
-            ({"v2": {"overall": {"enrollments": {}}}},),
-            ({"v2": {"weekly": {"enrollments": {}}}},),
-            ({"v2": {"overall": {"enrollments": {"all": None}}}},),
-            ({"v2": {"weekly": {"enrollments": {"all": None}}}},),
+            ({"v3": {}},),
+            ({"v3": {"overall": {}}},),
+            ({"v3": {"weekly": {}}},),
+            ({"v3": {"overall": {"enrollments": {}}}},),
+            ({"v3": {"weekly": {"enrollments": {}}}},),
+            ({"v3": {"overall": {"enrollments": {"all": None}}}},),
+            ({"v3": {"weekly": {"enrollments": {"all": None}}}},),
         ]
     )
     def test_has_displayable_results_false(self, results_data):
@@ -1802,7 +1802,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, start_date=datetime.date(2020, 1, 1), proposed_enrollment=2
         )
-        experiment.results_data = {"v2": {"overall": {"enrollments": {"all": {}}}}}
+        experiment.results_data = {"v3": {"overall": {"enrollments": {"all": {}}}}}
         experiment.is_rollout = False
         experiment.save()
 
@@ -1812,12 +1812,12 @@ class TestNimbusExperiment(TestCase):
         [
             ({}, datetime.date(2020, 1, 1), False),
             (
-                {"v2": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"overall": {"enrollments": {"all": {}}}}},
                 datetime.date.today(),
                 False,
             ),
             (
-                {"v2": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"overall": {"enrollments": {"all": {}}}}},
                 datetime.date(2020, 1, 1),
                 True,
             ),

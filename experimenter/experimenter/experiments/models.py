@@ -914,8 +914,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def has_displayable_results(self):
         # True if self.results_data has weekly or overall results
-        if self.results_data and "v2" in self.results_data:
-            results_data = self.results_data["v2"]
+        if self.results_data and "v3" in self.results_data:
+            results_data = self.results_data["v3"]
             for window in ["overall", "weekly"]:
                 if window in results_data:
                     enrollments = results_data[window].get("enrollments", {}).get("all")

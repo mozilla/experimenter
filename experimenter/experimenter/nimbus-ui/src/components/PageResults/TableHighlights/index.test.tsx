@@ -16,7 +16,10 @@ describe("TableHighlights", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableHighlights {...{ experiment }} />
+          <TableHighlights
+            {...{ experiment }}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
@@ -33,7 +36,10 @@ describe("TableHighlights", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableHighlights {...{ experiment }} />
+          <TableHighlights
+            {...{ experiment }}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
@@ -45,7 +51,10 @@ describe("TableHighlights", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableHighlights {...{ experiment }} />
+          <TableHighlights
+            {...{ experiment }}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
@@ -59,7 +68,10 @@ describe("TableHighlights", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableHighlights {...{ experiment }} />
+          <TableHighlights
+            {...{ experiment }}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
@@ -72,7 +84,10 @@ describe("TableHighlights", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableHighlights {...{ experiment }} />
+          <TableHighlights
+            {...{ experiment }}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
@@ -88,6 +103,7 @@ describe("TableHighlights", () => {
           <TableHighlights
             {...{ experiment }}
             branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+            referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,

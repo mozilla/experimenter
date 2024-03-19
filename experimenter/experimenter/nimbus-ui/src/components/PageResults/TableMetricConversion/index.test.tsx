@@ -25,7 +25,11 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
+          <TableMetricConversion
+            outcome={primaryOutcomes![0]!}
+            segment="all"
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -42,7 +46,11 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
+          <TableMetricConversion
+            outcome={primaryOutcomes![0]!}
+            segment="all"
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -62,7 +70,11 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
+          <TableMetricConversion
+            outcome={primaryOutcomes![0]!}
+            segment="all"
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -78,7 +90,11 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
+          <TableMetricConversion
+            outcome={primaryOutcomes![0]!}
+            segment="all"
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -100,7 +116,11 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
+          <TableMetricConversion
+            outcome={primaryOutcomes![0]!}
+            segment="all"
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -122,7 +142,11 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
+          <TableMetricConversion
+            outcome={primaryOutcomes![0]!}
+            segment="all"
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );

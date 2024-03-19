@@ -29,6 +29,7 @@ type TableMetricConversionProps = {
   outcome: getConfig_nimbusConfig_outcomes;
   analysisBasis?: AnalysisBases;
   segment?: string;
+  referenceBranch: string;
 };
 
 const getStatistics = (slug: string): Array<ConversionMetricStatistic> => {
@@ -49,11 +50,11 @@ const TableMetricConversion = ({
   outcome,
   analysisBasis = "enrollments",
   segment = "all",
+  referenceBranch,
 }: TableMetricConversionProps) => {
   const {
     analysis: { overall },
     sortedBranchNames,
-    controlBranchName,
   } = useContext(ResultsContext);
   const overallResults = overall![analysisBasis]?.[segment]!;
   const conversionMetricStatistics = getStatistics(outcome.slug!);
@@ -64,6 +65,7 @@ const TableMetricConversion = ({
     outcome.slug!,
     GROUP.OTHER,
     segment,
+    referenceBranch,
   );
 
   return (
@@ -88,7 +90,7 @@ const TableMetricConversion = ({
         </thead>
         <tbody>
           {Object.keys(overallResults).map((branch) => {
-            const isControlBranch = branch === controlBranchName;
+            const isReferenceBranch = branch === referenceBranch;
             return (
               <tr key={branch}>
                 <th className="align-middle" scope="row">
@@ -106,8 +108,9 @@ const TableMetricConversion = ({
                         displayType,
                         branchComparison,
                         bounds,
-                        isControlBranch,
                       }}
+                      isControlBranch={isReferenceBranch}
+                      referenceBranch={referenceBranch}
                     />
                   ),
                 )}
