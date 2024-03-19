@@ -73,16 +73,17 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     return null;
 
   const sortedBranchNames = getSortedBranchNames(analysis);
-  if (selectedReferenceBranch === "") {
-    setSelectedReferenceBranch(sortedBranchNames[0]);
+  const controlBranchSlug =
+    sortedBranchNames.length > 0
+      ? sortedBranchNames[0]
+      : experiment.referenceBranch?.slug;
+  if (selectedReferenceBranch === "" && controlBranchSlug) {
+    setSelectedReferenceBranch(controlBranchSlug);
   }
   const resultsContextValue: ResultsContextType = {
     analysis,
     sortedBranchNames,
-    controlBranchName:
-      (sortedBranchNames.length > 0
-        ? sortedBranchNames[0]
-        : experiment.referenceBranch?.slug) || "",
+    controlBranchName: controlBranchSlug || "",
   };
 
   // list of metrics (slugs) with errors that would not otherwise be displayed
