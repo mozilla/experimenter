@@ -32,6 +32,7 @@ export type TableResultsProps = {
   analysisBasis?: AnalysisBases;
   segment?: string;
   isDesktop?: boolean;
+  referenceBranch: string;
 };
 
 const getResultMetrics = (outcomes: OutcomesList, isDesktop = false) => {
@@ -70,6 +71,7 @@ const TableResults = ({
   analysisBasis = "enrollments",
   segment = "all",
   isDesktop = false,
+  referenceBranch,
 }: TableResultsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const resultsMetricsList = getResultMetrics(
@@ -80,7 +82,6 @@ const TableResults = ({
   const {
     analysis: { metadata, overall },
     sortedBranchNames,
-    controlBranchName,
   } = useContext(ResultsContext);
   const overallResults = overall![analysisBasis]?.[segment]!;
 
@@ -122,7 +123,7 @@ const TableResults = ({
       </thead>
       <tbody>
         {sortedBranchNames.map((branch) => {
-          const isControlBranch = branch === controlBranchName;
+          const isReferenceBranch = branch === referenceBranch;
           return (
             <tr key={branch}>
               <th className="align-middle" scope="row">
@@ -145,8 +146,9 @@ const TableResults = ({
                       metricKey,
                       displayType,
                       branchComparison,
-                      isControlBranch,
                     }}
+                    isControlBranch={isReferenceBranch}
+                    referenceBranch={referenceBranch}
                   />
                 );
               })}

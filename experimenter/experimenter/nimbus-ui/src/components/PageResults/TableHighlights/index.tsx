@@ -33,6 +33,7 @@ export type TableHighlightsProps = {
   branchComparison?: BranchComparisonValues;
   analysisBasis?: AnalysisBases;
   segment?: string;
+  referenceBranch: string;
 };
 
 type Branch =
@@ -91,6 +92,7 @@ const TableHighlights = ({
   branchComparison = BRANCH_COMPARISON.UPLIFT,
   analysisBasis = "enrollments",
   segment = "all",
+  referenceBranch,
 }: TableHighlightsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const highlightMetricsList = getHighlightMetrics(
@@ -104,7 +106,6 @@ const TableHighlights = ({
   const {
     analysis: { metadata, overall },
     sortedBranchNames,
-    controlBranchName,
   } = useContext(ResultsContext);
   const overallResults = overall![analysisBasis]?.[segment]!;
 
@@ -118,7 +119,7 @@ const TableHighlights = ({
             ];
           const participantCount =
             userCountMetric[BRANCH_COMPARISON.ABSOLUTE]["first"]["point"];
-          const isControlBranch = branch === controlBranchName;
+          const isReferenceBranch = branch === referenceBranch;
 
           return (
             <tr key={branch} className="border-top">
@@ -132,7 +133,7 @@ const TableHighlights = ({
               <td className="p-3 col-md-4 align-middle">
                 {branchDescriptions[branch]}
               </td>
-              {isControlBranch &&
+              {isReferenceBranch &&
               branchComparison === BRANCH_COMPARISON.UPLIFT ? (
                 <td className="p-3 align-middle">
                   <div className="font-italic align-middle">---baseline---</div>
@@ -159,9 +160,10 @@ const TableHighlights = ({
                           metricKey,
                           displayType,
                           tooltip,
-                          isControlBranch,
                           branchComparison,
                         }}
+                        isControlBranch={isReferenceBranch}
+                        referenceBranch={referenceBranch}
                       />
                     );
                   })}

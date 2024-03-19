@@ -13,7 +13,13 @@ describe("TableWithTabComparison", () => {
   // to test the tab text. Comparison value tests are in table tests.
   it("toggles between absolute and relative branch comparisons", async () => {
     const { experiment } = mockExperimentQuery("demo-slug");
-    render(<Subject Table={TableHighlights} {...{ experiment }} />);
+    render(
+      <Subject
+        Table={TableHighlights}
+        {...{ experiment }}
+        referenceBranch={experiment.referenceBranch!.slug}
+      />,
+    );
 
     const relativeTab = screen.getByText("Relative uplift comparison");
     const absoluteTab = screen.getByText("Absolute comparison");

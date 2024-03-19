@@ -174,7 +174,6 @@ describe("AppLayoutSidebarLaunched", () => {
         <Subject
           analysis={{
             show_analysis: true,
-            daily: null,
             weekly: null,
             overall: null,
             errors: null,

@@ -45,14 +45,6 @@ export const getControlBranchName = (analysis: AnalysisData) => {
       }
     }
   }
-  // last option - try to find a unique branch name in the daily results
-  const daily = analysis.daily?.enrollments?.all || [];
-  if (daily.length > 0) {
-    const branches = new Set(daily.map((point) => point.branch));
-    if (branches.size === 1) {
-      return branches.values().next().value; // return the first and only value
-    }
-  }
 
   throw new Error(
     "Invalid argument 'analysis': no branch name could be found in the results.",
@@ -89,13 +81,14 @@ export const getExtremeBounds = (
   outcomeSlug: string,
   group: string,
   segment: string,
+  referenceBranch: string,
 ) => {
   let extreme = 0;
   sortedBranchNames.forEach((branch) => {
     if (results![segment]![branch].branch_data[group][outcomeSlug]) {
       results![segment]![branch].branch_data[group][outcomeSlug][
         BRANCH_COMPARISON.UPLIFT
-      ]["all"].forEach((dataPoint: FormattedAnalysisPoint) => {
+      ][referenceBranch]["all"].forEach((dataPoint: FormattedAnalysisPoint) => {
         const { lower, upper } = dataPoint;
         const max = Math.max(Math.abs(lower!), Math.abs(upper!));
         extreme = max > extreme ? max : extreme;

@@ -18,7 +18,10 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableResults {...{ experiment }} />
+          <TableResults
+            {...{ experiment }}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
@@ -41,7 +44,10 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableResults experiment={ios_experiment} />
+          <TableResults
+            experiment={ios_experiment}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
@@ -61,7 +67,10 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableResults {...{ experiment }} />
+          <TableResults
+            {...{ experiment }}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
@@ -84,6 +93,7 @@ describe("TableResults", () => {
           <TableResults
             {...{ experiment }}
             branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+            referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -105,6 +115,7 @@ describe("TableResults", () => {
           <TableResults
             {...{ experiment }}
             branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+            referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -118,7 +129,10 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider analysis={mockIncompleteAnalysis()}>
-          <TableResults {...{ experiment }} />
+          <TableResults
+            {...{ experiment }}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );

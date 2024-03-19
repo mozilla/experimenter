@@ -12,7 +12,7 @@ describe("TableResultsWeekly", () => {
   it("renders as expected with relative uplift branch comparison (default)", () => {
     render(
       <MockResultsContextProvider>
-        <TableResultsWeekly />,
+        <TableResultsWeekly referenceBranch="control" />,
       </MockResultsContextProvider>,
     );
 
@@ -38,7 +38,10 @@ describe("TableResultsWeekly", () => {
   it("renders as expected with absolute branch comparison", () => {
     render(
       <MockResultsContextProvider>
-        <TableResultsWeekly branchComparison={BRANCH_COMPARISON.ABSOLUTE} />
+        <TableResultsWeekly
+          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+          referenceBranch="control"
+        />
       </MockResultsContextProvider>,
     );
 
@@ -53,7 +56,7 @@ describe("TableResultsWeekly", () => {
 
     render(
       <MockResultsContextProvider>
-        <TableResultsWeekly />,
+        <TableResultsWeekly referenceBranch="control" />,
       </MockResultsContextProvider>,
     );
 
