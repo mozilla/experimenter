@@ -277,6 +277,48 @@ describe("TableAudience", () => {
         ),
       );
     });
+    it("when more than 10 locales exist, displays show more option and hides after click", () => {
+      const data = {
+        locales: [
+          { name: "Quebecois", id: "1", code: "Qu" },
+          { name: "Acholi", id: "2", code: "Ac" },
+          { name: "Locale 3", id: "3", code: "L3" },
+          { name: "Locale 4", id: "4", code: "L4" },
+          { name: "Locale 5", id: "5", code: "L5" },
+          { name: "Locale 6", id: "6", code: "L6" },
+          { name: "Locale 7", id: "7", code: "L7" },
+          { name: "Locale 8", id: "8", code: "L8" },
+          { name: "Locale 9", id: "9", code: "L9" },
+          { name: "Locale 10", id: "10", code: "L10" },
+          { name: "Locale 11", id: "11", code: "L11" },
+        ],
+      };
+      const { experiment } = mockExperimentQuery("demo-slug", data);
+      render(<Subject {...{ experiment }} />);
+
+      const showMoreButton = screen.getByTestId("locales-show-more");
+      expect(showMoreButton).toBeInTheDocument();
+      fireEvent.click(showMoreButton);
+      const hideButton = screen.getByTestId("locales-hide");
+      expect(hideButton).toBeInTheDocument();
+
+      data.locales.forEach((locale) => {
+        expect(
+          within(screen.getByTestId("experiment-locales")).getByText(
+            locale.name,
+          ),
+        ).toBeInTheDocument();
+      });
+      fireEvent.click(hideButton);
+
+      expect(showMoreButton).toBeInTheDocument();
+      data.locales.slice(0, 10).forEach((locale) => {
+        expect(screen.getByTestId("experiment-locales")).toHaveTextContent(
+          locale.name,
+        );
+      });
+    });
+
     it("when locales don't exist, displays all", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         locales: [],
@@ -339,6 +381,47 @@ describe("TableAudience", () => {
         ),
       );
     });
+    it("when more than 10 languages exist, displays show more option and hides after click", () => {
+      const data = {
+        languages: [
+          { name: "English", id: "1", code: "en" },
+          { name: "Spanish", id: "2", code: "es" },
+          { name: "French", id: "3", code: "fr" },
+          { name: "German", id: "4", code: "de" },
+          { name: "Chinese", id: "5", code: "zh" },
+          { name: "Japanese", id: "6", code: "ja" },
+          { name: "Arabic", id: "7", code: "ar" },
+          { name: "Russian", id: "8", code: "ru" },
+          { name: "Portuguese", id: "9", code: "pt" },
+          { name: "Italian", id: "10", code: "it" },
+          { name: "Korean", id: "11", code: "ko" },
+        ],
+        application: NimbusExperimentApplicationEnum.FENIX,
+      };
+      const { experiment } = mockExperimentQuery("demo-slug", data);
+      render(<Subject {...{ experiment }} />);
+
+      const showMoreButton = screen.getByTestId("languages-show-more");
+      expect(showMoreButton).toBeInTheDocument();
+      fireEvent.click(showMoreButton);
+      const hideButton = screen.getByTestId("languages-hide");
+      expect(hideButton).toBeInTheDocument();
+
+      data.languages.forEach((language) => {
+        expect(screen.getByTestId("experiment-languages")).toHaveTextContent(
+          language.name,
+        );
+      });
+
+      fireEvent.click(hideButton);
+      expect(showMoreButton).toBeInTheDocument();
+      data.languages.slice(0, 10).forEach((language) => {
+        expect(screen.getByTestId("experiment-languages")).toHaveTextContent(
+          language.name,
+        );
+      });
+    });
+
     it("when languages don't exist, displays all", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         languages: [],
@@ -373,6 +456,45 @@ describe("TableAudience", () => {
         ),
       );
     });
+    it("when more than 10 countries exist, displays show more option and hides after click", () => {
+      const data = {
+        countries: [
+          { name: "United States", id: "1", code: "US" },
+          { name: "Canada", id: "2", code: "CA" },
+          { name: "United Kingdom", id: "3", code: "UK" },
+          { name: "Germany", id: "4", code: "DE" },
+          { name: "France", id: "5", code: "FR" },
+          { name: "Italy", id: "6", code: "IT" },
+          { name: "Spain", id: "7", code: "ES" },
+          { name: "Australia", id: "8", code: "AU" },
+          { name: "Japan", id: "9", code: "JP" },
+          { name: "China", id: "10", code: "CN" },
+          { name: "Brazil", id: "11", code: "BR" },
+        ],
+      };
+      const { experiment } = mockExperimentQuery("demo-slug", data);
+      render(<Subject {...{ experiment }} />);
+      const showMoreButton = screen.getByTestId("countries-show-more");
+      expect(showMoreButton).toBeInTheDocument();
+
+      fireEvent.click(showMoreButton);
+      const hideButton = screen.getByTestId("countries-hide");
+      expect(hideButton).toBeInTheDocument();
+
+      data.countries.forEach((country) => {
+        expect(screen.getByTestId("experiment-countries")).toHaveTextContent(
+          country.name,
+        );
+      });
+      fireEvent.click(hideButton);
+      expect(showMoreButton).toBeInTheDocument();
+      data.countries.slice(0, 10).forEach((country) => {
+        expect(screen.getByTestId("experiment-countries")).toHaveTextContent(
+          country.name,
+        );
+      });
+    });
+
     it("when countries don't exist, displays all", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         countries: [],
