@@ -61,6 +61,24 @@ class NimbusBranchForeignKeyWidget(ForeignKeyWidget):
         return self.model.objects.filter(experiment=experiment)
 
 
+# TODO: remove NimbusDiff class when we upgrade to django-import-export >= 4.0.0
+# - the default Diff class in <4.0.0 calls the `dehydrate` functions to determine
+#   diff information, and this breaks the import for FK fields
+# https://github.com/mozilla/experimenter/issues/10416
+class NimbusDiff(resources.Diff):  # pragma: no cover
+    def __init__(self, resource, instance, new):
+        self.left = NimbusDiff._read_field_values(resource, instance)
+        self.right = []
+        self.new = new
+
+    def compare_with(self, resource, instance, dry_run=False):
+        self.right = NimbusDiff._read_field_values(resource, instance)
+
+    @classmethod
+    def _read_field_values(cls, resource, instance):
+        return [f.export(instance) for f in resource.get_import_fields()]
+
+
 class NimbusExperimentResource(resources.ModelResource):
     changes = fields.Field()
     branches = fields.Field()
@@ -73,6 +91,11 @@ class NimbusExperimentResource(resources.ModelResource):
     #   which breaks the Nimbus UI type validation
     status_next = fields.Field()
     conclusion_recommendation = fields.Field()
+
+    # TODO: remove get_diff_class when we upgrade to django-import-export >= 4.0.0
+    # https://github.com/mozilla/experimenter/issues/10416
+    def get_diff_class(self):  # pragma: no cover
+        return NimbusDiff
 
     def get_diff_headers(self):
         skip_list = ["reference_branch_slug"]
