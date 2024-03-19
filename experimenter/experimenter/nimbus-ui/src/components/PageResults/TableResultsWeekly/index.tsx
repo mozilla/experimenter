@@ -27,6 +27,7 @@ export type TableResultsWeeklyProps = {
   analysisBasis?: AnalysisBases;
   segment?: string;
   isDesktop?: boolean;
+  referenceBranch: string;
 };
 
 const getHighlightMetrics = (isDesktop = false) => {
@@ -54,6 +55,7 @@ const TableResultsWeekly = ({
   analysisBasis = "enrollments",
   segment = "all",
   isDesktop = false,
+  referenceBranch,
 }: TableResultsWeeklyProps) => {
   const {
     analysis: { overall },
@@ -108,6 +110,7 @@ const TableResultsWeekly = ({
                   {...{ branchComparison }}
                   analysisBasis={analysisBasis}
                   segment={segment}
+                  referenceBranch={referenceBranch}
                 />
               </div>
             );
