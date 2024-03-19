@@ -70,7 +70,7 @@ django-redis = "^5.4.0"
 fontawesomefree = "6.4.0"
 django-tailwind = "^3.8.0"
 ruff = "^0.3.0"
-django = "^5.0.2"
+django = "^5.0.3"
 dockerflow = "^2024.3.0"
 django-filter = "^23.5"
 
