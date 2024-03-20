@@ -389,6 +389,18 @@ describe("PageResults", () => {
     ).toEqual("");
   });
 
+  it("does not redirect to the summary page if the visualization flags are undefined", async () => {
+    expect(
+      redirectTestCommon({
+        mockAnalysisData: mockAnalysis({ show_analysis: undefined }),
+        mockExperiment: mockExperimentQuery("demo-slug", {
+          status: NimbusExperimentStatusEnum.COMPLETE,
+          showResultsUrl: undefined,
+        }).experiment,
+      }),
+    ).not.toEqual("");
+  });
+
   const redirectTestCommon = (props: React.ComponentProps<typeof Subject>) => {
     const { mockAnalysisData, mockExperiment } = props;
     const useRedirectCondition = jest.fn();

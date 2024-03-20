@@ -41,7 +41,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   useRedirectCondition(({ status, experiment, analysis }) => {
     if (!status?.launched) return "edit/overview";
     // explicitly check for false to avoid undefined being falsy
-    if (experiment?.showResultsUrl === false || !analysis?.show_analysis)
+    if (experiment?.showResultsUrl === false || analysis?.show_analysis === false)
       return "";
   });
 
@@ -68,7 +68,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   if (
     !analysis ||
     experiment?.showResultsUrl === false ||
-    !analysis?.show_analysis
+    analysis?.show_analysis === false
   )
     return null;
 
