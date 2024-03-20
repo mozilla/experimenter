@@ -82,7 +82,7 @@ describe("PageResults", () => {
     // length of 2 due to two sets of tabs per table
     expect(screen.queryAllByTestId("table-highlights")).toHaveLength(2);
     expect(screen.queryAllByTestId("table-results")).toHaveLength(2);
-    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(6);
+    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(5);
   });
 
   it("displays the external config alert when an override exists", async () => {
@@ -347,7 +347,7 @@ describe("PageResults", () => {
     );
     expect(
       screen.getAllByText("No results available for metric."),
-    ).toHaveLength(3);
+    ).toHaveLength(2);
   });
 
   it("displays errors for metrics that do not appear in data or outcomes", async () => {

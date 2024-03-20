@@ -313,9 +313,9 @@ const TableVisualizationRow: React.FC<{
    * In either case, we need to push the current values below to be displayed.
    *
    * **Addition to above**
-   * A new case where this can happen is when an experiment does not have pairwise
-   * branch comparison results, but the user has selected a non-control reference
-   * branch. This means that there will be nothing to display for the branches
+   * A new case where this can happen is when the user has selected a non-control
+   * reference branch, but the experiment does not have pairwise branch comparison
+   * results. This means that there will be nothing to display for the branches
    * as they compare to the selected reference branch.
    *
    * For this case, the display should be similar to the relative uplift for control,

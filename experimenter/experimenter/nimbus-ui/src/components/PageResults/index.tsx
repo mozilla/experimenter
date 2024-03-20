@@ -94,7 +94,11 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
       }
       if (
         configOutcomes &&
-        configOutcomes.find((outcome) => outcome?.slug === key)
+        configOutcomes.find(
+          (outcome) =>
+            outcome?.slug === key &&
+            outcome?.application === experiment.application,
+        )
       ) {
         return false;
       }
@@ -181,7 +185,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
       <>
         {outcomes?.map((slug) => {
           const outcome = configOutcomes!.find((set) => {
-            return set?.slug === slug;
+            return (
+              set?.slug === slug && set?.application === experiment.application
+            );
           });
           return outcome?.metrics?.map((metric) => {
             if (metric?.slug) {
@@ -490,15 +496,18 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
               ).length > 0
                 ? experiment.primaryOutcomes?.map((slug) => {
                     const outcome = configOutcomes!.find((set) => {
-                      return set?.slug === slug;
+                      return (
+                        set?.slug === slug &&
+                        set?.application === experiment.application
+                      );
                     });
                     return outcome?.metrics?.map((metric) => {
                       if (
                         !analysis!.overall![selectedAnalysisBasis]?.[
                           selectedSegment
-                        ]?.[resultsContextValue.controlBranchName]?.branch_data[
-                          GROUP.OTHER
-                        ][metric?.slug!]
+                        ]?.[selectedReferenceBranch]?.branch_data[GROUP.OTHER][
+                          metric?.slug!
+                        ]
                       ) {
                         // Primary metric does not have data to display. Show error if there is one.
                         if (
@@ -547,21 +556,54 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
               ).length > 0
                 ? experiment.secondaryOutcomes?.map((slug) => {
                     const outcome = configOutcomes!.find((set) => {
-                      return set?.slug === slug;
+                      return (
+                        set?.slug === slug &&
+                        set?.application === experiment.application
+                      );
                     });
-
-                    return (
-                      <TableMetricCount
-                        key={outcome!.slug}
-                        outcomeSlug={outcome!.slug!}
-                        outcomeDefaultName={outcome!.friendlyName!}
-                        group={GROUP.OTHER}
-                        metricType={METRIC_TYPE.DEFAULT_SECONDARY}
-                        analysisBasis={selectedAnalysisBasis}
-                        segment={selectedSegment}
-                        referenceBranch={selectedReferenceBranch}
-                      />
-                    );
+                    return outcome?.metrics?.map((metric) => {
+                      if (
+                        !analysis!.overall![selectedAnalysisBasis]?.[
+                          selectedSegment
+                        ]?.[selectedReferenceBranch]?.branch_data[GROUP.OTHER][
+                          metric?.slug!
+                        ]
+                      ) {
+                        // Secondary metric does not have data to display. Show error if there is one.
+                        if (
+                          metric?.slug &&
+                          analysis?.errors &&
+                          metric.slug in analysis.errors &&
+                          analysis.errors[metric.slug].length > 0
+                        ) {
+                          return (
+                            <>
+                              <MetricHeader
+                                key={metric.slug}
+                                outcomeSlug={metric.slug!}
+                                outcomeDefaultName={metric?.friendlyName!}
+                                metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+                              />
+                              <AnalysisErrorAlert
+                                errors={analysis.errors[metric.slug]}
+                              />
+                            </>
+                          );
+                        }
+                      }
+                      return (
+                        <TableMetricCount
+                          key={metric?.slug}
+                          outcomeSlug={metric?.slug!}
+                          outcomeDefaultName={metric?.friendlyName!}
+                          group={GROUP.OTHER}
+                          metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+                          analysisBasis={selectedAnalysisBasis}
+                          segment={selectedSegment}
+                          referenceBranch={selectedReferenceBranch}
+                        />
+                      );
+                    });
                   })
                 : // no Overall results, check for errors in secondary outcome metrics
                   analysis?.errors &&
