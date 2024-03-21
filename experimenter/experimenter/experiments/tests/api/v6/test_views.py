@@ -6,7 +6,10 @@ from django.urls import reverse
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.experiments.tests.factories import (
+    NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
+)
 
 
 @override_settings(
@@ -22,11 +25,180 @@ class CachedViewSetTest(TestCase):
         cache.clear()
 
 
-class TestNimbusExperimentViewSet(CachedViewSetTest):
+class NimbusExperimentFilterMixin:
+    LIFECYCLE = NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
+    LIST_VIEW = "nimbus-experiment-rest-list"
+    DETAIL_VIEW = "nimbus-experiment-rest-detail"
+
+    def create_experiment_kwargs(self):
+        return {}
+
+    def assert_returned_slugs(self, response, expected_slugs):
+        self.assertEqual(response.status_code, 200)
+
+        recipes = json.loads(response.content)
+        self.assertEqual(
+            sorted(recipe["slug"] for recipe in recipes),
+            sorted(expected_slugs),
+        )
+
+    def test_filter_by_is_localized(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            self.LIFECYCLE,
+            slug="experiment",
+            **self.create_experiment_kwargs(),
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            self.LIFECYCLE,
+            slug="localized_experiment",
+            is_localized=True,
+            localizations=json.dumps(
+                {
+                    "en-US": {},
+                    "en-CA": {},
+                }
+            ),
+            **self.create_experiment_kwargs(),
+        )
+
+        response = self.client.get(
+            reverse(self.LIST_VIEW),
+            {"is_localized": "True"},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        recipes = json.loads(response.content)
+        slugs = [recipe["slug"] for recipe in recipes]
+
+        self.assertEqual(slugs, ["localized_experiment"])
+
+        response = self.client.get(
+            reverse(self.LIST_VIEW),
+            {"is_localized": "False"},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        recipes = json.loads(response.content)
+        slugs = [recipe["slug"] for recipe in recipes]
+
+        self.assertEqual(slugs, ["experiment"])
+
+    def test_filter_by_feature_config(self):
+        features = {
+            slug: NimbusFeatureConfigFactory.create(
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+            )
+            for slug in ("testFeature", "nimbus-qa-1", "nimbus-qa-2")
+        }
+
+        for feature in features.values():
+            NimbusExperimentFactory.create_with_lifecycle(
+                self.LIFECYCLE,
+                application=NimbusExperiment.Application.DESKTOP,
+                slug=f"{feature.slug}-exp",
+                feature_configs=[feature],
+                **self.create_experiment_kwargs(),
+            )
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            self.LIFECYCLE,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="multi-1",
+            feature_configs=[features["nimbus-qa-1"], features["testFeature"]],
+            **self.create_experiment_kwargs(),
+        )
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            self.LIFECYCLE,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="multi-2",
+            feature_configs=[features["nimbus-qa-2"], features["testFeature"]],
+            **self.create_experiment_kwargs(),
+        )
+
+        expected_slugs_by_feature_id = {
+            "nimbus-qa-1": ["nimbus-qa-1-exp", "multi-1"],
+            "nimbus-qa-2": ["nimbus-qa-2-exp", "multi-2"],
+            "testFeature": ["testFeature-exp", "multi-1", "multi-2"],
+        }
+
+        # Test querying for an individual feature ID.
+        for feature_id, expected_slugs in expected_slugs_by_feature_id.items():
+            response = self.client.get(
+                reverse(self.LIST_VIEW),
+                {"feature_config": feature_id},
+            )
+            self.assert_returned_slugs(response, expected_slugs)
+
+        # Test querying for multiple feature IDs
+        response = self.client.get(
+            reverse(self.LIST_VIEW),
+            {"feature_config": ["nimbus-qa-1", "nimbus-qa-2"]},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assert_returned_slugs(
+            response, ["nimbus-qa-1-exp", "nimbus-qa-2-exp", "multi-1", "multi-2"]
+        )
+
+    def test_filter_by_application(self):
+        for application in NimbusExperiment.Application.values:
+            NimbusExperimentFactory.create_with_lifecycle(
+                self.LIFECYCLE,
+                application=application,
+                slug=f"{application}-experiment",
+                **self.create_experiment_kwargs(),
+            )
+
+        response = self.client.get(
+            reverse(self.LIST_VIEW),
+            {
+                "application": [
+                    NimbusExperiment.Application.FOCUS_ANDROID,
+                    NimbusExperiment.Application.KLAR_ANDROID,
+                ]
+            },
+        )
+
+        self.assert_returned_slugs(
+            response,
+            [
+                f"{application}-experiment"
+                for application in (
+                    NimbusExperiment.Application.FOCUS_ANDROID,
+                    NimbusExperiment.Application.KLAR_ANDROID,
+                )
+            ],
+        )
+
+
+class NimbusExperimentIsFirstRunFilterMixin:
+    def test_filter_by_is_first_run(self):
+        first_run_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            self.LIFECYCLE,
+            is_first_run=True,
+            **self.create_experiment_kwargs(),
+        )
+        non_first_run_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            self.LIFECYCLE,
+            is_first_run=False,
+            **self.create_experiment_kwargs(),
+        )
+
+        response = self.client.get(reverse(self.LIST_VIEW), {"is_first_run": "True"})
+        self.assert_returned_slugs(response, [first_run_experiment.slug])
+
+        response = self.client.get(reverse(self.LIST_VIEW), {"is_first_run": "False"})
+        self.assert_returned_slugs(response, [non_first_run_experiment.slug])
+
+
+class TestNimbusExperimentViewSet(
+    NimbusExperimentFilterMixin, NimbusExperimentIsFirstRunFilterMixin, CachedViewSetTest
+):
     maxDiff = None
 
     def test_list_view_serializes_experiments(self):
-        experiments = []
+        expected_slugs = []
 
         for lifecycle in NimbusExperimentFactory.Lifecycles:
             experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -36,19 +208,10 @@ class TestNimbusExperimentViewSet(CachedViewSetTest):
             if experiment.status not in [
                 NimbusExperiment.Status.DRAFT,
             ]:
-                experiments.append(experiment)
+                expected_slugs.append(experiment.slug)
 
-        experiments = sorted(experiments, key=lambda e: e.slug)
-
-        response = self.client.get(
-            reverse("nimbus-experiment-rest-list"),
-        )
-        self.assertEqual(response.status_code, 200)
-
-        json_data = json.loads(response.content)
-        json_slugs = [d["id"] for d in json_data]
-        expected_slugs = [e.slug for e in experiments]
-        self.assertEqual(json_slugs, expected_slugs)
+        response = self.client.get(reverse(self.LIST_VIEW))
+        self.assert_returned_slugs(response, expected_slugs)
 
     def test_get_nimbus_experiment_returns_expected_data(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -57,39 +220,22 @@ class TestNimbusExperimentViewSet(CachedViewSetTest):
         )
 
         response = self.client.get(
-            reverse(
-                "nimbus-experiment-rest-detail",
-                kwargs={"slug": experiment.slug},
-            ),
+            reverse(self.DETAIL_VIEW, kwargs={"slug": experiment.slug}),
         )
 
         self.assertEqual(response.status_code, 200)
-        json_data = json.loads(response.content)
-        self.assertEqual(NimbusExperimentSerializer(experiment).data, json_data)
-
-    def test_filters_on_is_first_run(self):
-        first_run_experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            is_first_run=True,
-        )
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            is_first_run=False,
-        )
-
-        response = self.client.get(
-            reverse("nimbus-experiment-rest-list"),
-            {"is_first_run": "True"},
-        )
-
-        self.assertEqual(response.status_code, 200)
-        json_data = json.loads(response.content)
-        self.assertEqual(len(json_data), 1)
-        self.assertEqual(json_data[0]["slug"], first_run_experiment.slug)
+        recipes = json.loads(response.content)
+        self.assertEqual(NimbusExperimentSerializer(experiment).data, recipes)
 
 
-class TestNimbusExperimentDraftViewSet(CachedViewSetTest):
+class TestNimbusExperimentDraftViewSet(
+    NimbusExperimentFilterMixin, NimbusExperimentIsFirstRunFilterMixin, CachedViewSetTest
+):
     maxDiff = None
+
+    LIST_VIEW = "nimbus-experiment-draft-rest-list"
+    DETAIL_VIEW = "nimbus-experiment-draft-rest-detail"
+    LIFECYCLE = NimbusExperimentFactory.Lifecycles.CREATED
 
     def test_detail_view_serializes_draft_experiments(self):
         draft_slugs = []
@@ -107,15 +253,11 @@ class TestNimbusExperimentDraftViewSet(CachedViewSetTest):
                 non_draft_slugs.append(experiment.slug)
 
         for slug in draft_slugs:
-            response = self.client.get(
-                reverse("nimbus-experiment-draft-rest-detail", kwargs={"slug": slug})
-            )
+            response = self.client.get(reverse(self.DETAIL_VIEW, kwargs={"slug": slug}))
             self.assertEqual(response.status_code, 200)
 
         for slug in non_draft_slugs:
-            response = self.client.get(
-                reverse("nimbus-experiment-draft-rest-detail", kwargs={"slug": slug})
-            )
+            response = self.client.get(reverse(self.DETAIL_VIEW, kwargs={"slug": slug}))
             self.assertEqual(response.status_code, 404)
 
     def test_list_view_serializes_draft_experiments(self):
@@ -130,66 +272,35 @@ class TestNimbusExperimentDraftViewSet(CachedViewSetTest):
             if experiment.status == NimbusExperiment.Status.DRAFT:
                 expected_slugs.append(experiment.slug)
 
-        response = self.client.get(reverse("nimbus-experiment-draft-rest-list"))
-        self.assertEqual(response.status_code, 200)
-
-        json_data = json.loads(response.content)
-        slugs = [recipe["slug"] for recipe in json_data]
-        self.assertEqual(set(slugs), set(expected_slugs))
-
-    def test_list_view_filter_localized(self):
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, slug="experiment"
-        )
-
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            slug="localized_experiment",
-            is_localized=True,
-            localizations=json.dumps(
-                {
-                    "en-US": {},
-                    "en-CA": {},
-                }
-            ),
-        )
-
-        response = self.client.get(
-            f"{reverse('nimbus-experiment-draft-rest-list')}?is_localized=1"
-        )
-        self.assertEqual(response.status_code, 200)
-
-        json_data = json.loads(response.content)
-        slugs = [recipe["slug"] for recipe in json_data]
-        self.assertEqual(slugs, ["localized_experiment"])
+        response = self.client.get(reverse(self.LIST_VIEW))
+        self.assert_returned_slugs(response, expected_slugs)
 
 
-class TestNimbusExperimentFirstRunViewSet(CachedViewSetTest):
+class TestNimbusExperimentFirstRunViewSet(NimbusExperimentFilterMixin, CachedViewSetTest):
     maxDiff = None
 
+    LIST_VIEW = "nimbus-experiment-rest-first-run-list"
+    DETAIL_VIEW = "nimbus-experiment-rest-first-run-detail"
+
+    def create_experiment_kwargs(self):
+        return {"is_first_run": True}
+
     def test_list_view_serializes_live_first_run_experiments(self):
-        experiments = []
+        expected_slugs = []
 
         for lifecycle in NimbusExperimentFactory.Lifecycles:
             experiment = NimbusExperimentFactory.create_with_lifecycle(
-                lifecycle, slug=lifecycle.name, is_first_run=True
+                lifecycle,
+                slug=lifecycle.name,
+                **self.create_experiment_kwargs(),
             )
 
             if experiment.status == NimbusExperiment.Status.LIVE:
-                experiments.append(experiment)
+                expected_slugs.append(experiment.slug)
 
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, is_first_run=False
         )
 
-        experiments = sorted(experiments, key=lambda e: e.slug)
-
-        response = self.client.get(
-            reverse("nimbus-experiment-rest-first-run-list"),
-        )
-        self.assertEqual(response.status_code, 200)
-
-        json_data = json.loads(response.content)
-        json_slugs = [d["id"] for d in json_data]
-        expected_slugs = [e.slug for e in experiments]
-        self.assertEqual(json_slugs, expected_slugs)
+        response = self.client.get(reverse(self.LIST_VIEW))
+        self.assert_returned_slugs(response, expected_slugs)
