@@ -384,9 +384,22 @@ describe("PageResults", () => {
       redirectTestCommon({
         mockExperiment: mockExperimentQuery("demo-slug", {
           status: NimbusExperimentStatusEnum.COMPLETE,
+          showResultsUrl: false,
         }).experiment,
       }),
     ).toEqual("");
+  });
+
+  it("does not redirect to the summary page if the visualization flags are undefined", async () => {
+    expect(
+      redirectTestCommon({
+        mockAnalysisData: mockAnalysis({ show_analysis: undefined }),
+        mockExperiment: mockExperimentQuery("demo-slug", {
+          status: NimbusExperimentStatusEnum.COMPLETE,
+          showResultsUrl: undefined,
+        }).experiment,
+      }),
+    ).not.toEqual("");
   });
 
   const redirectTestCommon = (props: React.ComponentProps<typeof Subject>) => {
@@ -408,6 +421,7 @@ describe("PageResults", () => {
     return condition({
       analysis: mockAnalysisData,
       status: mockGetStatus(mockExperiment),
+      experiment: mockExperiment,
     });
   };
 

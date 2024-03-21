@@ -81,7 +81,7 @@ export const ExperimentRoot = ({
       if (
         !loading &&
         status &&
-        (redirectResult = redirect!({ status, analysis })) != null
+        (redirectResult = redirect!({ status, experiment, analysis })) != null
       ) {
         redirectResult = redirectResult.length
           ? `/${redirectResult}`
