@@ -421,6 +421,7 @@ describe("PageResults", () => {
     return condition({
       analysis: mockAnalysisData,
       status: mockGetStatus(mockExperiment),
+      experiment: mockExperiment,
     });
   };
 
