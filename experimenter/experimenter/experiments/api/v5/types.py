@@ -133,7 +133,7 @@ class NimbusUserType(DjangoObjectType):
 
 
 class NimbusExperimentApplicationConfigType(graphene.ObjectType):
-    application = NimbusExperimentApplicationEnum()
+    application = graphene.NonNull(NimbusExperimentApplicationEnum)
     channels = graphene.List(NimbusLabelValueType)
 
 
@@ -148,7 +148,7 @@ class NimbusExperimentTargetingConfigType(graphene.ObjectType):
 
 class NimbusFeatureConfigType(DjangoObjectType):
     id = graphene.Int()
-    application = NimbusExperimentApplicationEnum()
+    application = graphene.NonNull(NimbusExperimentApplicationEnum)
     sets_prefs = graphene.Boolean()
     schema = graphene.String()
 
@@ -244,7 +244,7 @@ class NimbusOutcomeMetricType(graphene.ObjectType):
 class NimbusOutcomeType(graphene.ObjectType):
     friendly_name = graphene.String()
     slug = graphene.String()
-    application = NimbusExperimentApplicationEnum()
+    application = graphene.NonNull(NimbusExperimentApplicationEnum)
     description = graphene.String()
     is_default = graphene.Boolean()
     metrics = graphene.List(NimbusOutcomeMetricType)
@@ -489,7 +489,7 @@ class NimbusConfigurationType(graphene.ObjectType):
 
 
 class NimbusExperimentType(DjangoObjectType):
-    application = NimbusExperimentApplicationEnum()
+    application = graphene.NonNull(NimbusExperimentApplicationEnum)
     can_archive = graphene.Boolean()
     can_edit = graphene.Boolean()
     can_review = graphene.Boolean()
