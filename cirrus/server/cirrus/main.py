@@ -214,9 +214,9 @@ async def compute_features(request_data: FeatureRequest):
         targeting_context
     )
 
-    client_feature_configuration: dict[
-        str, Any
-    ] = app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
+    client_feature_configuration: dict[str, Any] = (
+        app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
+    )
 
     await record_metrics(
         enrolled_partial_configuration=enrolled_partial_configuration,
