@@ -82,7 +82,7 @@ describe("PageResults", () => {
     // length of 2 due to two sets of tabs per table
     expect(screen.queryAllByTestId("table-highlights")).toHaveLength(2);
     expect(screen.queryAllByTestId("table-results")).toHaveLength(2);
-    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(6);
+    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(5);
   });
 
   it("displays the external config alert when an override exists", async () => {
@@ -127,13 +127,13 @@ describe("PageResults", () => {
 
     expect(screen.getByText("Segment"));
     const segmentSelectParent = screen.getByTestId("segment-results-selector");
-    expect(within(segmentSelectParent).getByText(defaultSegment));
+    within(segmentSelectParent).getByText(defaultSegment);
     expect(
       within(segmentSelectParent).getByTestId(
         `${defaultSegment}-segment-radio`,
       ),
     ).toBeChecked();
-    expect(within(segmentSelectParent).getByText(otherSegment));
+    within(segmentSelectParent).getByText(otherSegment);
     expect(
       within(segmentSelectParent).getByTestId(`${otherSegment}-segment-radio`),
     ).not.toBeChecked();
@@ -176,8 +176,8 @@ describe("PageResults", () => {
     );
 
     // both exist
-    expect(within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS));
-    expect(within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS));
+    within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS);
+    within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS);
 
     // exposures checked by default
     expect(
@@ -209,8 +209,48 @@ describe("PageResults", () => {
     );
 
     // both exist
-    expect(within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS));
-    expect(within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS));
+    within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS);
+    within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS);
+  });
+
+  it("displays the reference branch options properly", async () => {
+    render(<Subject mockAnalysisData={mockAnalysisWithExposures} />);
+
+    expect(screen.getByText("Analysis Basis"));
+    const referenceBranchSelectParent = screen.getByTestId(
+      "reference-branch-results-selector",
+    );
+
+    // both exist
+    within(referenceBranchSelectParent).getByText("control");
+    within(referenceBranchSelectParent).getByText("treatment");
+
+    // control checked by default
+    expect(
+      within(referenceBranchSelectParent).getByTestId("control-branch-radio"),
+    ).toBeChecked();
+
+    fireEvent.click(
+      within(referenceBranchSelectParent).getByTestId("treatment-branch-radio"),
+    );
+
+    // treatment checked after click
+    expect(
+      within(referenceBranchSelectParent).getByTestId("treatment-branch-radio"),
+    ).toBeChecked();
+  });
+
+  it("displays the reference branch options for weekly results", async () => {
+    render(<Subject mockAnalysisData={mockAnalysisWithWeeklyExposures} />);
+
+    expect(screen.getByText("Analysis Basis"));
+    const referenceBranchSelectParent = screen.getByTestId(
+      "reference-branch-results-selector",
+    );
+
+    // both exist
+    within(referenceBranchSelectParent).getByText("control");
+    within(referenceBranchSelectParent).getByText("treatment");
   });
 
   it("displays analysis errors", async () => {
@@ -307,7 +347,7 @@ describe("PageResults", () => {
     );
     expect(
       screen.getAllByText("No results available for metric."),
-    ).toHaveLength(3);
+    ).toHaveLength(2);
   });
 
   it("displays errors for metrics that do not appear in data or outcomes", async () => {

@@ -311,8 +311,27 @@ const TableVisualizationRow: React.FC<{
    * should fall back to "baseline".
    *
    * In either case, we need to push the current values below to be displayed.
+   *
+   * **Addition to above**
+   * A new case where this can happen is when the user has selected a non-control
+   * reference branch, but the experiment does not have pairwise branch comparison
+   * results. This means that there will be nothing to display for the branches
+   * as they compare to the selected reference branch.
+   *
+   * For this case, the display should be similar to the relative uplift for control,
+   * but with a different message to clarify that it is not baseline.
    **/
   if (fieldList.length === 0) {
+    if (
+      branchComparison !== BRANCH_COMPARISON.ABSOLUTE &&
+      referenceBranch !== controlBranchName &&
+      !isControlBranch
+    ) {
+      field = <div>(results not available)</div>;
+      tooltipText =
+        "This is likely because pairwise branch comparison results are not available for this experiment. Please select the experiment's configured control branch to view available results, or contact #ask-experimenter to request that analysis be rerun to get pairwise branch comparison results.";
+      className = "text-danger";
+    }
     fieldList.push({ field, tooltipText, className });
   }
 
