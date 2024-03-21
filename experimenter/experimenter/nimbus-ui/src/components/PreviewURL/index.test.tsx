@@ -7,7 +7,10 @@ import React from "react";
 import selectEvent from "react-select-event";
 import PreviewURL from "src/components/PreviewURL";
 import { mockExperimentQuery, mockGetStatus } from "src/lib/mocks";
-import { NimbusExperimentStatusEnum } from "src/types/globalTypes";
+import {
+  NimbusExperimentApplicationEnum,
+  NimbusExperimentStatusEnum,
+} from "src/types/globalTypes";
 
 const { experiment } = mockExperimentQuery("preview-url-slug");
 
@@ -44,7 +47,7 @@ describe("PreviewURL", () => {
     render(
       <PreviewURL
         {...experiment}
-        application={null}
+        application={NimbusExperimentApplicationEnum.DEMO_APP}
         status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
       />,
     );
