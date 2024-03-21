@@ -30,6 +30,11 @@ export interface AnalysisError {
   statistic?: string;
   timestamp: string;
 }
+export interface ConfigVersion {
+  name?: string;
+  path?: string;
+  revision?: string;
+}
 export interface ExternalConfig {
   reference_branch?: string;
   end_date?: string;
@@ -90,6 +95,8 @@ export interface Metadata {
   outcomes?: {
     [k: string]: Outcome;
   };
+  version_info?: ConfigVersion;
+  version_date?: string;
   schema_version?: number;
 }
 export interface Metric {
