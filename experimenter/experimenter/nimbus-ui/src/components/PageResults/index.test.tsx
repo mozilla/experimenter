@@ -127,13 +127,13 @@ describe("PageResults", () => {
 
     expect(screen.getByText("Segment"));
     const segmentSelectParent = screen.getByTestId("segment-results-selector");
-    expect(within(segmentSelectParent).getByText(defaultSegment));
+    within(segmentSelectParent).getByText(defaultSegment);
     expect(
       within(segmentSelectParent).getByTestId(
         `${defaultSegment}-segment-radio`,
       ),
     ).toBeChecked();
-    expect(within(segmentSelectParent).getByText(otherSegment));
+    within(segmentSelectParent).getByText(otherSegment);
     expect(
       within(segmentSelectParent).getByTestId(`${otherSegment}-segment-radio`),
     ).not.toBeChecked();
@@ -176,8 +176,8 @@ describe("PageResults", () => {
     );
 
     // both exist
-    expect(within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS));
-    expect(within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS));
+    within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS);
+    within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS);
 
     // exposures checked by default
     expect(
@@ -209,8 +209,8 @@ describe("PageResults", () => {
     );
 
     // both exist
-    expect(within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS));
-    expect(within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS));
+    within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS);
+    within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS);
   });
 
   it("displays the reference branch options properly", async () => {
@@ -222,8 +222,8 @@ describe("PageResults", () => {
     );
 
     // both exist
-    expect(within(referenceBranchSelectParent).getByText("control"));
-    expect(within(referenceBranchSelectParent).getByText("treatment"));
+    within(referenceBranchSelectParent).getByText("control");
+    within(referenceBranchSelectParent).getByText("treatment");
 
     // control checked by default
     expect(
@@ -249,8 +249,8 @@ describe("PageResults", () => {
     );
 
     // both exist
-    expect(within(referenceBranchSelectParent).getByText("control"));
-    expect(within(referenceBranchSelectParent).getByText("treatment"));
+    within(referenceBranchSelectParent).getByText("control");
+    within(referenceBranchSelectParent).getByText("treatment");
   });
 
   it("displays analysis errors", async () => {

@@ -140,7 +140,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { external_config: externalConfig } = analysis.metadata || {};
 
   const referenceBranchHelpMarkdown =
-    "Select the **reference branch** to set it as the reference for results. By default this is the experiment's configured reference branch.";
+    "Select the **reference branch** to set it as the baseline for comparison results. By default this is the experiment's configured reference branch (commonly named 'control').";
 
   const allAnalysisBases: AnalysisBases[] =
     Object.keys(analysis?.overall || {}).length > 0
