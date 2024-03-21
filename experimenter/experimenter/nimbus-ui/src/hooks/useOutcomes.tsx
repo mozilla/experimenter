@@ -24,7 +24,13 @@ export function useOutcomes(experiment: getExperiment_experimentBySlug): {
         .filter((outcome) => outcome != null);
     }
     return slugs
-      .map((slug) => outcomes!.find((outcome) => outcome!.slug === slug && outcome!.application === experiment.application))
+      .map((slug) =>
+        outcomes!.find(
+          (outcome) =>
+            outcome!.slug === slug &&
+            outcome!.application === experiment.application,
+        ),
+      )
       .filter((outcome) => outcome != null);
   };
 
