@@ -384,6 +384,7 @@ describe("PageResults", () => {
       redirectTestCommon({
         mockExperiment: mockExperimentQuery("demo-slug", {
           status: NimbusExperimentStatusEnum.COMPLETE,
+          showResultsUrl: false,
         }).experiment,
       }),
     ).toEqual("");
