@@ -1381,10 +1381,64 @@
         "description": "",
         "parameters": [
           {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "is_first_run",
             "required": false,
             "in": "query",
             "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Preview",
+                "Live",
+                "Complete"
+              ]
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1425,10 +1479,64 @@
             }
           },
           {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "is_first_run",
             "required": false,
             "in": "query",
             "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Preview",
+                "Live",
+                "Complete"
+              ]
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1457,10 +1565,40 @@
         "description": "",
         "parameters": [
           {
-            "name": "is_first_run",
+            "name": "is_localized",
             "required": false,
             "in": "query",
-            "description": "is_first_run",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1501,10 +1639,40 @@
             }
           },
           {
-            "name": "is_first_run",
+            "name": "is_localized",
             "required": false,
             "in": "query",
-            "description": "is_first_run",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1537,6 +1705,45 @@
             "required": false,
             "in": "query",
             "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1581,6 +1788,45 @@
             "required": false,
             "in": "query",
             "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
