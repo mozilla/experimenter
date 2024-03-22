@@ -372,12 +372,9 @@ export function fmlLinter(
         e["line"] + 1,
         e["col"],
       );
+      const length = e["highlight"] ? e["highlight"].length : 0;
 
-      return createDiagnostic(
-        position,
-        position + e["highlight"].length,
-        e["message"],
-      );
+      return createDiagnostic(position, position + length, e["message"]);
     });
   };
 }
