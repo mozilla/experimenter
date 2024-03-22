@@ -77,7 +77,7 @@ export interface getExperiment_experimentBySlug_featureConfigs {
   slug: string;
   name: string;
   description: string | null;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   ownerEmail: string | null;
   schema: string | null;
   enabled: boolean;
@@ -223,7 +223,7 @@ export interface getExperiment_experimentBySlug {
   resultsReady: boolean | null;
   showResultsUrl: boolean | null;
   hypothesis: string | null;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   publicDescription: string | null;
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum | null;
   takeawaysGainAmount: string | null;
