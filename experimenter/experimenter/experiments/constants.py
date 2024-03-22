@@ -184,6 +184,18 @@ APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
     is_web=True,
 )
 
+APPLICATION_CONFIG_FXA_WEB = ApplicationConfig(
+    name="Firefox Accounts Web",
+    slug="fxa-web",
+    app_name="accounts_cirrus",
+    channel_app_id={
+        Channel.PRODUCTION: "accounts.cirrus",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+    is_web=True,
+)
+
 APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
     name="Demo App",
     slug="demo-app",
@@ -237,6 +249,10 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_VPN_WEB.slug,
         APPLICATION_CONFIG_VPN_WEB.name,
     )
+    FXA = (
+        APPLICATION_CONFIG_FXA_WEB.slug,
+        APPLICATION_CONFIG_FXA_WEB.name,
+    )
     DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
@@ -256,6 +272,7 @@ class Application(models.TextChoices):
             Application.DEMO_APP,
             Application.MONITOR,
             Application.VPN,
+            Application.FXA,
         )
 
 
@@ -312,6 +329,7 @@ class NimbusConstants:
         Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
         Application.MONITOR: APPLICATION_CONFIG_MONITOR_WEB,
         Application.VPN: APPLICATION_CONFIG_VPN_WEB,
+        Application.FXA: APPLICATION_CONFIG_FXA_WEB,
         Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
     }
 

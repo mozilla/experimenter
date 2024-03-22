@@ -295,6 +295,7 @@ enum NimbusExperimentApplicationEnum {
   KLAR_IOS
   MONITOR
   VPN
+  FXA
   DEMO_APP
 }
 
