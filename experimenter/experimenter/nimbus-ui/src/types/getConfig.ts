@@ -30,7 +30,7 @@ export interface getConfig_nimbusConfig_applicationConfigs_channels {
 }
 
 export interface getConfig_nimbusConfig_applicationConfigs {
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   channels: (getConfig_nimbusConfig_applicationConfigs_channels | null)[] | null;
 }
 
@@ -39,7 +39,7 @@ export interface getConfig_nimbusConfig_allFeatureConfigs {
   name: string;
   slug: string;
   description: string | null;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   ownerEmail: string | null;
   schema: string | null;
   setsPrefs: boolean | null;
@@ -60,7 +60,7 @@ export interface getConfig_nimbusConfig_outcomes_metrics {
 export interface getConfig_nimbusConfig_outcomes {
   friendlyName: string | null;
   slug: string | null;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   description: string | null;
   isDefault: boolean | null;
   metrics: (getConfig_nimbusConfig_outcomes_metrics | null)[] | null;

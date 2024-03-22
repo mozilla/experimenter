@@ -21,7 +21,7 @@ export interface getAllExperiments_experiments_featureConfigs {
   slug: string;
   name: string;
   description: string | null;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   ownerEmail: string | null;
 }
 
@@ -54,7 +54,7 @@ export interface getAllExperiments_experiments {
   featureConfigs: getAllExperiments_experiments_featureConfigs[] | null;
   targetingConfig: (getAllExperiments_experiments_targetingConfig | null)[] | null;
   slug: string;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum | null;
   startDate: DateTime | null;
