@@ -32,7 +32,7 @@ type NimbusExperimentType {
   totalEnrolledClients: Int!
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
-  application: NimbusExperimentApplicationEnum
+  application: NimbusExperimentApplicationEnum!
   channel: NimbusExperimentChannelEnum
   locales: [NimbusLocaleType!]!
   countries: [NimbusCountryType!]!
@@ -342,7 +342,7 @@ type NimbusFeatureConfigType {
   name: String!
   slug: String!
   description: String
-  application: NimbusExperimentApplicationEnum
+  application: NimbusExperimentApplicationEnum!
   ownerEmail: String
   enabled: Boolean!
   setsPrefs: Boolean
@@ -485,7 +485,7 @@ type NimbusConfigurationType {
 }
 
 type NimbusExperimentApplicationConfigType {
-  application: NimbusExperimentApplicationEnum
+  application: NimbusExperimentApplicationEnum!
   channels: [NimbusLabelValueType]
 }
 
@@ -497,7 +497,7 @@ type NimbusLabelValueType {
 type NimbusOutcomeType {
   friendlyName: String
   slug: String
-  application: NimbusExperimentApplicationEnum
+  application: NimbusExperimentApplicationEnum!
   description: String
   isDefault: Boolean
   metrics: [NimbusOutcomeMetricType]
