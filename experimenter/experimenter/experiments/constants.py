@@ -185,7 +185,7 @@ APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
 )
 
 APPLICATION_CONFIG_FXA_WEB = ApplicationConfig(
-    name="Fxa Web",
+    name="Firefox Accounts Web",
     slug="fxa-web",
     app_name="accounts_cirrus",
     channel_app_id={
