@@ -42,15 +42,14 @@ class ExternalConfig(BaseModel):
     url: HttpUrl
 
 
-class ConfigVersion(BaseModel):
-    name: Optional[str] = None
+class ConfigVersionDetails(BaseModel):
     path: Optional[str] = None
     revision: Optional[str] = None
 
 
-class ConfigVersionMap(BaseModel):
-    metric_definitions: Optional[list[ConfigVersion]] = None
-    jetstream_image: Optional[ConfigVersion] = None
+class ConfigVersions(BaseModel):
+    metric_definitions: Optional[list[ConfigVersionDetails]] = None
+    jetstream_image: Optional[ConfigVersionDetails] = None
 
 
 class Metadata(BaseModel):
@@ -58,7 +57,7 @@ class Metadata(BaseModel):
     external_config: Optional[ExternalConfig] = None
     metrics: dict[str, Metric]
     outcomes: dict[str, Outcome] = {}
-    version_info: Optional[ConfigVersion] = None
+    version_info: Optional[ConfigVersions] = None
     version_date: Optional[dt.datetime] = None
     schema_version: int = SCHEMA_VERSION
 
