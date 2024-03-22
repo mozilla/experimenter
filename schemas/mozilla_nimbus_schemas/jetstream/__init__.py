@@ -1,6 +1,7 @@
 from .analysis_errors import AnalysisError, AnalysisErrors, AnalysisErrorsFactory
 from .metadata import (
-    ConfigVersion,
+    ConfigVersionDetails,
+    ConfigVersions,
     ExternalConfig,
     Metadata,
     MetadataFactory,
@@ -39,7 +40,8 @@ __all__ = [
     "AnalysisSignificance",
     "AnalysisWindow",
     "BranchComparison",
-    "ConfigVersion",
+    "ConfigVersions",
+    "ConfigVersionDetails",
     "ExternalConfig",
     "Metadata",
     "Metric",

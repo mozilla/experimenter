@@ -30,10 +30,13 @@ export interface AnalysisError {
   statistic?: string;
   timestamp: string;
 }
-export interface ConfigVersion {
-  name?: string;
+export interface ConfigVersionDetails {
   path?: string;
   revision?: string;
+}
+export interface ConfigVersions {
+  metric_definitions?: ConfigVersionDetails[];
+  jetstream_image?: ConfigVersionDetails;
 }
 export interface ExternalConfig {
   reference_branch?: string;
@@ -95,7 +98,7 @@ export interface Metadata {
   outcomes?: {
     [k: string]: Outcome;
   };
-  version_info?: ConfigVersion;
+  version_info?: ConfigVersions;
   version_date?: string;
   schema_version?: number;
 }
