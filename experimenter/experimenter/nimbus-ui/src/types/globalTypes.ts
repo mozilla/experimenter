@@ -13,6 +13,7 @@ export enum NimbusExperimentApplicationEnum {
   FENIX = "FENIX",
   FOCUS_ANDROID = "FOCUS_ANDROID",
   FOCUS_IOS = "FOCUS_IOS",
+  FXA = "FXA",
   IOS = "IOS",
   KLAR_ANDROID = "KLAR_ANDROID",
   KLAR_IOS = "KLAR_IOS",
