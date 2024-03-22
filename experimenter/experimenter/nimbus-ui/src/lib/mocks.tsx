@@ -1141,11 +1141,6 @@ export function mockOutcomeSets(experiment: getExperiment_experimentBySlug): {
       return [];
     }
 
-    if (experiment.application === null) {
-      return slugs
-        .map((slug) => outcomes!.find((outcome) => outcome!.slug === slug))
-        .filter((outcome) => outcome != null);
-    }
     return slugs
       .map((slug) =>
         outcomes!.find(
