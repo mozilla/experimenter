@@ -383,4 +383,27 @@ describe("fmlLinter", () => {
       method: "PUT",
     });
   });
+  it("returns diagnostics when errors returned with null highlight", async () => {
+    fetchMock.mockResponseOnce(
+      JSON.stringify([
+        { line: 0, col: 0, highlight: null, message: "Invalid value" },
+      ]),
+    );
+    const linter = fmlLinter("test-slug", featureConfig);
+    const state = createEditorState({ doc: JSON.stringify({ some: "data" }) });
+    const errors = await linter({ state });
+    expect(errors).toEqual([
+      {
+        message: "Invalid value",
+        severity: "error",
+        from: 0,
+        to: 0,
+      },
+    ]);
+    expect(fetch).toHaveBeenCalledWith("/api/v5/fml-errors/test-slug/", {
+      body: '{"featureSlug":"picture-in-picture","featureValue":"{\\"some\\":\\"data\\"}"}',
+      headers: { "Content-Type": "application/json" },
+      method: "PUT",
+    });
+  });
 });
