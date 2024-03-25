@@ -408,6 +408,7 @@ MONITORING_URL = (
 ROLLOUT_MONITORING_URL = (
     "https://mozilla.cloud.looker.com/dashboards/operational_monitoring::{slug}"
 )
+ROLLOUT_MONITORING_EXPIRATION_DAYS = 90
 
 # Statsd via Markus
 STATSD_BACKEND = config(
