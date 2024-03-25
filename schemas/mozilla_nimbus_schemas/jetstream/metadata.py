@@ -42,11 +42,23 @@ class ExternalConfig(BaseModel):
     url: HttpUrl
 
 
+class ConfigVersionDetails(BaseModel):
+    path: Optional[str] = None
+    revision: Optional[str] = None
+
+
+class ConfigVersions(BaseModel):
+    metric_definitions: Optional[list[ConfigVersionDetails]] = None
+    jetstream_image: Optional[ConfigVersionDetails] = None
+
+
 class Metadata(BaseModel):
     analysis_start_time: Optional[dt.datetime] = None
     external_config: Optional[ExternalConfig] = None
     metrics: dict[str, Metric]
     outcomes: dict[str, Outcome] = {}
+    version_info: Optional[ConfigVersions] = None
+    version_date: Optional[dt.datetime] = None
     schema_version: int = SCHEMA_VERSION
 
     @validator("analysis_start_time", pre=True)
