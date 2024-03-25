@@ -291,37 +291,39 @@ SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npm
 SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
 SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 
-schemas_build:  ## Build schemas
+schemas_docker_build:  ## Build schemas docker image
 	$(DOCKER_BUILD) --target dev -f schemas/Dockerfile -t schemas:dev schemas/
 
-schemas_bash: schemas_build
+schemas_build: schemas_docker_build schemas_dist  ## Build schemas
+
+schemas_bash: schemas_docker_build
 	$(SCHEMAS_RUN) "bash"
 
-schemas_format: schemas_build  ## Format schemas source tree
+schemas_format: schemas_docker_build  ## Format schemas source tree
 	$(SCHEMAS_RUN) "$(SCHEMAS_FORMAT)"
 
-schemas_lint: schemas_build  ## Lint schemas source tree
+schemas_lint: schemas_docker_build  ## Lint schemas source tree
 	$(SCHEMAS_RUN) "$(SCHEMAS_BLACK)&&$(SCHEMAS_RUFF)&&$(SCHEMAS_DIFF_PYDANTIC)&&$(SCHEMAS_TEST)"
 schemas_check: schemas_lint
 
-schemas_dist_pypi: schemas_build
+schemas_dist_pypi: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_PYPI)"
 
-schemas_dist_npm: schemas_build
+schemas_dist_npm: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_NPM)"
 
-schemas_dist: schemas_build schemas_dist_pypi schemas_dist_npm
+schemas_dist: schemas_docker_build schemas_dist_pypi schemas_dist_npm
 
-schemas_deploy_pypi: schemas_build
+schemas_deploy_pypi: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_PYPI)"
 
-schemas_deploy_npm: schemas_build
+schemas_deploy_npm: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_NPM)"
 
-schemas_version_pypi: schemas_build
+schemas_version_pypi: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_VERSION_PYPI)"
 
-schemas_version_npm: schemas_build
+schemas_version_npm: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_VERSION_NPM)"
 
 schemas_version: schemas_version_pypi schemas_version_npm
