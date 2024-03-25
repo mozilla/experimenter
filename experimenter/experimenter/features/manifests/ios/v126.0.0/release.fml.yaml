@@ -243,7 +243,7 @@ features:
                 action: open-instructions-popup
               secondary:
                 title: Onboarding/Onboarding.Welcome.Skip.v114
-                action: next-card
+                action: forward-one-card
             instructions-popup:
               title: Onboarding/DefaultBrowserPopup.Title.v114
               button-title: Onboarding/DefaultBrowserPopup.ButtonTitle.v114
@@ -266,7 +266,7 @@ features:
                 action: request-notifications
               secondary:
                 title: Onboarding/Onboarding.Notification.Skip.Action.v115
-                action: next-card
+                action: forward-one-card
             type: fresh-install
             prerequisites:
               - ALWAYS
@@ -281,7 +281,7 @@ features:
                 action: sync-sign-in
               secondary:
                 title: Onboarding/Onboarding.Sync.Skip.Action.v114
-                action: next-card
+                action: forward-one-card
             type: fresh-install
             prerequisites:
               - ALWAYS
@@ -293,7 +293,7 @@ features:
             buttons:
               primary:
                 title: Upgrade/Upgrade.Welcome.Action.v114
-                action: next-card
+                action: forward-one-card
             type: upgrade
             prerequisites:
               - NEVER
@@ -308,7 +308,7 @@ features:
                 action: sync-sign-in
               secondary:
                 title: Onboarding/Onboarding.LaterAction.v114
-                action: next-card
+                action: forward-one-card
             type: upgrade
             prerequisites:
               - NEVER
@@ -485,7 +485,7 @@ enums:
         description: This is a local notification send to the user periodically with tips and updates.
       survey:
         description: This is a full-page that appears providing a survey to the user.
-  NimbusOnboardingImages:
+  NimbusOnboardingHeaderImage:
     description: "The identifiers for the different images available for cards in onboarding\n"
     variants:
       notifications:
@@ -504,10 +504,27 @@ enums:
         description: "Corresponding to the welcome image for CTD\n"
       welcome-globe:
         description: "Corresponding to the fox world image\n"
+  NimbusOnboardingMultipleChoiceButtonImage:
+    description: "The identifiers for the different images available for multiple choice buttons in onboarding\n"
+    variants:
+      theme-dark:
+        description: "Corresponding to the dark theme\n"
+      theme-light:
+        description: "Corresponding to the light theme\n"
+      theme-system:
+        description: "Corresponding to the system theme\n"
+      toolbar-bottom:
+        description: "Corresponding to the toolbar on the bottom\n"
+      toolbar-top:
+        description: "Corresponding to the toolbar on top\n"
   OnboardingActions:
     description: "The identifiers for the different actions available for cards in onboarding\n"
     variants:
-      next-card:
+      forward-one-card:
+        description: "Will take the user to the next card\n"
+      forward-three-card:
+        description: "Will take the user to the next card\n"
+      forward-two-card:
         description: "Will take the user to the next card\n"
       open-instructions-popup:
         description: "Will open up a popup with instructions for something\n"
@@ -528,6 +545,19 @@ enums:
         description: "Will dismiss the popup and move to the next card\n"
       open-ios-fx-settings:
         description: "Will take the user to the default browser settings in the iOS system settings\n"
+  OnboardingMultipleChoiceAction:
+    description: "The identifiers for the different actions available for cards in onboarding\n"
+    variants:
+      theme-dark:
+        description: "Will will set the theme to dark mode\n"
+      theme-light:
+        description: "Will set the theme to light mode\n"
+      theme-system-default:
+        description: "Will set the theme to use the system theme\n"
+      toolbar-bottom:
+        description: "Will set the toolbar on the bottom\n"
+      toolbar-top:
+        description: "Will set the toolbar on the top\n"
   OnboardingType:
     description: "The identifiers for the different types of onboarding cards.\n"
     variants:
@@ -636,7 +666,82 @@ objects:
         type: List<TriggerName>
         default:
           - ALWAYS
-  NimbusInstructionPopup:
+  NimbusOnboardingButton:
+    description: "A group of properties describing the attributes of a card.\n"
+    fields:
+      action:
+        description: "The action the button should take. The default for this will be \"forward-one-card\"\n"
+        type: OnboardingActions
+        default: forward-one-card
+      title:
+        description: "The text of the button title. This should never be defaulted.\n"
+        type: Text
+        default: ""
+  NimbusOnboardingButtons:
+    description: "A set of buttons for the card. There can be up to two, but there must be at least one.\n"
+    fields:
+      primary:
+        description: "The primary button for the card. This must exist.\n"
+        type: NimbusOnboardingButton
+        default:
+          title: Primary Button
+          action: forward-one-card
+      secondary:
+        description: "A secondary, optional, button for the card.\n"
+        type: Option<NimbusOnboardingButton>
+        default: ~
+  NimbusOnboardingCardData:
+    description: "A group of properties describing the attributes of a card.\n"
+    fields:
+      body:
+        description: "The body text dispalyed on the card, in less prominent text. This should never be defaulted.\n"
+        type: Text
+        default: ""
+      buttons:
+        description: "The set of buttons associated with the card.\n"
+        type: NimbusOnboardingButtons
+        default:
+          primary:
+            title: Onboarding/Onboarding.Sync.Skip.Action.v114
+            action: forward-one-card
+          secondary: ~
+      disqualifiers:
+        description: "A list of ConditionName strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.\n"
+        type: List<ConditionName>
+        default: []
+      image:
+        description: "The image that should be dispalyed on the card.\n"
+        type: NimbusOnboardingHeaderImage
+        default: welcome-globe
+      instructions-popup:
+        description: "The object describing the specific instruction popup button for a card. If left empty, the card will have no instruction popup information\n"
+        type: Option<NimbusOnboardingInstructionPopup>
+        default: ~
+      link:
+        description: "The object describing the link button for a card. If left empty, the card will have no link.\n"
+        type: Option<NimbusOnboardingLink>
+        default: ~
+      multiple-choice-buttons:
+        description: "A list of multiple choice buttons that the card will display\n"
+        type: List<NimbusOnboardingMultipleChoiceButton>
+        default: []
+      order:
+        description: "The place in the order where the card will be found. The feature layer will then sort the cards based on this field.\n"
+        type: Int
+        default: 10
+      prerequisites:
+        description: "A list of ConditionName strings corresponding to targeting expressions. The card will be shown if all expressions `true` and if no expressions in the `disqualifiers` table are true, or if the `disqualifiers` table is empty.\n"
+        type: List<ConditionName>
+        default: []
+      title:
+        description: "The title displayed on the card, in prominent, bolded text. This should never be defaulted.\n"
+        type: Text
+        default: ""
+      type:
+        description: "The type of onboarding this card should be shown in, whether it a fresh install or an update. The default is fresh-install.\n"
+        type: OnboardingType
+        default: fresh-install
+  NimbusOnboardingInstructionPopup:
     description: "The object outlining the content of the instruction card.\n"
     fields:
       button-action:
@@ -655,77 +760,6 @@ objects:
         description: "The text of the popup. This should never be defaulted.\n"
         type: Text
         default: ""
-  NimbusOnboardingButton:
-    description: "A group of properties describing the attributes of a card.\n"
-    fields:
-      action:
-        description: "The action the button should take. The default for this will be \"next-card\"\n"
-        type: OnboardingActions
-        default: next-card
-      title:
-        description: "The text of the button title. This should never be defaulted.\n"
-        type: Text
-        default: ""
-  NimbusOnboardingButtons:
-    description: "A set of buttons for the card. There can be up to two, but there must be at least one.\n"
-    fields:
-      primary:
-        description: "The primary button for the card. This must exist.\n"
-        type: NimbusOnboardingButton
-        default:
-          title: Primary Button
-          action: next-card
-      secondary:
-        description: "A secondary, optional, button for the card.\n"
-        type: Option<NimbusOnboardingButton>
-        default: ~
-  NimbusOnboardingCardData:
-    description: "A group of properties describing the attributes of a card.\n"
-    fields:
-      body:
-        description: "The body text dispalyed on the card, in less prominent text. This should never be defaulted.\n"
-        type: Text
-        default: ""
-      buttons:
-        description: "The set of buttons associated with the card.\n"
-        type: NimbusOnboardingButtons
-        default:
-          primary:
-            title: Onboarding/Onboarding.Sync.Skip.Action.v114
-            action: next-card
-          secondary: ~
-      disqualifiers:
-        description: "A list of ConditionName strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.\n"
-        type: List<ConditionName>
-        default: []
-      image:
-        description: "The image that should be dispalyed on the card.\n"
-        type: NimbusOnboardingImages
-        default: welcome-globe
-      instructions-popup:
-        description: "The object describing the specific instruction popup button for a card. If left empty, the card will have no instruction popup information\n"
-        type: Option<NimbusInstructionPopup>
-        default: ~
-      link:
-        description: "The object describing the link button for a card. If left empty, the card will have no link.\n"
-        type: Option<NimbusOnboardingLink>
-        default: ~
-      order:
-        description: "The place in the order where the card will be found. The feature layer will then sort the cards based on this field.\n"
-        type: Int
-        default: 10
-      prerequisites:
-        description: "A list of ConditionName strings corresponding to targeting expressions. The card will be shown if all expressions `true` and if no expressions in the `disqualifiers` table are true, or if the `disqualifiers` table is empty.\n"
-        type: List<ConditionName>
-        default: []
-      title:
-        description: "The title displayed on the card, in prominent, bolded text. This should never be defaulted.\n"
-        type: Text
-        default: ""
-      type:
-        description: "The type of onboarding this card should be shown in, whether it a fresh install or an update. The default is fresh-install.\n"
-        type: OnboardingType
-        default: fresh-install
   NimbusOnboardingLink:
     description: "A group of properties describing the attributes for the active link on a card\n"
     fields:
@@ -737,6 +771,21 @@ objects:
         description: "The url that the link will lead to.\n"
         type: String
         default: "https://www.mozilla.org/privacy/firefox/"
+  NimbusOnboardingMultipleChoiceButton:
+    description: "A group of properties describing the attributes of a multiple choice button on a card\n"
+    fields:
+      action:
+        description: "The action the button should take. The default for this will be \"theme-system-default\"\n"
+        type: OnboardingMultipleChoiceAction
+        default: theme-system-default
+      image:
+        description: "The text of the button title. This should never be defaulted.\n"
+        type: NimbusOnboardingMultipleChoiceButtonImage
+        default: theme-system
+      title:
+        description: "The text of the button title. This should never be defaulted.\n"
+        type: Text
+        default: ""
   SearchBarPositionFeature:
     description: The configuration for the bottom search bar on the homescreen
     fields:
