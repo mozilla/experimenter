@@ -90,30 +90,19 @@ describe("DirectoryColumnOwner", () => {
 });
 
 describe("DirectoryColumnQA", () => {
-  it("renders the QA status field if present", () => {
-    render(
-      <TestTable>
-        <DirectoryColumnQA {...experiment} />
-      </TestTable>,
-    );
-    expect(screen.getByTestId("directory-table-cell-qa")).toHaveTextContent(
-      QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].emoji,
-    );
-  });
-
-  it("renders nothing if qa status is not set", () => {
-    render(
-      <TestTable>
-        <DirectoryColumnQA
-          {...experiment}
-          qaStatus={NimbusExperimentQAStatusEnum.NOT_SET}
-        />
-      </TestTable>,
-    );
-    expect(screen.queryByTestId("directory-table-cell-qa")).toHaveTextContent(
-      "",
-    );
-  });
+  it.each(Object.values(NimbusExperimentQAStatusEnum))(
+    "renders the QA status field if present",
+    (qaStatus) => {
+      render(
+        <TestTable>
+          <DirectoryColumnQA {...experiment} qaStatus={qaStatus} />
+        </TestTable>,
+      );
+      expect(screen.getByTestId("directory-table-cell-qa")).toHaveTextContent(
+        QA_STATUS_PROPERTIES[qaStatus].emoji,
+      );
+    },
+  );
 });
 
 describe("DirectoryColumnFeature", () => {
