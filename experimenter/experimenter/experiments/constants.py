@@ -97,7 +97,6 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     app_name="firefox_ios",
     channel_app_id={
         Channel.DEVELOPER: "org.mozilla.ios.Fennec",
-        Channel.NIGHTLY: "org.mozilla.ios.Fennec",
         Channel.BETA: "org.mozilla.ios.FirefoxBeta",
         Channel.RELEASE: "org.mozilla.ios.Firefox",
     },
