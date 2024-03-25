@@ -236,8 +236,8 @@ export const QA_STATUS_PROPERTIES: Record<
     className: "danger",
   },
   [NimbusExperimentQAStatusEnum.NOT_SET]: {
-    emoji: "",
-    description: "Not set",
+    emoji: "⌛️",
+    description: "⌛️ QA: Not set",
     className: "",
   },
 };
