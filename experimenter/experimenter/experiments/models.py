@@ -746,6 +746,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.is_rollout and (
             self.status
             in (NimbusExperiment.Status.LIVE, NimbusExperiment.Status.COMPLETE)
+            and (
+                self.end_date is None
+                or (
+                    self.end_date
+                    > datetime.date.today()
+                    - datetime.timedelta(days=settings.ROLLOUT_MONITORING_EXPIRATION_DAYS)
+                )
+            )
         ):
             return settings.ROLLOUT_MONITORING_URL.format(
                 slug=self.slug.replace("-", "_")

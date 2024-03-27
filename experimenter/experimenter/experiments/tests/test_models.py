@@ -1477,7 +1477,7 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (False, NimbusExperimentFactory.Lifecycles.CREATED),
-            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
             (True, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING),
             (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
             (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
@@ -1507,6 +1507,17 @@ class TestNimbusExperiment(TestCase):
             slug="rollout-1-slug",
             is_rollout=False,
             status=NimbusExperiment.Status.COMPLETE,
+        )
+        self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
+
+    def test_rollouts_monitoring_dashboard_returns_none_when_long_ended(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="rollout-1-slug",
+            is_rollout=True,
+            status=NimbusExperiment.Status.COMPLETE,
+            start_date=datetime.date(2019, 5, 1),
+            end_date=datetime.date(2019, 5, 10),
         )
         self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
 
