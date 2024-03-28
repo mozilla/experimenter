@@ -47,6 +47,18 @@ To set up the Cirrus environment, follow these steps:
 
 By following these steps, you will create the `.env` file and configure the necessary environment variables for the Cirrus application.
 
+## Running as Non-Root User
+
+By default, the Cirrus Docker image runs the application as cirrus/1000/1000. However, if you prefer to run the application as a different user for security reasons, you can build the Docker image with additional parameters.
+
+- Build the Docker image while specifying the desired username, user ID, and group ID. For example:
+
+```bash
+docker build --build-arg USERNAME=myuser --build-arg USER_UID=1000 --build-arg USER_GID=1000 -t your_image_name:tag .
+```
+
+Replace myuser with the desired username and 1000 with the desired user ID and group ID.
+
 ## Commands
 
 The following are the available commands for working with Cirrus:
