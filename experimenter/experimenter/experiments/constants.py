@@ -517,6 +517,7 @@ class NimbusConstants:
         Application.DEMO_APP: Version.NO_VERSION,
         Application.MONITOR: Version.NO_VERSION,
         Application.VPN: Version.NO_VERSION,
+        Application.FXA: Version.NO_VERSION,
     }
 
     COUNTRIES_APPLICATION_SUPPORTED_VERSION = {
@@ -527,6 +528,7 @@ class NimbusConstants:
         Application.DEMO_APP: Version.NO_VERSION,
         Application.MONITOR: Version.NO_VERSION,
         Application.VPN: Version.NO_VERSION,
+        Application.FXA: Version.NO_VERSION,
     }
 
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
