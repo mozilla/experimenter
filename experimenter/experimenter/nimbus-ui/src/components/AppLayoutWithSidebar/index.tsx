@@ -80,7 +80,10 @@ export const AppLayoutWithSidebar = ({
           xl="2"
           className="bg-light pt-2 border-right shadow-sm"
         >
-          <nav data-testid="nav-sidebar" className="navbar">
+          <nav
+            data-testid="nav-sidebar"
+            className="navbar sticky-top overflow-auto vh-100 align-items-start"
+          >
             <Nav className="flex-column font-weight-semibold w-100" as="ul">
               <LinkNav
                 className="mb-3 small font-weight-bold"
