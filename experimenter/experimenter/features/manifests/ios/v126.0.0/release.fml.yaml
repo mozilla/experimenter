@@ -230,6 +230,7 @@ features:
         type: "Map<NimbusOnboardingCardKey, NimbusOnboardingCardData>"
         default:
           welcome:
+            card-type: basic
             order: 10
             title: Onboarding/Onboarding.Welcome.Title.TreatementA.v120
             body: Onboarding/Onboarding.Welcome.Description.TreatementA.v120
@@ -252,10 +253,11 @@ features:
                 - Onboarding/DefaultBrowserPopup.FirstLabel.v114
                 - Onboarding/DefaultBrowserPopup.SecondLabel.v114
                 - Onboarding/DefaultBrowserPopup.ThirdLabel.v114
-            type: fresh-install
+            onboarding-type: fresh-install
             prerequisites:
               - ALWAYS
           notification-permissions:
+            card-type: basic
             order: 30
             title: Onboarding/Onboarding.Notification.Title.v120
             body: Onboarding/Onboarding.Notification.Description.v120
@@ -267,10 +269,11 @@ features:
               secondary:
                 title: Onboarding/Onboarding.Notification.Skip.Action.v115
                 action: forward-one-card
-            type: fresh-install
+            onboarding-type: fresh-install
             prerequisites:
               - ALWAYS
           sign-to-sync:
+            card-type: basic
             order: 20
             title: Onboarding/Onboarding.Sync.Title.v120
             body: Onboarding/Onboarding.Sync.Description.v120
@@ -282,10 +285,11 @@ features:
               secondary:
                 title: Onboarding/Onboarding.Sync.Skip.Action.v114
                 action: forward-one-card
-            type: fresh-install
+            onboarding-type: fresh-install
             prerequisites:
               - ALWAYS
           update-welcome:
+            card-type: basic
             order: 10
             title: Upgrade/Upgrade.Welcome.Title.v114
             body: Upgrade/Upgrade.Welcome.Description.v114
@@ -294,10 +298,11 @@ features:
               primary:
                 title: Upgrade/Upgrade.Welcome.Action.v114
                 action: forward-one-card
-            type: upgrade
+            onboarding-type: upgrade
             prerequisites:
               - NEVER
           update-sign-to-sync:
+            card-type: basic
             order: 20
             title: Upgrade/Upgrade.SyncSign.Title.v114
             body: Upgrade/Upgrade.SyncSign.Description.v114
@@ -309,7 +314,7 @@ features:
               secondary:
                 title: Onboarding/Onboarding.LaterAction.v114
                 action: forward-one-card
-            type: upgrade
+            onboarding-type: upgrade
             prerequisites:
               - NEVER
         string-alias: NimbusOnboardingCardKey
@@ -500,6 +505,10 @@ enums:
         description: "Corresponding to the sync-devices image\n"
       sync-devices-ctd:
         description: "Corresponding to the sync image for CTD\n"
+      themeing:
+        description: "Corresponding to the fox world image\n"
+      toolbar:
+        description: "Corresponding to the fox world image\n"
       welcome-ctd:
         description: "Corresponding to the welcome image for CTD\n"
       welcome-globe:
@@ -536,6 +545,13 @@ enums:
         description: "Will send the user to settings to set Firefox as their default browser\n"
       sync-sign-in:
         description: "Will take the user to the sync sign in flow\n"
+  OnboardingCardType:
+    description: "The identifiers for the different types of onboarding cards.\n"
+    variants:
+      basic:
+        description: "Corresponding to basic info onboarding cards\n"
+      multiple-choice:
+        description: "Corresponding to onboarding cards with multiple choice buttons\n"
   OnboardingInstructionsPopupActions:
     description: "The identifiers for the different actions available for the insturction card in onboarding\n"
     variants:
@@ -705,6 +721,10 @@ objects:
             title: Onboarding/Onboarding.Sync.Skip.Action.v114
             action: forward-one-card
           secondary: ~
+      card-type:
+        description: "The type of onboarding this card should be shown in, whether it a fresh install or an update. The default is fresh-install.\n"
+        type: OnboardingCardType
+        default: basic
       disqualifiers:
         description: "A list of ConditionName strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.\n"
         type: List<ConditionName>
@@ -725,6 +745,10 @@ objects:
         description: "A list of multiple choice buttons that the card will display\n"
         type: List<NimbusOnboardingMultipleChoiceButton>
         default: []
+      onboarding-type:
+        description: "The type of onboarding this card should be shown in, whether it a fresh install or an update. The default is fresh-install.\n"
+        type: OnboardingType
+        default: fresh-install
       order:
         description: "The place in the order where the card will be found. The feature layer will then sort the cards based on this field.\n"
         type: Int
@@ -737,10 +761,6 @@ objects:
         description: "The title displayed on the card, in prominent, bolded text. This should never be defaulted.\n"
         type: Text
         default: ""
-      type:
-        description: "The type of onboarding this card should be shown in, whether it a fresh install or an update. The default is fresh-install.\n"
-        type: OnboardingType
-        default: fresh-install
   NimbusOnboardingInstructionPopup:
     description: "The object outlining the content of the instruction card.\n"
     fields:
