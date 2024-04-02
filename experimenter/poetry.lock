@@ -520,21 +520,22 @@ Django = ">=3.2"
 
 [[package]]
 name = "django-countries"
-version = "7.5"
+version = "7.6"
 description = "Provides a country field for Django models."
 optional = false
 python-versions = "*"
 files = [
-    {file = "django-countries-7.5.tar.gz", hash = "sha256:979676b1147ebbc10e8cdd67857ffffbcba8d7a92abf7ca70696ecd57d8f3d4f"},
-    {file = "django_countries-7.5-py3-none-any.whl", hash = "sha256:5097d9c16eb5f8a8c195f55e647a1cf1ce8a88fdeb27b104de089424013845a6"},
+    {file = "django-countries-7.6.tar.gz", hash = "sha256:aba80a9ce7c293671bb36507c98c4f8886b768868160a1b7afd2fa2aee4c5a0b"},
+    {file = "django_countries-7.6-py3-none-any.whl", hash = "sha256:1939b6b28fc341615f1b62ba4a681b54e67414df40cdea5e99ce3897546af92c"},
 ]
 
 [package.dependencies]
+asgiref = "*"
 typing-extensions = "*"
 
 [package.extras]
-dev = ["black", "django", "djangorestframework", "graphene-django", "pytest", "pytest-django", "tox"]
-maintainer = ["django", "transifex-client", "zest.releaser[recommended]"]
+dev = ["black", "django", "djangorestframework", "graphene-django", "pytest", "pytest-django", "tox (==4.*)"]
+maintainer = ["django", "zest.releaser[recommended]"]
 pyuca = ["pyuca"]
 test = ["djangorestframework", "graphene-django", "pytest", "pytest-cov", "pytest-django"]
 
@@ -2879,4 +2880,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "f2d0c52cc7f2af3ba9fdfbaed2c081043f30ffdeb6caa3fe78f9d886f0e1e16b"
+content-hash = "79a473f4519e42d8580864380adf25f1814399b70cc50b556f1cdbbcf69e3ca6"
