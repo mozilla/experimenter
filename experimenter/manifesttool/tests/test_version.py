@@ -111,7 +111,7 @@ class VersionTests(TestCase):
     @parameterized.expand(
         [
             (
-                "fenix",
+                "fenix_legacy",
                 [
                     "main",
                     "releases_v109",
@@ -193,7 +193,7 @@ class VersionTests(TestCase):
     @parameterized.expand(
         [
             (
-                "fenix",
+                "fenix_legacy",
                 [
                     "components-v118.0",
                     "components-v118.2",

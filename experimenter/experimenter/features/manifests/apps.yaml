@@ -6,6 +6,30 @@ fenix:
   slug: "fenix"
   repo:
     type: "github"
+    name: "mozilla/gecko-dev"
+    default_branch: "master"
+  fml_path: "mobile/android/fenix/app/nimbus.fml.yaml"
+  release_discovery:
+    version_file:
+      type: "plaintext"
+      path: "browser/config/version.txt"
+    strategies:
+      - type: "branched"
+        branches:
+          # Fenix has only just merged into mozilla-central. Once 126 merges to
+          # beta (and then release), those branches should be added here.
+          #
+          # See #10514 (beta) and #10515 (release) issues.
+          - "master"
+
+# Fenix is still doing dot releases from its GitHub repository for 124.* and
+# 125.*.
+#
+# This should be removed once 126 ships to release (#10515).
+fenix_legacy:
+  slug: "fenix"
+  repo:
+    type: "github"
     name: "mozilla-mobile/firefox-android"
   fml_path: "fenix/app/nimbus.fml.yaml"
   release_discovery:
