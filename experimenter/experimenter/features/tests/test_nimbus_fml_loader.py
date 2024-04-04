@@ -2,7 +2,7 @@ import json
 from unittest.mock import patch
 
 from django.test import TestCase
-from rust_fml import FmlClient
+from nimbus_megazord.fml import FmlClient
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
@@ -49,7 +49,7 @@ class TestNimbusFmlLoader(TestCase):
         self.assertIsNone(loader.channel)
 
     @patch(
-        "rust_fml.FmlClient.__init__",
+        "nimbus_megazord.fml.FmlClient.__init__",
     )
     @mock_fml_versioned_features
     def test_create_fml_client(self, new_client):

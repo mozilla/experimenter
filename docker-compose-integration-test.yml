@@ -26,8 +26,6 @@ services:
   rust-sdk:
     image: experimenter:integration-tests
     env_file: .env
-    environment:
-      - PYTHONPATH
     volumes:
       - .:/code
       - /code/experimenter/tests/integration/.tox
