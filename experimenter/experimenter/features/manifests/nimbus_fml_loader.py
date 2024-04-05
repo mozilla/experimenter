@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 from django.conf import settings
-from rust_fml import FmlClient
+from nimbus_megazord.fml import FmlClient
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusFeatureVersion
