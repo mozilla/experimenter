@@ -38,7 +38,7 @@ select_expression = """
             )
         ),
         [0.5]
-    )[SAFE_OFFSET(0)]
+    )[SAFE_OFFSET(0)].value
 """
 data_source = "main"
 
