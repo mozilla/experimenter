@@ -93,12 +93,8 @@ COPY --from=node-builder /experimenter/experimenter/nimbus-ui/node_modules/ /exp
 COPY --from=node-builder /experimenter/node_modules/ /experimenter/node_modules/
 
 # Rust packages
-COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/libnimbus_experimenter.so /application-services/megazord/
-COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/fml.py /application-services/megazord/rust_fml.py
-COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/nimbus.py /application-services/megazord/rust_sdk.py
-COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/errorsupport.py /application-services/megazord/rust_errorsupport.py
-COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/remote_settings.py /application-services/megazord/remote_settings.py
-ENV PYTHONPATH=$PYTHONPATH:/application-services/megazord
+COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/ /application-services/nimbus_megazord/
+ENV PYTHONPATH=$PYTHONPATH:/application-services/
 
 # Install nimbus-cli
 
@@ -152,7 +148,7 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 COPY --from=dev /usr/local/bin/ /usr/local/bin/
 COPY --from=dev /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 COPY --from=dev /experimenter/bin/ /experimenter/bin/
-COPY --from=dev /application-services/megazord/ /application-services/megazord/
+COPY --from=dev /application-services/nimbus_megazord/ /application-services/nimbus_megazord/
 COPY --from=file-loader /experimenter/manage.py /experimenter/manage.py
 COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
 COPY --from=file-loader /experimenter/manifesttool/ /experimenter/manifesttool/
@@ -160,4 +156,4 @@ COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter
 COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
 COPY --from=ui /experimenter/experimenter/theme/static/ /experimenter/experimenter/theme/static/
 COPY --from=ui /experimenter/experimenter/static/scripts/ /experimenter/experimenter/static/scripts/
-ENV PYTHONPATH=$PYTHONPATH:/application-services/megazord
+ENV PYTHONPATH=$PYTHONPATH:/application-services/
