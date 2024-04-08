@@ -745,13 +745,13 @@ test = ["coverage[toml]", "tox"]
 
 [[package]]
 name = "dockerflow"
-version = "2024.3.0"
+version = "2024.4.1"
 description = "Python tools and helpers for Mozilla's Dockerflow"
 optional = false
-python-versions = ">=3.7,<4"
+python-versions = "<4,>=3.7"
 files = [
-    {file = "dockerflow-2024.3.0-py2.py3-none-any.whl", hash = "sha256:e8cea4df7f7342aa551c9bfa12b401adfd3e28f7f928fc545ae657fc5614ebda"},
-    {file = "dockerflow-2024.3.0.tar.gz", hash = "sha256:96678b00636dfd61fccf08f5f4102d0444e43bec3f8850175a060d8e83559e4c"},
+    {file = "dockerflow-2024.4.1-py2.py3-none-any.whl", hash = "sha256:839b0b691ba258bb28bc775bfafbf709b7258053f8305bdc7b958995126ad433"},
+    {file = "dockerflow-2024.4.1.tar.gz", hash = "sha256:c2910cc7d80f0890c818a3ea6d54340a0dff32a54159c6fa333d1111cd650ba0"},
 ]
 
 [package.extras]
@@ -2883,4 +2883,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "9759657cda6261452eee102e8fb3f3757ff82e0626165f36c2e2a82d21befaf2"
+content-hash = "4ab6d78d971a061cd1b6e5bfb32fefeca3a6c6e457d61e252a93b0bd7474189e"
