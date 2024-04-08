@@ -104,14 +104,18 @@ export function useCommonFormMethods<FieldNames extends string>(
           // @ts-ignore This component doesn't technically support type="warning", but
           // all it's doing is using the string in a class, so we can safely override.
           <Form.Control.Feedback type="warning" data-for={fieldName}>
-            {fieldReviewMessages.join(", ")}
+            {fieldReviewMessages.map((m) => (
+              <p key={`${m}`}>{m}</p>
+            ))}
           </Form.Control.Feedback>
         )}
         {fieldReviewWarnings.length > 0 && (
           // @ts-ignore This component doesn't technically support type="warning", but
           // all it's doing is using the string in a class, so we can safely override.
           <Form.Control.Feedback type="warning" data-for={fieldName}>
-            {fieldReviewWarnings.join(", ")}
+            {fieldReviewWarnings.map((m) => (
+              <p key={`${m}`}>{m}</p>
+            ))}
           </Form.Control.Feedback>
         )}
         {errors[name] && (

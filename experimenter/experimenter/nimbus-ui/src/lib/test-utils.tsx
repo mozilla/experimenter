@@ -138,9 +138,9 @@ export const Route = (
 ) => <div {...{ props }}>{props.component()}</div>;
 
 const assertFieldErrors = async (errors: string[], selector: string) => {
-  await screen.findByText(errors.join(", "), {
-    selector: `[data-for="${snakeToCamelCase(selector)}"]`,
-  });
+  for (const error of errors) {
+    await screen.findAllByText(error);
+  }
 };
 
 export const assertSerializerMessages = async (
