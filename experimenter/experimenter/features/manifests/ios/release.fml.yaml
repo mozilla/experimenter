@@ -86,7 +86,7 @@ features:
       login-autofill-status:
         description: "If true, allows the user to use the login autofill feature for usernames and passwords."
         type: Boolean
-        default: false
+        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
