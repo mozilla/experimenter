@@ -40,11 +40,11 @@ features:
       felt-deletion-enabled:
         description: "If true, enable Felt Deletion part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
