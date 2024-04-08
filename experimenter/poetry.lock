@@ -2045,12 +2045,12 @@ pytest = ">=3.10"
 
 [[package]]
 name = "pytest-testmon"
-version = "1.3.0"
+version = "1.3.3"
 description = "selects tests affected by changed files and methods"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "pytest-testmon-1.3.0.tar.gz", hash = "sha256:d50caba2ae83bf5d44682191023d7d6ca4017d1cf6e974a1e53258ef103fbc11"},
+    {file = "pytest-testmon-1.3.3.tar.gz", hash = "sha256:0ac839c089bdf99740418759a33971d3dacc695cf719acde4b967f7f88d1102c"},
 ]
 
 [package.dependencies]
@@ -2883,4 +2883,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "02d0261660888419e62e544538b3effc13a061260c0da815003dc595c27e3f21"
+content-hash = "9759657cda6261452eee102e8fb3f3757ff82e0626165f36c2e2a82d21befaf2"
