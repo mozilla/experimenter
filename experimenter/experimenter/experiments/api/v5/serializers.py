@@ -1449,11 +1449,16 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
             return result
 
-        for version in schemas_in_range.unsupported_versions:
+        if schemas_in_range.unsupported_versions:
+            unsupported_version_strs = [
+                str(v) for v in schemas_in_range.unsupported_versions
+            ]
+            min_unsupported_version = min(unsupported_version_strs)
+            max_unsupported_version = max(unsupported_version_strs)
             result.append(
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS.format(
                     feature_config=feature_config,
-                    version=version,
+                    versions=f"{min_unsupported_version}-{max_unsupported_version}",
                 ),
                 suppress_errors,
             )
@@ -1612,16 +1617,22 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         blob: str,
     ) -> list[str]:
         errors = []
+        schema_errors_versions = defaultdict(set)
         for schema in schemas_in_range.schemas:
-            version = schema.version
-            if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
-                errors.extend(
-                    [
-                        f"{NimbusExperiment.ERROR_FML_VALIDATION}: {e.message} at line "
-                        f"{e.line+1} column {e.col} at version {version}"
-                        for e in fml_errors
-                    ]
+            for fml_error in loader.get_fml_errors(
+                blob, feature_config.slug, schema.version
+            ):
+                schema_errors_versions[fml_error.message].add(schema.version)
+
+        for fml_error, versions in schema_errors_versions.items():
+            version_strs = [str(v) for v in versions]
+            min_version = min(version_strs)
+            max_version = max(version_strs)
+            errors.append(
+                NimbusConstants.ERROR_FEATURE_VALUE_IN_VERSIONS.format(
+                    error=fml_error, versions=f"{min_version}-{max_version}"
                 )
+            )
 
         return errors
 

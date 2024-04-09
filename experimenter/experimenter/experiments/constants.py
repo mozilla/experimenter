@@ -682,9 +682,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Feature {feature_config} is not supported by any version in this range."
     )
 
-    ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION = (
-        "Feature {feature_config} is not supported in version {version}."
+    ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS = (
+        "In versions {versions}: Feature {feature_config} is not supported"
     )
+
+    ERROR_FEATURE_VALUE_IN_VERSIONS = "In versions {versions}: {error}"
 
     WARNING_ROLLOUT_PREF_REENROLL = (
         "WARNING: One or more features of this rollouts sets prefs and this rollout is "
