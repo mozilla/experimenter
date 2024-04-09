@@ -1508,26 +1508,10 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors,
+            set(serializer.errors["reference_branch"]["feature_values"][0]["value"]),
             {
-                "reference_branch": {
-                    "feature_values": [
-                        {
-                            "value": [
-                                (
-                                    "Feature Manifest errors occurred during "
-                                    "validation: "
-                                    "Incorrect value at line 1 column 0 at version None"
-                                ),
-                                (
-                                    "Feature Manifest errors occurred during "
-                                    "validation: "
-                                    "Type not allowed at line 1 column 0 at version None"
-                                ),
-                            ]
-                        }
-                    ]
-                }
+                "In versions None-None: Incorrect value",
+                "In versions None-None: Type not allowed",
             },
         )
         self.mock_fml_errors.assert_called()
@@ -2999,9 +2983,9 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                     (
                         NimbusExperiment.Version.FIREFOX_120,
                         NimbusExperiment.Version.NO_VERSION,
-                        NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
+                        NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS.format(
                             feature_config="FEATURE",
-                            version="121.0.0",
+                            versions="121.0.0-121.0.0",
                         ),
                         as_warning,
                     ),
@@ -3089,6 +3073,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                     ]
                 }
             },
+            target,
         )
 
     @parameterized.expand(
@@ -3419,9 +3404,9 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             (
                 NimbusExperiment.Version.FIREFOX_120,
                 NimbusExperiment.Version.NO_VERSION,
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS.format(
                     feature_config="FEATURE",
-                    version="121.0.0",
+                    versions="121.0.0-121.0.0",
                 ),
             ),
             (
@@ -3564,18 +3549,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         feature_value.value = json.dumps({"enabled": 1})
         feature_value.save()
 
-        expected_versions = [
-            self.versions[(120, 0, 0)],
-            self.versions[(121, 0, 0)],
-            self.versions[(122, 0, 0)],
-        ]
-
-        expected_errors = [
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: Incorrect value! "
-            f"at line 2 column 0 at version {v.major}.{v.minor}.{v.patch}"
-            for v in expected_versions
-        ]
-
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
@@ -3583,17 +3556,16 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         )
 
         self.assertFalse(serializer.is_valid())
-        self.assertIn(
-            expected_errors[0],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][2],
-        )
-        self.assertIn(
-            expected_errors[1],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][1],
-        )
-        self.assertIn(
-            expected_errors[2],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][0],
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_values": [
+                        {"value": ["In versions 120.0.0-122.0.0: Incorrect value!"]}
+                    ]
+                }
+            },
+            serializer.errors,
         )
 
     def test_fml_validate_feature_versioned_before_versioned_range(self):
@@ -3670,17 +3642,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         versions = [(120, 0, 0), (121, 0, 0)]
 
-        expected_errors = [
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
-            "Incorrect value at line 3 column 0 at version 120.0.0",
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
-            "Incorrect value again at line 1 column 1 at version 120.0.0",
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
-            "Incorrect value at line 3 column 0 at version 121.0.0",
-            f"{NimbusExperiment.ERROR_FML_VALIDATION}: "
-            "Incorrect value again at line 1 column 1 at version 121.0.0",
-        ]
-
         schema = json.dumps(
             {
                 "type": "object",
@@ -3733,21 +3694,13 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         )
 
         self.assertFalse(serializer.is_valid())
-        self.assertIn(
-            expected_errors[0],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][2],
-        )
-        self.assertIn(
-            expected_errors[1],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][3],
-        )
-        self.assertIn(
-            expected_errors[2],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][0],
-        )
-        self.assertIn(
-            expected_errors[3],
-            serializer.errors["reference_branch"]["feature_values"][0]["value"][1],
+        self.assertEqual(
+            set(serializer.errors["reference_branch"]["feature_values"][0]["value"]),
+            {
+                "In versions 120.0.0-121.0.0: Incorrect value",
+                "In versions 120.0.0-121.0.0: Incorrect value again",
+            },
+            serializer.errors,
         )
 
     def test_fml_validate_feature_versioned_range_treatment_branch(self):
