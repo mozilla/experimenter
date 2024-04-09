@@ -573,28 +573,28 @@ jobs:
       - run:
           name: Check for Firefox Update
           command: |
-            set +e
-            docker pull ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker run -d --name firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker_id=$(docker ps -aqf "name=^firefox-beta")
-            docker cp $docker_id:/old_versions.txt /home/circleci/experimenter/old_versions.txt
-            results=$(sudo ./.circleci/get_firefox_versions.sh)
-            DIFF=$(diff /home/circleci/experimenter/new_versions.txt /home/circleci/experimenter/old_versions.txt)
-            if [ ! "$DIFF" ]; then
-                echo "No Firefox Version Changes found!"
-                circleci-agent step halt
-            fi
+            # set +e
+            # docker pull ${DOCKERHUB_REPO}:nimbus-firefox-beta
+            # docker run -d --name firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
+            # docker_id=$(docker ps -aqf "name=^firefox-beta")
+            # docker cp $docker_id:/old_versions.txt /home/circleci/experimenter/old_versions.txt
+            # results=$(sudo ./.circleci/get_firefox_versions.sh)
+            # DIFF=$(diff /home/circleci/experimenter/new_versions.txt /home/circleci/experimenter/old_versions.txt)
+            # if [ ! "$DIFF" ]; then
+            #     echo "No Firefox Version Changes found!"
+            #     circleci-agent step halt
+            # fi
       - run:
           name: Get Firefox Versions
           command: |
             git clone --depth=1 git@github.com:SeleniumHQ/docker-selenium.git
             cd docker-selenium
-            if echo "$results" | grep -q "BETA"; then
-                BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
-            fi
-            if echo "$results" | grep -q "RELEASE"; then
-                BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
-            fi
+            # if echo "$results" | grep -q "BETA"; then
+            BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
+            # fi
+            # if echo "$results" | grep -q "RELEASE"; then
+            BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
+            # fi
       - run:
           name: Save Images
           command: |
@@ -646,6 +646,7 @@ workflows:
 
   build:
     jobs:
+      - build_firefox_versions
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
