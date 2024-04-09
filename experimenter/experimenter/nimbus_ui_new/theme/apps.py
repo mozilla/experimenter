@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class ThemeConfig(AppConfig):
-    name = "experimenter.theme"
+    name = "experimenter.nimbus_ui_new.theme"
