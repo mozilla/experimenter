@@ -427,15 +427,31 @@ yarn workspace @experimenter/nimbus-ui test:cov
 
 For a full reference of all the common commands that can be run inside the container, refer to [this section of the Makefile](https://github.com/mozilla/experimenter/blob/main/Makefile#L16-L38)
 
+### Testing
+
 #### make integration_test_legacy
 
 Run the integration test suite for experimenter inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
-#### make FIREFOX_VERSION integration_test_nimbus
+#### make FIREFOX_VERSION integration_test_nimbus_dev
 
 Run the integration test suite for nimbus inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
 FIREFOX_VERSION should either be `nimbus-firefox-release` or `nimbus-firefox-beta`. If you want to run your tests against nightly, please set the variable `UPDATE_FIREFOX_VERSION` to `true` and include it in the make command.
+
+You must run the following commands before this:
+
+```bash
+make refresh build_integration_tests up_prod_detached
+```
+
+After this you can view the test run at `http://localhost:7902`, the password is `secret`. You can now make changes and run your test directly by changing the `PYTEST_ARGS` variable.
+Example:
+```bash
+make integration_test_nimbus_dev PYTEST_ARGS="-k test-name-here"
+```
+
+Be sure to add the client you want to test against, refer to the tests in the `.circleci/config.yml` file for examples of clients. Put your test name followed by the client in square brackets, `PYTEST_ARGS"-k test-name-here[FIREFOX_DESKTOP]"`
 
 #### make FIREFOX_VERSION integration_test_nimbus_rust
 
