@@ -531,7 +531,7 @@ enums:
   OnboardingActions:
     description: "The identifiers for the different actions available for cards in onboarding\n"
     variants:
-      end-ondboarding:
+      end-onboarding:
         description: "Will end the onboarding on a set card\n"
       forward-one-card:
         description: "Will take the user to the next card\n"
