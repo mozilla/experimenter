@@ -1764,6 +1764,17 @@ WINDOWS_10_PLUS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
+    name="iPhone users only",
+    slug="ios_iphone_users_only",
+    description="Targeting iPhone users",
+    targeting="is_phone",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_EARLY_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
     name="Early day users iPhone only",
     slug="ios_early_day_users_iphone_only",
