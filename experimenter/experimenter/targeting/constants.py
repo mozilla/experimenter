@@ -1770,7 +1770,7 @@ IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
     description="Targeting iPhone users",
     targeting="is_phone",
     desktop_telemetry="",
-    sticky_required=True,
+    sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.IOS.name,),
 )
