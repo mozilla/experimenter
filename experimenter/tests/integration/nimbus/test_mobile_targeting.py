@@ -8,7 +8,7 @@ from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
 from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.utils import helpers
 
-nimbus_rust = pytest.importorskip("nimbus_rust")
+nimbus_rust = pytest.importorskip("nimbus_megazord.nimbus")
 
 
 class MockMetricsHandler(nimbus_rust.MetricsHandler):

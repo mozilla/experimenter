@@ -35,6 +35,10 @@ function prepare_megazord {
     fi
 
     mkdir -p "megazords/${PROJECT}"
+
+    # Create a __init__.py so that the generated megazord behaves like a
+    # package and allows for relative imports.
+    touch "megazords/${PROJECT}/__init__.py"
     cp /tmp/"${PROJECT}"/*.py "megazords/${PROJECT}"
     cp /tmp/"${PROJECT}"/"${TARGET}"/* "megazords/${PROJECT}"
 

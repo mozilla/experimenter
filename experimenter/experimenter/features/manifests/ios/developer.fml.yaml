@@ -503,6 +503,8 @@ enums:
   NimbusOnboardingHeaderImage:
     description: "The identifiers for the different images available for cards in onboarding\n"
     variants:
+      customize-firefox:
+        description: "Corresponding to the fox window image\n"
       notifications:
         description: "Corresponding to the notifications image\n"
       notifications-ctd:
@@ -539,6 +541,8 @@ enums:
   OnboardingActions:
     description: "The identifiers for the different actions available for cards in onboarding\n"
     variants:
+      end-onboarding:
+        description: "Will end the onboarding on a set card\n"
       forward-one-card:
         description: "Will take the user to the next card\n"
       forward-three-card:

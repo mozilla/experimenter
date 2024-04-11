@@ -264,6 +264,13 @@ urlbar:
         will be able to click the "Show less frequently" command for Pocket
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
+    potentialExposureKeywords:
+      type: json
+      fallbackPref: browser.urlbar.potentialExposureKeywords
+      description: >-
+        An array of keyword strings that will trigger the
+        `urlbar-potential-exposure` ping when the user types one during a urlbar
+        session.
     quickSuggestAllowPositionInSuggestions:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.allowPositionInSuggestions
@@ -437,10 +444,9 @@ urlbar:
         * Remove the forcast text from the summary text.
     yelpMinKeywordLength:
       type: int
-      fallbackPref: browser.urlbar.yelp.minKeywordLength
       description: >-
-        If the length of user's query is less than this value plus
-        "yelp.showLessFrequentlyCount", Yelp suggestion never be shown.
+        The minimum prefix length of a Yelp keyword the user must type to
+        trigger the suggestion.
     yelpFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.yelp.featureGate
@@ -2664,3 +2670,56 @@ httpsFirst:
       setPref:
         branch: default
         pref: dom.security.https_only_fire_http_request_background_timer_ms
+
+contentRelevancy:
+  description: >-
+    A feature for interest-based content relevance ranking and personalization
+    for Firefox.
+  owner: disco-team@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: Enable this feature
+      type: boolean
+      fallbackPref: toolkit.contentRelevancy.enabled
+    maxInputUrls:
+      description: The maximum number of input URLs for interest classification
+      type: int
+    minInputUrls:
+      description: The minimal number of input URLs for interest classification
+      type: int
+    timerInterval:
+      description: >-
+        The interval (in seconds) of the background update timer for the content
+        relevancy manager
+      type: int
+      setPref:
+        branch: user
+        pref: toolkit.contentRelevancy.timerInterval
+
+tabPreview:
+  description: Prefs to control Tab Previews
+  owner: dwalker@mozilla.com
+  hasExposure: false
+  variables:
+    tabPreviewsEnabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.tabs.cardPreview.enabled
+      description: >-
+        When true, users will see the new card preview when hovering a tab, instead of the standard tooltip
+
+backupService:
+  description: Prefs to control the profile backup service
+  owner: mconley@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.backup.enabled
+      description: >-
+        When true, the profile backup service will be initialized soon after
+        startup.
