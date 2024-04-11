@@ -1851,24 +1851,24 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 datetime.date(2020, 1, 1),
                 None,
-                False,
+                None,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 datetime.date.today(),
                 None,
-                False,
+                None,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
                 datetime.date(2020, 1, 1),
                 datetime.date(2020, 2, 3),
-                True,
+                datetime.date(2020, 1, 5),
             ),
         ]
     )
     def test_results_expected_date(
-        self, lifecycle, start_date, end_date, is_paused_published
+        self, lifecycle, start_date, end_date, enrollment_end_date
     ):
         proposed_enrollment = 2
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1877,12 +1877,20 @@ class TestNimbusExperiment(TestCase):
             end_date=end_date,
             proposed_enrollment=proposed_enrollment,
         )
+        if enrollment_end_date:
+            experiment._enrollment_end_date = enrollment_end_date
+            experiment.is_paused = True
+            experiment.save()
 
-        expected_date = (
-            start_date
-            + datetime.timedelta(days=proposed_enrollment)
-            + datetime.timedelta(days=NimbusConstants.DAYS_UNTIL_ANALYSIS)
-        )
+            expected_date = enrollment_end_date + datetime.timedelta(
+                days=NimbusConstants.DAYS_UNTIL_ANALYSIS
+            )
+        else:
+            expected_date = (
+                start_date
+                + datetime.timedelta(days=proposed_enrollment)
+                + datetime.timedelta(days=NimbusConstants.DAYS_UNTIL_ANALYSIS)
+            )
         self.assertEqual(experiment.results_expected_date, expected_date)
 
     def test_results_expected_date_null(self):
