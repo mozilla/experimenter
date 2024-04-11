@@ -840,6 +840,13 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.sendToPocket.enabled
       description: >-
         Decides what to do when a logged out user click "Save to Pocket" from a Pocket card.
+    wallpapers:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.enabled
+      description: >-
+        Turns on and off wallpaper support.
     recsPersonalized:
       type: boolean
       fallbackPref: >-
@@ -1402,9 +1409,6 @@ gleanInternalSdk:
       type: int
       description: >-
         Maximum number of pings that can be sent in a 60 second interval
-    enableEventTimestamps:
-      type: "boolean"
-      description: "Enables precise event timestamps for Glean events"
 
 majorRelease2022:
   description: Major Release 2022
@@ -2723,3 +2727,16 @@ backupService:
       description: >-
         When true, the profile backup service will be initialized soon after
         startup.
+
+pqcrypto:
+  description: Prefs that control the use of post-quantum cryptography.
+  owner: jschanck@mozilla.com
+  hasExposure: false
+  variables:
+    tlsEnableXyber:
+      type: boolean
+      setPref:
+        branch: default
+        pref: security.tls.enable_kyber
+      description: >-
+        Whether to enable Xyber768 for TLS.
