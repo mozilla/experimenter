@@ -96,7 +96,7 @@ mozillavpn_backend_cirrus:
     name: "mozilla-services/guardian-website"
   fml_path: "nimbus.yaml"
 
-accounts_cirrus:
+firefox_accounts_cirrus:
   slug: "fxa-web"
   repo:
     type: "github"
