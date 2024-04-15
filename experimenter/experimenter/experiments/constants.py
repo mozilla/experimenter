@@ -445,6 +445,7 @@ class NimbusConstants:
         FIREFOX_123 = "123.!"
         FIREFOX_124 = "124.!"
         FIREFOX_125 = "125.!"
+        FIREFOX_125_0_1 = "125.0.1"
         FIREFOX_126 = "126.!"
         FIREFOX_127 = "127.!"
         FIREFOX_128 = "128.!"
