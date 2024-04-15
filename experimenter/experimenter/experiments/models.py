@@ -905,17 +905,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return False
 
     # Results are available if enrollment is complete and
-    # more than a week has passed after that.
+    # more than a week (DAYS_UNTIL_ANALYSIS) has passed after that.
     @property
     def results_ready_date(self):
-        if self.proposed_enrollment_end_date:
-            return self.proposed_enrollment_end_date + datetime.timedelta(
+        if self.actual_enrollment_end_date:
+            return self.actual_enrollment_end_date + datetime.timedelta(
+                days=NimbusConstants.DAYS_UNTIL_ANALYSIS
+            )
+        if self.computed_enrollment_end_date:
+            return self.computed_enrollment_end_date + datetime.timedelta(
                 days=NimbusConstants.DAYS_UNTIL_ANALYSIS
             )
 
     @property
     def results_ready(self):
-        if self.proposed_enrollment_end_date:
+        if self.results_ready_date:
             results_ready_date = self.results_ready_date
             return datetime.date.today() >= results_ready_date
 
