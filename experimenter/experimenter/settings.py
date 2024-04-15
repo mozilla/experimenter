@@ -104,7 +104,8 @@ INSTALLED_APPS = [
     "experimenter.reporting",
     "fontawesomefree",
     "tailwind",
-    "experimenter.theme",
+    "experimenter.nimbus_ui_new",
+    "experimenter.nimbus_ui_new.theme",
 ]
 
 TAILWIND_APP_NAME = "theme"
@@ -130,8 +131,8 @@ TEMPLATES = [
         "DIRS": [
             BASE_DIR / "legacy" / "legacy-ui" / "templates",
             BASE_DIR / "nimbus-ui" / "templates",
+            BASE_DIR / "nimbus_ui_new" / "templates",
             BASE_DIR / "docs",
-            BASE_DIR / "templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {

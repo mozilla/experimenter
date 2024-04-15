@@ -100,7 +100,7 @@ export const AppLayoutWithSidebar = ({
               />
 
               <LinkNav
-                route={`/history/${slug}`}
+                route={`/nimbus_new/${slug}/history/`}
                 testid={`history-page-${slug}`}
                 relativeToRoot
                 useButton
