@@ -61,9 +61,11 @@ export const Body: React.FC<BodyProps> = ({
     return ErrorAlert;
   }
 
-  const { live, complete, preview, review, draft, archived } = sortByStatus(
-    filterExperiments(searchedExperiments ?? [], filterValue),
-  );
+  const { live, complete, preview, review, draft, archived, owned } =
+    sortByStatus(
+      filterExperiments(searchedExperiments ?? [], filterValue),
+      config.user,
+    );
 
   return (
     <>
@@ -85,6 +87,9 @@ export const Body: React.FC<BodyProps> = ({
         </Tab>
         <Tab eventKey="archived" title={`Archived (${archived.length})`}>
           <DirectoryTable experiments={archived} />
+        </Tab>
+        <Tab eventKey="owned" title={`My Experiments (${owned.length})`}>
+          <DirectoryTable experiments={owned} />
         </Tab>
       </Tabs>
     </>
@@ -108,6 +113,8 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     projects: config!.projects!,
     targetingConfigs: config!.targetingConfigs,
     takeaways: config!.takeaways,
+    qaStatus: config!.qaStatus,
+    subscribers: config!.subscribers,
   };
 
   const { data, loading, error, refetch } = useQuery<{
@@ -174,61 +181,63 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
             xl="2"
             className="bg-light pt-2 border-right shadow-sm"
           >
-            <Row>
-              <Col>
-                <Link
-                  to="new"
-                  data-sb-kind="pages/New"
-                  className="btn btn-primary btn-small mt-2 w-100"
-                  id="create-new-button"
-                >
-                  <CreateNewIcon
-                    width="20"
-                    height="20"
-                    fill="white"
-                    dominantBaseline="start"
-                    role="img"
-                    aria-label="download icon"
+            <div className="sticky-top overflow-auto vh-100 align-items-start">
+              <Row>
+                <Col>
+                  <Link
+                    to="new"
+                    data-sb-kind="pages/New"
+                    className="btn btn-primary btn-small mt-2 w-100"
+                    id="create-new-button"
+                  >
+                    <CreateNewIcon
+                      width="20"
+                      height="20"
+                      fill="white"
+                      dominantBaseline="start"
+                      role="img"
+                      aria-label="download icon"
+                    />
+                    <span className="ml-1 pl-1">Create New </span>
+                  </Link>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <a
+                    href={`/api/v5/csv`}
+                    className="btn btn-secondary btn-small mt-3 w-100"
+                    data-testid="reports-anchor"
+                  >
+                    <DownloadIcon
+                      width="20"
+                      height="20"
+                      fill="white"
+                      dominantBaseline="start"
+                      role="img"
+                      aria-label="download icon"
+                    />
+                    <span> Reports</span>
+                  </a>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <h5 className="mt-3">{"Filters"}</h5>
+                  <SearchBar
+                    experiments={data?.experiments ?? []}
+                    onChange={setSearchedData}
                   />
-                  <span className="ml-1 pl-1">Create New </span>
-                </Link>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <a
-                  href={`/api/v5/csv`}
-                  className="btn btn-secondary btn-small mt-3 w-100"
-                  data-testid="reports-anchor"
-                >
-                  <DownloadIcon
-                    width="20"
-                    height="20"
-                    fill="white"
-                    dominantBaseline="start"
-                    role="img"
-                    aria-label="download icon"
+                  <FilterBar
+                    {...{
+                      options: filterOptions,
+                      value: filterValue,
+                      onChange: onFilterChange,
+                    }}
                   />
-                  <span> Reports</span>
-                </a>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <h5 className="mt-3">{"Filters"}</h5>
-                <SearchBar
-                  experiments={data?.experiments ?? []}
-                  onChange={setSearchedData}
-                />
-                <FilterBar
-                  {...{
-                    options: filterOptions,
-                    value: filterValue,
-                    onChange: onFilterChange,
-                  }}
-                />
-              </Col>
-            </Row>
+                </Col>
+              </Row>
+            </div>
           </Col>
           <Col md="9" lg="9" xl="10">
             <Body

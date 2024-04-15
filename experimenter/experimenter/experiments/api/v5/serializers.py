@@ -1,21 +1,20 @@
+from __future__ import annotations
+
+import dataclasses
 import json
 import logging
 import re
 import typing
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any, NotRequired, Optional, Self, TypedDict
 
 import jsonschema
-import packaging
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.cache import cache
 from django.db import models, transaction
-from django.db.models import Prefetch
 from django.utils.text import slugify
 from rest_framework import serializers
-from rest_framework_dataclasses.serializers import DataclassSerializer
 
 from experimenter.base.models import (
     Country,
@@ -32,6 +31,8 @@ from experimenter.experiments.models import (
     NimbusBranchScreenshot,
     NimbusDocumentationLink,
     NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
     NimbusFeatureVersion,
     NimbusVersionedSchema,
@@ -43,7 +44,6 @@ from experimenter.kinto.tasks import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
-from experimenter.settings import SIZING_DATA_KEY
 
 logger = logging.getLogger()
 
@@ -103,10 +103,12 @@ class TransitionConstants:
         "all": [
             "is_archived",
             "publish_status",
+            "qa_comment",
             "qa_status",
             "status_next",
             "status",
             "conclusion_recommendation",
+            "subscribers",
             "takeaways_summary",
             "takeaways_metric_gain",
             "takeaways_qbr_learning",
@@ -130,263 +132,6 @@ class NestedRefResolver(jsonschema.RefResolver):
             for dfn in schema["$defs"].values():
                 if "$id" in dfn:
                     self.store[dfn["$id"]] = dfn
-
-
-@dataclass
-class LabelValueDataClass:
-    label: str
-    value: str
-
-
-@dataclass
-class ApplicationConfigDataClass:
-    application: str
-    channels: typing.List[LabelValueDataClass]
-
-
-@dataclass
-class GeoDataClass:
-    id: int
-    name: str
-    code: str
-
-
-@dataclass
-class ProjectDataClass:
-    id: int
-    name: str
-    slug: str
-
-
-@dataclass
-class FeatureConfigDataClass:
-    id: int
-    name: str
-    slug: str
-    description: typing.Optional[str]
-    application: str
-    ownerEmail: typing.Optional[str]
-    schema: typing.Optional[str]
-    setsPrefs: bool
-    enabled: bool
-
-
-@dataclass
-class UserDataClass:
-    username: str
-
-
-@dataclass
-class TargetingConfigDataClass:
-    label: str
-    value: str
-    applicationValues: typing.List[str]
-    description: str
-    stickyRequired: bool
-    isFirstRunRequired: bool
-
-
-@dataclass
-class MetricDataClass:
-    slug: str
-    friendlyName: str
-    description: str
-
-
-@dataclass
-class OutcomeDataClass:
-    application: str
-    description: str
-    friendlyName: str
-    slug: str
-    isDefault: bool
-    metrics: typing.List[MetricDataClass]
-
-
-@dataclass
-class NimbusConfigurationDataClass:
-    applications: typing.List[LabelValueDataClass]
-    channels: typing.List[LabelValueDataClass]
-    applicationConfigs: typing.List[ApplicationConfigDataClass]
-    countries: typing.List[GeoDataClass]
-    locales: typing.List[GeoDataClass]
-    languages: typing.List[GeoDataClass]
-    projects: typing.List[ProjectDataClass]
-    documentationLink: typing.List[LabelValueDataClass]
-    allFeatureConfigs: typing.List[FeatureConfigDataClass]
-    firefoxVersions: typing.List[LabelValueDataClass]
-    outcomes: typing.List[OutcomeDataClass]
-    owners: typing.List[UserDataClass]
-    targetingConfigs: typing.List[TargetingConfigDataClass]
-    conclusionRecommendations: typing.List[LabelValueDataClass]
-    takeaways: typing.List[LabelValueDataClass]
-    types: typing.List[LabelValueDataClass]
-    populationSizingData: str
-    hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
-    maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
-
-    def __init__(self):
-        self.applications = self._enum_to_label_value(NimbusExperiment.Application)
-        self.channels = self._enum_to_label_value(NimbusExperiment.Channel)
-        self.applicationConfigs = self._get_application_configs()
-        self.countries = self._geo_model_to_dataclass(
-            Country.objects.all().order_by("name")
-        )
-        self.locales = self._geo_model_to_dataclass(Locale.objects.all().order_by("name"))
-        self.languages = self._geo_model_to_dataclass(
-            Language.objects.all().order_by("name")
-        )
-        self.projects = self._project_model_to_dataclass(
-            Project.objects.all().order_by("name")
-        )
-        self.documentationLink = self._enum_to_label_value(
-            NimbusExperiment.DocumentationLink
-        )
-        self.allFeatureConfigs = self._get_feature_configs()
-        self.firefoxVersions = self._enum_to_label_value(NimbusExperiment.Version)
-        self.outcomes = self._get_outcomes()
-        self.owners = self._get_owners()
-        self.targetingConfigs = self._get_targeting_configs()
-        self.conclusionRecommendations = self._enum_to_label_value(
-            NimbusExperiment.ConclusionRecommendation
-        )
-        self.types = self._enum_to_label_value(NimbusExperiment.Type)
-        self.populationSizingData = self._get_population_sizing_data()
-        self.takeaways = self._enum_to_label_value(NimbusExperiment.Takeaways)
-
-    def _geo_model_to_dataclass(self, queryset):
-        return [GeoDataClass(id=i.id, name=i.name, code=i.code) for i in queryset]
-
-    def _project_model_to_dataclass(self, queryset):
-        return [ProjectDataClass(id=i.id, name=i.name, slug=i.slug) for i in queryset]
-
-    def _enum_to_label_value(self, text_choices):
-        return [
-            LabelValueDataClass(
-                label=text_choices[name].label,
-                value=name,
-            )
-            for name in text_choices.names
-        ]
-
-    def _get_application_configs(self):
-        configs = []
-        for application in NimbusExperiment.Application:
-            application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
-            configs.append(
-                ApplicationConfigDataClass(
-                    application=application.name,
-                    channels=[
-                        LabelValueDataClass(label=channel.label, value=channel.name)
-                        for channel in NimbusExperiment.Channel
-                        if channel in application_config.channel_app_id
-                    ],
-                )
-            )
-        return configs
-
-    def _get_feature_configs(self):
-        return [
-            FeatureConfigDataClass(
-                id=f.id,
-                name=f.name,
-                slug=f.slug,
-                description=f.description,
-                application=NimbusExperiment.Application(f.application).name,
-                ownerEmail=f.owner_email,
-                schema=f.schemas.get().schema,
-                setsPrefs=bool(f.schemas.get().sets_prefs),
-                enabled=f.enabled,
-            )
-            for f in NimbusFeatureConfig.objects.all()
-            .prefetch_related(
-                Prefetch(
-                    "schemas",
-                    queryset=NimbusVersionedSchema.objects.filter(version=None),
-                )
-            )
-            .order_by("name")
-        ]
-
-    def _get_population_sizing_data(self):
-        sizing_data = cache.get(SIZING_DATA_KEY)
-        return sizing_data.json(exclude_unset=True) if sizing_data else "{}"
-
-    def _get_owners(self):
-        owners = (
-            User.objects.filter(owned_nimbusexperiments__isnull=False)
-            .distinct()
-            .order_by("email")
-        )
-        return [UserDataClass(username=owner.username) for owner in owners]
-
-    def _get_targeting_configs(self):
-        return [
-            TargetingConfigDataClass(
-                label=choice.label,
-                value=choice.value,
-                applicationValues=NimbusExperiment.TARGETING_CONFIGS[
-                    choice.value
-                ].application_choice_names,
-                description=NimbusExperiment.TARGETING_CONFIGS[choice.value].description,
-                stickyRequired=NimbusExperiment.TARGETING_CONFIGS[
-                    choice.value
-                ].sticky_required,
-                isFirstRunRequired=NimbusExperiment.TARGETING_CONFIGS[
-                    choice.value
-                ].is_first_run_required,
-            )
-            for choice in NimbusExperiment.TargetingConfig
-        ]
-
-    def _get_outcomes(self):
-        return [
-            OutcomeDataClass(
-                slug=outcome.slug,
-                friendlyName=outcome.friendly_name,
-                application=NimbusExperiment.Application(outcome.application).name,
-                description=outcome.description,
-                isDefault=outcome.is_default,
-                metrics=[
-                    MetricDataClass(
-                        slug=metric.slug,
-                        friendlyName=metric.friendly_name,
-                        description=metric.description,
-                    )
-                    for metric in outcome.metrics
-                ],
-            )
-            for outcome in Outcomes.all()
-        ]
-
-
-class NimbusConfigurationSerializer(DataclassSerializer[NimbusConfigurationDataClass]):
-    class Meta:
-        dataclass = NimbusConfigurationDataClass
-
-
-@dataclass
-class NimbusFmlErrorDataClass:
-    line: int
-    col: int
-    message: str
-    highlight: str
-
-
-@dataclass
-class NimbusFmlErrorListDataClass:
-    errors: typing.List[NimbusFmlErrorDataClass]
-
-    def __init__(self, errors):  # pragma: no cover
-        return [
-            NimbusFmlErrorDataClass(
-                line=e.line,
-                col=e.col,
-                message=e.message,
-                highlight=e.highlight,
-            )
-            for e in errors
-        ]
 
 
 _SerializerT = typing.TypeVar("_SerializerT", bound=serializers.ModelSerializer)
@@ -523,7 +268,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
     def _save_screenshots(self, screenshots, branch):
         if screenshots is None:
             return
-        updated_screenshots = {x["id"]: x for x in screenshots if x.get("id", None)}
+        updated_screenshots = {x["id"]: x for x in screenshots if x.get("id")}
         for screenshot in branch.screenshots.all():
             screenshot_id = screenshot.id
             if screenshot_id not in updated_screenshots:
@@ -682,6 +427,36 @@ class NimbusExperimentDocumentationLinkMixin:
         return experiment
 
 
+class NimbusExperimentSubscriberSerializer(serializers.Serializer):
+    email = serializers.SlugRelatedField(
+        queryset=User.objects.all(),
+        slug_field="email",
+        required=True,
+    )
+    subscribed = serializers.BooleanField(required=True)
+
+
+class NimbusExperimentSubscribersMixin:
+    def update(self, experiment, data):
+        subscribers = data.pop("subscribers", None)
+        experiment = super().update(experiment, data)
+
+        if self.instance and subscribers is not None:
+            for subscriber in subscribers:
+                if (
+                    subscriber["subscribed"]
+                    and subscriber["email"] not in self.instance.subscribers.all()
+                ):
+                    self.instance.subscribers.add(subscriber["email"])
+                elif (
+                    not subscriber["subscribed"]
+                    and subscriber["email"] in self.instance.subscribers.all()
+                ):
+                    self.instance.subscribers.remove(subscriber["email"])
+
+        return experiment
+
+
 class NimbusStatusValidationMixin:
     """
     This will only validate certain statuses, and the validation does not
@@ -696,8 +471,10 @@ class NimbusStatusValidationMixin:
             restrictive_statuses = set()
             exempt_fields = set()
             fields = ["all"]
-            fields.append("rollouts") if self.instance.is_rollout else fields.append(
-                "experiments"
+            (
+                fields.append("rollouts")
+                if self.instance.is_rollout
+                else fields.append("experiments")
             )
 
             restrictions = {
@@ -770,10 +547,57 @@ class NimbusStatusTransitionValidator:
                 )
 
 
+class NimbusExperimentBranchThroughSerializer(serializers.Serializer):
+    branch_slug = serializers.CharField(min_length=0, max_length=1024, allow_null=True)
+
+    def validate(self, data):
+        data = super().validate(data)
+        child_experiment = data[self.CHILD_FIELD]
+        branch_slug = data["branch_slug"]
+
+        if (
+            branch_slug is not None
+            and branch_slug
+            not in child_experiment.branches.all().values_list("slug", flat=True)
+        ):
+            raise serializers.ValidationError(
+                {
+                    "branch_slug": (
+                        f"{branch_slug} is not a valid branch "
+                        f"for {child_experiment.name}: "
+                        f"{[b.slug for b in child_experiment.branches.all()]}",
+                    )
+                }
+            )
+
+        return data
+
+
+class NimbusExperimentBranchThroughRequiredSerializer(
+    NimbusExperimentBranchThroughSerializer
+):
+    CHILD_FIELD = "required_experiment"
+
+    required_experiment = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusExperiment.objects.all(),
+    )
+
+
+class NimbusExperimentBranchThroughExcludedSerializer(
+    NimbusExperimentBranchThroughSerializer
+):
+    CHILD_FIELD = "excluded_experiment"
+
+    excluded_experiment = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusExperiment.objects.all(),
+    )
+
+
 class NimbusExperimentSerializer(
     NimbusExperimentBranchMixin,
     NimbusStatusValidationMixin,
     NimbusExperimentDocumentationLinkMixin,
+    NimbusExperimentSubscribersMixin,
     ExperimentNameValidatorMixin[NimbusExperiment],
     serializers.ModelSerializer,
 ):
@@ -880,21 +704,26 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
-    excluded_experiments = serializers.PrimaryKeyRelatedField(
-        queryset=NimbusExperiment.objects.all(),
+    excluded_experiments_branches = NimbusExperimentBranchThroughExcludedSerializer(
         many=True,
-        allow_empty=True,
         required=False,
     )
-    required_experiments = serializers.PrimaryKeyRelatedField(
-        queryset=NimbusExperiment.objects.all(),
-        many=True,
-        allow_empty=True,
-        required=False,
+    required_experiments_branches = NimbusExperimentBranchThroughRequiredSerializer(
+        many=True, required=False
     )
     qa_status = serializers.ChoiceField(
         choices=NimbusExperiment.QAStatus.choices,
+        required=False,
+    )
+    qa_comment = serializers.CharField(
+        min_length=0,
+        max_length=4096,
+        required=False,
+        allow_blank=True,
         allow_null=True,
+    )
+    subscribers = serializers.ListField(
+        child=NimbusExperimentSubscriberSerializer(),
         required=False,
     )
 
@@ -907,22 +736,23 @@ class NimbusExperimentSerializer(
             "conclusion_recommendation",
             "countries",
             "documentation_links",
-            "excluded_experiments",
+            "excluded_experiments_branches",
             "feature_config",
             "feature_configs",
             "firefox_max_version",
             "firefox_min_version",
             "hypothesis",
             "is_archived",
-            "is_rollout_dirty",
             "is_enrollment_paused",
             "is_first_run",
             "is_localized",
+            "is_rollout_dirty",
             "is_rollout",
             "is_sticky",
             "languages",
-            "localizations",
+            "legal_signoff",
             "locales",
+            "localizations",
             "name",
             "population_percent",
             "prevent_pref_conflicts",
@@ -933,24 +763,29 @@ class NimbusExperimentSerializer(
             "proposed_release_date",
             "public_description",
             "publish_status",
+            "qa_comment",
+            "qa_signoff",
             "qa_status",
             "reference_branch",
-            "required_experiments",
+            "required_experiments_branches",
             "risk_brand",
+            "risk_message",
             "risk_mitigation_link",
             "risk_partner_related",
             "risk_revenue",
             "secondary_outcomes",
             "slug",
-            "status",
             "status_next",
-            "takeaways_metric_gain",
+            "status",
+            "subscribers",
             "takeaways_gain_amount",
+            "takeaways_metric_gain",
             "takeaways_qbr_learning",
             "takeaways_summary",
             "targeting_config_slug",
             "total_enrolled_clients",
             "treatment_branches",
+            "vp_signoff",
             "warn_feature_schema",
         ]
 
@@ -1152,6 +987,35 @@ class NimbusExperimentSerializer(
         self.changelog_message = validated_data.pop("changelog_message")
         return super().create(validated_data)
 
+    def save_required_excluded_experiment_branches(self):
+        required_experiment_branches = self.validated_data.pop(
+            "required_experiments_branches", None
+        )
+        if required_experiment_branches is not None:
+            NimbusExperimentBranchThroughRequired.objects.filter(
+                parent_experiment=self.instance
+            ).all().delete()
+            for required_experiment_branch in required_experiment_branches:
+                NimbusExperimentBranchThroughRequired.objects.create(
+                    parent_experiment=self.instance,
+                    child_experiment=required_experiment_branch["required_experiment"],
+                    branch_slug=required_experiment_branch["branch_slug"],
+                )
+
+        excluded_experiment_branches = self.validated_data.pop(
+            "excluded_experiments_branches", None
+        )
+        if excluded_experiment_branches is not None:
+            NimbusExperimentBranchThroughExcluded.objects.filter(
+                parent_experiment=self.instance
+            ).all().delete()
+            for excluded_experiment_branch in excluded_experiment_branches:
+                NimbusExperimentBranchThroughExcluded.objects.create(
+                    parent_experiment=self.instance,
+                    child_experiment=excluded_experiment_branch["excluded_experiment"],
+                    branch_slug=excluded_experiment_branch["branch_slug"],
+                )
+
     def save(self):
         feature_configs_provided = "feature_configs" in self.validated_data
         feature_configs = self.validated_data.pop("feature_configs", None)
@@ -1169,6 +1033,8 @@ class NimbusExperimentSerializer(
 
                 if self.is_preview_to_draft:
                     self.instance.published_dto = None
+
+            self.save_required_excluded_experiment_branches()
 
             experiment = super().save()
 
@@ -1331,6 +1197,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         allow_null=False,
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
     )
+    risk_message = serializers.BooleanField(
+        required=True,
+        allow_null=False,
+        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
+    )
     is_localized = serializers.BooleanField(required=False)
     localizations = serializers.CharField(
         required=False, allow_blank=True, allow_null=True
@@ -1353,6 +1224,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.warnings = defaultdict(list)
+
+        self.schemas_by_feature_id: dict[
+            str, NimbusFeatureConfig.VersionedSchemaRange
+        ] = {}
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -1422,117 +1297,348 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return value
 
-    def _validate_feature_value_against_schema(
+    @dataclass
+    class ValidateBranchesResult:
+        class Fields(TypedDict):
+            reference_branch: NotRequired[dict[str, Any]]
+            treatment_branches: NotRequired[list[dict[str, Any]]]
+
+        errors: Fields = dataclasses.field(default_factory=Fields)
+        warnings: Fields = dataclasses.field(default_factory=Fields)
+
+    def _validate_branches(
         self,
+        *,
+        data: dict[str, Any],
+    ) -> ValidateBranchesResult:
+        results = self.ValidateBranchesResult()
+
+        if data.get("is_localized"):
+            localizations = json.loads(data.get("localizations"))
+        else:
+            localizations = None
+
+        kwargs = {
+            "localizations": localizations,
+            "channel": data.get("channel"),
+            "suppress_errors": data.get("warn_feature_schema", False),
+        }
+
+        result = self._validate_branch(
+            branch=data.get("reference_branch", {}),
+            **kwargs,
+        )
+        if any(result.errors):
+            results.errors["reference_branch"] = {"feature_values": result.errors}
+
+        if any(result.warnings):
+            results.warnings["reference_branch"] = {"feature_values": result.warnings}
+
+        treatment_branches_errors = []
+        treatment_branches_warnings = []
+
+        for treatment_branch in data.get("treatment_branches", []):
+            result = self._validate_branch(branch=treatment_branch, **kwargs)
+
+            if any(result.errors):
+                treatment_branches_errors.append({"feature_values": result.errors})
+            else:
+                treatment_branches_errors.append({})
+
+            if any(result.warnings):
+                treatment_branches_warnings.append({"feature_values": result.warnings})
+            else:
+                treatment_branches_warnings.append({})
+
+        if any(treatment_branches_errors):
+            results.errors["treatment_branches"] = treatment_branches_errors
+
+        if any(treatment_branches_warnings):
+            results.warnings["treatment_branches"] = treatment_branches_warnings
+
+        return results
+
+    @dataclass
+    class ValidateBranchResult:
+        class Fields(TypedDict):
+            value: NotRequired[list[str]]
+
+        errors: list[Fields] = dataclasses.field(default_factory=list)
+        warnings: list[Fields] = dataclasses.field(default_factory=list)
+
+        def append(self, result: NimbusReviewSerializer.ValidateFeatureResult):
+            if result.errors:
+                self.errors.append({"value": result.errors})
+            else:
+                self.errors.append({})
+
+            if result.warnings:
+                self.warnings.append({"value": result.warnings})
+            else:
+                self.warnings.append({})
+
+    def _validate_branch(
+        self,
+        *,
+        branch: dict[str, Any],
+        channel: str,
+        localizations: Optional[dict[str, Any]],
+        suppress_errors: bool,
+    ) -> ValidateBranchResult:
+        results = self.ValidateBranchResult()
+
+        feature_values = branch.get("feature_values", [])
+        for feature_value_data in feature_values:
+            feature_config: NimbusFeatureConfig = feature_value_data["feature_config"]
+
+            feature_result = self._validate_feature_value(
+                application=self.instance.application,
+                channel=channel,
+                feature_config=feature_config,
+                feature_value=feature_value_data["value"],
+                localizations=localizations,
+                schemas_in_range=self.schemas_by_feature_id[feature_config.id],
+                suppress_errors=suppress_errors,
+            )
+
+            results.append(feature_result)
+
+        return results
+
+    @dataclass
+    class ValidateFeatureResult:
+        errors: list[str] = dataclasses.field(default_factory=list)
+        warnings: list[str] = dataclasses.field(default_factory=list)
+
+        def extend_with_result(self, result: Self):
+            self.errors.extend(result.errors)
+            self.warnings.extend(result.warnings)
+
+        def extend(self, msgs: list[str], warning: bool):
+            if warning:
+                self.warnings.extend(msgs)
+            else:
+                self.errors.extend(msgs)
+
+        def append(self, msg: str, warning: bool):
+            if warning:
+                self.warnings.append(msg)
+            else:
+                self.errors.append(msg)
+
+    @classmethod
+    def _validate_feature_value(
+        cls,
+        *,
+        application: str,
+        channel: str,
         feature_config: NimbusFeatureConfig,
+        feature_value: str,
+        schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
+        localizations: Optional[dict[str, Any]],
+        suppress_errors: bool,
+    ) -> ValidateFeatureResult:
+        result = cls.ValidateFeatureResult()
+
+        if schemas_in_range.unsupported_in_range:
+            result.append(
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
+                    feature_config=feature_config,
+                ),
+                suppress_errors,
+            )
+            return result
+
+        if schemas_in_range.unsupported_versions:
+            unsupported_version_strs = [
+                str(v) for v in schemas_in_range.unsupported_versions
+            ]
+            min_unsupported_version = min(unsupported_version_strs)
+            max_unsupported_version = max(unsupported_version_strs)
+            result.append(
+                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS.format(
+                    feature_config=feature_config,
+                    versions=f"{min_unsupported_version}-{max_unsupported_version}",
+                ),
+                suppress_errors,
+            )
+
+        if application == NimbusExperiment.Application.DESKTOP:
+            result.extend_with_result(
+                cls._validate_feature_value_with_schema(
+                    feature_config,
+                    schemas_in_range,
+                    feature_value,
+                    localizations,
+                    suppress_errors,
+                ),
+            )
+        else:
+            result.extend(
+                cls._validate_feature_value_with_fml(
+                    schemas_in_range,
+                    NimbusFmlLoader.create_loader(application, channel),
+                    feature_config,
+                    feature_value,
+                ),
+                suppress_errors,
+            )
+
+        return result
+
+    @classmethod
+    def _validate_feature_value_with_schema(
+        cls,
+        feature_config: NimbusFeatureConfig,
+        schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         value: str,
         localizations: Optional[dict[str, Any]],
-        min_version: packaging.version.Version,
-        max_version: Optional[packaging.version.Version],
-    ):
-        schemas_in_range = feature_config.get_versioned_schema_range(
-            min_version, max_version
-        )
-        if schemas_in_range.unsupported_in_range:
-            return [
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
-                    feature_config=feature_config,
-                )
-            ]
-
-        errors = []
-
-        for version in schemas_in_range.unsupported_versions:
-            errors.append(
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
-                    feature_config=feature_config,
-                    version=version,
-                )
-            )
+        suppress_errors: bool,
+    ) -> ValidateFeatureResult:
+        result = cls.ValidateFeatureResult()
 
         json_value = json.loads(value)
-
         for schema in schemas_in_range.schemas:
-            if schema.schema is None:  # Only in tests.
-                continue
+            if schema.schema:  # Only None in tests.
+                json_schema = json.loads(schema.schema)
+                if not localizations:
+                    result.extend(
+                        cls._validate_schema(json_value, json_schema, schema.version),
+                        suppress_errors,
+                    )
+                else:
+                    for locale_code, substitutions in localizations.items():
+                        try:
+                            substituted_value = cls._substitute_localizations(
+                                json_value, substitutions, locale_code
+                            )
+                        except LocalizationError as e:
+                            result.append(str(e), suppress_errors)
+                            continue
 
-            json_schema = json.loads(schema.schema)
-            if not localizations:
-                errors.extend(
-                    self._validate_schema(json_value, json_schema, schema.version)
-                )
-            else:
-                for locale_code, substitutions in localizations.items():
-                    try:
-                        substituted_value = self._substitute_localizations(
-                            json_value, substitutions, locale_code
-                        )
-                    except LocalizationError as e:
-                        errors.append(str(e))
-                        continue
+                        if schema_errors := cls._validate_schema(
+                            substituted_value, json_schema, schema.version
+                        ):
+                            err_msg = (
+                                f"Schema validation errors occured during locale "
+                                f"substitution for locale {locale_code}"
+                            )
 
-                    if schema_errors := self._validate_schema(
-                        substituted_value, json_schema, schema.version
-                    ):
-                        err_msg = (
-                            f"Schema validation errors occured during locale "
-                            f"substitution for locale {locale_code}"
-                        )
+                            if schema.version is not None:
+                                err_msg += f" at version {schema.version}"
 
-                        if schema.version is not None:
-                            err_msg += f" at version {schema.version}"
+                            result.append(err_msg, suppress_errors)
+                            result.extend(schema_errors, suppress_errors)
 
-                        errors.append(err_msg)
-                        errors.extend(schema_errors)
+            if not schema.is_early_startup:
+                # Normally localized experiments cannot set prefs, but
+                # isEarlyStartup features will always set prefs for all the
+                # variables in the experiment
+                if localizations:
+                    continue
 
-        if errors:
-            return errors
+                # If the feature schema is not marked isEarlyStartup and it does
+                # not have any setPref variables, then there is nothing to
+                # check.
+                if not schema.set_pref_vars:
+                    continue
 
-        return None
-
-    def _validate_with_fml(
-        self,
-        loader: NimbusFmlLoader,
-        feature_config,
-        blob: str,
-        min_version: packaging.version.Version,
-        max_version: Optional[packaging.version.Version],
-    ):
-        schemas_in_range = feature_config.get_versioned_schema_range(
-            min_version, max_version
-        )
-
-        if schemas_in_range.unsupported_in_range:
-            return [
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
-                    feature_config=feature_config,
-                )
-            ]
-        errors = []
-
-        for version in schemas_in_range.unsupported_versions:
-            errors.append(
-                NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION.format(
-                    feature_config=feature_config,
-                    version=version,
-                )
+            result.extend_with_result(
+                cls._validate_desktop_feature_value_pref_lengths(
+                    feature_config,
+                    schema,
+                    json_value,
+                    suppress_errors,
+                ),
             )
 
-        for schema in schemas_in_range.schemas:
-            version = schema.version
-            if fml_errors := loader.get_fml_errors(blob, feature_config.slug, version):
-                errors.extend(
-                    [
-                        f"{NimbusExperiment.ERROR_FML_VALIDATION}: {e.message} at line "
-                        f"{e.line+1} column {e.col} at version {version}"
-                        for e in fml_errors
-                    ]
+        return result
+
+    @classmethod
+    def _validate_desktop_feature_value_pref_lengths(
+        cls,
+        feature_config: NimbusFeatureConfig,
+        schema: NimbusVersionedSchema,
+        feature_value: dict[str, Any],
+        suppress_errors: bool,
+    ) -> ValidateFeatureResult:
+        result = cls.ValidateFeatureResult()
+
+        for variable_name, variable_value in feature_value.items():
+            if not schema.is_early_startup and variable_name not in schema.set_pref_vars:
+                continue
+
+            if isinstance(variable_value, (list, dict)):
+                variable_value = json.dumps(variable_value)
+            elif not isinstance(variable_value, str):
+                # int and bool are not serialized to strings
+                continue
+
+            pref_len = len(variable_value)
+
+            if pref_len > NimbusConstants.LARGE_PREF_ERROR_LEN:
+                message_fmt = NimbusConstants.ERROR_LARGE_PREF
+            elif pref_len > NimbusConstants.LARGE_PREF_WARNING_LEN:
+                message_fmt = NimbusConstants.WARNING_LARGE_PREF
+            else:
+                continue
+
+            if schema.is_early_startup:
+                reason = NimbusConstants.IS_EARLY_STARTUP_REASON.format(
+                    feature=feature_config.name
                 )
+            else:
+                reason = NimbusConstants.SET_PREF_REASON
+
+            message = message_fmt.format(
+                variable=variable_name,
+                reason=reason,
+            )
+
+            if schema.version:
+                message += f" at version {schema.version}"
+
+            # If the pref is over the error threshold, then this error cannot be
+            # supressed as a warning.
+            as_warning = (
+                suppress_errors and pref_len <= NimbusConstants.LARGE_PREF_ERROR_LEN
+            )
+
+            result.append(message, as_warning)
+
+        return result
+
+    @classmethod
+    def _validate_feature_value_with_fml(
+        cls,
+        schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
+        loader: NimbusFmlLoader,
+        feature_config: NimbusFeatureConfig,
+        blob: str,
+    ) -> list[str]:
+        errors = []
+        schema_errors_versions = defaultdict(set)
+        for schema in schemas_in_range.schemas:
+            for fml_error in loader.get_fml_errors(
+                blob, feature_config.slug, schema.version
+            ):
+                schema_errors_versions[fml_error.message].add(schema.version)
+
+        for fml_error, versions in schema_errors_versions.items():
+            version_strs = [str(v) for v in versions]
+            min_version = min(version_strs)
+            max_version = max(version_strs)
+            errors.append(
+                NimbusConstants.ERROR_FEATURE_VALUE_IN_VERSIONS.format(
+                    error=fml_error, versions=f"{min_version}-{max_version}"
+                )
+            )
 
         return errors
 
+    @classmethod
     def _validate_schema(
-        self, obj: Any, schema: dict[str, Any], version: Optional[NimbusFeatureVersion]
+        cls, obj: Any, schema: dict[str, Any], version: Optional[NimbusFeatureVersion]
     ) -> list[str]:
         try:
             jsonschema.validate(obj, schema, resolver=NestedRefResolver(schema))
@@ -1546,12 +1652,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return []
 
     def _validate_feature_configs(self, data):
-        application = data.get("application")
         feature_configs = data.get("feature_configs", [])
 
         min_version = None
         max_version = None
-        if not NimbusExperiment.Application.is_web(application):
+        if not NimbusExperiment.Application.is_web(self.instance.application):
             raw_min_version = data.get("firefox_min_version", "")
             raw_max_version = data.get("firefox_max_version", "")
 
@@ -1559,8 +1664,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             min_version = NimbusExperiment.Version.parse(raw_min_version)
             if raw_max_version:
                 max_version = NimbusExperiment.Version.parse(raw_max_version)
-
-        warn_feature_schema = data.get("warn_feature_schema", False)
 
         errors = {
             "feature_configs": [
@@ -1571,88 +1674,35 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             for feature_config in feature_configs
             if self.instance.application != feature_config.application
         }
-        if data.get("is_localized"):
-            localizations = json.loads(data.get("localizations"))
-        else:
-            localizations = None
+        if errors:
+            # This error can't be dismissed by the warn_feature_schema flag.
+            raise serializers.ValidationError(errors)
 
-        application = data.get("application")
-        loader = NimbusFmlLoader.create_loader(application, data.get("channel"))
+        reference_branch = data.get("reference_branch", {})
 
-        reference_branch_errors = []
+        # Cache the versioned schema range for each feature so we can re-use
+        # them in the validation for each branch.
+        self.schemas_by_feature_id = {
+            feature_config.id: feature_config.get_versioned_schema_range(
+                min_version,
+                max_version,
+            )
+            for feature_config in (
+                feature_value_data["feature_config"]
+                for feature_value_data in reference_branch.get(
+                    "feature_values",
+                    [],
+                )
+            )
+        }
 
-        for feature_value_data in data.get("reference_branch", {}).get(
-            "feature_values", []
-        ):
-            if application == NimbusExperiment.Application.DESKTOP:
-                if schema_errors := self._validate_feature_value_against_schema(
-                    feature_value_data["feature_config"],
-                    feature_value_data["value"],
-                    localizations,
-                    min_version,
-                    max_version,
-                ):
-                    reference_branch_errors.append({"value": schema_errors})
-                    continue
+        result = self._validate_branches(data=data)
 
-            elif NimbusExperiment.Application.is_mobile(application):
-                if fml_errors := self._validate_with_fml(
-                    loader,
-                    feature_value_data["feature_config"],
-                    feature_value_data["value"],
-                    min_version,
-                    max_version,
-                ):
-                    reference_branch_errors.append({"value": fml_errors})
-                    continue
+        if any(result.warnings):
+            self.warnings.update(result.warnings)
 
-            reference_branch_errors.append({})
-
-        if any(reference_branch_errors):
-            errors["reference_branch"] = {"feature_values": reference_branch_errors}
-
-        treatment_branches_errors = []
-        treatment_branches_errors_found = False
-        for treatment_branch_data in data.get("treatment_branches", []):
-            treatment_branch_errors = []
-
-            for feature_value_data in treatment_branch_data["feature_values"]:
-                if application == NimbusExperiment.Application.DESKTOP:
-                    if schema_errors := self._validate_feature_value_against_schema(
-                        feature_value_data["feature_config"],
-                        feature_value_data["value"],
-                        localizations,
-                        min_version,
-                        max_version,
-                    ):
-                        treatment_branch_errors.append({"value": schema_errors})
-                        treatment_branches_errors_found = True
-                        continue
-
-                elif NimbusExperiment.Application.is_mobile(application):
-                    if fml_errors := self._validate_with_fml(
-                        loader,
-                        feature_value_data["feature_config"],
-                        feature_value_data["value"],
-                        min_version,
-                        max_version,
-                    ):
-                        treatment_branch_errors.append({"value": fml_errors})
-                        treatment_branches_errors_found = True
-                        continue
-
-                treatment_branch_errors.append({})
-
-            treatment_branches_errors.append({"feature_values": treatment_branch_errors})
-
-        if treatment_branches_errors_found:
-            errors["treatment_branches"] = treatment_branches_errors
-
-        if any(errors):
-            if warn_feature_schema:
-                self.warnings = errors
-            else:
-                raise serializers.ValidationError(errors)
+        if any(result.errors):
+            raise serializers.ValidationError(result.errors)
 
         return data
 
@@ -2001,25 +2051,43 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             ]
         return data
 
-    def validate(self, data):
-        application = data.get("application")
-        channel = data.get("channel")
-        if application != NimbusExperiment.Application.DESKTOP and not channel:
-            raise serializers.ValidationError(
-                {"channel": "Channel is required for this application."}
+    def _validate_desktop_pref_rollouts(self, data):
+        if self.instance.is_rollout:
+            any_feature_sets_prefs = any(
+                bool(schema.set_pref_vars)
+                for schemas_in_range in self.schemas_by_feature_id.values()
+                for schema in schemas_in_range.schemas
             )
-        data = super().validate(data)
-        data = self._validate_versions(data)
-        data = self._validate_localizations(data)
-        data = self._validate_feature_configs(data)
-        data = self._validate_enrollment_targeting(data)
-        data = self._validate_sticky_enrollment(data)
-        data = self._validate_rollout_version_support(data)
-        data = self._validate_bucket_duplicates(data)
-        data = self._validate_proposed_release_date(data)
-        if application != NimbusExperiment.Application.DESKTOP:
-            data = self._validate_languages_versions(data)
-            data = self._validate_countries_versions(data)
+
+            if any_feature_sets_prefs and not data.get("prevent_pref_conflicts"):
+                self.warnings["pref_rollout_reenroll"] = [
+                    NimbusConstants.WARNING_ROLLOUT_PREF_REENROLL
+                ]
+
+        return data
+
+    def validate(self, data):
+        if self.instance.status == self.instance.Status.DRAFT:
+            application = data.get("application")
+            channel = data.get("channel")
+            if application != NimbusExperiment.Application.DESKTOP and not channel:
+                raise serializers.ValidationError(
+                    {"channel": "Channel is required for this application."}
+                )
+            data = super().validate(data)
+            data = self._validate_versions(data)
+            data = self._validate_localizations(data)
+            data = self._validate_feature_configs(data)
+            data = self._validate_enrollment_targeting(data)
+            data = self._validate_sticky_enrollment(data)
+            data = self._validate_rollout_version_support(data)
+            data = self._validate_bucket_duplicates(data)
+            data = self._validate_proposed_release_date(data)
+            if application == NimbusExperiment.Application.DESKTOP:
+                data = self._validate_desktop_pref_rollouts(data)
+            else:
+                data = self._validate_languages_versions(data)
+                data = self._validate_countries_versions(data)
         return data
 
 
@@ -2065,3 +2133,25 @@ class NimbusExperimentCloneSerializer(
 
 class LocalizationError(Exception):
     """An error that occurs during localization substitution."""
+
+
+class FmlErrorSerializer(serializers.Serializer):
+    line = serializers.IntegerField()
+    col = serializers.IntegerField()
+    highlight = serializers.CharField()
+    message = serializers.CharField()
+
+
+class FmlFeatureValueSerializer(serializers.Serializer):
+    featureSlug = serializers.CharField()
+    featureValue = serializers.CharField()
+
+    def update(self, instance, validated_data):
+        fml_loader = NimbusFmlLoader.create_loader(instance.application, instance.channel)
+        feature_slug = validated_data["featureSlug"]
+        feature_value = validated_data["featureValue"]
+        return fml_loader.get_fml_errors(feature_value, feature_slug)
+
+    @property
+    def data(self):
+        return FmlErrorSerializer(self.instance, many=True).data

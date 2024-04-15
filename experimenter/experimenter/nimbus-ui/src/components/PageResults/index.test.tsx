@@ -36,6 +36,9 @@ import { NimbusExperimentStatusEnum } from "src/types/globalTypes";
 let mockExperiment: getExperiment_experimentBySlug;
 let mockAnalysisData: AnalysisData | undefined;
 
+const ENROLLMENTS_BASIS = "enrollments";
+const EXPOSURES_BASIS = "exposures";
+
 describe("PageResults", () => {
   beforeAll(() => {
     fetchMock.enableMocks();
@@ -79,7 +82,7 @@ describe("PageResults", () => {
     // length of 2 due to two sets of tabs per table
     expect(screen.queryAllByTestId("table-highlights")).toHaveLength(2);
     expect(screen.queryAllByTestId("table-results")).toHaveLength(2);
-    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(6);
+    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(5);
   });
 
   it("displays the external config alert when an override exists", async () => {
@@ -108,7 +111,7 @@ describe("PageResults", () => {
   it("hides the analysis segment selector when there are no custom segments", async () => {
     render(<Subject />);
 
-    expect(screen.queryByText("Segment:")).not.toBeInTheDocument();
+    expect(screen.queryByText("Segment")).not.toBeInTheDocument();
     expect(
       screen.queryByTestId("segment-results-selector"),
     ).not.toBeInTheDocument();
@@ -122,33 +125,41 @@ describe("PageResults", () => {
     const defaultSegment = "all";
     const otherSegment = "a_different_segment";
 
-    expect(screen.getByText("Segment:"));
+    expect(screen.getByText("Segment"));
     const segmentSelectParent = screen.getByTestId("segment-results-selector");
-    expect(within(segmentSelectParent).getByText(defaultSegment));
+    within(segmentSelectParent).getByText(defaultSegment);
+    expect(
+      within(segmentSelectParent).getByTestId(
+        `${defaultSegment}-segment-radio`,
+      ),
+    ).toBeChecked();
+    within(segmentSelectParent).getByText(otherSegment);
+    expect(
+      within(segmentSelectParent).getByTestId(`${otherSegment}-segment-radio`),
+    ).not.toBeChecked();
 
-    let curSegment = container.getElementsByClassName(
-      "segmentation__single-value",
+    fireEvent.click(
+      within(segmentSelectParent).getByTestId(`${otherSegment}-segment-radio`),
     );
-    expect(curSegment).toHaveLength(1);
-    expect(curSegment[0]).toHaveTextContent(defaultSegment);
-
-    const segmentSelect = container.getElementsByClassName(
-      "segmentation__control",
-    )[0];
-
-    expect(segmentSelect).not.toBeNull();
-
-    fireEvent.keyDown(segmentSelect, { keyCode: 40 });
-    await waitFor(() => within(segmentSelectParent).getByText(otherSegment));
-    fireEvent.click(within(segmentSelectParent).getByText(otherSegment));
-
-    curSegment = container.getElementsByClassName("segmentation__single-value");
-    expect(curSegment).toHaveLength(1);
-    expect(curSegment[0]).toHaveTextContent(otherSegment);
+    expect(
+      within(segmentSelectParent).getByTestId(
+        `${defaultSegment}-segment-radio`,
+      ),
+    ).not.toBeChecked();
+    expect(
+      within(segmentSelectParent).getByTestId(`${otherSegment}-segment-radio`),
+    ).toBeChecked();
   });
 
   it("hides the analysis basis selector when there are no exposures", async () => {
-    render(<Subject />);
+    render(
+      <Subject
+        mockAnalysisData={mockAnalysis({
+          weekly: { enrollments: { all: [] } },
+          overall: { enrollments: { all: [] } },
+        })}
+      />,
+    );
 
     expect(screen.queryByText("Analysis Basis")).not.toBeInTheDocument();
     expect(
@@ -159,47 +170,87 @@ describe("PageResults", () => {
   it("displays the analysis basis options properly", async () => {
     render(<Subject mockAnalysisData={mockAnalysisWithExposures} />);
 
-    const defaultBasis = "enrollments";
-    const otherBasis = "exposures";
-
     expect(screen.getByText("Analysis Basis"));
     const analysisBasisSelectParent = screen.getByTestId(
       "analysis-basis-results-selector",
     );
 
     // both exist
-    expect(within(analysisBasisSelectParent).getByText(defaultBasis));
-    expect(within(analysisBasisSelectParent).getByText(otherBasis));
+    within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS);
+    within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS);
 
-    // enrollments checked by default
+    // exposures checked by default
     expect(
-      within(analysisBasisSelectParent).getByTestId(`${defaultBasis}-radio`),
+      within(analysisBasisSelectParent).getByTestId(
+        `${EXPOSURES_BASIS}-basis-radio`,
+      ),
     ).toBeChecked();
 
     fireEvent.click(
-      within(analysisBasisSelectParent).getByTestId(`${otherBasis}-radio`),
+      within(analysisBasisSelectParent).getByTestId(
+        `${ENROLLMENTS_BASIS}-basis-radio`,
+      ),
     );
 
-    // exposures checked after click
+    // enrollments checked after click
     expect(
-      within(analysisBasisSelectParent).getByTestId(`${otherBasis}-radio`),
+      within(analysisBasisSelectParent).getByTestId(
+        `${ENROLLMENTS_BASIS}-basis-radio`,
+      ),
     ).toBeChecked();
   });
 
   it("displays the analysis basis options for weekly results", async () => {
     render(<Subject mockAnalysisData={mockAnalysisWithWeeklyExposures} />);
 
-    const defaultBasis = "enrollments";
-    const otherBasis = "exposures";
-
     expect(screen.getByText("Analysis Basis"));
     const analysisBasisSelectParent = screen.getByTestId(
       "analysis-basis-results-selector",
     );
 
     // both exist
-    expect(within(analysisBasisSelectParent).getByText(defaultBasis));
-    expect(within(analysisBasisSelectParent).getByText(otherBasis));
+    within(analysisBasisSelectParent).getByText(ENROLLMENTS_BASIS);
+    within(analysisBasisSelectParent).getByText(EXPOSURES_BASIS);
+  });
+
+  it("displays the reference branch options properly", async () => {
+    render(<Subject mockAnalysisData={mockAnalysisWithExposures} />);
+
+    expect(screen.getByText("Analysis Basis"));
+    const referenceBranchSelectParent = screen.getByTestId(
+      "reference-branch-results-selector",
+    );
+
+    // both exist
+    within(referenceBranchSelectParent).getByText("control");
+    within(referenceBranchSelectParent).getByText("treatment");
+
+    // control checked by default
+    expect(
+      within(referenceBranchSelectParent).getByTestId("control-branch-radio"),
+    ).toBeChecked();
+
+    fireEvent.click(
+      within(referenceBranchSelectParent).getByTestId("treatment-branch-radio"),
+    );
+
+    // treatment checked after click
+    expect(
+      within(referenceBranchSelectParent).getByTestId("treatment-branch-radio"),
+    ).toBeChecked();
+  });
+
+  it("displays the reference branch options for weekly results", async () => {
+    render(<Subject mockAnalysisData={mockAnalysisWithWeeklyExposures} />);
+
+    expect(screen.getByText("Analysis Basis"));
+    const referenceBranchSelectParent = screen.getByTestId(
+      "reference-branch-results-selector",
+    );
+
+    // both exist
+    within(referenceBranchSelectParent).getByText("control");
+    within(referenceBranchSelectParent).getByText("treatment");
   });
 
   it("displays analysis errors", async () => {
@@ -213,6 +264,15 @@ describe("PageResults", () => {
           }).experiment
         }
       />,
+    );
+
+    const analysisBasisSelectParent = screen.getByTestId(
+      "analysis-basis-results-selector",
+    );
+    fireEvent.click(
+      within(analysisBasisSelectParent).getByTestId(
+        `${ENROLLMENTS_BASIS}-basis-radio`,
+      ),
     );
 
     expect(screen.getByText("NoEnrollmentPeriodException"));
@@ -242,6 +302,15 @@ describe("PageResults", () => {
           }).experiment
         }
       />,
+    );
+
+    const analysisBasisSelectParent = screen.getByTestId(
+      "analysis-basis-results-selector",
+    );
+    fireEvent.click(
+      within(analysisBasisSelectParent).getByTestId(
+        `${ENROLLMENTS_BASIS}-basis-radio`,
+      ),
     );
 
     expect(
@@ -278,7 +347,7 @@ describe("PageResults", () => {
     );
     expect(
       screen.getAllByText("No results available for metric."),
-    ).toHaveLength(3);
+    ).toHaveLength(2);
   });
 
   it("displays errors for metrics that do not appear in data or outcomes", async () => {
@@ -301,7 +370,7 @@ describe("PageResults", () => {
                 metric: "bad_metric",
                 statistic: "test_statistic",
                 timestamp: "2022-11-04 00:00:00+00:00",
-                analysis_basis: "enrollments",
+                analysis_basis: "exposures",
                 segment: "all",
               },
             ],
@@ -355,9 +424,22 @@ describe("PageResults", () => {
       redirectTestCommon({
         mockExperiment: mockExperimentQuery("demo-slug", {
           status: NimbusExperimentStatusEnum.COMPLETE,
+          showResultsUrl: false,
         }).experiment,
       }),
     ).toEqual("");
+  });
+
+  it("does not redirect to the summary page if the visualization flags are undefined", async () => {
+    expect(
+      redirectTestCommon({
+        mockAnalysisData: mockAnalysis({ show_analysis: undefined }),
+        mockExperiment: mockExperimentQuery("demo-slug", {
+          status: NimbusExperimentStatusEnum.COMPLETE,
+          showResultsUrl: undefined,
+        }).experiment,
+      }),
+    ).not.toEqual("");
   });
 
   const redirectTestCommon = (props: React.ComponentProps<typeof Subject>) => {
@@ -379,6 +461,7 @@ describe("PageResults", () => {
     return condition({
       analysis: mockAnalysisData,
       status: mockGetStatus(mockExperiment),
+      experiment: mockExperiment,
     });
   };
 

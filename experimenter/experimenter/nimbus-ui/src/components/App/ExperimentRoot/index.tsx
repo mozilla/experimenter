@@ -3,12 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { navigate, RouteComponentProps, useMatch } from "@reach/router";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ApolloErrorAlert from "src/components/ApolloErrorAlert";
 import PageExperimentNotFound from "src/components/PageExperimentNotFound";
 import PageLoading from "src/components/PageLoading";
 import { useAnalysis, useExperiment } from "src/hooks";
-import { BASE_PATH, POLL_INTERVAL } from "src/lib/constants";
+import {
+  BASE_PATH,
+  MAX_POLL_INTERVAL,
+  START_POLL_INTERVAL,
+} from "src/lib/constants";
 import { ExperimentContext, RedirectCondition } from "src/lib/contexts";
 import { getStatus } from "src/lib/experiment";
 
@@ -77,7 +81,7 @@ export const ExperimentRoot = ({
       if (
         !loading &&
         status &&
-        (redirectResult = redirect!({ status, analysis })) != null
+        (redirectResult = redirect!({ status, experiment, analysis })) != null
       ) {
         redirectResult = redirectResult.length
           ? `/${redirectResult}`
@@ -95,14 +99,23 @@ export const ExperimentRoot = ({
 
   // Utility hook to enable experiment polling (e.g. on PageSummary)
   const useExperimentPolling = () => {
+    const [pollInterval, setPollInterval] = useState(START_POLL_INTERVAL);
+
     useEffect(() => {
       polling.current = true;
-      startPolling(POLL_INTERVAL);
+      startPolling(pollInterval);
+
+      const intervalId = setTimeout(() => {
+        const newPollInterval = Math.min(pollInterval * 2, MAX_POLL_INTERVAL);
+        setPollInterval(newPollInterval);
+      }, pollInterval);
+
       return () => {
+        clearTimeout(intervalId);
         polling.current = false;
         stopPolling();
       };
-    }, []);
+    }, [pollInterval]);
   };
 
   if (error && !hasPollError) {

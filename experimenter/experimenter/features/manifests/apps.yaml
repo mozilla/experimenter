@@ -2,7 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 ---
-fenix:
+# Fenix is still doing dot releases from its GitHub repository for 124.* and
+# 125.*.
+#
+# NB: This order is important. This entry must come before the regular Fenix
+# entry because theis will generate an experimenter.yaml for the main branch
+# (version 125) which we need to overwrite with the version in mozilla-central
+# (version 126). We could add logic to conditionally fetch unversioned
+# manifests, but this is a temporary workaround until 126 hits release.
+#
+# This should be removed once 126 ships to release (#10515).
+fenix_legacy:
   slug: "fenix"
   repo:
     type: "github"
@@ -17,6 +27,26 @@ fenix:
         branch_re: 'releases_v(?P<major>\d+)'
         tag_re: 'fenix-v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'
       - type: "branched"
+
+fenix:
+  slug: "fenix"
+  repo:
+    type: "github"
+    name: "mozilla/gecko-dev"
+    default_branch: "master"
+  fml_path: "mobile/android/fenix/app/nimbus.fml.yaml"
+  release_discovery:
+    version_file:
+      type: "plaintext"
+      path: "browser/config/version.txt"
+    strategies:
+      - type: "branched"
+        branches:
+          # Fenix has only just merged into mozilla-central. Once 126 merges to
+          # beta (and then release), those branches should be added here.
+          #
+          # See #10514 (beta) and #10515 (release) issues.
+          - "master"
 
 firefox_ios:
   slug: "ios"
@@ -79,38 +109,54 @@ focus_ios:
           - "releases_v999" # nimbus.fml.yaml missing. Breaks "last 5 releases" logic.
         ignored_tags:
           - "v999.0.0" # nimbus.fml.yaml missing.
+        ignored_versions:
+          - "9000.0.0"
 
-# monitor_cirrus:
-#   slug: "monitor-web"
-#   repo:
-#     type: "github"
-#     name: "mozilla/blurts-server"
-#   fml_path: "config/nimbus.yaml"
+monitor_cirrus:
+  slug: "monitor-web"
+  repo:
+    type: "github"
+    name: "mozilla/blurts-server"
+  fml_path: "config/nimbus.yaml"
 
-# firefox_desktop:
-#   slug: "firefox-desktop"
-#   repo:
-#     type: "hgmo"
-#     name: "mozilla-unified"
-#     default_branch: "central"
-#   experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
-#   release_discovery:
-#     version_file:
-#       type: "plaintext"
-#       path: "browser/config/version.txt"
-#     strategies:
-#       - type: "branched"
-#         branches:
-#           # The order here is important!
-#           #
-#           # When central is merging to beta or beta is merging to release, then
-#           # both of those will have the same version number for a period of
-#           # time.
-#           #
-#           # In this order, if two consecutive branches have the same version,
-#           # then the latter will take precedence. e.g., if both beta and release
-#           # report the same version, we will use the feature manifest from release.
-#           - "central"
-#           - "beta"
-#           - "release"
-#           - "esr115"
+mozillavpn_backend_cirrus:
+  slug: "vpn-web"
+  repo:
+    type: "github"
+    name: "mozilla-services/guardian-website"
+  fml_path: "nimbus.yaml"
+
+firefox_accounts_cirrus:
+  slug: "fxa-web"
+  repo:
+    type: "github"
+    name: "mozilla/fxa"
+  fml_path: "configs/nimbus.yaml"
+
+firefox_desktop:
+  slug: "firefox-desktop"
+  repo:
+    type: "hgmo"
+    name: "mozilla-unified"
+    default_branch: "central"
+  experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
+  release_discovery:
+    version_file:
+      type: "plaintext"
+      path: "browser/config/version.txt"
+    strategies:
+      - type: "branched"
+        branches:
+          # The order here is important!
+          #
+          # When central is merging to beta or beta is merging to release, then
+          # both of those will have the same version number for a period of
+          # time.
+          #
+          # In this order, if two consecutive branches have the same version,
+          # then the latter will take precedence. e.g., if both beta and release
+          # report the same version, we will use the feature manifest from release.
+          - "central"
+          - "beta"
+          - "release"
+          - "esr115"

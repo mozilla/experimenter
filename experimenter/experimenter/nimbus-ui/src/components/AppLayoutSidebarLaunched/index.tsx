@@ -175,7 +175,10 @@ export const AppLayoutSidebarLaunched = ({
           xl="2"
           className="bg-light pt-2 border-right shadow-sm"
         >
-          <nav data-testid="nav-sidebar" className="navbar">
+          <nav
+            data-testid="nav-sidebar"
+            className="navbar sticky-top overflow-auto vh-100 align-items-start"
+          >
             <Nav
               className="flex-column font-weight-semibold mx-2 w-100"
               as="ul"
@@ -194,7 +197,7 @@ export const AppLayoutSidebarLaunched = ({
               />
 
               <LinkNav
-                route={`/history/${slug}`}
+                route={`/nimbus_new/${slug}/history/`}
                 testid={`history-page-${slug}`}
                 relativeToRoot
                 useButton
@@ -235,7 +238,9 @@ export const AppLayoutSidebarLaunched = ({
                     "Experiment analysis was skipped"
                   ) : (
                     <>
-                      Experiment analysis not ready yet.
+                      {experiment.isRollout
+                        ? "Analysis results are not available for rollouts."
+                        : "Experiment analysis not ready yet."}
                       {experiment.resultsExpectedDate && (
                         <>
                           {" "}

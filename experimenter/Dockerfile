@@ -13,7 +13,7 @@ RUN chmod -R 555 /experimenter \
 
 #-------------------------
 # System packages
-FROM python:3.11.1 AS system-builder
+FROM python:3.11-bullseye AS system-builder
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
@@ -68,29 +68,10 @@ COPY --from=file-loader /experimenter/experimenter/nimbus-ui/package.json /exper
 RUN yarn install --frozen-lockfile
 
 # Node packages for htmx ui
-COPY --from=file-loader /experimenter/experimenter/theme/static_src/package.json /experimenter/experimenter/theme/static_src/package.json
-COPY --from=file-loader /experimenter/experimenter/theme/static_src/yarn.lock /experimenter/experimenter/theme/static_src/yarn.lock
-RUN yarn install --frozen-lockfile --cwd /experimenter/experimenter/theme/static_src
+COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/theme/static_src/package.json /experimenter/experimenter/nimbus_ui_new/theme/static_src/package.json
+COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/theme/static_src/yarn.lock /experimenter/experimenter/nimbus_ui_new/theme/static_src/yarn.lock
+RUN yarn install --frozen-lockfile --cwd /experimenter/experimenter/nimbus_ui_new/theme/static_src
 
-
-
-# Rust image
-#-------------------------
-FROM system-builder AS rust-builder
-WORKDIR /application-services
-
-# Rust packages
-# Checkout application services at a locked commit
-RUN git clone https://github.com/mozilla/application-services.git .
-RUN git fetch && git checkout 1f11e95bf478666ca49c279a8927931c5535a786
-
-RUN git submodule init
-RUN git submodule update --recursive
-
-RUN mkdir -p /application-services/megazord
-
-RUN cargo build --manifest-path /application-services/megazords/nimbus-experimenter/Cargo.toml --release
-RUN cargo uniffi-bindgen generate --library /application-services/target/release/libnimbus_experimenter.so --language python --out-dir /application-services/megazord
 
 # Dev image
 #-------------------------
@@ -107,19 +88,13 @@ COPY --from=python-builder /usr/local/lib/python3.11/site-packages/ /usr/local/l
 
 # Node packages
 COPY --from=node-builder /experimenter/experimenter/legacy/legacy-ui/core/node_modules/ /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
-COPY --from=node-builder /experimenter/experimenter/theme/static_src/node_modules/ /experimenter/experimenter/theme/static_src/node_modules/
+COPY --from=node-builder /experimenter/experimenter/nimbus_ui_new/theme/static_src/node_modules/ /experimenter/experimenter/nimbus_ui_new/theme/static_src/node_modules/
 COPY --from=node-builder /experimenter/experimenter/nimbus-ui/node_modules/ /experimenter/experimenter/nimbus-ui/node_modules/
 COPY --from=node-builder /experimenter/node_modules/ /experimenter/node_modules/
 
 # Rust packages
-COPY --from=rust-builder /application-services/megazord/fml.py /application-services/megazord/rust_fml.py
-COPY --from=rust-builder /application-services/megazord/nimbus.py /application-services/megazord/rust_sdk.py
-COPY --from=rust-builder /application-services/megazord/errorsupport.py /application-services/megazord/rust_errorsupport.py
-COPY --from=rust-builder /application-services/megazord/remote_settings.py /application-services/megazord/rust_remote_settings.py
-# The uniffi.toml file setting cdylib_name is set to "cirrus", which means the generated python is expecting
-# the library to be called libcirrus.so.
-COPY --from=rust-builder /application-services/target/release/libnimbus_experimenter.so /application-services/megazord/libcirrus.so
-ENV PYTHONPATH=$PYTHONPATH:/application-services/megazord
+COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/ /application-services/nimbus_megazord/
+ENV PYTHONPATH=$PYTHONPATH:/application-services/
 
 # Install nimbus-cli
 
@@ -147,9 +122,9 @@ COPY --from=file-loader /experimenter/experimenter/nimbus-ui/ /experimenter/expe
 RUN yarn workspace @experimenter/nimbus-ui build
 
 # Build static assets
-COPY --from=file-loader /experimenter/experimenter/theme/ /experimenter/experimenter/theme/
-COPY --from=file-loader /experimenter/experimenter/templates/ /experimenter/experimenter/templates/
-RUN yarn --cwd /experimenter/experimenter/theme/static_src build
+COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/theme/ /experimenter/experimenter/nimbus_ui_new/theme/
+COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/templates/ /experimenter/experimenter/nimbus_ui_new/templates/
+RUN yarn --cwd /experimenter/experimenter/nimbus_ui_new/theme/static_src build
 
 
 # Deploy image
@@ -173,12 +148,12 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 COPY --from=dev /usr/local/bin/ /usr/local/bin/
 COPY --from=dev /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 COPY --from=dev /experimenter/bin/ /experimenter/bin/
-COPY --from=dev /application-services/megazord/ /application-services/megazord/
+COPY --from=dev /application-services/nimbus_megazord/ /application-services/nimbus_megazord/
 COPY --from=file-loader /experimenter/manage.py /experimenter/manage.py
 COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
 COPY --from=file-loader /experimenter/manifesttool/ /experimenter/manifesttool/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
 COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
-COPY --from=ui /experimenter/experimenter/theme/static/ /experimenter/experimenter/theme/static/
-COPY --from=ui /experimenter/experimenter/static/scripts/ /experimenter/experimenter/static/scripts/
-ENV PYTHONPATH=$PYTHONPATH:/application-services/megazord
+COPY --from=ui /experimenter/experimenter/nimbus_ui_new/theme/static/ /experimenter/experimenter/nimbus_ui_new/theme/static/
+COPY --from=ui /experimenter/experimenter/nimbus_ui_new/static/scripts/ /experimenter/experimenter/nimbus_ui_new/static/scripts/
+ENV PYTHONPATH=$PYTHONPATH:/application-services/

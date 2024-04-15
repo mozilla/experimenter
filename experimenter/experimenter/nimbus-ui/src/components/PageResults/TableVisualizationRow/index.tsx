@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import ReactTooltip from "react-tooltip";
 import ConfidenceInterval from "src/components/PageResults/ConfidenceInterval";
 import { ReactComponent as SignificanceNegative } from "src/components/PageResults/TableVisualizationRow/significance-negative.svg";
 import { ReactComponent as SignificanceNeutral } from "src/components/PageResults/TableVisualizationRow/significance-neutral.svg";
 import { ReactComponent as SignificancePositive } from "src/components/PageResults/TableVisualizationRow/significance-positive.svg";
 import TooltipWithMarkdown from "src/components/PageResults/TooltipWithMarkdown";
+import { ResultsContext } from "src/lib/contexts";
 import {
   BRANCH_COMPARISON,
   DISPLAY_TYPE,
@@ -30,6 +31,7 @@ const showSignificanceField = (
   tableLabel: string,
   tooltip: string,
   isControlBranch: boolean,
+  referenceBranch: string,
   branchComparison?: BranchComparisonValues,
 ) => {
   let significanceIcon,
@@ -54,7 +56,7 @@ const showSignificanceField = (
       significanceIcon = (
         <SignificanceNeutral data-tip={SIGNIFICANCE_TIPS.NEUTRAL} />
       );
-      changeText = "is similar to control";
+      changeText = `is similar to ${referenceBranch}`;
       break;
   }
 
@@ -132,6 +134,7 @@ const countField = (
   tableLabel: string,
   tooltip: string,
   isControlBranch: boolean,
+  referenceBranch: string,
   branchComparison: BranchComparisonValues,
 ) => {
   const interval = `${lower.toFixed(2)} to ${upper.toFixed(2)}`;
@@ -142,6 +145,7 @@ const countField = (
     tableLabel,
     tooltip,
     isControlBranch,
+    referenceBranch,
     branchComparison,
   );
 };
@@ -154,6 +158,7 @@ const percentField = (
   tableLabel: string,
   tooltip: string,
   isControlBranch: boolean,
+  referenceBranch: string,
   branchComparison?: BranchComparisonValues,
 ) => {
   const interval = `${Math.round(lower * 1000) / 10}% to ${
@@ -166,6 +171,7 @@ const percentField = (
     tableLabel,
     tooltip,
     isControlBranch,
+    referenceBranch,
     branchComparison,
   );
 };
@@ -192,6 +198,7 @@ const TableVisualizationRow: React.FC<{
   tooltip?: string;
   window?: string;
   bounds?: number;
+  referenceBranch: string;
 }> = ({
   metricKey,
   results,
@@ -204,10 +211,12 @@ const TableVisualizationRow: React.FC<{
   tooltip = "",
   window = "overall",
   bounds = 0.05,
+  referenceBranch = "",
 }) => {
   const { branch_data } = results;
   const metricData = branch_data[group][metricKey];
   const fieldList = [];
+  const { controlBranchName } = useContext(ResultsContext);
 
   let field = <>{metricName} is not available</>;
   let tooltipText =
@@ -223,16 +232,23 @@ const TableVisualizationRow: React.FC<{
       branch_data[GROUP.OTHER][METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE][
         "all"
       ];
-    const metricDataList = metricData[branchComparison]["all"];
+    const metricDataList =
+      branchComparison === BRANCH_COMPARISON.ABSOLUTE
+        ? metricData[branchComparison]["all"]
+        : metricData[branchComparison][referenceBranch]?.["all"];
 
-    userCountsList.sort(formattedAnalysisPointComparator);
-    metricDataList.sort(formattedAnalysisPointComparator);
+    if (metricDataList && metricDataList.length > 0) {
+      userCountsList.sort(formattedAnalysisPointComparator);
+      metricDataList.sort(formattedAnalysisPointComparator);
 
-    if (metricDataList.length > 0) {
       metricDataList.forEach((dataPoint: FormattedAnalysisPoint, i: number) => {
         const { lower, upper, point, count } = dataPoint;
         const userCountMetric = userCountsList[i]["point"];
-        const significance = metricData["significance"]?.[window][i + 1];
+        const significanceIndex = `${i + 1}`;
+        const significance =
+          metricData["significance"]?.[referenceBranch]?.[window]?.[
+            significanceIndex
+          ];
 
         switch (displayType) {
           case DISPLAY_TYPE.POPULATION:
@@ -247,6 +263,7 @@ const TableVisualizationRow: React.FC<{
               tableLabel,
               tooltipText,
               isControlBranch,
+              referenceBranch,
               branchComparison,
             );
             break;
@@ -260,6 +277,7 @@ const TableVisualizationRow: React.FC<{
               tableLabel,
               tooltipText,
               isControlBranch,
+              referenceBranch,
               branchComparison,
             );
             break;
@@ -281,6 +299,7 @@ const TableVisualizationRow: React.FC<{
     ) {
       const { point } = userCountsList[0];
       field = populationField(point!, percent);
+      fieldList.push({ field, tooltipText, className });
     }
   }
   /**
@@ -292,8 +311,27 @@ const TableVisualizationRow: React.FC<{
    * should fall back to "baseline".
    *
    * In either case, we need to push the current values below to be displayed.
+   *
+   * **Addition to above**
+   * A new case where this can happen is when the user has selected a non-control
+   * reference branch, but the experiment does not have pairwise branch comparison
+   * results. This means that there will be nothing to display for the branches
+   * as they compare to the selected reference branch.
+   *
+   * For this case, the display should be similar to the relative uplift for control,
+   * but with a different message to clarify that it is not baseline.
    **/
   if (fieldList.length === 0) {
+    if (
+      branchComparison !== BRANCH_COMPARISON.ABSOLUTE &&
+      referenceBranch !== controlBranchName &&
+      !isControlBranch
+    ) {
+      field = <div>(results not available)</div>;
+      tooltipText =
+        "This is likely because pairwise branch comparison results are not available for this experiment. Please select the experiment's configured control branch to view available results, or contact #ask-experimenter to request that analysis be rerun to get pairwise branch comparison results.";
+      className = "text-danger";
+    }
     fieldList.push({ field, tooltipText, className });
   }
 

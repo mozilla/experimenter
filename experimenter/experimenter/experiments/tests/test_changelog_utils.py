@@ -65,6 +65,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "is_rollout_dirty": False,
                 "is_sticky": False,
                 "languages": [],
+                "legal_signoff": False,
                 "locales": [],
                 "localizations": None,
                 "name": "",
@@ -80,11 +81,14 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "public_description": "",
                 "publish_status": NimbusExperiment.PublishStatus.IDLE,
                 "published_dto": None,
-                "qa_status": None,
+                "qa_comment": None,
+                "qa_signoff": False,
+                "qa_status": NimbusExperiment.QAStatus.NOT_SET,
                 "reference_branch": None,
                 "required_experiments": [],
                 "results_data": None,
                 "risk_brand": None,
+                "risk_message": None,
                 "risk_mitigation_link": "",
                 "risk_partner_related": None,
                 "risk_revenue": None,
@@ -92,13 +96,16 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": "",
                 "status": NimbusExperiment.Status.DRAFT,
                 "status_next": None,
+                "subscribers": [],
                 "takeaways_gain_amount": None,
                 "takeaways_metric_gain": False,
                 "takeaways_qbr_learning": False,
                 "takeaways_summary": None,
                 "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
                 "total_enrolled_clients": 0,
+                "vp_signoff": False,
                 "warn_feature_schema": False,
+                "published_date": None,
             },
         )
 
@@ -109,6 +116,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         primary_outcome = Outcomes.by_application(application)[0].slug
         secondary_outcome = Outcomes.by_application(application)[1].slug
         parent_experiment = NimbusExperimentFactory.create()
+        subscriber = UserFactory.create()
 
         updated_time = timezone.datetime(
             year=2022, month=1, day=2, hour=0, minute=0, second=0
@@ -126,6 +134,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 projects=[project],
                 primary_outcomes=[primary_outcome],
                 secondary_outcomes=[secondary_outcome],
+                subscribers=[subscriber],
                 parent=parent_experiment,
             )
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
@@ -159,6 +168,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "is_rollout": experiment.is_rollout,
                 "is_rollout_dirty": experiment.is_rollout_dirty,
                 "is_sticky": False,
+                "legal_signoff": False,
                 "localizations": experiment.localizations,
                 "name": experiment.name,
                 "owner": experiment.owner.email,
@@ -172,10 +182,13 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "proposed_release_date": "2020-01-01",
                 "public_description": experiment.public_description,
                 "publish_status": experiment.publish_status,
+                "qa_comment": experiment.qa_comment,
+                "qa_signoff": False,
                 "qa_status": experiment.qa_status,
                 "required_experiments": [],
                 "results_data": None,
                 "risk_brand": experiment.risk_brand,
+                "risk_message": experiment.risk_message,
                 "risk_mitigation_link": experiment.risk_mitigation_link,
                 "risk_partner_related": experiment.risk_partner_related,
                 "risk_revenue": experiment.risk_revenue,
@@ -183,13 +196,16 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": experiment.slug,
                 "status": experiment.status,
                 "status_next": experiment.status_next,
+                "subscribers": [subscriber.email],
                 "takeaways_gain_amount": None,
                 "takeaways_metric_gain": False,
                 "takeaways_qbr_learning": False,
                 "takeaways_summary": None,
                 "targeting_config_slug": experiment.targeting_config_slug,
                 "total_enrolled_clients": experiment.total_enrolled_clients,
+                "vp_signoff": False,
                 "warn_feature_schema": False,
+                "published_date": experiment.published_date,
             },
         )
 

@@ -1,7 +1,7 @@
 import datetime
-import os.path
 from decimal import Decimal
 from itertools import product
+from pathlib import Path
 from unittest import mock
 
 import packaging
@@ -27,6 +27,8 @@ from experimenter.experiments.models import (
     NimbusBranchScreenshot,
     NimbusBucketRange,
     NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
     NimbusFeatureVersion,
     NimbusIsolationGroup,
@@ -321,6 +323,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, f"(app_version|versionCompare('{version}') >= 0)"
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_min_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -338,6 +341,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.!') >= 0)"
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_max_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -355,6 +359,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.*') <= 0)"
         )
+        JEXLParser().parse(experiment.targeting)
 
     @parameterized.expand(
         [
@@ -389,6 +394,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             f"(app_version|versionCompare('{version.replace('!', '*')}') <= 0)",
         )
+        JEXLParser().parse(experiment.targeting)
 
     @parameterized.expand(
         [
@@ -426,6 +432,7 @@ class TestNimbusExperiment(TestCase):
                 f"&& (app_version|versionCompare('{version}') >= 0)"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_without_firefox_min_version(
         self,
@@ -755,7 +762,7 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[
                 NimbusFeatureConfig.objects.get(
                     application=NimbusExperiment.Application.DESKTOP,
-                    slug="prefSettingFeature",
+                    slug="oldSetPrefFeature",
                 )
             ],
         )
@@ -765,9 +772,9 @@ class TestNimbusExperiment(TestCase):
             (
                 '(browserSettings.update.channel == "release") && '
                 "((experiment.slug in activeExperiments) || ("
-                "(!('nimbus.test.string'|preferenceIsUserSet)) && "
+                "(!('nimbus.test.boolean'|preferenceIsUserSet)) && "
                 "(!('nimbus.test.int'|preferenceIsUserSet)) && "
-                "(!('nimbus.test.boolean'|preferenceIsUserSet))))"
+                "(!('nimbus.test.string'|preferenceIsUserSet))))"
             ),
         )
         JEXLParser().parse(experiment.targeting)
@@ -791,7 +798,7 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[
                 NimbusFeatureConfig.objects.get(
                     application=NimbusExperiment.Application.DESKTOP,
-                    slug="prefSettingFeature",
+                    slug="oldSetPrefFeature",
                 )
             ],
         )
@@ -805,26 +812,65 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (application, require, exclude, expected_targeting)
-            for (application, (require, exclude, expected_targeting)) in product(
-                list(NimbusExperiment.Application),
-                [
-                    ([], [], "true"),
-                    (["foo"], [], "('foo' in enrollments)"),
-                    ([], ["bar"], "(('bar' in enrollments) == false)"),
-                    (
-                        ["foo", "bar"],
-                        ["baz"],
+            for (application, (require, exclude, expected_targeting)) in [
+                *product(
+                    list(NimbusExperiment.Application),
+                    [
+                        ([], [], "true"),
+                        ([("foo", None)], [], "('foo' in enrollments)"),
+                        ([], [("bar", None)], "(('bar' in enrollments) == false)"),
                         (
-                            "(('baz' in enrollments) == false) && "
-                            "('foo' in enrollments) && "
-                            "('bar' in enrollments)"
+                            [("foo", None), ("bar", None)],
+                            [("baz", None)],
+                            (
+                                "(('baz' in enrollments) == false) && "
+                                "('foo' in enrollments) && "
+                                "('bar' in enrollments)"
+                            ),
+                        ),
+                    ],
+                ),
+                *[
+                    (
+                        NimbusExperiment.Application.DESKTOP,
+                        (
+                            [("foo", "control")],
+                            [],
+                            "(enrollmentsMap['foo'] == 'control')",
+                        ),
+                    ),
+                    (
+                        NimbusExperiment.Application.DESKTOP,
+                        (
+                            [],
+                            [("foo", "control")],
+                            "((enrollmentsMap['foo'] == 'control') == false)",
                         ),
                     ),
                 ],
-            )
+                *product(
+                    [
+                        app
+                        for app in NimbusExperiment.Application
+                        if app != NimbusExperiment.Application.DESKTOP
+                    ],
+                    [
+                        (
+                            [("foo", "control")],
+                            [],
+                            "(enrollments_map['foo'] == 'control')",
+                        ),
+                        (
+                            [],
+                            [("foo", "control")],
+                            "((enrollments_map['foo'] == 'control') == false)",
+                        ),
+                    ],
+                ),
+            ]
         ]
     )
-    def test_targeting_excluded_required_experiments(
+    def test_targeting_excluded_required_experiments_branches(
         self, application, require, exclude, expected_targeting
     ):
         experiments = {
@@ -844,12 +890,23 @@ class TestNimbusExperiment(TestCase):
             slug="slug",
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            required_experiments=[experiments[slug] for slug in require],
-            excluded_experiments=[experiments[slug] for slug in exclude],
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
+        for required_slug, required_branch_slug in require:
+            NimbusExperimentBranchThroughRequired.objects.create(
+                parent_experiment=experiment,
+                child_experiment=experiments[required_slug],
+                branch_slug=required_branch_slug,
+            )
+        for excluded_slug, excluded_branch_slug in exclude:
+            NimbusExperimentBranchThroughExcluded.objects.create(
+                parent_experiment=experiment,
+                child_experiment=experiments[excluded_slug],
+                branch_slug=excluded_branch_slug,
+            )
 
         self.assertEqual(experiment.targeting, expected_targeting)
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"
@@ -1420,7 +1477,7 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (False, NimbusExperimentFactory.Lifecycles.CREATED),
-            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
             (True, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING),
             (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
             (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
@@ -1450,6 +1507,17 @@ class TestNimbusExperiment(TestCase):
             slug="rollout-1-slug",
             is_rollout=False,
             status=NimbusExperiment.Status.COMPLETE,
+        )
+        self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
+
+    def test_rollouts_monitoring_dashboard_returns_none_when_long_ended(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="rollout-1-slug",
+            is_rollout=True,
+            status=NimbusExperiment.Status.COMPLETE,
+            start_date=datetime.date(2019, 5, 1),
+            end_date=datetime.date(2019, 5, 10),
         )
         self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
 
@@ -1710,8 +1778,8 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            ({"v2": {"overall": {"enrollments": {"all": {}}}}},),
-            ({"v2": {"weekly": {"enrollments": {"all": {}}}}},),
+            ({"v3": {"overall": {"enrollments": {"all": {}}}}},),
+            ({"v3": {"weekly": {"enrollments": {"all": {}}}}},),
         ]
     )
     def test_has_displayable_results_true(self, results_data):
@@ -1724,13 +1792,13 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             ({},),
-            ({"v2": {}},),
-            ({"v2": {"overall": {}}},),
-            ({"v2": {"weekly": {}}},),
-            ({"v2": {"overall": {"enrollments": {}}}},),
-            ({"v2": {"weekly": {"enrollments": {}}}},),
-            ({"v2": {"overall": {"enrollments": {"all": None}}}},),
-            ({"v2": {"weekly": {"enrollments": {"all": None}}}},),
+            ({"v3": {}},),
+            ({"v3": {"overall": {}}},),
+            ({"v3": {"weekly": {}}},),
+            ({"v3": {"overall": {"enrollments": {}}}},),
+            ({"v3": {"weekly": {"enrollments": {}}}},),
+            ({"v3": {"overall": {"enrollments": {"all": None}}}},),
+            ({"v3": {"weekly": {"enrollments": {"all": None}}}},),
         ]
     )
     def test_has_displayable_results_false(self, results_data):
@@ -1745,7 +1813,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, start_date=datetime.date(2020, 1, 1), proposed_enrollment=2
         )
-        experiment.results_data = {"v2": {"overall": {"enrollments": {"all": {}}}}}
+        experiment.results_data = {"v3": {"overall": {"enrollments": {"all": {}}}}}
         experiment.is_rollout = False
         experiment.save()
 
@@ -1755,12 +1823,12 @@ class TestNimbusExperiment(TestCase):
         [
             ({}, datetime.date(2020, 1, 1), False),
             (
-                {"v2": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"overall": {"enrollments": {"all": {}}}}},
                 datetime.date.today(),
                 False,
             ),
             (
-                {"v2": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"overall": {"enrollments": {"all": {}}}}},
                 datetime.date(2020, 1, 1),
                 True,
             ),
@@ -1783,24 +1851,24 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 datetime.date(2020, 1, 1),
                 None,
-                False,
+                None,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 datetime.date.today(),
                 None,
-                False,
+                None,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
                 datetime.date(2020, 1, 1),
                 datetime.date(2020, 2, 3),
-                True,
+                datetime.date(2020, 1, 5),
             ),
         ]
     )
     def test_results_expected_date(
-        self, lifecycle, start_date, end_date, is_paused_published
+        self, lifecycle, start_date, end_date, enrollment_end_date
     ):
         proposed_enrollment = 2
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1809,12 +1877,20 @@ class TestNimbusExperiment(TestCase):
             end_date=end_date,
             proposed_enrollment=proposed_enrollment,
         )
+        if enrollment_end_date:
+            experiment._enrollment_end_date = enrollment_end_date
+            experiment.is_paused = True
+            experiment.save()
 
-        expected_date = (
-            start_date
-            + datetime.timedelta(days=proposed_enrollment)
-            + datetime.timedelta(days=NimbusConstants.DAYS_UNTIL_ANALYSIS)
-        )
+            expected_date = enrollment_end_date + datetime.timedelta(
+                days=NimbusConstants.DAYS_UNTIL_ANALYSIS
+            )
+        else:
+            expected_date = (
+                start_date
+                + datetime.timedelta(days=proposed_enrollment)
+                + datetime.timedelta(days=NimbusConstants.DAYS_UNTIL_ANALYSIS)
+            )
         self.assertEqual(experiment.results_expected_date, expected_date)
 
     def test_results_expected_date_null(self):
@@ -2072,8 +2148,17 @@ class TestNimbusExperiment(TestCase):
             conclusion_recommendation="RERUN",
             takeaways_summary="takeaway",
         )
-        parent.required_experiments.add(required_experiment)
-        parent.excluded_experiments.add(excluded_experiment)
+        NimbusExperimentBranchThroughRequired.objects.create(
+            parent_experiment=parent,
+            child_experiment=required_experiment,
+            branch_slug=required_experiment.reference_branch.slug,
+        )
+        NimbusExperimentBranchThroughExcluded.objects.create(
+            parent_experiment=parent,
+            child_experiment=excluded_experiment,
+            branch_slug=excluded_experiment.reference_branch.slug,
+        )
+
         child = self._clone_experiment_and_assert_common_expectations(parent)
 
         # Specifically assert default values for a clone of a newly-created experiment
@@ -2111,6 +2196,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.languages.all().count(), 0)
         self.assertEqual(child.projects.all().count(), 0)
         self.assertEqual(child.branches.all().count(), 0)
+        self.assertEqual(child.subscribers.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
         self.assertIsNone(child.takeaways_gain_amount)
@@ -2177,13 +2263,15 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.release_date, None)
         self.assertEqual(child.enrollment_start_date, None)
         self.assertEqual(child.published_dto, None)
+        self.assertEqual(child.published_date, None)
         self.assertEqual(child.results_data, None)
         self.assertEqual(child.takeaways_gain_amount, None)
         self.assertEqual(child.takeaways_metric_gain, False)
         self.assertEqual(child.takeaways_qbr_learning, False)
         self.assertEqual(child.takeaways_summary, None)
         self.assertEqual(child.conclusion_recommendation, None)
-        self.assertEqual(child.qa_status, None)
+        self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
+        self.assertEqual(child.qa_comment, None)
         self.assertEqual(child._start_date, None)
         self.assertEqual(child._end_date, None)
         self.assertEqual(child._enrollment_end_date, None)
@@ -2228,16 +2316,40 @@ class TestNimbusExperiment(TestCase):
             set(child.projects.all().values_list("slug", flat=True)),
             set(parent.projects.all().values_list("slug", flat=True)),
         )
+        self.assertEqual(
+            set(child.subscribers.all().values_list("id", flat=True)),
+            set(),
+        )
 
         self.assertEqual(child.is_rollout, parent.is_rollout)
 
         self.assertEqual(
-            set(parent.required_experiments.all().values_list("slug", flat=True)),
-            set(child.required_experiments.all().values_list("slug", flat=True)),
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughRequired.objects.filter(
+                    parent_experiment=parent
+                )
+            },
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughRequired.objects.filter(
+                    parent_experiment=child
+                )
+            },
         )
         self.assertEqual(
-            set(parent.excluded_experiments.all().values_list("slug", flat=True)),
-            set(child.excluded_experiments.all().values_list("slug", flat=True)),
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughExcluded.objects.filter(
+                    parent_experiment=parent
+                )
+            },
+            {
+                (eb.child_experiment.slug, eb.branch_slug)
+                for eb in NimbusExperimentBranchThroughExcluded.objects.filter(
+                    parent_experiment=child
+                )
+            },
         )
 
         for parent_link in parent.documentation_links.all():
@@ -2446,6 +2558,278 @@ class TestNimbusExperiment(TestCase):
                 }
             ],
         )
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.FENIX, 3),
+            (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.DESKTOP, 0),
+        ]
+    )
+    def test_get_live_multifeature_experiments_for_feature(
+        self,
+        application1,
+        application2,
+        expected_matches,
+    ):
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application1,
+            feature_configs=[feature1, feature2],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application2,
+            feature_configs=[feature1],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), expected_matches)
+
+    def test_get_live_multifeature_experiments_for_feature_no_live(self):
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            feature_configs=[feature1, feature2],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature1, feature2],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature1, feature2],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), 0)
+
+    def test_get_live_multifeature_experiments_for_feature_no_live_multifeature(self):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1, feature2],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), 0)
+
+    def test_get_live_multifeature_experiments_none(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+        )
+
+        experiments = experiment.feature_has_live_multifeature_experiments
+        self.assertEqual(len(experiments), 0)
+
+    def test_get_live_excluded_experiments(self):
+        experiments = {
+            slug: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                application=NimbusExperiment.Application.DESKTOP,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            )
+            for slug in ("foo", "bar", "baz")
+        }
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug",
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        for excluded_slug, excluded_branch_slug in [("foo", "control")]:
+            NimbusExperimentBranchThroughExcluded.objects.create(
+                parent_experiment=experiment,
+                child_experiment=experiments[excluded_slug],
+                branch_slug=excluded_branch_slug,
+            )
+
+        excluded_live_experiments = experiment.excluded_live_deliveries
+        self.assertEqual(len(excluded_live_experiments), 1)
+        self.assertEqual(excluded_live_experiments.first(), experiments["foo"].slug)
+
+    def test_get_no_live_excluded_experiments(self):
+        for slug in ("foo", "bar", "baz"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="slug",
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        excluded_live_experiments = experiment.excluded_live_deliveries
+        self.assertEqual(len(excluded_live_experiments), 0)
+        self.assertEqual(excluded_live_experiments, [])
+
+    def test_get_live_experiments_in_previous_namespaces(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        experiments = {
+            slug: NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                channel=NimbusExperiment.Channel.RELEASE,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+                feature_configs=[feature],
+            )
+            for slug in ("foo", "bar", "baz")
+        }
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            feature_configs=[feature],
+        )
+
+        self.assertEqual(
+            list(experiment.live_experiments_in_namespace),
+            [
+                experiments["bar"].slug,
+                experiments["baz"].slug,
+                experiments["foo"].slug,
+            ],
+        )
+
+    def test_get_live_experiments_do_not_exist_in_previous_namespaces(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+
+        for slug in ("foo", "bar", "baz"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                channel=NimbusExperiment.Channel.RELEASE,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+                feature_configs=[feature],
+            )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 0)
+
+    def test_get_live_experiments_in_different_namespaces(self):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+
+        for slug in ("foo", "bar", "baz"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                channel=NimbusExperiment.Channel.RELEASE,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+                feature_configs=[feature1],
+            )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature2],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 0)
+
+    def test_get_live_experiments_in_different_namespaces_excludes_self(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="slug2",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[NimbusFeatureConfigFactory.create()],
+        )
+
+        matching_experiments = experiment.live_experiments_in_namespace
+        self.assertEqual(len(matching_experiments), 0)
 
 
 class TestNimbusBranch(TestCase):
@@ -2807,8 +3191,8 @@ class TestNimbusBranchScreenshot(TestCase):
         with mock.patch.object(self.screenshot.image.storage, "save") as mock_save:
             mock_uuid4.return_value = "predictable"
             mock_save.return_value = "saved/path/dontcare"
-            expected_filename = os.path.join(
-                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            expected_filename = str(
+                Path(self.experiment.slug, f"{mock_uuid4.return_value}.png"),
             )
             max_length = NimbusBranchScreenshot._meta.get_field("image").max_length
             self.screenshot.save()
@@ -2820,8 +3204,8 @@ class TestNimbusBranchScreenshot(TestCase):
     def test_nimbus_branch_screenshot_delete_previous_on_save_change(self, mock_uuid4):
         with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
             mock_uuid4.return_value = "predictable"
-            expected_filename = os.path.join(
-                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            expected_filename = str(
+                Path(self.experiment.slug, f"{mock_uuid4.return_value}.png"),
             )
             self.screenshot.save()
             new_image = SimpleUploadedFile("Capture2.PNG", b"fake new image")
@@ -2844,8 +3228,8 @@ class TestNimbusBranchScreenshot(TestCase):
     def test_nimbus_branch_screenshot_delete(self, mock_uuid4):
         with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
             mock_uuid4.return_value = "predictable"
-            expected_filename = os.path.join(
-                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            expected_filename = str(
+                Path(self.experiment.slug, f"{mock_uuid4.return_value}.png"),
             )
             self.screenshot.save()
             self.screenshot.delete()
@@ -2873,10 +3257,9 @@ class NimbusFeatureConfigTests(TestCase):
         schemas = {
             schema.version: schema
             for schema in NimbusVersionedSchema.objects.bulk_create(
-                NimbusVersionedSchema(
+                NimbusVersionedSchemaFactory.build(
                     feature_config=feature,
                     version=versions[(major, minor, patch)],
-                    sets_prefs=[],
                 )
                 for major in range(1, 3)
                 for minor in range(3)

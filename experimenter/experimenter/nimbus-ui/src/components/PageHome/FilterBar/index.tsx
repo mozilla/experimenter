@@ -102,12 +102,26 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           optionLabelName="label"
           {...{ filterValue, onChange }}
         />
+        <FilterSelect
+          fieldLabel="QA Status"
+          fieldOptions={options.qaStatus!}
+          filterValueName="qaStatus"
+          optionLabelName="label"
+          {...{ filterValue, onChange }}
+        />
+        <FilterSelect
+          fieldLabel="Subscriber"
+          fieldOptions={options.subscribers!}
+          filterValueName="subscribers"
+          optionLabelName="username"
+          {...{ filterValue, onChange }}
+        />
       </Nav>
     </Navbar>
   );
 };
 
-type FilterSelectProps<
+export type FilterSelectProps<
   K extends FilterValueKeys,
   T extends NonNullFilterOptions<K>,
 > = {
@@ -116,10 +130,10 @@ type FilterSelectProps<
   filterValueName: K;
   fieldLabel: string;
   fieldOptions: T;
-  optionLabelName: keyof NonNullFilterOption<K>;
+  optionLabelName?: keyof NonNullFilterOption<K>;
 };
 
-const FilterSelect = <
+export const FilterSelect = <
   K extends FilterValueKeys,
   T extends NonNullFilterOptions<K>,
 >({
@@ -153,7 +167,7 @@ const FilterSelect = <
           isMulti: true,
           value: fieldValue,
           isDisabled: loading,
-          placeholder: "All " + fieldLabel + "s",
+          placeholder: pluralizeTitle(fieldLabel),
           getOptionLabel: (item: OptionType) =>
             fieldLabel === "Feature"
               ? item[optionLabelName as string] +
@@ -178,6 +192,11 @@ const FilterSelect = <
       />
     </Nav.Item>
   );
+};
+
+export const pluralizeTitle = (fieldLabel: string) => {
+  const label = fieldLabel.endsWith("s") ? fieldLabel + "es" : fieldLabel + "s";
+  return "All " + label;
 };
 
 export default FilterBar;

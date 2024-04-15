@@ -43,15 +43,9 @@ LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.js
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_projects
-PYTHON_PATH_SDK = PYTHONPATH=/application-services/megazord
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
-
-FIREFOX_ANDROID_REPO = @mozilla-mobile/firefox-android
-FIREFOX_IOS_REPO     = @mozilla-mobile/firefox-ios
-FOCUS_IOS_REPO       = @mozilla-mobile/focus-ios
-MONITOR_REPO         = @mozilla/blurts-server
 
 CLI_DIR = experimenter/experimenter/features/manifests/application-services
 CLI_INSTALLER = $(CLI_DIR)/install-nimbus-cli.sh
@@ -102,16 +96,28 @@ update_kinto:  ## Update latest Kinto/Remote Settings container
 compose_build:  ## Build containers
 	$(COMPOSE) build
 
-build_dev: ssl
+build_megazords:
+	$(DOCKER_BUILD) -f application-services/Dockerfile -t experimenter:megazords application-services/
+
+update_application_services: build_megazords
+	docker run \
+		-v ./application-services/application-services.env:/application-services/application-services.env \
+		experimenter:megazords \
+		/application-services/update-application-services.sh
+
+build_dev: ssl build_megazords
 	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
-build_test: ssl
+build_integration_test: ssl build_megazords
+	$(DOCKER_BUILD) -f experimenter/tests/integration/Dockerfile -t experimenter:integration-tests experimenter/
+
+build_test: ssl build_megazords
 	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
 build_ui: ssl
 	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
 
-build_prod: ssl
+build_prod: ssl build_megazords
 	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
@@ -202,11 +208,11 @@ dependabot_approve:
 integration_shell:
 	$(COMPOSE_INTEGRATION) run firefox bash
 
-integration_sdk_shell: build_prod
-	$(PYTHON_PATH_SDK) $(COMPOSE_INTEGRATION) run rust-sdk bash
+integration_sdk_shell: build_prod build_integration_test
+	$(COMPOSE_INTEGRATION) run rust-sdk bash
 
 integration_vnc_up: build_prod
-	$(COMPOSE_INTEGRATION) up
+	$(COMPOSE_INTEGRATION) up firefox
 
 integration_vnc_up_detached: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
@@ -217,8 +223,8 @@ integration_test_legacy: build_prod
 integration_test_nimbus: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "if [ \"$$UPDATE_FIREFOX_VERSION\" = \"true\" ]; then sudo ./experimenter/tests/integration/nimbus/utils/nightly-install.sh; fi; firefox -V; sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/experimenter/tests/integration/.tox;sudo mkdir -m a+rwx /code/experimenter/tests/integration/test-reports;PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) tox -c experimenter/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
 
-integration_test_nimbus_rust: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod -R a+rwx /code/experimenter/tests/integration/;sudo mkdir -m a+rwx /code/experimenter/tests/integration/test-reports;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
+integration_test_nimbus_rust: build_integration_test build_prod
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run -it rust-sdk tox -vv -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)
 
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&
@@ -231,10 +237,10 @@ CIRRUS_PYTHON_TYPECHECK = pyright -p .
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
-cirrus_build:
+cirrus_build: build_megazords
 	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
 
-cirrus_build_test:
+cirrus_build_test: build_megazords
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
 
 cirrus_bash: cirrus_build
@@ -284,37 +290,39 @@ SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npm
 SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
 SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 
-schemas_build:  ## Build schemas
+schemas_docker_build:  ## Build schemas docker image
 	$(DOCKER_BUILD) --target dev -f schemas/Dockerfile -t schemas:dev schemas/
 
-schemas_bash: schemas_build
+schemas_build: schemas_docker_build schemas_dist  ## Build schemas
+
+schemas_bash: schemas_docker_build
 	$(SCHEMAS_RUN) "bash"
 
-schemas_format: schemas_build  ## Format schemas source tree
+schemas_format: schemas_docker_build  ## Format schemas source tree
 	$(SCHEMAS_RUN) "$(SCHEMAS_FORMAT)"
 
-schemas_lint: schemas_build  ## Lint schemas source tree
+schemas_lint: schemas_docker_build  ## Lint schemas source tree
 	$(SCHEMAS_RUN) "$(SCHEMAS_BLACK)&&$(SCHEMAS_RUFF)&&$(SCHEMAS_DIFF_PYDANTIC)&&$(SCHEMAS_TEST)"
 schemas_check: schemas_lint
 
-schemas_dist_pypi: schemas_build
+schemas_dist_pypi: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_PYPI)"
 
-schemas_dist_npm: schemas_build
+schemas_dist_npm: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_NPM)"
 
-schemas_dist: schemas_build schemas_dist_pypi schemas_dist_npm
+schemas_dist: schemas_docker_build schemas_dist_pypi schemas_dist_npm
 
-schemas_deploy_pypi: schemas_build
+schemas_deploy_pypi: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_PYPI)"
 
-schemas_deploy_npm: schemas_build
+schemas_deploy_npm: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_NPM)"
 
-schemas_version_pypi: schemas_build
+schemas_version_pypi: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_VERSION_PYPI)"
 
-schemas_version_npm: schemas_build
+schemas_version_npm: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_VERSION_NPM)"
 
 schemas_version: schemas_version_pypi schemas_version_npm

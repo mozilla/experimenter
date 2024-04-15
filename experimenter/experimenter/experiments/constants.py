@@ -97,7 +97,6 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     app_name="firefox_ios",
     channel_app_id={
         Channel.DEVELOPER: "org.mozilla.ios.Fennec",
-        Channel.NIGHTLY: "org.mozilla.ios.Fennec",
         Channel.BETA: "org.mozilla.ios.FirefoxBeta",
         Channel.RELEASE: "org.mozilla.ios.Firefox",
     },
@@ -172,6 +171,30 @@ APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     is_web=True,
 )
 
+APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
+    name="VPN Web",
+    slug="vpn-web",
+    app_name="mozillavpn_backend_cirrus",
+    channel_app_id={
+        Channel.PRODUCTION: "mozillavpn_backend_cirrus",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+    is_web=True,
+)
+
+APPLICATION_CONFIG_FXA_WEB = ApplicationConfig(
+    name="Firefox Accounts Web",
+    slug="fxa-web",
+    app_name="accounts_cirrus",
+    channel_app_id={
+        Channel.PRODUCTION: "accounts.cirrus",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+    is_web=True,
+)
+
 APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
     name="Demo App",
     slug="demo-app",
@@ -184,7 +207,6 @@ APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
 )
-
 
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
@@ -222,6 +244,14 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_MONITOR_WEB.slug,
         APPLICATION_CONFIG_MONITOR_WEB.name,
     )
+    VPN = (
+        APPLICATION_CONFIG_VPN_WEB.slug,
+        APPLICATION_CONFIG_VPN_WEB.name,
+    )
+    FXA = (
+        APPLICATION_CONFIG_FXA_WEB.slug,
+        APPLICATION_CONFIG_FXA_WEB.name,
+    )
     DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
@@ -240,6 +270,8 @@ class Application(models.TextChoices):
         return application in (
             Application.DEMO_APP,
             Application.MONITOR,
+            Application.VPN,
+            Application.FXA,
         )
 
 
@@ -277,12 +309,14 @@ class NimbusConstants:
         "is_archived",
         "changelog_message",
         "qa_status",
+        "qa_comment",
     )
 
     class QAStatus(models.TextChoices):
         RED = "RED"
         YELLOW = "YELLOW"
         GREEN = "GREEN"
+        NOT_SET = "NOT SET"
 
     APPLICATION_CONFIGS = {
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
@@ -293,6 +327,8 @@ class NimbusConstants:
         Application.FOCUS_IOS: APPLICATION_CONFIG_FOCUS_IOS,
         Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
         Application.MONITOR: APPLICATION_CONFIG_MONITOR_WEB,
+        Application.VPN: APPLICATION_CONFIG_VPN_WEB,
+        Application.FXA: APPLICATION_CONFIG_FXA_WEB,
         Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
     }
 
@@ -430,6 +466,7 @@ class NimbusConstants:
         FIREFOX_114_3_0 = "114.3.0"
         FIREFOX_115 = "115.!"
         FIREFOX_115_0_2 = "115.0.2"
+        FIREFOX_115_7 = "115.7.0"
         FIREFOX_116 = "116.!"
         FIREFOX_116_0_1 = "116.0.1"
         FIREFOX_116_2_0 = "116.2.0"
@@ -441,9 +478,15 @@ class NimbusConstants:
         FIREFOX_119 = "119.!"
         FIREFOX_120 = "120.!"
         FIREFOX_121 = "121.!"
+        FIREFOX_121_0_1 = "121.0.1"
         FIREFOX_122 = "122.!"
+        FIREFOX_122_1_0 = "122.1.0"
+        FIREFOX_122_2_0 = "122.2.0"
         FIREFOX_123 = "123.!"
+        FIREFOX_123_0_1 = "123.0.1"
         FIREFOX_124 = "124.!"
+        FIREFOX_124_2_0 = "124.2.0"
+        FIREFOX_124_3_0 = "124.3.0"
         FIREFOX_125 = "125.!"
         FIREFOX_125_0_1 = "125.0.1"
         FIREFOX_126 = "126.!"
@@ -474,6 +517,10 @@ class NimbusConstants:
         Application.FOCUS_ANDROID: Version.FIREFOX_102,
         Application.IOS: Version.FIREFOX_101,
         Application.FOCUS_IOS: Version.FIREFOX_101,
+        Application.DEMO_APP: Version.NO_VERSION,
+        Application.MONITOR: Version.NO_VERSION,
+        Application.VPN: Version.NO_VERSION,
+        Application.FXA: Version.NO_VERSION,
     }
 
     COUNTRIES_APPLICATION_SUPPORTED_VERSION = {
@@ -481,6 +528,10 @@ class NimbusConstants:
         Application.FOCUS_ANDROID: Version.FIREFOX_102,
         Application.IOS: Version.FIREFOX_101,
         Application.FOCUS_IOS: Version.FIREFOX_101,
+        Application.DEMO_APP: Version.NO_VERSION,
+        Application.MONITOR: Version.NO_VERSION,
+        Application.VPN: Version.NO_VERSION,
+        Application.FXA: Version.NO_VERSION,
     }
 
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
@@ -632,6 +683,32 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Feature {feature_config} is not supported by any version in this range."
     )
 
-    ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSION = (
-        "Feature {feature_config} is not supported in version {version}."
+    ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS = (
+        "In versions {versions}: Feature {feature_config} is not supported"
     )
+
+    ERROR_FEATURE_VALUE_IN_VERSIONS = "In versions {versions}: {error}"
+
+    WARNING_ROLLOUT_PREF_REENROLL = (
+        "WARNING: One or more features of this rollouts sets prefs and this rollout is "
+        "not configured to prevent pref conflicts. Users that change prefs set by this "
+        "rollout will re-enroll in this rollout, which will result in overriding their "
+        "changes."
+    )
+
+    # There is a maximum size for prefs that Desktop can write. It will warn at
+    # 4KiB and hard error at 1MiB.
+    # https://searchfox.org/mozilla-central/rev/6b8a3f804789fb865f42af54e9d2fef9dd3ec74d/modules/libpref/Preferences.cpp#161-164
+    LARGE_PREF_WARNING_LEN = 4 * 1024
+    LARGE_PREF_ERROR_LEN = 1024 * 1024
+
+    WARNING_LARGE_PREF = (
+        "The variable '{variable}' will cause Firefox to write a pref over "
+        "4KB size because {reason}. This should be avoided if possible."
+    )
+    ERROR_LARGE_PREF = (
+        "The variable '{variable}' will cause Firefox to write a pref over "
+        "1MB in size because {reason}. This will cause errors in the client."
+    )
+    IS_EARLY_STARTUP_REASON = "the feature {feature} is marked isEarlyStartup"
+    SET_PREF_REASON = "the variable is a setPref variable"

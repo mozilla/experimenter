@@ -21,7 +21,7 @@ export interface getAllExperiments_experiments_featureConfigs {
   slug: string;
   name: string;
   description: string | null;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   ownerEmail: string | null;
 }
 
@@ -39,6 +39,13 @@ export interface getAllExperiments_experiments_projects {
   name: string | null;
 }
 
+export interface getAllExperiments_experiments_subscribers {
+  /**
+   * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+   */
+  username: string;
+}
+
 export interface getAllExperiments_experiments {
   isArchived: boolean | null;
   isRollout: boolean | null;
@@ -47,16 +54,14 @@ export interface getAllExperiments_experiments {
   featureConfigs: getAllExperiments_experiments_featureConfigs[] | null;
   targetingConfig: (getAllExperiments_experiments_targetingConfig | null)[] | null;
   slug: string;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum | null;
   startDate: DateTime | null;
   isRolloutDirty: boolean;
   isEnrollmentPausePending: boolean | null;
-  isEnrollmentPaused: boolean | null;
   proposedDuration: number;
   proposedEnrollment: number;
-  proposedReleaseDate: string | null;
   computedEndDate: DateTime | null;
   computedEnrollmentEndDate: DateTime | null;
   status: NimbusExperimentStatusEnum | null;
@@ -65,13 +70,12 @@ export interface getAllExperiments_experiments {
   qaStatus: NimbusExperimentQAStatusEnum | null;
   monitoringDashboardUrl: string | null;
   rolloutMonitoringDashboardUrl: string | null;
-  resultsExpectedDate: DateTime | null;
   resultsReady: boolean | null;
   showResultsUrl: boolean | null;
   channel: NimbusExperimentChannelEnum | null;
   populationPercent: string | null;
   projects: (getAllExperiments_experiments_projects | null)[] | null;
-  hypothesis: string | null;
+  subscribers: getAllExperiments_experiments_subscribers[];
   takeawaysMetricGain: boolean;
   takeawaysQbrLearning: boolean;
 }

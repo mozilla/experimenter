@@ -15,34 +15,37 @@ import {
   SubjectBranch,
 } from "src/components/PageEditBranches/FormBranches/mocks";
 import { FIELD_MESSAGES } from "src/lib/constants";
+import { mockExperimentQuery } from "src/lib/mocks";
 
 describe("FormBranch", () => {
+  const { experiment } = mockExperimentQuery("boo", {});
   it("renders as expected", () => {
-    render(<SubjectBranch />);
+    render(<SubjectBranch experiment={experiment} />);
     expect(screen.getByTestId("FormBranch")).toBeInTheDocument();
     expect(screen.queryByTestId("control-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("equal-ratio")).not.toBeInTheDocument();
   });
 
   it("does nothing on form submission", () => {
-    render(<SubjectBranch />);
+    render(<SubjectBranch experiment={experiment} />);
     const form = screen.getByTestId("FormBranch");
     fireEvent.submit(form);
   });
 
   it("includes a control label when reference branch", () => {
-    render(<SubjectBranch isReference />);
+    render(<SubjectBranch experiment={experiment} isReference />);
     expect(screen.getByTestId("control-pill")).toBeInTheDocument();
   });
 
   it("indicates equal ratio when enabled", () => {
-    render(<SubjectBranch equalRatio />);
+    render(<SubjectBranch experiment={experiment} equalRatio />);
     expect(screen.getByTestId("equal-ratio")).toBeInTheDocument();
   });
 
   it("displays feature value edit when value is non-null", () => {
     render(
       <SubjectBranch
+        experiment={experiment}
         branch={{
           ...MOCK_ANNOTATED_BRANCH,
           featureValues: [{ value: "this is a default value" }],
@@ -56,7 +59,7 @@ describe("FormBranch", () => {
 
   it("calls onRemove when the branch remove button is clicked", async () => {
     const onRemove = jest.fn();
-    render(<SubjectBranch {...{ onRemove }} />);
+    render(<SubjectBranch experiment={experiment} {...{ onRemove }} />);
     fireEvent.click(screen.getByTestId("remove-branch"));
     expect(onRemove).toHaveBeenCalled();
   });
@@ -65,7 +68,9 @@ describe("FormBranch", () => {
     const branch = {
       ...MOCK_ANNOTATED_BRANCH,
     };
-    const { container } = render(<SubjectBranch {...{ branch }} />);
+    const { container } = render(
+      <SubjectBranch experiment={experiment} {...{ branch }} />,
+    );
     const field = screen.getByTestId("referenceBranch.ratio");
     act(() => {
       fireEvent.change(field, { target: { value: "abc" } });
@@ -83,7 +88,9 @@ describe("FormBranch", () => {
     const branch = {
       ...MOCK_ANNOTATED_BRANCH,
     };
-    const { container } = render(<SubjectBranch {...{ branch }} />);
+    const { container } = render(
+      <SubjectBranch experiment={experiment} {...{ branch }} />,
+    );
     const field = screen.getByTestId("referenceBranch.name");
     act(() => {
       fireEvent.change(field, { target: { value: "" } });
@@ -104,7 +111,9 @@ describe("FormBranch", () => {
         description: ["This description is boring"],
       },
     };
-    const { container } = render(<SubjectBranch branch={branch} />);
+    const { container } = render(
+      <SubjectBranch experiment={experiment} branch={branch} />,
+    );
     await assertInvalidField(container, "referenceBranch.description");
   });
 
@@ -114,7 +123,7 @@ describe("FormBranch", () => {
       featureValues: [],
     };
 
-    render(<SubjectBranch branch={branch} />);
+    render(<SubjectBranch experiment={experiment} branch={branch} />);
 
     expect(
       screen.queryByTestId("referenceBranch.featureValues[0].value"),
@@ -140,7 +149,7 @@ describe("FormBranch", () => {
       ],
     };
 
-    render(<SubjectBranch branch={branch} />);
+    render(<SubjectBranch experiment={experiment} branch={branch} />);
 
     const inputs = [
       screen.getByTestId(

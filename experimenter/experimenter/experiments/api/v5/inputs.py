@@ -33,9 +33,24 @@ class BranchInput(graphene.InputObjectType):
     screenshots = graphene.List(BranchScreenshotInput)
 
 
+class NimbusExperimentSubscriberInput(graphene.InputObjectType):
+    email = graphene.String(required=True)
+    subscribed = graphene.Boolean(required=True)
+
+
 class DocumentationLinkInput(graphene.InputObjectType):
     title = NimbusExperimentDocumentationLinkEnum(required=True)
     link = graphene.String(required=True)
+
+
+class NimbusExperimentBranchThroughRequiredInput(graphene.InputObjectType):
+    required_experiment = graphene.NonNull(graphene.Int)
+    branch_slug = graphene.String()
+
+
+class NimbusExperimentBranchThroughExcludedInput(graphene.InputObjectType):
+    excluded_experiment = graphene.NonNull(graphene.Int)
+    branch_slug = graphene.String()
 
 
 class ExperimentInput(graphene.InputObjectType):
@@ -45,7 +60,9 @@ class ExperimentInput(graphene.InputObjectType):
     conclusion_recommendation = NimbusExperimentConclusionRecommendationEnum()
     countries = graphene.List(graphene.String)
     documentation_links = graphene.List(DocumentationLinkInput)
-    excluded_experiments = graphene.List(graphene.NonNull(graphene.Int))
+    excluded_experiments_branches = graphene.List(
+        graphene.NonNull(NimbusExperimentBranchThroughExcludedInput)
+    )
     feature_config_ids = graphene.List(graphene.Int)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
@@ -58,6 +75,7 @@ class ExperimentInput(graphene.InputObjectType):
     is_rollout = graphene.Boolean()
     is_sticky = graphene.Boolean()
     languages = graphene.List(graphene.String)
+    legal_signoff = graphene.Boolean()
     locales = graphene.List(graphene.String)
     localizations = graphene.String()
     name = graphene.String()
@@ -70,16 +88,25 @@ class ExperimentInput(graphene.InputObjectType):
     proposed_release_date = graphene.String()
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
+    qa_comment = graphene.String()
+    qa_signoff = graphene.Boolean()
     qa_status = NimbusExperimentQAStatusEnum()
     reference_branch = graphene.Field(BranchInput)
-    required_experiments = graphene.List(graphene.NonNull(graphene.Int))
+    required_experiments_branches = graphene.List(
+        graphene.NonNull(NimbusExperimentBranchThroughRequiredInput)
+    )
     risk_brand = graphene.Boolean()
+    risk_message = graphene.Boolean()
     risk_mitigation_link = graphene.String()
     risk_partner_related = graphene.Boolean()
     risk_revenue = graphene.Boolean()
     secondary_outcomes = graphene.List(graphene.String)
     status = NimbusExperimentStatusEnum()
     status_next = NimbusExperimentStatusEnum()
+    subscribers = graphene.List(
+        graphene.NonNull(NimbusExperimentSubscriberInput),
+        required=False,
+    )
     takeaways_metric_gain = graphene.Boolean(required=False)
     takeaways_gain_amount = graphene.String()
     takeaways_qbr_learning = graphene.Boolean(required=False)
@@ -87,6 +114,7 @@ class ExperimentInput(graphene.InputObjectType):
     targeting_config_slug = graphene.String()
     total_enrolled_clients = graphene.Int()
     treatment_branches = graphene.List(BranchInput)
+    vp_signoff = graphene.Boolean()
     warn_feature_schema = graphene.Boolean()
 
 

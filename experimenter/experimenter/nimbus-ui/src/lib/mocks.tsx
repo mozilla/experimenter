@@ -47,6 +47,7 @@ import {
   NimbusExperimentDocumentationLinkEnum,
   NimbusExperimentFirefoxVersionEnum,
   NimbusExperimentPublishStatusEnum,
+  NimbusExperimentQAStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
 
@@ -327,6 +328,11 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     { username: "beta-example@mozilla.com" },
     { username: "gamma-example@mozilla.com" },
   ],
+  subscribers: [
+    { username: "best-pm-evr@mozilla.com" },
+    { username: "mac-user-123@mozilla.com" },
+    { username: "fx-lvr@mozilla.com" },
+  ],
   targetingConfigs: [
     {
       label: "Mac Only",
@@ -435,6 +441,25 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   populationSizingData: JSON.stringify(MOCK_SIZING),
+  qaStatus: [
+    {
+      label: "RED",
+      value: NimbusExperimentQAStatusEnum.RED,
+    },
+    {
+      label: "YELLOW",
+      value: NimbusExperimentQAStatusEnum.YELLOW,
+    },
+    {
+      label: "GREEN",
+      value: NimbusExperimentQAStatusEnum.GREEN,
+    },
+    {
+      label: "NOT SET",
+      value: NimbusExperimentQAStatusEnum.NOT_SET,
+    },
+  ],
+  user: "dev@example.com",
 };
 
 // Disabling this rule for now because we'll eventually
@@ -640,6 +665,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   recipeJson:
     '{"schemaVersion": "1.5.0", "slug": "pre-emptive-zero-tolerance-data-warehouse", "id": "pre-emptive-zero-tolerance-data-warehouse", "arguments": {}, "application": "", "appName": "firefox_ios", "appId": "", "channel": "", "userFacingName": "Pre-emptive zero tolerance data-warehouse", "userFacingDescription": "Analysis art mean sort serve stuff. Scene alone current television up write company. Without admit she occur total generation by mother. Environmental remember account huge drive policy play strong.", "isEnrollmentPaused": false, "bucketConfig": null, "probeSets": [], "outcomes": [{"slug": "example_config", "priority": "primary"}, {"slug": "newtab_visibility", "priority": "primary"}, {"slug": "picture_in_picture", "priority": "secondary"}], "branches": [{"slug": "horizontal-well-modulated-conglomeration", "ratio": 1, "feature": {"featureId": "decentralized-solution-oriented-neural-net", "enabled": true, "value": {"trouble-left-back": "west-receive"}}}, {"slug": "fully-configurable-context-sensitive-local-area-network", "ratio": 1, "feature": {"featureId": "decentralized-solution-oriented-neural-net", "enabled": true, "value": {"financial-school": "peace-light-might"}}}], "targeting": "localeLanguageCode == \'en\' && ((isFirstStartup && !(\'trailhead.firstrun.didSeeAboutWelcome\'|preferenceValue)) || experiment.slug in activeExperiments)", "startDate": null, "endDate": null, "proposedDuration": 60, "proposedEnrollment": 45, "referenceBranch": "horizontal-well-modulated-conglomeration", "featureIds": ["decentralized-solution-oriented-neural-net"]}',
   riskBrand: false,
+  riskMessage: false,
   riskRevenue: true,
   riskPartnerRelated: false,
   reviewUrl:
@@ -650,13 +676,15 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   projects: [{ name: "Pocket", id: "1" }],
   isLocalized: false,
   localizations: null,
-  requiredExperiments: [],
-  excludedExperiments: [],
+  requiredExperimentsBranches: [],
+  excludedExperimentsBranches: [],
   takeawaysQbrLearning: false,
   takeawaysMetricGain: false,
   takeawaysGainAmount: null,
-  qaStatus: null,
+  qaComment: null,
+  qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
   isWeb: false,
+  subscribers: [],
 };
 
 export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
@@ -753,6 +781,7 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   recipeJson:
     '{"schemaVersion": "1.5.0", "slug": "pre-emptive-zero-tolerance-data-warehouse", "id": "pre-emptive-zero-tolerance-data-warehouse", "arguments": {}, "application": "", "appName": "firefox_ios", "appId": "", "channel": "", "userFacingName": "Pre-emptive zero tolerance data-warehouse", "userFacingDescription": "Analysis art mean sort serve stuff. Scene alone current television up write company. Without admit she occur total generation by mother. Environmental remember account huge drive policy play strong.", "isEnrollmentPaused": false, "bucketConfig": null, "probeSets": [], "outcomes": [{"slug": "example_config", "priority": "primary"}, {"slug": "newtab_visibility", "priority": "primary"}, {"slug": "picture_in_picture", "priority": "secondary"}], "branches": [{"slug": "horizontal-well-modulated-conglomeration", "ratio": 1, "feature": {"featureId": "decentralized-solution-oriented-neural-net", "enabled": true, "value": {"trouble-left-back": "west-receive"}}}, {"slug": "fully-configurable-context-sensitive-local-area-network", "ratio": 1, "feature": {"featureId": "decentralized-solution-oriented-neural-net", "enabled": true, "value": {"financial-school": "peace-light-might"}}}], "targeting": "localeLanguageCode == \'en\' && ((isFirstStartup && !(\'trailhead.firstrun.didSeeAboutWelcome\'|preferenceValue)) || experiment.slug in activeExperiments)", "startDate": null, "endDate": null, "proposedDuration": 60, "proposedEnrollment": 45, "referenceBranch": "horizontal-well-modulated-conglomeration", "featureIds": ["decentralized-solution-oriented-neural-net"]}',
   riskBrand: false,
+  riskMessage: false,
   riskRevenue: true,
   riskPartnerRelated: false,
   reviewUrl:
@@ -761,9 +790,11 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   countries: [{ name: "Canada", id: "1", code: "Ca" }],
   languages: [{ name: "English", id: "1", code: "En" }],
   projects: [{ name: "Pocket", id: "1" }],
-  requiredExperiments: [],
-  excludedExperiments: [],
-  qaStatus: null,
+  requiredExperimentsBranches: [],
+  excludedExperimentsBranches: [],
+  qaComment: null,
+  qaStatus: NimbusExperimentQAStatusEnum.NOT_SET,
+  subscribers: [],
 };
 
 export function mockExperiment<
@@ -916,7 +947,7 @@ export function mockSingleDirectoryExperiment(
   return {
     isArchived: false,
     isRollout: false,
-    slug: `some-experiment-${slugIndex}`,
+    slug: `some-experiment-${String.fromCharCode(97 + slugIndex)}`,
     owner: {
       username: "example@mozilla.com",
     },
@@ -938,23 +969,24 @@ export function mockSingleDirectoryExperiment(
     publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
     targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
-    isEnrollmentPaused: false,
     isEnrollmentPausePending: false,
     isRolloutDirty: false,
     proposedEnrollment: 7,
     proposedDuration: 28,
     startDate: new Date(startTime).toISOString(),
-    proposedReleaseDate: new Date(startTime).toISOString(),
     computedEndDate: new Date(endTime).toISOString(),
     computedEnrollmentEndDate: new Date(enrollmentEndTime).toISOString(),
-    resultsExpectedDate: new Date(expectedResultsTime).toISOString(),
     resultsReady: false,
     showResultsUrl: false,
     takeawaysMetricGain: true,
     takeawaysQbrLearning: false,
     projects: [MOCK_CONFIG.projects![0]],
-    hypothesis: "test hypothesis",
-    qaStatus: null,
+    qaStatus: NimbusExperimentQAStatusEnum.GREEN,
+    subscribers: [
+      { username: "best-pm-evr@mozilla.com" },
+      { username: "mac-user-123@mozilla.com" },
+      { username: "fx-lvr@mozilla.com" },
+    ],
     ...overrides,
   };
 }
@@ -967,6 +999,10 @@ export function mockDirectoryExperiments(
       owner: { username: "alpha-example@mozilla.com" },
       startDate: null,
       computedEndDate: null,
+      subscribers: [
+        { username: "mac-user-123@mozilla.com" },
+        { username: "dev@example.com" },
+      ],
     },
     {
       name: "Ipsum dolor sit amet",
@@ -1053,6 +1089,7 @@ export function mockDirectoryExperiments(
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       owner: { username: "gamma-example@mozilla.com" },
+      subscribers: [{ username: "mac-user-123@mozilla.com" }],
     },
     {
       isArchived: true,
@@ -1088,6 +1125,8 @@ export const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_exp
     name: experiment.name,
     slug: experiment.slug ?? experiment.name.toLowerCase().replace(" ", "-"),
     publicDescription: "mock description",
+    referenceBranch: { slug: "control" },
+    treatmentBranches: [{ slug: "treatment" }],
   }));
 
 // Basically the same as useOutcomes, but uses the mocked config values
@@ -1103,7 +1142,13 @@ export function mockOutcomeSets(experiment: getExperiment_experimentBySlug): {
     }
 
     return slugs
-      .map((slug) => outcomes!.find((outcome) => outcome!.slug === slug))
+      .map((slug) =>
+        outcomes!.find(
+          (outcome) =>
+            outcome!.slug === slug &&
+            outcome!.application === experiment.application,
+        ),
+      )
       .filter((outcome) => outcome != null);
   };
 

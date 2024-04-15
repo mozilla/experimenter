@@ -1,9 +1,9 @@
 import copy
 import datetime
-import os.path
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
+from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import urljoin
 from uuid import uuid4
@@ -17,7 +17,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import F, Q, QuerySet
+from django.db.models import Count, F, Q, QuerySet
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -104,6 +104,34 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         return self.filter(
             NimbusExperiment.Filters.IS_ENDING, application__in=applications
         )
+
+
+class NimbusExperimentBranchThrough(models.Model):
+    parent_experiment = models.ForeignKey(
+        "NimbusExperiment",
+        on_delete=models.CASCADE,
+        related_name="%(class)s_parent",
+    )
+    child_experiment = models.ForeignKey(
+        "NimbusExperiment",
+        on_delete=models.CASCADE,
+        related_name="%(class)s_child",
+    )
+    branch_slug = models.SlugField(
+        max_length=NimbusConstants.MAX_SLUG_LEN, null=True, blank=True
+    )
+
+    class Meta:
+        abstract = True
+        unique_together = ("parent_experiment", "child_experiment", "branch_slug")
+
+
+class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):  # noqa: DJ008
+    pass
+
+
+class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):  # noqa: DJ008
+    pass
 
 
 class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.Model):
@@ -240,6 +268,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     risk_brand = models.BooleanField(
         "Is a Brand Risk Flag", default=None, blank=True, null=True
     )
+    risk_message = models.BooleanField(
+        "Is a Message Risk Flag", default=None, blank=True, null=True
+    )
     conclusion_recommendation = models.CharField(
         "Recommended Conclusion",
         max_length=255,
@@ -274,27 +305,40 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     is_localized = models.BooleanField("Is Localized Flag", default=False)
     localizations = models.TextField("Localizations", blank=True, null=True)
+    published_date = models.DateTimeField("Date First Published", blank=True, null=True)
 
     required_experiments = models.ManyToManyField["NimbusExperiment"](
         "NimbusExperiment",
         related_name="required_by",
         blank=True,
         verbose_name="Required Experiments",
+        through=NimbusExperimentBranchThroughRequired,
+        through_fields=("parent_experiment", "child_experiment"),
     )
     excluded_experiments = models.ManyToManyField["NimbusExperiment"](
         "NimbusExperiment",
         related_name="excluded_by",
         blank=True,
         verbose_name="Excluded Experiments",
+        through=NimbusExperimentBranchThroughExcluded,
+        through_fields=("parent_experiment", "child_experiment"),
     )
     qa_status = models.CharField(
         "QA Status",
         max_length=255,
-        blank=True,
-        null=True,
+        default=NimbusConstants.QAStatus.NOT_SET,
         choices=NimbusConstants.QAStatus.choices,
     )
-
+    qa_comment = models.TextField("QA Comment", blank=True, null=True)
+    qa_signoff = models.BooleanField("QA Sign-off", default=False)
+    vp_signoff = models.BooleanField("VP Sign-off", default=False)
+    legal_signoff = models.BooleanField("Legal Sign-off", default=False)
+    subscribers = models.ManyToManyField(
+        User,
+        related_name="subscribed_nimbusexperiments",
+        blank=True,
+        verbose_name="Subscribers",
+    )
     objects = NimbusExperimentManager()
 
     class Meta:
@@ -411,7 +455,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if self.prevent_pref_conflicts:
             for config in self.feature_configs.all():
-                prefs.extend(config.schemas.get(version=None).sets_prefs)
+                prefs.extend(config.schemas.get(version=None).set_pref_vars.values())
 
         return prefs
 
@@ -452,19 +496,38 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             ]
             sticky_expressions.append(f"region in {countries}")
 
-        if excluded_experiments := self.excluded_experiments.order_by("id").values_list(
-            "slug", flat=True
-        ):
-            # Mobile does not support ! in expressions.
-            sticky_expressions.extend(
-                f"('{slug}' in enrollments) == false" for slug in excluded_experiments
-            )
-        if required_experiments := self.required_experiments.order_by("id").values_list(
-            "slug", flat=True
-        ):
-            sticky_expressions.extend(
-                f"'{slug}' in enrollments" for slug in required_experiments
-            )
+        enrollments_map_key = "enrollments_map"
+        if is_desktop:
+            enrollments_map_key = "enrollmentsMap"
+
+        if excluded_experiments := NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=self
+        ).order_by("id"):
+            for excluded in excluded_experiments:
+                if excluded.branch_slug:
+                    sticky_expressions.append(
+                        f"({enrollments_map_key}['{excluded.child_experiment.slug}'] "
+                        f"== '{excluded.branch_slug}') == false"
+                    )
+                else:
+                    sticky_expressions.append(
+                        f"('{excluded.child_experiment.slug}' in enrollments) == false"
+                    )
+
+        if required_experiments := NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=self
+        ).order_by("id"):
+            for required in required_experiments:
+                if required.branch_slug:
+                    sticky_expressions.append(
+                        f"{enrollments_map_key}['{required.child_experiment.slug}'] "
+                        f"== '{required.branch_slug}'"
+                    )
+                else:
+                    sticky_expressions.append(
+                        f"'{required.child_experiment.slug}' in enrollments"
+                    )
+
         if self.is_sticky and sticky_expressions:
             expressions.append(
                 make_sticky_targeting_expression(
@@ -479,7 +542,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 make_sticky_targeting_expression(
                     is_desktop,
                     self.is_rollout,
-                    (f"!('{pref}'|preferenceIsUserSet)" for pref in prefs),
+                    (f"!('{pref}'|preferenceIsUserSet)" for pref in sorted(prefs)),
                 )
             )
 
@@ -683,6 +746,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.is_rollout and (
             self.status
             in (NimbusExperiment.Status.LIVE, NimbusExperiment.Status.COMPLETE)
+            and (
+                self.end_date is None
+                or (
+                    self.end_date
+                    > datetime.date.today()
+                    - datetime.timedelta(days=settings.ROLLOUT_MONITORING_EXPIRATION_DAYS)
+                )
+            )
         ):
             return settings.ROLLOUT_MONITORING_URL.format(
                 slug=self.slug.replace("-", "_")
@@ -742,6 +813,59 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @property
+    def feature_has_live_multifeature_experiments(self):
+        matching = []
+        live_experiments = NimbusExperiment.objects.filter(
+            status=self.Status.LIVE,
+            application=self.application,
+        )
+        if live_experiments.exists():
+            feature_slugs = self.feature_configs.all().values_list("slug", flat=True)
+            matching = (
+                live_experiments.annotate(n_feature_configs=Count("feature_configs"))
+                .filter(n_feature_configs__gt=1)
+                .filter(feature_configs__slug__in=feature_slugs)
+                .exclude(id=self.id)
+                .values_list("slug", flat=True)
+                .distinct()
+                .order_by("slug")
+            )
+        return matching
+
+    @property
+    def excluded_live_deliveries(self):
+        matching = []
+        if self.excluded_experiments.exists():
+            matching = (
+                self.excluded_experiments.filter(
+                    status=NimbusExperiment.Status.LIVE,
+                    application=self.application,
+                )
+                .exclude(id=self.id)
+                .values_list("slug", flat=True)
+                .distinct()
+                .order_by("slug")
+            )
+        return matching
+
+    @property
+    def live_experiments_in_namespace(self):
+        experiment_ids = NimbusBucketRange.objects.filter(
+            isolation_group__name=self.bucket_namespace,
+            isolation_group__application=self.application,
+        ).values_list("experiment_id", flat=True)
+        return (
+            NimbusExperiment.objects.filter(
+                id__in=experiment_ids,
+                status=NimbusExperiment.Status.LIVE,
+            )
+            .exclude(id=self.id)
+            .values_list("slug", flat=True)
+            .distinct()
+            .order_by("slug")
+        )
+
+    @property
     def can_edit(self):
         return (
             (
@@ -781,25 +905,29 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return False
 
     # Results are available if enrollment is complete and
-    # more than a week has passed after that.
+    # more than a week (DAYS_UNTIL_ANALYSIS) has passed after that.
     @property
     def results_ready_date(self):
-        if self.proposed_enrollment_end_date:
-            return self.proposed_enrollment_end_date + datetime.timedelta(
+        if self.actual_enrollment_end_date:
+            return self.actual_enrollment_end_date + datetime.timedelta(
+                days=NimbusConstants.DAYS_UNTIL_ANALYSIS
+            )
+        if self.computed_enrollment_end_date:
+            return self.computed_enrollment_end_date + datetime.timedelta(
                 days=NimbusConstants.DAYS_UNTIL_ANALYSIS
             )
 
     @property
     def results_ready(self):
-        if self.proposed_enrollment_end_date:
+        if self.results_ready_date:
             results_ready_date = self.results_ready_date
             return datetime.date.today() >= results_ready_date
 
     @property
     def has_displayable_results(self):
         # True if self.results_data has weekly or overall results
-        if self.results_data and "v2" in self.results_data:
-            results_data = self.results_data["v2"]
+        if self.results_data and "v3" in self.results_data:
+            results_data = self.results_data["v3"]
             for window in ["overall", "weekly"]:
                 if window in results_data:
                     enrollments = results_data[window].get("enrollments", {}).get("all")
@@ -860,6 +988,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.reference_branch = None
         cloned.proposed_release_date = None
         cloned.published_dto = None
+        cloned.published_date = None
         cloned.results_data = None
         cloned.takeaways_summary = None
         cloned.conclusion_recommendation = None
@@ -869,7 +998,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned._start_date = None
         cloned._end_date = None
         cloned._enrollment_end_date = None
-        cloned.qa_status = None
+        cloned.qa_status = NimbusExperiment.QAStatus.NOT_SET
+        cloned.qa_comment = None
         cloned.save()
 
         if rollout_branch_slug:
@@ -896,8 +1026,23 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             link.experiment = cloned
             link.save()
 
-        cloned.required_experiments.add(*self.required_experiments.all())
-        cloned.excluded_experiments.add(*self.excluded_experiments.all())
+        for (
+            required_experiment_branch
+        ) in NimbusExperimentBranchThroughRequired.objects.filter(parent_experiment=self):
+            NimbusExperimentBranchThroughRequired.objects.create(
+                parent_experiment=cloned,
+                child_experiment=required_experiment_branch.child_experiment,
+                branch_slug=required_experiment_branch.branch_slug,
+            )
+
+        for (
+            excluded_experiment_branch
+        ) in NimbusExperimentBranchThroughExcluded.objects.filter(parent_experiment=self):
+            NimbusExperimentBranchThroughExcluded.objects.create(
+                parent_experiment=cloned,
+                child_experiment=excluded_experiment_branch.child_experiment,
+                branch_slug=excluded_experiment_branch.branch_slug,
+            )
 
         cloned.feature_configs.add(*self.feature_configs.all())
         cloned.countries.add(*self.countries.all())
@@ -905,6 +1050,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             cloned.locales.add(*self.locales.all())
         cloned.languages.add(*self.languages.all())
         cloned.projects.add(*self.projects.all())
+        cloned.subscribers.remove(*self.subscribers.all())
 
         if rollout_branch_slug:
             generate_nimbus_changelog(
@@ -1027,7 +1173,7 @@ class NimbusBranch(models.Model):
 def nimbus_branch_screenshot_upload_to(screenshot, filename):
     screenshot_id = uuid4()
     ext = filename.split(".")[-1].lower()
-    return os.path.join(screenshot.branch.experiment.slug, f"{screenshot_id}.{ext}")
+    return Path(screenshot.branch.experiment.slug, f"{screenshot_id}.{ext}")
 
 
 class NimbusBranchFeatureValue(models.Model):
@@ -1437,7 +1583,10 @@ class NimbusVersionedSchema(models.Model):
         null=True,
     )
     schema = models.TextField(blank=True, null=True)
-    sets_prefs = ArrayField(models.CharField(max_length=255, null=False, default=list))
+
+    # Desktop-only
+    set_pref_vars = models.JSONField[Dict[str, str]](null=False, default=dict)
+    is_early_startup = models.BooleanField(null=False, default=False)
 
     class Meta:
         verbose_name = "Nimbus Versioned Schema"

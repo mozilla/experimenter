@@ -1,6 +1,7 @@
 import { json } from "@codemirror/lang-json";
 import { EditorState, EditorStateConfig } from "@codemirror/state";
 import { basicSetup } from "codemirror";
+import fetchMock from "jest-fetch-mock";
 import {
   detectDraft,
   fmlLinter,
@@ -8,6 +9,7 @@ import {
   schemaLinter,
   simpleObjectSchema,
 } from "src/components/PageEditBranches/FormBranches/FormFeatureValue/validators";
+import { MOCK_CONFIG } from "src/lib/mocks";
 import { z } from "zod";
 
 const SIMPLE_SCHEMA: z.infer<typeof simpleObjectSchema> = {
@@ -332,35 +334,76 @@ describe("detectDraft", () => {
 });
 
 describe("fmlLinter", () => {
-  it.each(["", "   ", "\t", "\n", " \n \t "])(
-    "does not return fml errors for an empty document",
-    (doc) => {
-      const linter = fmlLinter();
-      const state = createEditorState({ doc: JSON.stringify(doc) });
-      const diagnostics = linter({ state });
-      expect(diagnostics).toEqual([]);
-    },
-  );
+  beforeAll(() => {
+    fetchMock.enableMocks();
+  });
 
-  it.each([`{"foo": {"error"}`, `{"error": {"bingo"}`])(
-    "returns FML errors",
-    (doc) => {
-      const linter = fmlLinter();
-      const message = { message: "oh no!" };
-      const state = createEditorState({ doc: JSON.stringify(doc) });
-      const diagnostics = linter({ state });
-      expect(diagnostics).toContainEqual(expect.objectContaining(message));
-    },
-  );
+  afterAll(() => {
+    fetchMock.disableMocks();
+  });
 
-  it.each([`{"foo": {"bar"}`, `{"foo": {"mimsy"}`])(
-    "does not returns FML errors",
-    (doc) => {
-      const linter = fmlLinter();
-      const message = { message: "oh no!" };
-      const state = createEditorState({ doc: JSON.stringify(doc) });
-      const diagnostics = linter({ state });
-      expect(diagnostics).not.toContainEqual(expect.objectContaining(message));
-    },
-  );
+  afterEach(() => {
+    fetchMock.resetMocks();
+  });
+  const featureConfig = MOCK_CONFIG.allFeatureConfigs![0];
+
+  it("returns empty array when no errors returned", async () => {
+    fetchMock.mockResponseOnce(JSON.stringify([]));
+    const linter = fmlLinter("test-slug", featureConfig);
+    const state = createEditorState({ doc: "" });
+    const errors = await linter({ state });
+    expect(errors).toEqual([]);
+    expect(fetch).toHaveBeenCalledWith("/api/v5/fml-errors/test-slug/", {
+      body: '{"featureSlug":"picture-in-picture","featureValue":""}',
+      headers: { "Content-Type": "application/json" },
+      method: "PUT",
+    });
+  });
+
+  it("returns diagnostics when errors returned", async () => {
+    fetchMock.mockResponseOnce(
+      JSON.stringify([
+        { line: 0, col: 0, highlight: "enabled", message: "Invalid value" },
+      ]),
+    );
+    const linter = fmlLinter("test-slug", featureConfig);
+    const state = createEditorState({ doc: JSON.stringify({ some: "data" }) });
+    const errors = await linter({ state });
+    expect(errors).toEqual([
+      {
+        message: "Invalid value",
+        severity: "error",
+        from: 0,
+        to: 7,
+      },
+    ]);
+    expect(fetch).toHaveBeenCalledWith("/api/v5/fml-errors/test-slug/", {
+      body: '{"featureSlug":"picture-in-picture","featureValue":"{\\"some\\":\\"data\\"}"}',
+      headers: { "Content-Type": "application/json" },
+      method: "PUT",
+    });
+  });
+  it("returns diagnostics when errors returned with null highlight", async () => {
+    fetchMock.mockResponseOnce(
+      JSON.stringify([
+        { line: 0, col: 0, highlight: null, message: "Invalid value" },
+      ]),
+    );
+    const linter = fmlLinter("test-slug", featureConfig);
+    const state = createEditorState({ doc: JSON.stringify({ some: "data" }) });
+    const errors = await linter({ state });
+    expect(errors).toEqual([
+      {
+        message: "Invalid value",
+        severity: "error",
+        from: 0,
+        to: 0,
+      },
+    ]);
+    expect(fetch).toHaveBeenCalledWith("/api/v5/fml-errors/test-slug/", {
+      body: '{"featureSlug":"picture-in-picture","featureValue":"{\\"some\\":\\"data\\"}"}',
+      headers: { "Content-Type": "application/json" },
+      method: "PUT",
+    });
+  });
 });

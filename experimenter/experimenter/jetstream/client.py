@@ -1,8 +1,9 @@
 import json
-import os
 from collections import defaultdict
+from copy import deepcopy
 from datetime import datetime
 from itertools import chain
+from pathlib import Path
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -24,11 +25,11 @@ from experimenter.jetstream.models import (
     Segment,
     Statistic,
     create_results_object_model,
+    create_results_object_model_old,
 )
 from experimenter.outcomes import Metric as OutcomeMetric
 from experimenter.outcomes import Outcomes
 
-BRANCH_DATA = "branch_data"
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
 ERRORS_FOLDER = "errors"
@@ -54,8 +55,8 @@ def validate_data(data_json):
 
 def get_data(slug, window):
     filename = f"statistics_{slug}_{window}.json"
-    path = os.path.join(STATISTICS_FOLDER, filename)
-    return validate_data(load_data_from_gcs(path))
+    path = Path(STATISTICS_FOLDER, filename)
+    return validate_data(load_data_from_gcs(str(path)))
 
 
 def validate_metadata(metadata_json):
@@ -66,8 +67,8 @@ def validate_metadata(metadata_json):
 
 def get_metadata(slug):
     filename = f"metadata_{slug}.json"
-    path = os.path.join(METADATA_FOLDER, filename)
-    return validate_metadata(load_data_from_gcs(path))
+    path = Path(METADATA_FOLDER, filename)
+    return validate_metadata(load_data_from_gcs(str(path)))
 
 
 def validate_analysis_errors(analysis_errors_json):
@@ -78,14 +79,14 @@ def validate_analysis_errors(analysis_errors_json):
 
 def get_analysis_errors(slug):
     filename = f"errors_{slug}.json"
-    path = os.path.join(ERRORS_FOLDER, filename)
-    return validate_analysis_errors(load_data_from_gcs(path))
+    path = Path(ERRORS_FOLDER, filename)
+    return validate_analysis_errors(load_data_from_gcs(str(path)))
 
 
 def get_sizing_data(suffix="latest"):
     filename = f"sample_sizes_auto_sizing_results_{suffix}.json"
-    path = os.path.join(SIZING_FOLDER, filename)
-    return load_data_from_gcs(path)
+    path = Path(SIZING_FOLDER, filename)
+    return load_data_from_gcs(str(path))
 
 
 def get_results_metrics_map(
@@ -183,9 +184,9 @@ def get_other_metrics_names_and_map(
 
 def get_experiment_data(experiment: NimbusExperiment):
     recipe_slug = experiment.slug.replace("-", "_")
-    windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
+    # we don't use DAILY results in Experimenter, so only get WEEKLY/OVERALL
+    windows = [AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
-        AnalysisWindow.DAILY: {},
         AnalysisWindow.WEEKLY: {},
         AnalysisWindow.OVERALL: {},
     }
@@ -201,9 +202,17 @@ def get_experiment_data(experiment: NimbusExperiment):
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
     }
+    # TODO: remove _old after updating UI
+    #     - https://github.com/mozilla/experimenter/issues/9861
+    experiment_data_old = {
+        AnalysisWindow.DAILY: {},
+        "show_analysis": settings.FEATURE_ANALYSIS,
+        "metadata": experiment_metadata,
+    }
 
     for window in windows:
         experiment_data[window] = {}
+        experiment_data_old[window] = {}
         data_from_jetstream = get_data(recipe_slug, window) or []
 
         segment_points_enrollments = defaultdict(list)
@@ -214,16 +223,20 @@ def get_experiment_data(experiment: NimbusExperiment):
             if point["analysis_basis"] == AnalysisBasis.ENROLLMENTS:
                 segment_points_enrollments[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.ENROLLMENTS] = {}
+                experiment_data_old[window][AnalysisBasis.ENROLLMENTS] = {}
                 raw_data[window][AnalysisBasis.ENROLLMENTS] = {}
             elif point["analysis_basis"] == AnalysisBasis.EXPOSURES:
                 segment_points_exposures[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.EXPOSURES] = {}
+                experiment_data_old[window][AnalysisBasis.EXPOSURES] = {}
                 raw_data[window][AnalysisBasis.EXPOSURES] = {}
 
         for segment, segment_data in segment_points_enrollments.items():
             data = raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = JetstreamData(
                 __root__=(segment_data)
             )
+            data_new = deepcopy(data)
+            data_old = deepcopy(data)
             (
                 result_metrics,
                 primary_metrics_set,
@@ -235,29 +248,54 @@ def get_experiment_data(experiment: NimbusExperiment):
                 outcomes_metadata,
             )
             if data and window == AnalysisWindow.OVERALL:
-                # Append some values onto Jetstream data
+                # Append some values onto the incoming Jetstream data
                 data.append_population_percentages()
                 data.append_retention_data(
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
                 )
-
+                # Create the output object (overall data)
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(result_metrics, data, experiment)
-                data.append_conversion_count(primary_metrics_set)
+                ResultsObjectModelOld = create_results_object_model_old(data)
+
+                data_new = ResultsObjectModel(result_metrics, data, experiment)
+                data_new.append_conversion_count(primary_metrics_set)
+
+                data_old = ResultsObjectModelOld(result_metrics, data, experiment)
+                data_old.append_conversion_count(primary_metrics_set)
 
                 if segment == Segment.ALL:
                     experiment_data["other_metrics"] = other_metrics
+                    experiment_data_old["other_metrics"] = other_metrics
             elif data and window == AnalysisWindow.WEEKLY:
+                # Create the output object (weekly data)
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(result_metrics, data, experiment, window)
+                ResultsObjectModelOld = create_results_object_model_old(data)
 
-            transformed_data = data.dict(exclude_none=True) or None
+                data_new = ResultsObjectModel(result_metrics, data, experiment, window)
+
+                data_old = ResultsObjectModelOld(result_metrics, data, experiment, window)
+
+                # TODO: remove _old after updating UI
+                #     - https://github.com/mozilla/experimenter/issues/9861
+                experiment_data_old[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS] = {
+                    "all": []
+                }
+
+            # Convert output object to dict and put into the final object
+            transformed_data = data_new.dict(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
+
+            transformed_data_old = data_old.dict(exclude_none=True) or None
+            experiment_data_old[window][AnalysisBasis.ENROLLMENTS][
+                segment
+            ] = transformed_data_old
 
         for segment, segment_data in segment_points_exposures.items():
             data = raw_data[window][AnalysisBasis.EXPOSURES][segment] = JetstreamData(
                 __root__=(segment_data)
             )
+            data_new = deepcopy(data)
+            data_old = deepcopy(data)
             (
                 result_metrics,
                 primary_metrics_set,
@@ -276,15 +314,34 @@ def get_experiment_data(experiment: NimbusExperiment):
                 )
 
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(result_metrics, data, experiment)
-                data.append_conversion_count(primary_metrics_set)
+                ResultsObjectModelOld = create_results_object_model_old(data)
+
+                data_new = ResultsObjectModel(result_metrics, data, experiment)
+                data_new.append_conversion_count(primary_metrics_set)
+
+                data_old = ResultsObjectModelOld(result_metrics, data, experiment)
+                data_old.append_conversion_count(primary_metrics_set)
 
             elif data and window == AnalysisWindow.WEEKLY:
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(result_metrics, data, experiment, window)
+                ResultsObjectModelOld = create_results_object_model_old(data)
 
-            transformed_data = data.dict(exclude_none=True) or None
+                data_new = ResultsObjectModel(result_metrics, data, experiment, window)
+                data_old = ResultsObjectModelOld(result_metrics, data, experiment, window)
+
+                # TODO: remove _old after updating UI
+                #     - https://github.com/mozilla/experimenter/issues/9861
+                experiment_data_old[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES] = {
+                    "all": []
+                }
+
+            transformed_data = data_new.dict(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.EXPOSURES][segment] = transformed_data
+
+            transformed_data_old = data_old.dict(exclude_none=True) or None
+            experiment_data_old[window][AnalysisBasis.EXPOSURES][
+                segment
+            ] = transformed_data_old
 
     errors_by_metric = {}
     errors_experiment_overall = []
@@ -313,8 +370,12 @@ def get_experiment_data(experiment: NimbusExperiment):
     errors_by_metric["experiment"] = errors_experiment_overall
 
     experiment_data["errors"] = errors_by_metric
+    experiment_data_old["errors"] = errors_by_metric
 
-    return {"v2": experiment_data}
+    return {
+        "v2": experiment_data_old,
+        "v3": experiment_data,
+    }
 
 
 def get_population_sizing_data():

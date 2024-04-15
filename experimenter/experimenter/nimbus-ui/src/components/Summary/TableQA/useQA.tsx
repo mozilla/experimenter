@@ -18,7 +18,7 @@ import {
 
 export type UseQAExperimentSubset = Pick<
   getExperiment_experimentBySlug,
-  "id" | "qaStatus"
+  "id" | "publishStatus" | "qaStatus" | "qaComment"
 >;
 
 export type UseQAResult = UseQAExperimentSubset & {
@@ -47,7 +47,7 @@ export const useQA = (
   const onSubmit = useCallback(
     ({ id }: UseQAExperimentSubset, refetch?: () => Promise<unknown>) =>
       async (data: Record<string, any>) => {
-        const { qaStatus } = data;
+        const { publishStatus, qaStatus, qaComment } = data;
 
         try {
           setIsLoading(true);
@@ -55,6 +55,7 @@ export const useQA = (
             input: {
               id,
               qaStatus: qaStatus || null,
+              qaComment: qaComment || null,
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_QA_STATUS,
             },
           };

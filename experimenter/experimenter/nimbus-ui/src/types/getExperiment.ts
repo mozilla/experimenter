@@ -13,6 +13,10 @@ export interface getExperiment_experimentBySlug_owner {
   email: string;
 }
 
+export interface getExperiment_experimentBySlug_subscribers {
+  email: string;
+}
+
 export interface getExperiment_experimentBySlug_parent {
   name: string;
   slug: string;
@@ -73,7 +77,7 @@ export interface getExperiment_experimentBySlug_featureConfigs {
   slug: string;
   name: string;
   description: string | null;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   ownerEmail: string | null;
   schema: string | null;
   enabled: boolean;
@@ -88,16 +92,48 @@ export interface getExperiment_experimentBySlug_targetingConfig {
   isFirstRunRequired: boolean | null;
 }
 
-export interface getExperiment_experimentBySlug_excludedExperiments {
-  id: number;
+export interface getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_referenceBranch {
   slug: string;
-  name: string;
 }
 
-export interface getExperiment_experimentBySlug_requiredExperiments {
+export interface getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_treatmentBranches {
+  slug: string;
+}
+
+export interface getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment {
   id: number;
   slug: string;
   name: string;
+  publicDescription: string | null;
+  referenceBranch: getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_referenceBranch | null;
+  treatmentBranches: (getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_treatmentBranches | null)[] | null;
+}
+
+export interface getExperiment_experimentBySlug_excludedExperimentsBranches {
+  excludedExperiment: getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment;
+  branchSlug: string | null;
+}
+
+export interface getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_referenceBranch {
+  slug: string;
+}
+
+export interface getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_treatmentBranches {
+  slug: string;
+}
+
+export interface getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment {
+  id: number;
+  slug: string;
+  name: string;
+  publicDescription: string | null;
+  referenceBranch: getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_referenceBranch | null;
+  treatmentBranches: (getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_treatmentBranches | null)[] | null;
+}
+
+export interface getExperiment_experimentBySlug_requiredExperimentsBranches {
+  requiredExperiment: getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment;
+  branchSlug: string | null;
 }
 
 export interface getExperiment_experimentBySlug_readyForReview {
@@ -187,7 +223,7 @@ export interface getExperiment_experimentBySlug {
   resultsReady: boolean | null;
   showResultsUrl: boolean | null;
   hypothesis: string | null;
-  application: NimbusExperimentApplicationEnum | null;
+  application: NimbusExperimentApplicationEnum;
   publicDescription: string | null;
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum | null;
   takeawaysGainAmount: string | null;
@@ -195,6 +231,7 @@ export interface getExperiment_experimentBySlug {
   takeawaysQbrLearning: boolean;
   takeawaysSummary: string | null;
   owner: getExperiment_experimentBySlug_owner;
+  subscribers: getExperiment_experimentBySlug_subscribers[];
   parent: getExperiment_experimentBySlug_parent | null;
   warnFeatureSchema: boolean | null;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
@@ -211,8 +248,8 @@ export interface getExperiment_experimentBySlug {
   isSticky: boolean | null;
   isFirstRun: boolean;
   isWeb: boolean;
-  excludedExperiments: getExperiment_experimentBySlug_excludedExperiments[];
-  requiredExperiments: getExperiment_experimentBySlug_requiredExperiments[];
+  excludedExperimentsBranches: getExperiment_experimentBySlug_excludedExperimentsBranches[];
+  requiredExperimentsBranches: getExperiment_experimentBySlug_requiredExperimentsBranches[];
   jexlTargetingExpression: string | null;
   populationPercent: string | null;
   totalEnrolledClients: number;
@@ -228,6 +265,7 @@ export interface getExperiment_experimentBySlug {
   riskMitigationLink: string | null;
   riskRevenue: boolean | null;
   riskBrand: boolean | null;
+  riskMessage: boolean | null;
   riskPartnerRelated: boolean | null;
   isLocalized: boolean | null;
   localizations: string | null;
@@ -247,7 +285,14 @@ export interface getExperiment_experimentBySlug {
   languages: getExperiment_experimentBySlug_languages[];
   projects: (getExperiment_experimentBySlug_projects | null)[] | null;
   isRolloutDirty: boolean;
+  qaComment: string | null;
   qaStatus: NimbusExperimentQAStatusEnum | null;
+  excludedLiveDeliveries: string[];
+  featureHasLiveMultifeatureExperiments: string[];
+  liveExperimentsInNamespace: string[];
+  legalSignoff: boolean;
+  qaSignoff: boolean;
+  vpSignoff: boolean;
 }
 
 export interface getExperiment {

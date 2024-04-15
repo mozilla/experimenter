@@ -1,5 +1,5 @@
 import json
-import os
+from pathlib import Path
 
 import pytest
 
@@ -8,11 +8,28 @@ from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
 from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.utils import helpers
 
-nimbus = pytest.importorskip("nimbus_rust")
+nimbus_rust = pytest.importorskip("nimbus_megazord.nimbus")
+
+
+class MockMetricsHandler(nimbus_rust.MetricsHandler):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def record_enrollment_statuses(self, *args, **kwargs):
+        pass
+
+    def record_feature_activation(self, *args, **kwargs):
+        pass
+
+    def record_feature_exposure(self, *args, **kwargs):
+        pass
+
+    def record_malformed_feature_config(self, *args, **kwargs):
+        pass
 
 
 def client_info_list():
-    with open("nimbus/app_contexts.json") as file:
+    with Path("nimbus", "app_contexts.json").open() as file:
         return [r["app_context"] for r in json.load(file)["query_result"]["data"]["rows"]]
 
 
@@ -20,7 +37,7 @@ def client_info_list():
 def load_app_context():
     def _load_app_context_helper(context):
         base_app_context = BaseAppContextDataClass.from_dict(context)
-        return nimbus.AppContext(
+        return nimbus_rust.AppContext(
             app_id=base_app_context.app_id,
             app_name=base_app_context.app_name,
             channel=base_app_context.channel,
@@ -42,16 +59,16 @@ def load_app_context():
     return _load_app_context_helper
 
 
-@pytest.fixture(name="ar_units")
-def fixture_ar_units():
-    """Available Randomization Units"""
-    return nimbus.AvailableRandomizationUnits(None, 0)
-
-
 @pytest.fixture(name="sdk_client")
-def fixture_sdk_client(ar_units):
+def fixture_sdk_client():
     def _client_helper(app_context):
-        return nimbus.NimbusClient(app_context, os.getcwd(), None, ar_units)
+        return nimbus_rust.NimbusClient(
+            app_context,
+            [],
+            str(Path.cwd()),
+            None,
+            MockMetricsHandler(),
+        )
 
     return _client_helper
 

@@ -700,6 +700,29 @@ EXISTING_USER_NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_VPN_HAS_NOT_DISABLED_RECOMMEND_FEATURES = NimbusTargetingConfig(
+    name=(
+        "All users, no enterprise or past VPN use, hasn't disabled "
+        "'Recommend extensions/features'"
+    ),
+    slug="no_vpn_has_not_disabled_recommend_features",
+    description=(
+        "Exclude users who have used Mozilla VPN, are enterprise users, or have"
+        " disabled 'Recommend extensions/features'"
+    ),
+    targeting=(
+        f"{NO_ENTERPRISE_OR_PAST_VPN.targeting} && "
+        "(!os.isWindows || os.windowsBuildNumber >= 18362) && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_ENTERPRISE_OR_RECENT_VPN = NimbusTargetingConfig(
     name="No enterprise and no VPN connection in the last 30 days",
     slug="no_enterprise_or_last_30d_vpn_use",
@@ -1741,6 +1764,17 @@ WINDOWS_10_PLUS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
+    name="iPhone users only",
+    slug="ios_iphone_users_only",
+    description="Targeting iPhone users",
+    targeting="is_phone",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_EARLY_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
     name="Early day users iPhone only",
     slug="ios_early_day_users_iphone_only",
@@ -1856,6 +1890,40 @@ IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
     sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
+)
+
+VIEWPOINT_SURVEY_DESKTOP = NimbusTargetingConfig(
+    name="User Research Viewpoint Survey (Rolling Enrollment)",
+    slug="viewpoint_survey_desktop",
+    description=(
+        "Rolling enrollment based on date. Only for use by User Research Viewpoint "
+        "surveys."
+    ),
+    targeting=(
+        "['rolling-viewpoint', userId]|"
+        "bucketSample(19468 + currentDate / (24 * 60 * 60 * 1000) + 1, 7, 7000)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+VIEWPOINT_SURVEY_MOBILE = NimbusTargetingConfig(
+    name="User Research Viewpoint Survey (Rolling Enrollment)",
+    slug="viewpoint_survey_mobile",
+    description=(
+        "Rolling enrollment based on date. Only for use by User Research Viewpoint "
+        "surveys."
+    ),
+    targeting=(
+        "['rolling-viewpoint', nimbus_id]"
+        "|bucketSample(current_date / (24 * 60 * 60 * 1000), 7, 3500)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name, Application.FENIX.name),
 )
 
 

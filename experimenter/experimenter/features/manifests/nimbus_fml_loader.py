@@ -4,18 +4,15 @@ from pathlib import Path
 from typing import Optional
 
 from django.conf import settings
-from rust_fml import FmlClient
+from nimbus_megazord.fml import FmlClient
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusFeatureVersion
-from experimenter.settings import BASE_DIR
 
 logger = logging.getLogger()
 
 
 class NimbusFmlLoader:
-    MANIFEST_PATH = Path(BASE_DIR, "features", "manifests")
-
     def __init__(self, application: str, channel: str):
         self.application: str = (
             application if application in NimbusConstants.Application else None
@@ -33,11 +30,11 @@ class NimbusFmlLoader:
         """Get path to release feature manifest from experimenter (local)."""
 
         if self.application is not None:
-            path = Path(settings.FEATURE_MANIFESTS_PATH, self.application)
+            path = settings.FEATURE_MANIFESTS_PATH / self.application
             if version:
                 path /= f"v{version}"
             path /= f"{self.channel}.fml.yaml"
-            if Path.exists(path):
+            if Path(path).exists():
                 return path
             else:
                 logger.error(f"Nimbus FML Loader: Invalid manifest path: {path}")

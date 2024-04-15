@@ -30,6 +30,8 @@ export const optionIndexKeys: {
   projects: (option) => option.name,
   targetingConfigs: (option) => option.value,
   takeaways: (option) => option.value,
+  qaStatus: (option) => option.value,
+  subscribers: (option) => option.username,
 };
 
 type ExperimentFilter<K extends FilterValueKeys> = (
@@ -74,6 +76,15 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
     }
     return teamProjectsMatch;
   },
+  subscribers: (option, experiment) => {
+    let findSubscriber = false;
+    if (experiment.subscribers?.length) {
+      findSubscriber =
+        experiment.subscribers.filter((s) => s?.username === option.username)
+          .length > 0;
+    }
+    return findSubscriber;
+  },
   targetingConfigs: (option, experiment) => {
     let targetingConfigMatch = false;
     if (experiment.targetingConfig?.length) {
@@ -89,6 +100,7 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
       (experiment.takeawaysMetricGain && option.value === "DAU_GAIN")
     );
   },
+  qaStatus: (option, experiment) => experiment.qaStatus === option.value,
 };
 
 export function getFilterValueFromParams(
@@ -159,6 +171,20 @@ export function getFilterValueFromParams(
         break;
       case "takeaways":
         filterValue[key] = selectFilterOptions<"takeaways">(
+          options[key],
+          optionIndexKeys[key],
+          values as string[],
+        );
+        break;
+      case "qaStatus":
+        filterValue[key] = selectFilterOptions<"qaStatus">(
+          options[key],
+          optionIndexKeys[key],
+          values as string[],
+        );
+        break;
+      case "subscribers":
+        filterValue[key] = selectFilterOptions<"subscribers">(
           options[key],
           optionIndexKeys[key],
           values as string[],
@@ -247,6 +273,18 @@ export function updateParamsFromFilterValue(
             optionIndexKeys[key],
           );
           break;
+        case "qaStatus":
+          values = indexFilterOptions<"qaStatus">(
+            filterValue[key],
+            optionIndexKeys[key],
+          );
+          break;
+        case "subscribers":
+          values = indexFilterOptions<"subscribers">(
+            filterValue[key],
+            optionIndexKeys[key],
+          );
+          break;
       }
       if (values && values.length) {
         params.set(key, values.join(","));
@@ -331,6 +369,20 @@ export function filterExperiments(
         break;
       case "takeaways":
         filteredExperiments = filterExperimentsByOptions<"takeaways">(
+          filterState[key],
+          experimentFilters[key],
+          filteredExperiments,
+        );
+        break;
+      case "qaStatus":
+        filteredExperiments = filterExperimentsByOptions<"qaStatus">(
+          filterState[key],
+          experimentFilters[key],
+          filteredExperiments,
+        );
+        break;
+      case "subscribers":
+        filteredExperiments = filterExperimentsByOptions<"subscribers">(
           filterState[key],
           experimentFilters[key],
           filteredExperiments,

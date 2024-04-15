@@ -2,7 +2,7 @@ version: "3"
 
 services:
   firefox:
-    image: mozilla/experimenter:${FIREFOX_VERSION}
+    image: mozilla/experimenter:${FIREFOX_VERSION:-nimbus-firefox-release}
     env_file: .env
     environment:
       - MOZ_HEADLESS
@@ -24,10 +24,8 @@ services:
     shm_size: 2g
     working_dir: /code
   rust-sdk:
-    image: mozilla/experimenter:nimbus-rust-image
+    image: experimenter:integration-tests
     env_file: .env
-    environment:
-      - PYTHONPATH
     volumes:
       - .:/code
       - /code/experimenter/tests/integration/.tox

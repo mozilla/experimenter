@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mozilla-nimbus-schemas"
-version = "2023.10.3"
+version = "2024.3.1"
 description = "Schemas used by Mozilla Nimbus and related projects."
 authors = ["mikewilli"]
 license = "MPL 2.0"
@@ -8,13 +8,13 @@ readme = "README.md"
 packages = [{ include = "mozilla_nimbus_schemas" }]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 pydantic = "^1.10.7"
 polyfactory = "^2.7.2"
 
 [tool.poetry.group.dev.dependencies]
-ruff = ">=0.0.269,<0.1.1"
-black = "^23.3.0"
+ruff = ">=0.0.269,<0.3.1"
+black = ">=23.3,<25.0"
 pytest = "^7.3.1"
 twine = "^4.0.2"
 pydantic-to-typescript = "^1.0.10"
@@ -47,7 +47,11 @@ ignore = [
 ]
 line-length = 90
 [tool.ruff.pep8-naming]
-classmethod-decorators = ["classmethod", "pydantic.validator"]
+classmethod-decorators = [
+    "classmethod",
+    "pydantic.validator",
+    "pydantic.root_validator",
+]
 
 [tool.flake8]
 max-line-length = 90

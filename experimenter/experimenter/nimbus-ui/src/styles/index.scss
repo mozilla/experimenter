@@ -158,6 +158,8 @@ select.form-control.is-warning {
   > p:last-child {
     margin-bottom: 0;
   }
+  // override the react-tooltip default 999 to match bootstrap's tooltip z-index
+  z-index: 1080 !important; 
 }
 
 .cursor-copy {

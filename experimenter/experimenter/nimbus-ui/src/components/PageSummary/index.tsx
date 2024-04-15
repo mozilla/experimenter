@@ -20,10 +20,11 @@ import { useChangeOperationMutation, useReviewCheck } from "src/hooks";
 import { ReactComponent as ExternalIcon } from "src/images/external.svg";
 import { ReactComponent as InfoCircle } from "src/images/info-circle.svg";
 import {
+  AUDIENCE_OVERLAP_WARNINGS,
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   LIFECYCLE_REVIEW_FLOWS,
-  QA_STATUS_WITH_EMOJI,
+  QA_STATUS_PROPERTIES,
 } from "src/lib/constants";
 import { ExperimentContext } from "src/lib/contexts";
 import { getStatus, getSummaryAction, StatusCheck } from "src/lib/experiment";
@@ -129,6 +130,7 @@ const PageSummary = (props: RouteComponentProps) => {
 
   const {
     publishStatus,
+    qaStatus,
     canReview,
     reviewRequest: reviewRequestEvent,
     rejection: rejectionEvent,
@@ -213,36 +215,24 @@ const PageSummary = (props: RouteComponentProps) => {
       <h5 className="mb-3">
         Timeline
         {status.live && <StatusPills {...{ experiment, status }} />}
+        {qaStatus != null &&
+          (() => {
+            const qaStatusProps = QA_STATUS_PROPERTIES[qaStatus!];
+            if (qaStatus !== NimbusExperimentQAStatusEnum.NOT_SET) {
+              return (
+                <StatusPill
+                  testId="pill-qa-status"
+                  label={qaStatusProps.description}
+                  color={qaStatusProps.className}
+                />
+              );
+            }
+          })()}
       </h5>
 
       <SummaryTimeline {...{ experiment }} />
 
-      {submitError && (
-        <Alert data-testid="submit-error" variant="warning">
-          {submitError}
-        </Alert>
-      )}
-
-      {experiment.isRollout &&
-        (status.draft || status.preview) &&
-        fieldWarnings.bucketing?.length > 0 && (
-          <Alert data-testid="bucketing-warning" variant="danger">
-            {fieldWarnings.bucketing as SerializerMessage}
-            <LinkExternal href={EXTERNAL_URLS.BUCKET_WARNING_EXPLANATION}>
-              <span className="mr-1">Learn more</span>
-              <ExternalIcon />
-            </LinkExternal>
-          </Alert>
-        )}
-
-      {experiment.isRollout &&
-        (experiment.status === NimbusExperimentStatusEnum.DRAFT ||
-          experiment.status === NimbusExperimentStatusEnum.PREVIEW) &&
-        fieldWarnings.firefox_min_version?.length > 0 && (
-          <Alert data-testid="desktop-min-version-warning" variant="warning">
-            {fieldWarnings.firefox_min_version as SerializerMessage}
-          </Alert>
-        )}
+      <WarningList {...{ experiment, submitError, fieldWarnings, status }} />
 
       {summaryAction && (
         <h5 className="mt-3 mb-4 ml-3">
@@ -308,26 +298,6 @@ const PageSummary = (props: RouteComponentProps) => {
 
 export default PageSummary;
 
-export function qaStatusLabel(status: NimbusExperimentQAStatusEnum) {
-  if (status === NimbusExperimentQAStatusEnum.GREEN) {
-    return QA_STATUS_WITH_EMOJI.GREEN[0];
-  } else if (status === NimbusExperimentQAStatusEnum.YELLOW) {
-    return QA_STATUS_WITH_EMOJI.YELLOW[0];
-  } else {
-    return QA_STATUS_WITH_EMOJI.RED[0];
-  }
-}
-
-export function qaStatusColor(status: NimbusExperimentQAStatusEnum) {
-  if (status === NimbusExperimentQAStatusEnum.GREEN) {
-    return QA_STATUS_WITH_EMOJI.GREEN[1];
-  } else if (status === NimbusExperimentQAStatusEnum.YELLOW) {
-    return QA_STATUS_WITH_EMOJI.YELLOW[1];
-  } else {
-    return QA_STATUS_WITH_EMOJI.RED[1];
-  }
-}
-
 const StatusPills = ({
   experiment,
   status,
@@ -358,13 +328,6 @@ const StatusPills = ({
         color={"danger"}
       />
     )}
-    {experiment.qaStatus != null && (
-      <StatusPill
-        testId="pill-qa-status"
-        label={qaStatusLabel(experiment.qaStatus)}
-        color={qaStatusColor(experiment.qaStatus)}
-      />
-    )}
   </>
 );
 
@@ -386,3 +349,154 @@ const StatusPill = ({
     {label}
   </Badge>
 );
+
+const Warning = ({
+  text,
+  testId,
+  learnMoreLink,
+  learnMoreText = "Learn more",
+  variant = "danger",
+}: {
+  text: string | SerializerMessage;
+  testId: string;
+  learnMoreLink?: string;
+  learnMoreText?: string;
+  variant?: string;
+}) => (
+  <Alert data-testid={`${testId}-warning`} variant={variant}>
+    {text}{" "}
+    {learnMoreLink && (
+      <LinkExternal href={learnMoreLink}>
+        <span className="mr-1">{learnMoreText}</span>
+        <ExternalIcon />
+      </LinkExternal>
+    )}
+  </Alert>
+);
+
+type WarningsProps = {
+  experiment: getExperiment_experimentBySlug;
+  submitError: string | null;
+  fieldWarnings: ReturnType<typeof useReviewCheck>["fieldWarnings"];
+  status: ReturnType<typeof getStatus>;
+};
+
+const WarningList = ({
+  experiment,
+  submitError,
+  fieldWarnings,
+  status,
+}: WarningsProps) => {
+  const warnings: JSX.Element[] = [];
+
+  const excludedLiveDeliveries: string =
+    experiment.excludedLiveDeliveries?.join(", ");
+
+  const featureHasLiveMultifeatureExperiments =
+    experiment.featureHasLiveMultifeatureExperiments?.join(", ");
+
+  const liveExperimentsInNamespace =
+    experiment.liveExperimentsInNamespace?.join(", ");
+
+  const overlappingWarnings = featureHasLiveMultifeatureExperiments?.includes(
+    liveExperimentsInNamespace,
+  );
+
+  if (submitError) {
+    warnings.push(
+      <Warning
+        {...{
+          text: submitError,
+          testId: "submit-error",
+          variant: "warning",
+        }}
+      />,
+    );
+  }
+
+  if (experiment.isRollout && (status.draft || status.preview)) {
+    if (fieldWarnings.bucketing?.length) {
+      warnings.push(
+        <Warning
+          {...{
+            text: fieldWarnings.bucketing as SerializerMessage,
+            testId: "bucketing",
+            learnMoreLink: EXTERNAL_URLS.BUCKET_WARNING_EXPLANATION,
+          }}
+        />,
+      );
+    }
+
+    if (fieldWarnings.firefox_min_version?.length) {
+      warnings.push(
+        <Warning
+          {...{
+            text: fieldWarnings.firefox_min_version as SerializerMessage,
+            testId: "desktop-min-version",
+            variant: "warning",
+          }}
+        />,
+      );
+    }
+
+    if (fieldWarnings.pref_rollout_reenroll?.length) {
+      warnings.push(
+        <Warning
+          {...{
+            text: fieldWarnings.pref_rollout_reenroll as SerializerMessage,
+            testId: "rollout-setpref-reenroll",
+            learnMoreLink: EXTERNAL_URLS.ROLLOUT_SETPREF_REENROLL_EXPLANATION,
+          }}
+        />,
+      );
+    }
+  }
+  if (status.draft || status.preview) {
+    if (excludedLiveDeliveries) {
+      warnings.push(
+        <Warning
+          {...{
+            text: AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING(
+              excludedLiveDeliveries,
+            ),
+            testId: "excluding-live-experiments",
+            variant: "warning",
+            learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
+          }}
+        />,
+      );
+    }
+
+    if (liveExperimentsInNamespace && !overlappingWarnings) {
+      warnings.push(
+        <Warning
+          {...{
+            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING(
+              liveExperimentsInNamespace,
+            ),
+            testId: "live-experiments-in-bucket",
+            variant: "warning",
+            learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
+          }}
+        />,
+      );
+    }
+
+    if (featureHasLiveMultifeatureExperiments) {
+      warnings.push(
+        <Warning
+          {...{
+            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(
+              featureHasLiveMultifeatureExperiments,
+            ),
+            testId: "live-multifeature",
+            variant: "warning",
+            learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
+          }}
+        />,
+      );
+    }
+  }
+
+  return <>{warnings}</>;
+};

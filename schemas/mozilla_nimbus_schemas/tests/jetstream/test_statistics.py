@@ -18,11 +18,12 @@ def test_statistics():
     s0 = Statistic(
         metric="test-metric",
         statistic="test-statistic",
-        branch="test-branch",
+        branch="test-control",
         ci_width=0.95,
         point=1.0,
         lower=0.2,
         upper=1.2,
+        p_value=0.03,
         analysis_basis=AnalysisBasis.ENROLLMENTS,
         window_index="1",
     )
@@ -34,17 +35,19 @@ def test_statistics():
         point=1.0,
         lower=0.2,
         upper=1.2,
+        p_value=0.03,
         analysis_basis=AnalysisBasis.ENROLLMENTS,
         window_index="1",
     )
     s2 = Statistic(
         metric="test-metric",
-        statistic="test-statistic",
+        statistic="test-statistic-2",
         branch="test-branch",
         ci_width=0.95,
         point=1.0,
         lower=0.2,
         upper=1.2,
+        p_value=0.03,
         analysis_basis=AnalysisBasis.ENROLLMENTS,
         window_index="1",
     )
@@ -76,6 +79,7 @@ def test_parse_statistics():
                 "point": 0.4,
                 "lower": 0.3,
                 "upper": 0.5,
+                "p_value": 0.001,
                 "segment": "all",
                 "analysis_basis": "enrollments",
                 "window_index": "2"
@@ -90,6 +94,7 @@ def test_parse_statistics():
                 "point": 40.5,
                 "lower": -0.9,
                 "upper": 33,
+                "p_value": 0.051,
                 "segment": "all",
                 "analysis_basis": "enrollments",
                 "window_index": "8"

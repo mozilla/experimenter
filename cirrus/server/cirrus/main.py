@@ -20,6 +20,7 @@ from .settings import (
     channel,
     cirrus_sentry_dsn,
     context,
+    env_name,
     fml_path,
     instance_name,
     metrics_config,
@@ -73,6 +74,7 @@ def initialize_sentry():
             # of sampled transactions.
             # We recommend adjusting this value in production.
             profiles_sample_rate=0.1,
+            environment=env_name,
         )
 
 
@@ -212,9 +214,9 @@ async def compute_features(request_data: FeatureRequest):
         targeting_context
     )
 
-    client_feature_configuration: dict[
-        str, Any
-    ] = app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
+    client_feature_configuration: dict[str, Any] = (
+        app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
+    )
 
     await record_metrics(
         enrolled_partial_configuration=enrolled_partial_configuration,

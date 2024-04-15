@@ -13,10 +13,12 @@ export enum NimbusExperimentApplicationEnum {
   FENIX = "FENIX",
   FOCUS_ANDROID = "FOCUS_ANDROID",
   FOCUS_IOS = "FOCUS_IOS",
+  FXA = "FXA",
   IOS = "IOS",
   KLAR_ANDROID = "KLAR_ANDROID",
   KLAR_IOS = "KLAR_IOS",
   MONITOR = "MONITOR",
+  VPN = "VPN",
 }
 
 export enum NimbusExperimentChannelEnum {
@@ -76,6 +78,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_114_3_0 = "FIREFOX_114_3_0",
   FIREFOX_115 = "FIREFOX_115",
   FIREFOX_115_0_2 = "FIREFOX_115_0_2",
+  FIREFOX_115_7 = "FIREFOX_115_7",
   FIREFOX_116 = "FIREFOX_116",
   FIREFOX_116_0_1 = "FIREFOX_116_0_1",
   FIREFOX_116_2_0 = "FIREFOX_116_2_0",
@@ -88,9 +91,15 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_12 = "FIREFOX_12",
   FIREFOX_120 = "FIREFOX_120",
   FIREFOX_121 = "FIREFOX_121",
+  FIREFOX_121_0_1 = "FIREFOX_121_0_1",
   FIREFOX_122 = "FIREFOX_122",
+  FIREFOX_122_1_0 = "FIREFOX_122_1_0",
+  FIREFOX_122_2_0 = "FIREFOX_122_2_0",
   FIREFOX_123 = "FIREFOX_123",
+  FIREFOX_123_0_1 = "FIREFOX_123_0_1",
   FIREFOX_124 = "FIREFOX_124",
+  FIREFOX_124_2_0 = "FIREFOX_124_2_0",
+  FIREFOX_124_3_0 = "FIREFOX_124_3_0",
   FIREFOX_125 = "FIREFOX_125",
   FIREFOX_125_0_1 = "FIREFOX_125_0_1",
   FIREFOX_126 = "FIREFOX_126",
@@ -212,6 +221,7 @@ export enum NimbusExperimentPublishStatusEnum {
 
 export enum NimbusExperimentQAStatusEnum {
   GREEN = "GREEN",
+  NOT_SET = "NOT_SET",
   RED = "RED",
   YELLOW = "YELLOW",
 }
@@ -261,7 +271,7 @@ export interface ExperimentInput {
   conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   countries?: (string | null)[] | null;
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
-  excludedExperiments?: number[] | null;
+  excludedExperimentsBranches?: NimbusExperimentBranchThroughExcludedInput[] | null;
   featureConfigIds?: (number | null)[] | null;
   firefoxMaxVersion?: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;
@@ -274,6 +284,7 @@ export interface ExperimentInput {
   isRollout?: boolean | null;
   isSticky?: boolean | null;
   languages?: (string | null)[] | null;
+  legalSignoff?: boolean | null;
   locales?: (string | null)[] | null;
   localizations?: string | null;
   name?: string | null;
@@ -286,16 +297,20 @@ export interface ExperimentInput {
   proposedReleaseDate?: string | null;
   publicDescription?: string | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
+  qaComment?: string | null;
+  qaSignoff?: boolean | null;
   qaStatus?: NimbusExperimentQAStatusEnum | null;
   referenceBranch?: BranchInput | null;
-  requiredExperiments?: number[] | null;
+  requiredExperimentsBranches?: NimbusExperimentBranchThroughRequiredInput[] | null;
   riskBrand?: boolean | null;
+  riskMessage?: boolean | null;
   riskMitigationLink?: string | null;
   riskPartnerRelated?: boolean | null;
   riskRevenue?: boolean | null;
   secondaryOutcomes?: (string | null)[] | null;
   status?: NimbusExperimentStatusEnum | null;
   statusNext?: NimbusExperimentStatusEnum | null;
+  subscribers?: NimbusExperimentSubscriberInput[] | null;
   takeawaysMetricGain?: boolean | null;
   takeawaysGainAmount?: string | null;
   takeawaysQbrLearning?: boolean | null;
@@ -303,7 +318,23 @@ export interface ExperimentInput {
   targetingConfigSlug?: string | null;
   totalEnrolledClients?: number | null;
   treatmentBranches?: (BranchInput | null)[] | null;
+  vpSignoff?: boolean | null;
   warnFeatureSchema?: boolean | null;
+}
+
+export interface NimbusExperimentBranchThroughExcludedInput {
+  excludedExperiment: number;
+  branchSlug?: string | null;
+}
+
+export interface NimbusExperimentBranchThroughRequiredInput {
+  requiredExperiment: number;
+  branchSlug?: string | null;
+}
+
+export interface NimbusExperimentSubscriberInput {
+  email: string;
+  subscribed: boolean;
 }
 
 //==============================================================

@@ -125,6 +125,7 @@ describe("hooks/useCommonForm", () => {
               "publicDescription",
               "documentationLinks",
               "riskBrand",
+              "riskMessage",
               "riskRevenue",
               "riskPartnerRelated",
               "projects",
@@ -168,7 +169,8 @@ describe("hooks/useCommonForm", () => {
     });
 
     it("FormBranch", () => {
-      render(<BranchSubject />);
+      const { experiment } = mockExperimentQuery("boo", {});
+      render(<BranchSubject experiment={experiment} />);
 
       branchFieldNames.forEach((name) => {
         const fieldName = `referenceBranch.${name}`;

@@ -1,11 +1,12 @@
 import itertools
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from mozilla_nimbus_schemas.experiments.feature_manifests import SetPref
 
-from experimenter.experiments.constants import NO_FEATURE_SLUG
+from experimenter.experiments.constants import NO_FEATURE_SLUG, Application
 from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusFeatureVersion,
@@ -153,17 +154,17 @@ class Command(BaseCommand):
                 feature_version = versions[feature.version]
                 feature_version_id = feature_version.id
 
-            key = (feature_config.id, feature_version_id)
-
             dirty_fields = []
             created = False
 
-            schema = schemas.get(key)
+            schema = schemas.get((feature_config.id, feature_version_id))
             if schema is None:
                 created = True
                 schema = NimbusVersionedSchema(
                     feature_config=feature_config,
                     version=feature_version,
+                    is_early_startup=feature.model.is_early_startup or False,
+                    set_pref_vars={},
                 )
 
             if (jsonschema := feature.get_jsonschema()) is not None:
@@ -171,15 +172,23 @@ class Command(BaseCommand):
                     schema.schema = jsonschema
                     dirty_fields.append("schema")
 
-            sets_prefs = [
-                v.set_pref
-                for v in feature.model.variables.values()
-                if v.set_pref is not None
-            ]
+            if feature_config.application == Application.DESKTOP:
+                set_pref_vars = {
+                    var_name: _set_pref_name(var.set_pref)
+                    for var_name, var in feature.model.variables.items()
+                    if var.set_pref is not None
+                }
 
-            if schema.sets_prefs != sets_prefs:
-                schema.sets_prefs = sets_prefs
-                dirty_fields.append("sets_prefs")
+                if schema.set_pref_vars != set_pref_vars:
+                    schema.set_pref_vars = set_pref_vars
+                    dirty_fields.append("set_pref_vars")
+
+                if (
+                    feature.model.is_early_startup is not None
+                    and schema.is_early_startup != feature.model.is_early_startup
+                ):
+                    schema.is_early_startup = feature.model.is_early_startup
+                    dirty_fields.append("is_early_startup")
 
             if created:
                 schemas_to_create.append(schema)
@@ -194,3 +203,10 @@ class Command(BaseCommand):
         NimbusVersionedSchema.objects.bulk_create(schemas_to_create)
 
         logger.info("Features Updated")
+
+
+def _set_pref_name(v: Union[SetPref, str]) -> str:
+    if isinstance(v, SetPref):
+        return v.pref
+    else:
+        return v

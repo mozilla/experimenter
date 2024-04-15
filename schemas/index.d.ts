@@ -10,6 +10,7 @@ export type LogSource = "jetstream" | "sizing" | "jetstream-preview";
 export type AnalysisErrors = AnalysisError[];
 export type Feature = FeatureWithExposure | FeatureWithoutExposure;
 export type FeatureVariableType = "int" | "string" | "boolean" | "json";
+export type PrefBranch = "default" | "user";
 export type SizingReleaseChannel = "release" | "beta" | "nightly";
 export type SizingUserType = "new" | "existing";
 export type Statistics = Statistic[];
@@ -28,6 +29,14 @@ export interface AnalysisError {
   segment?: string;
   statistic?: string;
   timestamp: string;
+}
+export interface ConfigVersionDetails {
+  path?: string;
+  revision?: string;
+}
+export interface ConfigVersions {
+  metric_definitions?: ConfigVersionDetails[];
+  jetstream_image?: ConfigVersionDetails;
 }
 export interface ExternalConfig {
   reference_branch?: string;
@@ -58,7 +67,11 @@ export interface FeatureVariable {
   enum?: string[];
   fallbackPref?: string;
   type?: FeatureVariableType;
-  setPref?: string;
+  setPref?: string | SetPref;
+}
+export interface SetPref {
+  branch: PrefBranch;
+  pref: string;
 }
 export interface NimbusFeatureSchema {
   uri: string;
@@ -85,6 +98,8 @@ export interface Metadata {
   outcomes?: {
     [k: string]: Outcome;
   };
+  version_info?: ConfigVersions;
+  version_date?: string;
   schema_version?: number;
 }
 export interface Metric {
@@ -235,6 +250,7 @@ export interface Statistic {
   point?: number;
   lower?: number;
   upper?: number;
+  p_value?: number;
   segment?: string;
   analysis_basis?: AnalysisBasis;
   window_index?: string;

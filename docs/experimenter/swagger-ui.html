@@ -1375,38 +1375,71 @@
         ]
       }
     },
-    "/api/v5/config/": {
-      "get": {
-        "operationId": "retrieveNimbusConfiguration",
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NimbusConfiguration"
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "api"
-        ]
-      }
-    },
     "/api/v6/experiments/": {
       "get": {
         "operationId": "listNimbusExperiments",
         "description": "",
         "parameters": [
           {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "is_first_run",
             "required": false,
             "in": "query",
             "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Preview",
+                "Live",
+                "Complete"
+              ]
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1447,10 +1480,65 @@
             }
           },
           {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "is_first_run",
             "required": false,
             "in": "query",
             "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Preview",
+                "Live",
+                "Complete"
+              ]
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1479,10 +1567,41 @@
         "description": "",
         "parameters": [
           {
-            "name": "is_first_run",
+            "name": "is_localized",
             "required": false,
             "in": "query",
-            "description": "is_first_run",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1523,10 +1642,41 @@
             }
           },
           {
-            "name": "is_first_run",
+            "name": "is_localized",
             "required": false,
             "in": "query",
-            "description": "is_first_run",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1559,6 +1709,46 @@
             "required": false,
             "in": "query",
             "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1603,6 +1793,46 @@
             "required": false,
             "in": "query",
             "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
             "schema": {
               "type": "string"
             }
@@ -1822,6 +2052,106 @@
         },
         "tags": [
           "Core: Private"
+        ]
+      }
+    },
+    "/api/v5/fml-errors/{slug}/": {
+      "put": {
+        "operationId": "updateNimbusExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FmlFeatureValue"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/FmlFeatureValue"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FmlFeatureValue"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FmlFeatureValue"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateNimbusExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FmlFeatureValue"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/FmlFeatureValue"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FmlFeatureValue"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FmlFeatureValue"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
         ]
       }
     }
@@ -2047,7 +2377,27 @@
               "117.0",
               "118.0",
               "119.0",
-              "120.0"
+              "120.0",
+              "121.0",
+              "122.0",
+              "123.0",
+              "124.0",
+              "125.0",
+              "126.0",
+              "127.0",
+              "128.0",
+              "129.0",
+              "130.0",
+              "131.0",
+              "132.0",
+              "133.0",
+              "134.0",
+              "135.0",
+              "136.0",
+              "137.0",
+              "138.0",
+              "139.0",
+              "140.0"
             ],
             "type": "string",
             "nullable": true
@@ -2119,7 +2469,27 @@
               "117.0",
               "118.0",
               "119.0",
-              "120.0"
+              "120.0",
+              "121.0",
+              "122.0",
+              "123.0",
+              "124.0",
+              "125.0",
+              "126.0",
+              "127.0",
+              "128.0",
+              "129.0",
+              "130.0",
+              "131.0",
+              "132.0",
+              "133.0",
+              "134.0",
+              "135.0",
+              "136.0",
+              "137.0",
+              "138.0",
+              "139.0",
+              "140.0"
             ],
             "type": "string",
             "nullable": true
@@ -2134,7 +2504,7 @@
             "format": "uri",
             "nullable": true,
             "maxLength": 400,
-            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)(?:\\.(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::[0-9]{1,5})?(?:[/?#][^\\s]*)?\\z"
           },
           "pref_branch": {
             "enum": [
@@ -2222,7 +2592,7 @@
                   "format": "uri",
                   "nullable": true,
                   "maxLength": 400,
-                  "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+                  "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)(?:\\.(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::[0-9]{1,5})?(?:[/?#][^\\s]*)?\\z"
                 },
                 "preferences": {
                   "type": "array",
@@ -2417,7 +2787,7 @@
             "format": "uri",
             "nullable": true,
             "maxLength": 200,
-            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)(?:\\.(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::[0-9]{1,5})?(?:[/?#][^\\s]*)?\\z"
           },
           "projects": {
             "type": "string",
@@ -2460,7 +2830,7 @@
             "format": "uri",
             "nullable": true,
             "maxLength": 400,
-            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)(?:\\.(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::[0-9]{1,5})?(?:[/?#][^\\s]*)?\\z"
           }
         },
         "required": [
@@ -2475,7 +2845,7 @@
             "type": "string",
             "format": "uri",
             "maxLength": 400,
-            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)(?:\\.(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::[0-9]{1,5})?(?:[/?#][^\\s]*)?\\z"
           },
           "variants": {
             "type": "array",
@@ -2772,7 +3142,7 @@
                   "type": "string",
                   "format": "uri",
                   "maxLength": 400,
-                  "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+                  "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)(?:\\.(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::[0-9]{1,5})?(?:[/?#][^\\s]*)?\\z"
                 },
                 "id": {
                   "type": "integer"
@@ -2987,7 +3357,27 @@
               "117.0",
               "118.0",
               "119.0",
-              "120.0"
+              "120.0",
+              "121.0",
+              "122.0",
+              "123.0",
+              "124.0",
+              "125.0",
+              "126.0",
+              "127.0",
+              "128.0",
+              "129.0",
+              "130.0",
+              "131.0",
+              "132.0",
+              "133.0",
+              "134.0",
+              "135.0",
+              "136.0",
+              "137.0",
+              "138.0",
+              "139.0",
+              "140.0"
             ],
             "type": "string",
             "nullable": true
@@ -3059,7 +3449,27 @@
               "117.0",
               "118.0",
               "119.0",
-              "120.0"
+              "120.0",
+              "121.0",
+              "122.0",
+              "123.0",
+              "124.0",
+              "125.0",
+              "126.0",
+              "127.0",
+              "128.0",
+              "129.0",
+              "130.0",
+              "131.0",
+              "132.0",
+              "133.0",
+              "134.0",
+              "135.0",
+              "136.0",
+              "137.0",
+              "138.0",
+              "139.0",
+              "140.0"
             ],
             "type": "string",
             "nullable": true
@@ -3184,439 +3594,6 @@
           "experiment_name",
           "experiment_summary",
           "rollout"
-        ]
-      },
-      "NimbusConfiguration": {
-        "type": "object",
-        "properties": {
-          "applications": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "label",
-                "value"
-              ]
-            }
-          },
-          "channels": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "label",
-                "value"
-              ]
-            }
-          },
-          "applicationConfigs": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "application": {
-                  "type": "string"
-                },
-                "channels": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "label": {
-                        "type": "string"
-                      },
-                      "value": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "label",
-                      "value"
-                    ]
-                  }
-                }
-              },
-              "required": [
-                "application",
-                "channels"
-              ]
-            }
-          },
-          "countries": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "code": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "code"
-              ]
-            }
-          },
-          "locales": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "code": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "code"
-              ]
-            }
-          },
-          "languages": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "code": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "code"
-              ]
-            }
-          },
-          "projects": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "slug": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "slug"
-              ]
-            }
-          },
-          "documentationLink": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "label",
-                "value"
-              ]
-            }
-          },
-          "allFeatureConfigs": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "slug": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string",
-                  "nullable": true
-                },
-                "application": {
-                  "type": "string"
-                },
-                "ownerEmail": {
-                  "type": "string",
-                  "nullable": true
-                },
-                "schema": {
-                  "type": "string",
-                  "nullable": true
-                },
-                "setsPrefs": {
-                  "type": "boolean"
-                },
-                "enabled": {
-                  "type": "boolean"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "slug",
-                "description",
-                "application",
-                "ownerEmail",
-                "schema",
-                "setsPrefs",
-                "enabled"
-              ]
-            }
-          },
-          "firefoxVersions": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "label",
-                "value"
-              ]
-            }
-          },
-          "outcomes": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "application": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "friendlyName": {
-                  "type": "string"
-                },
-                "slug": {
-                  "type": "string"
-                },
-                "isDefault": {
-                  "type": "boolean"
-                },
-                "metrics": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "slug": {
-                        "type": "string"
-                      },
-                      "friendlyName": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "slug",
-                      "friendlyName",
-                      "description"
-                    ]
-                  }
-                }
-              },
-              "required": [
-                "application",
-                "description",
-                "friendlyName",
-                "slug",
-                "isDefault",
-                "metrics"
-              ]
-            }
-          },
-          "owners": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "username": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "username"
-              ]
-            }
-          },
-          "targetingConfigs": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                },
-                "applicationValues": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "description": {
-                  "type": "string"
-                },
-                "stickyRequired": {
-                  "type": "boolean"
-                },
-                "isFirstRunRequired": {
-                  "type": "boolean"
-                }
-              },
-              "required": [
-                "label",
-                "value",
-                "applicationValues",
-                "description",
-                "stickyRequired",
-                "isFirstRunRequired"
-              ]
-            }
-          },
-          "conclusionRecommendations": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "label",
-                "value"
-              ]
-            }
-          },
-          "takeaways": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "label",
-                "value"
-              ]
-            }
-          },
-          "types": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "label",
-                "value"
-              ]
-            }
-          },
-          "populationSizingData": {
-            "type": "string"
-          },
-          "hypothesisDefault": {
-            "type": "string"
-          },
-          "maxPrimaryOutcomes": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "applications",
-          "channels",
-          "applicationConfigs",
-          "countries",
-          "locales",
-          "languages",
-          "projects",
-          "documentationLink",
-          "allFeatureConfigs",
-          "firefoxVersions",
-          "outcomes",
-          "owners",
-          "targetingConfigs",
-          "conclusionRecommendations",
-          "takeaways",
-          "types",
-          "populationSizingData"
         ]
       },
       "NimbusExperiment": {
@@ -3772,6 +3749,10 @@
           "locales": {
             "type": "string",
             "readOnly": true
+          },
+          "publishedDate": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
@@ -3780,7 +3761,8 @@
           "bucketConfig",
           "startDate",
           "enrollmentEndDate",
-          "endDate"
+          "endDate",
+          "publishedDate"
         ]
       },
       "ExperimentClone": {
@@ -3797,6 +3779,21 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "FmlFeatureValue": {
+        "type": "object",
+        "properties": {
+          "featureSlug": {
+            "type": "string"
+          },
+          "featureValue": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "featureSlug",
+          "featureValue"
         ]
       }
     }

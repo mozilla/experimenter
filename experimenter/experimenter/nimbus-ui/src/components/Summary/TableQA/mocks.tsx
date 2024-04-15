@@ -4,10 +4,13 @@
 import React, { useState } from "react";
 import TableQA from "src/components/Summary/TableQA";
 import { RouterSlugProvider } from "src/lib/test-utils";
+import { NimbusExperimentQAStatusEnum } from "src/types/globalTypes";
 
 export const Subject = ({
   id = 123,
-  qaStatus = null,
+  publishStatus = null,
+  qaStatus = NimbusExperimentQAStatusEnum.NOT_SET,
+  qaComment = null,
   isLoading = false,
   onSubmit = async (data) => {},
   ...props
@@ -27,7 +30,9 @@ export const Subject = ({
         <TableQA
           {...{
             id,
+            publishStatus,
             qaStatus,
+            qaComment,
             isLoading,
             onSubmit,
             showEditor,

@@ -4,7 +4,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.postgres import forms as pgforms
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportMixin
 from import_export.widgets import DecimalWidget, ForeignKeyWidget
@@ -61,6 +61,24 @@ class NimbusBranchForeignKeyWidget(ForeignKeyWidget):
         return self.model.objects.filter(experiment=experiment)
 
 
+# TODO: remove NimbusDiff class when we upgrade to django-import-export >= 4.0.0
+# - the default Diff class in <4.0.0 calls the `dehydrate` functions to determine
+#   diff information, and this breaks the import for FK fields
+# https://github.com/mozilla/experimenter/issues/10416
+class NimbusDiff(resources.Diff):  # pragma: no cover
+    def __init__(self, resource, instance, new):
+        self.left = NimbusDiff._read_field_values(resource, instance)
+        self.right = []
+        self.new = new
+
+    def compare_with(self, resource, instance, dry_run=False):
+        self.right = NimbusDiff._read_field_values(resource, instance)
+
+    @classmethod
+    def _read_field_values(cls, resource, instance):
+        return [f.export(instance) for f in resource.get_import_fields()]
+
+
 class NimbusExperimentResource(resources.ModelResource):
     changes = fields.Field()
     branches = fields.Field()
@@ -73,14 +91,18 @@ class NimbusExperimentResource(resources.ModelResource):
     #   which breaks the Nimbus UI type validation
     status_next = fields.Field()
     conclusion_recommendation = fields.Field()
-    qa_status = fields.Field()
+
+    # TODO: remove get_diff_class when we upgrade to django-import-export >= 4.0.0
+    # https://github.com/mozilla/experimenter/issues/10416
+    def get_diff_class(self):  # pragma: no cover
+        return NimbusDiff
 
     def get_diff_headers(self):
         skip_list = ["reference_branch_slug"]
         return [
-            force_text(field.column_name)
+            force_str(field.column_name)
             for field in self.get_export_fields()
-            if force_text(field.column_name) not in skip_list
+            if force_str(field.column_name) not in skip_list
         ]
 
     class Meta:
@@ -107,12 +129,6 @@ class NimbusExperimentResource(resources.ModelResource):
         if experiment.status_next not in dict(NimbusConstants.Status.choices):
             return None
         return experiment.status_next
-
-    def dehydrate_qa_status(self, experiment):
-        """Return None instead of empty string for nullable enums"""
-        if experiment.qa_status not in dict(NimbusConstants.QAStatus.choices):
-            return None
-        return experiment.qa_status
 
     def dehydrate_conclusion_recommendation(self, experiment):
         """Return None instead of empty string for nullable enums"""
@@ -280,6 +296,11 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     conclusion_recommendation = forms.ChoiceField(
         choices=NimbusExperiment.ConclusionRecommendation.choices, required=False
     )
+    qa_status = forms.ChoiceField(
+        choices=NimbusExperiment.QAStatus.choices,
+        required=False,
+        initial=NimbusExperiment.QAStatus.NOT_SET,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -331,7 +352,6 @@ class NimbusExperimentAdmin(
     form = NimbusExperimentAdminForm
     actions = [force_fetch_jetstream_data]
     resource_class = NimbusExperimentResource
-    filter_horizontal = ("excluded_experiments", "required_experiments")
 
 
 class NimbusFeatureVersionAdmin(
