@@ -36,7 +36,7 @@ describe("AppLayoutWithSidebar", () => {
       );
       expect(
         screen.getByTestId("history-page-my-special-slug"),
-      ).toHaveAttribute("href", `/history/my-special-slug`);
+      ).toHaveAttribute("href", `/nimbus_new/my-special-slug/history/`);
     });
 
     it("renders information about missing experiment details", async () => {
