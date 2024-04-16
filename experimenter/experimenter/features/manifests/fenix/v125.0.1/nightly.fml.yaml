@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - developer
+  - nightly
 features:
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
@@ -214,7 +214,7 @@ features:
         description: Configuration of the notification worker for all notification messages.
         type: NotificationConfig
         default:
-          refresh-interval: 120
+          refresh-interval: 240
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -225,7 +225,7 @@ features:
         default:
           DEFAULT:
             priority: 50
-            max-display-count: 100
+            max-display-count: 5
           SURVEY:
             priority: 55
             max-display-count: 1
@@ -240,9 +240,6 @@ features:
             max-display-count: 10
           NOTIFICATION:
             priority: 50
-            max-display-count: 1
-          EXPIRES_QUICKLY:
-            priority: 100
             max-display-count: 1
         string-alias: StyleName
       triggers:
@@ -422,15 +419,15 @@ features:
       enabled:
         description: "if true, the shopping experience feature is shown to the user."
         type: Boolean
-        default: true
+        default: false
       product-recommendations:
         description: "if true, recommended products feature is enabled to be shown to the user based on their preference."
         type: Boolean
-        default: true
+        default: false
       product-recommendations-exposure:
         description: "if true, we want to record recommended products inventory for opted-in users, even if product recommendations are disabled."
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
