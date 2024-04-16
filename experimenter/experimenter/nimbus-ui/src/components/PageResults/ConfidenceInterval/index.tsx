@@ -93,7 +93,9 @@ const ConfidenceInterval: React.FC<{
 
       <div className="row w-100 float-right position-relative mt-2">{line}</div>
       <div className="row w-100 float-right h6">
-        <div className="col d-flex justify-content-center mt-3">{referenceBranch}</div>
+        <div className="col d-flex justify-content-center mt-3">
+          {referenceBranch}
+        </div>
       </div>
     </div>
   );
