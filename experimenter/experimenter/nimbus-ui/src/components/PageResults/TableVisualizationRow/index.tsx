@@ -109,12 +109,13 @@ const conversionChangeField = (
   upper: number,
   range: number,
   significance: string | undefined,
+  referenceBranch: string,
 ) => {
   lower = Math.round(lower * 1000) / 10;
   upper = Math.round(upper * 1000) / 10;
   range = Math.round(range * 1000) / 10;
   significance = significance || SIGNIFICANCE.NEUTRAL;
-  return <ConfidenceInterval {...{ upper, lower, range, significance }} />;
+  return <ConfidenceInterval {...{ upper, lower, range, significance, referenceBranch }} />;
 };
 
 const populationField = (point: number, percent: number | undefined) => {
@@ -285,7 +286,7 @@ const TableVisualizationRow: React.FC<{
             field = conversionCountField(count!, userCountMetric!);
             break;
           case DISPLAY_TYPE.CONVERSION_CHANGE:
-            field = conversionChangeField(lower!, upper!, bounds, significance);
+            field = conversionChangeField(lower!, upper!, bounds, significance, referenceBranch);
             break;
         }
         fieldList.push({ field, tooltipText, className });

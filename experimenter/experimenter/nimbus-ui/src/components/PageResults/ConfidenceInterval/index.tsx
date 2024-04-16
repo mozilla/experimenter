@@ -65,7 +65,8 @@ const ConfidenceInterval: React.FC<{
   lower: number;
   range: number;
   significance: string;
-}> = ({ upper, lower, range, significance }) => {
+  referenceBranch: string;
+}> = ({ upper, lower, range, significance, referenceBranch }) => {
   const fullWidth = range * 2;
   const barWidth = ((upper - lower) / fullWidth) * 100;
   const leftPercent = (Math.abs(lower - range * -1) / fullWidth) * 100;
@@ -92,7 +93,7 @@ const ConfidenceInterval: React.FC<{
 
       <div className="row w-100 float-right position-relative mt-2">{line}</div>
       <div className="row w-100 float-right h6">
-        <div className="col d-flex justify-content-center mt-3">control</div>
+        <div className="col d-flex justify-content-center mt-3">{referenceBranch}</div>
       </div>
     </div>
   );
