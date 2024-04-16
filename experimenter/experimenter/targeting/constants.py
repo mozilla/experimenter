@@ -442,6 +442,7 @@ MOBILE_NEW_USER = NimbusTargetingConfig(
         Application.KLAR_IOS.name,
     ),
 )
+
 MOBILE_FIRST_RUN_USER = NimbusTargetingConfig(
     name="First run Users on Mobile",
     slug="mobile_first_run",
@@ -1772,6 +1773,17 @@ IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+IOS_IPHONE_FIRST_RUN_USER = NimbusTargetingConfig(
+    name="First run Users on iPhone",
+    slug="ios_iphone_first_run_user",
+    description="First-run users on Firefox for iOS on iPhones",
+    targeting="isFirstRun == 'true' && is_phone",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=True,
     application_choice_names=(Application.IOS.name,),
 )
 
