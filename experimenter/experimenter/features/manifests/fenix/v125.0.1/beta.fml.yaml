@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - developer
+  - beta
 features:
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
@@ -34,14 +34,14 @@ features:
       enabled:
         description: "When the feature is enabled and Firefox receives a Login event with an  empty saved logins list, a suggested strong password prompt will be shown,  allowing the user to use the generated password to fill in the password field  for the new account that will be created. When the feature is disabled,  there won't be any prompt displayed that would allow using a generated password.\n"
         type: Boolean
-        default: true
+        default: false
   fx-suggest:
     description: A feature that provides Firefox Suggest search suggestions.
     variables:
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -214,7 +214,7 @@ features:
         description: Configuration of the notification worker for all notification messages.
         type: NotificationConfig
         default:
-          refresh-interval: 120
+          refresh-interval: 240
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -225,7 +225,7 @@ features:
         default:
           DEFAULT:
             priority: 50
-            max-display-count: 100
+            max-display-count: 5
           SURVEY:
             priority: 55
             max-display-count: 1
@@ -240,9 +240,6 @@ features:
             max-display-count: 10
           NOTIFICATION:
             priority: 50
-            max-display-count: 1
-          EXPIRES_QUICKLY:
-            priority: 100
             max-display-count: 1
         string-alias: StyleName
       triggers:
@@ -415,22 +412,22 @@ features:
       enabled:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
-        default: true
+        default: false
   shopping-experience:
     description: A feature that shows product review quality information.
     variables:
       enabled:
         description: "if true, the shopping experience feature is shown to the user."
         type: Boolean
-        default: true
+        default: false
       product-recommendations:
         description: "if true, recommended products feature is enabled to be shown to the user based on their preference."
         type: Boolean
-        default: true
+        default: false
       product-recommendations-exposure:
         description: "if true, we want to record recommended products inventory for opted-in users, even if product recommendations are disabled."
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
