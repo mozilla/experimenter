@@ -6,7 +6,7 @@
 # 125.*.
 #
 # NB: This order is important. This entry must come before the regular Fenix
-# entry because theis will generate an experimenter.yaml for the main branch
+# entry because this will generate an experimenter.yaml for the main branch
 # (version 125) which we need to overwrite with the version in mozilla-central
 # (version 126). We could add logic to conditionally fetch unversioned
 # manifests, but this is a temporary workaround until 126 hits release.
@@ -42,11 +42,12 @@ fenix:
     strategies:
       - type: "branched"
         branches:
-          # Fenix has only just merged into mozilla-central. Once 126 merges to
-          # beta (and then release), those branches should be added here.
+          # Fenix has only just merged into beta. Once 126 merges to release,
+          # that branch should be added here.
           #
-          # See #10514 (beta) and #10515 (release) issues.
+          # See issue #10515.
           - "master"
+          - "beta"
 
 firefox_ios:
   slug: "ios"
