@@ -271,6 +271,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_124_3_0
   FIREFOX_125
   FIREFOX_125_0_1
+  FIREFOX_125_0_2
   FIREFOX_126
   FIREFOX_127
   FIREFOX_128
