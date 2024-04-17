@@ -641,14 +641,15 @@ windowsJumpList:
 
 abouthomecache:
   description: "The startup about:home cache."
-  owner: omc@mozilla.com
+  owner: omc@mozilla.com, mconley@mozilla.com
   hasExposure: false
-  isEarlyStartup: true
   variables:
     enabled:
       type: boolean
-      fallbackPref: browser.startup.homepage.abouthome_cache.enabled
       description: Is the feature enabled?
+      setPref:
+        branch: user
+        pref: browser.startup.homepage.abouthome_cache.enabled
 
 newtab:
   description: "The about:newtab page"
@@ -1694,26 +1695,20 @@ dapTelemetry:
   description: DAP Telemetry
   owner: simon@mozilla.com
   hasExposure: false
-  isEarlyStartup: true # Data is sent on startup with a trigger in BrowserGlue.sys.mjs
   variables:
     enabled:
       type: boolean
-      fallbackPref: toolkit.telemetry.dap_enabled
       description: Whether to automatically send DAP measurements.
     task1Enabled:
       type: boolean
-      fallbackPref: toolkit.telemetry.dap_task1_enabled
       description: Whether to send fake measurements for task 1.
     task1TaskId:
       type: string
-      fallbackPref: toolkit.telemetry.dap_task1_taskid
       description: The task ID to use for task 1 measurements.
     visitCountingEnabled:
       type: boolean
-      fallbackPref: toolkit.telemetry.dap_visit_counting_enabled
       description: Whether to count visits to the provided list of URLs.
     visitCountingExperimentList:
-      fallbackPref: toolkit.telemetry.dap_visit_counting_experiment_list
       type: json
       description: A list of experiments with URLs for which we want to count visits.
 
@@ -2098,6 +2093,12 @@ gc:
       setPref:
         branch: user
         pref: "javascript.options.mem.gc_parallel_marking_threshold_mb"
+    gc_max_parallel_marking_threads:
+      description: The maximum number of threads to use for parallel marking, if enabled.
+      type: int
+      setPref:
+        branch: user
+        pref: "javascript.options.mem.gc_max_parallel_marking_threads"
     gc_per_zone:
       description: Whether per-zone GC is enabled. If not, all zones are collected every time.
       type: boolean
@@ -2396,20 +2397,6 @@ backgroundUpdate:
       setPref:
         branch: user
         pref: app.update.background.allowUpdatesForUnelevatedInstallations
-
-defaultAgent:
-  description: >-
-    Features that configure the Windows Default Browser Agent.
-  owner: install-update@mozilla.com
-  applications:
-    - firefox-desktop-background-task
-  hasExposure: false
-  variables:
-    cppFallback:
-      description: >-
-        Triggers the Default Agent to fall back to the C++ implementation of DoTask if true.
-      type: boolean
-      fallbackPref: "defaultAgent.cppFallback.enabled"
 
 bookmarks:
   description: Prefs to control aspects of the bookmarks system.
