@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from functools import lru_cache
 
@@ -13,10 +14,13 @@ LOAD_DATA_RETRY_DELAY = 1.0
 
 
 def load_graphql_data(query):
+    nginx_url = "https://nginx"
+    if not os.environ.get("DEBIAN_FRONTEND"):
+        nginx_url = "https://localhost"
     for retry in range(LOAD_DATA_RETRIES):
         try:
             return requests.post(
-                "https://nginx/api/v5/graphql",
+                f"{nginx_url}/api/v5/graphql",
                 json=query,
                 verify=False,
             ).json()

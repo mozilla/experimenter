@@ -471,6 +471,31 @@ This should run the integration tests and watch them run in a Firefox instance y
 
 To use NoVNC, navgate to this url `http://localhost:7902` with the password `secret`. Then you can follow the same steps as above.
 
+### Running Integration tests locally
+
+1. Install [geckodriver](https://github.com/mozilla/geckodriver/releases) and have it available in your path. You should be able to run `geckodriver --version` from your command line.
+2. Add your Firefox install to your path. You should be able to run `firefox --version` from your command line.
+3. Setup experimenter:
+```sh
+make refresh build_integration_test SKIP_DUMMY=1 up_prod_detatched
+```
+Navigate with your browser to `https://localhost/nimbus` to confirm everything is working.
+
+4. Run the Integration Tests using tox:
+```sh
+tox -c experimenter/tests/integration -e integration-test-nimbus-local
+```
+
+* To run a specific test:
+```sh
+tox -c experimenter/tests/integration -e integration-test-nimbus-local -- -k "test_name_here[WITH_CLIENT]
+```
+Firefox should pop up and start running through your test! You can change the firefox version the tests run on by copying the path of the `firefox-bin` and adding it to the `firefox_options` fixture in the `tests/integration/nimbus/conftest.py` file:
+
+```sh
+firefox_options.binary = "path/to/firefox-bin"
+```
+
 #### Integration Test options
 
 - `TOX_ARGS`: [Tox](https://tox.readthedocs.io/en/latest/config.html#tox) commandline variables.
