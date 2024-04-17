@@ -26,6 +26,8 @@ services:
   rust-sdk:
     image: experimenter:integration-tests
     env_file: .env
+    environment:
+      - DEBIAN_FRONTEND=0
     volumes:
       - .:/code
       - /code/experimenter/tests/integration/.tox
