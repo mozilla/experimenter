@@ -241,6 +241,9 @@ features:
           NOTIFICATION:
             priority: 50
             max-display-count: 1
+          MICRO_SURVEY:
+            priority: 50
+            max-display-count: 5
           EXPIRES_QUICKLY:
             priority: 100
             max-display-count: 1
