@@ -241,6 +241,9 @@ features:
           NOTIFICATION:
             priority: 50
             max-display-count: 1
+          MICRO_SURVEY:
+            priority: 50
+            max-display-count: 5
         string-alias: StyleName
       triggers:
         description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
