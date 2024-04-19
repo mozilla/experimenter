@@ -163,6 +163,9 @@ features:
           DEFAULT:
             priority: 50
             max-display-count: 5
+          MICRO_SURVEY:
+            priority: 50
+            max-display-count: 5
           NOTIFICATION:
             priority: 50
             max-display-count: 1
