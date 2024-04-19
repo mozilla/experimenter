@@ -155,6 +155,7 @@ features:
           - homescreen
           - notification
           - survey
+          - microsurvey
         string-alias: SurfaceName
       actions:
         description: A growable map of action URLs.
