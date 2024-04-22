@@ -160,11 +160,10 @@ class VersionTests(TestCase):
                     "release_v98.1",
                     "releases/v8.1.6",
                     "releases_v107.1",
-                    "releases_v120",
+                    "release/v124",
                 ],
                 {
-                    Version(107, 1): Ref("releases_v107.1"),
-                    Version(120): Ref("releases_v120"),
+                    Version(124): Ref("release/v124"),
                 },
             ),
         ]
@@ -268,6 +267,7 @@ class VersionTests(TestCase):
             (
                 "focus_ios",
                 [
+                    "focus/klar-v124.1",
                     "v999.0.0",
                     "v120.0",
                     "v98.1.0",
@@ -275,8 +275,7 @@ class VersionTests(TestCase):
                     "8.1.6",
                 ],
                 {
-                    Version(120): Ref("v120.0"),
-                    Version(98, 1): Ref("v98.1.0"),
+                    Version(124, 1): Ref("focus/klar-v124.1"),
                 },
             ),
         ]
@@ -300,6 +299,18 @@ class VersionTests(TestCase):
             [Ref(name) for name in names],
             strategy.ignored_tags,
             expected,
+        )
+
+    def test_find_versioned_refs_ignored(self):
+        """Testing find_versioned_refs with ignored refs."""
+        self._test_find_versioned_refs(
+            r"v(?P<major>\d+)",
+            [Ref(v) for v in ("v123", "v124", "v125")],
+            ["v124"],
+            {
+                Version(123): Ref("v123"),
+                Version(125): Ref("v125"),
+            },
         )
 
     def _test_find_versioned_refs(
