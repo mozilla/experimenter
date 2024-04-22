@@ -109,6 +109,14 @@ messaging:
     ~~experiment:
       type: string
       description: Not to be set by experiment.
+micro-survey-feature:
+  description: "A feature that shows the microsurvey for users to interact with and submit responses.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the feature is active.\n"
 night-mode-feature:
   description: "Describes the night mode feature's configuration\n"
   hasExposure: true
