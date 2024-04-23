@@ -81,18 +81,18 @@ features:
         type: "Map<OnboardingCardKey, OnboardingCardData>"
         default:
           default-browser:
-            body: ""
+            body: juno_onboarding_default_browser_description_nimbus_3
             card-type: default-browser
             disqualifiers:
               - NEVER
-            enabled: false
+            enabled: true
             image-res: ic_onboarding_welcome
-            ordering: 0
+            ordering: 10
             prerequisites:
               - ALWAYS
-            primary-button-label: ""
-            secondary-button-label: ""
-            title: ""
+            primary-button-label: juno_onboarding_default_browser_positive_button
+            secondary-button-label: juno_onboarding_default_browser_negative_button
+            title: juno_onboarding_default_browser_title_nimbus_2
           add-search-widget:
             body: juno_onboarding_add_search_widget_description
             card-type: add-search-widget
@@ -643,6 +643,26 @@ objects:
         description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions are `true`.\n"
         type: List<TriggerName>
         default: []
+  MicroSurveyConfig:
+    description: Attributes relating to micro survey content.
+    fields:
+      icon:
+        description: The asset reference of the icon to use.
+        type: String
+        default: mozac_ic_logo_firefox
+      options:
+        description: "The list of options to present to the user e.g. \"Satisfied, Dissatisfied...\"."
+        type: List<String>
+        default:
+          - very dissatisfied
+          - dissatisfied
+          - neutral
+          - satisfied
+          - very satisfied
+      target-feature:
+        description: "The name of the feature the survey is for e.g. \"Printing PDF\"."
+        type: String
+        default: ""
   NotificationConfig:
     description: Attributes controlling the global configuration of notification messages.
     fields:
