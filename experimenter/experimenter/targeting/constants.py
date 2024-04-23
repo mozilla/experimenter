@@ -140,8 +140,9 @@ FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
     ),
     targeting=f"{FIRST_RUN.targeting} && attributionData.ua == 'chrome'",
     desktop_telemetry=(
-        "{first_run} AND environment.settings.attribution.ua = 'chrome'"
-    ).format(first_run=FIRST_RUN.desktop_telemetry),
+        f"{FIRST_RUN.desktop_telemetry} "
+        "AND environment.settings.attribution.ua = 'chrome'"
+    ),
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
@@ -153,8 +154,9 @@ FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     description="First start-up users (e.g. for about:welcome) on Windows 1903+",
     targeting=f"{FIRST_RUN.targeting} && os.windowsBuildNumber >= 18362",
     desktop_telemetry=(
-        "{first_run} AND environment.system.os.windows_build_number >= 18362"
-    ).format(first_run=FIRST_RUN.desktop_telemetry),
+        f"{FIRST_RUN.desktop_telemetry} "
+        "AND environment.system.os.windows_build_number >= 18362"
+    ),
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
@@ -174,9 +176,10 @@ FIRST_RUN_NEW_PROFILE_WINDOWS_1903_NEWER = NimbusTargetingConfig(
         f"{FIRST_RUN.targeting} && os.windowsBuildNumber >= 18362 && {NEW_PROFILE}"
     ),
     desktop_telemetry=(
-        "{first_run} AND environment.system.os.windows_build_number >= 18362 "
-        "AND {new_profile}"
-    ).format(first_run=FIRST_RUN.desktop_telemetry, new_profile=NEW_PROFILE),
+        f"{FIRST_RUN.desktop_telemetry} "
+        "AND environment.system.os.windows_build_number >= 18362 "
+        f"AND {NEW_PROFILE}"
+    ),
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
@@ -197,9 +200,10 @@ FIRST_RUN_NEW_PROFILE_WINDOWS_11_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
         f"{NEW_PROFILE} && {NEED_DEFAULT}"
     ),
     desktop_telemetry=(
-        "{first_run} AND environment.system.os.windows_build_number >= 22621 "
-        "AND {new_profile} AND !isDefaultBrowser AND doesAppNeedPin"
-    ).format(first_run=FIRST_RUN.desktop_telemetry, new_profile=NEW_PROFILE),
+        f"{FIRST_RUN.desktop_telemetry} "
+        "AND environment.system.os.windows_build_number >= 22621 "
+        f"AND {NEW_PROFILE} AND !isDefaultBrowser AND doesAppNeedPin"
+    ),
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
@@ -220,9 +224,10 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
         f"{NEED_DEFAULT}"
     ),
     desktop_telemetry=(
-        "{first_run} AND environment.system.os.windows_build_number >= 18362 AND "
-        "!isDefaultBrowser AND {new_profile}"
-    ).format(first_run=FIRST_RUN.desktop_telemetry, new_profile=NEW_PROFILE),
+        f"{FIRST_RUN.desktop_telemetry} "
+        "AND environment.system.os.windows_build_number >= 18362 AND "
+        f"!isDefaultBrowser AND {NEW_PROFILE}"
+    ),
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
@@ -239,14 +244,12 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903_PREFER_MOTION = NimbusTargetingC
         "with a new profile, needing default, preferring motion"
     ),
     targeting=(
-        "{first_run} && !userPrefersReducedMotion".format(
-            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
-        )
+        f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting} "
+        "&& !userPrefersReducedMotion"
     ),
     desktop_telemetry=(
-        "{first_run} AND !userPrefersReducedMotion".format(
-            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
-        )
+        f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry} "
+        "AND !userPrefersReducedMotion"
     ).format(first_run=FIRST_RUN.desktop_telemetry),
     sticky_required=True,
     is_first_run_required=False,
@@ -267,9 +270,8 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_NEED_PIN_WINDOWS_1903 = NimbusTargetingConfig
         f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting} && doesAppNeedPin"
     ),
     desktop_telemetry=(
-        "{first_run} AND doesAppNeedPin".format(
-            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
-        )
+        f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry} "
+        "AND doesAppNeedPin"
     ),
     sticky_required=True,
     is_first_run_required=False,
@@ -290,10 +292,8 @@ FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
         f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting} && {HAS_PIN}"
     ),
     desktop_telemetry=(
-        "{first_run} AND {has_pin}".format(
-            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
-            has_pin=HAS_PIN,
-        )
+        f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry} "
+        f"AND {HAS_PIN}"
     ),
     sticky_required=True,
     is_first_run_required=False,
@@ -340,16 +340,12 @@ FIRST_RUN_NEW_PROFILE_WINDOWS_1903_PAIDSEARCH = NimbusTargetingConfig(
         "with a new profile, needing default, with paidsearch attribution"
     ),
     targeting=(
-        "{first_run} && {attribution}".format(
-            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
-            attribution=ATTRIBUTION_MEDIUM_PAIDSEARCH.targeting,
-        )
+        f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting} "
+        f"&& {ATTRIBUTION_MEDIUM_PAIDSEARCH.targeting}"
     ),
     desktop_telemetry=(
-        "{first_run} AND {attribution}".format(
-            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
-            attribution=ATTRIBUTION_MEDIUM_PAIDSEARCH.targeting,
-        )
+        f"{FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry} "
+        f"AND {ATTRIBUTION_MEDIUM_PAIDSEARCH.targeting}"
     ),
     sticky_required=True,
     is_first_run_required=False,
@@ -403,9 +399,8 @@ WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
         "UserChoice support (version 1809+/build ID 17763+)"
     ),
     targeting=f"{FIRST_RUN.targeting} && {WINDOWS_WITH_USERCHOICE.targeting}",
-    desktop_telemetry=("{first_run} AND {user_choice}").format(
-        first_run=FIRST_RUN.desktop_telemetry,
-        user_choice=WINDOWS_WITH_USERCHOICE.desktop_telemetry,
+    desktop_telemetry=(
+        f"{FIRST_RUN.desktop_telemetry} AND {WINDOWS_WITH_USERCHOICE.desktop_telemetry}"
     ),
     sticky_required=True,
     is_first_run_required=False,
