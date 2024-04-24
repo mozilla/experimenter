@@ -571,54 +571,16 @@ jobs:
           username: $DOCKER_USER
           password: $DOCKER_PASS
       - run:
-          name: Check for Firefox Update
-          command: |
-            set +e
-            docker pull ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker run -d --name firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker_id=$(docker ps -aqf "name=^firefox-beta")
-            docker cp $docker_id:/old_versions.txt /home/circleci/experimenter/old_versions.txt
-            results=$(sudo ./.circleci/get_firefox_versions.sh)
-            DIFF=$(diff /home/circleci/experimenter/new_versions.txt /home/circleci/experimenter/old_versions.txt)
-            if [ ! "$DIFF" ]; then
-                echo "No Firefox Version Changes found!"
-                circleci-agent step halt
-            fi
-      - run:
-          name: Get Firefox Versions
+          name: Build and upload images
           command: |
             git clone --depth=1 git@github.com:SeleniumHQ/docker-selenium.git
             cd docker-selenium
-            if echo "$results" | grep -q "BETA"; then
-                BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
-            fi
-            if echo "$results" | grep -q "RELEASE"; then
-                BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
-            fi
-      - run:
-          name: Save Images
-          command: |
-            results=$(sudo ./.circleci/get_firefox_versions.sh)
-            mv /home/circleci/experimenter/new_versions.txt /home/circleci/experimenter/old_versions.txt
-            cd docker-selenium
             BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
             BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
-            # Save release
-            docker run -d --name firefox-release-build selenium/standalone-firefox:firefox-release
-            docker_id=$(docker ps -aqf "name=^firefox-release-build")
-            docker cp /home/circleci/experimenter/old_versions.txt $docker_id:/old_versions.txt
-            docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-firefox-release
-            # Save Dev
-            docker run -d --name firefox-beta-build selenium/standalone-firefox:firefox-beta
-            docker_id=$(docker ps -aqf "name=^firefox-beta-build")
-            docker cp /home/circleci/experimenter/old_versions.txt $docker_id:/old_versions.txt
-            docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-firefox-beta
+            docker tag selenium/standalone-firefox:firefox-release ${DOCKERHUB_REPO}:nimbus-firefox-release
+            docker tag selenium/standalone-firefox:firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
             docker push ${DOCKERHUB_REPO}:nimbus-firefox-beta
             docker push ${DOCKERHUB_REPO}:nimbus-firefox-release
-      - save_cache:
-          key: version-cache-{{ checksum "old_versions.txt" }}
-          paths:
-            - /home/circleci/experimenter/old_versions.txt
 
 workflows:
   build_firefox:
