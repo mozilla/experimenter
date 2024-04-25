@@ -39,8 +39,8 @@ class FeatureRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.pings, app.state.metrics = initialize_glean()
     initialize_sentry()
+    app.state.pings, app.state.metrics = initialize_glean()
     app.state.fml = create_fml()
     app.state.sdk = create_sdk(
         app.state.fml.get_coenrolling_feature_ids(),
