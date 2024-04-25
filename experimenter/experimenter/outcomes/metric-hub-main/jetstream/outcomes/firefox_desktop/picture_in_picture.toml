@@ -25,46 +25,46 @@ select_expression = """
 data_source = "events_pip"
 statistics = { deciles = {}, bootstrap_mean = {} }
 
-[metrics.picture_in_picture_median_duration]
-friendly_name = "User-median length of Picture in Picture sessions"
-description = "The distribution of user-median PiP session lengths"
-select_expression = """
-    mozfun.hist.percentiles(
-        mozfun.hist.merge(
-            ARRAY_AGG(
-                mozfun.hist.extract(
-                    payload.histograms.fx_picture_in_picture_window_open_duration
-                )
-            )
-        ),
-        [0.5]
-    )[SAFE_OFFSET(0)].value
-"""
-data_source = "main"
+# [metrics.picture_in_picture_median_duration]
+# friendly_name = "User-median length of Picture in Picture sessions"
+# description = "The distribution of user-median PiP session lengths"
+# select_expression = """
+#     mozfun.hist.percentiles(
+#         mozfun.hist.merge(
+#             ARRAY_AGG(
+#                 mozfun.hist.extract(
+#                     payload.histograms.fx_picture_in_picture_window_open_duration
+#                 )
+#             )
+#         ),
+#         [0.5]
+#     )[SAFE_OFFSET(0)].value
+# """
+# data_source = "main"
 
-[metrics.picture_in_picture_median_duration.statistics]
-deciles = {}
-bootstrap_mean = {}
-empirical_cdf = { log_space = true }
-kernel_density_estimate = { log_space = true }
+# [metrics.picture_in_picture_median_duration.statistics]
+# deciles = {}
+# bootstrap_mean = {}
+# empirical_cdf = { log_space = true }
+# kernel_density_estimate = { log_space = true }
 
-[metrics.picture_in_picture_total_duration]
-friendly_name = "Per-user total length of Picture in Picture sessions"
-description = "The distribution of total user PiP session duration"
-select_expression = """
-    SUM(
-        mozfun.hist.extract(
-            payload.histograms.fx_picture_in_picture_window_open_duration
-        ).sum
-    )
-"""
-data_source = "main"
+# [metrics.picture_in_picture_total_duration]
+# friendly_name = "Per-user total length of Picture in Picture sessions"
+# description = "The distribution of total user PiP session duration"
+# select_expression = """
+#     SUM(
+#         mozfun.hist.extract(
+#             payload.histograms.fx_picture_in_picture_window_open_duration
+#         ).sum
+#     )
+# """
+# data_source = "main"
 
-[metrics.picture_in_picture_total_duration.statistics]
-deciles = {}
-bootstrap_mean = {}
-empirical_cdf = { log_space = true }
-kernel_density_estimate = { log_space = true }
+# [metrics.picture_in_picture_total_duration.statistics]
+# deciles = {}
+# bootstrap_mean = {}
+# empirical_cdf = { log_space = true }
+# kernel_density_estimate = { log_space = true }
 
 [metrics.saw_pip_toggle]
 friendly_name = "Saw Picture in Picture Toggle"
@@ -123,7 +123,7 @@ from_expression = """
     (
         SELECT
             *
-        FROM `moz-fx-data-shared-prod.telemetry.events`
+        FROM `moz-fx-data-shared-prod.telemetry_derived.event_events_v1`
         WHERE 
             event_category = 'pictureinpicture'
     )
@@ -131,4 +131,4 @@ from_expression = """
 submission_date_column = "submission_date"
 friendly_name = "Picture in Picture events"
 description = "Picture in Picture related events"
-experiments_column_type = "native"
+experiments_column_type = "none"
