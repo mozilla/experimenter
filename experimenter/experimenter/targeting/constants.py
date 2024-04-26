@@ -1938,10 +1938,7 @@ NEW_PROFILE_MAC_ONLY = NimbusTargetingConfig(
     slug="mac_only_new_profiles",
     description="New profiles with Mac OS",
     targeting=f"os.isMac && {NEW_PROFILE}",
-    desktop_telemetry=(
-        f"{NEW_PROFILE} "
-        "AND environment.system.os.name = 'Darwin'"
-    ),
+    desktop_telemetry=f"{NEW_PROFILE} AND environment.system.os.name = 'Darwin'",
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
