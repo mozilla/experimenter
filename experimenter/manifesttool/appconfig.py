@@ -80,6 +80,7 @@ class TaggedDiscoveryStrategy(BaseModel):
     ignored_branches: Optional[list[str]]
     ignored_tags: Optional[list[str]]
     ignored_versions: Optional[list[Version]]
+    minimum_version: Optional[Version]
 
 
 class BranchedDiscoveryStrategy(BaseModel):
@@ -101,6 +102,7 @@ class DiscoveryStrategy(BaseModel):
         ignored_branches: Optional[list[str]] = None,
         ignored_tags: Optional[list[str]] = None,
         ignored_versions: Optional[list[Version]] = None,
+        minimum_version: Optional[Version] = None,
     ):  # pragma: no cover
         return cls(
             __root__=TaggedDiscoveryStrategy(
@@ -110,6 +112,7 @@ class DiscoveryStrategy(BaseModel):
                 ignored_branches=ignored_branches,
                 ignored_tags=ignored_tags,
                 ignored_versions=ignored_versions,
+                minimum_version=minimum_version,
             )
         )
 
