@@ -116,6 +116,8 @@ def make_mock_resolve_branch(refs: dict[str, str]):
 
 
 class ReleaseTests(TestCase):
+    maxDiff = None
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -179,7 +181,7 @@ class ReleaseTests(TestCase):
     def test_discover_tagged_releases_ignored_versions(self):
         """Testing discover_tagged_releases with an ignored version."""
         strategy = DiscoveryStrategy.create_tagged(
-            branch_re=r"release_v(?P<major>\d)+",
+            branch_re=r"release_v(?P<major>\d+)",
             tag_re=r"v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)",
             ignored_versions=[
                 Version(2),
@@ -254,6 +256,71 @@ class ReleaseTests(TestCase):
                     },
                 },
             )
+
+    def test_discover_tagged_releases_minimum_version(self):
+        """Testing discover_tagged_releases with a minimum version."""
+        strategy = DiscoveryStrategy.create_tagged(
+            branch_re=r"release_v(?P<major>\d+)",
+            tag_re=r"v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)",
+            minimum_version=Version(4, 0, 1),
+        )
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[strategy],
+            ),
+        )
+
+        branches = [
+            Ref(f"release_v{major}", f"branch-v{major}")
+            for major in (1, 2, 3, 4, 5, 6, 7, 8)
+        ]
+
+        tags = [
+            Ref(f"v{major}.0.1", f"tag-v{major}.0.1")
+            for major in (1, 2, 3, 4, 5, 6, 7, 8)
+        ]
+
+        ref_versions = {
+            **{f"branch-v{major}": Version(major) for major in (1, 2, 3, 4, 5, 6, 7, 8)},
+            **{
+                f"tag-v{major}.0.1": Version(major, 0, 1)
+                for major in (1, 2, 3, 4, 5, 6, 7, 8)
+            },
+        }
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath(app_config.slug).mkdir()
+
+            with mocks_for_discover_tagged_releases(
+                app_config,
+                strategy.__root__,
+                branches,
+                tags,
+                ref_versions,
+            ):
+                releases = discover_tagged_releases("app", app_config, strategy.__root__)
+
+        self.assertEqual(
+            releases,
+            {
+                **{
+                    Version(major, 0, 0): Ref(f"release_v{major}", f"branch-v{major}")
+                    for major in (5, 6, 7, 8)
+                },
+                **{
+                    Version(major, 0, 1): Ref(f"v{major}.0.1", f"tag-v{major}.0.1")
+                    for major in (4, 5, 6, 7, 8)
+                },
+            },
+        )
 
     def test_fetch_releases_no_tag_re(self):
         """Testing discover_tagged_releases with no tag_re specified."""

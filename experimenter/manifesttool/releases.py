@@ -60,6 +60,9 @@ def discover_tagged_releases(
 
     min_version = Version(max_major_version - 4, 0, 0)
 
+    if strategy.minimum_version is not None:
+        min_version = max(min_version, strategy.minimum_version)
+
     versions = filter_versioned_refs(versions, min_version)
 
     # Extract the actual version number for each branch's version file.
