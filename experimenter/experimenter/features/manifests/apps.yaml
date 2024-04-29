@@ -90,10 +90,9 @@ focus_ios:
   slug: "focus-ios"
   repo:
     type: "github"
-    name: "mozilla-mobile/focus-ios"
+    name: "mozilla-mobile/firefox-ios"
   fml_path:
     - "focus-ios/nimbus.fml.yaml"
-    - "nimbus.fml.yaml"
   release_discovery:
     version_file:
       type: "plist"
@@ -102,16 +101,11 @@ focus_ios:
         - "Blockzilla/Info.plist"
       key: "CFBundleShortVersionString"
     strategies:
-      # We don't use a branched strategy for focus_ios because it is on v9000.
       - type: "tagged"
-        branch_re: 'releases_v(?P<major>\d+)(?:\.(?P<minor>\d+))?'
-        tag_re: 'v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'
-        ignored_branches:
-          - "releases_v999" # nimbus.fml.yaml missing. Breaks "last 5 releases" logic.
-        ignored_tags:
-          - "v999.0.0" # nimbus.fml.yaml missing.
-        ignored_versions:
-          - "9000.0.0"
+        branch_re: 'release/v(?P<major>\d+)'
+        tag_re: 'focus/klar-v(?P<major>\d+)\.(?P<minor>\d+)'
+        minimum_version: "124.0.0"  # Pre v124 it used the focus-ios repo.
+      - type: "branched"
 
 monitor_cirrus:
   slug: "monitor-web"
