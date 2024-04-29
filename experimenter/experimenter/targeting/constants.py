@@ -1933,6 +1933,17 @@ VIEWPOINT_SURVEY_MOBILE = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name, Application.FENIX.name),
 )
 
+NEW_PROFILE_MAC_ONLY = NimbusTargetingConfig(
+    name="New profile Mac OS only",
+    slug="mac_only_new_profiles",
+    description="New profiles with Mac OS",
+    targeting=f"os.isMac && {NEW_PROFILE}",
+    desktop_telemetry=f"{NEW_PROFILE} AND environment.system.os.name = 'Darwin'",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
