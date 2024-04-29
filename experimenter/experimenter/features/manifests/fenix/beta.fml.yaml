@@ -620,6 +620,10 @@ objects:
         description: "Indicates if this message is the control message, if true shouldn't be displayed"
         type: Boolean
         default: false
+      microsurveyConfig:
+        description: Optional configuration data for a microsurvey.
+        type: Option<MicroSurveyConfig>
+        default: ~
       style:
         description: "The style as described in a `StyleData` from the styles table.\n"
         type: StyleName
