@@ -130,7 +130,7 @@ describe("FormAudience", () => {
       const excluded = screen.getByLabelText(/Exclude users enrolled/);
       await selectEvent.openMenu(excluded);
       let options = container.querySelectorAll(query("excludedExperiments"));
-      expect(options.length).toEqual(1);
+      expect(options.length).toEqual(2);
 
       expect(
         Array.from(options, (e) => e.textContent).find((text) =>
@@ -141,7 +141,7 @@ describe("FormAudience", () => {
       const required = screen.getByLabelText(/Require users to be enrolled/);
       await selectEvent.openMenu(required);
       options = container.querySelectorAll(query("requiredExperiments"));
-      expect(options.length).toEqual(1);
+      expect(options.length).toEqual(2);
 
       expect(
         Array.from(options, (e) => e.textContent).find((text) =>
