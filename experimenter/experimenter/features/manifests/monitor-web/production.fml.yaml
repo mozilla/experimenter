@@ -5,14 +5,10 @@ about:
 channels:
   - production
 features:
-  example-feature:
-    description: An example feature
+  last-scan-date:
+    description: "Show the date of the user's last scan in the top right-hand corner"
     variables:
       enabled:
         description: If the feature is enabled
         type: Boolean
         default: false
-      something:
-        description: Another variable
-        type: Option<String>
-        default: wicked
