@@ -158,6 +158,22 @@ features:
             action: OPEN_URL
             action-params:
               url: "https://www.macrumors.com"
+          microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+              - NEVER
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with printing in Firefox?
+            button-label: Microsurvey/Microsurvey.Prompt.TakeSurveyButton.v127
+            microsurveyConfig:
+              target-feature: printing
+              options:
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption1.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption2.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption3.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption4.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption5.v127
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -173,7 +189,7 @@ features:
           DEFAULT:
             priority: 50
             max-display-count: 5
-          MICRO_SURVEY:
+          MICROSURVEY:
             priority: 50
             max-display-count: 5
           NOTIFICATION:
@@ -504,12 +520,21 @@ enums:
     variants:
       Unknown:
         description: A message has NOT declared its target surface.
+      microsurvey:
+        description: This is a microsurvey that appears on top of the bottom toolbar to the user.
       new-tab-card:
         description: This is the card that appears at the top on the Firefox Home Page.
       notification:
         description: This is a local notification send to the user periodically with tips and updates.
       survey:
         description: This is a full-page that appears providing a survey to the user.
+  MicrosurveyTargetFeature:
+    description: "The specific feature the microsurvey is for. This is a label that matches across both Android and iOS.\n"
+    variants:
+      Unknown:
+        description: No target feature set. Only used in an invalid experiment configuration.
+      printing:
+        description: The printing feature.
   NimbusOnboardingHeaderImage:
     description: "The identifiers for the different images available for cards in onboarding\n"
     variants:
@@ -685,6 +710,10 @@ objects:
         description: "Indicates if this message is the control message, if true shouldn't be displayed"
         type: Boolean
         default: false
+      microsurveyConfig:
+        description: Optional configuration data for a microsurvey.
+        type: Option<MicrosurveyConfig>
+        default: ~
       style:
         description: "The style as described in a `StyleData` from the styles table.\n"
         type: StyleName
@@ -706,6 +735,17 @@ objects:
         type: List<TriggerName>
         default:
           - ALWAYS
+  MicrosurveyConfig:
+    description: "Attributes relating to microsurvey messaging.\n"
+    fields:
+      options:
+        description: The list of survey options to present to the user.
+        type: List<Text>
+        default: []
+      target-feature:
+        description: "The type of feature the microsurvey is targeted.\n"
+        type: MicrosurveyTargetFeature
+        default: Unknown
   NimbusOnboardingButton:
     description: "A group of properties describing the attributes of a card.\n"
     fields:
