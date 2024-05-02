@@ -69,7 +69,7 @@ features:
         default:
           top-sites: true
           jump-back-in: true
-          recently-saved: true
+          bookmarks: true
           recent-explorations: true
           pocket: true
           pocket-sponsored-stories: true
@@ -521,6 +521,8 @@ enums:
   HomeScreenSection:
     description: The identifiers for the sections of the homescreen.
     variants:
+      bookmarks:
+        description: The sites the user has bookmarked.
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
       pocket:
@@ -529,8 +531,6 @@ enums:
         description: Subsection of the Pocket homescreen section which shows sponsored stories.
       recent-explorations:
         description: The tab groups
-      recently-saved:
-        description: The sites the user has bookmarked recently.
       top-sites:
         description: The frecency and pinned sites.
   MR2022Section:
