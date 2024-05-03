@@ -7,3 +7,11 @@ last-scan-date:
     enabled:
       type: boolean
       description: If the feature is enabled
+welcome-scan-optional-info:
+  description: Show additional optional inputs to provide middle name and name suffix for broker scan
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: If the feature is enabled
