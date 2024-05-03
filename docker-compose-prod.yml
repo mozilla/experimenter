@@ -9,7 +9,7 @@ services:
       - USE_YARN_DEV=False
     stdin_open: true
     tty: true
-    links:
+    depends_on:
       - db
       - redis
       - kinto
@@ -22,7 +22,7 @@ services:
   worker:
     image: experimenter:deploy
     env_file: .env
-    links:
+    depends_on:
       - db
       - redis
     command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
@@ -30,7 +30,7 @@ services:
   beat:
     image: experimenter:deploy
     env_file: .env
-    links:
+    depends_on:
       - db
       - redis
     command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l DEBUG"
@@ -38,7 +38,7 @@ services:
   nginx:
     build: ./nginx
     env_file: .env
-    links:
+    depends_on:
       - experimenter
     ports:
       - "443:443"
@@ -64,7 +64,7 @@ services:
       KINTO_INI: /etc/kinto.ini
     ports:
       - "8888:8888"
-    links:
+    depends_on:
       - autograph
     volumes:
       - ./kinto/server.ini:/etc/kinto.ini
