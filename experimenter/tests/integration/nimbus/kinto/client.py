@@ -17,10 +17,10 @@ KINTO_SIGN_STATUS = "to-sign"
 class KintoClient:
     RETRIES = 60
 
-    def __init__(self, collection):
+    def __init__(self, collection, server_url):
         self.collection = collection
         self.kinto_http_client = kinto_http.Client(
-            server_url=KINTO_HOST,
+            server_url=server_url,
             auth=(KINTO_USER, KINTO_PASS),
         )
 
