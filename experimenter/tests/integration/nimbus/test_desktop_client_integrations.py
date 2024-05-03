@@ -10,11 +10,11 @@ from nimbus.utils import helpers
 
 
 @pytest.fixture
-def firefox_options(firefox_options):
+def firefox_options(firefox_options, ping_server):
     """Set Firefox Options."""
     firefox_options.log.level = "trace"
     firefox_options.set_preference("browser.cache.disk.smart_size.enabled", False)
-    firefox_options.set_preference("toolkit.telemetry.server", "http://ping-server:5000")
+    firefox_options.set_preference("toolkit.telemetry.server", f"{ping_server}")
     firefox_options.set_preference("telemetry.fog.test.localhost_port", -1)
     firefox_options.set_preference("toolkit.telemetry.initDelay", 1)
     firefox_options.set_preference("toolkit.telemetry.minSubsessionLength", 0)
