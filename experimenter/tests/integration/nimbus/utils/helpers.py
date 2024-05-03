@@ -14,9 +14,7 @@ LOAD_DATA_RETRY_DELAY = 1.0
 
 
 def load_graphql_data(query):
-    nginx_url = "https://nginx"
-    if not os.environ.get("DEBIAN_FRONTEND"):
-        nginx_url = "https://localhost"
+    nginx_url = os.getenv("INTEGRATION_TEST_NGINX_URL", "https://nginx")
     for retry in range(LOAD_DATA_RETRIES):
         try:
             return requests.post(

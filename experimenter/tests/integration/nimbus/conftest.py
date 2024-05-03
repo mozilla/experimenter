@@ -137,9 +137,7 @@ def _verify_url(request, base_url):
 
 @pytest.fixture
 def kinto_client(default_data):
-    kinto_url = "http://kinto:8888/v1"
-    if not os.environ.get("DEBIAN_FRONTEND"):
-        kinto_url = "http://localhost:8888/v1"
+    kinto_url = os.getenv("INTEGRATION_TEST_KINTO_URL", "http://kinto:8888/v1")
     return KintoClient(
         APPLICATION_KINTO_COLLECTION[default_data.application], server_url=kinto_url
     )
@@ -147,7 +145,7 @@ def kinto_client(default_data):
 
 @pytest.fixture(name="ping_server")
 def fixture_ping_server():
-    if not os.environ.get("DEBIAN_FRONTEND"):
+    if os.environ.get("NIMBUS_LOCAL_DEV"):
         return "http://localhost:5000"
     return "http://ping-server:5000"
 
