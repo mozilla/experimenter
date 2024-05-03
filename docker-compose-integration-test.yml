@@ -11,7 +11,7 @@ services:
     volumes:
       - .:/code
       - /code/experimenter/tests/integration/.tox
-    links:
+    depends_on:
       - nginx
       - kinto
       - ping-server
@@ -30,7 +30,7 @@ services:
       - .:/code
       - /code/experimenter/tests/integration/.tox
     working_dir: /code
-    links:
+    depends_on:
       - nginx
       - kinto
   ping-server:

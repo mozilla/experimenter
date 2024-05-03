@@ -10,7 +10,7 @@ services:
       - CIRCLE_BRANCH
     volumes:
       - ./docs/experimenter:/experimenter/experimenter/docs
-    links:
+    depends_on:
       - db
 
   db:
