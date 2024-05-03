@@ -478,7 +478,7 @@ To use NoVNC, navgate to this url `http://localhost:7902` with the password `sec
 ```sh
 alias firefox="path-to/firefox"
 ```
-Example for macos: 
+Example for macos add this to your `~/.zshrc` file: 
 ```sh
 alias firefox="/Applications/Firefox.app/Contents/MacOS/firefox"
 ```
