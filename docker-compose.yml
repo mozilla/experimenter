@@ -6,7 +6,7 @@ services:
     env_file: .env
     stdin_open: true
     tty: true
-    links:
+    depends_on:
       - db
       - redis
       - kinto
@@ -54,7 +54,7 @@ services:
   worker:
     image: experimenter:dev
     env_file: .env
-    links:
+    depends_on:
       - db
       - redis
     volumes:
@@ -65,7 +65,7 @@ services:
   beat:
     image: experimenter:dev
     env_file: .env
-    links:
+    depends_on:
       - db
       - redis
     volumes:
@@ -76,7 +76,7 @@ services:
   nginx:
     build: ./nginx
     env_file: .env
-    links:
+    depends_on:
       - experimenter
     ports:
       - "443:443"
@@ -102,7 +102,7 @@ services:
       KINTO_INI: /etc/kinto.ini
     ports:
       - "8888:8888"
-    links:
+    depends_on:
       - autograph
     volumes:
       - ./kinto/server.ini:/etc/kinto.ini
