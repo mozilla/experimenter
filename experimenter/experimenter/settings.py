@@ -191,11 +191,13 @@ OPENIDC_AUTH_WHITELIST = (
     "experiments-api-list",
     "experiments-api-recipe",
     "experiments-api-detail",
-    "nimbus-experiment-rest-list",
-    "nimbus-experiment-rest-detail",
-    "nimbus-experiment-rest-first-run-list",
-    "nimbus-experiment-draft-rest-list",
-    "nimbus-experiment-draft-rest-detail",
+    "nimbus-experiment-rest-v6-list",
+    "nimbus-experiment-rest-v6-detail",
+    "nimbus-experiment-rest-v6-first-run-list",
+    "nimbus-experiment-rest-v6-draft-list",
+    "nimbus-experiment-rest-v6-draft-detail",
+    "nimbus-experiment-rest-v7-list",
+    "nimbus-experiment-rest-v7-detail",
 )
 
 # Internationalization
