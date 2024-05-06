@@ -97,14 +97,14 @@ export const TOOLTIP_RELEASE_DATE =
   "This is the approximate release date of the version that is being targeted. Click here to find your date!";
 
 export const AUDIENCE_OVERLAP_WARNINGS = {
-  EXCLUDING_EXPERIMENTS_WARNING: () => {
-    return `The following experiments are being excluded by your experiment and may cause audience overlap: `;
+  EXCLUDING_EXPERIMENTS_WARNING: (slugs: string) => {
+    return `The following experiments are being excluded by your experiment and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: ${slugs}`;
   },
-  LIVE_EXPERIMENTS_BUCKET_WARNING: () => {
-    return `The following experiments are LIVE and may cause audience overlap with your experiment: `;
+  LIVE_EXPERIMENTS_BUCKET_WARNING: (slugs: string) => {
+    return `The following experiments are LIVE on a previous namespace and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: ${slugs}`;
   },
-  LIVE_MULTIFEATURE_WARNING: () => {
-    return `The following multi-feature experiments are LIVE and may cause audience overlap with your experiment: `;
+  LIVE_MULTIFEATURE_WARNING: (slugs: string) => {
+    return `The following multi-feature experiments are LIVE and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: ${slugs}`;
   },
 };
 

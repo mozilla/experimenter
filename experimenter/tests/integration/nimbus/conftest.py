@@ -1,6 +1,7 @@
 import os
 import time
 import uuid
+from pathlib import Path
 from urllib.parse import urljoin
 
 import pytest
@@ -136,7 +137,17 @@ def _verify_url(request, base_url):
 
 @pytest.fixture
 def kinto_client(default_data):
-    return KintoClient(APPLICATION_KINTO_COLLECTION[default_data.application])
+    kinto_url = os.getenv("INTEGRATION_TEST_KINTO_URL", "http://kinto:8888/v1")
+    return KintoClient(
+        APPLICATION_KINTO_COLLECTION[default_data.application], server_url=kinto_url
+    )
+
+
+@pytest.fixture(name="ping_server")
+def fixture_ping_server():
+    if os.environ.get("NIMBUS_LOCAL_DEV"):
+        return "http://localhost:5000"
+    return "http://ping-server:5000"
 
 
 @pytest.fixture
@@ -168,8 +179,9 @@ def experiment_url(base_url, experiment_slug):
 def fixture_load_experiment_outcomes():
     """Fixture to create a list of outcomes based on the current configs."""
     outcomes = {"firefox_desktop": "", "fenix": "", "firefox_ios": ""}
-    base_path = (
-        "/code/experimenter/experimenter/outcomes/metric-hub-main/jetstream/outcomes"
+    current_path = Path.cwd()
+    base_path = Path(
+        f"{current_path.parent.parent}/experimenter/outcomes/metric-hub-main/jetstream/outcomes"
     )
 
     for k in list(outcomes):
@@ -378,12 +390,12 @@ def default_data_api(application):
 
 
 @pytest.fixture(name="check_ping_for_experiment")
-def fixture_check_ping_for_experiment(trigger_experiment_loader):
+def fixture_check_ping_for_experiment(trigger_experiment_loader, ping_server):
     def _check_ping_for_experiment(experiment=None):
         control = True
         timeout = time.time() + 60 * 5
         while control and time.time() < timeout:
-            data = requests.get("http://ping-server:5000/pings").json()
+            data = requests.get(f"{ping_server}/pings").json()
             experiments_data = [
                 item["environment"]["experiments"]
                 for item in data
@@ -400,9 +412,9 @@ def fixture_check_ping_for_experiment(trigger_experiment_loader):
 
 
 @pytest.fixture(name="telemetry_event_check")
-def fixture_telemetry_event_check(trigger_experiment_loader):
+def fixture_telemetry_event_check(trigger_experiment_loader, ping_server):
     def _telemetry_event_check(experiment=None, event=None):
-        telemetry = requests.get("http://ping-server:5000/pings").json()
+        telemetry = requests.get(f"{ping_server}/pings").json()
         events = [
             event["payload"]["events"]["parent"]
             for event in telemetry

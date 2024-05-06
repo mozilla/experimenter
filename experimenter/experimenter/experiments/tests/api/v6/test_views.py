@@ -27,8 +27,8 @@ class CachedViewSetTest(TestCase):
 
 class NimbusExperimentFilterMixin:
     LIFECYCLE = NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
-    LIST_VIEW = "nimbus-experiment-rest-list"
-    DETAIL_VIEW = "nimbus-experiment-rest-detail"
+    LIST_VIEW = "nimbus-experiment-rest-v6-list"
+    DETAIL_VIEW = "nimbus-experiment-rest-v6-detail"
 
     def create_experiment_kwargs(self):
         return {}
@@ -233,8 +233,8 @@ class TestNimbusExperimentDraftViewSet(
 ):
     maxDiff = None
 
-    LIST_VIEW = "nimbus-experiment-draft-rest-list"
-    DETAIL_VIEW = "nimbus-experiment-draft-rest-detail"
+    LIST_VIEW = "nimbus-experiment-rest-v6-draft-list"
+    DETAIL_VIEW = "nimbus-experiment-rest-v6-draft-detail"
     LIFECYCLE = NimbusExperimentFactory.Lifecycles.CREATED
 
     def test_detail_view_serializes_draft_experiments(self):
@@ -279,8 +279,8 @@ class TestNimbusExperimentDraftViewSet(
 class TestNimbusExperimentFirstRunViewSet(NimbusExperimentFilterMixin, CachedViewSetTest):
     maxDiff = None
 
-    LIST_VIEW = "nimbus-experiment-rest-first-run-list"
-    DETAIL_VIEW = "nimbus-experiment-rest-first-run-detail"
+    LIST_VIEW = "nimbus-experiment-rest-v6-first-run-list"
+    DETAIL_VIEW = "nimbus-experiment-rest-v6-first-run-detail"
 
     def create_experiment_kwargs(self):
         return {"is_first_run": True}
