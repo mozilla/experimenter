@@ -1,41 +1,51 @@
 {% load static %}
 
 <nav class="navbar mb-2">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-            <img src="{% static 'assets/logo.svg' %}" alt="Logo" width="30" height="24"
-                class="d-inline-block align-text-top">
-            Nimbus Experiments
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'nimbus-list' %}">
+      <img src="{% static 'assets/logo.svg' %}"
+           alt="Logo"
+           width="30"
+           height="24"
+           class="d-inline-block align-text-top">
+      Nimbus Experiments
+    </a>
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a href="https://experimenter.info/"
+           class="nav-link"
+           target="_blank"
+           rel="noreferrer">
+          <i class="fa-solid fa-book"></i>
+          Docs
         </a>
-
-        <ul class="nav nav-pills">
-            <li class="nav-item">
-                <a href="https://experimenter.info/" class="nav-link" target="_blank" rel="noreferrer">
-                    <i class="fa-solid fa-book"></i>
-                    Docs
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&issuetype=10097"
-                    class="nav-link" target="_blank" rel="noreferrer">
-                    <i class="fa-solid fa-comment-dots"></i>
-                    Feedback
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="https://mozilla.slack.com/?redir=%2Farchives%2FCF94YGE03" class="nav-link" target="_blank"
-                    rel="noreferrer">
-                    <i class="fa-solid fa-circle-question"></i>
-                    Help
-                </a>
-            </li>
-            <li>
-                <select id="theme-selector" class="form-select"
-                    onchange="document.documentElement.setAttribute('data-bs-theme', document.getElementById('theme-selector').value)">
-                    <option value="light" selected>Light</option>
-                    <option value="dark">Dark</option>
-                </select>
-            </li>
-        </ul>
-    </div>
+      </li>
+      <li class="nav-item">
+        <a href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&issuetype=10097"
+           class="nav-link"
+           target="_blank"
+           rel="noreferrer">
+          <i class="fa-solid fa-comment-dots"></i>
+          Feedback
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="https://mozilla.slack.com/?redir=%2Farchives%2FCF94YGE03"
+           class="nav-link"
+           target="_blank"
+           rel="noreferrer">
+          <i class="fa-solid fa-circle-question"></i>
+          Help
+        </a>
+      </li>
+      <li>
+        <select id="theme-selector"
+                class="form-select"
+                onchange="document.documentElement.setAttribute('data-bs-theme', document.getElementById('theme-selector').value)">
+          <option value="light" selected>Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </li>
+    </ul>
+  </div>
 </nav>
