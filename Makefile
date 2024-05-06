@@ -225,7 +225,7 @@ integration_test_nimbus_ci: build_prod
 
 integration_test_nimbus_dev:
 	$(COMPOSE_INTEGRATION) up -d 
-	$(COMPOSE_INTEGRATION) exec firefox sh -c "if [ \"$$UPDATE_FIREFOX_VERSION\" = \"true\" ]; then sudo ./experimenter/tests/integration/nimbus/utils/nightly-install.sh; fi; firefox -V; sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/experimenter/tests/integration/.tox;sudo mkdir -m a+rwx /code/experimenter/tests/integration/test-reports;PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) tox -c experimenter/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
+	INTEGRATION_TEST_NGINX_URL="https://localhost" INTEGRATION_TEST_KINTO_URL="http://localhost:8888/v1" tox -c experimenter/tests/integration -e integration-test-nimbus-local $(TOX_ARGS) -- $(PYTEST_ARGS)
 
 integration_test_nimbus_rust: build_integration_test build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run -it rust-sdk tox -vv -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)
