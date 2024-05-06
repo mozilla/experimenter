@@ -459,34 +459,6 @@ Run the Nimbus SDK integration tests, which tests the advanced targeting configu
 
 FIREFOX_VERSION should either be `nimbus-firefox-release` or `nimbus-firefox-beta`. If you want to run your tests against nightly, please set the variable `UPDATE_FIREFOX_VERSION` to `true` and include it in the make command.
 
-#### make FIREFOX_VERSION integration_vnc_up
-
-First start a prod instance of Experimenter with:
-
-```bash
-make refresh&&make up_prod_detached
-```
-
-Then start the VNC service:
-
-```bash
-make FIREFOX_VERSION integration_vnc_up
-```
-
-Then open your VNC client (Safari does this on OSX or just use [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/)) and open `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter:
-
-```bash
-cd experimenter
-sudo apt get update
-sudo apt install tox
-chmod a+rwx tests/integration/.tox
-tox -c tests/integration/ -e integration-test-nimbus
-```
-
-This should run the integration tests and watch them run in a Firefox instance you can watch and interact with.
-
-To use NoVNC, navgate to this url `http://localhost:7902` with the password `secret`. Then you can follow the same steps as above.
-
 ### Running Integration tests locally
 
 1. Install [geckodriver](https://github.com/mozilla/geckodriver/releases) and have it available in your path. You should be able to run `geckodriver --version` from your command line. On MacOS you can do `brew install geckodriver` if you have homebrew installed.
@@ -520,6 +492,11 @@ Firefox should pop up and start running through your test! You can change the fi
 
 ```sh
 firefox_options.binary = "path/to/firefox-bin"
+```
+
+You can also do this using a make command, specifically `integration_test_nimbus_dev`. The following is an example that will run the `remote_settings` tests.
+```sh
+PYTEST_ARGS="-k FIREFOX_DESKTOP -m remote_settings --reruns 1" make integration_test_nimbus_dev
 ```
 
 #### Integration Test options
