@@ -1015,8 +1015,7 @@ describe("PageSummary Warnings", () => {
   });
 
   it("displays warnings for excluded live experiments audience overlap", async () => {
-    const warning =
-      AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING("my-slimy-slug");
+    const warning = AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING();
     const { mock } = mockExperimentQuery("demo-slug", {
       application: NimbusExperimentApplicationEnum.DESKTOP,
       channel: NimbusExperimentChannelEnum.NIGHTLY,
@@ -1026,7 +1025,12 @@ describe("PageSummary Warnings", () => {
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
       expect(screen.queryByTestId("excluding-live-experiments-warning"));
-      expect(screen.getByText(warning));
+      expect(screen.getByText("my-slimy-slug")).toBeInTheDocument();
+      const excludingTest = screen.findByText(
+        (content: string, node: Element | null) =>
+          node ? (node.textContent ?? "").includes(warning) : false,
+      );
+      expect(excludingTest).resolves.toBeInTheDocument();
     });
   });
 
@@ -1046,10 +1050,7 @@ describe("PageSummary Warnings", () => {
   });
 
   it("displays warnings for live experiments in bucket audience overlap", async () => {
-    const warning =
-      AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING(
-        "my-slimy-slug",
-      );
+    const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING();
     const { mock } = mockExperimentQuery("demo-slug", {
       application: NimbusExperimentApplicationEnum.DESKTOP,
       channel: NimbusExperimentChannelEnum.NIGHTLY,
@@ -1059,7 +1060,12 @@ describe("PageSummary Warnings", () => {
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
       expect(screen.queryByTestId("live-experiments-in-bucket-warning"));
-      expect(screen.getByText(warning));
+      expect(screen.getByText("my-slimy-slug")).toBeInTheDocument();
+      const bucketTest = screen.findByText(
+        (content: string, node: Element | null) =>
+          node ? (node.textContent ?? "").includes(warning) : false,
+      );
+      expect(bucketTest).resolves.toBeInTheDocument();
     });
   });
 
@@ -1080,7 +1086,7 @@ describe("PageSummary Warnings", () => {
 
   it("displays just the multifeature warning when there are multiple audience overlaps", async () => {
     const multifeatureWarning =
-      AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING("my-slimy-slug");
+      AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING();
     const { mock } = mockExperimentQuery("demo-slug", {
       application: NimbusExperimentApplicationEnum.DESKTOP,
       channel: NimbusExperimentChannelEnum.NIGHTLY,
@@ -1094,14 +1100,17 @@ describe("PageSummary Warnings", () => {
         screen.queryByTestId("live-experiments-in-bucket-warning"),
       ).toBeNull();
       expect(screen.queryByTestId("live-multifeature-warning"));
-      expect(screen.getByText(multifeatureWarning));
+      expect(screen.getByText("my-slimy-slug")).toBeInTheDocument();
+      const multifeatureTest = screen.findByText(
+        (content: string, node: Element | null) =>
+          node ? (node.textContent ?? "").includes(multifeatureWarning) : false,
+      );
+      expect(multifeatureTest).resolves.toBeInTheDocument();
     });
   });
 
   it("displays warnings for live multifeature audience overlap", async () => {
-    const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(
-      "my-slimy-slug, smooth-slug",
-    );
+    const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING();
     const { mock } = mockExperimentQuery("demo-slug", {
       application: NimbusExperimentApplicationEnum.DESKTOP,
       channel: NimbusExperimentChannelEnum.NIGHTLY,
@@ -1111,7 +1120,13 @@ describe("PageSummary Warnings", () => {
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
       expect(screen.queryByTestId("live-multifeature-warning"));
-      expect(screen.getByText(warning));
+      expect(screen.getByText("my-slimy-slug")).toBeInTheDocument();
+      expect(screen.getByText("smooth-slug")).toBeInTheDocument();
+      const multifeatureTest = screen.findByText(
+        (content: string, node: Element | null) =>
+          node ? (node.textContent ?? "").includes(warning) : false,
+      );
+      expect(multifeatureTest).resolves.toBeInTheDocument();
     });
   });
 
