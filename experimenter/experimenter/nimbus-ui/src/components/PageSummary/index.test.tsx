@@ -1015,7 +1015,7 @@ describe("PageSummary Warnings", () => {
   });
 
   it("displays warnings for excluded live experiments audience overlap", async () => {
-    const warning = AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING();
+    const warning = AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING;
     const { mock } = mockExperimentQuery("demo-slug", {
       application: NimbusExperimentApplicationEnum.DESKTOP,
       channel: NimbusExperimentChannelEnum.NIGHTLY,
@@ -1050,7 +1050,7 @@ describe("PageSummary Warnings", () => {
   });
 
   it("displays warnings for live experiments in bucket audience overlap", async () => {
-    const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING();
+    const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING;
     const { mock } = mockExperimentQuery("demo-slug", {
       application: NimbusExperimentApplicationEnum.DESKTOP,
       channel: NimbusExperimentChannelEnum.NIGHTLY,
@@ -1086,7 +1086,7 @@ describe("PageSummary Warnings", () => {
 
   it("displays just the multifeature warning when there are multiple audience overlaps", async () => {
     const multifeatureWarning =
-      AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING();
+      AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING;
     const { mock } = mockExperimentQuery("demo-slug", {
       application: NimbusExperimentApplicationEnum.DESKTOP,
       channel: NimbusExperimentChannelEnum.NIGHTLY,
@@ -1110,7 +1110,7 @@ describe("PageSummary Warnings", () => {
   });
 
   it("displays warnings for live multifeature audience overlap", async () => {
-    const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING();
+    const warning = AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING;
     const { mock } = mockExperimentQuery("demo-slug", {
       application: NimbusExperimentApplicationEnum.DESKTOP,
       channel: NimbusExperimentChannelEnum.NIGHTLY,

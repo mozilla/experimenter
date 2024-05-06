@@ -465,7 +465,7 @@ const WarningList = ({
       warnings.push(
         <Warning
           {...{
-            text: AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING(),
+            text: AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING,
             slugs: experiment.excludedLiveDeliveries,
             testId: "excluding-live-experiments",
             variant: "warning",
@@ -479,7 +479,7 @@ const WarningList = ({
       warnings.push(
         <Warning
           {...{
-            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING(),
+            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING,
             slugs: experiment.liveExperimentsInNamespace,
             testId: "live-experiments-in-bucket",
             variant: "warning",
@@ -493,7 +493,7 @@ const WarningList = ({
       warnings.push(
         <Warning
           {...{
-            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(),
+            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING,
             slugs: experiment.featureHasLiveMultifeatureExperiments,
             testId: "live-multifeature",
             variant: "warning",

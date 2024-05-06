@@ -97,15 +97,9 @@ export const TOOLTIP_RELEASE_DATE =
   "This is the approximate release date of the version that is being targeted. Click here to find your date!";
 
 export const AUDIENCE_OVERLAP_WARNINGS = {
-  EXCLUDING_EXPERIMENTS_WARNING: () => {
-    return `The following experiments are being excluded by your experiment and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: `;
-  },
-  LIVE_EXPERIMENTS_BUCKET_WARNING: () => {
-    return `The following experiments are LIVE on a previous namespace and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: `;
-  },
-  LIVE_MULTIFEATURE_WARNING: () => {
-    return `The following multi-feature experiments are LIVE and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: `;
-  },
+  EXCLUDING_EXPERIMENTS_WARNING: `The following experiments are being excluded by your experiment and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: `,
+  LIVE_EXPERIMENTS_BUCKET_WARNING: `The following experiments are LIVE on a previous namespace and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: `,
+  LIVE_MULTIFEATURE_WARNING: `The following multi-feature experiments are LIVE and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: `,
 };
 
 export const LIFECYCLE_REVIEW_FLOWS = {
