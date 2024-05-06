@@ -353,18 +353,27 @@ const StatusPill = ({
 const Warning = ({
   text,
   testId,
+  slugs,
   learnMoreLink,
   learnMoreText = "Learn more",
   variant = "danger",
 }: {
   text: string | SerializerMessage;
   testId: string;
+  slugs?: string[];
   learnMoreLink?: string;
   learnMoreText?: string;
   variant?: string;
 }) => (
   <Alert data-testid={`${testId}-warning`} variant={variant}>
     {text}{" "}
+    {slugs && slugs.length > 0 && (
+      <ul>
+        {slugs.map((slug) => (
+          <li key={slug}>{slug}</li>
+        ))}
+      </ul>
+    )}
     {learnMoreLink && (
       <LinkExternal href={learnMoreLink}>
         <span className="mr-1">{learnMoreText}</span>
@@ -456,9 +465,8 @@ const WarningList = ({
       warnings.push(
         <Warning
           {...{
-            text: AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING(
-              excludedLiveDeliveries,
-            ),
+            text: AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING,
+            slugs: experiment.excludedLiveDeliveries,
             testId: "excluding-live-experiments",
             variant: "warning",
             learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
@@ -471,9 +479,8 @@ const WarningList = ({
       warnings.push(
         <Warning
           {...{
-            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING(
-              liveExperimentsInNamespace,
-            ),
+            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING,
+            slugs: experiment.liveExperimentsInNamespace,
             testId: "live-experiments-in-bucket",
             variant: "warning",
             learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
@@ -486,9 +493,8 @@ const WarningList = ({
       warnings.push(
         <Warning
           {...{
-            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING(
-              featureHasLiveMultifeatureExperiments,
-            ),
+            text: AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING,
+            slugs: experiment.featureHasLiveMultifeatureExperiments,
             testId: "live-multifeature",
             variant: "warning",
             learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
