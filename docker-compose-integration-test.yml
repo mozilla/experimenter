@@ -8,6 +8,8 @@ services:
       - MOZ_HEADLESS
       - FIREFOX_VERSION
       - PYTEST_ARGS
+      - INTEGRATION_TEST_KINTO_URL
+      - INTEGRATION_TEST_NGINX_URL
     volumes:
       - .:/code
       - /code/experimenter/tests/integration/.tox

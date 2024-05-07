@@ -79,15 +79,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django.forms",
-    "import_export",
-    # Graphene
-    "graphene_django",
     # Libraries
+    "import_export",
+    "graphene_django",
     "corsheaders",
     "django_markdown2",
     "rangefilter",
     "rest_framework",
     "widget_tweaks",
+    "fontawesomefree",
+    "django_bootstrap5",
     # Experimenter
     "experimenter.base",
     "experimenter.changelog",
@@ -102,13 +103,9 @@ INSTALLED_APPS = [
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
-    "fontawesomefree",
-    "tailwind",
     "experimenter.nimbus_ui_new",
-    "experimenter.nimbus_ui_new.theme",
 ]
 
-TAILWIND_APP_NAME = "theme"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -191,11 +188,13 @@ OPENIDC_AUTH_WHITELIST = (
     "experiments-api-list",
     "experiments-api-recipe",
     "experiments-api-detail",
-    "nimbus-experiment-rest-list",
-    "nimbus-experiment-rest-detail",
-    "nimbus-experiment-rest-first-run-list",
-    "nimbus-experiment-draft-rest-list",
-    "nimbus-experiment-draft-rest-detail",
+    "nimbus-experiment-rest-v6-list",
+    "nimbus-experiment-rest-v6-detail",
+    "nimbus-experiment-rest-v6-first-run-list",
+    "nimbus-experiment-rest-v6-draft-list",
+    "nimbus-experiment-rest-v6-draft-detail",
+    "nimbus-experiment-rest-v7-list",
+    "nimbus-experiment-rest-v7-detail",
 )
 
 # Internationalization
