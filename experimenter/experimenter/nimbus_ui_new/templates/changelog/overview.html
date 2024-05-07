@@ -1,90 +1,79 @@
 {% extends "common/with_sidebar.html" %}
 
 {% block title %}
-History
-{% endblock %}
-
-
+  History
+{% endblock title %}
 {% block sidebar %}
-{% include "common/experiment_details_sidebar.html" with experiment=experiment %}
-{% endblock %}
+  {% include "common/experiment_details_sidebar.html" with experiment=experiment %}
 
+{% endblock sidebar %}
 {% block main_content %}
-<div class="container-fluid">
-  {% for changelog in experiment.get_changelogs_by_date %}
-  <div class="row">
-    <div class="col-1 text-center py-1" style="z-index: 1;">
-      <span class="badge rounded-pill text-bg-light text-primary shadow">
-        <i class="fa-regular fa-calendar fs-5"></i>
-      </span>
-      <div class="d-flex justify-content-center" style="height: 100%;">
-        <div class="vr" style="width:3px;background-color: #ccc;"></div>
-      </div>
-    </div>
-    <div class="col-11">
-      <span class="fs-5 fw-semibold">
-        {{ changelog.date }}</span>
-      <div class="mb-4 card border-0 col-11">
-        <div class="card-body bg-body-tertiary">
-          {% for change in changelog.changes %}
-          <div class="row mb-2">
-
-            <div class="col-8">
-              <ul class="nav nav-pills">
-                <li class="nav-item">
-                  {{ change.event_message }}
-                </li>
-              </ul>
-            </div>
-
-            <div class="col-4">
-              <ul class="nav nav-pills justify-content-end">
-                {% if change.event == 'DETAILED' %}
-                <li class="nav-item">
-                  <small>
-                    <a class="nav-link py-0" data-bs-toggle="collapse" href="#collapseExample-{{change.id}}"
-                      role="button" aria-expanded="false" aria-controls="collapseExample">
-                      <i class="fa-solid fa-plus"></i>
-                      Show more
-                    </a>
-                  </small>
-                </li>
-                {% endif %}
-                <li class="nav-item">
-                  <small class="text-secondary">
-                    {{change.timestamp}}
-                  </small>
-                </li>
-              </ul>
-            </div>
-
+  <div class="container-fluid">
+    {% for changelog in experiment.get_changelogs_by_date %}
+      <div class="row">
+        <div class="col-1 text-center py-1" style="z-index: 1;">
+          <span class="badge rounded-pill text-bg-light text-primary shadow">
+            <i class="fa-regular fa-calendar fs-5"></i>
+          </span>
+          <div class="d-flex justify-content-center" style="height: 100%;">
+            <div class="vr" style="width:3px;background-color: #ccc;"></div>
           </div>
-
-          <div class="collapse" id="collapseExample-{{change.id}}">
-            <div class="card my-3">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col border-end">
-                    <h6>Old Value</h6>
-                    <pre style="white-space: pre-wrap;">
-                        {{ change.old_value|safe }}
-                      </pre>
+        </div>
+        <div class="col-11">
+          <span class="fs-5 fw-semibold">{{ changelog.date }}</span>
+          <div class="mb-4 card border-0 col-11">
+            <div class="card-body bg-body-tertiary">
+              {% for change in changelog.changes %}
+                <div class="row mb-2">
+                  <div class="col-8">
+                    <ul class="nav nav-pills">
+                      <li class="nav-item">{{ change.event_message }}</li>
+                    </ul>
                   </div>
-                  <div class="col">
-                    <h6>New Value</h6>
-                    <pre style="white-space: pre-wrap;">
-                        {{ change.new_value|safe }}
-                      </pre>
+                  <div class="col-4">
+                    <ul class="nav nav-pills justify-content-end">
+                      {% if change.event == 'DETAILED' %}
+                        <li class="nav-item">
+                          <small>
+                            <a class="nav-link py-0"
+                               data-bs-toggle="collapse"
+                               href="#collapseExample-{{ change.id }}"
+                               role="button"
+                               aria-expanded="false"
+                               aria-controls="collapseExample">
+                              <i class="fa-solid fa-plus"></i>
+                              Show more
+                            </a>
+                          </small>
+                        </li>
+                      {% endif %}
+                      <li class="nav-item">
+                        <small class="text-secondary">{{ change.timestamp }}</small>
+                      </li>
+                    </ul>
                   </div>
                 </div>
-              </div>
+                <div class="collapse" id="collapseExample-{{ change.id }}">
+                  <div class="card my-3">
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col border-end">
+                          <h6>Old Value</h6>
+                          <pre style="white-space: pre-wrap;">{{ change.old_value|safe }}</pre>
+                        </div>
+                        <div class="col">
+                          <h6>New Value</h6>
+                          <pre style="white-space: pre-wrap;">{{ change.new_value|safe }}</pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
             </div>
           </div>
-          {% endfor %}
         </div>
       </div>
-    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
-</div>
-{% endblock %}
+{% endblock main_content %}
