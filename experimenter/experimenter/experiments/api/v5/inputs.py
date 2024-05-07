@@ -58,6 +58,9 @@ class ExperimentInput(graphene.InputObjectType):
     changelog_message = graphene.String()
     channel = NimbusExperimentChannelEnum()
     conclusion_recommendation = NimbusExperimentConclusionRecommendationEnum()
+    conclusion_recommendations = graphene.List(
+        NimbusExperimentConclusionRecommendationEnum
+    )
     countries = graphene.List(graphene.String)
     documentation_links = graphene.List(DocumentationLinkInput)
     excluded_experiments_branches = graphene.List(

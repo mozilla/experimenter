@@ -51,6 +51,7 @@ type NimbusExperimentType {
   riskBrand: Boolean
   riskMessage: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
+  conclusionRecommendations: [NimbusExperimentConclusionRecommendationEnum]
   takeawaysMetricGain: Boolean!
   takeawaysGainAmount: String
   takeawaysQbrLearning: Boolean!
@@ -543,6 +544,7 @@ input ExperimentInput {
   changelogMessage: String
   channel: NimbusExperimentChannelEnum
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
+  conclusionRecommendations: [NimbusExperimentConclusionRecommendationEnum]
   countries: [String]
   documentationLinks: [DocumentationLinkInput]
   excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedInput!]

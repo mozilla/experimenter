@@ -2146,6 +2146,7 @@ class TestNimbusExperiment(TestCase):
             slug="parent-experiment",
             application=NimbusExperiment.Application.DESKTOP,
             conclusion_recommendation="RERUN",
+            conclusion_recommendations=["RERUN", "STOP"],
             takeaways_summary="takeaway",
         )
         NimbusExperimentBranchThroughRequired.objects.create(
@@ -2199,6 +2200,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.subscribers.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
+        self.assertIsNone(child.conclusion_recommendations)
         self.assertIsNone(child.takeaways_gain_amount)
         self.assertIsNone(child.takeaways_summary)
 
@@ -2270,6 +2272,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.takeaways_qbr_learning, False)
         self.assertEqual(child.takeaways_summary, None)
         self.assertEqual(child.conclusion_recommendation, None)
+        self.assertEqual(child.conclusion_recommendations, None)
         self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(child.qa_comment, None)
         self.assertEqual(child._start_date, None)

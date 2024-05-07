@@ -623,6 +623,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     publicDescription
 
                     conclusionRecommendation
+                    conclusionRecommendations
                     takeawaysGainAmount
                     takeawaysMetricGain
                     takeawaysQbrLearning
@@ -847,6 +848,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     else None
                 ),
                 "conclusionRecommendation": experiment.conclusion_recommendation,
+                "conclusionRecommendations": experiment.conclusion_recommendations,
                 "countries": [{"id": str(country.id), "name": country.name}],
                 "documentationLinks": [
                     {
