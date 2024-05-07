@@ -67,11 +67,6 @@ COPY --from=file-loader /experimenter/experimenter/legacy/legacy-ui/core/package
 COPY --from=file-loader /experimenter/experimenter/nimbus-ui/package.json /experimenter/experimenter/nimbus-ui/package.json
 RUN yarn install --frozen-lockfile
 
-# Node packages for htmx ui
-COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/theme/static_src/package.json /experimenter/experimenter/nimbus_ui_new/theme/static_src/package.json
-COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/theme/static_src/yarn.lock /experimenter/experimenter/nimbus_ui_new/theme/static_src/yarn.lock
-RUN yarn install --frozen-lockfile --cwd /experimenter/experimenter/nimbus_ui_new/theme/static_src
-
 
 # Dev image
 #-------------------------
@@ -88,7 +83,6 @@ COPY --from=python-builder /usr/local/lib/python3.11/site-packages/ /usr/local/l
 
 # Node packages
 COPY --from=node-builder /experimenter/experimenter/legacy/legacy-ui/core/node_modules/ /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
-COPY --from=node-builder /experimenter/experimenter/nimbus_ui_new/theme/static_src/node_modules/ /experimenter/experimenter/nimbus_ui_new/theme/static_src/node_modules/
 COPY --from=node-builder /experimenter/experimenter/nimbus-ui/node_modules/ /experimenter/experimenter/nimbus-ui/node_modules/
 COPY --from=node-builder /experimenter/node_modules/ /experimenter/node_modules/
 
@@ -121,11 +115,6 @@ RUN yarn workspace @experimenter/core build
 COPY --from=file-loader /experimenter/experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/nimbus-ui build
 
-# Build static assets
-COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/theme/ /experimenter/experimenter/nimbus_ui_new/theme/
-COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/templates/ /experimenter/experimenter/nimbus_ui_new/templates/
-RUN yarn --cwd /experimenter/experimenter/nimbus_ui_new/theme/static_src build
-
 
 # Deploy image
 #-------------------------
@@ -154,6 +143,4 @@ COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
 COPY --from=file-loader /experimenter/manifesttool/ /experimenter/manifesttool/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
 COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
-COPY --from=ui /experimenter/experimenter/nimbus_ui_new/theme/static/ /experimenter/experimenter/nimbus_ui_new/theme/static/
-COPY --from=ui /experimenter/experimenter/nimbus_ui_new/static/scripts/ /experimenter/experimenter/nimbus_ui_new/static/scripts/
 ENV PYTHONPATH=$PYTHONPATH:/application-services/

@@ -1,4 +1,5 @@
 import json
+import uuid
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -167,6 +168,7 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
         )
 
     return {
+        "id": str(uuid.uuid4()),
         "event": event_name,
         "event_message": change_message,
         "changed_by": changelog.changed_by,
