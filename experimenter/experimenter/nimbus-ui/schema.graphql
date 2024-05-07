@@ -51,7 +51,7 @@ type NimbusExperimentType {
   riskBrand: Boolean
   riskMessage: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
-  conclusionRecommendations: [NimbusExperimentConclusionRecommendationEnum]
+  conclusionRecommendations: [NimbusExperimentConclusionRecommendationEnum]!
   takeawaysMetricGain: Boolean!
   takeawaysGainAmount: String
   takeawaysQbrLearning: Boolean!

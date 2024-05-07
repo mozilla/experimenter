@@ -278,7 +278,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         null=True,
     )
     conclusion_recommendations = models.JSONField(
-        verbose_name="Conclusion Recommendations", blank=True, null=True
+        verbose_name="Conclusion Recommendations", blank=True, null=True, default=list
     )
     takeaways_metric_gain = models.BooleanField(
         "Takeaways Metric Gain Flag", default=False, blank=False, null=False

@@ -502,8 +502,8 @@ class NimbusExperimentType(DjangoObjectType):
     conclusion_recommendation = graphene.Field(
         NimbusExperimentConclusionRecommendationEnum
     )
-    conclusion_recommendations = graphene.List(
-        NimbusExperimentConclusionRecommendationEnum
+    conclusion_recommendations = graphene.NonNull(
+        graphene.List(NimbusExperimentConclusionRecommendationEnum)
     )
     countries = graphene.List(graphene.NonNull(NimbusCountryType), required=True)
     documentation_links = DjangoListField(NimbusDocumentationLinkType)

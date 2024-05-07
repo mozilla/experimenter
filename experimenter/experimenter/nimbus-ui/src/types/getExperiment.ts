@@ -226,7 +226,7 @@ export interface getExperiment_experimentBySlug {
   application: NimbusExperimentApplicationEnum;
   publicDescription: string | null;
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum | null;
-  conclusionRecommendations: (NimbusExperimentConclusionRecommendationEnum | null)[] | null;
+  conclusionRecommendations: (NimbusExperimentConclusionRecommendationEnum | null)[];
   takeawaysGainAmount: string | null;
   takeawaysMetricGain: boolean;
   takeawaysQbrLearning: boolean;
