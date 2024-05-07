@@ -1,29 +1,29 @@
 {% load static %}
 {% load django_bootstrap5 %}
 
-
-
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
-
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
+    <title>
+      {% block title %}
+      {% endblock title %}
+    </title>
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
-    <link rel="icon" href="/static/imgs/favicon.ico">
+    <link rel="icon" href="{% static 'imgs/favicon.ico' %}" />
     {% bootstrap_css %}
     {% bootstrap_javascript %}
-</head>
-
-<body>
+  </head>
+  <body>
     <div class="container-fluid">
-        {% include "common/header.html"%}
-        {% block content %}
-        {% endblock %}
-        {% include "common/footer.html"%}
-    </div>
-</body>
+      {% include "common/header.html" %}
 
+      {% block content %}
+      {% endblock content %}
+      {% include "common/footer.html" %}
+
+    </div>
+  </body>
 </html>
