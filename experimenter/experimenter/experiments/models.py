@@ -639,9 +639,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def proposed_end_date(self):
         if self.proposed_duration is not None and self.enrollment_start_date is not None:
-            return self.enrollment_start_date + datetime.timedelta(
-                days=self.proposed_duration
+            proposed_observation_duration = (
+                self.proposed_duration - self.proposed_enrollment
             )
+            total_duration = self.computed_enrollment_days + proposed_observation_duration
+            return self.enrollment_start_date + datetime.timedelta(days=total_duration)
 
     @property
     def computed_enrollment_days(self):
