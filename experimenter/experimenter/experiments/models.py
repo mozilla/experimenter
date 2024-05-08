@@ -995,7 +995,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.results_data = None
         cloned.takeaways_summary = None
         cloned.conclusion_recommendation = None
-        cloned.conclusion_recommendations = None
+        cloned.conclusion_recommendations = []
         cloned.takeaways_metric_gain = False
         cloned.takeaways_gain_amount = None
         cloned.takeaways_qbr_learning = False
