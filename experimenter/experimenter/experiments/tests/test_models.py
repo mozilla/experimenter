@@ -2530,6 +2530,7 @@ class TestNimbusExperiment(TestCase):
                     "date": current_date,
                     "changes": [
                         {
+                            "id": experiment_changelogs[0]["changes"][0]["id"],
                             "event": ChangeEventType.STATE.name,
                             "event_message": (
                                 f"{user} changed value of Status from "
@@ -2541,6 +2542,7 @@ class TestNimbusExperiment(TestCase):
                             "new_value": "Preview",
                         },
                         {
+                            "id": experiment_changelogs[0]["changes"][1]["id"],
                             "event": ChangeEventType.STATE.name,
                             "event_message": (
                                 f"{user} changed value of Publish Status from "

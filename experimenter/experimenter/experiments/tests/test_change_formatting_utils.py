@@ -84,6 +84,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
+            "id": change["id"],
             "event": ChangeEventType.STATE.name,
             "event_message": (
                 f"{self.user} changed value of {field_display_name} from "
@@ -140,6 +141,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
+            "id": change["id"],
             "event": ChangeEventType.DETAILED.name,
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
@@ -191,6 +193,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
+            "id": change["id"],
             "event": ChangeEventType.DETAILED.name,
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
@@ -251,6 +254,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
+            "id": change["id"],
             "event": ChangeEventType.DETAILED.name,
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
@@ -300,6 +304,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
+            "id": change["id"],
             "event": ChangeEventType.DETAILED.name,
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
@@ -349,6 +354,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
+            "id": change["id"],
             "event": ChangeEventType.DETAILED.name,
             "event_message": f"{self.user} changed value of {field_display_name}",
             "changed_by": self.user,
@@ -398,6 +404,7 @@ class TestChangeFormattingMethod(TestCase):
         )
 
         expected_change = {
+            "id": change["id"],
             "event": ChangeEventType.BOOLEAN.name,
             "event_message": f"{self.user} set the {field_display_name} as {new_value}",
             "changed_by": self.user,
