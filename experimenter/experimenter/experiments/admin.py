@@ -296,6 +296,11 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     conclusion_recommendation = forms.ChoiceField(
         choices=NimbusExperiment.ConclusionRecommendation.choices, required=False
     )
+    conclusion_recommendations = forms.MultipleChoiceField(
+        choices=NimbusExperiment.ConclusionRecommendation.choices,
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+    )
     qa_status = forms.ChoiceField(
         choices=NimbusExperiment.QAStatus.choices,
         required=False,
