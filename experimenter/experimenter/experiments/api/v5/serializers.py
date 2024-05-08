@@ -108,6 +108,7 @@ class TransitionConstants:
             "status_next",
             "status",
             "conclusion_recommendation",
+            "conclusion_recommendations",
             "subscribers",
             "takeaways_summary",
             "takeaways_metric_gain",
@@ -698,6 +699,7 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
+    conclusion_recommendations = serializers.JSONField(required=False)
     takeaways_metric_gain = serializers.BooleanField(required=False)
     takeaways_qbr_learning = serializers.BooleanField(required=False)
     proposed_release_date = serializers.DateField(
@@ -734,6 +736,7 @@ class NimbusExperimentSerializer(
             "changelog_message",
             "channel",
             "conclusion_recommendation",
+            "conclusion_recommendations",
             "countries",
             "documentation_links",
             "excluded_experiments_branches",
