@@ -169,6 +169,7 @@ class TestUpdateExperimentMutationSingleFeature(
                     "riskRevenue": True,
                     "riskPartnerRelated": True,
                     "conclusionRecommendation": "RERUN",
+                    "conclusionRecommendations": ["RERUN", "STOP"],
                     "takeawaysSummary": "the test worked",
                     "projects": [str(project.id)],
                     "isLocalized": True,
@@ -194,6 +195,13 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(
             experiment.conclusion_recommendation,
             NimbusExperiment.ConclusionRecommendation.RERUN,
+        )
+        self.assertEqual(
+            experiment.conclusion_recommendations,
+            [
+                NimbusExperiment.ConclusionRecommendation.RERUN,
+                NimbusExperiment.ConclusionRecommendation.STOP,
+            ],
         )
         self.assertEqual(experiment.takeaways_summary, "the test worked")
         self.assertEqual(list(experiment.projects.all()), [project])
@@ -1154,6 +1162,9 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             conclusion_recommendation=NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
+            conclusion_recommendations=[
+                NimbusExperiment.ConclusionRecommendation.FOLLOWUP
+            ],
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -1161,6 +1172,7 @@ class TestUpdateExperimentMutationSingleFeature(
                 "input": {
                     "id": experiment.id,
                     "conclusionRecommendation": None,
+                    "conclusionRecommendations": [],
                     "takeawaysSummary": "the test worked",
                     "changelogMessage": "test changelog message",
                 }
@@ -1174,6 +1186,7 @@ class TestUpdateExperimentMutationSingleFeature(
 
         experiment = NimbusExperiment.objects.get()
         self.assertEqual(experiment.conclusion_recommendation, None)
+        self.assertEqual(experiment.conclusion_recommendations, [])
         self.assertEqual(experiment.takeaways_summary, "the test worked")
 
     def test_update_prevent_pref_conflicts(self):
