@@ -386,17 +386,6 @@ features:
             is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
-  share-sheet:
-    description: This feature define the redesign of the share sheet
-    variables:
-      move-actions:
-        description: If true copy and send to device are moved to share sheet
-        type: Boolean
-        default: false
-      toolbar-changes:
-        description: If true share option is shown on the toolbar
-        type: Boolean
-        default: false
   shopping2023:
     description: "The configuration setting for the status of the Fakespot feature\n"
     variables:
