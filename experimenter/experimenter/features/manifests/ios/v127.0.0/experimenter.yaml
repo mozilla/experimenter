@@ -155,17 +155,6 @@ search:
     awesome-bar:
       type: json
       description: Configuring the awesome bar.
-share-sheet:
-  description: This feature define the redesign of the share sheet
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    move-actions:
-      type: boolean
-      description: If true copy and send to device are moved to share sheet
-    toolbar-changes:
-      type: boolean
-      description: If true share option is shown on the toolbar
 shopping2023:
   description: "The configuration setting for the status of the Fakespot feature\n"
   hasExposure: true
