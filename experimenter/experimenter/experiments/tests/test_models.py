@@ -1364,6 +1364,29 @@ class TestNimbusExperiment(TestCase):
             experiment.end_date,
         )
 
+    def test_computed_end_date_returns_proposed_with_actual_enrollment_duration(self):
+        start_date = datetime.date(2022, 1, 1)
+        enrollment_end_date = datetime.date(2022, 1, 5)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            start_date=start_date,
+            proposed_enrollment=2,
+            _enrollment_end_date=enrollment_end_date,
+        )
+
+        self.assertEqual(experiment.actual_enrollment_end_date, enrollment_end_date)
+        additional_enrollment_days = (
+            experiment.actual_enrollment_end_date - experiment.start_date
+        ).days - experiment.proposed_enrollment
+
+        self.assertEqual(
+            experiment.computed_end_date,
+            experiment.start_date
+            + datetime.timedelta(
+                days=(experiment.proposed_duration + additional_enrollment_days)
+            ),
+        )
+
     def test_monitoring_dashboard_url_is_valid_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
@@ -2200,7 +2223,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.subscribers.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
-        self.assertIsNone(child.conclusion_recommendations)
+        self.assertEqual(child.conclusion_recommendations, [])
         self.assertIsNone(child.takeaways_gain_amount)
         self.assertIsNone(child.takeaways_summary)
 
@@ -2272,7 +2295,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.takeaways_qbr_learning, False)
         self.assertEqual(child.takeaways_summary, None)
         self.assertEqual(child.conclusion_recommendation, None)
-        self.assertEqual(child.conclusion_recommendations, None)
+        self.assertEqual(child.conclusion_recommendations, [])
         self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(child.qa_comment, None)
         self.assertEqual(child._start_date, None)
