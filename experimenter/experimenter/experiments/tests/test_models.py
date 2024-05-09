@@ -2564,7 +2564,11 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.FENIX, 3),
-            (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.DESKTOP, 0),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Application.DESKTOP,
+                0,
+            ),
         ]
     )
     def test_get_live_multifeature_experiments_for_feature(
@@ -2832,6 +2836,18 @@ class TestNimbusExperiment(TestCase):
 
         matching_experiments = experiment.live_experiments_in_namespace
         self.assertEqual(len(matching_experiments), 0)
+
+    def test_get_firefox_min_version_display(self):
+        experiment = NimbusExperimentFactory.create(
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100
+        )
+        self.assertEqual(experiment.get_firefox_min_version_display, "100.0")
+
+    def test_get_firefox_max_version_display(self):
+        experiment = NimbusExperimentFactory.create(
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_100
+        )
+        self.assertEqual(experiment.get_firefox_max_version_display, "100.0")
 
 
 class TestNimbusBranch(TestCase):

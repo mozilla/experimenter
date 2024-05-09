@@ -2,12 +2,12 @@
 
 <nav class="navbar mb-2">
   <div class="container-fluid">
-    <a class="navbar-brand" href="{% url 'nimbus-list' %}">
+    <a class="navbar-brand d-flex align-items-center"
+       href="{% url 'nimbus-list' %}">
       <img src="{% static 'assets/logo.svg' %}"
            alt="Logo"
            width="30"
-           height="24"
-           class="d-inline-block align-text-top">
+           class="d-inline-block align-text-top me-2">
       Nimbus Experiments
     </a>
     <ul class="nav nav-pills">
@@ -36,6 +36,12 @@
            rel="noreferrer">
           <i class="fa-solid fa-circle-question"></i>
           Help
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/legacy/" class="nav-link" target="_blank" rel="noreferrer">
+          <i class="fa-solid fa-ghost"></i>
+          Legacy
         </a>
       </li>
       <li>
