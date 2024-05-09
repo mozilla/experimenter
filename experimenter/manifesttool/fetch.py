@@ -1,7 +1,6 @@
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from traceback import print_exception
 from typing import Optional, TextIO
 
 import yaml
@@ -9,6 +8,7 @@ from mozilla_nimbus_schemas import FeatureManifest
 
 from manifesttool import github_api, hgmo_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, DiscoveryStrategyType, RepositoryType
+from manifesttool.exception_utils import format_exception
 from manifesttool.releases import discover_branched_releases, discover_tagged_releases
 from manifesttool.repository import Ref, RefCache
 from manifesttool.version import Version
@@ -26,10 +26,9 @@ class FetchResult:
         as_str = f"{self.app_name} at {self.ref} version {self.version}"
 
         if self.exc:
-            exc_message = str(self.exc).partition("\n")[0]
-            as_str = f"{as_str}\n{exc_message}\n"
+            as_str += f"\n{format_exception(self.exc)}"
         elif self.cached:
-            as_str = f"{as_str} (cached)"
+            as_str += " (cached)"
 
         return as_str
 
@@ -109,7 +108,7 @@ def fetch_fml_app(
             version,
         )
     except Exception as e:
-        print_exception(e, file=sys.stderr)
+        print(format_exception(e), file=sys.stderr)
         result.exc = e
 
     return result
@@ -203,7 +202,7 @@ def fetch_legacy_app(
 
                 fetched_schemas.add(feature.json_schema.path)
     except Exception as e:
-        print_exception(e, file=sys.stderr)
+        print(format_exception(e), file=sys.stderr)
         result.exc = e
 
     return result
