@@ -1136,6 +1136,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return transformed_changelogs
 
+    @property
+    def get_firefox_min_version_display(self):
+        return self.firefox_min_version.replace("!", "0")
+
+    @property
+    def get_firefox_max_version_display(self):
+        return self.firefox_max_version.replace("!", "0")
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
