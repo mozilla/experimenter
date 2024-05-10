@@ -1,8 +1,9 @@
+import subprocess
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 from parameterized import parameterized
 
@@ -45,12 +46,13 @@ class NimbusCliTests(TestCase):
                 "0" * 40,
                 "@owner/repo/path",
             ],
+            stderr=subprocess.PIPE,
         )
 
     @patch.object(
         nimbus_cli.subprocess,
         "check_output",
-        lambda *args: "invalid json",
+        lambda *args, **kwargs: "invalid json",
     )
     def test_get_channels_invalid(self):
         "Testing get_channels handling of invalid JSON."
@@ -69,10 +71,11 @@ class NimbusCliTests(TestCase):
         """Tesing download_single_file calls nimbus-cli with correct arguments."""
         with (
             TemporaryDirectory() as tmp,
-            patch.object(nimbus_cli.subprocess, "check_call") as check_call,
+            patch.object(nimbus_cli.subprocess, "check_output") as check_output,
         ):
             manifest_dir = Path(tmp)
             manifest_dir.joinpath("slug").mkdir()
+
             nimbus_cli.download_single_file(
                 manifest_dir,
                 APP_CONFIG,
@@ -82,7 +85,7 @@ class NimbusCliTests(TestCase):
                 version,
             )
 
-            check_call.assert_called_with(
+            check_output.assert_called_with(
                 [
                     "/application-services/bin/nimbus-cli",
                     "fml",
@@ -94,7 +97,8 @@ class NimbusCliTests(TestCase):
                     "0" * 40,
                     "@owner/repo/path",
                     str(manifest_dir / fml_path),
-                ]
+                ],
+                stderr=subprocess.PIPE,
             )
 
     @parameterized.expand(
@@ -119,7 +123,7 @@ class NimbusCliTests(TestCase):
         """Testing generate_experimenter_yaml calls nimbus-cli with correct arguments."""
         with (
             TemporaryDirectory() as tmp,
-            patch.object(nimbus_cli.subprocess, "check_call") as check_call,
+            patch.object(nimbus_cli.subprocess, "check_output") as check_output,
         ):
             manifest_dir = Path(tmp)
             manifest_dir.joinpath("slug").mkdir()
@@ -127,7 +131,7 @@ class NimbusCliTests(TestCase):
                 manifest_dir, APP_CONFIG, "channel", version
             )
 
-            check_call.assert_called_with(
+            check_output.assert_called_with(
                 [
                     "/application-services/bin/nimbus-cli",
                     "fml",
@@ -135,5 +139,6 @@ class NimbusCliTests(TestCase):
                     "generate-experimenter",
                     str(manifest_dir / fml_path),
                     str(manifest_dir / experimenter_yaml_path),
-                ]
+                ],
+                stderr=subprocess.PIPE,
             )

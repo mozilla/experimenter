@@ -98,7 +98,7 @@ class CliTests(TestCase):
         self.assertEqual(result.exit_code, 1, result.exception or result.stdout)
 
         self.assertIn(
-            "SUMMARY:\n\nFAILURES:\n\nfml_app at main version None\nConnection error\n",
+            "SUMMARY:\n\nFAILURES:\n\nfml_app at main version None\nException: Connection error\n",
             result.stdout,
         )
 
@@ -148,7 +148,7 @@ class CliTests(TestCase):
         self.assertEqual(result.exit_code, 1, result.exception or result.stdout)
 
         self.assertIn(
-            "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip version None\nConnection error\n",
+            "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip version None\nException: Connection error\n",
             result.stdout,
         )
 
@@ -260,7 +260,7 @@ class CliTests(TestCase):
             "SUMMARY:\n\n"
             "FAILURES:\n\n"
             "fml_app at main (quux) version None\n"
-            "oh no\n\n"
+            "Exception: oh no\n\n"
             "SUCCESS:\n\n"
             "fml_app at baz (qux) version 2.0.0\n\n"
             "CACHED:\n\n"
