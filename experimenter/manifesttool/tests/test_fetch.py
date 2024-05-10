@@ -1023,18 +1023,26 @@ class FetchTests(TestCase):
             buffer,
         )
 
-        self.assertEqual(
-            buffer.getvalue(),
-            "SUMMARY:\n\n"
-            "FAILURES:\n\n"
-            "app-3 at c (baz) version None\n"
-            "oh no\n\n"
-            "app-5 at e (quux) version 7.8.9\n"
-            "rats!\n\n"
-            "SUCCESS:\n\n"
-            "app-1 at a (foo) version None\n"
-            "app-2 at b (bar) version 1.2.3\n"
-            "\n"
-            "CACHED:\n\n"
-            "app-4 at d (qux) version 4.5.6 (cached)\n",
-        )
+        summary = buffer.getvalue()
+        expected = """\
+SUMMARY:
+
+FAILURES:
+
+app-3 at c (baz) version None
+Exception: oh no
+
+app-5 at e (quux) version 7.8.9
+Exception: rats!
+
+SUCCESS:
+
+app-1 at a (foo) version None
+app-2 at b (bar) version 1.2.3
+
+CACHED:
+
+app-4 at d (qux) version 4.5.6 (cached)
+"""
+
+        self.assertEqual(summary, expected)

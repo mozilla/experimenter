@@ -4,23 +4,22 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from manifesttool import github_api
 from manifesttool.appconfig import AppConfig, RepositoryType
 from manifesttool.version import Version
 
 NIMBUS_CLI_PATH = "/application-services/bin/nimbus-cli"
 
 
-def nimbus_cli(args: list[str], *, output: bool = False):
+def nimbus_cli(args: list[str]) -> bytes:
     """Run nimbus-cli with the given arguments."""
     print("nimbus-cli", " ".join(args))
-    method = subprocess.check_output if output else subprocess.check_call
 
-    return method(
+    return subprocess.check_output(
         [
             NIMBUS_CLI_PATH,
             *args,
-        ]
+        ],
+        stderr=subprocess.PIPE,
     )
 
 
@@ -36,8 +35,7 @@ def get_channels(app_config: AppConfig, fml_path: str, ref: str) -> list[str]:
             "--ref",
             ref,
             f"@{app_config.repo.name}/{fml_path}",
-        ],
-        output=True,
+        ]
     )
 
     try:
