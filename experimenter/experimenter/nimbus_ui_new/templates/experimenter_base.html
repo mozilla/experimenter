@@ -10,18 +10,20 @@
     <title>
       {% block title %}
       {% endblock title %}
+
     </title>
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
     <link rel="icon" href="{% static 'imgs/favicon.ico' %}" />
     {% bootstrap_css %}
     {% bootstrap_javascript %}
   </head>
-  <body>
+  <body class="bg-body-tertiary">
     <div class="container-fluid">
       {% include "common/header.html" %}
 
       {% block content %}
       {% endblock content %}
+
       {% include "common/footer.html" %}
 
     </div>
