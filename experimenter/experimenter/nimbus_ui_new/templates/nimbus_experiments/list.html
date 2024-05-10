@@ -1,0 +1,133 @@
+{% extends "common/with_sidebar.html" %}
+
+{% block title %}
+  Nimbus Experiments
+{% endblock title %}
+
+{% block sidebar %}
+  <input class="form-control mb-2 bg-body-tertiary"
+         type="text"
+         placeholder="🔎 Search"
+         aria-label="default input example">
+  {% include "common/sidebar_select.html" with placeholder="All Features" icon="fa-solid fa-boxes-stacked" %}
+  {% include "common/sidebar_select.html" with placeholder="All Applications" icon="fa-solid fa-desktop" %}
+  {% include "common/sidebar_select.html" with placeholder="All Owners" icon="fa-solid fa-users" %}
+  {% include "common/sidebar_select.html" with placeholder="All Versions" icon="fa-solid fa-code-branch" %}
+  {% include "common/sidebar_select.html" with placeholder="All Channels" icon="fa-solid fa-road" %}
+  {% include "common/sidebar_select.html" with placeholder="All Types" icon="fa-solid fa-flask-vial" %}
+  {% include "common/sidebar_select.html" with placeholder="All Team Projects" icon="fa-solid fa-person-chalkboard" %}
+  {% include "common/sidebar_select.html" with placeholder="All Audiences" icon="fa-solid fa-users-rectangle" %}
+  {% include "common/sidebar_select.html" with placeholder="All Takeaways" icon="fa-solid fa-list-check" %}
+  {% include "common/sidebar_select.html" with placeholder="All QA Statuses" icon="fa-solid fa-user-shield" %}
+  {% include "common/sidebar_select.html" with placeholder="All Subscribers" icon="fa-solid fa-bell" %}
+
+{% endblock sidebar %}
+
+{% block main_content %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" aria-current="page" href="#">
+        <i class="fa-regular fa-circle-play"></i>
+        Live ({{ status_counts.Live }})
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <i class="fa-solid fa-eye"></i>
+        Review ({{ status_counts.Review }})
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <i class="fa-solid fa-person-circle-check"></i>
+        Preview ({{ status_counts.Preview }})
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <i class="fa-solid fa-vial-circle-check"></i>
+        Completed ({{ status_counts.Complete }})
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <i class="fa-solid fa-pen-to-square"></i>
+        Draft ({{ status_counts.Draft }})
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <i class="fa-solid fa-box-archive"></i>
+        Archived ({{ status_counts.Archived }})
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <i class="fa-solid fa-heart"></i>
+        My Experiments ({{ status_counts.MyExperiments }})
+      </a>
+    </li>
+  </ul>
+  <div class="border border-1 border-top-0 border-bottom-0">
+    <table class="table table-striped mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">QA</th>
+          <th scope="col">Application</th>
+          <th scope="col">Channel</th>
+          <th scope="col">Size</th>
+          <th scope="col">Features</th>
+          <th scope="col">Versions</th>
+          <th scope="col">Dates</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for experiment in experiments %}
+          <tr>
+            <th scope="row">
+              <a href="{% url "nimbus-detail" slug=experiment.slug %}">{{ experiment.name }}</a>
+            </th>
+            <td>
+              {% if experiment.qa_status == 'NOT SET' %}<i class="fa-regular fa-circle-question"></i>{% endif %}
+              {% if experiment.qa_status == 'GREEN' %}
+                <span class="text-success"><i class="fa-regular fa-circle-check"></i></span>
+              {% endif %}
+              {% if experiment.qa_status == 'YELLOW' %}
+                <span class="text-warning"><i class="fa-regular fa-circle-pause"></i></span>
+              {% endif %}
+              {% if experiment.qa_status == 'RED' %}
+                <span class="text-danger"><i class="fa-regular fa-circle-xmark"></i></span>
+              {% endif %}
+            </td>
+            <td>{{ experiment.get_application_display }}</td>
+            <td>{{ experiment.get_channel_display }}</td>
+            <td>{{ experiment.population_percent|floatformat }}%</td>
+            <td>
+              {% for feature in experiment.feature_configs.all %}{{ feature.name }}{% endfor %}
+            </td>
+            <td>
+              {{ experiment.get_firefox_min_version_display }}
+              {% if experiment.firefox_max_version %}
+                - {{ experiment.get_firefox_max_version_display }}
+              {% else %}
+                +
+              {% endif %}
+            </td>
+            <td>
+              {% if experiment.start_date %}
+                {{ experiment.start_date|date:"M j/y" }} -
+                <br>
+                {{ experiment.computed_end_date|date:"M j/y" }}
+                <br>
+                ({{ experiment.proposed_duration }} days)
+              {% else %}
+                N/A
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock main_content %}
