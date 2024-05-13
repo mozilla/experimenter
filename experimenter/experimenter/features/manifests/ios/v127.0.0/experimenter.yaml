@@ -219,6 +219,14 @@ tabTrayFeature:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
+toolbar-refactor-feature:
+  description: "This feature is for managing the roll out of the Toolbar refactor feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 zoom-feature:
   description: "The configuration for the status of the zoom feature\n"
   hasExposure: true
