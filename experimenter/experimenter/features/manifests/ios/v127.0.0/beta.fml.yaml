@@ -442,6 +442,13 @@ features:
         type: "Map<TabTraySection, Boolean>"
         default:
           inactive-tabs: true
+  toolbar-refactor-feature:
+    description: "This feature is for managing the roll out of the Toolbar refactor feature\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:
