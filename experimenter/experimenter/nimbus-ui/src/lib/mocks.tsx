@@ -130,7 +130,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "PLATYPUS_DOORSTOP",
     },
   ],
-  conclusionRecommendations: [
+  conclusionRecommendationsChoices: [
     { label: "Rerun", value: "RERUN" },
     {
       label: "Graduate",

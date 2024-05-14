@@ -335,7 +335,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     outcomes = graphene.List(NimbusOutcomeType)
     owners = graphene.List(NimbusUserType)
     targeting_configs = graphene.List(NimbusExperimentTargetingConfigType)
-    conclusion_recommendations = graphene.List(NimbusLabelValueType)
+    conclusion_recommendations_choices = graphene.List(NimbusLabelValueType)
     takeaways = graphene.List(NimbusLabelValueType)
     types = graphene.List(NimbusLabelValueType)
     status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
@@ -386,7 +386,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_firefox_versions(self, info):
         return NimbusConfigurationType.sort_version_choices(NimbusExperiment.Version)
 
-    def resolve_conclusion_recommendations(self, info):
+    def resolve_conclusion_recommendations_choices(self, info):
         return self._text_choices_to_label_value_list(
             NimbusExperiment.ConclusionRecommendation
         )

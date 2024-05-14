@@ -482,7 +482,7 @@ type NimbusConfigurationType {
   outcomes: [NimbusOutcomeType]
   owners: [NimbusUserType]
   targetingConfigs: [NimbusExperimentTargetingConfigType]
-  conclusionRecommendations: [NimbusLabelValueType]
+  conclusionRecommendationsChoices: [NimbusLabelValueType]
   takeaways: [NimbusLabelValueType]
   types: [NimbusLabelValueType]
   statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]

@@ -30,18 +30,18 @@ export const Takeaways = (props: TakeawaysProps) => {
     isArchived,
   } = props;
 
-  const { conclusionRecommendations } = useConfig();
+  const { conclusionRecommendationsChoices } = useConfig();
   const onClickEdit = useCallback(() => setShowEditor(true), [setShowEditor]);
 
   if (showEditor) {
     return (
       <TakeawaysEditor
-        {...{ ...props, conclusionRecommendations, setShowEditor }}
+        {...{ ...props, conclusionRecommendationsChoices, setShowEditor }}
       />
     );
   }
 
-  const conclusionRecommendationLabel = conclusionRecommendations?.find(
+  const conclusionRecommendationLabel = conclusionRecommendationsChoices?.find(
     (item) => item!.value === conclusionRecommendation,
   )?.label;
 

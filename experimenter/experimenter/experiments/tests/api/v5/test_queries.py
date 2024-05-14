@@ -2433,7 +2433,7 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
                         label
                         value
                     }
-                    conclusionRecommendations {
+                    conclusionRecommendationsChoices {
                         label
                         value
                     }
@@ -2546,7 +2546,7 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
         assertChoices(config["types"], NimbusExperiment.Type)
         assertChoices(config["channels"], NimbusExperiment.Channel)
         assertChoices(
-            config["conclusionRecommendations"],
+            config["conclusionRecommendationsChoices"],
             NimbusExperiment.ConclusionRecommendation,
         )
 

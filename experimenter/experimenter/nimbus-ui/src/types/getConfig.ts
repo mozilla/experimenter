@@ -19,7 +19,7 @@ export interface getConfig_nimbusConfig_channels {
   value: string | null;
 }
 
-export interface getConfig_nimbusConfig_conclusionRecommendations {
+export interface getConfig_nimbusConfig_conclusionRecommendationsChoices {
   label: string | null;
   value: string | null;
 }
@@ -141,7 +141,7 @@ export interface getConfig_nimbusConfig_subscribers {
 export interface getConfig_nimbusConfig {
   applications: (getConfig_nimbusConfig_applications | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
-  conclusionRecommendations: (getConfig_nimbusConfig_conclusionRecommendations | null)[] | null;
+  conclusionRecommendationsChoices: (getConfig_nimbusConfig_conclusionRecommendationsChoices | null)[] | null;
   applicationConfigs: (getConfig_nimbusConfig_applicationConfigs | null)[] | null;
   allFeatureConfigs: getConfig_nimbusConfig_allFeatureConfigs[] | null;
   firefoxVersions: (getConfig_nimbusConfig_firefoxVersions | null)[] | null;

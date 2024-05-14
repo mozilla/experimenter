@@ -25,13 +25,13 @@ export const takeawaysEditorFieldNames = [
 type TakeawaysEditorFieldName = typeof takeawaysEditorFieldNames[number];
 
 export type TakeawaysEditorProps = UseTakeawaysResult &
-  Pick<getConfig_nimbusConfig, "conclusionRecommendations"> & {
+  Pick<getConfig_nimbusConfig, "conclusionRecommendationsChoices"> & {
     setShowEditor: (state: boolean) => void;
   };
 
 export const TakeawaysEditor = ({
   isLoading,
-  conclusionRecommendations,
+  conclusionRecommendationsChoices,
   conclusionRecommendation,
   takeawaysSummary,
   takeawaysQbrLearning,
@@ -186,7 +186,7 @@ export const TakeawaysEditor = ({
                 {...conclusionRadioAttrs}
                 id="conclusionRecommendation-none"
               />
-              {conclusionRecommendations!.map((option, idx) => (
+              {conclusionRecommendationsChoices!.map((option, idx) => (
                 <Form.Check
                   key={idx}
                   type="radio"
