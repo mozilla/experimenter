@@ -506,6 +506,7 @@ jobs:
             cp .env.sample .env
             env GITHUB_BEARER_TOKEN="${GH_EXTERNAL_CONFIG_TOKEN}" make fetch_external_resources FETCH_ARGS="--summary fetch-summary.txt"
             mv ./experimenter/fetch-summary.txt /tmp/fetch-summary.txt
+            echo -e "\nCircle CI Task: ${CIRCLE_BUILD_URL}" >> /tmp/fetch-summary.txt
             if python3 ./experimenter/bin/should-pr.py
               then
                 git checkout -B external-config
