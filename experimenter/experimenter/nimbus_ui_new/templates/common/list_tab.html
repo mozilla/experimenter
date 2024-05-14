@@ -1,0 +1,11 @@
+<li class="nav-item">
+  <button class="nav-link {% if active_status == status %}active{% endif %}"
+          hx-get="?status={{ status }}"
+          hx-select="#experiment-list"
+          hx-target="#experiment-list"
+          hx-push-url="true"
+          hx-indicator="#htmx-indicator">
+    <i class="{{ icon }}"></i>
+    {{ status }} ({{ count }})
+  </button>
+</li>
