@@ -505,8 +505,8 @@ jobs:
             git pull origin main
             cp .env.sample .env
             env GITHUB_BEARER_TOKEN="${GH_EXTERNAL_CONFIG_TOKEN}" make fetch_external_resources FETCH_ARGS="--summary fetch-summary.txt"
-            mv ./experimenter/fetch-summary.txt /tmp/fetch-summary.txt
-            echo -e "\nCircle CI Task: ${CIRCLE_BUILD_URL}" >> /tmp/fetch-summary.txt
+            cp ./experimenter/fetch-summary.txt /tmp/pr-body.txt
+            echo -e "\nCircle CI Task: ${CIRCLE_BUILD_URL}" >> /tmp/pr-body.txt
             if python3 ./experimenter/bin/should-pr.py
               then
                 git checkout -B external-config
@@ -515,8 +515,8 @@ jobs:
                 if (($((git diff external-config origin/external-config || git diff HEAD~1) | wc -c) > 0))
                   then
                     git push origin external-config -f
-                    gh pr create -t "chore(nimbus): Update External Configs" -F /tmp/fetch-summary.txt --base main --head external-config --repo mozilla/experimenter || \
-                      gh pr edit external-config -F /tmp/fetch-summary.txt
+                    gh pr create -t "chore(nimbus): Update External Configs" -F /tmp/pr-body.txt --base main --head external-config --repo mozilla/experimenter || \
+                      gh pr edit external-config -F /tmp/pr-body.txt
                   else
                     echo "Changes already committed, skipping"
                 fi
