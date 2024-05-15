@@ -501,14 +501,12 @@ jobs:
       - run:
           name: Check for External Config Update
           command: |
-            git checkout main
-            git pull origin main
             cp .env.sample .env
             touch ./experimenter/fetch-summary.txt
             env GITHUB_BEARER_TOKEN="${GH_EXTERNAL_CONFIG_TOKEN}" make fetch_external_resources FETCH_ARGS="--summary fetch-summary.txt"
             mv ./experimenter/fetch-summary.txt /tmp/pr-body.txt
             echo -e "\nCircle CI Task: ${CIRCLE_BUILD_URL}" >> /tmp/pr-body.txt
-            if python3 ./experimenter/bin/should-pr.py
+            if true
               then
                 git checkout -B external-config
                 git add .
@@ -516,7 +514,7 @@ jobs:
                 if (($((git diff external-config origin/external-config || git diff HEAD~1) | wc -c) > 0))
                   then
                     git push origin external-config -f
-                    gh pr create -t "chore(nimbus): Update External Configs" -F /tmp/pr-body.txt --base main --head external-config --repo mozilla/experimenter || \
+                    gh pr create -t "[DO NOT MERGE] Test for #10707" -F /tmp/pr-body.txt --base main --head external-config --repo mozilla/experimenter || \
                       gh pr edit external-config -F /tmp/pr-body.txt
                   else
                     echo "Changes already committed, skipping"
@@ -610,6 +608,8 @@ workflows:
 
   build:
     jobs:
+      - update_external_configs:
+          name: test only update external configs
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
