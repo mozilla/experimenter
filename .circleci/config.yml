@@ -504,9 +504,9 @@ jobs:
             git checkout main
             git pull origin main
             cp .env.sample .env
+            touch ./experimenter/fetch-summary.txt
             env GITHUB_BEARER_TOKEN="${GH_EXTERNAL_CONFIG_TOKEN}" make fetch_external_resources FETCH_ARGS="--summary fetch-summary.txt"
-            cp ./experimenter/fetch-summary.txt /tmp/pr-body.txt
-            rm fetch-summary.txt
+            mv ./experimenter/fetch-summary.txt /tmp/pr-body.txt
             echo -e "\nCircle CI Task: ${CIRCLE_BUILD_URL}" >> /tmp/pr-body.txt
             if python3 ./experimenter/bin/should-pr.py
               then
