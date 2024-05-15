@@ -64,6 +64,7 @@ def fixture_sdk_client():
     def _client_helper(app_context):
         return nimbus_rust.NimbusClient(
             app_context,
+            None,
             [],
             str(Path.cwd()),
             None,
