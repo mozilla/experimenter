@@ -3,8 +3,9 @@
           hx-get="?status={{ status }}"
           hx-select="#experiment-list"
           hx-target="#experiment-list"
+          hx-swap="outerHTML"
           hx-push-url="true"
-          hx-indicator="#htmx-indicator">
+          hx-indicator="#htmx-spinner">
     <i class="{{ icon }}"></i>
     {{ status }} ({{ count }})
   </button>
