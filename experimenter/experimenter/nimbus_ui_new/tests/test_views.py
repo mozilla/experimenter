@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
@@ -88,3 +90,16 @@ class NimbusExperimentsListViewTest(TestCase):
             [e.slug for e in response.context["experiments"]],
             expected_slugs,
         )
+
+    @patch(
+        "experimenter.nimbus_ui_new.views.NimbusExperimentsListView.paginate_by", new=3
+    )
+    def test_pagination(self):
+        for _ in range(6):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
+            )
+        response = self.client.get(reverse("nimbus-new-list"))
+        self.assertEqual(len(response.context["experiments"]), 3)
+        response = self.client.get(reverse("nimbus-new-list"), {"page": 2})
+        self.assertEqual(len(response.context["experiments"]), 3)

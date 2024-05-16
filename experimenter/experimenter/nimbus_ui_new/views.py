@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 import django_filters
+from django.conf import settings
 from django.db import models
 from django.views.generic import DetailView
 from django_filters.views import FilterView
@@ -57,11 +58,16 @@ class NimbusExperimentsListView(FilterView):
     filterset_class = NimbusExperimentFilter
     context_object_name = "experiments"
     template_name = "nimbus_experiments/list.html"
+    paginate_by = settings.EXPERIMENTS_PAGINATE_BY
 
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
-        if kwargs["data"] is None:
-            kwargs["data"] = {"status": StatusChoices.LIVE.value}
+
+        query = self.request.GET.copy()
+        if "status" not in query or not query["status"]:
+            query["status"] = StatusChoices.LIVE.value
+        kwargs["data"] = query
+
         return kwargs
 
     def get_context_data(self, **kwargs):

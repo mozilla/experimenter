@@ -1,5 +1,7 @@
 {% extends "common/with_sidebar.html" %}
 
+{% load nimbus_extras %}
+
 {% block title %}
   Nimbus Experiments
 {% endblock title %}
@@ -39,16 +41,39 @@
       {% include "common/list_tab.html" with status="MyExperiments" count=status_counts.MyExperiments icon="fa-solid fa-heart" %}
 
       <li class="nav-item ms-auto d-flex align-items-center">
-        <button class="btn btn-link">
-          <i class="fa-solid fa-angle-left"></i>
-        </button>
-        <select class="form-select border-0 bg-body-tertiary">
-          <option>1</option>
-        </select>
-        /&nbsp;10
-        <button class="btn btn-link">
-          <i class="fa-solid fa-angle-right"></i>
-        </button>
+        <i id="htmx-spinner"
+           class="fa-solid fa-spinner fa-spin ms-2 htmx-indicator"></i>
+        {% if page_obj.has_previous %}
+          <button class="btn btn-link"
+                  hx-get="{% pagination_url page_obj.previous_page_number %}"
+                  hx-select="#experiment-list"
+                  hx-target="#experiment-list"
+                  hx-swap="outerHTML"
+                  hx-push-url="true"
+                  hx-indicator="#htmx-spinner">
+            <i class="fa-solid fa-angle-left"></i>
+          </button>
+        {% else %}
+          <a class="btn btn-link disabled">
+            <i class="fa-solid fa-angle-left"></i>
+          </a>
+        {% endif %}
+        {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}
+        {% if page_obj.has_next %}
+          <a class="btn btn-link"
+             hx-get="{% pagination_url page_obj.next_page_number %}"
+             hx-select="#experiment-list"
+             hx-target="#experiment-list"
+             hx-swap="outerHTML"
+             hx-push-url="true"
+             hx-indicator="#htmx-spinner">
+            <i class="fa-solid fa-angle-right"></i>
+          </a>
+        {% else %}
+          <a class="btn btn-link disabled">
+            <i class="fa-solid fa-angle-right"></i>
+          </a>
+        {% endif %}
       </li>
     </ul>
     <div class="border border-1 border-top-0 border-bottom-0 mb-3">
