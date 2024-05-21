@@ -1651,7 +1651,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         except jsonschema.ValidationError as e:
             err_msg = e.message
             if version is not None:
-                err_msg += f" at version {version}"
+                err_msg += f" (at version {version})"
 
             return [err_msg]
 
