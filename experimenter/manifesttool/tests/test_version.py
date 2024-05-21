@@ -111,18 +111,6 @@ class VersionTests(TestCase):
     @parameterized.expand(
         [
             (
-                "fenix_legacy",
-                [
-                    "main",
-                    "releases_v109",
-                    "releases_v110",
-                ],
-                {
-                    Version(109): Ref("releases_v109"),
-                    Version(110): Ref("releases_v110"),
-                },
-            ),
-            (
                 "firefox_ios",
                 [
                     "main",
@@ -191,32 +179,6 @@ class VersionTests(TestCase):
 
     @parameterized.expand(
         [
-            (
-                "fenix_legacy",
-                [
-                    "components-v118.0",
-                    "components-v118.2",
-                    "components-v119.1.1",
-                    "components-v120.0b9",
-                    "fenix-v118.0",
-                    "fenix-v118.2",
-                    "fenix-v119.1.1",
-                    "fenix-v120.0b9",
-                    "focus-v118.0",
-                    "focus-v118.2",
-                    "focus-v119.1.1",
-                    "focus-v120.0b9",
-                    "klar-v119.1.1",
-                    "klar-v118.2",
-                    "v109.0b2",
-                    "v108.1.1",
-                ],
-                {
-                    Version(118): Ref("fenix-v118.0"),
-                    Version(118, 2): Ref("fenix-v118.2"),
-                    Version(119, 1, 1): Ref("fenix-v119.1.1"),
-                },
-            ),
             (
                 "firefox_ios",
                 [
