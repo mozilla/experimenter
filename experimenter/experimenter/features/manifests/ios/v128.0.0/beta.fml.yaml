@@ -12,6 +12,13 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
+  address-autofill-edit:
+    description: This property defines if the address editing is enabled in Settings
+    variables:
+      status:
+        description: "If true, we will allow user to edit the address"
+        type: Boolean
+        default: false
   address-autofill-feature:
     description: This property defines the address card autofill feature
     variables:
@@ -447,6 +454,13 @@ features:
     variables:
       enabled:
         description: "Enables the feature\n"
+        type: Boolean
+        default: false
+  tracking-protection-refactor:
+    description: "The Enhanced Tracking Protection refactor\n"
+    variables:
+      enabled:
+        description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
         type: Boolean
         default: false
   zoom-feature:

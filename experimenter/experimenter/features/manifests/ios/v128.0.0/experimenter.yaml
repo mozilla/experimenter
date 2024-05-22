@@ -7,6 +7,14 @@ account-settings-redux-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
+address-autofill-edit:
+  description: This property defines if the address editing is enabled in Settings
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "If true, we will allow user to edit the address"
 address-autofill-feature:
   description: This property defines the address card autofill feature
   hasExposure: true
@@ -227,6 +235,14 @@ toolbar-refactor-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
+tracking-protection-refactor:
+  description: "The Enhanced Tracking Protection refactor\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
 zoom-feature:
   description: "The configuration for the status of the zoom feature\n"
   hasExposure: true
