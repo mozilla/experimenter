@@ -3,6 +3,7 @@ import json
 
 from django.conf import settings
 from django.test import TestCase
+from parameterized import parameterized
 
 from experimenter.base.tests.factories import LocaleFactory
 from experimenter.experiments.api.v7.serializers import NimbusExperimentSerializer
@@ -16,7 +17,13 @@ from experimenter.experiments.tests.factories import (
 class TestNimbusExperimentSerializer(TestCase):
     maxDiff = None
 
-    def test_serializer_outputs_expected_schema(self):
+    @parameterized.expand(
+        [
+            None,
+            {"en-us": {"corge": "grault"}},
+        ]
+    )
+    def test_serializer_outputs_expected_schema(self, localizations):
         locale_en_us = LocaleFactory.create(code="en-US")
         application = NimbusExperiment.Application.DESKTOP
         feature1 = NimbusFeatureConfigFactory.create(application=application)
@@ -31,6 +38,10 @@ class TestNimbusExperimentSerializer(TestCase):
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
             locales=[locale_en_us],
+            is_localized=localizations is not None,
+            localizations=json.dumps(localizations)
+            if localizations is not None
+            else None,
             _enrollment_end_date=datetime.date(2022, 1, 5),
         )
         serializer = NimbusExperimentSerializer(experiment)
@@ -86,6 +97,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 ],
                 "featureValidationOptOut": experiment.is_client_schema_disabled,
                 "locales": ["en-US"],
+                "localizations": localizations,
                 "publishedDate": experiment.published_date,
             },
         )
