@@ -1944,6 +1944,28 @@ NEW_PROFILE_MAC_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SEARCH_ROLLOUT_1 = NimbusTargetingConfig(
+    name="Search Rollout 1",
+    slug="search_rollout_1",
+    description="Search Rollout 1 Namespace",
+    targeting="",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SEARCH_ROLLOUT_2 = NimbusTargetingConfig(
+    name="Search Rollout 2",
+    slug="search_rollout_2",
+    description="Search Rollout 2 Namespace",
+    targeting="",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
