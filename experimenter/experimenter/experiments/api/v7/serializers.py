@@ -64,6 +64,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         source="is_client_schema_disabled"
     )
     locales = serializers.SerializerMethodField()
+    localizations = serializers.SerializerMethodField()
     publishedDate = serializers.DateTimeField(source="published_date")
 
     class Meta:
@@ -95,6 +96,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "referenceBranch",
             "featureValidationOptOut",
             "locales",
+            "localizations",
             "publishedDate",
         )
 
@@ -126,6 +128,10 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     def get_referenceBranch(self, obj):
         if obj.reference_branch:
             return obj.reference_branch.slug
+
+    def get_localizations(self, obj):
+        if obj.is_localized:
+            return json.loads(obj.localizations)
 
     def get_locales(self, obj):
         locale_codes = [locale.code for locale in obj.locales.all()]
