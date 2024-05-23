@@ -62,7 +62,7 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
     applications = [
         application.slug
         for application in NimbusExperiment.APPLICATION_CONFIGS.values()
-        if application.kinto_collection == collection
+        if collection in application.kinto_collections
     ]
     kinto_client = KintoClient(collection)
 

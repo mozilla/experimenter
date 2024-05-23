@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.utils.text import slugify
 from parameterized import parameterized
 
+import experimenter.experiments.constants
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -953,13 +954,56 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertTrue(serializer.is_valid())
 
+        expected_collection = experiment.application_config.get_kinto_collection_for(
+            experiment,
+        )
+
         experiment = serializer.save()
         self.assertEqual(
             experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
         )
+
         self.mock_push_task.apply_async.assert_called_with(
             countdown=5,
-            args=[experiment.application_config.kinto_collection],
+            args=[expected_collection],
+        )
+
+    @mock.patch.object(
+        experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP,
+        "kinto_collections_by_feature_id",
+        {
+            "feature-1": "bogus-collection",
+        },
+    )
+    def test_update_publish_status_to_approved_invokes_push_task_alternate_collection(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(name="feature-1"),
+            ],
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+        self.mock_push_task.apply_async.assert_called_with(
+            countdown=5,
+            args=["bogus-collection"],
         )
 
     def test_serializer_updates_outcomes_on_experiment(self):
