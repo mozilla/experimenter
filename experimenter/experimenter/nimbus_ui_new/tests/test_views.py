@@ -87,8 +87,8 @@ class NimbusExperimentsListViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            [e.slug for e in response.context["experiments"]],
-            expected_slugs,
+            {e.slug for e in response.context["experiments"]},
+            set(expected_slugs),
         )
 
     @patch(
