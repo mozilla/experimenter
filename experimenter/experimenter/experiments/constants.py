@@ -109,6 +109,9 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
     is_web=False,
+    kinto_collections_by_feature_id={
+        "prefFlips": settings.KINTO_COLLECTION_NIMBUS_SECURE,
+    },
 )
 
 APPLICATION_CONFIG_FENIX = ApplicationConfig(
