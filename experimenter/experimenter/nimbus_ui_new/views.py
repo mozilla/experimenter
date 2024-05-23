@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 import django_filters
 from django.conf import settings
 from django.db import models
@@ -54,7 +52,7 @@ class NimbusChangeLogsView(DetailView):
 
 class NimbusExperimentsListView(FilterView):
     model = NimbusExperiment
-    queryset = NimbusExperiment.objects.with_owner_features()
+    queryset = NimbusExperiment.objects.all()
     filterset_class = NimbusExperimentFilter
     context_object_name = "experiments"
     template_name = "nimbus_experiments/list.html"
@@ -72,20 +70,30 @@ class NimbusExperimentsListView(FilterView):
 
     def get_context_data(self, **kwargs):
         queryset = self.get_queryset()
-        status_counts = defaultdict(int)
-        for experiment in queryset:
-            if experiment.owner == self.request.user:
-                status_counts[StatusChoices.MY_EXPERIMENTS.value] += 1
-            if experiment.is_archived:
-                status_counts[StatusChoices.ARCHIVED.value] += 1
-                continue
-            if (
-                experiment.status == NimbusExperiment.Status.DRAFT
-                and experiment.publish_status == NimbusExperiment.PublishStatus.REVIEW
-            ):
-                status_counts[StatusChoices.REVIEW.value] += 1
-            else:
-                status_counts[experiment.status] += 1
+        archived = queryset.filter(is_archived=True)
+        unarchived = queryset.filter(is_archived=False)
+        status_counts = {
+            StatusChoices.DRAFT: unarchived.filter(
+                status=NimbusExperiment.Status.DRAFT,
+                publish_status=NimbusExperiment.PublishStatus.IDLE,
+            ).count(),
+            StatusChoices.PREVIEW: unarchived.filter(
+                status=NimbusExperiment.Status.PREVIEW
+            ).count(),
+            StatusChoices.LIVE: unarchived.filter(
+                status=NimbusExperiment.Status.LIVE
+            ).count(),
+            StatusChoices.COMPLETE: unarchived.filter(
+                status=NimbusExperiment.Status.COMPLETE
+            ).count(),
+            StatusChoices.REVIEW: unarchived.filter(
+                publish_status=NimbusExperiment.PublishStatus.REVIEW
+            ).count(),
+            StatusChoices.ARCHIVED: archived.count(),
+            StatusChoices.MY_EXPERIMENTS: queryset.filter(
+                owner=self.request.user
+            ).count(),
+        }
 
         return super().get_context_data(
             active_status=kwargs["filter"].data["status"],
