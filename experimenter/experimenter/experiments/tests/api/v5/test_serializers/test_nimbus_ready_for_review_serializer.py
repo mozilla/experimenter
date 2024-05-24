@@ -2,10 +2,12 @@ import datetime
 import json
 from itertools import chain, product
 from typing import Literal, Optional, Union
+from unittest.mock import patch
 
 from django.test import TestCase
 from parameterized import parameterized
 
+import experimenter.experiments.constants
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -4568,4 +4570,108 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
                     "Feature Config application ios does not "
                     "match experiment application fenix."
                 ],
+            )
+
+    @parameterized.expand(
+        [
+            ({"feature-1": "bogus-collection"},),
+            (
+                {
+                    "feature-1": "bogus-collection",
+                    "feature-2": "bogus-collection",
+                },
+            ),
+        ]
+    )
+    def test_validate_feature_configs_alternate_collection(
+        self, kinto_collections_by_feature_id
+    ):
+        with patch.object(
+            experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP,
+            "kinto_collections_by_feature_id",
+            kinto_collections_by_feature_id,
+        ):
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+                feature_configs=[
+                    NimbusFeatureConfigFactory.create(
+                        name="feature-1",
+                        slug="feature-1",
+                        application=NimbusExperiment.Application.DESKTOP,
+                    ),
+                ],
+            )
+
+            serializer = NimbusReviewSerializer(
+                experiment,
+                data=NimbusReviewSerializer(
+                    experiment,
+                    context={"user": self.user},
+                ).data,
+                context={"user": self.user},
+            )
+
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @parameterized.expand(
+        [
+            ({"feature-1": "collection-1"},),
+            ({"feature-1": "collection-1", "feature-2": "collection-2"},),
+        ]
+    )
+    def test_validate_feature_configs_multiple_alternate_collections(
+        self, kinto_collections_by_feature_id
+    ):
+        default_collection = (
+            experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP.default_kinto_collection
+        )
+
+        with patch.object(
+            experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP,
+            "kinto_collections_by_feature_id",
+            kinto_collections_by_feature_id,
+        ):
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+                feature_configs=[
+                    NimbusFeatureConfigFactory.create(
+                        name=slug,
+                        slug=slug,
+                        application=NimbusExperiment.Application.DESKTOP,
+                    )
+                    for slug in ("feature-1", "feature-2")
+                ],
+            )
+
+            serializer = NimbusReviewSerializer(
+                experiment,
+                data=NimbusReviewSerializer(
+                    experiment,
+                    context={"user": self.user},
+                ).data,
+                context={"user": self.user},
+            )
+
+            self.assertFalse(serializer.is_valid())
+            self.assertEqual(
+                serializer.errors,
+                {
+                    "feature_configs": [
+                        NimbusConstants.ERROR_INCOMPATIBLE_FEATURES,
+                        NimbusConstants.ERROR_FEATURE_TARGET_COLLECTION.format(
+                            feature_id="feature-1",
+                            collection="collection-1",
+                        ),
+                        NimbusConstants.ERROR_FEATURE_TARGET_COLLECTION.format(
+                            feature_id="feature-2",
+                            collection=kinto_collections_by_feature_id.get(
+                                "feature-2", default_collection
+                            ),
+                        ),
+                    ]
+                },
             )
