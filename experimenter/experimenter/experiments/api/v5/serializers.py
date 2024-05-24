@@ -1048,7 +1048,10 @@ class NimbusExperimentSerializer(
                 nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
 
             if self.should_call_push_task:
-                collection = experiment.application_config.kinto_collection
+                # We validate that this won't throw in NimbusReviewSerializer.
+                collection = experiment.application_config.get_kinto_collection_for(
+                    experiment
+                )
                 nimbus_check_kinto_push_queue_by_collection.apply_async(
                     countdown=5, args=[collection]
                 )
@@ -1683,6 +1686,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         reference_branch = data.get("reference_branch", {})
 
+        if errors := self._validate_target_kinto_collections(feature_configs):
+            raise serializers.ValidationError(
+                {
+                    "feature_configs": errors,
+                }
+            )
+
         # Cache the versioned schema range for each feature so we can re-use
         # them in the validation for each branch.
         self.schemas_by_feature_id = {
@@ -1708,6 +1718,33 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(result.errors)
 
         return data
+
+    def _validate_target_kinto_collections(self, feature_configs):
+        errors = []
+
+        application_config = self.instance.application_config
+        collections_by_feature_id = application_config.kinto_collections_by_feature_id
+
+        if collections_by_feature_id is not None:
+            target_collections = {
+                feature_config.slug: collections_by_feature_id.get(
+                    feature_config.slug, application_config.default_kinto_collection
+                )
+                for feature_config in feature_configs
+            }
+
+            if len(set(target_collections.values())) > 1:
+                errors.append(NimbusConstants.ERROR_INCOMPATIBLE_FEATURES)
+
+                for feature_id, collection in sorted(target_collections.items()):
+                    errors.append(
+                        NimbusConstants.ERROR_FEATURE_TARGET_COLLECTION.format(
+                            feature_id=feature_id,
+                            collection=collection,
+                        )
+                    )
+
+        return errors
 
     def _validate_versions(self, data):
         min_version = data.get("firefox_min_version", "")
