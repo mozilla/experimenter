@@ -385,6 +385,7 @@ enum NimbusExperimentConclusionRecommendationEnum {
   CHANGE_COURSE
   STOP
   FOLLOWUP
+  NONE
 }
 
 enum NimbusExperimentQAStatusEnum {

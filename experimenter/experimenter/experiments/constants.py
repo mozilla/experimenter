@@ -294,6 +294,7 @@ class NimbusConstants:
         CHANGE_COURSE = "CHANGE_COURSE", "Change course"
         STOP = "STOP", "Stop"
         FOLLOWUP = "FOLLOWUP", "Run follow ups"
+        NONE = "NONE", "None"
 
     Application = Application
 

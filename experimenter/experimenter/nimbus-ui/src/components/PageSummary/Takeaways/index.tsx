@@ -23,6 +23,7 @@ export const Takeaways = (props: TakeawaysProps) => {
     showEditor,
     setShowEditor,
     conclusionRecommendation,
+    conclusionRecommendations,
     takeawaysSummary,
     takeawaysQbrLearning,
     takeawaysMetricGain,
