@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - developer
+  - beta
 features:
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
@@ -34,14 +34,14 @@ features:
       enabled:
         description: "When the feature is enabled and Firefox receives a Login event with an empty saved logins list, a suggested strong password prompt will be shown, allowing the user to use the generated password to fill in the password field for the new account that will be created. When the feature is disabled, there won't be any prompt displayed that would allow using a generated password.\n"
         type: Boolean
-        default: true
+        default: false
   fx-suggest:
     description: A feature that provides Firefox Suggest search suggestions.
     variables:
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -69,7 +69,7 @@ features:
         default:
           top-sites: true
           jump-back-in: true
-          bookmarks: true
+          recently-saved: true
           recent-explorations: true
           pocket: true
           pocket-sponsored-stories: true
@@ -155,7 +155,6 @@ features:
           - homescreen
           - notification
           - survey
-          - microsurvey
         string-alias: SurfaceName
       actions:
         description: A growable map of action URLs.
@@ -210,32 +209,12 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-              - RECENTLY_PRINTED
-            style: MICRO_SURVEY
-            microsurvey-config:
-              icon: ic_print
-              options:
-                - text: microsurvey_survey_5_point_option_0
-                  scale-value: 0
-                - text: microsurvey_survey_5_point_option_1
-                  scale-value: 1
-                - text: microsurvey_survey_5_point_option_2
-                  scale-value: 2
-                - text: microsurvey_survey_5_point_option_3
-                  scale-value: 3
-                - text: microsurvey_survey_5_point_option_4
-                  scale-value: 4
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
         type: NotificationConfig
         default:
-          refresh-interval: 120
+          refresh-interval: 240
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -246,7 +225,7 @@ features:
         default:
           DEFAULT:
             priority: 50
-            max-display-count: 100
+            max-display-count: 5
           SURVEY:
             priority: 55
             max-display-count: 1
@@ -261,12 +240,6 @@ features:
             max-display-count: 10
           NOTIFICATION:
             priority: 50
-            max-display-count: 1
-          MICRO_SURVEY:
-            priority: 50
-            max-display-count: 5
-          EXPIRES_QUICKLY:
-            priority: 100
             max-display-count: 1
         string-alias: StyleName
       triggers:
@@ -300,7 +273,6 @@ features:
           INACTIVE_3_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 3"
           INACTIVE_4_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 4"
           INACTIVE_5_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 5"
-          RECENTLY_PRINTED: "'print_tapped'|eventLastSeen('Hours') <= 24"
           FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
           FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
           USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"
@@ -415,13 +387,6 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
-  remote-tab-management:
-    description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
-    variables:
-      close-tabs-enabled:
-        description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
-        type: Boolean
-        default: false
   search-extra-params:
     description: A feature that provides additional args for search.
     variables:
@@ -447,22 +412,22 @@ features:
       enabled:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
-        default: true
+        default: false
   shopping-experience:
     description: A feature that shows product review quality information.
     variables:
       enabled:
         description: "if true, the shopping experience feature is shown to the user."
         type: Boolean
-        default: true
+        default: false
       product-recommendations:
         description: "if true, recommended products feature is enabled to be shown to the user based on their preference."
         type: Boolean
-        default: true
+        default: false
       product-recommendations-exposure:
         description: "if true, we want to record recommended products inventory for opted-in users, even if product recommendations are disabled."
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
@@ -487,7 +452,7 @@ features:
       enabled:
         description: "When the feature is enabled then the user will see the new redesigned toolbar.\n"
         type: Boolean
-        default: true
+        default: false
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -552,8 +517,6 @@ enums:
   HomeScreenSection:
     description: The identifiers for the sections of the homescreen.
     variants:
-      bookmarks:
-        description: The sites the user has bookmarked.
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
       pocket:
@@ -562,6 +525,8 @@ enums:
         description: Subsection of the Pocket homescreen section which shows sponsored stories.
       recent-explorations:
         description: The tab groups
+      recently-saved:
+        description: The sites the user has bookmarked recently.
       top-sites:
         description: The frecency and pinned sites.
   MR2022Section:
@@ -651,10 +616,6 @@ objects:
         description: "Indicates if this message is the control message, if true shouldn't be displayed"
         type: Boolean
         default: false
-      microsurvey-config:
-        description: Optional configuration data for a microsurvey.
-        type: Option<MicrosurveyConfig>
-        default: ~
       style:
         description: "The style as described in a `StyleData` from the styles table.\n"
         type: StyleName
@@ -675,28 +636,6 @@ objects:
         description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions are `true`.\n"
         type: List<TriggerName>
         default: []
-  MicrosurveyConfig:
-    description: Attributes relating to microsurvey content.
-    fields:
-      icon:
-        description: The icon shown in the survey.
-        type: Option<Image>
-        default: ~
-      options:
-        description: "The list of options to present to the user e.g. \"Satisfied, Dissatisfied...\"."
-        type: List<MicrosurveyQuestion>
-        default: []
-  MicrosurveyQuestion:
-    description: Attributes relating to microsurvey content.
-    fields:
-      scale-value:
-        description: Scale value for this question.
-        type: Int
-        default: 0
-      text:
-        description: The text for the question.
-        type: Text
-        default: ""
   NotificationConfig:
     description: Attributes controlling the global configuration of notification messages.
     fields:
