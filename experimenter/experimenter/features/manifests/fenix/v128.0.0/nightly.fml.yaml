@@ -556,13 +556,6 @@ enums:
         description: Controls the Total Cookie Protection feature.
       wallpapers-selection-tool:
         description: Wallpapers selection dialog tool for the home screen.
-  MicrosurveyTargetFeature:
-    description: The specific feature the microsurvey is for e.g Printing.
-    variants:
-      printing:
-        description: The printing feature.
-      unknown:
-        description: No target feature set. Only used in an invalid experiment configuration.
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
@@ -635,7 +628,7 @@ objects:
         description: "Indicates if this message is the control message, if true shouldn't be displayed"
         type: Boolean
         default: false
-      microsurveyConfig:
+      microsurvey-config:
         description: Optional configuration data for a microsurvey.
         type: Option<MicrosurveyConfig>
         default: ~
@@ -662,14 +655,25 @@ objects:
   MicrosurveyConfig:
     description: Attributes relating to microsurvey content.
     fields:
+      icon:
+        description: The icon shown in the survey.
+        type: Option<Image>
+        default: ~
       options:
         description: "The list of options to present to the user e.g. \"Satisfied, Dissatisfied...\"."
-        type: List<Text>
+        type: List<MicrosurveyQuestion>
         default: []
-      target-feature:
-        description: The type of feature the microsurvey is for e.g. Printing.
-        type: MicrosurveyTargetFeature
-        default: unknown
+  MicrosurveyQuestion:
+    description: Attributes relating to microsurvey content.
+    fields:
+      scale-value:
+        description: Scale value for this question.
+        type: Int
+        default: 0
+      text:
+        description: The text for the question.
+        type: Text
+        default: ""
   NotificationConfig:
     description: Attributes controlling the global configuration of notification messages.
     fields:
