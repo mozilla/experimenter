@@ -301,7 +301,7 @@ class SummaryPage(ExperimenterBase):
     def takeaways_recommendation_checkbox_button(self, value=""):
         selection_locator = (
             By.ID,
-            f'conclusionRecommendations-{value}',
+            f"conclusionRecommendations-{value}",
         )
         return self.wait_for_and_find_element(*selection_locator)
 
