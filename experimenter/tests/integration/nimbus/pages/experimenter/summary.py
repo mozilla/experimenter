@@ -301,7 +301,7 @@ class SummaryPage(ExperimenterBase):
     def takeaways_recommendation_checkbox_button(self, value="NONE"):
         selection_locator = (
             By.CSS_SELECTOR,
-            f'input[type=checkbox][name="conclusionRecommendations"][value="{value}"]',
+            f'input[type=checkbox][name="conclusionRecommendations-"{value}"][value="{value}"]',
         )
         return self.wait_for_and_find_element(*selection_locator)
 
