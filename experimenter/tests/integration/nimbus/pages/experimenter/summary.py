@@ -66,7 +66,7 @@ class SummaryPage(ExperimenterBase):
     )
     _takeaways_recommendation_field = (
         By.CSS_SELECTOR,
-        'form[data-testid="FormTakeaways"] input[name="conclusionRecommendation"]',
+        'form[data-testid="FormTakeaways"] input[name="conclusionRecommendations"]',
     )
     _takeaways_summary_field = (
         By.CSS_SELECTOR,
@@ -298,10 +298,10 @@ class SummaryPage(ExperimenterBase):
     def takeaways_save_button(self):
         return self.wait_for_and_find_element(*self._takeaways_save_button)
 
-    def takeaways_recommendation_radio_button(self, value=""):
+    def takeaways_recommendation_checkbox_button(self, value="NONE"):
         selection_locator = (
             By.CSS_SELECTOR,
-            f'input[type=radio][name="conclusionRecommendation"][value="{value}"]',
+            f'input[type=checkbox][name="conclusionRecommendations"][value="{value}"]',
         )
         return self.wait_for_and_find_element(*selection_locator)
 
@@ -326,7 +326,7 @@ class SummaryPage(ExperimenterBase):
     def set_takeaways(self, takeaways, recommendation):
         self.takeaways_edit_button.click()
         self.takeaways_summary_field = takeaways
-        self.takeaways_recommendation_radio_button(recommendation).click()
+        self.takeaways_recommendation_checkbox_button(recommendation).click()
         self.takeaways_save_button.click()
 
     @property
