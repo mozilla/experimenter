@@ -78,7 +78,7 @@ class SummaryPage(ExperimenterBase):
     )
     _takeaways_recommendation_badge = (
         By.CSS_SELECTOR,
-        'label[for="conclusionRecommendations-CHANGE_COURSE',
+        'span[data-testid="conclusion-recommendation-status"]',
     )
     _audience_section_locator = (
         By.CSS_SELECTOR,

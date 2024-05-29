@@ -42,9 +42,12 @@ export const Takeaways = (props: TakeawaysProps) => {
     );
   }
 
-  const conclusionRecommendationLabel = conclusionRecommendationsChoices?.find(
-    (item) => item!.value === conclusionRecommendation,
-  )?.label;
+  const conclusionRecommendationLabels = conclusionRecommendations?.map(
+    (recommendation) =>
+      conclusionRecommendationsChoices?.find(
+        (item) => item!.value === recommendation,
+      )?.label,
+  );
 
   const setTextColor = (field: boolean | null) => {
     return field ? "text-success font-weight-bold" : "text-body";
@@ -57,14 +60,16 @@ export const Takeaways = (props: TakeawaysProps) => {
           <Row>
             <Col className="my-1">
               Takeaways
-              {conclusionRecommendationLabel && (
-                <Badge
-                  className="ml-2 border rounded-pill px-2 bg-white border-primary text-primary font-weight-normal"
-                  data-testid="conclusion-recommendation-status"
-                >
-                  {conclusionRecommendationLabel}
-                </Badge>
-              )}
+              {conclusionRecommendationLabels &&
+                conclusionRecommendationLabels.map((label, index) => (
+                  <Badge
+                    key={index}
+                    className="ml-2 border rounded-pill px-2 bg-white border-primary text-primary font-weight-normal"
+                    data-testid="conclusion-recommendation-status"
+                  >
+                    {label}
+                  </Badge>
+                ))}
             </Col>
             <Col className="text-right">
               {!isArchived && (
@@ -83,48 +88,50 @@ export const Takeaways = (props: TakeawaysProps) => {
         </Card.Header>
         <Card.Body>
           <Table data-testid="table-takeaway-summary">
-            <tr data-testid="qbr-learning">
-              <th className="border-top-0 mr-3">QBR Learning</th>
-              <td className="border-top-0 table-fixed col-sm-4 col-md-4 align-items-start justify-content-start">
-                <span className={setTextColor(takeawaysQbrLearning)}>
-                  {takeawaysQbrLearning ? "True" : "False"}
-                </span>
-              </td>
-              <th className="border-top-0 mr-2">
-                Statistically Significant DAU Gain
-              </th>
-              <td className="border-top-0 table-fixed col-sm-3 col-md-3">
-                <span className={setTextColor(takeawaysMetricGain)}>
-                  {takeawaysMetricGain ? "True" : "False"}
-                </span>
-              </td>
-            </tr>
+            <tbody>
+              <tr data-testid="qbr-learning">
+                <th className="border-top-0 mr-3">QBR Learning</th>
+                <td className="border-top-0 table-fixed col-sm-4 col-md-4 align-items-start justify-content-start">
+                  <span className={setTextColor(takeawaysQbrLearning)}>
+                    {takeawaysQbrLearning ? "True" : "False"}
+                  </span>
+                </td>
+                <th className="border-top-0 mr-2">
+                  Statistically Significant DAU Gain
+                </th>
+                <td className="border-top-0 table-fixed col-sm-3 col-md-3">
+                  <span className={setTextColor(takeawaysMetricGain)}>
+                    {takeawaysMetricGain ? "True" : "False"}
+                  </span>
+                </td>
+              </tr>
 
-            <tr data-testid="summary">
-              <th className="mr-auto col-sm-2">Summary</th>
-              <td colSpan={3}>
-                {takeawaysSummary ? (
-                  <div data-testid="takeaways-summary-rendered">
-                    <ReactMarkdown>{takeawaysSummary}</ReactMarkdown>
-                  </div>
-                ) : (
-                  <NotSet />
-                )}
-              </td>
-            </tr>
+              <tr data-testid="summary">
+                <th className="mr-auto col-sm-2">Summary</th>
+                <td colSpan={3}>
+                  {takeawaysSummary ? (
+                    <div data-testid="takeaways-summary-rendered">
+                      <ReactMarkdown>{takeawaysSummary}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <NotSet />
+                  )}
+                </td>
+              </tr>
 
-            <tr data-testid="gain-amount">
-              <th>Gain Amount</th>
-              <td colSpan={3}>
-                {takeawaysGainAmount ? (
-                  <div data-testid="takeaways-gain-amount-rendered">
-                    <ReactMarkdown>{takeawaysGainAmount}</ReactMarkdown>
-                  </div>
-                ) : (
-                  <NotSet />
-                )}
-              </td>
-            </tr>
+              <tr data-testid="gain-amount">
+                <th>Gain Amount</th>
+                <td colSpan={3}>
+                  {takeawaysGainAmount ? (
+                    <div data-testid="takeaways-gain-amount-rendered">
+                      <ReactMarkdown>{takeawaysGainAmount}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <NotSet />
+                  )}
+                </td>
+              </tr>
+            </tbody>
           </Table>
         </Card.Body>
       </section>
