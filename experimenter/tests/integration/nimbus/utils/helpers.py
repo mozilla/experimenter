@@ -46,7 +46,7 @@ def load_config_data():
                             label
                             value
                         }
-                        conclusionRecommendations {
+                        conclusionRecommendationsChoices {
                             label
                             value
                         }

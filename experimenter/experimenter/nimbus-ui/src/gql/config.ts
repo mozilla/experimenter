@@ -15,7 +15,7 @@ export const GET_CONFIG_QUERY = gql`
         label
         value
       }
-      conclusionRecommendations {
+      conclusionRecommendationsChoices {
         label
         value
       }

@@ -13,9 +13,11 @@ import { FormProvider } from "react-hook-form";
 import { UseTakeawaysResult } from "src/components/PageSummary/Takeaways/useTakeaways";
 import { useCommonForm } from "src/hooks";
 import { getConfig_nimbusConfig } from "src/types/getConfig";
+import { NimbusExperimentConclusionRecommendationEnum } from "src/types/globalTypes";
 
 export const takeawaysEditorFieldNames = [
   "conclusionRecommendation",
+  "conclusionRecommendations",
   "takeawaysSummary",
   "takeawaysQbrLearning",
   "takeawaysMetricGain",
@@ -25,14 +27,15 @@ export const takeawaysEditorFieldNames = [
 type TakeawaysEditorFieldName = typeof takeawaysEditorFieldNames[number];
 
 export type TakeawaysEditorProps = UseTakeawaysResult &
-  Pick<getConfig_nimbusConfig, "conclusionRecommendations"> & {
+  Pick<getConfig_nimbusConfig, "conclusionRecommendationsChoices"> & {
     setShowEditor: (state: boolean) => void;
   };
 
 export const TakeawaysEditor = ({
   isLoading,
-  conclusionRecommendations,
+  conclusionRecommendationsChoices,
   conclusionRecommendation,
+  conclusionRecommendations,
   takeawaysSummary,
   takeawaysQbrLearning,
   takeawaysMetricGain,
@@ -45,6 +48,7 @@ export const TakeawaysEditor = ({
 }: TakeawaysEditorProps) => {
   const defaultValues = {
     conclusionRecommendation,
+    conclusionRecommendations,
     takeawaysSummary,
     takeawaysQbrLearning,
     takeawaysMetricGain,
@@ -83,14 +87,35 @@ export const TakeawaysEditor = ({
     if (isLoading) return;
     data.takeawaysQbrLearning = isQbrLearning;
     data.takeawaysMetricGain = isMetricGain;
+    data.conclusionRecommendations = updatedRecommendations;
     await onSubmit(data);
   });
 
-  const conclusionRadioAttrs = formControlAttrs(
-    "conclusionRecommendation",
-    {},
-    false,
+  const [updatedRecommendations, setUpdatedRecommendations] = useState<
+    NimbusExperimentConclusionRecommendationEnum[]
+  >(conclusionRecommendations);
+
+  const updateRecommendations = useCallback(
+    (updatedRecs: NimbusExperimentConclusionRecommendationEnum[]) => {
+      setUpdatedRecommendations(updatedRecs);
+    },
+    [],
   );
+
+  const handleCheckboxChange = (
+    value: NimbusExperimentConclusionRecommendationEnum,
+    checked: boolean,
+  ) => {
+    let updatedRecs = [...updatedRecommendations];
+
+    if (checked && !updatedRecs.includes(value)) {
+      updatedRecs.push(value);
+    } else if (!checked && updatedRecs.includes(value)) {
+      updatedRecs = updatedRecs.filter((item) => item !== value);
+    }
+
+    updateRecommendations(updatedRecs);
+  };
 
   return (
     <section id="takeaways-editor" data-testid="TakeawaysEditor">
@@ -144,7 +169,9 @@ export const TakeawaysEditor = ({
                 type="checkbox"
                 label="QBR Notable Learning"
                 defaultChecked={isQbrLearning ? isQbrLearning : false}
-                onChange={(e) => setIsQbrLearning(e.target.checked)}
+                onChange={(e: { target: { checked: boolean } }) =>
+                  setIsQbrLearning(e.target.checked)
+                }
                 onSubmit={handleSave}
                 id="takeawaysQbrLearning"
                 {...{ "data-testid": "takeawaysQbrLearning" }}
@@ -157,7 +184,9 @@ export const TakeawaysEditor = ({
                 type="checkbox"
                 label="Statistically Significant DAU Gain"
                 defaultChecked={isMetricGain ? isMetricGain : false}
-                onChange={(e) => setIsMetricGain(e.target.checked)}
+                onChange={(e: { target: { checked: boolean } }) =>
+                  setIsMetricGain(e.target.checked)
+                }
                 onSubmit={handleSave}
                 id="takeawaysMetricGain"
                 {...{ "data-testid": "takeawaysMetricGain" }}
@@ -169,36 +198,35 @@ export const TakeawaysEditor = ({
             <Form.Group
               as={Col}
               className="col-sm-2 col-md-2 ml-1"
-              controlId="conclusionRecommendation"
+              controlId="conclusionRecommendations"
             >
               <Form.Label
                 className={classNames("font-weight-bold", {
-                  "is-invalid": !!submitErrors["conclusion_recommendation"],
+                  "is-invalid": !!submitErrors["conclusion_recommendations"],
                 })}
               >
-                Recommendation:
+                Conclusion Recommendations:
               </Form.Label>
-              <Form.Check
-                type="radio"
-                value=""
-                label="None"
-                title="None"
-                {...conclusionRadioAttrs}
-                id="conclusionRecommendation-none"
-              />
-              {conclusionRecommendations!.map((option, idx) => (
+              {conclusionRecommendationsChoices?.map((option, idx) => (
                 <Form.Check
                   key={idx}
-                  type="radio"
-                  value={option!.value!}
-                  label={option!.label!}
-                  title={option!.label!}
-                  {...conclusionRadioAttrs}
-                  id={`conclusionRecommendation-${option!.value!}`}
+                  type="checkbox"
+                  label={option?.label}
+                  checked={updatedRecommendations.includes(
+                    option?.value as NimbusExperimentConclusionRecommendationEnum,
+                  )}
+                  onChange={(e: any) =>
+                    handleCheckboxChange(
+                      option?.value as NimbusExperimentConclusionRecommendationEnum,
+                      e.target.checked,
+                    )
+                  }
+                  id={`conclusionRecommendations-${option?.value}`}
+                  data-testid={`conclusionRecommendations-${option?.value}`}
                 />
               ))}
-              <FormErrors name="conclusionRecommendation" />
             </Form.Group>
+
             <Form.Group as={Col} controlId="takeawaysSummary">
               <Form.Label className="font-weight-bold">Summary:</Form.Label>
               <Form.Control
