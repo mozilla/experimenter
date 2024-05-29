@@ -21,6 +21,7 @@ export type UseTakeawaysExperimentSubset = Pick<
   getExperiment_experimentBySlug,
   | "id"
   | "conclusionRecommendation"
+  | "conclusionRecommendations"
   | "takeawaysSummary"
   | "takeawaysQbrLearning"
   | "takeawaysMetricGain"
@@ -56,6 +57,7 @@ export const useTakeaways = (
       async (data: Record<string, any>) => {
         const {
           conclusionRecommendation,
+          conclusionRecommendations,
           takeawaysSummary,
           takeawaysQbrLearning,
           takeawaysMetricGain,
@@ -68,6 +70,7 @@ export const useTakeaways = (
             input: {
               id,
               conclusionRecommendation: conclusionRecommendation || null,
+              conclusionRecommendations: conclusionRecommendations || [],
               takeawaysSummary,
               takeawaysQbrLearning: takeawaysQbrLearning,
               takeawaysMetricGain: takeawaysMetricGain,

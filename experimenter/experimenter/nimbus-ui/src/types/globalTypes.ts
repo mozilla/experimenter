@@ -39,6 +39,7 @@ export enum NimbusExperimentConclusionRecommendationEnum {
   CHANGE_COURSE = "CHANGE_COURSE",
   FOLLOWUP = "FOLLOWUP",
   GRADUATE = "GRADUATE",
+  NONE = "NONE",
   RERUN = "RERUN",
   STOP = "STOP",
 }
