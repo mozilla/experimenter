@@ -4,11 +4,11 @@ from django_test_migrations.contrib.unittest_case import MigratorTestCase
 class TestMigrations(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0267_alter_nimbusexperiment_application_and_more",
+        "0269_nimbusexperiment_conclusion_recommendations",
     )
     migrate_to = (
         "experiments",
-        "0268_remove_ios_nightly",
+        "0270_alter_conclusion_recommendations",
     )
 
     def prepare(self):
@@ -19,27 +19,12 @@ class TestMigrations(MigratorTestCase):
         )
         owner = User.objects.create()
 
+        # Create NimbusExperiment objects with old values for conclusion_recommendation
         NimbusExperiment.objects.create(
             owner=owner,
             slug="should_change",
             name="should_change",
-            application="ios",
-            channel="nightly",
-        )
-
-        NimbusExperiment.objects.create(
-            owner=owner,
-            slug="should_not_change_app",
-            name="should_not_change_app",
-            application="fenix",
-            channel="nightly",
-        )
-        NimbusExperiment.objects.create(
-            owner=owner,
-            slug="should_not_change_channel",
-            name="should_not_change_channel",
-            application="ios",
-            channel="beta",
+            conclusion_recommendation="RERUN",
         )
 
     def test_migration(self):
@@ -49,11 +34,6 @@ class TestMigrations(MigratorTestCase):
         )
 
         self.assertEqual(
-            NimbusExperiment.objects.get(slug="should_change").channel, "developer"
-        )
-        self.assertEqual(
-            NimbusExperiment.objects.get(slug="should_not_change_app").channel, "nightly"
-        )
-        self.assertEqual(
-            NimbusExperiment.objects.get(slug="should_not_change_channel").channel, "beta"
+            NimbusExperiment.objects.get(slug="should_change").conclusion_recommendations,
+            ["RERUN"],
         )
