@@ -38,6 +38,9 @@ const { experiment } = mockExperimentQuery("demo-slug", {
   takeawaysMetricGain: false,
   takeawaysGainAmount: null,
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.RERUN,
+  conclusionRecommendations: [
+    NimbusExperimentConclusionRecommendationEnum.RERUN,
+  ],
 });
 
 const Subject = ({
@@ -54,6 +57,9 @@ const takeawaysSummary = "sample *exciting* content";
 const conclusionRecommendation =
   NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE;
 const expectedConclusionRecommendationLabel = "Change course";
+const conclusionRecommendations = [
+  NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE,
+];
 
 describe("Takeaways", () => {
   it("renders as expected when blank", () => {
@@ -89,6 +95,7 @@ describe("Takeaways", () => {
           takeawaysMetricGain,
           takeawaysGainAmount,
           conclusionRecommendation,
+          conclusionRecommendations,
         }}
       />,
     );
@@ -115,6 +122,7 @@ describe("Takeaways", () => {
           takeawaysMetricGain,
           takeawaysGainAmount,
           conclusionRecommendation,
+          conclusionRecommendations,
           isArchived: true,
         }}
       />,
@@ -142,6 +150,7 @@ describe("Takeaways", () => {
           takeawaysMetricGain,
           takeawaysGainAmount,
           conclusionRecommendation,
+          conclusionRecommendations,
         }}
       />,
     );
@@ -168,6 +177,7 @@ describe("TakeawaysEditor", () => {
           takeawaysMetricGain,
           takeawaysGainAmount,
           conclusionRecommendation,
+          conclusionRecommendations,
         }}
       />,
     );
@@ -178,7 +188,6 @@ describe("TakeawaysEditor", () => {
     expect(editorForm).toHaveFormValues({
       takeawaysSummary,
       takeawaysGainAmount,
-      conclusionRecommendation,
     });
     expect(screen.queryByTestId("takeaways-qbr")).toBeInTheDocument();
     expect(screen.queryByTestId("takeaways-metric")).toBeInTheDocument();
@@ -197,6 +206,7 @@ describe("TakeawaysEditor", () => {
           takeawaysMetricGain,
           takeawaysGainAmount,
           conclusionRecommendation,
+          conclusionRecommendations,
         }}
       />,
     );
@@ -214,7 +224,7 @@ describe("TakeawaysEditor", () => {
       takeawaysMetricGain: takeawaysMetricGain,
       takeawaysQbrLearning: takeawaysQbrLearning,
       takeawaysSummary: takeawaysSummary,
-      conclusionRecommendation: conclusionRecommendation,
+      conclusionRecommendations: conclusionRecommendations,
     };
     const onSubmit = jest.fn();
     const { container } = render(
@@ -227,6 +237,7 @@ describe("TakeawaysEditor", () => {
           takeawaysMetricGain,
           takeawaysQbrLearning,
           conclusionRecommendation,
+          conclusionRecommendations,
         }}
       />,
     );
@@ -256,6 +267,7 @@ describe("TakeawaysEditor", () => {
           takeawaysMetricGain: false,
           takeawaysQbrLearning: false,
           conclusionRecommendation,
+          conclusionRecommendations,
         }}
       />,
     );
@@ -306,6 +318,7 @@ describe("TakeawaysEditor", () => {
           takeawaysGainAmount,
           takeawaysMetricGain,
           conclusionRecommendation,
+          conclusionRecommendations,
         }}
       />,
     );
@@ -319,7 +332,6 @@ describe("TakeawaysEditor", () => {
     const submitErrors = {
       "*": ["Meteor fell on the server!"],
       takeaways_summary: ["Too many mentions of chickens!"],
-      conclusion_recommendation: ["'Ship it' is an invalid recommendation."],
     };
     const { container } = render(
       <Subject
@@ -341,11 +353,93 @@ describe("TakeawaysEditor", () => {
     expect(
       container.querySelector('.invalid-feedback[data-for="takeawaysSummary"]'),
     ).toHaveTextContent(submitErrors.takeaways_summary[0]);
-    expect(
-      container.querySelector(
-        '.invalid-feedback[data-for="conclusionRecommendation"]',
-      ),
-    ).toHaveTextContent(submitErrors.conclusion_recommendation[0]);
+  });
+  it("renders conclusion recommendations checkboxes correctly", () => {
+    render(
+      <Subject
+        {...{
+          showEditor: true,
+          conclusionRecommendations: conclusionRecommendations,
+        }}
+      />,
+    );
+    const changeCourseCheckbox = screen.getByTestId(
+      "conclusionRecommendations-CHANGE_COURSE",
+    );
+    expect(changeCourseCheckbox).toBeInTheDocument();
+    expect(changeCourseCheckbox).toBeChecked();
+    const followUpCheckbox = screen.getByTestId(
+      "conclusionRecommendations-FOLLOWUP",
+    );
+    expect(followUpCheckbox).toBeInTheDocument();
+    expect(followUpCheckbox).not.toBeChecked();
+  });
+
+  it("handles changes to conclusion recommendations checkboxes", () => {
+    render(
+      <Subject
+        {...{
+          showEditor: true,
+          conclusionRecommendations: conclusionRecommendations,
+        }}
+      />,
+    );
+    const changeCourseCheckbox = screen.getByTestId(
+      "conclusionRecommendations-CHANGE_COURSE",
+    );
+    const followUpCheckbox = screen.getByTestId(
+      "conclusionRecommendations-FOLLOWUP",
+    );
+    fireEvent.click(changeCourseCheckbox);
+    expect(changeCourseCheckbox).not.toBeChecked();
+
+    fireEvent.click(followUpCheckbox);
+    expect(followUpCheckbox).toBeChecked();
+  });
+
+  it("submits form data with updated conclusion recommendations", async () => {
+    const onSubmit = jest.fn();
+
+    render(
+      <Subject
+        {...{
+          onSubmit,
+          showEditor: true,
+          takeawaysSummary,
+          takeawaysQbrLearning,
+          takeawaysGainAmount,
+          takeawaysMetricGain,
+          conclusionRecommendation,
+          conclusionRecommendations,
+        }}
+      />,
+    );
+    const changeCourseCheckbox = screen.getByTestId(
+      "conclusionRecommendations-CHANGE_COURSE",
+    );
+
+    const followUpCheckbox = screen.getByTestId(
+      "conclusionRecommendations-FOLLOWUP",
+    );
+    fireEvent.click(changeCourseCheckbox);
+    fireEvent.click(followUpCheckbox);
+    await act(async () => {
+      fireEvent.click(screen.getByText("Save"));
+    });
+
+    const expectedData = {
+      conclusionRecommendations: [
+        NimbusExperimentConclusionRecommendationEnum.FOLLOWUP,
+      ],
+      takeawaysSummary,
+      takeawaysQbrLearning,
+      takeawaysMetricGain,
+      takeawaysGainAmount,
+    };
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining(expectedData),
+    );
   });
 });
 
@@ -356,6 +450,9 @@ describe("useTakeaways", () => {
     takeawaysMetricGain: false,
     takeawaysGainAmount: "lots of sick gains",
     conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.STOP,
+    conclusionRecommendations: [
+      NimbusExperimentConclusionRecommendationEnum.STOP,
+    ],
   };
   const mutationVariables = {
     id: experiment.id,
@@ -364,6 +461,7 @@ describe("useTakeaways", () => {
     takeawaysMetricGain: submitData.takeawaysMetricGain,
     takeawaysGainAmount: submitData.takeawaysGainAmount,
     conclusionRecommendation: submitData.conclusionRecommendation,
+    conclusionRecommendations: submitData.conclusionRecommendations,
     changelogMessage: CHANGELOG_MESSAGES.UPDATED_TAKEAWAYS,
   };
   let refetch = jest.fn();
@@ -381,6 +479,7 @@ describe("useTakeaways", () => {
       takeawaysMetricGain: experiment.takeawaysMetricGain,
       takeawaysSummary: experiment.takeawaysSummary,
       conclusionRecommendation: experiment.conclusionRecommendation,
+      conclusionRecommendations: experiment.conclusionRecommendations,
       showEditor: false,
       isLoading: false,
       submitErrors: {},
@@ -444,6 +543,7 @@ describe("useTakeaways", () => {
       "*": ["Meteor fell on the server!"],
       takeaways_summary: ["Too many mentions of chickens!"],
       conclusion_recommendation: ["'Ship it' is an invalid recommendation."],
+      conclusion_recommendations: ["'Ship it' is an invalid recommendation."],
     };
     mocks[0].result.data.updateExperiment.message = submitErrors;
     const refetch = jest.fn();
