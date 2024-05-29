@@ -25,7 +25,7 @@ pytest-testmon = "1.3.3"
 pytest-watch = "4.2.0"
 python-decouple = "3.8"
 redis = "4.6.0"
-requests = { version = "2.31.0", extras = ["security"] }
+requests = { version = "2.32.1", extras = ["security"] }
 responses = "0.25.0"
 whitenoise = "5.3.0"
 parameterized = "0.9.0"
@@ -52,7 +52,7 @@ django-storages = "1.14"
 toml = "^0.10.2"
 pydantic = "1.10.15"
 django-test-migrations = "^1.3.0"
-django-admin-rangefilter = "0.12.0"
+django-admin-rangefilter = "0.13.0"
 pyjexl = "^0.3.0"
 Pillow = "^9.5.0"
 graphene-file-upload = "^1.3.0"
@@ -182,5 +182,5 @@ ignore = [
 [tool.djlint]
 profile = "django"
 ignore = "H021,H030,H031"
-blank_line_after_tag = "load,extends,include"
+blank_line_after_tag = "load,extends,include,endblock"
 indent = 2

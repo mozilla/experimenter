@@ -1,0 +1,145 @@
+{% extends "common/with_sidebar.html" %}
+
+{% load nimbus_extras %}
+
+{% block title %}
+  Nimbus Experiments
+{% endblock title %}
+
+{% block sidebar %}
+  <button class="btn btn-primary w-100 mb-2">
+    <i class="fa-regular fa-pen-to-square"></i>
+    Create Experiment
+  </button>
+  <input class="form-control mb-2 bg-body-tertiary"
+         type="text"
+         placeholder="🔎 Search"
+         aria-label="default input example">
+  {% include "common/sidebar_select.html" with placeholder="All Features" icon="fa-solid fa-boxes-stacked" %}
+  {% include "common/sidebar_select.html" with placeholder="All Applications" icon="fa-solid fa-desktop" %}
+  {% include "common/sidebar_select.html" with placeholder="All Owners" icon="fa-solid fa-users" %}
+  {% include "common/sidebar_select.html" with placeholder="All Versions" icon="fa-solid fa-code-branch" %}
+  {% include "common/sidebar_select.html" with placeholder="All Channels" icon="fa-solid fa-road" %}
+  {% include "common/sidebar_select.html" with placeholder="All Types" icon="fa-solid fa-flask-vial" %}
+  {% include "common/sidebar_select.html" with placeholder="All Team Projects" icon="fa-solid fa-person-chalkboard" %}
+  {% include "common/sidebar_select.html" with placeholder="All Audiences" icon="fa-solid fa-users-rectangle" %}
+  {% include "common/sidebar_select.html" with placeholder="All Takeaways" icon="fa-solid fa-list-check" %}
+  {% include "common/sidebar_select.html" with placeholder="All QA Statuses" icon="fa-solid fa-user-shield" %}
+  {% include "common/sidebar_select.html" with placeholder="All Subscribers" icon="fa-solid fa-bell" %}
+
+{% endblock sidebar %}
+
+{% block main_content %}
+  <div id="experiment-list">
+    <ul class="nav nav-tabs">
+      {% include "common/list_tab.html" with status="Live" count=status_counts.Live icon="fa-regular fa-circle-play" %}
+      {% include "common/list_tab.html" with status="Review" count=status_counts.Review icon="fa-solid fa-eye" %}
+      {% include "common/list_tab.html" with status="Preview" count=status_counts.Preview icon="fa-solid fa-person-circle-check" %}
+      {% include "common/list_tab.html" with status="Complete" count=status_counts.Complete icon="fa-solid fa-vial-circle-check" %}
+      {% include "common/list_tab.html" with status="Draft" count=status_counts.Draft icon="fa-solid fa-pen-to-square" %}
+      {% include "common/list_tab.html" with status="Archived" count=status_counts.Archived icon="fa-solid fa-box-archive" %}
+      {% include "common/list_tab.html" with status="MyExperiments" count=status_counts.MyExperiments icon="fa-solid fa-heart" %}
+
+      <li class="nav-item ms-auto d-flex align-items-center">
+        <i id="htmx-spinner"
+           class="fa-solid fa-spinner fa-spin ms-2 htmx-indicator"></i>
+        {% if page_obj.has_previous %}
+          <button class="btn btn-link"
+                  hx-get="{% pagination_url page_obj.previous_page_number %}"
+                  hx-select="#experiment-list"
+                  hx-target="#experiment-list"
+                  hx-swap="outerHTML"
+                  hx-push-url="true"
+                  hx-indicator="#htmx-spinner">
+            <i class="fa-solid fa-angle-left"></i>
+          </button>
+        {% else %}
+          <a class="btn btn-link disabled">
+            <i class="fa-solid fa-angle-left"></i>
+          </a>
+        {% endif %}
+        {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}
+        {% if page_obj.has_next %}
+          <a class="btn btn-link"
+             hx-get="{% pagination_url page_obj.next_page_number %}"
+             hx-select="#experiment-list"
+             hx-target="#experiment-list"
+             hx-swap="outerHTML"
+             hx-push-url="true"
+             hx-indicator="#htmx-spinner">
+            <i class="fa-solid fa-angle-right"></i>
+          </a>
+        {% else %}
+          <a class="btn btn-link disabled">
+            <i class="fa-solid fa-angle-right"></i>
+          </a>
+        {% endif %}
+      </li>
+    </ul>
+    <div class="border border-1 border-top-0 border-bottom-0 mb-3">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">QA</th>
+            <th scope="col">Application</th>
+            <th scope="col">Channel</th>
+            <th scope="col">Size</th>
+            <th scope="col">Features</th>
+            <th scope="col">Versions</th>
+            <th scope="col">Dates</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for experiment in experiments %}
+            <tr>
+              <th scope="row">
+                <a href="{% url "nimbus-detail" slug=experiment.slug %}">{{ experiment.name }}</a>
+              </th>
+              <td>
+                {% if experiment.qa_status == 'NOT SET' %}<i class="fa-regular fa-circle-question"></i>{% endif %}
+                {% if experiment.qa_status == 'GREEN' %}
+                  <span class="text-success"><i class="fa-regular fa-circle-check"></i></span>
+                {% endif %}
+                {% if experiment.qa_status == 'YELLOW' %}
+                  <span class="text-warning"><i class="fa-regular fa-circle-pause"></i></span>
+                {% endif %}
+                {% if experiment.qa_status == 'RED' %}
+                  <span class="text-danger"><i class="fa-regular fa-circle-xmark"></i></span>
+                {% endif %}
+              </td>
+              <td>{{ experiment.get_application_display }}</td>
+              <td>{{ experiment.get_channel_display }}</td>
+              <td>{{ experiment.population_percent|floatformat }}%</td>
+              <td>
+                {% for feature in experiment.feature_configs.all %}
+                  {{ feature.name }}
+                  <br>
+                {% endfor %}
+              </td>
+              <td>
+                {{ experiment.get_firefox_min_version_display }}
+                {% if experiment.firefox_max_version %}
+                  - {{ experiment.get_firefox_max_version_display }}
+                {% else %}
+                  +
+                {% endif %}
+              </td>
+              <td>
+                {% if experiment.start_date %}
+                  {{ experiment.start_date|date:"M j/y" }} -
+                  <br>
+                  {{ experiment.computed_end_date|date:"M j/y" }}
+                  <br>
+                  ({{ experiment.proposed_duration }} days)
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock main_content %}

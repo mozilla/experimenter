@@ -131,7 +131,6 @@ TEMPLATES = [
             BASE_DIR / "nimbus_ui_new" / "templates",
             BASE_DIR / "docs",
         ],
-        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -142,6 +141,15 @@ TEMPLATES = [
                 "experimenter.base.context_processors.debug",
             ],
             "debug": DEBUG,
+            "loaders": [
+                (
+                    "django.template.loaders.cached.Loader",
+                    [
+                        "django.template.loaders.filesystem.Loader",
+                        "django.template.loaders.app_directories.Loader",
+                    ],
+                ),
+            ],
         },
     }
 ]

@@ -7,21 +7,24 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'imgs/favicon.ico' %}" />
     <title>
       {% block title %}
       {% endblock title %}
+
     </title>
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
-    <link rel="icon" href="{% static 'imgs/favicon.ico' %}" />
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     {% bootstrap_css %}
     {% bootstrap_javascript %}
   </head>
-  <body>
+  <body class="bg-body-tertiary">
     <div class="container-fluid">
       {% include "common/header.html" %}
 
       {% block content %}
       {% endblock content %}
+
       {% include "common/footer.html" %}
 
     </div>

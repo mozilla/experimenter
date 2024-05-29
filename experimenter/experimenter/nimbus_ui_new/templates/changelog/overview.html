@@ -3,10 +3,12 @@
 {% block title %}
   History
 {% endblock title %}
+
 {% block sidebar %}
   {% include "common/experiment_details_sidebar.html" with experiment=experiment %}
 
 {% endblock sidebar %}
+
 {% block main_content %}
   <div class="container-fluid">
     {% for changelog in experiment.get_changelogs_by_date %}
@@ -22,7 +24,7 @@
         <div class="col-11">
           <span class="fs-5 fw-semibold">{{ changelog.date }}</span>
           <div class="mb-4 card border-0 col-11">
-            <div class="card-body bg-body-tertiary">
+            <div class="card-body">
               {% for change in changelog.changes %}
                 <div class="row mb-2">
                   <div class="col-8">

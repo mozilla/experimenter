@@ -770,7 +770,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return "{base_url}{collection_path}/{collection}/{review_path}".format(
                 base_url=settings.KINTO_ADMIN_URL,
                 collection_path="#/buckets/main-workspace/collections",
-                collection=self.application_config.kinto_collection,
+                collection=self.application_config.default_kinto_collection,
                 review_path="simple-review",
             )
 
@@ -1135,6 +1135,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ]
 
         return transformed_changelogs
+
+    @property
+    def get_firefox_min_version_display(self):
+        return self.firefox_min_version.replace("!", "0")
+
+    @property
+    def get_firefox_max_version_display(self):
+        return self.firefox_max_version.replace("!", "0")
 
 
 class NimbusBranch(models.Model):

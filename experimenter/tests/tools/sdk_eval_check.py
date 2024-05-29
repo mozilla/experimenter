@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     randomization_units = nimbus.AvailableRandomizationUnits(None, 0)
 
-    client = nimbus.NimbusClient(context, Path.cwd(), None, randomization_units)
+    client = nimbus.NimbusClient(context, None, Path.cwd(), None, randomization_units)
 
     targeting_helper = client.create_targeting_helper(json.dumps(additional_targeting))
 

@@ -14,6 +14,7 @@ from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
+import experimenter.experiments.constants
 from experimenter.base import UploadsStorage
 from experimenter.base.tests.factories import (
     CountryFactory,
@@ -21,7 +22,12 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.constants import ChangeEventType, NimbusConstants
+from experimenter.experiments.constants import (
+    ApplicationConfig,
+    BucketRandomizationUnit,
+    ChangeEventType,
+    NimbusConstants,
+)
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
@@ -2590,7 +2596,11 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.FENIX, 3),
-            (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.DESKTOP, 0),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Application.DESKTOP,
+                0,
+            ),
         ]
     )
     def test_get_live_multifeature_experiments_for_feature(
@@ -2858,6 +2868,18 @@ class TestNimbusExperiment(TestCase):
 
         matching_experiments = experiment.live_experiments_in_namespace
         self.assertEqual(len(matching_experiments), 0)
+
+    def test_get_firefox_min_version_display(self):
+        experiment = NimbusExperimentFactory.create(
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100
+        )
+        self.assertEqual(experiment.get_firefox_min_version_display, "100.0")
+
+    def test_get_firefox_max_version_display(self):
+        experiment = NimbusExperimentFactory.create(
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_100
+        )
+        self.assertEqual(experiment.get_firefox_max_version_display, "100.0")
 
 
 class TestNimbusBranch(TestCase):
@@ -3493,4 +3515,95 @@ class NimbusFeatureConfigTests(TestCase):
                 unsupported_in_range=False,
                 unsupported_versions=[],
             ),
+        )
+
+
+class ApplicationConfigTests(TestCase):
+    application_config = experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP
+
+    def setUp(self):
+        super().setUp()
+
+        self.features = {
+            slug: NimbusFeatureConfigFactory.create(
+                slug=slug, name=slug, application=NimbusExperiment.Application.DESKTOP
+            )
+            for slug in ("feature-1", "feature-2")
+        }
+
+    def _create_experiment(self, feature_ids):
+        return NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            feature_configs=[self.features[feature_id] for feature_id in feature_ids],
+        )
+
+    @parameterized.expand(
+        [
+            (None,),
+            ({"feature-2": "bogus-collection"},),
+        ]
+    )
+    def test_get_kinto_collection_for_default(self, kinto_collections_by_feature_id):
+        with mock.patch.object(
+            self.application_config,
+            "kinto_collections_by_feature_id",
+            kinto_collections_by_feature_id,
+        ):
+            experiment = self._create_experiment(["feature-1"])
+            self.assertEqual(
+                self.application_config.get_kinto_collection_for(experiment),
+                self.application_config.default_kinto_collection,
+            )
+
+    @parameterized.expand(
+        [
+            ({"feature-1": "collection-1"},),
+            ({"feature-1": "collection-1", "feature-2": "collection-2"},),
+        ]
+    )
+    def test_get_kinto_collection_for_multiple(self, kinto_collections_by_feature_id):
+        with mock.patch.object(
+            self.application_config,
+            "kinto_collections_by_feature_id",
+            kinto_collections_by_feature_id,
+        ):
+            experiment = self._create_experiment(["feature-1", "feature-2"])
+
+            with self.assertRaisesRegex(
+                AssertionError, "Experiment targets multiple collections"
+            ):
+                self.application_config.get_kinto_collection_for(experiment)
+
+    @parameterized.expand(
+        [
+            (None, {"default-collection"}),
+            (
+                {
+                    "feature-1": "collection-1",
+                    "feature-2": "collection-2",
+                    "feature-3": "collection-1",
+                },
+                {"default-collection", "collection-1", "collection-2"},
+            ),
+        ]
+    )
+    def test_kinto_collections(
+        self, kinto_collections_by_feature_id, expected_collections
+    ):
+        application_config = ApplicationConfig(
+            name="Bogus App",
+            slug="bogus-app",
+            app_name="bogus_app",
+            channel_app_id={},
+            default_kinto_collection="default-collection",
+            randomization_unit=BucketRandomizationUnit.NORMANDY,
+            is_web=False,
+            kinto_collections_by_feature_id=kinto_collections_by_feature_id,
+        )
+
+        self.assertEqual(
+            application_config.kinto_collections,
+            expected_collections,
         )

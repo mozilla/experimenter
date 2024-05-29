@@ -1,10 +1,15 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 from django.conf import settings
 from django.db import models
 from packaging import version
+
+if TYPE_CHECKING:  # pragma: no cover
+    from experimenter.experiments.models import NimbusExperiment
 
 
 class Channel(models.TextChoices):
@@ -54,9 +59,38 @@ class ApplicationConfig:
     slug: str
     app_name: str
     channel_app_id: Dict[str, str]
-    kinto_collection: str
+    default_kinto_collection: str
     randomization_unit: str
     is_web: bool
+    kinto_collections_by_feature_id: Optional[dict[str, str]] = field(default=None)
+
+    def get_kinto_collection_for(self, experiment: NimbusExperiment) -> str:
+        # If the experiment in question contains any features in the feature to
+        # collection map, then *all* features must be present in the map and
+        # they all must point to the same collection.
+        if self.kinto_collections_by_feature_id is not None:
+            target_collections = {
+                self.kinto_collections_by_feature_id.get(
+                    feature.slug, self.default_kinto_collection
+                )
+                for feature in experiment.feature_configs.all()
+            }
+
+            if len(target_collections) == 1:
+                return next(iter(target_collections))
+
+            elif len(target_collections) > 1:
+                raise AssertionError("Experiment targets multiple collections")
+
+        return self.default_kinto_collection
+
+    @property
+    def kinto_collections(self) -> set[str]:
+        collections = {self.default_kinto_collection}
+        if self.kinto_collections_by_feature_id is not None:
+            collections.update(self.kinto_collections_by_feature_id.values())
+
+        return collections
 
 
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
@@ -72,7 +106,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         Channel.ESR: "firefox-desktop",
         Channel.AURORA: "firefox-desktop",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
     is_web=False,
 )
@@ -86,7 +120,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
         Channel.BETA: "org.mozilla.firefox_beta",
         Channel.RELEASE: "org.mozilla.firefox",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
 )
@@ -100,7 +134,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
         Channel.BETA: "org.mozilla.ios.FirefoxBeta",
         Channel.RELEASE: "org.mozilla.ios.Firefox",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
 )
@@ -114,7 +148,7 @@ APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
         Channel.BETA: "org.mozilla.focus.beta",
         Channel.RELEASE: "org.mozilla.focus",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
 )
@@ -126,7 +160,7 @@ APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
     channel_app_id={
         Channel.RELEASE: "org.mozilla.klar",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
 )
@@ -140,7 +174,7 @@ APPLICATION_CONFIG_FOCUS_IOS = ApplicationConfig(
         Channel.RELEASE: "org.mozilla.ios.Focus",
         Channel.TESTFLIGHT: "org.mozilla.ios.Focus",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
 )
@@ -153,7 +187,7 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
         Channel.RELEASE: "org.mozilla.ios.Klar",
         Channel.TESTFLIGHT: "org.mozilla.ios.Klar",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
 )
@@ -166,7 +200,7 @@ APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
         Channel.STAGING: "monitor.cirrus",
         Channel.PRODUCTION: "monitor.cirrus",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
 )
@@ -178,7 +212,7 @@ APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
     channel_app_id={
         Channel.PRODUCTION: "mozillavpn_backend_cirrus",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
 )
@@ -190,7 +224,7 @@ APPLICATION_CONFIG_FXA_WEB = ApplicationConfig(
     channel_app_id={
         Channel.PRODUCTION: "accounts.cirrus",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
 )
@@ -203,7 +237,7 @@ APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
         Channel.BETA: "demo-app-beta",
         Channel.RELEASE: "demo-app-release",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
 )
@@ -494,6 +528,8 @@ class NimbusConstants:
         FIREFOX_125_1_0 = "125.1.0"
         FIREFOX_125_2_0 = "125.2.0"
         FIREFOX_126 = "126.!"
+        FIREFOX_126_1_0 = "126.1.0"
+        FIREFOX_126_2_0 = "126.2.0"
         FIREFOX_127 = "127.!"
         FIREFOX_128 = "128.!"
         FIREFOX_129 = "129.!"
@@ -716,3 +752,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     IS_EARLY_STARTUP_REASON = "the feature {feature} is marked isEarlyStartup"
     SET_PREF_REASON = "the variable is a setPref variable"
+
+    ERROR_INCOMPATIBLE_FEATURES = (
+        "These features are incompatible because this experiment would be "
+        "published to multiple Remote Settings collections"
+    )
+    ERROR_FEATURE_TARGET_COLLECTION = (
+        "Feature '{feature_id}' publishes to collection '{collection}'"
+    )
