@@ -15,6 +15,7 @@ KINTO_BUCKET_MAIN = "main"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
+KINTO_COLLECTION_NIMBUS_SECURE = "nimbus-secure-experiments"
 KINTO_COLLECTION_NIMBUS_WEB = "nimbus-web-experiments"
 
 
@@ -48,6 +49,7 @@ def setup():
         KINTO_COLLECTION_NIMBUS_DESKTOP,
         KINTO_COLLECTION_NIMBUS_MOBILE,
         KINTO_COLLECTION_NIMBUS_PREVIEW,
+        KINTO_COLLECTION_NIMBUS_SECURE,
         KINTO_COLLECTION_NIMBUS_WEB,
     ]:
         print(">>>> Creating kinto group: editors")

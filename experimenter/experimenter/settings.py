@@ -477,6 +477,7 @@ KINTO_PASS = config("KINTO_PASS")
 KINTO_BUCKET_WORKSPACE = "main-workspace"
 KINTO_BUCKET_MAIN = "main"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
+KINTO_COLLECTION_NIMBUS_SECURE = "nimbus-secure-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 KINTO_COLLECTION_NIMBUS_WEB = "nimbus-web-experiments"
 KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
