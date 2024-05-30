@@ -16,7 +16,6 @@ import { getConfig_nimbusConfig } from "src/types/getConfig";
 import { NimbusExperimentConclusionRecommendationEnum } from "src/types/globalTypes";
 
 export const takeawaysEditorFieldNames = [
-  "conclusionRecommendation",
   "conclusionRecommendations",
   "takeawaysSummary",
   "takeawaysQbrLearning",
@@ -34,7 +33,6 @@ export type TakeawaysEditorProps = UseTakeawaysResult &
 export const TakeawaysEditor = ({
   isLoading,
   conclusionRecommendationsChoices,
-  conclusionRecommendation,
   conclusionRecommendations,
   takeawaysSummary,
   takeawaysQbrLearning,
@@ -47,7 +45,6 @@ export const TakeawaysEditor = ({
   isServerValid,
 }: TakeawaysEditorProps) => {
   const defaultValues = {
-    conclusionRecommendation,
     conclusionRecommendations,
     takeawaysSummary,
     takeawaysQbrLearning,

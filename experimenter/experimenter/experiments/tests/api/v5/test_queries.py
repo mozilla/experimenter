@@ -622,7 +622,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     application
                     publicDescription
 
-                    conclusionRecommendation
                     conclusionRecommendations
                     takeawaysGainAmount
                     takeawaysMetricGain
@@ -847,7 +846,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     if experiment.computed_enrollment_end_date
                     else None
                 ),
-                "conclusionRecommendation": experiment.conclusion_recommendation,
                 "conclusionRecommendations": experiment.conclusion_recommendations,
                 "countries": [{"id": str(country.id), "name": country.name}],
                 "documentationLinks": [

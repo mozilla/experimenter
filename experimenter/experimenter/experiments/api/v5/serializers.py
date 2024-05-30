@@ -107,7 +107,6 @@ class TransitionConstants:
             "qa_status",
             "status_next",
             "status",
-            "conclusion_recommendation",
             "conclusion_recommendations",
             "subscribers",
             "takeaways_summary",
@@ -694,11 +693,6 @@ class NimbusExperimentSerializer(
         required=False,
         many=True,
     )
-    conclusion_recommendation = serializers.ChoiceField(
-        choices=NimbusExperiment.ConclusionRecommendation.choices,
-        allow_null=True,
-        required=False,
-    )
     conclusion_recommendations = serializers.JSONField(required=False)
     takeaways_metric_gain = serializers.BooleanField(required=False)
     takeaways_qbr_learning = serializers.BooleanField(required=False)
@@ -735,7 +729,6 @@ class NimbusExperimentSerializer(
             "application",
             "changelog_message",
             "channel",
-            "conclusion_recommendation",
             "conclusion_recommendations",
             "countries",
             "documentation_links",

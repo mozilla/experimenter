@@ -37,7 +37,6 @@ const { experiment } = mockExperimentQuery("demo-slug", {
   takeawaysQbrLearning: true,
   takeawaysMetricGain: false,
   takeawaysGainAmount: null,
-  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.RERUN,
   conclusionRecommendations: [
     NimbusExperimentConclusionRecommendationEnum.RERUN,
   ],
@@ -54,8 +53,7 @@ const takeawaysGainAmount = "sick gains all around";
 const takeawaysMetricGain = false;
 const takeawaysQbrLearning = true;
 const takeawaysSummary = "sample *exciting* content";
-const conclusionRecommendation =
-  NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE;
+
 const expectedConclusionRecommendationLabel = "Change course";
 const conclusionRecommendations = [
   NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE,
@@ -94,7 +92,6 @@ describe("Takeaways", () => {
           takeawaysQbrLearning,
           takeawaysMetricGain,
           takeawaysGainAmount,
-          conclusionRecommendation,
           conclusionRecommendations,
         }}
       />,
@@ -121,7 +118,6 @@ describe("Takeaways", () => {
           takeawaysQbrLearning,
           takeawaysMetricGain,
           takeawaysGainAmount,
-          conclusionRecommendation,
           conclusionRecommendations,
           isArchived: true,
         }}
@@ -149,7 +145,6 @@ describe("Takeaways", () => {
           takeawaysQbrLearning,
           takeawaysMetricGain,
           takeawaysGainAmount,
-          conclusionRecommendation,
           conclusionRecommendations,
         }}
       />,
@@ -176,7 +171,6 @@ describe("TakeawaysEditor", () => {
           takeawaysQbrLearning,
           takeawaysMetricGain,
           takeawaysGainAmount,
-          conclusionRecommendation,
           conclusionRecommendations,
         }}
       />,
@@ -205,7 +199,6 @@ describe("TakeawaysEditor", () => {
           takeawaysQbrLearning,
           takeawaysMetricGain,
           takeawaysGainAmount,
-          conclusionRecommendation,
           conclusionRecommendations,
         }}
       />,
@@ -236,7 +229,6 @@ describe("TakeawaysEditor", () => {
           takeawaysGainAmount,
           takeawaysMetricGain,
           takeawaysQbrLearning,
-          conclusionRecommendation,
           conclusionRecommendations,
         }}
       />,
@@ -266,7 +258,6 @@ describe("TakeawaysEditor", () => {
           takeawaysGainAmount,
           takeawaysMetricGain: false,
           takeawaysQbrLearning: false,
-          conclusionRecommendation,
           conclusionRecommendations,
         }}
       />,
@@ -317,7 +308,6 @@ describe("TakeawaysEditor", () => {
           takeawaysQbrLearning,
           takeawaysGainAmount,
           takeawaysMetricGain,
-          conclusionRecommendation,
           conclusionRecommendations,
         }}
       />,
@@ -341,7 +331,6 @@ describe("TakeawaysEditor", () => {
           takeawaysQbrLearning,
           takeawaysMetricGain,
           takeawaysGainAmount,
-          conclusionRecommendation,
           isServerValid: false,
           submitErrors,
         }}
@@ -409,7 +398,6 @@ describe("TakeawaysEditor", () => {
           takeawaysQbrLearning,
           takeawaysGainAmount,
           takeawaysMetricGain,
-          conclusionRecommendation,
           conclusionRecommendations,
         }}
       />,
@@ -449,7 +437,6 @@ describe("useTakeaways", () => {
     takeawaysQbrLearning: true,
     takeawaysMetricGain: false,
     takeawaysGainAmount: "lots of sick gains",
-    conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.STOP,
     conclusionRecommendations: [
       NimbusExperimentConclusionRecommendationEnum.STOP,
     ],
@@ -460,7 +447,6 @@ describe("useTakeaways", () => {
     takeawaysQbrLearning: submitData.takeawaysQbrLearning,
     takeawaysMetricGain: submitData.takeawaysMetricGain,
     takeawaysGainAmount: submitData.takeawaysGainAmount,
-    conclusionRecommendation: submitData.conclusionRecommendation,
     conclusionRecommendations: submitData.conclusionRecommendations,
     changelogMessage: CHANGELOG_MESSAGES.UPDATED_TAKEAWAYS,
   };
@@ -478,7 +464,6 @@ describe("useTakeaways", () => {
       takeawaysGainAmount: experiment.takeawaysGainAmount,
       takeawaysMetricGain: experiment.takeawaysMetricGain,
       takeawaysSummary: experiment.takeawaysSummary,
-      conclusionRecommendation: experiment.conclusionRecommendation,
       conclusionRecommendations: experiment.conclusionRecommendations,
       showEditor: false,
       isLoading: false,
@@ -542,7 +527,6 @@ describe("useTakeaways", () => {
     const submitErrors = {
       "*": ["Meteor fell on the server!"],
       takeaways_summary: ["Too many mentions of chickens!"],
-      conclusion_recommendation: ["'Ship it' is an invalid recommendation."],
       conclusion_recommendations: ["'Ship it' is an invalid recommendation."],
     };
     mocks[0].result.data.updateExperiment.message = submitErrors;

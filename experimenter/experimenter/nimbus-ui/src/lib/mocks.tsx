@@ -110,7 +110,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
         "takeaways_qbr_learning",
         "takeaways_metric_gain",
         "takeaways_gain_amount",
-        "conclusion_recommendation",
+        "conclusion_recommendations",
       ],
       experiments: [],
       rollouts: ["population_percent"],
