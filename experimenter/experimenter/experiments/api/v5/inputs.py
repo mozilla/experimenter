@@ -57,7 +57,6 @@ class ExperimentInput(graphene.InputObjectType):
     application = NimbusExperimentApplicationEnum()
     changelog_message = graphene.String()
     channel = NimbusExperimentChannelEnum()
-    conclusion_recommendation = NimbusExperimentConclusionRecommendationEnum()
     conclusion_recommendations = graphene.List(
         NimbusExperimentConclusionRecommendationEnum
     )
