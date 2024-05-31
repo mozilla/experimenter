@@ -50,7 +50,6 @@ type NimbusExperimentType {
   riskRevenue: Boolean
   riskBrand: Boolean
   riskMessage: Boolean
-  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   conclusionRecommendations: [NimbusExperimentConclusionRecommendationEnum!]!
   takeawaysMetricGain: Boolean!
   takeawaysGainAmount: String
@@ -546,7 +545,6 @@ input ExperimentInput {
   application: NimbusExperimentApplicationEnum
   changelogMessage: String
   channel: NimbusExperimentChannelEnum
-  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   conclusionRecommendations: [NimbusExperimentConclusionRecommendationEnum]
   countries: [String]
   documentationLinks: [DocumentationLinkInput]

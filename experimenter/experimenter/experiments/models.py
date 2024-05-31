@@ -271,12 +271,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     risk_message = models.BooleanField(
         "Is a Message Risk Flag", default=None, blank=True, null=True
     )
-    conclusion_recommendation = models.CharField(
-        "Recommended Conclusion",
-        max_length=255,
-        blank=True,
-        null=True,
-    )
     conclusion_recommendations = models.JSONField(
         verbose_name="Conclusion Recommendations", blank=True, null=True, default=list
     )
@@ -996,7 +990,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.published_date = None
         cloned.results_data = None
         cloned.takeaways_summary = None
-        cloned.conclusion_recommendation = None
         cloned.conclusion_recommendations = []
         cloned.takeaways_metric_gain = False
         cloned.takeaways_gain_amount = None
