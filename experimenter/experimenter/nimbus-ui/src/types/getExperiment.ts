@@ -225,7 +225,6 @@ export interface getExperiment_experimentBySlug {
   hypothesis: string | null;
   application: NimbusExperimentApplicationEnum;
   publicDescription: string | null;
-  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum | null;
   conclusionRecommendations: NimbusExperimentConclusionRecommendationEnum[];
   takeawaysGainAmount: string | null;
   takeawaysMetricGain: boolean;

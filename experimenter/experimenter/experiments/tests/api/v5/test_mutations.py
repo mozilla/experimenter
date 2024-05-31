@@ -168,7 +168,6 @@ class TestUpdateExperimentMutationSingleFeature(
                     "riskMessage": True,
                     "riskRevenue": True,
                     "riskPartnerRelated": True,
-                    "conclusionRecommendation": "RERUN",
                     "conclusionRecommendations": ["RERUN", "STOP"],
                     "takeawaysSummary": "the test worked",
                     "projects": [str(project.id)],
@@ -192,10 +191,6 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.risk_message, True)
         self.assertEqual(experiment.risk_revenue, True)
         self.assertEqual(experiment.risk_partner_related, True)
-        self.assertEqual(
-            experiment.conclusion_recommendation,
-            NimbusExperiment.ConclusionRecommendation.RERUN,
-        )
         self.assertEqual(
             experiment.conclusion_recommendations,
             [
@@ -1161,7 +1156,6 @@ class TestUpdateExperimentMutationSingleFeature(
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
-            conclusion_recommendation=NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
             conclusion_recommendations=[
                 NimbusExperiment.ConclusionRecommendation.FOLLOWUP
             ],
@@ -1171,7 +1165,6 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "conclusionRecommendation": None,
                     "conclusionRecommendations": [],
                     "takeawaysSummary": "the test worked",
                     "changelogMessage": "test changelog message",
@@ -1185,7 +1178,6 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(result["message"], "success")
 
         experiment = NimbusExperiment.objects.get()
-        self.assertEqual(experiment.conclusion_recommendation, None)
         self.assertEqual(experiment.conclusion_recommendations, [])
         self.assertEqual(experiment.takeaways_summary, "the test worked")
 
