@@ -90,6 +90,7 @@ class NimbusExperimentResource(resources.ModelResource):
     # - the default handling for these turns nulls into empty strings,
     #   which breaks the Nimbus UI type validation
     status_next = fields.Field()
+    conclusion_recommendation = fields.Field()
 
     # TODO: remove get_diff_class when we upgrade to django-import-export >= 4.0.0
     # https://github.com/mozilla/experimenter/issues/10416
@@ -128,6 +129,14 @@ class NimbusExperimentResource(resources.ModelResource):
         if experiment.status_next not in dict(NimbusConstants.Status.choices):
             return None
         return experiment.status_next
+
+    def dehydrate_conclusion_recommendation(self, experiment):
+        """Return None instead of empty string for nullable enums"""
+        if experiment.conclusion_recommendation not in dict(
+            NimbusConstants.ConclusionRecommendation.choices
+        ):
+            return None
+        return experiment.conclusion_recommendation
 
     def before_import_row(self, row: Dict[str, Any], row_number=None, **kwargs):
         owner_id = row.get("owner")
@@ -283,6 +292,9 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     secondary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
     targeting_config_slug = forms.ChoiceField(
         choices=NimbusExperiment.TargetingConfig.choices, required=False
+    )
+    conclusion_recommendation = forms.ChoiceField(
+        choices=NimbusExperiment.ConclusionRecommendation.choices, required=False
     )
     conclusion_recommendations = forms.MultipleChoiceField(
         choices=NimbusExperiment.ConclusionRecommendation.choices,

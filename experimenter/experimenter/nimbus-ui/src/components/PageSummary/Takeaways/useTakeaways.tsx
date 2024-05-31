@@ -20,6 +20,7 @@ import {
 export type UseTakeawaysExperimentSubset = Pick<
   getExperiment_experimentBySlug,
   | "id"
+  | "conclusionRecommendation"
   | "conclusionRecommendations"
   | "takeawaysSummary"
   | "takeawaysQbrLearning"
@@ -55,6 +56,7 @@ export const useTakeaways = (
     ({ id }: UseTakeawaysExperimentSubset, refetch?: () => Promise<unknown>) =>
       async (data: Record<string, any>) => {
         const {
+          conclusionRecommendation,
           conclusionRecommendations,
           takeawaysSummary,
           takeawaysQbrLearning,
@@ -67,6 +69,7 @@ export const useTakeaways = (
           const variables = {
             input: {
               id,
+              conclusionRecommendation: conclusionRecommendation || null,
               conclusionRecommendations: conclusionRecommendations || [],
               takeawaysSummary,
               takeawaysQbrLearning: takeawaysQbrLearning,

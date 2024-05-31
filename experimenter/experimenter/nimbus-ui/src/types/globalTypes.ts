@@ -274,6 +274,7 @@ export interface ExperimentInput {
   application?: NimbusExperimentApplicationEnum | null;
   changelogMessage?: string | null;
   channel?: NimbusExperimentChannelEnum | null;
+  conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   conclusionRecommendations?: (NimbusExperimentConclusionRecommendationEnum | null)[] | null;
   countries?: (string | null)[] | null;
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
