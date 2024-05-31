@@ -1161,6 +1161,17 @@ REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+REVIEW_CHECKER_SIDEBAR_RECOMMENDATION_CFR_ONLY = NimbusTargetingConfig(
+    name="Review Checker Sidebar Recommendation (CFR Only)",
+    slug="review_chercker_sidebar_reccomendation_cfr_only",
+    description="Only include users who have not opted out of recommendations",
+    targeting="('browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EARLY_DAY_USER_REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
     name="Early Day User Review Checker Sidebar Recommendation",
     slug="early_day_user_review_checker_sidebar_recommendation",
