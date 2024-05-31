@@ -36,6 +36,9 @@ glean:
   hasExposure: true
   exposureDescription: ""
   variables:
+    delay-ping-lifetime-io:
+      type: boolean
+      description: Glean will delay io for ping lifetime metrics
     enable-event-timestamps:
       type: boolean
       description: Enables precise event timestamps for Glean events
