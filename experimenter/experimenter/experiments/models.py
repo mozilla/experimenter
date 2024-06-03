@@ -1391,6 +1391,14 @@ class NimbusFeatureConfig(models.Model):
     owner_email = models.EmailField(blank=True, null=True)
     enabled = models.BooleanField(default=True)
 
+    class Meta:
+        verbose_name = "Nimbus Feature Config"
+        verbose_name_plural = "Nimbus Feature Configs"
+        unique_together = ("application", "slug")
+
+    def __str__(self):  # pragma: no cover
+        return f"{self.name} ({self.application})"
+
     def schemas_between_versions(
         self,
         min_version: packaging.version,
@@ -1503,14 +1511,6 @@ class NimbusFeatureConfig(models.Model):
             unsupported_in_range=False,
             unsupported_versions=unsupported_versions,
         )
-
-    class Meta:
-        verbose_name = "Nimbus Feature Config"
-        verbose_name_plural = "Nimbus Feature Configs"
-        unique_together = ("application", "slug")
-
-    def __str__(self):  # pragma: no cover
-        return self.name
 
 
 class NimbusFeatureVersionManager(models.Manager["NimbusFeatureVersion"]):
