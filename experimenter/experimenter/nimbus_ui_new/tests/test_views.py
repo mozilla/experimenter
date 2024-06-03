@@ -5,10 +5,21 @@ from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
 
+from experimenter.base.tests.factories import (
+    CountryFactory,
+    LanguageFactory,
+    LocaleFactory,
+)
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.experiments.tests.factories import (
+    NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
+)
+from experimenter.nimbus_ui_new.filtersets import TypeChoices
 from experimenter.nimbus_ui_new.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.projects.tests.factories import ProjectFactory
+from experimenter.targeting.constants import TargetingConstants
 
 
 class NimbusChangeLogsViewTest(TestCase):
@@ -33,6 +44,7 @@ class NimbusExperimentsListViewTest(TestCase):
         self.user = UserFactory.create(email="user@example.com")
         self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
 
+    def test_render_to_response(self):
         for status in NimbusExperiment.Status:
             NimbusExperimentFactory.create(slug=status, status=status)
 
@@ -44,62 +56,440 @@ class NimbusExperimentsListViewTest(TestCase):
         NimbusExperimentFactory.create(is_archived=True, slug="archived-experiment")
         NimbusExperimentFactory.create(owner=self.user, slug="my-experiment")
 
-    def test_render_to_response(self):
         response = self.client.get(reverse("nimbus-new-list"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            [e.slug for e in response.context["experiments"]],
-            [
+            {e.slug for e in response.context["experiments"]},
+            {
                 e.slug
-                for e in NimbusExperiment.objects.with_owner_features().filter(
-                    status=NimbusExperiment.Status.LIVE.value
+                for e in NimbusExperiment.objects.all().filter(
+                    status=NimbusExperiment.Status.LIVE
                 )
-            ],
+            },
         )
         self.assertDictEqual(
             dict(response.context["status_counts"]),
             {
-                NimbusExperiment.Status.COMPLETE.value: 1,
-                NimbusExperiment.Status.DRAFT.value: 2,
-                NimbusExperiment.Status.LIVE.value: 1,
-                NimbusExperiment.Status.PREVIEW.value: 1,
+                NimbusExperiment.Status.COMPLETE: 1,
+                NimbusExperiment.Status.DRAFT: 2,
+                NimbusExperiment.Status.LIVE: 1,
+                NimbusExperiment.Status.PREVIEW: 1,
                 "Review": 1,
                 "Archived": 1,
                 "MyExperiments": 1,
             },
         )
 
+    @patch(
+        "experimenter.nimbus_ui_new.views.NimbusExperimentsListView.paginate_by", new=3
+    )
+    def test_pagination(self):
+        for _i in range(6):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
+            )
+
+        response = self.client.get(reverse("nimbus-new-list"))
+        self.assertEqual(len(response.context["experiments"]), 3)
+
+        response = self.client.get(reverse("nimbus-new-list"), {"page": 2})
+        self.assertEqual(len(response.context["experiments"]), 3)
+
     @parameterized.expand(
         (
-            (StatusChoices.DRAFT, ["my-experiment", NimbusExperiment.Status.DRAFT.value]),
-            (StatusChoices.PREVIEW, [NimbusExperiment.Status.PREVIEW.value]),
-            (StatusChoices.LIVE, [NimbusExperiment.Status.LIVE.value]),
-            (StatusChoices.COMPLETE, [NimbusExperiment.Status.COMPLETE.value]),
+            (StatusChoices.DRAFT, ["my-experiment", NimbusExperiment.Status.DRAFT]),
+            (StatusChoices.PREVIEW, [NimbusExperiment.Status.PREVIEW]),
+            (StatusChoices.LIVE, [NimbusExperiment.Status.LIVE]),
+            (StatusChoices.COMPLETE, [NimbusExperiment.Status.COMPLETE]),
             (StatusChoices.REVIEW, ["review-experiment"]),
             (StatusChoices.ARCHIVED, ["archived-experiment"]),
             (StatusChoices.MY_EXPERIMENTS, ["my-experiment"]),
         )
     )
     def test_filter_status(self, filter_status, expected_slugs):
+        for status in NimbusExperiment.Status:
+            NimbusExperimentFactory.create(slug=status, status=status)
+
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            slug="review-experiment",
+        )
+        NimbusExperimentFactory.create(is_archived=True, slug="archived-experiment")
+        NimbusExperimentFactory.create(owner=self.user, slug="my-experiment")
+
         response = self.client.get(
             reverse("nimbus-new-list"),
             {"status": filter_status},
         )
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             {e.slug for e in response.context["experiments"]},
             set(expected_slugs),
         )
 
-    @patch(
-        "experimenter.nimbus_ui_new.views.NimbusExperimentsListView.paginate_by", new=3
+    @parameterized.expand(
+        (
+            ("name",),
+            ("slug",),
+            ("public_description",),
+            ("hypothesis",),
+            ("takeaways_summary",),
+            ("qa_comment",),
+        )
     )
-    def test_pagination(self):
-        for _ in range(6):
-            NimbusExperimentFactory.create_with_lifecycle(
-                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
+    def test_filter_search(self, field_name):
+        test_string = "findme"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, **{field_name: test_string}
+        )
+        [
+            NimbusExperimentFactory.create(status=NimbusExperiment.Status.LIVE)
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {"status": NimbusExperiment.Status.LIVE, "search": test_string},
+        )
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    @parameterized.expand(
+        (
+            (TypeChoices.ROLLOUT, True),
+            (TypeChoices.EXPERIMENT, False),
+        )
+    )
+    def test_filter_type(self, type_choice, is_rollout):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, is_rollout=is_rollout
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, is_rollout=(not is_rollout)
             )
-        response = self.client.get(reverse("nimbus-new-list"))
-        self.assertEqual(len(response.context["experiments"]), 3)
-        response = self.client.get(reverse("nimbus-new-list"), {"page": 2})
-        self.assertEqual(len(response.context["experiments"]), 3)
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {"status": NimbusExperiment.Status.LIVE, "type": type_choice},
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_application(self):
+        application = NimbusExperiment.Application.DESKTOP
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, application=application
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, application=a
+            )
+            for a in {*list(NimbusExperiment.Application)} - {application}
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {"status": NimbusExperiment.Status.LIVE, "application": application},
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_channel(self):
+        channel = NimbusExperiment.Channel.NIGHTLY
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, channel=channel
+        )
+        [
+            NimbusExperimentFactory.create(status=NimbusExperiment.Status.LIVE, channel=c)
+            for c in {*list(NimbusExperiment.Channel)} - {channel}
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {"status": NimbusExperiment.Status.LIVE, "channel": channel},
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_version(self):
+        version = NimbusExperiment.Version.FIREFOX_120
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, firefox_min_version=version
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, firefox_min_version=v
+            )
+            for v in {*list(NimbusExperiment.Version)} - {version}
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {"status": NimbusExperiment.Status.LIVE, "firefox_min_version": version},
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_feature_config(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            application=application,
+            feature_configs=[feature_config],
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, application=application
+            )
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "feature_configs": feature_config.id,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_countries(self):
+        country = CountryFactory.create()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, countries=[country]
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, countries=[]
+            )
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "countries": country.id,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_languages(self):
+        language = LanguageFactory.create()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, languages=[language]
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, languages=[]
+            )
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "languages": language.id,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_locales(self):
+        locale = LocaleFactory.create()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, locales=[locale]
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, locales=[]
+            )
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "locales": locale.id,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_targeting_config(self):
+        targeting_config = TargetingConstants.TargetingConfig.EXISTING_USER
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            targeting_config_slug=targeting_config,
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE,
+                targeting_config_slug=TargetingConstants.TargetingConfig.NO_TARGETING,
+            )
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "targeting_config_slug": targeting_config,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_projects(self):
+        project = ProjectFactory.create()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, projects=[project]
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, projects=[]
+            )
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "projects": project.id,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_qa_status(self):
+        qa_status = NimbusExperiment.QAStatus.GREEN
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            qa_status=qa_status,
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE,
+                qa_status=NimbusExperiment.QAStatus.NOT_SET,
+            )
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "qa_status": qa_status,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    @parameterized.expand(
+        (
+            (NimbusExperiment.Takeaways.DAU_GAIN, "takeaways_metric_gain"),
+            (NimbusExperiment.Takeaways.QBR_LEARNING, "takeaways_qbr_learning"),
+        )
+    )
+    def test_filter_takeaways(self, takeaway_choice, takeaway_field):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, **{takeaway_field: True}
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, **{takeaway_field: False}
+            )
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "takeaways": takeaway_choice,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_owner(self):
+        owner = UserFactory.create()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, owner=owner
+        )
+        [
+            NimbusExperimentFactory.create(status=NimbusExperiment.Status.LIVE)
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "owner": owner.id,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_subscribers(self):
+        subscriber = UserFactory.create()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE, subscribers=[subscriber]
+        )
+        [
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.LIVE, subscribers=[]
+            )
+            for _i in range(3)
+        ]
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "subscribers": subscriber.id,
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )

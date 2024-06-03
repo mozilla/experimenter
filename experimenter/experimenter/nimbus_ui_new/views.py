@@ -1,47 +1,9 @@
-import django_filters
 from django.conf import settings
-from django.db import models
 from django.views.generic import DetailView
 from django_filters.views import FilterView
 
 from experimenter.experiments.models import NimbusExperiment
-
-
-class StatusChoices(models.TextChoices):
-    DRAFT = NimbusExperiment.Status.DRAFT.value
-    PREVIEW = NimbusExperiment.Status.PREVIEW.value
-    LIVE = NimbusExperiment.Status.LIVE.value
-    COMPLETE = NimbusExperiment.Status.COMPLETE.value
-    REVIEW = "Review"
-    ARCHIVED = "Archived"
-    MY_EXPERIMENTS = "MyExperiments"
-
-
-class NimbusExperimentFilter(django_filters.FilterSet):
-    status = django_filters.ChoiceFilter(
-        choices=StatusChoices.choices, method="filter_status"
-    )
-
-    class Meta:
-        model = NimbusExperiment
-        fields = ["status"]
-
-    def filter_status(self, queryset, name, value):
-        match value:
-            case StatusChoices.REVIEW:
-                return queryset.filter(
-                    status=NimbusExperiment.Status.DRAFT,
-                    publish_status=NimbusExperiment.PublishStatus.REVIEW,
-                )
-            case StatusChoices.ARCHIVED:
-                return queryset.filter(is_archived=True)
-            case StatusChoices.MY_EXPERIMENTS:
-                return queryset.filter(owner=self.request.user)
-            case _:
-                return queryset.filter(
-                    status=value,
-                    is_archived=False,
-                ).exclude(publish_status=NimbusExperiment.PublishStatus.REVIEW)
+from experimenter.nimbus_ui_new.filtersets import NimbusExperimentFilter, StatusChoices
 
 
 class NimbusChangeLogsView(DetailView):
