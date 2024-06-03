@@ -1442,7 +1442,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if schemas_in_range.unsupported_in_range:
             result.append(
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
-                    feature_config=feature_config,
+                    feature_config=feature_config.name,
                 ),
                 suppress_errors,
             )
@@ -1456,7 +1456,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             max_unsupported_version = max(unsupported_version_strs)
             result.append(
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS.format(
-                    feature_config=feature_config,
+                    feature_config=feature_config.name,
                     versions=f"{min_unsupported_version}-{max_unsupported_version}",
                 ),
                 suppress_errors,

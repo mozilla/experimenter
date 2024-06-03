@@ -1,9 +1,7 @@
 <div class="row">
-  <div class="col  d-flex align-items-center">
-    <i class="{{ icon }} pb-2 ps-1" style="width:30px;"></i>
-    <select class="form-select bg-body-tertiary border-0 mb-2"
-            aria-label="Default select example">
-      <option selected>{{ placeholder }}</option>
-    </select>
+  <div class="col d-flex align-items-center mb-2">
+    <i class="{{ icon }}" style="width:30px;"></i>
+    {% include "django/forms/widgets/select.html" %}
+
   </div>
 </div>
