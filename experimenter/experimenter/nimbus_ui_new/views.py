@@ -3,7 +3,11 @@ from django.views.generic import DetailView
 from django_filters.views import FilterView
 
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.nimbus_ui_new.filtersets import NimbusExperimentFilter, StatusChoices
+from experimenter.nimbus_ui_new.filtersets import (
+    NimbusExperimentFilter,
+    SortChoices,
+    StatusChoices,
+)
 
 
 class NimbusChangeLogsView(DetailView):
@@ -14,7 +18,7 @@ class NimbusChangeLogsView(DetailView):
 
 class NimbusExperimentsListView(FilterView):
     model = NimbusExperiment
-    queryset = NimbusExperiment.objects.all()
+    queryset = NimbusExperiment.objects.all().order_by("-_updated_date_time")
     filterset_class = NimbusExperimentFilter
     context_object_name = "experiments"
     template_name = "nimbus_experiments/list.html"
@@ -60,5 +64,6 @@ class NimbusExperimentsListView(FilterView):
         return super().get_context_data(
             active_status=kwargs["filter"].data["status"],
             status_counts=status_counts,
+            sort_choices=SortChoices,
             **kwargs,
         )

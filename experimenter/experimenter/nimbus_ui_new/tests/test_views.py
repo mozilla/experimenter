@@ -1,3 +1,4 @@
+import datetime
 from unittest.mock import patch
 
 from django.conf import settings
@@ -15,7 +16,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
-from experimenter.nimbus_ui_new.filtersets import TypeChoices
+from experimenter.nimbus_ui_new.filtersets import SortChoices, TypeChoices
 from experimenter.nimbus_ui_new.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
@@ -492,4 +493,293 @@ class NimbusExperimentsListViewTest(TestCase):
 
         self.assertEqual(
             {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_default_sort_by_latest_update(self):
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
+        )
+
+        response = self.client.get(reverse("nimbus-new-list"))
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_name(self):
+        experiment1 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            name="a",
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            name="b",
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.NAME_UP,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.NAME_DOWN,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_qa(self):
+        experiment1 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            qa_status=NimbusExperiment.QAStatus.RED,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.QA_UP,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.QA_DOWN,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_application(self):
+        experiment1 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.FENIX,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.APPLICATION_UP,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.APPLICATION_DOWN,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_channel(self):
+        experiment1 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            channel=NimbusExperiment.Channel.BETA,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            channel=NimbusExperiment.Channel.RELEASE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.CHANNEL_UP,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.CHANNEL_DOWN,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_size(self):
+        experiment1 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            population_percent="0.0",
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            population_percent="100.0",
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.SIZE_UP,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.SIZE_DOWN,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_features(self):
+        feature1 = NimbusFeatureConfigFactory.create(slug="a")
+        experiment1 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            feature_configs=[feature1],
+        )
+        feature2 = NimbusFeatureConfigFactory.create(slug="b")
+        experiment2 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            feature_configs=[feature2],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.FEATURES_UP,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.FEATURES_DOWN,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_versions(self):
+        experiment1 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_101,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.VERSIONS_UP,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.VERSIONS_DOWN,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_dates(self):
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date(2024, 1, 1),
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date(2024, 1, 2),
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.DATES_UP,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {
+                "sort": SortChoices.DATES_DOWN,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            [experiment2.slug, experiment1.slug],
         )
