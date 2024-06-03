@@ -39,14 +39,15 @@
       <table class="table table-striped mb-0">
         <thead>
           <tr>
-            <th scope="col">Name</th>
-            <th scope="col">QA</th>
-            <th scope="col">Application</th>
-            <th scope="col">Channel</th>
-            <th scope="col">Size</th>
-            <th scope="col">Features</th>
-            <th scope="col">Versions</th>
-            <th scope="col">Dates</th>
+            {% include "nimbus_experiments/table_header.html" with field="Name" up=sort_choices.NAME_UP down=sort_choices.NAME_DOWN %}
+            {% include "nimbus_experiments/table_header.html" with field="QA" up=sort_choices.QA_UP down=sort_choices.QA_DOWN %}
+            {% include "nimbus_experiments/table_header.html" with field="Application" up=sort_choices.APPLICATION_UP down=sort_choices.APPLICATION_DOWN %}
+            {% include "nimbus_experiments/table_header.html" with field="Channel" up=sort_choices.CHANNEL_UP down=sort_choices.CHANNEL_DOWN %}
+            {% include "nimbus_experiments/table_header.html" with field="Size" up=sort_choices.SIZE_UP down=sort_choices.SIZE_DOWN %}
+            {% include "nimbus_experiments/table_header.html" with field="Features" up=sort_choices.FEATURES_UP down=sort_choices.FEATURES_DOWN %}
+            {% include "nimbus_experiments/table_header.html" with field="Versions" up=sort_choices.VERSIONS_UP down=sort_choices.VERSIONS_DOWN %}
+            {% include "nimbus_experiments/table_header.html" with field="Dates" up=sort_choices.DATES_UP down=sort_choices.DATES_DOWN %}
+
           </tr>
         </thead>
         <tbody>

@@ -26,6 +26,25 @@ class TypeChoices(models.TextChoices):
     EXPERIMENT = "Experiment"
 
 
+class SortChoices(models.TextChoices):
+    NAME_UP = "name"
+    NAME_DOWN = "-name"
+    QA_UP = "qa_status"
+    QA_DOWN = "-qa_status"
+    APPLICATION_UP = "application"
+    APPLICATION_DOWN = "-application"
+    CHANNEL_UP = "channel"
+    CHANNEL_DOWN = "-channel"
+    SIZE_UP = "population_percent"
+    SIZE_DOWN = "-population_percent"
+    FEATURES_UP = "feature_configs__slug"
+    FEATURES_DOWN = "-feature_configs__slug"
+    VERSIONS_UP = "firefox_min_version"
+    VERSIONS_DOWN = "-firefox_min_version"
+    DATES_UP = "_start_date"
+    DATES_DOWN = "-_start_date"
+
+
 class MultiSelectWidget(forms.SelectMultiple):
     template_name = "common/sidebar_select.html"
 
@@ -40,6 +59,11 @@ class MultiSelectWidget(forms.SelectMultiple):
 
 
 class NimbusExperimentFilter(django_filters.FilterSet):
+    sort = django_filters.ChoiceFilter(
+        method="filter_sort",
+        choices=SortChoices.choices,
+        widget=forms.widgets.HiddenInput,
+    )
     status = django_filters.ChoiceFilter(
         method="filter_status",
         choices=StatusChoices.choices,
@@ -214,6 +238,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     class Meta:
         model = NimbusExperiment
         fields = [
+            "sort",
             "status",
             "search",
             "type",
@@ -231,6 +256,9 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             "owner",
             "subscribers",
         ]
+
+    def filter_sort(self, queryset, name, value):
+        return queryset.order_by(value)
 
     def filter_status(self, queryset, name, value):
         match value:
