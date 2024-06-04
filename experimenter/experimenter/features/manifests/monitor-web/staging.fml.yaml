@@ -5,8 +5,22 @@ about:
 channels:
   - staging
 features:
+  automatic-removal-csat-survey:
+    description: Show the CSAT survey for Plus users that have automatically removed broker results
+    variables:
+      enabled:
+        description: If the feature is enabled
+        type: Boolean
+        default: true
   last-scan-date:
     description: "Show the date of the user's last scan in the top right-hand corner"
+    variables:
+      enabled:
+        description: If the feature is enabled
+        type: Boolean
+        default: true
+  last-scan-date-csat-survey:
+    description: "Show the CSAT survey for users that are enrolled in the `last-scan-date` experiment"
     variables:
       enabled:
         description: If the feature is enabled
@@ -18,4 +32,4 @@ features:
       enabled:
         description: If the feature is enabled
         type: Boolean
-        default: true
+        default: false
