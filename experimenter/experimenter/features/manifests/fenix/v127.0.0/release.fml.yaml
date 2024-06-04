@@ -45,6 +45,10 @@ features:
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
+      delay-ping-lifetime-io:
+        description: Glean will delay io for ping lifetime metrics
+        type: Boolean
+        default: true
       enable-event-timestamps:
         description: Enables precise event timestamps for Glean events
         type: Boolean
@@ -53,6 +57,7 @@ features:
         description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
         type: "Map<String, Boolean>"
         default: {}
+    allow-coenrollment: true
   growth-data:
     description: A feature measuring campaign growth data
     variables:
