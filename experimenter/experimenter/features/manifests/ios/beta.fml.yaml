@@ -512,13 +512,6 @@ enums:
         description: This is a local notification send to the user periodically with tips and updates.
       survey:
         description: This is a full-page that appears providing a survey to the user.
-  MicrosurveyTargetFeature:
-    description: "The specific feature the microsurvey is for. This is a label that matches across both Android and iOS.\n"
-    variants:
-      Unknown:
-        description: No target feature set. Only used in an invalid experiment configuration.
-      printing:
-        description: The printing feature.
   NimbusOnboardingHeaderImage:
     description: "The identifiers for the different images available for cards in onboarding\n"
     variants:
@@ -726,10 +719,6 @@ objects:
         description: The list of survey options to present to the user.
         type: List<Text>
         default: []
-      target-feature:
-        description: "The type of feature the microsurvey is targeted.\n"
-        type: MicrosurveyTargetFeature
-        default: Unknown
   NimbusOnboardingButton:
     description: "A group of properties describing the attributes of a card.\n"
     fields:
