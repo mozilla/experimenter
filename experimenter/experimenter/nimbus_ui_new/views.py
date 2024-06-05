@@ -18,7 +18,11 @@ class NimbusChangeLogsView(DetailView):
 
 class NimbusExperimentsListView(FilterView):
     model = NimbusExperiment
-    queryset = NimbusExperiment.objects.all().order_by("-_updated_date_time")
+    queryset = (
+        NimbusExperiment.objects.all()
+        .order_by("-_updated_date_time")
+        .prefetch_related("feature_configs")
+    )
     filterset_class = NimbusExperimentFilter
     context_object_name = "experiments"
     template_name = "nimbus_experiments/list.html"
