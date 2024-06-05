@@ -74,6 +74,13 @@ features:
         type: GeneralFeature
         default:
           status: true
+  glean-server-knobs:
+    description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
+    variables:
+      metrics-enabled:
+        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+        type: "Map<String, Boolean>"
+        default: {}
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -169,7 +176,7 @@ features:
             surface: microsurvey
             style: MICROSURVEY
             trigger-if-all:
-              - ALWAYS
+              - VIEWED_HOMEPAGE
             title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
             text: How satisfied are you with your Firefox homepage?
             button-label: Microsurvey/Microsurvey.Prompt.Button.v127
@@ -242,6 +249,7 @@ features:
           SUPPORTS_DEFAULT_BROWSER: "os_version|versionCompare('14.!') >= 0"
           INACTIVE_NEW_USER: is_inactive_new_user
           ALLOWED_TIPS_NOTIFICATIONS: allowed_tips_notifications
+          VIEWED_HOMEPAGE: "'homepage_viewed'|eventLastSeen('Hours') <= 24"
           ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
         string-alias: TriggerName
       ~~experiment:
