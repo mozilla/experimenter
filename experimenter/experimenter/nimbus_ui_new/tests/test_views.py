@@ -783,3 +783,15 @@ class NimbusExperimentsListViewTest(TestCase):
             [e.slug for e in response.context["experiments"]],
             [experiment2.slug, experiment1.slug],
         )
+
+
+class NimbusExperimentsListTableViewTest(TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        self.user = UserFactory.create(email="user@example.com")
+        self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
+
+    def test_render_to_response(self):
+        response = self.client.get(reverse("nimbus-new-table"))
+        self.assertEqual(response.status_code, 200)
