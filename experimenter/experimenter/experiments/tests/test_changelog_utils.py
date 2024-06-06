@@ -382,14 +382,11 @@ class TestGenerateNimbusChangeLog(TestCase):
         changelog = None
         timestamp = None
 
-        try:
-            change_object = get_formatted_change_object(
-                non_existent_field_name,
-                field_diff,
-                changelog,
-                timestamp,
-            )
-        except Exception as e:
-            self.fail(f"Exception raised: {e}")
+        change_object = get_formatted_change_object(
+            non_existent_field_name,
+            field_diff,
+            changelog,
+            timestamp,
+        )
 
         self.assertIsNone(change_object)
