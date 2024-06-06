@@ -75,3 +75,8 @@ class NimbusExperimentsListView(FilterView):
 
 class NimbusExperimentsListTableView(NimbusExperimentsListView):
     template_name = "nimbus_experiments/table.html"
+
+    def get(self, *args, **kwargs):
+        response = super().get(*args, **kwargs)
+        response.headers["HX-Push"] = f"?{self.request.GET.urlencode()}"
+        return response
