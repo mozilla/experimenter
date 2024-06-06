@@ -1,9 +1,8 @@
 <th scope="col">
-  <form hx-get="{% url "nimbus-new-list" %}"
+  <form id="sort-form"
+        hx-get="{% url "nimbus-new-table" %}"
         hx-trigger="submit"
-        hx-select="#content"
-        hx-target="#content"
-        hx-swap="outerHTML"
+        hx-target="#experiment-list"
         hx-push-url="true">
     <input type="hidden"
            name="sort"
