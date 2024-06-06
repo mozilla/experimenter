@@ -795,3 +795,10 @@ class NimbusExperimentsListTableViewTest(TestCase):
     def test_render_to_response(self):
         response = self.client.get(reverse("nimbus-new-table"))
         self.assertEqual(response.status_code, 200)
+
+    def test_includes_request_get_parameters_in_response_header(self):
+        response = self.client.get(
+            reverse("nimbus-new-table"),
+            {"status": "test"},
+        )
+        self.assertEqual(response.headers["HX-Push"], "?status=test")
