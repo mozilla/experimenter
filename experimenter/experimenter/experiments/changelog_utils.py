@@ -2,6 +2,7 @@ import json
 import uuid
 
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.utils import timezone
 from rest_framework import serializers
@@ -108,7 +109,11 @@ def generate_nimbus_changelog(experiment, changed_by, message, changed_on=None):
 
 def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
     event_name = ChangeEventType.GENERAL.name
-    field_instance = NimbusExperiment._meta.get_field(field_name)
+    try:
+        field_instance = NimbusExperiment._meta.get_field(field_name)
+    except FieldDoesNotExist:
+        return None
+
     field_display_name = getattr(field_instance, "verbose_name", field_name)
 
     old_value = field_diff.get("old_value")
