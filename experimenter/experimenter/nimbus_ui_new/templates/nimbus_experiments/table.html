@@ -1,0 +1,119 @@
+{% load nimbus_extras %}
+
+<ul class="nav nav-tabs">
+  {% include "common/list_tab.html" with status="Live" count=status_counts.Live icon="fa-regular fa-circle-play" %}
+  {% include "common/list_tab.html" with status="Review" count=status_counts.Review icon="fa-solid fa-eye" %}
+  {% include "common/list_tab.html" with status="Preview" count=status_counts.Preview icon="fa-solid fa-person-circle-check" %}
+  {% include "common/list_tab.html" with status="Complete" count=status_counts.Complete icon="fa-solid fa-vial-circle-check" %}
+  {% include "common/list_tab.html" with status="Draft" count=status_counts.Draft icon="fa-solid fa-pen-to-square" %}
+  {% include "common/list_tab.html" with status="Archived" count=status_counts.Archived icon="fa-solid fa-box-archive" %}
+  {% include "common/list_tab.html" with status="MyExperiments" count=status_counts.MyExperiments icon="fa-solid fa-heart" %}
+
+  <li class="nav-item ms-auto">
+    <a class="btn btn-primary" href="{% url "nimbus-create" %}">
+      <i class="fa-regular fa-pen-to-square"></i>
+      Create Experiment
+    </a>
+  </li>
+</ul>
+<div id="experiment-list"></div>
+<div class="border border-1 border-top-0 border-bottom-0 mb-3">
+  <table class="table table-striped mb-0">
+    <thead>
+      <tr>
+        {% include "nimbus_experiments/table_header.html" with field="Name" up=sort_choices.NAME_UP down=sort_choices.NAME_DOWN %}
+        {% include "nimbus_experiments/table_header.html" with field="QA" up=sort_choices.QA_UP down=sort_choices.QA_DOWN %}
+        {% include "nimbus_experiments/table_header.html" with field="Application" up=sort_choices.APPLICATION_UP down=sort_choices.APPLICATION_DOWN %}
+        {% include "nimbus_experiments/table_header.html" with field="Channel" up=sort_choices.CHANNEL_UP down=sort_choices.CHANNEL_DOWN %}
+        {% include "nimbus_experiments/table_header.html" with field="Size" up=sort_choices.SIZE_UP down=sort_choices.SIZE_DOWN %}
+        {% include "nimbus_experiments/table_header.html" with field="Features" up=sort_choices.FEATURES_UP down=sort_choices.FEATURES_DOWN %}
+        {% include "nimbus_experiments/table_header.html" with field="Versions" up=sort_choices.VERSIONS_UP down=sort_choices.VERSIONS_DOWN %}
+        {% include "nimbus_experiments/table_header.html" with field="Dates" up=sort_choices.DATES_UP down=sort_choices.DATES_DOWN %}
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for experiment in experiments %}
+        <tr>
+          <th scope="row">
+            <a href="{% url "nimbus-detail" slug=experiment.slug %}">{{ experiment.name }}</a>
+          </th>
+          <td>
+            {% if experiment.qa_status == 'NOT SET' %}<i class="fa-regular fa-circle-question"></i>{% endif %}
+            {% if experiment.qa_status == 'GREEN' %}
+              <span class="text-success"><i class="fa-regular fa-circle-check"></i></span>
+            {% endif %}
+            {% if experiment.qa_status == 'YELLOW' %}
+              <span class="text-warning"><i class="fa-regular fa-circle-pause"></i></span>
+            {% endif %}
+            {% if experiment.qa_status == 'RED' %}
+              <span class="text-danger"><i class="fa-regular fa-circle-xmark"></i></span>
+            {% endif %}
+          </td>
+          <td>{{ experiment.get_application_display }}</td>
+          <td>{{ experiment.get_channel_display }}</td>
+          <td>{{ experiment.population_percent|floatformat }}%</td>
+          <td>
+            {% for feature in experiment.feature_configs.all %}
+              {{ feature.name }}
+              <br>
+            {% endfor %}
+          </td>
+          <td>
+            {{ experiment.get_firefox_min_version_display }}
+            {% if experiment.firefox_max_version %}
+              - {{ experiment.get_firefox_max_version_display }}
+            {% else %}
+              +
+            {% endif %}
+          </td>
+          <td>
+            {% if experiment.start_date %}
+              {{ experiment.start_date|date:"M j/y" }} -
+              <br>
+              {{ experiment.computed_end_date|date:"M j/y" }}
+              <br>
+              ({{ experiment.computed_duration_days }} days)
+            {% else %}
+              N/A
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if page_obj.paginator.num_pages > 1 %}
+  <div class="row">
+    <div class="col text-center">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link"
+               href="{% pagination_url page_obj.previous_page_number %}"
+               tabindex="-1">Previous</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <a class="page-link" href="#">Previous</a>
+          </li>
+        {% endif %}
+        {% for page_num in page_obj.paginator.page_range %}
+          <li class="page-item {% if page_obj.number == page_num %}active{% endif %}">
+            <a class="page-link" href="{% pagination_url page_num %}">{{ page_num }}</a>
+          </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link"
+               href="{% pagination_url page_obj.next_page_number %}">Next</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+{% endif %}

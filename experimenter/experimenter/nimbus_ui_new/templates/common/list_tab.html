@@ -1,9 +1,8 @@
 <li class="nav-item">
-  <form hx-get="{% url "nimbus-new-list" %}"
+  <form id="tab-form"
+        hx-get="{% url "nimbus-new-table" %}"
         hx-trigger="submit"
-        hx-select="#content"
-        hx-target="#content"
-        hx-swap="outerHTML"
+        hx-target="#experiment-list"
         hx-push-url="true">
     <input type="hidden" name="status" value="{{ status }}">
     {% for field in filter.form %}

@@ -71,3 +71,7 @@ class NimbusExperimentsListView(FilterView):
             sort_choices=SortChoices,
             **kwargs,
         )
+
+
+class NimbusExperimentsListTableView(NimbusExperimentsListView):
+    template_name = "nimbus_experiments/table.html"
