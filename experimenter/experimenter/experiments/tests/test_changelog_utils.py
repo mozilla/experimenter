@@ -8,6 +8,7 @@ from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializ
 from experimenter.experiments.changelog_utils import (
     NimbusExperimentChangeLogSerializer,
     generate_nimbus_changelog,
+    get_formatted_change_object,
 )
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
@@ -374,3 +375,18 @@ class TestGenerateNimbusChangeLog(TestCase):
             experiment=experiment, experiment_data={"some_old": "data"}
         )
         generate_nimbus_changelog(experiment, self.user, "test message")
+
+    def test_generate_nimbus_changelog_skip_nonexistent_field(self):
+        non_existent_field_name = "nonexistent_field"
+        field_diff = {"old_value": "old_value", "new_value": "new_value"}
+        changelog = None
+        timestamp = None
+
+        change_object = get_formatted_change_object(
+            non_existent_field_name,
+            field_diff,
+            changelog,
+            timestamp,
+        )
+
+        self.assertIsNone(change_object)
