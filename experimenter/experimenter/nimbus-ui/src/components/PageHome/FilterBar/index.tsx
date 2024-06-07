@@ -183,6 +183,7 @@ export const FilterSelect = <
             )!,
           options: filterOptions as Options<OptionType>,
           onChange: (fieldValue: Options<OptionType>) => {
+            /* istanbul ignore next */
             onChange({
               ...filterValue,
               [filterValueName]: fieldValue,

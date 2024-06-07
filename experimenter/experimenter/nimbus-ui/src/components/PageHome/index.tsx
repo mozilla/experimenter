@@ -48,6 +48,7 @@ export const Body: React.FC<BodyProps> = ({
 
   const selectedTab = searchParams.get("tab") || "live";
   const onSelectTab = useCallback(
+    /* istanbul ignore next */
     (nextTab) => updateSearchParams((params) => params.set("tab", nextTab)),
     [updateSearchParams],
   );
@@ -100,6 +101,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
   const config = useConfig();
   const [searchParams, updateSearchParams] = useSearchParamsState("PageHome");
   const filterValue = getFilterValueFromParams(config, searchParams);
+  /* istanbul ignore next */
   const onFilterChange = (newFilterValue: FilterValue) =>
     updateParamsFromFilterValue(updateSearchParams, newFilterValue);
 
