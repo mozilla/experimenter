@@ -4,8 +4,8 @@ description = "Usage & engagement metrics and revenue proxies for Firefox Sugges
 [metrics.urlbar_search_count]
 select_expression = "SUM(CASE WHEN source LIKE 'urlbar%' THEN COALESCE(sap, 0) ELSE 0 END)"
 data_source = "search_clients_engines_sources_daily"
-description = "Number of searches performed in the urlbar, including search mode and handoff"
-friendly_name = "urlbar searches"
+description = "Number of searches performed in the urlbar, including search mode and handoff, from Legacy telemetry"
+friendly_name = "Urlbar search count (Legacy)"
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 
@@ -14,24 +14,24 @@ numerator = "ad_clicks"
 denominator = "search_count"
 
 [metrics.urlbar_clicks]
-select_expression = "COUNT(DISTINCT(CASE WHEN is_terminal and event_action = 'engaged' THEN event_id ELSE NULL END))"
+select_expression = "COUNTIF(is_terminal and event_action = 'engaged')"
 data_source = "urlbar_events"
 description = "Count of clicks on any result shown in the urlbar dropdown menu"
-friendly_name = "urlbar clicks"
+friendly_name = "Urlbar engagements"
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 
 [metrics.urlbar_impressions]
-select_expression = "COUNT(DISTINCT(CASE WHEN is_terminal THEN event_id ELSE NULL END))"
+select_expression = "COUNTIF(is_terminal)"
 data_source = "urlbar_events"
 description = "The number of times a user exits the urlbar dropdown menu, either by abandoning the urlbar, engaging with a urlbar result, or selecting an annoyance signal that closes the urlbar dropdown menu"
-friendly_name = "urlbar impressions"
+friendly_name = "Urlbar search sessions"
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 
 [metrics.urlbar_ctr]
-description = "Count of urlbar clicks divided by count of urlbar impressions. This is a `population-ratio` metric, not a client-level metric."
-friendly_name = "urlbar click-through rate (ctr)"
+description = "Count of urlbar engagements divided by count of urlbar sessions. This is a `population-ratio` metric, not a client-level metric."
+friendly_name = "Urlbar engagement rate"
 depends_on = ["urlbar_clicks", "urlbar_impressions"]
 
 [metrics.urlbar_ctr.statistics.population_ratio]
@@ -39,10 +39,10 @@ numerator = "urlbar_clicks"
 denominator = "urlbar_impressions"
 
 [metrics.urlbar_annoyances]
-select_expression = "COUNT(DISTINCT(CASE WHEN event_action = 'annoyance' THEN event_id ELSE NULL END))"
+select_expression = "COUNTIF(event_action = 'annoyance')"
 data_source = "urlbar_events"
 description = "Count of clicks on annoyance signals across all results shown in the urlbar dropdown menu"
-friendly_name = "urlbar annoyances"
+friendly_name = "Urlbar annoyances"
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 
@@ -57,14 +57,14 @@ select_expression = """COUNTIF(
 )"""
 data_source = "urlbar_events"
 description = "Count of clicks on a result shown in the urlbar dropdown menu leading to a SERP"
-friendly_name = "Urlbar impressions ending on a SERP"
+friendly_name = "Urlbar sessions ending on a SERP"
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 
 [metrics.search_engine_rate]
 depends_on = ["search_engine_clicks", "urlbar_impressions"]
 friendly_name = "SERP engagement rate"
-description = "Proportion of urlbar impressions ending with a click leading to a SERP"
+description = "Proportion of urlbar sessions ending with an engagement leading to a SERP"
 
 [metrics.search_engine_rate.statistics.population_ratio]
 numerator = "search_engine_clicks"
