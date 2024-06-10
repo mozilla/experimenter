@@ -25,7 +25,6 @@ class TypeChoices(models.TextChoices):
     ROLLOUT = "Rollout"
     EXPERIMENT = "Experiment"
 
-
 class SortChoices(models.TextChoices):
     NAME_UP = "name"
     NAME_DOWN = "-name"
@@ -202,7 +201,8 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     takeaways = django_filters.MultipleChoiceFilter(
         method="filter_takeaways",
-        choices=NimbusExperiment.Takeaways.choices,
+        choices=NimbusExperiment.Takeaways.choices
+        + NimbusExperiment.ConclusionRecommendation.choices,
         widget=MultiSelectWidget(
             icon="fa-solid fa-list-check",
             attrs={
@@ -302,8 +302,12 @@ class NimbusExperimentFilter(django_filters.FilterSet):
 
     def filter_takeaways(self, queryset, name, value):
         query = Q()
-        if NimbusExperiment.Takeaways.DAU_GAIN in value:
-            query |= Q(takeaways_metric_gain=True)
-        if NimbusExperiment.Takeaways.QBR_LEARNING in value:
-            query |= Q(takeaways_qbr_learning=True)
+        for val in value:
+            if val in dict(NimbusExperiment.Takeaways.choices):
+                if val == NimbusExperiment.Takeaways.QBR_LEARNING:
+                    query |= Q(takeaways_qbr_learning=True)
+                elif val == NimbusExperiment.Takeaways.DAU_GAIN:
+                    query |= Q(takeaways_metric_gain=True)
+            elif val in dict(NimbusExperiment.ConclusionRecommendation.choices):
+                query |= Q(conclusion_recommendations__contains=[val])
         return queryset.filter(query)

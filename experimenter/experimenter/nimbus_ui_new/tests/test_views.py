@@ -424,15 +424,33 @@ class NimbusExperimentsListViewTest(TestCase):
         (
             (NimbusExperiment.Takeaways.DAU_GAIN, "takeaways_metric_gain"),
             (NimbusExperiment.Takeaways.QBR_LEARNING, "takeaways_qbr_learning"),
+            (
+                NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
+                "conclusion_recommendations",
+            ),
+            (
+                NimbusExperiment.ConclusionRecommendation.GRADUATE,
+                "conclusion_recommendations",
+            ),
         )
     )
     def test_filter_takeaways(self, takeaway_choice, takeaway_field):
+        experiment_kwargs = (
+            {takeaway_field: True}
+            if takeaway_field != "conclusion_recommendations"
+            else {"conclusion_recommendations": [takeaway_choice]}
+        )
         experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE, **{takeaway_field: True}
+            status=NimbusExperiment.Status.LIVE, **experiment_kwargs
         )
         [
             NimbusExperimentFactory.create(
-                status=NimbusExperiment.Status.LIVE, **{takeaway_field: False}
+                status=NimbusExperiment.Status.LIVE,
+                **(
+                    {takeaway_field: False}
+                    if takeaway_field != "conclusion_recommendations"
+                    else {"conclusion_recommendations": []}
+                ),
             )
             for _i in range(3)
         ]
