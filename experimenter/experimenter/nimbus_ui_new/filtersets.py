@@ -202,10 +202,10 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     takeaways = django_filters.MultipleChoiceFilter(
         method="filter_takeaways",
-        choices=(
-            NimbusExperiment.Takeaways.choices
-            + NimbusExperiment.ConclusionRecommendation.choices
-        ),
+        choices=[
+            *NimbusExperiment.Takeaways.choices,
+            *NimbusExperiment.ConclusionRecommendation.choices
+        ],
         widget=MultiSelectWidget(
             icon="fa-solid fa-list-check",
             attrs={
@@ -303,14 +303,14 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             query |= Q(is_rollout=True)
         return queryset.filter(query)
 
-    def filter_takeaways(self, queryset, name, value):
+    def filter_takeaways(self, queryset, name, values):
         query = Q()
-        for val in value:
-            if val in NimbusExperiment.Takeaways:
-                if val == NimbusExperiment.Takeaways.QBR_LEARNING:
+        for value in values:
+            if value in NimbusExperiment.Takeaways:
+                if value == NimbusExperiment.Takeaways.QBR_LEARNING:
                     query |= Q(takeaways_qbr_learning=True)
-                elif val == NimbusExperiment.Takeaways.DAU_GAIN:
+                elif value == NimbusExperiment.Takeaways.DAU_GAIN:
                     query |= Q(takeaways_metric_gain=True)
-            elif val in NimbusExperiment.ConclusionRecommendation:
-                query |= Q(conclusion_recommendations__contains=[val])
+            elif value in NimbusExperiment.ConclusionRecommendation:
+                query |= Q(conclusion_recommendations__contains=[value])
         return queryset.filter(query)
