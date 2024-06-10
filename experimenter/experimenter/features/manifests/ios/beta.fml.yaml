@@ -101,6 +101,13 @@ features:
         description: "If true, allows the user to use the login autofill feature for usernames and passwords."
         type: Boolean
         default: true
+  menu-refactor-feature:
+    description: "Controls the menu refactor feature\n"
+    variables:
+      enabled:
+        description: "Controls which menu users will see\n"
+        type: Boolean
+        default: false
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -723,6 +730,10 @@ objects:
   MicrosurveyConfig:
     description: "Attributes relating to microsurvey messaging.\n"
     fields:
+      icon:
+        description: The asset name in our bundle used as the icon shown in the survey.
+        type: Image
+        default: lightbulbLarge
       options:
         description: The list of survey options to present to the user.
         type: List<Text>
