@@ -96,6 +96,14 @@ login-autofill:
     login-autofill-status:
       type: boolean
       description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+menu-refactor-feature:
+  description: "Controls the menu refactor feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Controls which menu users will see\n"
 messaging:
   description: "The in-app messaging system\n"
   hasExposure: true
