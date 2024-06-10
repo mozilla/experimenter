@@ -25,6 +25,7 @@ class TypeChoices(models.TextChoices):
     ROLLOUT = "Rollout"
     EXPERIMENT = "Experiment"
 
+
 class SortChoices(models.TextChoices):
     NAME_UP = "name"
     NAME_DOWN = "-name"
