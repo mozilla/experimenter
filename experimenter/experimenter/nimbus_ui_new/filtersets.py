@@ -204,7 +204,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         method="filter_takeaways",
         choices=[
             *NimbusExperiment.Takeaways.choices,
-            *NimbusExperiment.ConclusionRecommendation.choices
+            *NimbusExperiment.ConclusionRecommendation.choices,
         ],
         widget=MultiSelectWidget(
             icon="fa-solid fa-list-check",
