@@ -306,11 +306,10 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     def filter_takeaways(self, queryset, name, values):
         query = Q()
         for value in values:
-            if value in NimbusExperiment.Takeaways:
-                if value == NimbusExperiment.Takeaways.QBR_LEARNING:
-                    query |= Q(takeaways_qbr_learning=True)
-                elif value == NimbusExperiment.Takeaways.DAU_GAIN:
-                    query |= Q(takeaways_metric_gain=True)
+            if value == NimbusExperiment.Takeaways.QBR_LEARNING:
+                query |= Q(takeaways_qbr_learning=True)
+            elif value == NimbusExperiment.Takeaways.DAU_GAIN:
+                query |= Q(takeaways_metric_gain=True)
             elif value in NimbusExperiment.ConclusionRecommendation:
                 query |= Q(conclusion_recommendations__contains=[value])
         return queryset.filter(query)
