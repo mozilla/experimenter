@@ -81,6 +81,37 @@ class NimbusExperimentsListViewTest(TestCase):
             },
         )
 
+    def test_status_counts_with_filters(self):
+        for application in NimbusExperiment.Application:
+            for status in NimbusExperiment.Status:
+                NimbusExperimentFactory.create(status=status, application=application)
+
+            NimbusExperimentFactory.create(
+                status=NimbusExperiment.Status.DRAFT,
+                publish_status=NimbusExperiment.PublishStatus.REVIEW,
+                application=application,
+            )
+            NimbusExperimentFactory.create(is_archived=True, application=application)
+            NimbusExperimentFactory.create(owner=self.user, application=application)
+
+        response = self.client.get(
+            reverse("nimbus-new-list"),
+            {"application": NimbusExperiment.Application.DESKTOP},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            dict(response.context["status_counts"]),
+            {
+                NimbusExperiment.Status.COMPLETE: 1,
+                NimbusExperiment.Status.DRAFT: 2,
+                NimbusExperiment.Status.LIVE: 1,
+                NimbusExperiment.Status.PREVIEW: 1,
+                "Review": 1,
+                "Archived": 1,
+                "MyExperiments": 1,
+            },
+        )
+
     @patch(
         "experimenter.nimbus_ui_new.views.NimbusExperimentsListView.paginate_by", new=3
     )

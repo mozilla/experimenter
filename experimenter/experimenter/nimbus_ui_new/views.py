@@ -38,10 +38,22 @@ class NimbusExperimentsListView(FilterView):
 
         return kwargs
 
+    def get_filterset(self, filterset_class):
+        kwargs = self.get_filterset_kwargs(filterset_class)
+
+        # Create a second filterset with the status removed from data
+        # to count experiments with all other filters applied except status
+        kwargs_no_status = kwargs.copy()
+        kwargs_no_status["data"] = kwargs_no_status["data"].copy()
+        kwargs_no_status["data"].pop("status")
+        self.filterset_no_status = filterset_class(**kwargs_no_status)
+
+        return filterset_class(**kwargs)
+
     def get_context_data(self, **kwargs):
-        queryset = self.get_queryset()
-        archived = queryset.filter(is_archived=True)
-        unarchived = queryset.filter(is_archived=False)
+        all_statuses = self.filterset_no_status.qs
+        archived = all_statuses.filter(is_archived=True)
+        unarchived = all_statuses.filter(is_archived=False)
         status_counts = {
             StatusChoices.DRAFT: unarchived.filter(
                 status=NimbusExperiment.Status.DRAFT,
@@ -60,7 +72,7 @@ class NimbusExperimentsListView(FilterView):
                 publish_status=NimbusExperiment.PublishStatus.REVIEW
             ).count(),
             StatusChoices.ARCHIVED: archived.count(),
-            StatusChoices.MY_EXPERIMENTS: queryset.filter(
+            StatusChoices.MY_EXPERIMENTS: all_statuses.filter(
                 owner=self.request.user
             ).count(),
         }
