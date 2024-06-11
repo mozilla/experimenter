@@ -202,7 +202,10 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     takeaways = django_filters.MultipleChoiceFilter(
         method="filter_takeaways",
-        choices=NimbusExperiment.Takeaways.choices,
+        choices=[
+            *NimbusExperiment.Takeaways.choices,
+            *NimbusExperiment.ConclusionRecommendation.choices,
+        ],
         widget=MultiSelectWidget(
             icon="fa-solid fa-list-check",
             attrs={
@@ -300,10 +303,13 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             query |= Q(is_rollout=True)
         return queryset.filter(query)
 
-    def filter_takeaways(self, queryset, name, value):
+    def filter_takeaways(self, queryset, name, values):
         query = Q()
-        if NimbusExperiment.Takeaways.DAU_GAIN in value:
-            query |= Q(takeaways_metric_gain=True)
-        if NimbusExperiment.Takeaways.QBR_LEARNING in value:
-            query |= Q(takeaways_qbr_learning=True)
+        for value in values:
+            if value == NimbusExperiment.Takeaways.QBR_LEARNING:
+                query |= Q(takeaways_qbr_learning=True)
+            elif value == NimbusExperiment.Takeaways.DAU_GAIN:
+                query |= Q(takeaways_metric_gain=True)
+            elif value in NimbusExperiment.ConclusionRecommendation:
+                query |= Q(conclusion_recommendations__contains=[value])
         return queryset.filter(query)
