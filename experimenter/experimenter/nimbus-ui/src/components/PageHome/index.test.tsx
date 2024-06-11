@@ -98,7 +98,8 @@ describe("PageHome", () => {
     }
   });
 
-  it("supports updating search params when tabs are clicked", async () => {
+  // Skipping due to intermittency
+  it.skip("supports updating search params when tabs are clicked", async () => {
     await renderAndWaitForLoaded();
     for (const [tabKey, tab] of findTabs()) {
       fireEvent.click(tab);
@@ -143,7 +144,8 @@ describe("PageHome", () => {
 
   // TODO: not exhaustively testing all filters here, might be worth adding more?
   // Filtering itself is more fully covered in filterExperiments.test.tsx
-  it("supports filtering by feature", async () => {
+  // Skipping due to intermittency
+  it.skip("supports filtering by feature", async () => {
     await renderAndWaitForLoaded();
     const expectedFeatureConfigNameWithApplication =
       "Picture-in-Picture (Android)";

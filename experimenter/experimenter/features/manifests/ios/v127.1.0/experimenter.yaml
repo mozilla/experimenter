@@ -7,14 +7,6 @@ account-settings-redux-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
-address-autofill-edit:
-  description: This property defines if the address editing is enabled in Settings
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    status:
-      type: boolean
-      description: "If true, we will allow user to edit the address"
 address-autofill-feature:
   description: This property defines the address card autofill feature
   hasExposure: true
@@ -69,14 +61,6 @@ general-app-features:
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
-glean-server-knobs:
-  description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    metrics-enabled:
-      type: json
-      description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
 homescreenFeature:
   description: The homescreen that the user goes to when they press home or new tab.
   hasExposure: true
@@ -96,14 +80,6 @@ login-autofill:
     login-autofill-status:
       type: boolean
       description: "If true, allows the user to use the login autofill feature for usernames and passwords."
-menu-refactor-feature:
-  description: "Controls the menu refactor feature\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Controls which menu users will see\n"
 messaging:
   description: "The in-app messaging system\n"
   hasExposure: true
@@ -251,14 +227,6 @@ toolbar-refactor-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
-tracking-protection-refactor:
-  description: "The Enhanced Tracking Protection refactor\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
 zoom-feature:
   description: "The configuration for the status of the zoom feature\n"
   hasExposure: true

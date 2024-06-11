@@ -3,20 +3,13 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - beta
+  - developer
 features:
   account-settings-redux-feature:
     description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
     variables:
       enabled:
         description: "Enables the feature\n"
-        type: Boolean
-        default: false
-  address-autofill-edit:
-    description: This property defines if the address editing is enabled in Settings
-    variables:
-      status:
-        description: "If true, we will allow user to edit the address"
         type: Boolean
         default: false
   address-autofill-feature:
@@ -47,11 +40,11 @@ features:
       felt-deletion-enabled:
         description: "If true, enable Felt Deletion part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -65,7 +58,7 @@ features:
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: false
+        default: true
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -74,20 +67,13 @@ features:
         type: GeneralFeature
         default:
           status: true
-  glean-server-knobs:
-    description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
-    variables:
-      metrics-enabled:
-        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
-        type: "Map<String, Boolean>"
-        default: {}
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
       prefer-switch-to-open-tab:
         description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
         type: Boolean
-        default: false
+        default: true
       sections-enabled:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
         type: "Map<HomeScreenSection, Boolean>"
@@ -101,13 +87,6 @@ features:
         description: "If true, allows the user to use the login autofill feature for usernames and passwords."
         type: Boolean
         default: true
-  menu-refactor-feature:
-    description: "Controls the menu refactor feature\n"
-    variables:
-      enabled:
-        description: "Controls which menu users will see\n"
-        type: Boolean
-        default: false
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -169,6 +148,32 @@ features:
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
             action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+              - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            action: OPEN_URL
+            action-params:
+              url: "https://www.macrumors.com"
+          microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+              - NEVER
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with printing in Firefox?
+            button-label: Microsurvey/Microsurvey.Prompt.TakeSurveyButton.v127
+            microsurveyConfig:
+              target-feature: printing
+              options:
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption1.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption2.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption3.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption4.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption5.v127
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -231,7 +236,6 @@ features:
           SUPPORTS_DEFAULT_BROWSER: "os_version|versionCompare('14.!') >= 0"
           INACTIVE_NEW_USER: is_inactive_new_user
           ALLOWED_TIPS_NOTIFICATIONS: allowed_tips_notifications
-          VIEWED_HOMEPAGE: "'homepage_viewed'|eventLastSeen('Hours') <= 24"
           ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
         string-alias: TriggerName
       ~~experiment:
@@ -425,22 +429,22 @@ features:
       enabled:
         description: "If true, the feature is active.\n"
         type: Boolean
-        default: false
+        default: true
       maximum_duration_ms:
         description: "The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.\n"
         type: Int
-        default: 0
+        default: 6000
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: "If this is true, then on each page load adds a new item to Spotlight."
         type: Boolean
-        default: false
+        default: true
       icon-type:
         description: "The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.\n"
         type: Option<IconType>
-        default: letter
+        default: screenshot
       keep-for-days:
         description: "Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.\n"
         type: Option<Int>
@@ -455,7 +459,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -469,13 +473,6 @@ features:
     variables:
       enabled:
         description: "Enables the feature\n"
-        type: Boolean
-        default: false
-  tracking-protection-refactor:
-    description: "The Enhanced Tracking Protection refactor\n"
-    variables:
-      enabled:
-        description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
         type: Boolean
         default: false
   zoom-feature:
@@ -527,6 +524,13 @@ enums:
         description: This is a local notification send to the user periodically with tips and updates.
       survey:
         description: This is a full-page that appears providing a survey to the user.
+  MicrosurveyTargetFeature:
+    description: "The specific feature the microsurvey is for. This is a label that matches across both Android and iOS.\n"
+    variants:
+      Unknown:
+        description: No target feature set. Only used in an invalid experiment configuration.
+      printing:
+        description: The printing feature.
   NimbusOnboardingHeaderImage:
     description: "The identifiers for the different images available for cards in onboarding\n"
     variants:
@@ -730,14 +734,14 @@ objects:
   MicrosurveyConfig:
     description: "Attributes relating to microsurvey messaging.\n"
     fields:
-      icon:
-        description: The asset name in our bundle used as the icon shown in the survey.
-        type: Image
-        default: lightbulbLarge
       options:
         description: The list of survey options to present to the user.
         type: List<Text>
         default: []
+      target-feature:
+        description: "The type of feature the microsurvey is targeted.\n"
+        type: MicrosurveyTargetFeature
+        default: Unknown
   NimbusOnboardingButton:
     description: "A group of properties describing the attributes of a card.\n"
     fields:
