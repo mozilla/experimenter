@@ -2,6 +2,7 @@ from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
     NimbusChangeLogsView,
+    NimbusExperimentDetailView,
     NimbusExperimentsListTableView,
     NimbusExperimentsListView,
 )
@@ -16,6 +17,11 @@ urlpatterns = [
         r"^table/",
         NimbusExperimentsListTableView.as_view(),
         name="nimbus-new-table",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/summary/$",
+        NimbusExperimentDetailView.as_view(),
+        name="nimbus-new-detail",
     ),
     re_path(
         r"^",
