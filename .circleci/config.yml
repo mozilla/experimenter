@@ -407,11 +407,15 @@ jobs:
           keys:
             - experimenter-firefox-fenix
       - checkout
+      - android/create-avd:
+          avd-name: myavd
+          install: true
+          system-image: system-images;android-36;default;x86
       - android/start-emulator:
           avd-name: myavd
           post-emulator-launch-assemble-command: |
             adb install app-fenix-debug-androidTest.apk
-            adb install app-fenix-x86_64-debug.apk
+            adb install app-fenix-x86-debug.apk
       - run:
           name: Download test files and run
           command: |
@@ -627,12 +631,12 @@ jobs:
             docker build -t moz-central-builder -f moz-central.test-container.Dockerfile .
             docker run --name fenix-builder moz-central-builder bash build_android.sh
             docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
-            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
+            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86-debug.apk ./
       - save_cache:
           key: experimenter-firefox-fenix
           paths:
             - experimenter/tests/integration/android/app-fenix-debug-androidTest.apk
-            - experimenter/tests/integration/android/app-fenix-x86_64-debug.apk
+            - experimenter/tests/integration/android/app-fenix-x86-debug.apk
 
 workflows:
   build_firefox:
