@@ -851,3 +851,18 @@ class NimbusExperimentsListTableViewTest(TestCase):
             {"status": "test"},
         )
         self.assertEqual(response.headers["HX-Push"], "?status=test")
+
+
+class NimbusExperimentDetailViewTest(TestCase):
+    def test_render_to_response(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(slug="test-experiment")
+        response = self.client.get(
+            reverse(
+                "nimbus-new-detail",
+                kwargs={"slug": experiment.slug},
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["experiment"], experiment)
