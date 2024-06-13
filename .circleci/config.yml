@@ -635,15 +635,15 @@ jobs:
       - run:
           name: Build and upload images
           command: |
-            cd experimenter/tests/integration/android
+            cd experimenter/tests/integration/nimbus/android
             docker build -t moz-central-builder -f moz-central.test-container.Dockerfile .
             docker run --name fenix-builder moz-central-builder
             docker commit fenix-builder experimenter-moz-central
-            docker run --name fenix-builder moz-central-builder bash build_android.sh
-            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
-            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
-            docker tag experimenter-moz-central ${DOCKERHUB_REPO}:experimenter-moz-central
-            docker push experimenter-moz-central ${DOCKERHUB_REPO}:experimenter-moz-central
+            docker run --name fenix-builder-copy moz-central-builder bash build_android.sh
+            docker cp fenix-builder-copy:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
+            docker cp fenix-builder-copy:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
+            docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
+            docker push ${DOCKERHUB_REPO}:experimenter-moz-central
       - save_cache:
           key: experimenter-firefox-fenix
           paths:
