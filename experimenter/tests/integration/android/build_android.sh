@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+hg pull && hg update
+
 cd mobile/android/fenix \
 && ./gradlew clean app:assembleFenixDebug \
 && mv app/build/outputs/apk/fenix/debug/app-fenix-x86_64-debug.apk ./ \
