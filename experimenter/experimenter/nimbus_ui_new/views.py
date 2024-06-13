@@ -96,5 +96,5 @@ class NimbusExperimentsListTableView(NimbusExperimentsListView):
 
 class NimbusExperimentDetailView(DetailView):
     model = NimbusExperiment
-    template_name = "summary/detail.html"
+    template_name = "nimbus_experiments/detail.html"
     context_object_name = "experiment"
