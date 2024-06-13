@@ -92,3 +92,9 @@ class NimbusExperimentsListTableView(NimbusExperimentsListView):
         response = super().get(*args, **kwargs)
         response.headers["HX-Push"] = f"?{self.request.GET.urlencode()}"
         return response
+
+
+class NimbusExperimentDetailView(DetailView):
+    model = NimbusExperiment
+    template_name = "nimbus_experiments/detail.html"
+    context_object_name = "experiment"
