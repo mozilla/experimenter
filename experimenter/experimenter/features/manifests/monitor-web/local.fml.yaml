@@ -19,13 +19,6 @@ features:
         description: If the feature is enabled
         type: Boolean
         default: true
-  last-scan-date-csat-survey:
-    description: "Show the CSAT survey for users that are enrolled in the `last-scan-date` experiment"
-    variables:
-      enabled:
-        description: If the feature is enabled
-        type: Boolean
-        default: true
   welcome-scan-optional-info:
     description: Show additional optional inputs to provide middle name and name suffix for broker scan
     variables:

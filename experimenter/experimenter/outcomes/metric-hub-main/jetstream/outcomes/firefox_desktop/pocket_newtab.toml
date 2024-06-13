@@ -12,3 +12,4 @@ description = "Usage and engagement metrics for Pocket content in New Tab."
 
 [metrics.newtab_pocket_enabled.statistics.binomial]
 [metrics.newtab_sponsored_pocket_stories_enabled.statistics.binomial]
+[metrics.any_organic_pocket_clicks.statistics.binomial]
