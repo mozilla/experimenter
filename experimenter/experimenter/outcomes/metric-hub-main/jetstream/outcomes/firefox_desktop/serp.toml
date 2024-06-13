@@ -1,0 +1,5 @@
+friendly_name = "SERP Metrics"
+description = "Metrics for SERP interactions derived from Glean SERP events"
+
+[metrics.serp_impressions.statistics.bootstrap_mean]
+[metrics.serp_impressions.statistics.deciles]
