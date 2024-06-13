@@ -414,7 +414,10 @@ jobs:
           system-image: system-images;android-34;google_apis;x86_64
       - android/start-emulator:
           avd-name: myavd
-          post-emulator-launch-assemble-command: |
+          post-emulator-launch-assemble-command: adb devices
+      - run:
+          name: Install APKs
+          command: |
             adb install app-fenix-debug-androidTest.apk
             adb install app-fenix-x86_74-debug.apk
       - run:
