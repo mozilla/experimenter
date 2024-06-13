@@ -1,0 +1,14 @@
+{% extends "common/with_sidebar.html" %}
+
+{% block title %}
+  Summary
+{% endblock title %}
+
+{% block sidebar %}
+  {% include "common/experiment_details_sidebar.html" with experiment=experiment %}
+
+{% endblock sidebar %}
+
+{% block main_content %}
+  <div class="container-fluid">{{ experiment.slug }}</div>
+{% endblock main_content %}
