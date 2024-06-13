@@ -410,7 +410,7 @@ jobs:
       - android/create-avd:
           avd-name: myavd
           install: true
-          system-image: system-images;android-34;default;x86
+          system-image: system-images;android-34;google_apis;x86
       - android/start-emulator:
           avd-name: myavd
           post-emulator-launch-assemble-command: |
