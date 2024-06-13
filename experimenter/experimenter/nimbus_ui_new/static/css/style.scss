@@ -1,0 +1,104 @@
+// src/styles.scss
+
+// Import Bootstrap's variables and mixins
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+
+
+
+@include color-mode(light) {
+    .bootstrap-select {
+        .dropdown-menu {
+            background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+            color: var(--bs-body-color); // White text
+
+            .dropdown-item {
+                color: var(--bs-body-color); // White text for items
+
+                &:hover,
+                &:focus {
+                    background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+                    color: var(--bs-body-color); // White text on hover/focus
+                }
+
+                &.active {
+                    background-color: var(--bs-primary); // Active item background
+                    color: var(--bs-body-color); // White text for active item
+                }
+            }
+        }
+
+        .dropdown-toggle {
+            background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+            color: var(--bs-body-color); // White text
+            border: 1px solid var(--bs-dropdown-border-color); // Border color
+
+            &:focus,
+            &:hover {
+                background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+                color: var(--bs-body-color); // White text on hover/focus
+            }
+        }
+
+        .bs-searchbox {
+            input {
+                background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+                color: var(--bs-input-color); // White text for search box
+                border: 1px solid var(--bs-input-border-color); // Border color for search box
+
+                &::placeholder {
+                    color: var(--bs-input-placeholder-color); // Placeholder color
+                }
+            }
+        }
+    }
+}
+
+@include color-mode(dark) {
+    .bootstrap-select {
+        .dropdown-menu {
+            background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+            color: var(--bs-body-color); // White text
+
+            .dropdown-item {
+                color: var(--bs-body-color); // White text for items
+
+                &:hover,
+                &:focus {
+                    background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+                    color: var(--bs-body-color); // White text on hover/focus
+                }
+
+                &.active {
+                    background-color: var(--bs-primary); // Active item background
+                    color: var(--bs-body-color); // White text for active item
+                }
+            }
+        }
+
+        .dropdown-toggle {
+            background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+            color: var(--bs-body-color); // White text
+            border: 1px solid var(--bs-dropdown-border-color); // Border color
+
+            &:focus,
+            &:hover {
+                background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+                color: var(--bs-body-color); // White text on hover/focus
+            }
+        }
+
+        .bs-searchbox {
+            input {
+                background-color: var(--bs-dropdown-link-hover-bg); // Darker background on hover/focus
+                color: var(--bs-input-color); // White text for search box
+                border: 1px solid var(--bs-input-border-color); // Border color for search box
+
+                &::placeholder {
+                    color: var(--bs-input-placeholder-color); // Placeholder color
+                }
+            }
+        }
+    }
+}
