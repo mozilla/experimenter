@@ -65,6 +65,7 @@ COPY --from=file-loader /experimenter/package.json /experimenter/package.json
 COPY --from=file-loader /experimenter/yarn.lock /experimenter/yarn.lock
 COPY --from=file-loader /experimenter/experimenter/legacy/legacy-ui/core/package.json /experimenter/experimenter/legacy/legacy-ui/core/package.json
 COPY --from=file-loader /experimenter/experimenter/nimbus-ui/package.json /experimenter/experimenter/nimbus-ui/package.json
+COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/static/package.json /experimenter/experimenter/nimbus_ui_new/static/package.json
 RUN yarn install --frozen-lockfile
 
 
@@ -84,6 +85,7 @@ COPY --from=python-builder /usr/local/lib/python3.11/site-packages/ /usr/local/l
 # Node packages
 COPY --from=node-builder /experimenter/experimenter/legacy/legacy-ui/core/node_modules/ /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
 COPY --from=node-builder /experimenter/experimenter/nimbus-ui/node_modules/ /experimenter/experimenter/nimbus-ui/node_modules/
+COPY --from=node-builder /experimenter/experimenter/nimbus_ui_new/static/node_modules/ /experimenter/experimenter/nimbus_ui_new/static/node_modules/
 COPY --from=node-builder /experimenter/node_modules/ /experimenter/node_modules/
 
 # Rust packages
@@ -115,6 +117,10 @@ RUN yarn workspace @experimenter/core build
 COPY --from=file-loader /experimenter/experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/nimbus-ui build
 
+# Build nimbus_ui_new assets
+COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/ /experimenter/experimenter/nimbus_ui_new/
+RUN yarn workspace @experimenter/nimbus_ui_new build
+
 
 # Deploy image
 #-------------------------
@@ -143,4 +149,6 @@ COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
 COPY --from=file-loader /experimenter/manifesttool/ /experimenter/manifesttool/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
 COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
+COPY --from=ui /experimenter/experimenter/nimbus_ui_new/static/dist/ /experimenter/experimenter/nimbus_ui_new/static/dist/
+
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
