@@ -2,6 +2,7 @@ version: 2.1
 orbs:
   gh: circleci/github-cli@2.2
   gcp-cli: circleci/gcp-cli@3.1.1
+  android: circleci/android@2.5.0
 commands:
   check_file_paths:
     description: "Check file paths"
@@ -396,6 +397,34 @@ jobs:
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
+  integration_test_android_fenix:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: default
+    steps:
+      - restore_cache:
+          keys:
+            - experimenter-firefox-fenix
+      - checkout
+      - android/start-emulator:
+          avd-name: myavd
+          post-emulator-launch-assemble-command: |
+            adb install app-fenix-debug-androidTest.apk
+            adb install app-fenix-x86_64-debug.apk
+      - run:
+          name: Download test files and run
+          command: |
+            git clone https://github.com/mozilla/gecko-dev.git --depth 1
+            cd gecko-dev/mobile/android/fenix/app/src/androidTest/java/org/mozilla/fenix/experimentintegration
+            pip install pipenv
+            pipenv install
+            pipenv run pytest --experiment new-user-study-android-april-2024 --experiment-branch treatment --experiment-feature generic_test
+      - android/save-gradle-cache:
+          cache-prefix: v1a
+      - store_artifacts:
+          path: ~/gecko-dev/mobile/android/fenix/app/src/androidTest/java/org/mozilla/fenix/experimentintegration/results/index.html
+
   deploy_experimenter:
     working_directory: ~/experimenter
     machine:
@@ -584,6 +613,27 @@ jobs:
             docker push ${DOCKERHUB_REPO}:nimbus-firefox-beta
             docker push ${DOCKERHUB_REPO}:nimbus-firefox-release
 
+  build_firefox_fenix:
+    working_directory: ~/experimenter
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - run:
+          name: Build and upload images
+          command: |
+            cd experimenter/tests/integration/android
+            docker build -t moz-central-builder -f moz-central.test-container.Dockerfile .
+            docker run --name fenix-builder moz-central-builder bash build_android.sh
+            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
+            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
+      - save_cache:
+          key: experimenter-firefox-fenix
+          paths:
+            - experimenter/tests/integration/android/app-fenix-debug-androidTest.apk
+            - experimenter/tests/integration/android/app-fenix-x86_64-debug.apk
+
 workflows:
   build_firefox:
     triggers:
@@ -618,6 +668,7 @@ workflows:
           name: Check Cirrus x86_64
       - check_cirrus_aarch64:
           name: Check Cirrus aarch64
+      - build_firefox_fenix
       - check_schemas:
           name: Check Schemas
           filters:
@@ -702,6 +753,12 @@ workflows:
             branches:
               ignore:
                 - main
+      - integration_test_android_fenix:
+          name: Test Firefox for Android (Fenix)
+          filters:
+            branches:
+              ignore:
+                - main
       - deploy_experimenter:
           name: Deploy Experimenter
           filters:
@@ -723,4 +780,3 @@ workflows:
           filters:
             branches:
               only: main
-
