@@ -26,20 +26,3 @@ COPY build_android.sh ./
 RUN ./mach --no-interactive bootstrap --application-choice="GeckoView/Firefox for Android Artifact Mode"
 
 RUN ./mach build
-
-# RUN cd mobile/android/fenix \
-#     && ./gradlew clean app:assembleFenixDebug \
-#     && mv app/build/outputs/apk/fenix/debug/app-fenix-x86_64-debug.apk ./ \
-#     && ./gradlew clean app:assembleFenixDebugAndroidTest \
-#     && mv app/build/outputs/apk/androidTest/fenix/debug/app-fenix-debug-androidTest.apk ./
-
-
-# # Install pipenv
-# RUN pip install pipenv
-
-# /root/.mozbuild/android-sdk-linux/
-
-# docker cp 57f0dfc40252459e47aadd58ff59fa0fd7a8c209cb23df08c675694ef503d763:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
-# docker cp 57f0dfc40252459e47aadd58ff59fa0fd7a8c209cb23df08c675694ef503d763:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
-
-# NEED TO NAME WHEN CONTAINER RUNS
