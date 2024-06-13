@@ -407,6 +407,7 @@ jobs:
           keys:
             - experimenter-firefox-fenix
       - checkout
+      - android/accept-licenses
       - android/create-avd:
           avd-name: myavd
           install: true
