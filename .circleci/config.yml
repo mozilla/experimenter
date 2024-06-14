@@ -423,6 +423,7 @@ jobs:
       - run:
           name: Download test files and run
           command: |
+            pyenv install 3.11
             git clone https://github.com/mozilla/gecko-dev.git --depth 1
             cd gecko-dev/mobile/android/fenix/app/src/androidTest/java/org/mozilla/fenix/experimentintegration
             pip install pipenv
