@@ -405,7 +405,7 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - experimenter-firefox-fenix
+            - experimenter-firefox-fenix-apks
       - checkout
       - android/accept-licenses
       - android/create-avd:
@@ -643,7 +643,7 @@ jobs:
             docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
             docker push ${DOCKERHUB_REPO}:experimenter-moz-central
       - save_cache:
-          key: experimenter-firefox-fenix-{{ checksum "experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk" }}
+          key: experimenter-firefox-fenix-apks-{{ checksum "experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk" }}
           paths:
             - experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
             - experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
