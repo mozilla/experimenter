@@ -4,8 +4,8 @@
   "description": "New Nimbus UI for Experimenter",
   "private": true,
   "scripts": {
-    "lint": "eslint js/ --ext .js,.jsx,.ts,.tsx",
-    "format": "prettier --write js/",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "format": "prettier --write .",
     "build": "webpack",
     "watch": "webpack --watch"
   },
