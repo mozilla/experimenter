@@ -418,8 +418,8 @@ jobs:
       - run:
           name: Install APKs
           command: |
-            adb install app-fenix-debug-androidTest.apk
-            adb install app-fenix-x86_74-debug.apk
+            adb install /home/circleci/experimenter/experimenter/tests/integration/android/app-fenix-x86-debug.apk
+            adb /home/circleci/experimenter/experimenter/tests/integration/android/app-fenix-x86-debug.apk
       - run:
           name: Download test files and run
           command: |
@@ -636,10 +636,7 @@ jobs:
           name: Build and upload images
           command: |
             cd experimenter/tests/integration/nimbus/android
-            docker build -t moz-central-builder -f moz-central.test-container.Dockerfile .
-            docker run --name fenix-builder moz-central-builder
-            docker commit fenix-builder experimenter-moz-central
-            docker run --name fenix-builder-copy moz-central-builder bash build_android.sh
+            docker run --name fenix-builder-copy ${DOCKERHUB_REPO}:experimenter-moz-centralr bash build_android.sh
             docker cp fenix-builder-copy:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
             docker cp fenix-builder-copy:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
             docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
@@ -647,8 +644,8 @@ jobs:
       - save_cache:
           key: experimenter-firefox-fenix
           paths:
-            - experimenter/tests/integration/android/app-fenix-debug-androidTest.apk
-            - experimenter/tests/integration/android/app-fenix-x86-debug.apk
+            - experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+            - experimenter/tests/integration/nimbus/android/app-fenix-x86-debug.apk
 
 workflows:
   build_firefox:
