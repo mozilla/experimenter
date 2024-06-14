@@ -643,7 +643,7 @@ jobs:
             docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
             docker push ${DOCKERHUB_REPO}:experimenter-moz-central
       - save_cache:
-          key: experimenter-firefox-fenix
+          key: experimenter-firefox-fenix-{{ checksum "experimenter/tests/integration/nimbus/android/app-fenix-x86-debug.apk" }}
           paths:
             - experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
             - experimenter/tests/integration/nimbus/android/app-fenix-x86-debug.apk
