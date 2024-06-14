@@ -636,9 +636,10 @@ jobs:
           name: Build and upload images
           command: |
             cd experimenter/tests/integration/nimbus/android
-            docker run --name fenix-builder-copy ${DOCKERHUB_REPO}:experimenter-moz-central bash build_android.sh
-            docker cp fenix-builder-copy:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
-            docker cp fenix-builder-copy:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
+            docker run --name fenix-builder ${DOCKERHUB_REPO}:experimenter-moz-central bash build_android.sh
+            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
+            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
+            docker commit fenix-builder moz-central-builder
             docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
             docker push ${DOCKERHUB_REPO}:experimenter-moz-central
       - save_cache:
