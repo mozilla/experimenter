@@ -764,7 +764,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return "{base_url}{collection_path}/{collection}/{review_path}".format(
                 base_url=settings.KINTO_ADMIN_URL,
                 collection_path="#/buckets/main-workspace/collections",
-                collection=self.application_config.default_kinto_collection,
+                collection=self.application_config.get_kinto_collection_for(self),
                 review_path="simple-review",
             )
 
