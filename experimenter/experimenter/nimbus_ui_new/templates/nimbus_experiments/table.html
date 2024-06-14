@@ -60,11 +60,15 @@
             {% endfor %}
           </td>
           <td>
-            {{ experiment.get_firefox_min_version_display }}
-            {% if experiment.firefox_max_version %}
-              - {{ experiment.get_firefox_max_version_display }}
+            {% if experiment.firefox_min_version %}
+              {{ experiment.get_firefox_min_version_display }}
+              {% if experiment.firefox_max_version %}
+                - {{ experiment.get_firefox_max_version_display }}
+              {% else %}
+                +
+              {% endif %}
             {% else %}
-              +
+              N/A
             {% endif %}
           </td>
           <td>
