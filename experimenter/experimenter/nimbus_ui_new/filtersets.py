@@ -266,9 +266,8 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     def filter_status(self, queryset, name, value):
         match value:
             case StatusChoices.REVIEW:
-                return queryset.filter(
-                    status=NimbusExperiment.Status.DRAFT,
-                    publish_status=NimbusExperiment.PublishStatus.REVIEW,
+                return queryset.exclude(
+                    publish_status=NimbusExperiment.PublishStatus.IDLE,
                 )
             case StatusChoices.ARCHIVED:
                 return queryset.filter(is_archived=True)
@@ -278,7 +277,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
                 return queryset.filter(
                     status=value,
                     is_archived=False,
-                ).exclude(publish_status=NimbusExperiment.PublishStatus.REVIEW)
+                )
 
     def filter_search(self, queryset, name, value):
         search_fields = Concat(
