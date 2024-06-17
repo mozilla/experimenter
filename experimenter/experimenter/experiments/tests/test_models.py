@@ -90,10 +90,54 @@ class TestNimbusExperimentManager(TestCase):
         self.assertEqual(
             list(
                 NimbusExperiment.objects.launch_queue(
-                    [NimbusExperiment.Application.DESKTOP]
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
                 )
             ),
             [experiment1],
+        )
+
+    def test_launch_queue_multiple_collections(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        prefflips_feature = NimbusFeatureConfigFactory.create(
+            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[test_feature],
+        )
+        prefflips_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature],
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.launch_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [test_feature_experiment],
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.launch_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_SECURE,
+                )
+            ),
+            [prefflips_experiment],
         )
 
     def test_end_queue_returns_ending_experiments_with_correct_application(self):
@@ -118,9 +162,55 @@ class TestNimbusExperimentManager(TestCase):
         )
         self.assertEqual(
             list(
-                NimbusExperiment.objects.end_queue([NimbusExperiment.Application.DESKTOP])
+                NimbusExperiment.objects.end_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
             ),
             [experiment1],
+        )
+
+    def test_end_queue_multiple_collections(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        prefflips_feature = NimbusFeatureConfigFactory.create(
+            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[test_feature],
+        )
+        prefflips_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature],
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.end_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [test_feature_experiment],
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.end_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_SECURE,
+                )
+            ),
+            [prefflips_experiment],
         )
 
     def test_update_queue_returns_experiments_that_should_update_by_application(self):
@@ -145,10 +235,53 @@ class TestNimbusExperimentManager(TestCase):
         self.assertEqual(
             list(
                 NimbusExperiment.objects.update_queue(
-                    [NimbusExperiment.Application.DESKTOP]
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
                 )
             ),
             [experiment_should_update],
+        )
+
+    def test_update_queue_multiple_collections(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        prefflips_feature = NimbusFeatureConfigFactory.create(
+            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[test_feature],
+        )
+        prefflips_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature],
+        )
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.update_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [test_feature_experiment],
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.update_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_SECURE,
+                )
+            ),
+            [prefflips_experiment],
         )
 
     def test_waiting_returns_any_waiting_experiments(self):
@@ -162,9 +295,55 @@ class TestNimbusExperimentManager(TestCase):
         )
         self.assertEqual(
             list(
-                NimbusExperiment.objects.waiting([NimbusExperiment.Application.DESKTOP])
+                NimbusExperiment.objects.waiting(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
             ),
             [desktop_live_waiting],
+        )
+
+    def test_waiting_multiple_collections(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        prefflips_feature = NimbusFeatureConfigFactory.create(
+            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[test_feature],
+        )
+        prefflips_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature],
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [test_feature_experiment],
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_SECURE,
+                )
+            ),
+            [prefflips_experiment],
         )
 
     def test_waiting_to_launch_only_returns_launching_experiments(self):
@@ -187,9 +366,53 @@ class TestNimbusExperimentManager(TestCase):
 
         self.assertEqual(
             list(
-                NimbusExperiment.objects.waiting_to_launch_queue([launching.application])
+                NimbusExperiment.objects.waiting_to_launch_queue(
+                    [launching.application], settings.KINTO_COLLECTION_NIMBUS_DESKTOP
+                )
             ),
             [launching],
+        )
+
+    def test_waiting_to_launch_multiple_collections(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        prefflips_feature = NimbusFeatureConfigFactory.create(
+            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[test_feature],
+        )
+        prefflips_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature],
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting_to_launch_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [test_feature_experiment],
+        )
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting_to_launch_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_SECURE,
+                )
+            ),
+            [prefflips_experiment],
         )
 
     def test_waiting_to_update_only_returns_updating_experiments(self):
@@ -217,8 +440,54 @@ class TestNimbusExperimentManager(TestCase):
         )
 
         self.assertEqual(
-            list(NimbusExperiment.objects.waiting_to_update_queue([application])),
+            list(
+                NimbusExperiment.objects.waiting_to_update_queue(
+                    [application], settings.KINTO_COLLECTION_NIMBUS_DESKTOP
+                )
+            ),
             [pausing],
+        )
+
+    def test_waiting_to_update_multiple_collection(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        prefflips_feature = NimbusFeatureConfigFactory.create(
+            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[test_feature],
+        )
+        prefflips_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature],
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting_to_update_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [test_feature_experiment],
+        )
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting_to_update_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_SECURE,
+                )
+            ),
+            [prefflips_experiment],
         )
 
 
@@ -1580,7 +1849,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_review_url_prefflips_feature(self):
         feature_config = NimbusFeatureConfigFactory.create(
-            slug="prefFlips",
+            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -3570,7 +3839,7 @@ class ApplicationConfigTests(TestCase):
         ):
             experiment = self._create_experiment(["feature-1"])
             self.assertEqual(
-                self.application_config.get_kinto_collection_for(experiment),
+                experiment.kinto_collection,
                 self.application_config.default_kinto_collection,
             )
 
@@ -3591,7 +3860,7 @@ class ApplicationConfigTests(TestCase):
             with self.assertRaisesRegex(
                 AssertionError, "Experiment targets multiple collections"
             ):
-                self.application_config.get_kinto_collection_for(experiment)
+                experiment.kinto_collection  # noqa: B018
 
     @parameterized.expand(
         [
