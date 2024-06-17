@@ -272,7 +272,9 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             case StatusChoices.ARCHIVED:
                 return queryset.filter(is_archived=True)
             case StatusChoices.MY_EXPERIMENTS:
-                return queryset.filter(owner=self.request.user)
+                return queryset.filter(
+                    Q(owner=self.request.user) | Q(subscribers=self.request.user)
+                )
             case _:
                 return queryset.filter(
                     status=value,
