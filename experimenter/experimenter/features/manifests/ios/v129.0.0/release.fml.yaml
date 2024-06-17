@@ -186,7 +186,7 @@ features:
             max-display-count: 5
           MICROSURVEY:
             priority: 50
-            max-display-count: 5
+            max-display-count: 1
           NOTIFICATION:
             priority: 50
             max-display-count: 1
