@@ -13,7 +13,7 @@ ACCEPTED
 ## Deciders
 
 - **Data Science**: Daniel Berry (Jun 12, 2024)
-- **Date Engineering**: Mike Williams (Jun 13, 2024)
+- **Data Engineering**: Mike Williams (Jun 13, 2024)
 - **Nimbus Engineering**: Jared Lockhart (Jun 12, 2024)
 
 ## Context and Problem Statement
