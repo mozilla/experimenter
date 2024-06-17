@@ -738,6 +738,10 @@ objects:
         description: The list of survey options to present to the user.
         type: List<Text>
         default: []
+      utm-content:
+        description: The name used to provide as the utm_content parameter for the privacy notice.
+        type: Option<String>
+        default: ~
   NimbusOnboardingButton:
     description: "A group of properties describing the attributes of a card.\n"
     fields:
