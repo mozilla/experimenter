@@ -8,7 +8,7 @@ Daniel Berry
 
 ## Status
 
-ACCEPTED
+ACCEPTED: Option 1, switch to `group_id`. 
 
 ## Deciders
 
