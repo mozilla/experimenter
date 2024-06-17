@@ -138,6 +138,7 @@ class NimbusExperimentsListViewTest(TestCase):
                 StatusChoices.DRAFT,
                 [
                     "my-experiment",
+                    "subscribed-experiment",
                     NimbusExperiment.Status.DRAFT,
                     "draft-review-experiment",
                 ],
@@ -150,7 +151,7 @@ class NimbusExperimentsListViewTest(TestCase):
             (StatusChoices.COMPLETE, [NimbusExperiment.Status.COMPLETE]),
             (StatusChoices.REVIEW, ["draft-review-experiment", "live-review-experiment"]),
             (StatusChoices.ARCHIVED, ["archived-experiment"]),
-            (StatusChoices.MY_EXPERIMENTS, ["my-experiment"]),
+            (StatusChoices.MY_EXPERIMENTS, ["my-experiment", "subscribed-experiment"]),
         )
     )
     def test_filter_status(self, filter_status, expected_slugs):
@@ -168,7 +169,18 @@ class NimbusExperimentsListViewTest(TestCase):
             slug="live-review-experiment",
         )
         NimbusExperimentFactory.create(is_archived=True, slug="archived-experiment")
-        NimbusExperimentFactory.create(owner=self.user, slug="my-experiment")
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            owner=self.user,
+            slug="my-experiment",
+        )
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            slug="subscribed-experiment",
+            subscribers=[self.user],
+        )
 
         response = self.client.get(
             reverse("nimbus-new-list"),
