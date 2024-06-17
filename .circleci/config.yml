@@ -402,6 +402,8 @@ jobs:
       name: android/android-machine
       resource-class: large
       tag: default
+    environment:
+      PYTEST_ARGS: --reruns 1
     steps:
       - restore_cache:
           keys:
