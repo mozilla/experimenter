@@ -427,15 +427,12 @@ jobs:
           command: |
             pyenv install 3.11
             curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
-            git clone https://github.com/mozilla/gecko-dev.git --depth 1
-            cd gecko-dev/mobile/android/fenix/app/src/androidTest/java/org/mozilla/fenix/experimentintegration
-            pip install pipenv
-            pipenv install
-            pipenv run pytest --experiment new-user-study-android-april-2024 --experiment-branch treatment --experiment-feature generic_test
+            pip install poetry
+            make integration_test_nimbus_fenix 
       - android/save-gradle-cache:
           cache-prefix: v1a
       - store_artifacts:
-          path: /home/circleci/project/gecko-dev/mobile/android/fenix/app/src/androidTest/java/org/mozilla/fenix/experimentintegration/results/index.html
+          path: /home/circleci/project/experimenter/test-reports/report.htm
 
   deploy_experimenter:
     working_directory: ~/experimenter

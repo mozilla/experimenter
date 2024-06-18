@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "android-nimbus-integration"
+version = "0.1.0"
+description = "Android integration tests for Nimbus"
+authors = ["Benjamin Forehand Jr <bforehand@mozilla.com>"]
+license = "Mozilla Public License Version 2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytest = "^8.2.2"
+pytest-html = "^4.1.1"
+pytest-metadata = "^3.1.1"
+pytest-variables = "^3.1.0"
+pytest-rerunfailures = "^14.0"
+pyyaml = "^6.0.1"
+flask = "^3.0.3"
+pydantic = "^2.7.4"
+requests = "^2.32.3"
+kinto-http = "^11.1.0"
+selenium = "^4.21.0"
+pypom = "^2.2.4"
+pytest-selenium = "^4.1.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+flake8 = "^7.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

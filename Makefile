@@ -229,6 +229,10 @@ integration_test_nimbus: build_prod
 integration_test_nimbus_rust: build_integration_test build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run -it rust-sdk tox -vv -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)
 
+integration_test_nimbus_fenix:
+	poetry -C experimenter/tests/integration/nimbus/android -vvv install
+	poetry -C experimenter/tests/integration/nimbus/android -vvv run pytest --html=test-reports/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android -vvv
+
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&
 CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
