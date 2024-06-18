@@ -19,7 +19,10 @@ def test_experiment_unenrolls_via_studies_toggle(
 
 @pytest.mark.generic_test
 def test_experiment_enrolls(
-    setup_experiment, gradlewbuild, open_app, check_ping_for_experiment,
+    setup_experiment,
+    gradlewbuild,
+    open_app,
+    check_ping_for_experiment,
 ):
     setup_experiment()
     open_app()

@@ -27,7 +27,6 @@ from nimbus.pages.demo_app.frontend import DemoAppPage
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
-
 APPLICATION_KINTO_REVIEW_PATH = {
     BaseExperimentApplications.FIREFOX_DESKTOP.value: (
         "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
@@ -66,25 +65,25 @@ def slugify(name):
 @pytest.fixture(name="application_feature_ids")
 def fixture_application_feature_ids():
     return {
-    BaseExperimentApplications.FIREFOX_DESKTOP.value: helpers.get_feature_id_as_string(
-        "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP.value
-    ),
-    BaseExperimentApplications.FIREFOX_FENIX.value: helpers.get_feature_id_as_string(
-        "no-feature-fenix", BaseExperimentApplications.FIREFOX_FENIX.value
-    ),
-    BaseExperimentApplications.FIREFOX_IOS.value: helpers.get_feature_id_as_string(
-        "no-feature-ios", BaseExperimentApplications.FIREFOX_IOS.value
-    ),
-    BaseExperimentApplications.FOCUS_ANDROID.value: helpers.get_feature_id_as_string(
-        "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID.value
-    ),
-    BaseExperimentApplications.FOCUS_IOS.value: helpers.get_feature_id_as_string(
-        "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS.value
-    ),
-    BaseExperimentApplications.DEMO_APP.value: helpers.get_feature_id_as_string(
-        "example-feature", BaseExperimentApplications.DEMO_APP.value
-    ),
-}
+        BaseExperimentApplications.FIREFOX_DESKTOP.value: helpers.get_feature_id_as_string(
+            "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP.value
+        ),
+        BaseExperimentApplications.FIREFOX_FENIX.value: helpers.get_feature_id_as_string(
+            "no-feature-fenix", BaseExperimentApplications.FIREFOX_FENIX.value
+        ),
+        BaseExperimentApplications.FIREFOX_IOS.value: helpers.get_feature_id_as_string(
+            "no-feature-ios", BaseExperimentApplications.FIREFOX_IOS.value
+        ),
+        BaseExperimentApplications.FOCUS_ANDROID.value: helpers.get_feature_id_as_string(
+            "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID.value
+        ),
+        BaseExperimentApplications.FOCUS_IOS.value: helpers.get_feature_id_as_string(
+            "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS.value
+        ),
+        BaseExperimentApplications.DEMO_APP.value: helpers.get_feature_id_as_string(
+            "example-feature", BaseExperimentApplications.DEMO_APP.value
+        ),
+    }
 
 
 @pytest.fixture
@@ -183,7 +182,7 @@ def fixture_load_experiment_outcomes():
     outcomes = {"firefox_desktop": "", "fenix": "", "firefox_ios": ""}
     current_path = Path.cwd()
     base_path = Path(
-        f"{current_path.parent.parent.parent.parent}/experimenter/outcomes/metric-hub-main/jetstream/outcomes"
+        f"{current_path.parent.parent}/experimenter/outcomes/metric-hub-main/jetstream/outcomes"
     )
 
     for k in list(outcomes):
@@ -196,7 +195,9 @@ def fixture_load_experiment_outcomes():
 
 
 @pytest.fixture
-def default_data(application, application_feature_ids, experiment_name, load_experiment_outcomes):
+def default_data(
+    application, application_feature_ids, experiment_name, load_experiment_outcomes
+):
     feature_config_id = application_feature_ids[application]
 
     outcomes = {

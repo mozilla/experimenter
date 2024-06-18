@@ -2,10 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
 import logging
 import os
-import random
 import subprocess
 import time
 from pathlib import Path
@@ -96,9 +94,7 @@ def fixture_delete_telemetry_pings(ping_server):
 
 @pytest.fixture(name="check_ping_for_experiment")
 def fixture_check_ping_for_experiment(experiment_slug, ping_server, open_app):
-    def _check_ping_for_experiment(
-        branch=None, experiment=experiment_slug, reason=None
-    ):
+    def _check_ping_for_experiment(branch=None, experiment=experiment_slug, reason=None):
         model = TelemetryModel(branch=branch, experiment=experiment)
 
         timeout = time.time() + 60
@@ -129,7 +125,7 @@ def fixture_check_ping_for_experiment(experiment_slug, ping_server, open_app):
                     if model == telemetry_model:
                         return True
             time.sleep(5)
-            open_app() # Open app in cycles to trigger telemetry
+            open_app()  # Open app in cycles to trigger telemetry
         return False
 
     return _check_ping_for_experiment
@@ -148,9 +144,7 @@ def fixture_setup_experiment(
     def _():
         experiment_json = list(here.glob("**/fixtures/experiment.json"))[0]
         delete_telemetry_pings()
-        logging.info(
-            f"Testing fenix e2e experiment"
-        )
+        logging.info("Testing fenix e2e experiment")
         command = f"nimbus-cli --app fenix --channel developer enroll firefox-fenix-test-experiment --branch control --file {experiment_json} --reset-app"
         run_nimbus_cli_command(command)
         time.sleep(
