@@ -48,7 +48,7 @@ def fixture_run_nimbus_cli_command(gradlewbuild_log):
             out = e.output
             raise
         finally:
-            with open(gradlewbuild_log, "w") as f:
+            with Path.open(gradlewbuild_log, "w") as f:
                 f.write(f"{out}")
 
     return _run_nimbus_cli_command
@@ -78,7 +78,7 @@ def gradlewbuild(gradlewbuild_log):
 
 @pytest.fixture(name="ping_server", autouse=True, scope="session")
 def fixture_ping_server():
-    path = list(here.glob("**/android/ping_server"))[0]
+    path = next(iter(here.glob("**/android/ping_server")))
     process = start_process(path, ["python", "ping_server.py"])
     yield "http://localhost:5000"
     process.terminate()
@@ -142,10 +142,10 @@ def fixture_setup_experiment(
     delete_telemetry_pings,
 ):
     def _():
-        experiment_json = list(here.glob("**/fixtures/experiment.json"))[0]
+        experiment_json = next(iter(here.glob("**/fixtures/experiment.json")))
         delete_telemetry_pings()
         logging.info("Testing fenix e2e experiment")
-        command = f"nimbus-cli --app fenix --channel developer enroll firefox-fenix-test-experiment --branch control --file {experiment_json} --reset-app"
+        command = f"nimbus-cli --app fenix --channel developer enroll firefox-fenix-test-experiment --branch control --file {experiment_json} --reset-app"  #  NOQA
         run_nimbus_cli_command(command)
         time.sleep(
             15

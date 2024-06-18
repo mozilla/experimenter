@@ -2,10 +2,11 @@ import logging
 import os
 import subprocess
 import time
+from pathlib import Path
 
 from .adbrun import ADBrun
 
-here = os.path.dirname(__file__)
+here = Path.parent
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
@@ -19,7 +20,7 @@ class GradlewBuild:
 
     def test(self, identifier, smoke=None):
         test_type = "ui" if smoke else "experimentintegration"
-        cmd = f"adb shell am instrument -w -e class org.mozilla.fenix.{test_type}.{identifier} -e EXP_NAME '{os.getenv('EXP_NAME', '').replace('(', '').replace(')', '')}' org.mozilla.fenix.debug.test/androidx.test.runner.AndroidJUnitRunner"
+        cmd = f"adb shell am instrument -w -e class org.mozilla.fenix.{test_type}.{identifier} -e EXP_NAME '{os.getenv('EXP_NAME', '').replace('(', '').replace(')', '')}' org.mozilla.fenix.debug.test/androidx.test.runner.AndroidJUnitRunner"  #  NOQA
 
         self.logger.info(f"Running cmd: {cmd}")
 
@@ -35,6 +36,6 @@ class GradlewBuild:
             out = e.output
             raise
         finally:
-            with open(self.log, "w") as f:
+            with Path.open(self.log, "w") as f:
                 f.write(str(out))
             time.sleep(10)

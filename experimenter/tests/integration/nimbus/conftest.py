@@ -65,7 +65,7 @@ def slugify(name):
 @pytest.fixture(name="application_feature_ids")
 def fixture_application_feature_ids():
     return {
-        BaseExperimentApplications.FIREFOX_DESKTOP.value: helpers.get_feature_id_as_string(
+        BaseExperimentApplications.FIREFOX_DESKTOP.value: helpers.get_feature_id_as_string(  #  NOQA
             "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP.value
         ),
         BaseExperimentApplications.FIREFOX_FENIX.value: helpers.get_feature_id_as_string(

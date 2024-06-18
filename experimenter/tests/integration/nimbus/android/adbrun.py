@@ -13,7 +13,7 @@ class ADBrun:
     def launch(self):
         # First close sim if any then launch
         os.system(
-            "~/Library/Android/sdk/platform-tools/adb devices | grep emulator | cut -f1 | while read line; do ~/Library/Android/sdk/platform-tools/adb -s $line emu kill; done"
+            "~/Library/Android/sdk/platform-tools/adb devices | grep emulator | cut -f1 | while read line; do ~/Library/Android/sdk/platform-tools/adb -s $line emu kill; done"  #  NOQA
         )
         # Then launch sim
         os.system("sh launchSimScript.sh")
