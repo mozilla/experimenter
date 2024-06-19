@@ -644,6 +644,7 @@ jobs:
             docker commit fenix-builder moz-central-builder
             docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
             docker push ${DOCKERHUB_REPO}:experimenter-moz-central
+          no_output_timeout: 30m
       - save_cache:
           key: experimenter-firefox-fenix-apks-{{ checksum "experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk" }}
           paths:
