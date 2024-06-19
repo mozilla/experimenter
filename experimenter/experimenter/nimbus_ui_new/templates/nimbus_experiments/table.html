@@ -73,9 +73,9 @@
           </td>
           <td>
             {% if experiment.start_date %}
-              {{ experiment.start_date|date:"M j/y" }} -
+              {{ experiment.start_date|date:"Y-m-d" }} -
               <br>
-              {{ experiment.computed_end_date|date:"M j/y" }}
+              {{ experiment.computed_end_date|date:"Y-m-d" }}
               <br>
               ({{ experiment.computed_duration_days }} days)
             {% else %}
