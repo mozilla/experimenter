@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - developer
+  - release
 features:
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
@@ -22,9 +22,9 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<CookieBannersSection, Int>"
         default:
-          feature-ui: 1
+          feature-ui: 0
           feature-setting-value: 0
-          feature-setting-value-pbm: 1
+          feature-setting-value-pbm: 0
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
@@ -34,14 +34,14 @@ features:
       enabled:
         description: "When the feature is enabled and Firefox receives a Login event with an empty saved logins list, a suggested strong password prompt will be shown, allowing the user to use the generated password to fill in the password field for the new account that will be created. When the feature is disabled, there won't be any prompt displayed that would allow using a generated password.\n"
         type: Boolean
-        default: true
+        default: false
   fx-suggest:
     description: A feature that provides Firefox Suggest search suggestions.
     variables:
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -64,7 +64,7 @@ features:
       enabled:
         description: "If true, the feature is active"
         type: Boolean
-        default: false
+        default: true
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -215,32 +215,12 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-              - RECENTLY_PRINTED
-            style: MICRO_SURVEY
-            microsurvey-config:
-              icon: ic_print
-              options:
-                - text: microsurvey_survey_5_point_option_0
-                  scale-value: 0
-                - text: microsurvey_survey_5_point_option_1
-                  scale-value: 1
-                - text: microsurvey_survey_5_point_option_2
-                  scale-value: 2
-                - text: microsurvey_survey_5_point_option_3
-                  scale-value: 3
-                - text: microsurvey_survey_5_point_option_4
-                  scale-value: 4
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
         type: NotificationConfig
         default:
-          refresh-interval: 120
+          refresh-interval: 240
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -251,7 +231,7 @@ features:
         default:
           DEFAULT:
             priority: 50
-            max-display-count: 100
+            max-display-count: 5
           SURVEY:
             priority: 55
             max-display-count: 1
@@ -270,9 +250,6 @@ features:
           MICRO_SURVEY:
             priority: 50
             max-display-count: 5
-          EXPIRES_QUICKLY:
-            priority: 100
-            max-display-count: 1
         string-alias: StyleName
       triggers:
         description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
@@ -306,7 +283,6 @@ features:
           INACTIVE_4_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 4"
           INACTIVE_5_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 5"
           RECENTLY_PRINTED: "'print_tapped'|eventLastSeen('Hours') <= 24"
-          SECOND_HOMEPAGE_VIEW: "'home_screen_displayed'|eventSum('Years', 4, 0) == 2"
           FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
           FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
           USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"
@@ -453,22 +429,22 @@ features:
       enabled:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
-        default: true
+        default: false
   shopping-experience:
     description: A feature that shows product review quality information.
     variables:
       enabled:
         description: "if true, the shopping experience feature is shown to the user."
         type: Boolean
-        default: true
+        default: false
       product-recommendations:
         description: "if true, recommended products feature is enabled to be shown to the user based on their preference."
         type: Boolean
-        default: true
+        default: false
       product-recommendations-exposure:
         description: "if true, we want to record recommended products inventory for opted-in users, even if product recommendations are disabled."
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
@@ -493,7 +469,7 @@ features:
       enabled:
         description: "When the feature is enabled then the user will see the new redesigned toolbar.\n"
         type: Boolean
-        default: true
+        default: false
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -585,6 +561,13 @@ enums:
         description: Controls the Total Cookie Protection feature.
       wallpapers-selection-tool:
         description: Wallpapers selection dialog tool for the home screen.
+  MicrosurveyTargetFeature:
+    description: The specific feature the microsurvey is for e.g Printing.
+    variants:
+      printing:
+        description: The printing feature.
+      unknown:
+        description: No target feature set. Only used in an invalid experiment configuration.
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
@@ -657,7 +640,7 @@ objects:
         description: "Indicates if this message is the control message, if true shouldn't be displayed"
         type: Boolean
         default: false
-      microsurvey-config:
+      microsurveyConfig:
         description: Optional configuration data for a microsurvey.
         type: Option<MicrosurveyConfig>
         default: ~
@@ -684,25 +667,14 @@ objects:
   MicrosurveyConfig:
     description: Attributes relating to microsurvey content.
     fields:
-      icon:
-        description: The icon shown in the survey.
-        type: Option<Image>
-        default: ~
       options:
         description: "The list of options to present to the user e.g. \"Satisfied, Dissatisfied...\"."
-        type: List<MicrosurveyQuestion>
+        type: List<Text>
         default: []
-  MicrosurveyQuestion:
-    description: Attributes relating to microsurvey content.
-    fields:
-      scale-value:
-        description: Scale value for this question.
-        type: Int
-        default: 0
-      text:
-        description: The text for the question.
-        type: Text
-        default: ""
+      target-feature:
+        description: The type of feature the microsurvey is for e.g. Printing.
+        type: MicrosurveyTargetFeature
+        default: unknown
   NotificationConfig:
     description: Attributes controlling the global configuration of notification messages.
     fields:
