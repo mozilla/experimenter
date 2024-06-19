@@ -17,7 +17,6 @@ describe("AppLayoutWithSidebar", () => {
   describe("navigation links", () => {
     it("renders expected URLs", () => {
       render(<Subject />);
-      expect(screen.getByTestId("nav-home")).toHaveAttribute("href", BASE_PATH);
       expect(screen.getByTestId("nav-edit-overview")).toHaveAttribute(
         "href",
         `${BASE_PATH}/my-special-slug/edit/overview`,

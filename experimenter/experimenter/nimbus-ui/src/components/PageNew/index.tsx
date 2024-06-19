@@ -62,7 +62,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
           setIsServerValid(true);
           setSubmitErrors({});
         }
-        navigate(`${nimbusExperiment!.slug}/edit/overview`);
+        navigate(`/nimbus/${nimbusExperiment!.slug}/edit/overview`);
       } catch (error) {
         setSubmitErrors({ "*": `${SUBMIT_ERROR}` });
       }
