@@ -875,7 +875,8 @@ class NimbusExperimentDetailViewTest(TestCase):
 
     def test_outcome_links(self):
         response = self.client.get(
-            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug})
+            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         expected_primary_links = [
             (

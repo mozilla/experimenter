@@ -2,6 +2,7 @@ from django.conf import settings
 from django.views.generic import DetailView
 from django_filters.views import FilterView
 
+from experimenter.experiments.constants import RISK_QUESTIONS
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.nimbus_ui_new.filtersets import (
     NimbusExperimentFilter,
@@ -101,7 +102,7 @@ class NimbusExperimentDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["RISK_QUESTIONS"] = NimbusExperiment.RISK_QUESTIONS
+        context["RISK_QUESTIONS"] = RISK_QUESTIONS
 
         primary_outcomes = self.object.primary_outcomes
         secondary_outcomes = self.object.secondary_outcomes
