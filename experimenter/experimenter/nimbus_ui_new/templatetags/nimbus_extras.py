@@ -1,5 +1,7 @@
 from django import template
 
+from experimenter.experiments.constants import NimbusConstants
+
 register = template.Library()
 
 
@@ -41,3 +43,31 @@ def pagination_url(context, page, **kwargs):
         return f"?{data.urlencode()}"
     else:
         return "."
+
+
+@register.filter(name="yesno")
+def yesno(value):
+    if value is None:
+        return ""
+    return "Yes" if value else "No"
+
+
+@register.filter
+def parse_version(version_str):
+    if version_str:
+        return NimbusConstants.Version.parse(version_str)
+    return "No Version"
+
+
+@register.filter(name="format_to_title")
+def format_to_title(value):
+    """Converts snake_case text to Title Case."""
+    return " ".join(word.capitalize() for word in value.split("_"))
+
+
+@register.filter(name="format_not_set")
+def format_not_set(value):
+    """Formats the given value to display 'Not set' in red if it's empty or None."""
+    if value in [None, "", "None", "Not set"]:
+        return '<span style="color: red;">Not set</span>'
+    return value

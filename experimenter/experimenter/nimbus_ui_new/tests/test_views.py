@@ -854,15 +854,53 @@ class NimbusExperimentsListTableViewTest(TestCase):
 
 
 class NimbusExperimentDetailViewTest(TestCase):
+    def setUp(self):
+        self.experiment = NimbusExperimentFactory.create(
+            slug="test-experiment",
+            application="firefox-desktop",
+            primary_outcomes=["outcome1", "outcome2"],
+            secondary_outcomes=["outcome3", "outcome4"],
+            risk_brand=True,
+        )
+        self.user_email = "user@example.com"
+
     def test_render_to_response(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(slug="test-experiment")
         response = self.client.get(
-            reverse(
-                "nimbus-new-detail",
-                kwargs={"slug": experiment.slug},
-            ),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["experiment"], experiment)
+        self.assertEqual(response.context["experiment"], self.experiment)
+        self.assertIn("RISK_QUESTIONS", response.context)
+
+    def test_outcome_links(self):
+        response = self.client.get(
+            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug})
+        )
+        expected_primary_links = [
+            (
+                "outcome1",
+                "https://mozilla.github.io/metric-hub/outcomes/firefox-desktop/outcome1",
+            ),
+            (
+                "outcome2",
+                "https://mozilla.github.io/metric-hub/outcomes/firefox-desktop/outcome2",
+            ),
+        ]
+        expected_secondary_links = [
+            (
+                "outcome3",
+                "https://mozilla.github.io/metric-hub/outcomes/firefox-desktop/outcome3",
+            ),
+            (
+                "outcome4",
+                "https://mozilla.github.io/metric-hub/outcomes/firefox-desktop/outcome4",
+            ),
+        ]
+
+        self.assertEqual(
+            response.context["primary_outcome_links"], expected_primary_links
+        )
+        self.assertEqual(
+            response.context["secondary_outcome_links"], expected_secondary_links
+        )

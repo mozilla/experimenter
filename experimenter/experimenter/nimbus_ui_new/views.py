@@ -98,3 +98,20 @@ class NimbusExperimentDetailView(DetailView):
     model = NimbusExperiment
     template_name = "nimbus_experiments/detail.html"
     context_object_name = "experiment"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["RISK_QUESTIONS"] = NimbusExperiment.RISK_QUESTIONS
+
+        primary_outcomes = self.object.primary_outcomes
+        secondary_outcomes = self.object.secondary_outcomes
+        doc_base_url = "https://mozilla.github.io/metric-hub/outcomes/"
+        context["primary_outcome_links"] = [
+            (outcome, f"{doc_base_url}{self.object.application}/{outcome}")
+            for outcome in primary_outcomes
+        ]
+        context["secondary_outcome_links"] = [
+            (outcome, f"{doc_base_url}{self.object.application}/{outcome}")
+            for outcome in secondary_outcomes
+        ]
+        return context
