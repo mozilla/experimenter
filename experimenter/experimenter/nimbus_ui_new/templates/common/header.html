@@ -3,7 +3,7 @@
 <nav class="navbar">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center fs-3"
-       href="{% url 'nimbus-new-list' %}">
+       href="{% url 'nimbus-list' %}">
       <img src="{% static 'assets/logo.svg' %}"
            alt="Logo"
            width="30"
@@ -48,7 +48,11 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="/legacy/" class="nav-link" target="_blank" rel="noreferrer">
+        <a id="legacy_page_link"
+           href="/legacy/"
+           class="nav-link"
+           target="_blank"
+           rel="noreferrer">
           <i class="fa-solid fa-ghost"></i>
           Legacy
         </a>

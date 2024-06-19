@@ -44,7 +44,9 @@ describe("PageNew", () => {
     render(<Subject mocks={[mutationMock]} />);
     fireEvent.click(screen.getByTestId("submit"));
     await waitFor(() =>
-      expect(navigate).toHaveBeenCalledWith("foo-bar-baz/edit/overview"),
+      expect(navigate).toHaveBeenCalledWith(
+        "/nimbus/foo-bar-baz/edit/overview",
+      ),
     );
   });
 
