@@ -8,8 +8,6 @@ import subprocess
 import time
 from pathlib import Path
 
-from .adbrun import ADBrun
-
 here = Path.parent
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -17,7 +15,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 class GradlewBuild:
     binary = "./gradlew"
     logger = logging.getLogger()
-    adbrun = ADBrun()
 
     def __init__(self, log):
         self.log = log

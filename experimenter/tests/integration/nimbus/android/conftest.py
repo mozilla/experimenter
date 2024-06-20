@@ -14,7 +14,7 @@ import requests
 from .gradlewbuild import GradlewBuild
 from .models.models import TelemetryModel
 
-here = Path().cwd()
+here = Path(__file__).cwd()
 
 
 def start_process(path, command):
@@ -56,12 +56,12 @@ def fixture_run_nimbus_cli_command(gradlewbuild_log):
 
 @pytest.fixture(name="open_app")
 def fixture_open_app(run_nimbus_cli_command):
-    def _():
+    def open_app():
         command = "nimbus-cli --app fenix --channel developer open"
         run_nimbus_cli_command(command)
         time.sleep(10)
 
-    return _
+    return open_app
 
 
 @pytest.fixture
@@ -78,7 +78,7 @@ def gradlewbuild(gradlewbuild_log):
 
 @pytest.fixture(name="ping_server", autouse=True, scope="session")
 def fixture_ping_server():
-    path = next(iter(here.glob("**/android/ping_server")))
+    path = next(iter(here.glob("**/nimbus/utils/ping_server")))
     process = start_process(path, ["python", "ping_server.py"])
     yield "http://localhost:5000"
     process.terminate()
@@ -140,15 +140,29 @@ def fixture_set_experiment_test_name():
 def fixture_setup_experiment(
     run_nimbus_cli_command,
     delete_telemetry_pings,
+    experiment_slug
 ):
-    def _():
+    def setup_experiment():
         experiment_json = next(iter(here.glob("**/fixtures/experiment.json")))
         delete_telemetry_pings()
         logging.info("Testing fenix e2e experiment")
-        command = f"nimbus-cli --app fenix --channel developer enroll firefox-fenix-test-experiment --branch control --file {experiment_json} --reset-app"  #  NOQA
-        run_nimbus_cli_command(command)
+        command = [
+            "nimbus-cli",
+            "--app",
+            "fenix",
+            "--channel",
+            "developer",
+            "enroll",
+            f"{experiment_slug}",
+            "--branch",
+            "control",
+            "--file",
+            f"{experiment_json}",
+            "--reset-app"
+        ]
+        run_nimbus_cli_command(' '.join(command))
         time.sleep(
             15
         )  # Wait a while as there's no real way to know when the app has started
 
-    return _
+    return setup_experiment
