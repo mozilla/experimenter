@@ -115,6 +115,14 @@ mr2022:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
+navigation-toolbar:
+  description: Feature for navigation toolbar.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
 nimbus-is-ready:
   description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
   hasExposure: true
@@ -268,14 +276,6 @@ toolbar:
     toolbar-position-top:
       type: boolean
       description: "If true, toolbar appears at top of the screen."
-toolbar-redesign:
-  description: Feature for toolbar redesign.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "When the feature is enabled then the user will see the new redesigned toolbar.\n"
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
