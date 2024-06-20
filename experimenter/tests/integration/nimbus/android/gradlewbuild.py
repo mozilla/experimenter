@@ -42,4 +42,4 @@ class GradlewBuild:
         finally:
             with Path.open(self.log, "w") as f:
                 f.write(str(out))
-            time.sleep(10)
+            time.sleep(20)

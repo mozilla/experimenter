@@ -423,7 +423,6 @@ jobs:
       - run:
           name: Download test files and run
           command: |
-            pyenv install 3.11
             curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
             pip install poetry
             make integration_test_nimbus_fenix PYTEST_ARGS="$PYTEST_ARGS"

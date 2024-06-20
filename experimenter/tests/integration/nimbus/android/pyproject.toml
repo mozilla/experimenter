@@ -1,4 +1,5 @@
 [tool.poetry]
+package-mode = false
 name = "android-nimbus-integration"
 version = "0.1.0"
 description = "Android integration tests for Nimbus"
