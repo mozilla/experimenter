@@ -138,9 +138,7 @@ def fixture_set_experiment_test_name():
 
 @pytest.fixture(name="setup_experiment")
 def fixture_setup_experiment(
-    run_nimbus_cli_command,
-    delete_telemetry_pings,
-    experiment_slug
+    run_nimbus_cli_command, delete_telemetry_pings, experiment_slug
 ):
     def setup_experiment():
         experiment_json = next(iter(here.glob("**/fixtures/experiment.json")))
@@ -158,9 +156,9 @@ def fixture_setup_experiment(
             "control",
             "--file",
             f"{experiment_json}",
-            "--reset-app"
+            "--reset-app",
         ]
-        run_nimbus_cli_command(' '.join(command))
+        run_nimbus_cli_command(" ".join(command))
         time.sleep(
             15
         )  # Wait a while as there's no real way to know when the app has started
