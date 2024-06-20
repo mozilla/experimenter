@@ -306,6 +306,13 @@ features:
           jump-back-in-cfr: true
           tcp-cfr: true
           tcp-feature: true
+  navigation-toolbar:
+    description: Feature for navigation toolbar.
+    variables:
+      enabled:
+        description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
+        type: Boolean
+        default: false
   nimbus-is-ready:
     description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
     variables:
@@ -464,13 +471,6 @@ features:
         description: "If true, toolbar appears at top of the screen."
         type: Boolean
         default: false
-  toolbar-redesign:
-    description: Feature for toolbar redesign.
-    variables:
-      enabled:
-        description: "When the feature is enabled then the user will see the new redesigned toolbar.\n"
-        type: Boolean
-        default: true
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
