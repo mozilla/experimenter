@@ -15,7 +15,6 @@ period_output() {
 period_output &
 period_pid=$!
 
-./mach --no-interactive bootstrap --application-choice="GeckoView/Firefox for Android"
 ./mach build
 cd mobile/android/fenix
 ./gradlew clean app:assembleFenixDebug
