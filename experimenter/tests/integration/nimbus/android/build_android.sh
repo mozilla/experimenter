@@ -7,7 +7,7 @@ hg pull && hg update
 period_output() {
   while true
   do
-    echo -n "."
+    echo -n ".\n"
     sleep 30
   done
 }
