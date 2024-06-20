@@ -430,7 +430,7 @@ jobs:
       - android/save-gradle-cache:
           cache-prefix: v1a
       - store_artifacts:
-          path: /home/circleci/project/experimenter/test-reports/report.htm
+          path: /home/circleci/project/test-reports/report.htm
 
   deploy_experimenter:
     working_directory: ~/experimenter
