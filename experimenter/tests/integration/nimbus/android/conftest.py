@@ -18,21 +18,32 @@ here = Path(__file__).cwd()
 
 
 def start_process(path, command):
+    """
+    THIS IS HACKY
+
+    We are starting a process (flask server) in the back ground just for collecting
+    telemetry data from the fenix app. This function starts the server and waits 5
+    seconds before checking for a return code. If there is a timeout error instead
+    of a return code, it assumes the server has started and returns the process.
+
+    If there is another service running on the port (5000), it will report a failure.
+    """
     module_path = Path(path)
 
     try:
         process = subprocess.Popen(
             command,
             encoding="utf-8",
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
             universal_newlines=True,
             cwd=module_path.absolute(),
         )
-        stdout, stderr = process.communicate(timeout=5)
+        stdout, stderr = process.communicate(timeout=1)
 
-        if process.returncode != 0:
-            raise Exception(stderr)
+        if process.returncode == 1:
+            logging.info("Error starting server, exiting...")
+            pytest.fail("There is another process blocking port 5000")
     except subprocess.TimeoutExpired:
         logging.info(f"{module_path.name} started")
         return process
