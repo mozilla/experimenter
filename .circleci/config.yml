@@ -596,6 +596,46 @@ jobs:
             else
               echo "No config changes, skipping"
             fi
+  update_fenix_apks:
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
+      - checkout
+      - gh/setup:
+          token: GH_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
+      - run:
+          name: Setup Git
+          command: |
+            git config --local user.name "dataops-ci-bot"
+            git config --local user.email "dataops+ci-bot@mozilla.com"
+            gh config set git_protocol https
+      - run:
+          name: Check for Application Services update
+          command: |
+            git checkout main
+            git pull origin main
+            cd experimenter/tests/integration/nimbus/android
+            export CURRENT_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_BUILD_ID=).*')
+            ./update-fenix-apks.sh
+            export LATEST_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_BUILD_ID=).*')
+            if (($(git status --porcelain | wc -c) > 0)); then
+              git checkout -B update-fenix-apks
+              git add .
+              git commit -m "chore(nimbus): Update fenix apks for testing"
+              if diff <(echo "$CURRENT_FENIX_BUILD_ID") <(echo "$LATEST_FENIX_BUILD_ID") > /dev/null; then
+                echo "Changes already committed, skipping"
+              else
+                git push origin update-fenix-apks
+                gh pr create -t "chore(nimbus): Update fenix apks for testing" -b "" --base main --head update-fenix-apks --repo mozilla/experimenter || echo "PR already exists, skipping"
+              fi
+            else
+              echo "No config changes, skipping"
+            fi
 
   build_firefox_versions:
     working_directory: ~/experimenter
@@ -794,3 +834,10 @@ workflows:
           filters:
             branches:
               only: main
+      - build_firefox_fenix:
+          name: Build Fenix APKs
+          filters:
+            branches:
+              only:
+                - update-fenix-apks
+      - update_fenix_apks  
