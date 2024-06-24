@@ -658,6 +658,8 @@ workflows:
                 - main
     jobs:
       - build_firefox_versions
+      - build_firefox_fenix:
+          name: Build Fenix APKs
 
   update_configs:
     triggers:
@@ -670,8 +672,6 @@ workflows:
     jobs:
       - update_external_configs
       - update_application_services
-      - build_firefox_fenix:
-          name: Build Fenix APKs
 
   build:
     jobs:
