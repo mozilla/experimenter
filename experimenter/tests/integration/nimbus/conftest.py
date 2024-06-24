@@ -27,28 +27,6 @@ from nimbus.pages.demo_app.frontend import DemoAppPage
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
-APPLICATION_FEATURE_IDS = {
-    BaseExperimentApplications.FIREFOX_DESKTOP.value: helpers.get_feature_id_as_string(
-        "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP.value
-    ),
-    BaseExperimentApplications.FIREFOX_FENIX.value: helpers.get_feature_id_as_string(
-        "no-feature-fenix", BaseExperimentApplications.FIREFOX_FENIX.value
-    ),
-    BaseExperimentApplications.FIREFOX_IOS.value: helpers.get_feature_id_as_string(
-        "no-feature-ios", BaseExperimentApplications.FIREFOX_IOS.value
-    ),
-    BaseExperimentApplications.FOCUS_ANDROID.value: helpers.get_feature_id_as_string(
-        "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID.value
-    ),
-    BaseExperimentApplications.FOCUS_IOS.value: helpers.get_feature_id_as_string(
-        "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS.value
-    ),
-    BaseExperimentApplications.DEMO_APP.value: helpers.get_feature_id_as_string(
-        "example-feature", BaseExperimentApplications.DEMO_APP.value
-    ),
-}
-
-
 APPLICATION_KINTO_REVIEW_PATH = {
     BaseExperimentApplications.FIREFOX_DESKTOP.value: (
         "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
@@ -82,6 +60,30 @@ APPLICATION_KINTO_COLLECTION = {
 
 def slugify(name):
     return name.lower().replace(" ", "-").replace("[", "").replace("]", "")
+
+
+@pytest.fixture(name="application_feature_ids")
+def fixture_application_feature_ids():
+    return {
+        BaseExperimentApplications.FIREFOX_DESKTOP.value: helpers.get_feature_id_as_string(  #  NOQA
+            "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP.value
+        ),
+        BaseExperimentApplications.FIREFOX_FENIX.value: helpers.get_feature_id_as_string(
+            "no-feature-fenix", BaseExperimentApplications.FIREFOX_FENIX.value
+        ),
+        BaseExperimentApplications.FIREFOX_IOS.value: helpers.get_feature_id_as_string(
+            "no-feature-ios", BaseExperimentApplications.FIREFOX_IOS.value
+        ),
+        BaseExperimentApplications.FOCUS_ANDROID.value: helpers.get_feature_id_as_string(
+            "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID.value
+        ),
+        BaseExperimentApplications.FOCUS_IOS.value: helpers.get_feature_id_as_string(
+            "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS.value
+        ),
+        BaseExperimentApplications.DEMO_APP.value: helpers.get_feature_id_as_string(
+            "example-feature", BaseExperimentApplications.DEMO_APP.value
+        ),
+    }
 
 
 @pytest.fixture
@@ -118,13 +120,12 @@ def selenium(selenium, experiment_slug, kinto_client):
     # Use all applications as available parameters in circle config
     params=list(BaseExperimentApplications),
     ids=[application.name for application in BaseExperimentApplications],
-    autouse=True,
 )
 def application(request):
     return request.param.value
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def _verify_url(request, base_url):
     """Verifies the base URL"""
     verify = request.config.option.verify_base_url
@@ -194,8 +195,10 @@ def fixture_load_experiment_outcomes():
 
 
 @pytest.fixture
-def default_data(application, experiment_name, load_experiment_outcomes):
-    feature_config_id = APPLICATION_FEATURE_IDS[application]
+def default_data(
+    application, application_feature_ids, experiment_name, load_experiment_outcomes
+):
+    feature_config_id = application_feature_ids[application]
 
     outcomes = {
         BaseExperimentApplications.FIREFOX_DESKTOP.value: BaseExperimentMetricsDataClass(
@@ -358,8 +361,8 @@ def trigger_experiment_loader(selenium):
 
 
 @pytest.fixture()
-def default_data_api(application):
-    feature_config_id = APPLICATION_FEATURE_IDS[application]
+def default_data_api(application, application_feature_ids):
+    feature_config_id = application_feature_ids[application]
     return {
         "hypothesis": "Test Hypothesis",
         "application": application,
