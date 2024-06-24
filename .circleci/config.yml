@@ -840,4 +840,3 @@ workflows:
             branches:
               only:
                 - update-fenix-apks
-      - update_fenix_apks  
