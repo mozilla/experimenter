@@ -771,7 +771,10 @@ RISK_QUESTIONS = {
         "description, do you think it could negatively impact their perception "
         "of the brand?"
     ),
-    "MESSAGE": ("Does your experiment include ANY messages? If yes, this requires the"),
+    "MESSAGE": (
+        "Does your experiment include ANY messages? If yes, this requires "
+        "the Message Consult"
+    ),
     "PARTNER": (
         "Does this experiment impact or rely on a partner or outside company "
         "(e.g. Google, Amazon) or deliver any encryption or VPN?"

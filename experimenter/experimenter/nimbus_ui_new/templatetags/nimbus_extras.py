@@ -1,4 +1,5 @@
 from django import template
+from django.utils.safestring import mark_safe
 
 from experimenter.experiments.constants import NimbusConstants
 
@@ -45,13 +46,6 @@ def pagination_url(context, page, **kwargs):
         return "."
 
 
-@register.filter(name="yesno")
-def yesno(value):
-    if value is None:
-        return ""
-    return "Yes" if value else "No"
-
-
 @register.filter
 def parse_version(version_str):
     if version_str:
@@ -59,15 +53,15 @@ def parse_version(version_str):
     return "No Version"
 
 
-@register.filter(name="format_to_title")
-def format_to_title(value):
-    """Converts snake_case text to Title Case."""
-    return " ".join(word.capitalize() for word in value.split("_"))
+@register.filter(name="remove_underscores")
+def remove_underscores(value):
+    """Replace underscores in the string with spaces."""
+    return value.replace("_", " ")
 
 
 @register.filter(name="format_not_set")
 def format_not_set(value):
     """Formats the given value to display 'Not set' in red if it's empty or None."""
-    if value in [None, "", "None", "Not set"]:
-        return '<span style="color: red;">Not set</span>'
+    if value in [None, "", "NOT SET"]:
+        return mark_safe('<span class="text-danger">Not set</span>')
     return value

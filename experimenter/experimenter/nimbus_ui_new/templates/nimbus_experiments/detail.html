@@ -41,11 +41,11 @@
             </tr>
             <tr>
               <th>Summary</th>
-              <td colspan="3">{{ experiment.takeaways_summary|format_not_set|safe }}</td>
+              <td colspan="3">{{ experiment.takeaways_summary|format_not_set }}</td>
             </tr>
             <tr>
               <th>Gain amount</th>
-              <td colspan="3">{{ experiment.takeaways_gain_amount|format_not_set |safe }}</td>
+              <td colspan="3">{{ experiment.takeaways_gain_amount|format_not_set }}</td>
             </tr>
           </tbody>
         </table>
@@ -69,19 +69,19 @@
               <th>Application</th>
               <td>{{ experiment.get_application_display }}</td>
               <th>Public description</th>
-              <td>{{ experiment.public_description|format_not_set|safe }}</td>
+              <td>{{ experiment.public_description|format_not_set }}</td>
             </tr>
             <tr>
               <th>Feature config</th>
               <td>
                 {% for feature in experiment.feature_configs.all %}
-                  {{ feature.name }}- {{ feature.description }}
+                  {{ feature.name }} - {{ feature.description }}
                 {% empty %}
-                  <span style="color: red;">Not set</span>
+                  <span class="text-danger">Not set</span>
                 {% endfor %}
               </td>
               <th>Advanced targeting</th>
-              <td>{{ experiment.targeting_config.name }}- {{ experiment.targeting_config.description }}</td>
+              <td>{{ experiment.targeting_config.name }} - {{ experiment.targeting_config.description }}</td>
             </tr>
             <tr>
               <th>Hypothesis</th>
@@ -91,10 +91,10 @@
               <th>Primary Outcomes</th>
               <td colspan="3">
                 {% for outcome, url in primary_outcome_links %}
-                  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome|format_to_title }}</a>
+                  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
                   {% if not forloop.last %},{% endif %}
                 {% empty %}
-                  <span style="color: red; ">Not set</span>
+                  <span class="text-danger">Not set</span>
                 {% endfor %}
               </td>
             </tr>
@@ -102,21 +102,29 @@
               <th>Secondary Outcomes</th>
               <td colspan="3">
                 {% for outcome, url in secondary_outcome_links %}
-                  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome|format_to_title }}</a>
+                  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
                   {% if not forloop.last %},{% endif %}
                 {% empty %}
-                  <span style="color: red; ">Not set</span>
+                  <span class="text-danger">Not set</span>
                 {% endfor %}
               </td>
             </tr>
             <tr>
               <th>Team projects</th>
               <td>
-                {{ experiment.projects.all|join:"<br>"|format_not_set|safe }}
+                {% for project in experiment.projects.all %}
+                  <p>{{ project }}</p>
+                {% empty %}
+                  <span class="text-danger">Not set</span>
+                {% endfor %}
               </td>
               <th>Subscribers</th>
               <td>
-                {{ experiment.subscribers.all|join:"<br>"|format_not_set|safe }}
+                {% for subscriber in experiment.subscribers.all %}
+                  <p>{{ subscriber }}</p>
+                {% empty %}
+                  <span class="text-danger">Not set</span>
+                {% endfor %}
               </td>
             </tr>
           </tbody>
@@ -132,28 +140,44 @@
         <table class="table table-striped">
           <tbody>
             <tr>
-              <th colspan=3>{{ RISK_QUESTIONS.BRAND }}</th>
-              <td style="{% if experiment.risk_brand|yesno == 'Yes' %}color: red;
-                         font-weight: bold;
-                         {% endif %}">{{ experiment.risk_brand|yesno|format_not_set|safe }}</td>
+              <th colspan="3">{{ RISK_QUESTIONS.BRAND }}</th>
+              <td class="{% if experiment.risk_brand %}text-danger font-weight-bold{% endif %}">
+                {% if experiment.risk_brand != None %}
+                  {{ experiment.risk_brand|yesno }}
+                {% else %}
+                  Not Set
+                {% endif %}
+              </td>
             </tr>
             <tr>
-              <th colspan="3">{{ RISK_QUESTIONS.MESSAGE }} Message Consult</th>
-              <td style="{% if experiment.risk_message|yesno == 'Yes' %}color: red;
-                         font-weight: bold;
-                         {% endif %}">{{ experiment.risk_message|yesno|format_not_set|safe }}</td>
+              <th colspan="3">{{ RISK_QUESTIONS.MESSAGE }}</th>
+              <td class="{% if experiment.risk_message %}text-danger font-weight-bold{% endif %}">
+                {% if experiment.risk_message != None %}
+                  {{ experiment.risk_message|yesno }}
+                {% else %}
+                  Not Set
+                {% endif %}
+              </td>
             </tr>
             <tr>
               <th colspan="3">{{ RISK_QUESTIONS.REVENUE }}</th>
-              <td style="{% if experiment.risk_revenue|yesno == 'Yes' %}color: red;
-                         font-weight: bold;
-                         {% endif %}">{{ experiment.risk_revenue|yesno|format_not_set|safe }}</td>
+              <td class="{% if experiment.risk_revenue %}text-danger font-weight-bold{% endif %}">
+                {% if experiment.risk_revenue != None %}
+                  {{ experiment.risk_revenue|yesno }}
+                {% else %}
+                  Not Set
+                {% endif %}
+              </td>
             </tr>
             <tr>
               <th colspan="3">{{ RISK_QUESTIONS.PARTNER }}</th>
-              <td style="{% if experiment.risk_partner_related|yesno == 'Yes' %}color: red;
-                         font-weight: bold;
-                         {% endif %}">{{ experiment.risk_partner_related|yesno|format_not_set|safe }}</td>
+              <td class="{% if experiment.risk_partner_related %}text-danger font-weight-bold{% endif %}">
+                {% if experiment.risk_partner_related != None %}
+                  {{ experiment.risk_partner_related|yesno }}
+                {% else %}
+                  Not Set
+                {% endif %}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -169,7 +193,7 @@
           <tbody>
             <tr>
               <th>Channel</th>
-              <td style="text-transform: capitalize;">{{ experiment.channel|default:"No Channel" }}</td>
+              <td>{{ experiment.channel.title|default:"No Channel" }}</td>
               <th>Advanced Targeting</th>
               <td>{{ experiment.targeting_config.name }}</td>
             </tr>
@@ -231,22 +255,22 @@
           <tbody>
             <tr>
               <th>QA Sign-off</th>
-              <td colspan=3>
-                {% if experiment.signoff_recommendations.qa_signoff %}<span style="color: green;">Recommended:</span>{% endif %}
+              <td colspan="3">
+                {% if experiment.signoff_recommendations.qa_signoff %}<span class="text-success">Recommended:</span>{% endif %}
                 Please file a QA request. Learn More
               </td>
             </tr>
             <tr>
               <th>VP Sign-off</th>
-              <td colspan=3>
-                {% if experiment.signoff_recommendations.vp_signoff %}<span style="color: green;">Recommended:</span>{% endif %}
+              <td colspan="3">
+                {% if experiment.signoff_recommendations.vp_signoff %}<span class="text-success">Recommended:</span>{% endif %}
                 Please email your VP. Learn More
               </td>
             </tr>
             <tr>
               <th>Legal Sign-off</th>
-              <td colspan=3>
-                {% if experiment.signoff_recommendations.legal_signoff %}<span style="color: green;">Recommended:</span>{% endif %}
+              <td colspan="3">
+                {% if experiment.signoff_recommendations.legal_signoff %}<span class="text-success">Recommended:</span>{% endif %}
                 Please email legal. Learn More
               </td>
             </tr>
@@ -277,19 +301,19 @@
             <tbody>
               <tr>
                 <th>Slug</th>
-                <td>{{ branch.slug|format_not_set|safe }}</td>
+                <td>{{ branch.slug|format_not_set }}</td>
                 <th>Ratio</th>
-                <td>{{ branch.ratio|format_not_set|safe }}</td>
+                <td>{{ branch.ratio|format_not_set }}</td>
               </tr>
               <tr>
                 <th>Description</th>
-                <td colspan="3">{{ branch.description|format_not_set|safe }}</td>
+                <td colspan="3">{{ branch.description|format_not_set }}</td>
               </tr>
               {% if branch.feature_values.all %}
                 {% for feature_value in branch.feature_values.all %}
                   <tr>
-                    <th>{{ feature_value.feature_config.name|format_not_set|safe }} Value</th>
-                    <td colspan="3">{{ feature_value.value|format_not_set|safe }}</td>
+                    <th>{{ feature_value.feature_config.name|format_not_set }} Value</th>
+                    <td colspan="3">{{ feature_value.value|format_not_set }}</td>
                   </tr>
                 {% endfor %}
               {% else %}
@@ -331,7 +355,7 @@
           <tbody>
             <tr>
               <th>QA Status</th>
-              <td colspan="3">{{ experiment.qa_status|lower|capfirst }}</td>
+              <td colspan="3">{{ experiment.qa_status|format_not_set }}</td>
             </tr>
           </tbody>
         </table>
