@@ -182,7 +182,13 @@ def fixture_load_experiment_outcomes():
     outcomes = {"firefox_desktop": "", "fenix": "", "firefox_ios": ""}
     current_path = Path().cwd()
     base_path = Path(
-        next(iter(current_path.glob("**/experimenter/outcomes/metric-hub-main/jetstream/outcomes")))
+        next(
+            iter(
+                current_path.glob(
+                    "**/experimenter/outcomes/metric-hub-main/jetstream/outcomes"
+                )
+            )
+        )
     )
 
     for k in list(outcomes):

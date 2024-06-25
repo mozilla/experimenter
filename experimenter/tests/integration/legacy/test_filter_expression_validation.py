@@ -9,7 +9,9 @@ def filter_expression_path():
     return Path(next(iter(here.glob("**/utils/filter_expression.js"))))
 
 
-def test_filter_expressions_with_matching_firefox_versions(base_url, selenium, filter_expression_path):
+def test_filter_expressions_with_matching_firefox_versions(
+    base_url, selenium, filter_expression_path
+):
     selenium.get("about:blank")
     with Path(filter_expression_path).open() as js:
         with selenium.context(selenium.CONTEXT_CHROME):
@@ -17,7 +19,9 @@ def test_filter_expressions_with_matching_firefox_versions(base_url, selenium, f
     assert script is True
 
 
-def test_filter_expressions_with_mismatching_firefox_versions(base_url, selenium, filter_expression_path):
+def test_filter_expressions_with_mismatching_firefox_versions(
+    base_url, selenium, filter_expression_path
+):
     selenium.get("about:blank")
     with Path(filter_expression_path).open() as js:
         with selenium.context(selenium.CONTEXT_CHROME):
