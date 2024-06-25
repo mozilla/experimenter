@@ -29,7 +29,8 @@ class MockMetricsHandler(nimbus_rust.MetricsHandler):
 
 
 def client_info_list():
-    with Path("nimbus", "app_contexts.json").open() as file:
+    here = Path(__file__).cwd()
+    with Path(next(iter(here.glob("**/nimbus/app_contexts.json")))).open() as file:
         return [r["app_context"] for r in json.load(file)["query_result"]["data"]["rows"]]
 
 
