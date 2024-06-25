@@ -1526,8 +1526,8 @@ EXISTING_USER_NEED_DEFAULT = NimbusTargetingConfig(
 )
 
 EXISTING_USER_NEED_DEFAULT_WIN1903 = NimbusTargetingConfig(
-    name="Existing user (need default)",
-    slug="existing_user_need_default",
+    name="Existing user (need default, Windows 1903+)",
+    slug="existing_user_need_default_windows_1903",
     description="Users with profiles older than 28 days who have not set to default, on Windows 1903+",
     targeting=f"{PROFILE28DAYS} && {NEED_DEFAULT} && {WIN1903}",
     desktop_telemetry="",
