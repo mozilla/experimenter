@@ -225,19 +225,19 @@ features:
             microsurvey-config:
               utm-content: homepage
               icon: ic_print
-              options:
+              answers:
                 - text: likert_scale_option_1
-                  scale-value: 0
+                  ordering: 0
                 - text: likert_scale_option_2
-                  scale-value: 1
+                  ordering: 1
                 - text: likert_scale_option_3
-                  scale-value: 2
+                  ordering: 2
                 - text: likert_scale_option_4
-                  scale-value: 3
+                  ordering: 3
                 - text: likert_scale_option_5
-                  scale-value: 4
+                  ordering: 4
                 - text: likert_scale_option_6
-                  scale-value: 5
+                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -309,7 +309,7 @@ features:
           INACTIVE_4_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 4"
           INACTIVE_5_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 5"
           RECENTLY_PRINTED: "'print_tapped'|eventLastSeen('Hours') <= 24"
-          SECOND_HOMEPAGE_VIEW: "'home_screen_displayed'|eventSum('Years', 4, 0) == 2"
+          SECOND_HOMEPAGE_VIEW: "'home_screen_displayed'|eventSum('Years', 4, 0) >= 2"
           FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
           FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
           USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"
@@ -684,32 +684,32 @@ objects:
         description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions are `true`.\n"
         type: List<TriggerName>
         default: []
+  MicrosurveyAnswer:
+    description: Attributes relating to microsurvey content.
+    fields:
+      ordering:
+        description: "Used to sequence the answers top to bottom. E.g. 0 will be the first/top item, 1 will be next and so on. Always set either ALL the provided answers ordering or NONE. If ALL answers are default, the the ordering used will be the same as provided by the experiment.\n"
+        type: Int
+        default: 0
+      text:
+        description: The text for the answer.
+        type: Text
+        default: ""
   MicrosurveyConfig:
     description: Attributes relating to microsurvey content.
     fields:
+      answers:
+        description: "The list of answers to present to the user e.g. \"Satisfied, Dissatisfied...\"."
+        type: List<MicrosurveyAnswer>
+        default: []
       icon:
         description: The icon shown in the survey.
         type: Option<Image>
         default: ~
-      options:
-        description: "The list of options to present to the user e.g. \"Satisfied, Dissatisfied...\"."
-        type: List<MicrosurveyQuestion>
-        default: []
       utm-content:
         description: "Optional \"utm_content\" parameter for the privacy notice URL to specify the feature being surveyed."
         type: Option<String>
         default: ~
-  MicrosurveyQuestion:
-    description: Attributes relating to microsurvey content.
-    fields:
-      scale-value:
-        description: Scale value for this question.
-        type: Int
-        default: 0
-      text:
-        description: The text for the question.
-        type: Text
-        default: ""
   NotificationConfig:
     description: Attributes controlling the global configuration of notification messages.
     fields:
