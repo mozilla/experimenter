@@ -1525,6 +1525,17 @@ EXISTING_USER_NEED_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USER_NEED_DEFAULT_WIN1903 = NimbusTargetingConfig(
+    name="Existing user (need default)",
+    slug="existing_user_need_default",
+    description="Users with profiles older than 28 days who have not set to default, on Windows 1903+",
+    targeting=f"{PROFILE28DAYS} && {NEED_DEFAULT} && {WIN1903}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     name="New user (5 bookmarks)",
     slug="new_user_5_bookmarks",
