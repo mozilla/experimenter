@@ -58,7 +58,6 @@ class NimbusExperimentsListView(FilterView):
         status_counts = {
             StatusChoices.DRAFT: unarchived.filter(
                 status=NimbusExperiment.Status.DRAFT,
-                publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).count(),
             StatusChoices.PREVIEW: unarchived.filter(
                 status=NimbusExperiment.Status.PREVIEW

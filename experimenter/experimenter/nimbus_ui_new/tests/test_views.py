@@ -52,7 +52,12 @@ class NimbusExperimentsListViewTest(TestCase):
         NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            slug="review-experiment",
+            slug="draft-review-experiment",
+        )
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            slug="live-review-experiment",
         )
         NimbusExperimentFactory.create(is_archived=True, slug="archived-experiment")
         NimbusExperimentFactory.create(owner=self.user, slug="my-experiment")
@@ -72,10 +77,10 @@ class NimbusExperimentsListViewTest(TestCase):
             dict(response.context["status_counts"]),
             {
                 NimbusExperiment.Status.COMPLETE: 1,
-                NimbusExperiment.Status.DRAFT: 2,
-                NimbusExperiment.Status.LIVE: 1,
+                NimbusExperiment.Status.DRAFT: 3,
+                NimbusExperiment.Status.LIVE: 2,
                 NimbusExperiment.Status.PREVIEW: 1,
-                "Review": 1,
+                "Review": 2,
                 "Archived": 1,
                 "MyExperiments": 1,
             },
@@ -103,7 +108,7 @@ class NimbusExperimentsListViewTest(TestCase):
             dict(response.context["status_counts"]),
             {
                 NimbusExperiment.Status.COMPLETE: 1,
-                NimbusExperiment.Status.DRAFT: 2,
+                NimbusExperiment.Status.DRAFT: 3,
                 NimbusExperiment.Status.LIVE: 1,
                 NimbusExperiment.Status.PREVIEW: 1,
                 "Review": 1,
@@ -129,13 +134,24 @@ class NimbusExperimentsListViewTest(TestCase):
 
     @parameterized.expand(
         (
-            (StatusChoices.DRAFT, ["my-experiment", NimbusExperiment.Status.DRAFT]),
+            (
+                StatusChoices.DRAFT,
+                [
+                    "my-experiment",
+                    "subscribed-experiment",
+                    NimbusExperiment.Status.DRAFT,
+                    "draft-review-experiment",
+                ],
+            ),
             (StatusChoices.PREVIEW, [NimbusExperiment.Status.PREVIEW]),
-            (StatusChoices.LIVE, [NimbusExperiment.Status.LIVE]),
+            (
+                StatusChoices.LIVE,
+                [NimbusExperiment.Status.LIVE, "live-review-experiment"],
+            ),
             (StatusChoices.COMPLETE, [NimbusExperiment.Status.COMPLETE]),
-            (StatusChoices.REVIEW, ["review-experiment"]),
+            (StatusChoices.REVIEW, ["draft-review-experiment", "live-review-experiment"]),
             (StatusChoices.ARCHIVED, ["archived-experiment"]),
-            (StatusChoices.MY_EXPERIMENTS, ["my-experiment"]),
+            (StatusChoices.MY_EXPERIMENTS, ["my-experiment", "subscribed-experiment"]),
         )
     )
     def test_filter_status(self, filter_status, expected_slugs):
@@ -145,10 +161,26 @@ class NimbusExperimentsListViewTest(TestCase):
         NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            slug="review-experiment",
+            slug="draft-review-experiment",
+        )
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            slug="live-review-experiment",
         )
         NimbusExperimentFactory.create(is_archived=True, slug="archived-experiment")
-        NimbusExperimentFactory.create(owner=self.user, slug="my-experiment")
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            owner=self.user,
+            slug="my-experiment",
+        )
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            slug="subscribed-experiment",
+            subscribers=[self.user],
+        )
 
         response = self.client.get(
             reverse("nimbus-new-list"),

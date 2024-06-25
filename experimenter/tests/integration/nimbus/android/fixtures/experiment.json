@@ -1,0 +1,55 @@
+{
+    "appId": "org.mozilla.firefox",
+    "appName": "fenix",
+    "application": "org.mozilla.firefox",
+    "arguments": {},
+    "branches": [
+      {
+        "feature": {
+          "enabled": false,
+          "featureId": "this-is-included-for-mobile-pre-96-support",
+          "value": {}
+        },
+        "features": [
+          {
+            "enabled": true,
+            "featureId": "nimbus-validation",
+            "value": {}
+          }
+        ],
+        "ratio": 1,
+        "slug": "control"
+      }
+    ],
+    "bucketConfig": {
+      "count": 10000,
+      "namespace": "fenix-no-feature-fenix-developer-1",
+      "randomizationUnit": "nimbus_id",
+      "start": 0,
+      "total": 10000
+    },
+    "channel": "developer",
+    "endDate": null,
+    "enrollmentEndDate": null,
+    "featureIds": [
+      "nimbus-validation"
+    ],
+    "featureValidationOptOut": false,
+    "id": "firefox-fenix-test-experiment",
+    "isEnrollmentPaused": false,
+    "isRollout": false,
+    "locales": null,
+    "localizations": null,
+    "outcomes": [],
+    "probeSets": [],
+    "proposedDuration": 28,
+    "proposedEnrollment": 7,
+    "publishedDate": "2024-06-14T15:47:59.677854Z",
+    "referenceBranch": "control",
+    "schemaVersion": "1.12.0",
+    "slug": "firefox-fenix-test-experiment",
+    "startDate": null,
+    "targeting": "(app_version|versionCompare('140.*') <= 0) && (app_version|versionCompare('120.!') >= 0)",
+    "userFacingDescription": "fenix fenix fenix",
+    "userFacingName": "firefox fenix"
+  }

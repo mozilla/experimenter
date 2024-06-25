@@ -186,7 +186,7 @@ features:
             max-display-count: 5
           MICROSURVEY:
             priority: 50
-            max-display-count: 5
+            max-display-count: 1
           NOTIFICATION:
             priority: 50
             max-display-count: 1
@@ -231,7 +231,7 @@ features:
           SUPPORTS_DEFAULT_BROWSER: "os_version|versionCompare('14.!') >= 0"
           INACTIVE_NEW_USER: is_inactive_new_user
           ALLOWED_TIPS_NOTIFICATIONS: allowed_tips_notifications
-          VIEWED_HOMEPAGE: "'homepage_viewed'|eventLastSeen('Hours') <= 24"
+          SECOND_HOMEPAGE_VIEW: "'homepage_viewed'|eventSum('Years', 4, 0) >= 2"
           ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
         string-alias: TriggerName
       ~~experiment:
@@ -738,6 +738,10 @@ objects:
         description: The list of survey options to present to the user.
         type: List<Text>
         default: []
+      utm-content:
+        description: The name used to provide as the utm_content parameter for the privacy notice.
+        type: Option<String>
+        default: ~
   NimbusOnboardingButton:
     description: "A group of properties describing the attributes of a card.\n"
     fields:

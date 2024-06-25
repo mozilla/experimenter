@@ -274,6 +274,12 @@ urlbar:
         will be able to click the "Show less frequently" command for Pocket
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
+    pocketSuggestIndex:
+      type: int
+      fallbackPref: browser.urlbar.pocket.suggestedIndex
+      description: >-
+        The group-relative suggestedIndex of Pocket suggestions within the Firefox
+        Suggest section.
     potentialExposureKeywords:
       type: json
       fallbackPref: browser.urlbar.potentialExposureKeywords
@@ -1106,7 +1112,10 @@ shellService:
         Should setting it as the default PDF handler only replace existing PDF
         handlers that are browsers, and not other PDF handlers such as Acrobat
         Reader or Nitro PDF.
-
+    setDefaultGuidanceNotifications:
+      type: boolean
+      fallbackPref: browser.shell.setDefaultGuidanceNotifications
+      description: Whether or not the user should see the guidance notifications when setting Firefox as their default browser.
 upgradeDialog:
   description: The dialog shown for major upgrades
   owner: omc@mozilla.com
@@ -3127,6 +3136,13 @@ pqcrypto:
         pref: network.http.http3.enable_kyber
       description: >-
         Whether to enable Xyber768 for H3/QUIC.
+    sendP256:
+      type: boolean
+      setPref:
+        branch: default
+        pref: security.tls.client_hello.send_p256_keyshare
+      description: >-
+        Whether to send a P256 share in the client hello in QUIC and TLS.
 
 dtlsWebRTC:
   description: Pref that controls the use of DTLS.

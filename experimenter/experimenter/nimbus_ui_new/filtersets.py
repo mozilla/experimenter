@@ -113,7 +113,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     firefox_min_version = django_filters.MultipleChoiceFilter(
-        choices=NimbusExperiment.Version.choices,
+        choices=reversed(NimbusExperiment.Version.choices),
         widget=MultiSelectWidget(
             icon="fa-solid fa-code-branch",
             attrs={
@@ -124,7 +124,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     feature_configs = django_filters.ModelMultipleChoiceFilter(
-        queryset=NimbusFeatureConfig.objects.all(),
+        queryset=NimbusFeatureConfig.objects.all().order_by("application", "slug"),
         widget=MultiSelectWidget(
             icon="fa-solid fa-boxes-stacked",
             attrs={
@@ -135,7 +135,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     countries = django_filters.ModelMultipleChoiceFilter(
-        queryset=Country.objects.all(),
+        queryset=Country.objects.all().order_by("code"),
         widget=MultiSelectWidget(
             icon="fa-solid fa-globe",
             attrs={
@@ -146,7 +146,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     languages = django_filters.ModelMultipleChoiceFilter(
-        queryset=Language.objects.all(),
+        queryset=Language.objects.all().order_by("code"),
         widget=MultiSelectWidget(
             icon="fa-solid fa-language",
             attrs={
@@ -157,7 +157,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     locales = django_filters.ModelMultipleChoiceFilter(
-        queryset=Locale.objects.all(),
+        queryset=Locale.objects.all().order_by("code"),
         widget=MultiSelectWidget(
             icon="fa-solid fa-earth-americas",
             attrs={
@@ -168,7 +168,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     targeting_config_slug = django_filters.MultipleChoiceFilter(
-        choices=TargetingConstants.TargetingConfig.choices,
+        choices=sorted(TargetingConstants.TargetingConfig.choices),
         widget=MultiSelectWidget(
             icon="fa-solid fa-users-rectangle",
             attrs={
@@ -179,7 +179,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     projects = django_filters.ModelMultipleChoiceFilter(
-        queryset=Project.objects.all(),
+        queryset=Project.objects.all().order_by("slug"),
         widget=MultiSelectWidget(
             icon="fa-solid fa-person-chalkboard",
             attrs={
@@ -266,19 +266,20 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     def filter_status(self, queryset, name, value):
         match value:
             case StatusChoices.REVIEW:
-                return queryset.filter(
-                    status=NimbusExperiment.Status.DRAFT,
-                    publish_status=NimbusExperiment.PublishStatus.REVIEW,
+                return queryset.exclude(
+                    publish_status=NimbusExperiment.PublishStatus.IDLE,
                 )
             case StatusChoices.ARCHIVED:
                 return queryset.filter(is_archived=True)
             case StatusChoices.MY_EXPERIMENTS:
-                return queryset.filter(owner=self.request.user)
+                return queryset.filter(
+                    Q(owner=self.request.user) | Q(subscribers=self.request.user)
+                )
             case _:
                 return queryset.filter(
                     status=value,
                     is_archived=False,
-                ).exclude(publish_status=NimbusExperiment.PublishStatus.REVIEW)
+                )
 
     def filter_search(self, queryset, name, value):
         search_fields = Concat(
