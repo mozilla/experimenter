@@ -1,7 +1,7 @@
 # Implementing QA-Only Mode for Web Apps to Test Features
 
 * **Status**: Accepted
-* **Deciders**: Yashika Khurana, Benjamin Forehand, Jared Kerim
+* **Deciders**: Yashika Khurana, Jared Lockhart, Benjamin Forehand
 * **Date**: 2024-06-14
 
 ## Context and Problem Statement
