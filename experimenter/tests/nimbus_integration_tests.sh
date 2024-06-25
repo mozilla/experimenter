@@ -10,7 +10,7 @@ if [[ -n "${UPDATE_FIREFOX_VERSION}" ]]; then
 fi
 
 sudo apt-get -qqy update && sudo apt-get -qqy install python3-venv python3-pip
-pip install poetry
+pip install poetry --break-system-packages
 mkdir -m a+rwx /code/experimenter/tests/integration/test-reports
 sudo chmod -R a+rwx /code/experimenter/tests/integration/
 
