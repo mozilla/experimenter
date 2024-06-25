@@ -1531,7 +1531,7 @@ EXISTING_USER_NEED_DEFAULT_WIN1903 = NimbusTargetingConfig(
     description=(
         "Users with profiles older than 28 days "
         "who have not set to default, on Windows 1903+"
-        ),
+    ),
     targeting=f"{PROFILE28DAYS} && {NEED_DEFAULT} && {WIN1903}",
     desktop_telemetry="",
     sticky_required=True,
