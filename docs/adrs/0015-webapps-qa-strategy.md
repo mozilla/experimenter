@@ -49,8 +49,9 @@ Chosen option: "QA-Only Preview Collection," because it allows the creation of a
 ### New QA Flag on Experimenter
 **Workflow**:
 1. **Configuration Setup**: Configure the experiment/rollout with a QA-only checkbox in the audience or summary, setting the targeting context.
-`Targeting: `locale == ‘en-US’ & region == ‘US’ & qa_only == 1`
-`
+```
+Targeting: `locale == ‘en-US’ & region == ‘US’ & qa_only == 1`
+```
 2. **QA Activation**: Navigate to the specified URL with the `?qa_only=1` parameter to activate QA mode.
 This will include the new key in the context when calling the cirrus as
 `{
