@@ -18,7 +18,7 @@ MOBILE_APPS = [
 
 @pytest.fixture
 def image_path():
-    path = Path(__file__).parent / "example.jpg"
+    path = Path(__file__).parents[1] / "example.jpg"
     return path.absolute()
 
 
