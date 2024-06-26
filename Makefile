@@ -221,10 +221,10 @@ integration_vnc_up_detached: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
 
 integration_test_legacy: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "PYTEST_ARGS=$(PYTEST_ARGS) ./experimenter/tests/experimenter_legacy_tests.sh"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "./experimenter/tests/experimenter_legacy_tests.sh"
 
 integration_test_nimbus: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "UPDATE_FIREFOX_VERSION=$(UPDATE_FIREFOX_VERSION) PYTEST_ARGS=$(PYTEST_ARGS) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "UPDATE_FIREFOX_VERSION=$(UPDATE_FIREFOX_VERSION) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
 
 integration_test_nimbus_rust: build_integration_test build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
