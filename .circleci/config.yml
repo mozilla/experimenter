@@ -620,14 +620,14 @@ jobs:
             git checkout main
             git pull origin main
             cd experimenter/tests/integration/nimbus/android
-            export CURRENT_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_BUILD_ID=).*')
+            CURRENT_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
             ./update-fenix-apks.sh
-            export LATEST_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_BUILD_ID=).*')
+            LATEST_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
             if (($(git status --porcelain | wc -c) > 0)); then
               git checkout -B update-fenix-apks
               git add .
               git commit -m "chore(nimbus): Update fenix apks for testing"
-              if diff <(echo "$CURRENT_FENIX_BUILD_ID") <(echo "$LATEST_FENIX_BUILD_ID") > /dev/null; then
+              if [[ "${CURRENT_FENIX_BUILD_ID}" != "${LATEST_FENIX_BUILD_ID}" ]]; then
                 echo "Changes already committed, skipping"
               else
                 git push origin update-fenix-apks
