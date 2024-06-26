@@ -6,7 +6,7 @@ import pytest
 @pytest.fixture
 def filter_expression_path():
     here = Path(__file__).cwd()
-    return Path(next(iter(here.glob("**/utils/filter_expression.js"))))
+    return Path(next(iter(here.glob("**/legacy/utils/filter_expression.js"))))
 
 
 def test_filter_expressions_with_matching_firefox_versions(
