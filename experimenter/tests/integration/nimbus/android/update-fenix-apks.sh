@@ -19,4 +19,4 @@ TASK_ID=$(curl ${CURLFLAGS[@]} "${TASKCLUSTER_API}/tasks/${INDEX_BASE}.${LATEST_
 
 echo TASK ID "${TASK_ID}"
 
-echo "FIREFOX_FENIX_BUILD_ID=${TASK_ID}" > fenix-build.env
+echo "FIREFOX_FENIX_TASK_ID=${TASK_ID}" > fenix-build.env
