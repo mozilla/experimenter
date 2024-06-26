@@ -1578,6 +1578,26 @@ class TestNimbusExperiment(TestCase):
             )
             self.assertEqual(experiment.review_url, expected)
 
+    def test_review_url_prefflips_feature(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="prefFlips",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        with override_settings(
+            KINTO_ADMIN_URL="http://kinto/v1/admin/",
+        ):
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                application=NimbusExperiment.Application.DESKTOP,
+                feature_configs=[feature_config],
+            )
+
+            self.assertEqual(
+                experiment.review_url,
+                "http://kinto/v1/admin/#/buckets/main-workspace/collections/nimbus-secure-experiments/simple-review",
+            )
+
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
