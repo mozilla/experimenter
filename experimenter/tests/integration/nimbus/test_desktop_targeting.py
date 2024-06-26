@@ -15,8 +15,8 @@ def targeting_config_slug(request):
 
 @pytest.fixture
 def filter_expression_path():
-    here = Path(__file__).cwd()
-    return Path(next(iter(here.glob("**/nimbus/utils/filter_expression.js"))))
+    path = Path(__file__).parent / "utils" / "filter_expression.js"
+    return path.absolute()
 
 
 @pytest.mark.run_targeting
@@ -39,7 +39,7 @@ def test_check_advanced_targeting(
 
     # Inject filter expression
     selenium.get("about:blank")
-    with Path(filter_expression_path).open() as js:
+    with filter_expression_path.open() as js:
         result = Browser.execute_script(
             selenium,
             targeting,
@@ -92,7 +92,7 @@ def test_check_audience_targeting(
 
     # Inject filter expression
     selenium.get("about:blank")
-    with Path(filter_expression_path).open() as js:
+    with filter_expression_path.open() as js:
         result = Browser.execute_script(
             selenium,
             targeting,

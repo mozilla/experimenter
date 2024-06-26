@@ -18,8 +18,8 @@ MOBILE_APPS = [
 
 @pytest.fixture
 def image_path():
-    here = Path(__file__).cwd()
-    return Path(next(iter(here.glob("**/example.jpg"))))
+    path = Path(__file__).parent / "example.jpg"
+    return path.absolute()
 
 
 @pytest.mark.nimbus_ui
