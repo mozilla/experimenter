@@ -16,6 +16,12 @@ MOBILE_APPS = [
 ]
 
 
+@pytest.fixture
+def image_path():
+    here = Path(__file__).cwd()
+    return Path(next(iter(here.glob("**/example.jpg"))))
+
+
 @pytest.mark.nimbus_ui
 @pytest.mark.xdist_group(name="group2")
 def test_archive_experiment(
@@ -74,12 +80,12 @@ def test_promote_to_rollout(
 def test_branch_screenshot(
     selenium,
     create_experiment,
+    image_path
 ):
     summary = create_experiment(selenium)
     branches = summary.navigate_to_branches()
     branches.add_screenshot_buttons[0].click()
 
-    image_path = Path.cwd() / "example.jpg"
     branches.screenshot_image_field().send_keys(str(image_path))
 
     expected_description = "Example screenshot description text"
