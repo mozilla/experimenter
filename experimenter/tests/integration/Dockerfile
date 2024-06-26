@@ -7,6 +7,9 @@ ENV PYTHONPATH=$PYTHONPATH:/application-services/
 
 RUN apt-get update -qqy && \
     apt-get install -qqy \
-        tox
+        python3-venv \
+        python3-pip
+
+RUN pip install poetry
 
 WORKDIR /code
