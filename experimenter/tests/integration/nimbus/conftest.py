@@ -180,9 +180,14 @@ def experiment_url(base_url, experiment_slug):
 def fixture_load_experiment_outcomes():
     """Fixture to create a list of outcomes based on the current configs."""
     outcomes = {"firefox_desktop": "", "fenix": "", "firefox_ios": ""}
-    current_path = Path.cwd()
-    base_path = Path(
-        f"{current_path.parent.parent}/experimenter/outcomes/metric-hub-main/jetstream/outcomes"
+    parent_path = Path(__file__).parents[3]
+    base_path = (
+        parent_path
+        / "experimenter"
+        / "outcomes"
+        / "metric-hub-main"
+        / "jetstream"
+        / "outcomes"
     )
 
     for k in list(outcomes):
