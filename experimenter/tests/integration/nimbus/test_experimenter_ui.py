@@ -77,11 +77,7 @@ def test_promote_to_rollout(
 
 @pytest.mark.nimbus_ui
 @pytest.mark.xdist_group(name="group2")
-def test_branch_screenshot(
-    selenium,
-    create_experiment,
-    image_path
-):
+def test_branch_screenshot(selenium, create_experiment, image_path):
     summary = create_experiment(selenium)
     branches = summary.navigate_to_branches()
     branches.add_screenshot_buttons[0].click()
