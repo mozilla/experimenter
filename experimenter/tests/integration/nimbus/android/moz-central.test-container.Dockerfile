@@ -17,8 +17,9 @@ RUN dependencies=' \
     && set -x \
     && apt-get -qq update && apt-get -qq install -y $dependencies && apt-get clean
 
-ENV JAVA_HOME /root/.mozbuild/jdk/jdk-17.0.11+9
-ENV ANDROID_HOME /root/.mozbuild/android-sdk-linux
+ENV JAVA_HOME=/root/.mozbuild/jdk/jdk-17.0.11+9 \
+    ANDROID_HOME=/root/.mozbuild/android-sdk-linux \
+    AUTOCLOBBER=1
 
 RUN hg clone https://hg.mozilla.org/mozilla-central/
 
