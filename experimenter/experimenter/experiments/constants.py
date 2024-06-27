@@ -765,3 +765,24 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FEATURE_TARGET_COLLECTION = (
         "Feature '{feature_id}' publishes to collection '{collection}'"
     )
+
+
+RISK_QUESTIONS = {
+    "BRAND": (
+        "If the public, users or press, were to discover this experiment and "
+        "description, do you think it could negatively impact their perception "
+        "of the brand?"
+    ),
+    "MESSAGE": (
+        "Does your experiment include ANY messages? If yes, this requires "
+        "the Message Consult"
+    ),
+    "PARTNER": (
+        "Does this experiment impact or rely on a partner or outside company "
+        "(e.g. Google, Amazon) or deliver any encryption or VPN?"
+    ),
+    "REVENUE": (
+        "Does this experiment have a risk to negatively impact revenue "
+        "(e.g. search, Pocket revenue)?"
+    ),
+}
