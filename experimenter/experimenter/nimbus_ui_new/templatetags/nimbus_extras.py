@@ -1,4 +1,7 @@
 from django import template
+from django.utils.safestring import mark_safe
+
+from experimenter.experiments.constants import NimbusConstants
 
 register = template.Library()
 
@@ -41,3 +44,24 @@ def pagination_url(context, page, **kwargs):
         return f"?{data.urlencode()}"
     else:
         return "."
+
+
+@register.filter
+def parse_version(version_str):
+    if version_str:
+        return NimbusConstants.Version.parse(version_str)
+    return "No Version"
+
+
+@register.filter(name="remove_underscores")
+def remove_underscores(value):
+    """Replace underscores in the string with spaces."""
+    return value.replace("_", " ")
+
+
+@register.filter(name="format_not_set")
+def format_not_set(value):
+    """Formats the given value to display 'Not set' in red if it's empty or None."""
+    if value in [None, "", "NOT SET"]:
+        return mark_safe('<span class="text-danger">Not set</span>')
+    return value
