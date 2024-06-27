@@ -143,7 +143,7 @@
               <th colspan="3">{{ RISK_QUESTIONS.BRAND }}</th>
               <td class="{% if experiment.risk_brand %}text-danger font-weight-bold{% endif %}">
                 {% if experiment.risk_brand != None %}
-                  {{ experiment.risk_brand|yesno }}
+                  {{ experiment.risk_brand|yesno:"Yes,No" }}
                 {% else %}
                   Not Set
                 {% endif %}
@@ -153,7 +153,7 @@
               <th colspan="3">{{ RISK_QUESTIONS.MESSAGE }}</th>
               <td class="{% if experiment.risk_message %}text-danger font-weight-bold{% endif %}">
                 {% if experiment.risk_message != None %}
-                  {{ experiment.risk_message|yesno }}
+                  {{ experiment.risk_message|yesno:"Yes,No" }}
                 {% else %}
                   Not Set
                 {% endif %}
@@ -163,7 +163,7 @@
               <th colspan="3">{{ RISK_QUESTIONS.REVENUE }}</th>
               <td class="{% if experiment.risk_revenue %}text-danger font-weight-bold{% endif %}">
                 {% if experiment.risk_revenue != None %}
-                  {{ experiment.risk_revenue|yesno }}
+                  {{ experiment.risk_revenue|yesno:"Yes,No" }}
                 {% else %}
                   Not Set
                 {% endif %}
@@ -173,7 +173,7 @@
               <th colspan="3">{{ RISK_QUESTIONS.PARTNER }}</th>
               <td class="{% if experiment.risk_partner_related %}text-danger font-weight-bold{% endif %}">
                 {% if experiment.risk_partner_related != None %}
-                  {{ experiment.risk_partner_related|yesno }}
+                  {{ experiment.risk_partner_related|yesno:"Yes,No" }}
                 {% else %}
                   Not Set
                 {% endif %}
