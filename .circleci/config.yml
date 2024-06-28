@@ -615,7 +615,7 @@ jobs:
             git config --local user.email "dataops+ci-bot@mozilla.com"
             gh config set git_protocol https
       - run:
-          name: Check for Application Services update
+          name: Check for Fenix Update
           command: |
             git checkout main
             git pull origin main
