@@ -975,6 +975,16 @@ pocketNewtab:
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-bff-config
       description: A comma-separated list of regions to get stories from the recommendations BFF. Also requires region-stories-config.
+    merinoProviderEnabled:
+      type: string
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.merino-provider.enabled
+      description: Sets the recommendations provider service to Merino.
+    merinoProviderEndpoint:
+      type: string
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.merino-provider.endpoint
+      description: Merino endpoint to use for recommendations.
     regionStoriesBlock:
       description: A comma-separated list of regions that do not get stories, regardless of locale-list-config.
       type: string
@@ -1779,6 +1789,24 @@ networking:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
+    chipsPartitionLimitEnabled:
+      description: Whether we enforce CHIPS partition limit
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.chips.partitionLimitEnabled"
+    chipsPartitionLimitDryRun:
+      description: Whether we actually perform purging/rejection, used to report telemetry without webcompat issues
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.chips.partitionLimitDryRun"
+    chipsPartitionLimitByteCapacity:
+      description: The actual value of the CHIPS partition limit in bytes
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.chips.partitionLimitByteCapacity"
 
 networkPrioritization:
   description: "Network request prioritization"
