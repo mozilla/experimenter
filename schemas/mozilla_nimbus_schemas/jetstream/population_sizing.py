@@ -21,6 +21,7 @@ class SizingReleaseChannel(str, Enum):
 class SizingUserType(str, Enum):
     NEW = "new"
     EXISTING = "existing"
+    ALL = "all"
 
 
 class SizingMetric(BaseModel):
