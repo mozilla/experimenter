@@ -7,6 +7,14 @@ automatic-removal-csat-survey:
     enabled:
       type: boolean
       description: If the feature is enabled
+data-privacy-petition-banner:
+  description: Show the data privacy petition banner to US users
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: If the feature is enabled
 last-scan-date:
   description: "Show the date of the user's last scan in the top right-hand corner"
   hasExposure: true
