@@ -464,6 +464,13 @@ features:
         description: The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
         type: Int
         default: 0
+  suggest-shipped-domains:
+    description: Feature that suggests domains from the shipped domain list.
+    variables:
+      enabled:
+        description: "Suggest domains from the shipped domain list.\n"
+        type: Boolean
+        default: false
   toolbar:
     description: The searchbar/awesomebar that user uses to search.
     variables:
