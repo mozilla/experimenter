@@ -5,7 +5,7 @@
 * **Date**: 2024-06-14
 
 ## Context and Problem Statement
-We have identified a significant gap in our QA testing process. Bugs are often not detected until features are live in production, despite thorough testing and QA in staging environments. This issue arises from differences in data and user interaction patterns between staging and production environments. To address this, we require a method to test features in production without affecting real users.
+We have identified a significant gap in our QA testing process for webapps that integrate with Cirrus. Bugs are often not detected until features are live in production, despite thorough testing and QA in staging environments. This issue arises from differences in data and user interaction patterns between staging and production environments. To address this, we require a method to test features in production without affecting real users.
 
 ## Decision Drivers
 - **Accuracy of Testing**: Ensuring features are tested under realistic conditions to detect bugs that may not appear in staging.
