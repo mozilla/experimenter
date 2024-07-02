@@ -2,6 +2,7 @@ version: 2.1
 orbs:
   gh: circleci/github-cli@2.2
   gcp-cli: circleci/gcp-cli@3.1.1
+  android: circleci/android@2.5.0
 commands:
   check_file_paths:
     description: "Check file paths"
@@ -340,8 +341,6 @@ jobs:
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
-    environment:
-      PYTEST_ARGS: -k FIREFOX_FENIX
     steps:
       - checkout
       - check_file_paths:
@@ -350,7 +349,7 @@ jobs:
           name: Run rust integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_rust PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_rust
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
@@ -395,6 +394,42 @@ jobs:
             make refresh up_prod_detached integration_test_legacy
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+
+  integration_test_android_fenix:
+    executor:
+      name: android/android-machine
+      resource-class: xlarge
+      tag: default
+    environment:
+      PYTEST_ARGS: --reruns 1
+    steps:
+      - restore_cache:
+          keys:
+            - experimenter-firefox-fenix-apks
+      - checkout
+      - android/accept-licenses
+      - android/create-avd:
+          avd-name: myavd
+          install: true
+          system-image: system-images;android-34;google_apis;x86_64
+      - android/start-emulator:
+          avd-name: myavd
+          post-emulator-launch-assemble-command: adb devices
+      - run:
+          name: Install APKs
+          command: |
+            adb install /home/circleci/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
+            adb install /home/circleci/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+      - run:
+          name: Download test files and run
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
+            pip install poetry
+            make integration_test_nimbus_fenix PYTEST_ARGS="$PYTEST_ARGS"
+      - android/save-gradle-cache:
+          cache-prefix: v1a
+      - store_artifacts:
+          path: /home/circleci/project/test-reports/report.htm
 
   deploy_experimenter:
     working_directory: ~/experimenter
@@ -561,6 +596,46 @@ jobs:
             else
               echo "No config changes, skipping"
             fi
+  update_fenix_apks:
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
+      - checkout
+      - gh/setup:
+          token: GH_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
+      - run:
+          name: Setup Git
+          command: |
+            git config --local user.name "dataops-ci-bot"
+            git config --local user.email "dataops+ci-bot@mozilla.com"
+            gh config set git_protocol https
+      - run:
+          name: Check for Fenix Update
+          command: |
+            git checkout main
+            git pull origin main
+            cd experimenter/tests/integration/nimbus/android
+            CURRENT_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
+            ./update-fenix-apks.sh
+            LATEST_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
+            if (($(git status --porcelain | wc -c) > 0)); then
+              git checkout -B update-fenix-apks
+              git add .
+              git commit -m "chore(nimbus): Update fenix apks for testing"
+              if [[ "${CURRENT_FENIX_BUILD_ID}" != "${LATEST_FENIX_BUILD_ID}" ]]; then
+                echo "Changes already committed, skipping"
+              else
+                git push origin update-fenix-apks
+                gh pr create -t "chore(nimbus): Update fenix apks for testing" -b "" --base main --head update-fenix-apks --repo mozilla/experimenter || echo "PR already exists, skipping"
+              fi
+            else
+              echo "No config changes, skipping"
+            fi
 
   build_firefox_versions:
     working_directory: ~/experimenter
@@ -583,6 +658,34 @@ jobs:
             docker tag selenium/standalone-firefox:firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
             docker push ${DOCKERHUB_REPO}:nimbus-firefox-beta
             docker push ${DOCKERHUB_REPO}:nimbus-firefox-release
+
+  build_firefox_fenix:
+    working_directory: ~/experimenter
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
+    resource_class: xlarge
+    steps:
+      - checkout
+      - docker_login:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+      - run:
+          name: Build and upload images
+          command: |
+            cd experimenter/tests/integration/nimbus/android
+            docker run --name fenix-builder ${DOCKERHUB_REPO}:experimenter-moz-central bash build_android.sh
+            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
+            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
+            docker commit fenix-builder moz-central-builder
+            docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
+            docker push ${DOCKERHUB_REPO}:experimenter-moz-central
+          no_output_timeout: 1h
+      - save_cache:
+          key: experimenter-firefox-fenix-apks-{{ checksum "experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk" }}
+          paths:
+            - experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+            - experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
 
 workflows:
   build_firefox:
@@ -607,6 +710,7 @@ workflows:
     jobs:
       - update_external_configs
       - update_application_services
+      - update_fenix_apks
 
   build:
     jobs:
@@ -702,6 +806,12 @@ workflows:
             branches:
               ignore:
                 - main
+      - integration_test_android_fenix:
+          name: Test Firefox for Android (Fenix)
+          filters:
+            branches:
+              ignore:
+                - main
       - deploy_experimenter:
           name: Deploy Experimenter
           filters:
@@ -723,4 +833,9 @@ workflows:
           filters:
             branches:
               only: main
-
+      - build_firefox_fenix:
+          name: Build Fenix APKs
+          filters:
+            branches:
+              only:
+                - update-fenix-apks
