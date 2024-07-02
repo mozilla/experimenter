@@ -183,13 +183,10 @@ export const AppLayoutSidebarLaunched = ({
               className="flex-column font-weight-semibold mx-2 w-100"
               as="ul"
             >
-              <LinkNav
-                className="mb-3 small font-weight-bold"
-                textColor="text-secondary"
-              >
+              <a href={"/nimbus/"} className="mb-3 small font-weight-bold">
                 <ChevronLeft className="ml-n1" width="18" height="18" />
                 Back to Experiments
-              </LinkNav>
+              </a>
 
               <LinkNavSummary
                 {...{ status, slug }}
