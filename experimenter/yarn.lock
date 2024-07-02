@@ -2472,6 +2472,11 @@
   dependencies:
     "@lezer/common" "^1.0.0"
 
+"@mozilla/nimbus-schemas@2024.7.1":
+  version "2024.7.1"
+  resolved "https://registry.yarnpkg.com/@mozilla/nimbus-schemas/-/nimbus-schemas-2024.7.1.tgz#d0e16b93731fa2f279203518b12bf65eeb294cca"
+  integrity sha512-AdNQbJh8J8lq6q9TNQ7/udpjFmxIImP4xk0I9T1HC7Uc5GKxDw9nUM6d+ko9SSseBDvJ1m6lNz8AGtWBKrZKaw==
+
 "@mozilla/nimbus-schemas@^2023.10.1":
   version "2023.10.1"
   resolved "https://registry.yarnpkg.com/@mozilla/nimbus-schemas/-/nimbus-schemas-2023.10.1.tgz#19fc58c8fb848b0b6d0309cd51802b599c844abc"
