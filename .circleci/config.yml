@@ -403,9 +403,6 @@ jobs:
     environment:
       PYTEST_ARGS: --reruns 1
     steps:
-      - restore_cache:
-          keys:
-            - experimenter-firefox-fenix-apks
       - checkout
       - android/accept-licenses
       - android/create-avd:
@@ -418,8 +415,10 @@ jobs:
       - run:
           name: Install APKs
           command: |
-            adb install /home/circleci/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
-            adb install /home/circleci/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+            docker run -d --name fenix-files ${DOCKERHUB_REPO}:fenix-apk-store
+            docker cp fenix-files:/usr/src/app/files /home/circleci/experimenter/experimenter/tests/integration/nimbus/android
+            adb install /home/circleci/experimenter/experimenter/tests/integration/nimbus/android/files/app-fenix-x86_64-debug.apk
+            adb install /home/circleci/experimenter/experimenter/tests/integration/nimbus/android/files/app-fenix-debug-androidTest.apk
       - run:
           name: Download test files and run
           command: |
@@ -679,13 +678,10 @@ jobs:
             docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
             docker commit fenix-builder moz-central-builder
             docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
+            docker build -f fenix-apk-store.Dockerfile -t ${DOCKERHUB_REPO}:fenix-apk-store .
             docker push ${DOCKERHUB_REPO}:experimenter-moz-central
+            docker push ${DOCKERHUB_REPO}:fenix-apk-store
           no_output_timeout: 1h
-      - save_cache:
-          key: experimenter-firefox-fenix-apks-{{ checksum "experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk" }}
-          paths:
-            - experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
-            - experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
 
 workflows:
   build_firefox:
@@ -714,6 +710,7 @@ workflows:
 
   build:
     jobs:
+      - build_firefox_fenix
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
