@@ -12,7 +12,7 @@ export type Feature = FeatureWithExposure | FeatureWithoutExposure;
 export type FeatureVariableType = "int" | "string" | "boolean" | "json";
 export type PrefBranch = "default" | "user";
 export type SizingReleaseChannel = "release" | "beta" | "nightly";
-export type SizingUserType = "new" | "existing";
+export type SizingUserType = "new" | "existing" | "all";
 export type Statistics = Statistic[];
 
 export interface AnalysisError {
