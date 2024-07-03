@@ -35,7 +35,7 @@ JS_TEST_LEGACY = yarn workspace @experimenter/core test
 JS_TEST_NIMBUS_UI = DEBUG_PRINT_LIMIT=999999 CI=yes yarn workspace @experimenter/nimbus-ui test:cov
 NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
-RUFF_CHECK = ruff experimenter/ tests/
+RUFF_CHECK = ruff check experimenter/ tests/
 RUFF_FIX = ruff --fix experimenter/ tests/
 BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
 BLACK_FIX = black -l 90 . --exclude node_modules
@@ -237,7 +237,7 @@ integration_test_nimbus_fenix:
 CIRRUS_ENABLE = export CIRRUS=1 &&
 CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
 CIRRUS_BLACK_FIX = black -l 90 .
-CIRRUS_RUFF_CHECK = ruff .
+CIRRUS_RUFF_CHECK = ruff check .
 CIRRUS_RUFF_FIX = ruff --fix .
 CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus
 CIRRUS_PYTHON_TYPECHECK = pyright -p .
@@ -283,7 +283,7 @@ SCHEMAS_ENV ?=  # This is empty by default
 SCHEMAS_VERSION = \$$(cat VERSION)
 SCHEMAS_RUN = docker run -ti $(SCHEMAS_ENV) -v ./schemas:/schemas -v /schemas/node_modules schemas:dev sh -c
 SCHEMAS_BLACK = black --check --diff .
-SCHEMAS_RUFF = ruff .
+SCHEMAS_RUFF = ruff check .
 SCHEMAS_DIFF_PYDANTIC = \
 	pydantic2ts --module mozilla_nimbus_schemas.__init__ --output /tmp/test_index.d.ts --json2ts-cmd 'yarn json2ts' &&\
 	diff /tmp/test_index.d.ts index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1) &&\
