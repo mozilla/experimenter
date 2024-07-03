@@ -38,8 +38,5 @@
   "bugs": {
     "url": "https://github.com/mozilla/experimenter/issues"
   },
-  "homepage": "https://github.com/mozilla/experimenter#readme",
-  "dependencies": {
-    "@mozilla/nimbus-schemas": "2024.7.1"
-  }
+  "homepage": "https://github.com/mozilla/experimenter#readme"
 }
