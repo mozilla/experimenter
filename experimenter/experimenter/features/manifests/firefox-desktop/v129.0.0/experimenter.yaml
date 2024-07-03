@@ -1414,6 +1414,14 @@ whatsNewPage:
       setPref:
         branch: user
         pref: startup.homepage_override_nimbus_minVersion
+    disableWNP:
+      description: >-
+        Block all What's New Pages. Used to compare no-WNP control branches to
+        WNP treatment branches.
+      type: boolean
+      setPref:
+        branch: user
+        pref: startup.homepage_override_nimbus_disable_wnp
 
 pbNewtab:
   description: "A Firefox Messaging System message for the pbNewtab message channel"
@@ -2442,7 +2450,7 @@ gc:
         branch: user
         pref: "javascript.options.mem.incremental_weakmap"
     gc_incremental_slice_ms:
-      description: Max milliseconds to spend in a non-idle incremental GC slice.
+      description: Max milliseconds to spend in an incremental GC slice.
       type: int
       setPref:
         branch: user
