@@ -97,7 +97,7 @@ class TestNimbusExperimentManager(TestCase):
             [experiment1],
         )
 
-    def test_launch_queue_multiple_collections(self):
+    def test_launch_queue_filters_by_collection(self):
         test_feature = NimbusFeatureConfigFactory.create(
             slug="test-feature",
             name="test-feature",
@@ -170,7 +170,7 @@ class TestNimbusExperimentManager(TestCase):
             [experiment1],
         )
 
-    def test_end_queue_multiple_collections(self):
+    def test_end_queue_filters_by_collection(self):
         test_feature = NimbusFeatureConfigFactory.create(
             slug="test-feature",
             name="test-feature",
@@ -242,7 +242,7 @@ class TestNimbusExperimentManager(TestCase):
             [experiment_should_update],
         )
 
-    def test_update_queue_multiple_collections(self):
+    def test_update_queue_filters_by_collection(self):
         test_feature = NimbusFeatureConfigFactory.create(
             slug="test-feature",
             name="test-feature",
@@ -303,7 +303,7 @@ class TestNimbusExperimentManager(TestCase):
             [desktop_live_waiting],
         )
 
-    def test_waiting_multiple_collections(self):
+    def test_waiting_filters_by_collection(self):
         test_feature = NimbusFeatureConfigFactory.create(
             slug="test-feature",
             name="test-feature",
@@ -373,7 +373,7 @@ class TestNimbusExperimentManager(TestCase):
             [launching],
         )
 
-    def test_waiting_to_launch_multiple_collections(self):
+    def test_waiting_to_launch_filters_by_collection(self):
         test_feature = NimbusFeatureConfigFactory.create(
             slug="test-feature",
             name="test-feature",
