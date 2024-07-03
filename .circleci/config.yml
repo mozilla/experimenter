@@ -675,12 +675,12 @@ jobs:
             cd experimenter/tests/integration/nimbus/android
             docker build -t moz-central-builder -f moz-central.test-container.Dockerfile . 
             docker run --name fenix-builder moz-central-builder bash build_android.sh
-            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
-            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
             docker commit fenix-builder moz-central-builder
             docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
-            docker build -f fenix-apk-store.Dockerfile -t ${DOCKERHUB_REPO}:fenix-apk-store .
             docker push ${DOCKERHUB_REPO}:experimenter-moz-central
+            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
+            docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
+            docker build -f fenix-apk-store.Dockerfile -t ${DOCKERHUB_REPO}:fenix-apk-store .
             docker push ${DOCKERHUB_REPO}:fenix-apk-store
           no_output_timeout: 1h
 
