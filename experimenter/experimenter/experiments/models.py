@@ -66,43 +66,65 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
             .order_by("-_updated_date_time")
         )
 
-    def launch_queue(self, applications):
-        return self.filter(
-            NimbusExperiment.Filters.IS_LAUNCH_QUEUED,
-            application__in=applications,
+    def for_collection(self, query, collection):
+        return (e for e in query if e.kinto_collection == collection)
+
+    def launch_queue(self, applications, collection):
+        return self.for_collection(
+            self.filter(
+                NimbusExperiment.Filters.IS_LAUNCH_QUEUED,
+                application__in=applications,
+            ),
+            collection,
         )
 
-    def update_queue(self, applications):
-        return self.filter(
-            NimbusExperiment.Filters.IS_UPDATE_QUEUED,
-            application__in=applications,
+    def update_queue(self, applications, collection):
+        return self.for_collection(
+            self.filter(
+                NimbusExperiment.Filters.IS_UPDATE_QUEUED,
+                application__in=applications,
+            ),
+            collection,
         )
 
-    def end_queue(self, applications):
-        return self.filter(
-            NimbusExperiment.Filters.IS_END_QUEUED,
-            application__in=applications,
+    def end_queue(self, applications, collection):
+        return self.for_collection(
+            self.filter(
+                NimbusExperiment.Filters.IS_END_QUEUED,
+                application__in=applications,
+            ),
+            collection,
         )
 
-    def waiting(self, applications):
-        return self.filter(
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
-            application__in=applications,
+    def waiting(self, applications, collection):
+        return self.for_collection(
+            self.filter(
+                publish_status=NimbusExperiment.PublishStatus.WAITING,
+                application__in=applications,
+            ),
+            collection,
         )
 
-    def waiting_to_launch_queue(self, applications):
-        return self.filter(
-            NimbusExperiment.Filters.IS_LAUNCHING, application__in=applications
+    def waiting_to_launch_queue(self, applications, collection):
+        return self.for_collection(
+            self.filter(
+                NimbusExperiment.Filters.IS_LAUNCHING, application__in=applications
+            ),
+            collection,
         )
 
-    def waiting_to_update_queue(self, applications):
-        return self.filter(
-            NimbusExperiment.Filters.IS_UPDATING, application__in=applications
+    def waiting_to_update_queue(self, applications, collection):
+        return self.for_collection(
+            self.filter(
+                NimbusExperiment.Filters.IS_UPDATING, application__in=applications
+            ),
+            collection,
         )
 
-    def waiting_to_end_queue(self, applications):
-        return self.filter(
-            NimbusExperiment.Filters.IS_ENDING, application__in=applications
+    def waiting_to_end_queue(self, applications, collection):
+        return self.for_collection(
+            self.filter(NimbusExperiment.Filters.IS_ENDING, application__in=applications),
+            collection,
         )
 
 
@@ -1136,6 +1158,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def get_firefox_max_version_display(self):
         return self.firefox_max_version.replace("!", "0")
+
+    @property
+    def kinto_collection(self):
+        # Note: this can throw if there are conflicting features targeting
+        # different collections.
+        if self.application_config:
+            return self.application_config.get_kinto_collection_for(self)
 
 
 class NimbusBranch(models.Model):
