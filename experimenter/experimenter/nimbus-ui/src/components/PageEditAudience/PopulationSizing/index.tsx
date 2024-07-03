@@ -121,7 +121,7 @@ const PopulationSizing = ({
         </Form.Label>
         <Form.Label
           className="d-flex align-items-center"
-          data-testid="existing-total-clients-label"
+          data-testid="all-total-clients-label"
         >
           {totalClients} total clients
           <Info
