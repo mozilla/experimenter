@@ -416,9 +416,9 @@ jobs:
           name: Install APKs
           command: |
             docker run -d --name fenix-files ${DOCKERHUB_REPO}:fenix-apk-store
-            docker cp fenix-files:/usr/src/app/files /home/circleci/experimenter/experimenter/tests/integration/nimbus/android
-            adb install /home/circleci/experimenter/experimenter/tests/integration/nimbus/android/files/app-fenix-x86_64-debug.apk
-            adb install /home/circleci/experimenter/experimenter/tests/integration/nimbus/android/files/app-fenix-debug-androidTest.apk
+            docker cp fenix-files:/usr/src/app/files /home/circleci/project
+            adb install /home/circleci/project/files/app-fenix-x86_64-debug.apk
+            adb install /home/circleci/project/files/app-fenix-debug-androidTest.apk
       - run:
           name: Download test files and run
           command: |
@@ -673,8 +673,7 @@ jobs:
           name: Build and upload images
           command: |
             cd experimenter/tests/integration/nimbus/android
-            docker build -t moz-central-builder -f moz-central.test-container.Dockerfile . 
-            docker run --name fenix-builder moz-central-builder bash build_android.sh
+            docker run --name fenix-builder ${DOCKERHUB_REPO}:experimenter-moz-central bash build_android.sh
             docker commit fenix-builder moz-central-builder
             docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
             docker push ${DOCKERHUB_REPO}:experimenter-moz-central
@@ -711,7 +710,6 @@ workflows:
 
   build:
     jobs:
-      - build_firefox_fenix
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
