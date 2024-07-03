@@ -1,0 +1,25 @@
+{% load nimbus_extras %}
+<div class="card">
+    <div class="card-header">
+        <h4>Quality Assurance</h4>
+        <button class="btn btn-outline-primary btn-sm" hx-get="{% url 'nimbus-new-detail' experiment.slug %}?edit_qa_status=true" hx-target="body" hx-swap="outerHTML">Edit QA Status</button>
+    </div>
+    <div class="card-body" id="qa-status-form-container">
+        {% if qa_edit_mode %}
+            <form method="post" hx-post="{% url 'nimbus-new-detail' experiment.slug %}" hx-target="body" hx-swap="outerHTML">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        {% else %}
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <th>QA Status</th>
+                        <td colspan="3">{{ experiment.qa_status|format_not_set }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>

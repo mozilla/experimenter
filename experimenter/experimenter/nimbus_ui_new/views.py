@@ -1,7 +1,10 @@
 from django.conf import settings
 from django.views.generic import DetailView
 from django_filters.views import FilterView
-
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render, redirect
+from django.template.loader import render_to_string
+from experimenter.experiments.forms import QAStatusForm
 from experimenter.experiments.constants import RISK_QUESTIONS
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.nimbus_ui_new.filtersets import (
@@ -114,4 +117,20 @@ class NimbusExperimentDetailView(DetailView):
             (outcome, f"{doc_base_url}{self.object.application}/{outcome}")
             for outcome in secondary_outcomes
         ]
+        context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
+        if context["qa_edit_mode"]:
+            context["form"] = QAStatusForm(instance=self.object)
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = QAStatusForm(request.POST, instance=self.object)
+        if form.is_valid():
+            form.save()
+            context = self.get_context_data(object=self.object)
+            return render(request, self.template_name, context)
+        else:
+            context = self.get_context_data(object=self.object)
+            context["form"] = form
+            context["qa_edit_mode"] = True
+            return render(request, self.template_name, context)
