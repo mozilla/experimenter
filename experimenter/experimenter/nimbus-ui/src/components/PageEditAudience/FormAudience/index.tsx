@@ -471,12 +471,7 @@ export const FormAudience = ({
     countries: string[] | undefined,
   ): string | null => {
     if (
-      !(
-        appId &&
-        channel &&
-        localesOrLanguages &&
-        localesOrLanguages.length > 0
-      )
+      !(appId && channel && localesOrLanguages && localesOrLanguages.length > 0)
     ) {
       return null;
     }

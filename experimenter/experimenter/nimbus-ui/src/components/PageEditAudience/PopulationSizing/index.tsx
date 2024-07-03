@@ -21,12 +21,12 @@ type PopulationSizingProps = {
 const popSizingHelpMarkdown =
   "Pre-computed sizing is computed with the [auto-sizing](https://github.com/mozilla/auto-sizing) tool. This assumes a power requirement of 0.8 and is based on Application, Channel, Locale (or Language), and Country (and is only available for some common combinations of these).";
 
-const newClientsHelpMarkdown = 
-  "'**New**' is the # of clients *first seen* during the 7-day enrollment period of the simulated experiment."
-const existingClientsHelpMarkdown = 
-  "'**Existing**' is the # of clients *active* during during the 7-day enrollment period of the simulated experiment, who were first seen *more than 28 days prior* to the start of the enrollment period."
-const allClientsHelpMarkdown = 
-  "'**Total**' is the # of clients *active* during the 7-day enrollment period of the simulated experiment, regardless of first seen date."
+const newClientsHelpMarkdown =
+  "'**New**' is the # of clients *first seen* during the 7-day enrollment period of the simulated experiment.";
+const existingClientsHelpMarkdown =
+  "'**Existing**' is the # of clients *active* during during the 7-day enrollment period of the simulated experiment, who were first seen *more than 28 days prior* to the start of the enrollment period.";
+const allClientsHelpMarkdown =
+  "'**Total**' is the # of clients *active* during the 7-day enrollment period of the simulated experiment, regardless of first seen date.";
 
 const PopulationSizing = ({
   sizingData,
@@ -144,8 +144,8 @@ const PopulationSizing = ({
             newUserSizing.sample_sizes[powerKey]["metrics"];
           const existingUserMetrics =
             existingUserSizing.sample_sizes[powerKey]["metrics"];
-            const allUserMetrics =
-              allUserSizing.sample_sizes[powerKey]["metrics"];
+          const allUserMetrics =
+            allUserSizing.sample_sizes[powerKey]["metrics"];
           // parameters are the same for new and existing so we only need to get one
           const parameters = newUserSizing.sample_sizes[powerKey]["parameters"];
           return (
@@ -219,8 +219,7 @@ const PopulationSizing = ({
                               .population_percent_per_branch
                           }
                           count={
-                            allUserMetrics[metricKey]
-                              .sample_size_per_branch
+                            allUserMetrics[metricKey].sample_size_per_branch
                           }
                         />
                       </td>
