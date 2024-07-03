@@ -66,71 +66,65 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
             .order_by("-_updated_date_time")
         )
 
+    def for_collection(self, query, collection):
+        return (e for e in query if e.kinto_collection == collection)
+
     def launch_queue(self, applications, collection):
-        return (
-            e
-            for e in self.filter(
+        return self.for_collection(
+            self.filter(
                 NimbusExperiment.Filters.IS_LAUNCH_QUEUED,
                 application__in=applications,
-            )
-            if e.kinto_collection == collection
+            ),
+            collection,
         )
 
     def update_queue(self, applications, collection):
-        return (
-            e
-            for e in self.filter(
+        return self.for_collection(
+            self.filter(
                 NimbusExperiment.Filters.IS_UPDATE_QUEUED,
                 application__in=applications,
-            )
-            if e.kinto_collection == collection
+            ),
+            collection,
         )
 
     def end_queue(self, applications, collection):
-        return (
-            e
-            for e in self.filter(
+        return self.for_collection(
+            self.filter(
                 NimbusExperiment.Filters.IS_END_QUEUED,
                 application__in=applications,
-            )
-            if e.kinto_collection == collection
+            ),
+            collection,
         )
 
     def waiting(self, applications, collection):
-        return (
-            e
-            for e in self.filter(
+        return self.for_collection(
+            self.filter(
                 publish_status=NimbusExperiment.PublishStatus.WAITING,
                 application__in=applications,
-            )
-            if e.kinto_collection == collection
+            ),
+            collection,
         )
 
     def waiting_to_launch_queue(self, applications, collection):
-        return (
-            e
-            for e in self.filter(
+        return self.for_collection(
+            self.filter(
                 NimbusExperiment.Filters.IS_LAUNCHING, application__in=applications
-            )
-            if e.kinto_collection == collection
+            ),
+            collection,
         )
 
     def waiting_to_update_queue(self, applications, collection):
-        return (
-            e
-            for e in self.filter(
+        return self.for_collection(
+            self.filter(
                 NimbusExperiment.Filters.IS_UPDATING, application__in=applications
-            )
-            if e.kinto_collection == collection
+            ),
+            collection,
         )
 
     def waiting_to_end_queue(self, applications, collection):
-        return (
-            e
-            for e in self.filter(
-                NimbusExperiment.Filters.IS_ENDING, application__in=applications
-            )
-            if e.kinto_collection == collection
+        return self.for_collection(
+            self.filter(NimbusExperiment.Filters.IS_ENDING, application__in=applications),
+            collection,
         )
 
 
