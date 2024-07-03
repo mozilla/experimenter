@@ -12,11 +12,13 @@ describe("PopulationSizing", () => {
     const sizingData = MOCK_SIZING_DATA;
     const totalNewClients = 10000;
     const totalExistingClients = 100000;
+    const totalClients = 150000;
     render(
       <PopulationSizing
         sizingData={sizingData}
         totalNewClients={totalNewClients}
         totalExistingClients={totalExistingClients}
+        totalClients={totalClients}
       />,
     );
 
