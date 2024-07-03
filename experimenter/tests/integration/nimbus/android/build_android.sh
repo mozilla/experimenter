@@ -4,6 +4,7 @@ set -euo pipefail
 
 hg pull && hg update
 
+./mach clobber
 ./mach build
 cd mobile/android/fenix
 ./gradlew clean app:assembleFenixDebug
