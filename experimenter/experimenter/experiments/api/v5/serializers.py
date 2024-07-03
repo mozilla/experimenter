@@ -1042,9 +1042,7 @@ class NimbusExperimentSerializer(
 
             if self.should_call_push_task:
                 # We validate that this won't throw in NimbusReviewSerializer.
-                collection = experiment.application_config.get_kinto_collection_for(
-                    experiment
-                )
+                collection = experiment.kinto_collection
                 nimbus_check_kinto_push_queue_by_collection.apply_async(
                     countdown=5, args=[collection]
                 )

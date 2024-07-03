@@ -93,6 +93,8 @@ class ApplicationConfig:
         return collections
 
 
+DESKTOP_PREFFLIPS_SLUG = "prefFlips"
+
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     name="Firefox Desktop",
     slug="firefox-desktop",
@@ -110,7 +112,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.NORMANDY,
     is_web=False,
     kinto_collections_by_feature_id={
-        "prefFlips": settings.KINTO_COLLECTION_NIMBUS_SECURE,
+        DESKTOP_PREFFLIPS_SLUG: settings.KINTO_COLLECTION_NIMBUS_SECURE,
     },
 )
 
@@ -369,6 +371,8 @@ class NimbusConstants:
         Application.FXA: APPLICATION_CONFIG_FXA_WEB,
         Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
     }
+
+    DESKTOP_PREFFLIPS_SLUG = DESKTOP_PREFFLIPS_SLUG
 
     Channel = Channel
 

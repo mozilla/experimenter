@@ -36,6 +36,7 @@ def nimbus_check_kinto_push_queue():
     for collection in (
         settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
         settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+        settings.KINTO_COLLECTION_NIMBUS_SECURE,
         settings.KINTO_COLLECTION_NIMBUS_WEB,
     ):
         nimbus_check_kinto_push_queue_by_collection.delay(collection)
@@ -69,7 +70,7 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
     should_rollback = False
     if kinto_client.has_pending_review():
         logger.info(f"{collection} has pending review")
-        if handle_pending_review(applications):
+        if handle_pending_review(applications, collection):
             return
 
         should_rollback = True
@@ -83,29 +84,31 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
         kinto_client.rollback_changes()
 
     records = kinto_client.get_main_records()
-    handle_launching_experiments(applications, records)
-    handle_updating_experiments(applications, records)
-    handle_ending_experiments(applications, records)
-    handle_waiting_experiments(applications)
+    handle_launching_experiments(applications, records, collection)
+    handle_updating_experiments(applications, records, collection)
+    handle_ending_experiments(applications, records, collection)
+    handle_waiting_experiments(applications, collection)
 
-    if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
-        applications
-    ).first():
+    if queued_launch_experiment := next(
+        NimbusExperiment.objects.launch_queue(applications, collection), None
+    ):
         nimbus_push_experiment_to_kinto.delay(collection, queued_launch_experiment.id)
-    elif queued_end_experiment := NimbusExperiment.objects.end_queue(
-        applications
-    ).first():
+    elif queued_end_experiment := next(
+        NimbusExperiment.objects.end_queue(applications, collection), None
+    ):
         nimbus_end_experiment_in_kinto.delay(collection, queued_end_experiment.id)
-    elif queued_pause_experiment := NimbusExperiment.objects.update_queue(
-        applications
-    ).first():
+    elif queued_pause_experiment := next(
+        NimbusExperiment.objects.update_queue(applications, collection), None
+    ):
         nimbus_update_experiment_in_kinto.delay(collection, queued_pause_experiment.id)
 
     metrics.incr(f"check_kinto_push_queue_by_collection:{collection}.completed")
 
 
-def handle_pending_review(applications):
-    if experiment := NimbusExperiment.objects.waiting(applications).first():
+def handle_pending_review(applications, collection):
+    if experiment := next(
+        NimbusExperiment.objects.waiting(applications, collection), None
+    ):
         if experiment.should_timeout:
             experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
             if experiment.status == experiment.Status.DRAFT:
@@ -126,7 +129,9 @@ def handle_pending_review(applications):
 
 def handle_rejection(applications, kinto_client):
     collection_data = kinto_client.get_rejected_collection_data()
-    if experiment := NimbusExperiment.objects.waiting(applications).first():
+    if experiment := next(
+        NimbusExperiment.objects.waiting(applications, kinto_client.collection), None
+    ):
         if (
             experiment.is_rollout is True
             and experiment.status == NimbusExperiment.Status.LIVE
@@ -154,8 +159,10 @@ def handle_rejection(applications, kinto_client):
         logger.info(f"{experiment.slug} rejected")
 
 
-def handle_launching_experiments(applications, records):
-    for experiment in NimbusExperiment.objects.waiting_to_launch_queue(applications):
+def handle_launching_experiments(applications, records, collection):
+    for experiment in NimbusExperiment.objects.waiting_to_launch_queue(
+        applications, collection
+    ):
         if experiment.slug in records:
             logger.info(
                 f"{experiment} status is being updated to live".format(
@@ -181,8 +188,10 @@ def handle_launching_experiments(applications, records):
             logger.info(f"{experiment.slug} launched")
 
 
-def handle_updating_experiments(applications, records):
-    for experiment in NimbusExperiment.objects.waiting_to_update_queue(applications):
+def handle_updating_experiments(applications, records, collection):
+    for experiment in NimbusExperiment.objects.waiting_to_update_queue(
+        applications, collection
+    ):
         published_record = records.get(experiment.slug).copy()
         published_record.pop("last_modified")
 
@@ -209,8 +218,10 @@ def handle_updating_experiments(applications, records):
             logger.info(f"{experiment.slug} updated")
 
 
-def handle_ending_experiments(applications, records):
-    for experiment in NimbusExperiment.objects.waiting_to_end_queue(applications):
+def handle_ending_experiments(applications, records, collection):
+    for experiment in NimbusExperiment.objects.waiting_to_end_queue(
+        applications, collection
+    ):
         if experiment.slug not in records:
             logger.info(
                 f"{experiment.slug} status is being updated to complete".format(
@@ -233,12 +244,8 @@ def handle_ending_experiments(applications, records):
             logger.info(f"{experiment.slug} ended")
 
 
-def handle_waiting_experiments(applications):
-    waiting_experiments = NimbusExperiment.objects.filter(
-        publish_status=NimbusExperiment.PublishStatus.WAITING,
-        application__in=applications,
-    )
-    for experiment in waiting_experiments:
+def handle_waiting_experiments(applications, collection):
+    for experiment in NimbusExperiment.objects.waiting(applications, collection):
         experiment.status_next = None
         experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         if experiment.status == experiment.Status.DRAFT:
