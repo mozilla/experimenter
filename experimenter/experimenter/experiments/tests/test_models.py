@@ -448,7 +448,7 @@ class TestNimbusExperimentManager(TestCase):
             [pausing],
         )
 
-    def test_waiting_to_update_multiple_collection(self):
+    def test_waiting_to_update_filters_by_collection(self):
         test_feature = NimbusFeatureConfigFactory.create(
             slug="test-feature",
             name="test-feature",
