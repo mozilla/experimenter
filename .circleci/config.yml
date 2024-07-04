@@ -649,7 +649,8 @@ jobs:
       - run:
           name: Build and upload images
           command: |
-            git clone --depth=1 git@github.com:SeleniumHQ/docker-selenium.git
+            # Clone last working version to ensure compatibility with aarch64 apple silicon machines
+            git clone --branch selenium-grid-0.27.0 --depth 1 git@github.com:SeleniumHQ/docker-selenium.git
             cd docker-selenium
             BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
             BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
