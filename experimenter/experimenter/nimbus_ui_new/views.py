@@ -130,6 +130,7 @@ class NimbusExperimentDetailView(DetailView):
             context = self.get_context_data(object=self.object)
             return render(request, self.template_name, context)
         else:
+            # if form is not valid, still prepare context data
             context = self.get_context_data(object=self.object)
             context["form"] = form
             context["qa_edit_mode"] = True
