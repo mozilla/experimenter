@@ -1,11 +1,10 @@
 from django.conf import settings
+from django.shortcuts import render
 from django.views.generic import DetailView
 from django_filters.views import FilterView
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
-from django.template.loader import render_to_string
-from experimenter.experiments.forms import QAStatusForm
+
 from experimenter.experiments.constants import RISK_QUESTIONS
+from experimenter.experiments.forms import QAStatusForm
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.nimbus_ui_new.filtersets import (
     NimbusExperimentFilter,

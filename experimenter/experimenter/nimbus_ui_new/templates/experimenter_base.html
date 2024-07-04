@@ -28,16 +28,13 @@
 
     </div>
     <script src="{% static 'nimbus_ui_new/theme.bundle.js' %}"></script>
-<script>
+    <script>
   document.addEventListener("htmx:configRequest", (event) => {
     const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
     event.detail.headers['X-CSRFToken'] = token;
   });
-</script>
-
+    </script>
     <script src="https://unpkg.com/htmx.org@1.4.1"></script>
-
-
     {% block extrascripts %}
     {% endblock extrascripts %}
 
