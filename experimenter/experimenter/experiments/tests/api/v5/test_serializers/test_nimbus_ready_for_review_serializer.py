@@ -2873,21 +2873,21 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
 
         # Ensure the serialized value is *exactly* value_len in length because
         # we are testing different thresholds
-        if pref_type == str:
+        if pref_type is str:
             foo_value = "a" * value_len
         else:
             self.assertIn(
                 pref_type, (list, dict), "only str, list, dict supported for pref_type"
             )
 
-            if pref_type == list:
+            if pref_type is list:
                 # But for values this short, we're always going to be under the
                 # warning threshold, so it is ok if we bump it up slightly.
                 if value_len <= 4:
                     value_len = 4
 
                 foo_value = ["a" * (value_len - 4)]
-            elif pref_type == dict:
+            elif pref_type is dict:
                 if value_len <= 9:
                     value_len = 9
 

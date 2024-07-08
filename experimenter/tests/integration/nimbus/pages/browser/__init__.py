@@ -1,4 +1,5 @@
 """Browser Model"""
+
 import time
 
 from pypom import Page
@@ -36,14 +37,14 @@ class AboutConfig(Page):
         while time.time() < timeout:
             with self.selenium.context(self.selenium.CONTEXT_CHROME):
                 try:
-                    if pref_type == str:
+                    if pref_type is str:
                         result = self.selenium.execute_script(
                             """
                                 return Services.prefs.getStringPref(arguments[0])
                             """,
                             pref,
                         )
-                    elif pref_type == bool:
+                    elif pref_type is bool:
                         result = self.selenium.execute_script(
                             """
                                 return Services.prefs.getBoolPref(arguments[0])
