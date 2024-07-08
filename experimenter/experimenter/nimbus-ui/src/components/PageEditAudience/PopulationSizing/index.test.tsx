@@ -12,23 +12,32 @@ describe("PopulationSizing", () => {
     const sizingData = MOCK_SIZING_DATA;
     const totalNewClients = 10000;
     const totalExistingClients = 100000;
+    const totalClients = 150000;
     render(
       <PopulationSizing
         sizingData={sizingData}
         totalNewClients={totalNewClients}
         totalExistingClients={totalExistingClients}
+        totalClients={totalClients}
       />,
     );
 
     expect(screen.getByText("Pre-computed population sizing data"));
     expect(screen.getByTestId("new-total-clients-label")).toHaveTextContent(
-      `${totalNewClients} total`,
+      `${totalNewClients} new clients`,
+      { normalizeWhitespace: true },
     );
     expect(
       screen.getByTestId("existing-total-clients-label"),
-    ).toHaveTextContent(`${totalExistingClients} total`);
+    ).toHaveTextContent(`${totalExistingClients} existing clients`, {
+      normalizeWhitespace: true,
+    });
+    expect(screen.getByTestId("all-total-clients-label")).toHaveTextContent(
+      `${totalClients} total clients`,
+      { normalizeWhitespace: true },
+    );
 
-    expect(screen.getAllByText("Percent of clients:")).toHaveLength(12);
-    expect(screen.getAllByText("Expected number of clients:")).toHaveLength(12);
+    expect(screen.getAllByText("Percent of clients:")).toHaveLength(18);
+    expect(screen.getAllByText("Expected number of clients:")).toHaveLength(18);
   });
 });
