@@ -5,12 +5,7 @@ set +x
 
 export PATH=$PATH:/home/seluser/.local/bin
 
-sudo apt-get -qqy update && sudo apt-get -qqy install python3-venv python3-pip
-
-# https://pip.pypa.io/en/stable/cli/pip_install/#cmdoption-break-system-packages
-# we are doing this because we don't control this docker image and this allows us
-# to install poetry globally
-pip install poetry --break-system-packages
+curl -sSL https://install.python-poetry.org | python3 - --version 1.8.3
 sudo chmod -R a+rwx /code/experimenter/tests/integration/
 mkdir -m a+rwx /code/experimenter/tests/integration/test-reports
 
