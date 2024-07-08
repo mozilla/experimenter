@@ -1860,13 +1860,13 @@ describe("FormAudience", () => {
       screen.getByText("Pre-computed population sizing data"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("10000 total", {
+      screen.getByText("10000 new clients", {
         exact: false,
       }),
     ).toBeInTheDocument();
-    expect(screen.queryAllByText("Percent of clients:")).toHaveLength(12);
+    expect(screen.queryAllByText("Percent of clients:")).toHaveLength(18);
     expect(screen.queryAllByText("Expected number of clients:")).toHaveLength(
-      12,
+      18,
     );
   });
 
@@ -1943,13 +1943,13 @@ describe("FormAudience", () => {
       screen.getByText("Pre-computed population sizing data"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("10000 total", {
+      screen.getByText("10000 new clients", {
         exact: false,
       }),
     ).toBeInTheDocument();
-    expect(screen.queryAllByText("Percent of clients:")).toHaveLength(12);
+    expect(screen.queryAllByText("Percent of clients:")).toHaveLength(18);
     expect(screen.queryAllByText("Expected number of clients:")).toHaveLength(
-      12,
+      18,
     );
   });
 

@@ -15,18 +15,28 @@ type PopulationSizingProps = {
   sizingData: SizingByUserType;
   totalNewClients: number;
   totalExistingClients: number;
+  totalClients: number;
 };
 
 const popSizingHelpMarkdown =
   "Pre-computed sizing is computed with the [auto-sizing](https://github.com/mozilla/auto-sizing) tool. This assumes a power requirement of 0.8 and is based on Application, Channel, Locale (or Language), and Country (and is only available for some common combinations of these).";
 
+const newClientsHelpMarkdown =
+  "'**New**' is the # of clients *first seen* during the 7-day enrollment period of the simulated experiment.";
+const existingClientsHelpMarkdown =
+  "'**Existing**' is the # of clients *active* during during the 7-day enrollment period of the simulated experiment, who were first seen *more than 28 days prior* to the start of the enrollment period.";
+const allClientsHelpMarkdown =
+  "'**Total**' is the # of clients *active* during the 7-day enrollment period of the simulated experiment, regardless of first seen date.";
+
 const PopulationSizing = ({
   sizingData,
   totalNewClients,
   totalExistingClients,
+  totalClients,
 }: PopulationSizingProps) => {
   const newUserSizing = sizingData.new;
   const existingUserSizing = sizingData.existing;
+  const allUserSizing = sizingData.all;
   const targetingParameters = JSON.stringify(
     newUserSizing.target_recipe,
     (k, v) => (k === "new_or_existing" ? undefined : v),
@@ -34,6 +44,7 @@ const PopulationSizing = ({
   return (
     <>
       <Form.Label
+        as="h5"
         className="d-flex align-items-center"
         data-testid="population-sizing-precomputed-values"
       >
@@ -61,34 +72,80 @@ const PopulationSizing = ({
         </p>
       </div>
       <Form.Group>
-        <Form.Label className="d-flex align-items-center">
-          Targeting Parameters
+        <Form.Label as="h6" className="d-flex align-items-center">
+          <strong>Targeting Parameters</strong>
         </Form.Label>
         <Code codeString={targetingParameters} />
       </Form.Group>
-      <Form.Label
-        className="d-flex align-items-center"
-        data-testid="new-total-clients-label"
-      >
-        {totalNewClients} total
-        <strong>&nbsp;new&nbsp;</strong>
-        clients for given parameters
+      <Form.Label as="h6" className="d-flex align-items-center">
+        <strong>Client counts for these targeting parameters</strong>
       </Form.Label>
-      <Form.Label
-        className="d-flex align-items-center"
-        data-testid="existing-total-clients-label"
-      >
-        {totalExistingClients} total
-        <strong>&nbsp;existing&nbsp;</strong>
-        clients for given parameters
-      </Form.Label>
-      <p>
+      <p className="text-secondary">
+        Pre-computed sizing information is computed using a simulated experiment
+        with a 7 day enrollment period and 28 day observation period.
+      </p>
+      <div className="ml-4 mb-4">
+        <Form.Label
+          className="d-flex align-items-center"
+          data-testid="new-total-clients-label"
+        >
+          {totalNewClients} new clients
+          <Info
+            data-tip
+            data-for="auto-sizing-help-new-clients"
+            width="20"
+            height="20"
+            className="ml-1 mr-1"
+          />
+          <TooltipWithMarkdown
+            tooltipId="auto-sizing-help-new-clients"
+            markdown={newClientsHelpMarkdown}
+          />
+        </Form.Label>
+        <Form.Label
+          className="d-flex align-items-center"
+          data-testid="existing-total-clients-label"
+        >
+          {totalExistingClients} existing clients
+          <Info
+            data-tip
+            data-for="auto-sizing-help-existing-clients"
+            width="20"
+            height="20"
+            className="ml-1 mr-1"
+          />
+          <TooltipWithMarkdown
+            tooltipId="auto-sizing-help-existing-clients"
+            markdown={existingClientsHelpMarkdown}
+          />
+        </Form.Label>
+        <Form.Label
+          className="d-flex align-items-center"
+          data-testid="all-total-clients-label"
+        >
+          {totalClients} total clients
+          <Info
+            data-tip
+            data-for="auto-sizing-help-all-clients"
+            width="20"
+            height="20"
+            className="ml-1 mr-1"
+          />
+          <TooltipWithMarkdown
+            tooltipId="auto-sizing-help-all-clients"
+            markdown={allClientsHelpMarkdown}
+          />
+        </Form.Label>
+      </div>
+      <div>
         {Object.keys(newUserSizing.sample_sizes).map((powerKey) => {
           // powerKey is the same for new and existing so we can look both up with the same key
           const newUserMetrics =
             newUserSizing.sample_sizes[powerKey]["metrics"];
           const existingUserMetrics =
             existingUserSizing.sample_sizes[powerKey]["metrics"];
+          const allUserMetrics =
+            allUserSizing.sample_sizes[powerKey]["metrics"];
           // parameters are the same for new and existing so we only need to get one
           const parameters = newUserSizing.sample_sizes[powerKey]["parameters"];
           return (
@@ -150,12 +207,30 @@ const PopulationSizing = ({
                       </td>
                     ))}
                   </tr>
+                  <tr key={`${powerKey}-metrics`}>
+                    <th className="align-middle" scope="row">
+                      All Clients
+                    </th>
+                    {Object.keys(allUserMetrics).map((metricKey) => (
+                      <td className="align-middle" key={`${metricKey}-sizing`}>
+                        <PopulationSizingCountTable
+                          percent={
+                            allUserMetrics[metricKey]
+                              .population_percent_per_branch
+                          }
+                          count={
+                            allUserMetrics[metricKey].sample_size_per_branch
+                          }
+                        />
+                      </td>
+                    ))}
+                  </tr>
                 </tbody>
               </table>
             </>
           );
         })}
-      </p>
+      </div>
     </>
   );
 };

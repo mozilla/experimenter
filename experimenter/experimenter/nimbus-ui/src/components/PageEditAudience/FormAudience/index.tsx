@@ -471,14 +471,7 @@ export const FormAudience = ({
     countries: string[] | undefined,
   ): string | null => {
     if (
-      !(
-        appId &&
-        channel &&
-        localesOrLanguages &&
-        localesOrLanguages.length > 0 &&
-        countries &&
-        countries.length > 0
-      )
+      !(appId && channel && localesOrLanguages && localesOrLanguages.length > 0)
     ) {
       return null;
     }
@@ -488,11 +481,14 @@ export const FormAudience = ({
       .map((locale) => `'${locale}'`)
       .join(",")}]`;
 
-    countries.sort((a, b) => a.localeCompare(b));
-    const countriesString =
-      countries.length > 1
-        ? `[${countries.map((country) => `'${country}'`).join(",")}]`
-        : countries[0];
+    let countriesString = "all";
+    if (countries && countries.length > 0) {
+      countries.sort((a, b) => a.localeCompare(b));
+      countriesString =
+        countries.length > 1
+          ? `[${countries.map((country) => `'${country}'`).join(",")}]`
+          : countries[0];
+    }
 
     return `firefox_${appId}:${channel}:${localesOrLanguagesString}:${countriesString}`;
   };
@@ -980,6 +976,9 @@ export const FormAudience = ({
               )}
               totalExistingClients={getTargetPopulationSize(
                 getSizingFromAudienceConfig.existing,
+              )}
+              totalClients={getTargetPopulationSize(
+                getSizingFromAudienceConfig.all,
               )}
             />
           </>
