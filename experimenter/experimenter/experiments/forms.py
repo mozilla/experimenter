@@ -2,7 +2,7 @@
 
 from django import forms
 
-from .models import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment
 
 
 class QAStatusForm(forms.ModelForm):

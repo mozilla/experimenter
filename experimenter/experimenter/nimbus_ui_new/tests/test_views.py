@@ -956,11 +956,11 @@ class NimbusExperimentDetailViewTest(TestCase):
             "qa_comment": "Everything looks good.",
         }
         response = self.client.post(
-            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
+            reverse("update-qa-status", kwargs={"slug": self.experiment.slug}),
             data,
             **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)  # redirect
         self.experiment.refresh_from_db()
         self.assertEqual(self.experiment.qa_status, "GREEN")
         self.assertEqual(self.experiment.qa_comment, "Everything looks good.")
@@ -971,7 +971,7 @@ class NimbusExperimentDetailViewTest(TestCase):
             "qa_comment": "Invalid status.",
         }
         response = self.client.post(
-            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
+            reverse("update-qa-status", kwargs={"slug": self.experiment.slug}),
             data,
             **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )

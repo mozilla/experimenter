@@ -1,6 +1,7 @@
 from django.conf import settings
-from django.shortcuts import render
+from django.urls import reverse
 from django.views.generic import DetailView
+from django.views.generic.edit import FormView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import RISK_QUESTIONS
@@ -96,6 +97,24 @@ class NimbusExperimentsListTableView(NimbusExperimentsListView):
         return response
 
 
+def build_experiment_context(experiment):
+    doc_base_url = "https://mozilla.github.io/metric-hub/outcomes/"
+    primary_outcome_links = [
+        (outcome, f"{doc_base_url}{experiment.application}/{outcome}")
+        for outcome in experiment.primary_outcomes
+    ]
+    secondary_outcome_links = [
+        (outcome, f"{doc_base_url}{experiment.application}/{outcome}")
+        for outcome in experiment.secondary_outcomes
+    ]
+    context = {
+        "RISK_QUESTIONS": RISK_QUESTIONS,
+        "primary_outcome_links": primary_outcome_links,
+        "secondary_outcome_links": secondary_outcome_links,
+    }
+    return context
+
+
 class NimbusExperimentDetailView(DetailView):
     model = NimbusExperiment
     template_name = "nimbus_experiments/detail.html"
@@ -103,34 +122,36 @@ class NimbusExperimentDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["RISK_QUESTIONS"] = RISK_QUESTIONS
-
-        primary_outcomes = self.object.primary_outcomes
-        secondary_outcomes = self.object.secondary_outcomes
-        doc_base_url = "https://mozilla.github.io/metric-hub/outcomes/"
-        context["primary_outcome_links"] = [
-            (outcome, f"{doc_base_url}{self.object.application}/{outcome}")
-            for outcome in primary_outcomes
-        ]
-        context["secondary_outcome_links"] = [
-            (outcome, f"{doc_base_url}{self.object.application}/{outcome}")
-            for outcome in secondary_outcomes
-        ]
+        experiment_context = build_experiment_context(self.object)
+        context.update(experiment_context)
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         if context["qa_edit_mode"]:
             context["form"] = QAStatusForm(instance=self.object)
         return context
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = QAStatusForm(request.POST, instance=self.object)
-        if form.is_valid():
-            form.save()
-            context = self.get_context_data(object=self.object)
-            return render(request, self.template_name, context)
-        else:
-            # if form is not valid, still prepare context data
-            context = self.get_context_data(object=self.object)
-            context["form"] = form
-            context["qa_edit_mode"] = True
-            return render(request, self.template_name, context)
+
+class QAStatusUpdateView(FormView):  # type: ignore[type-arg]
+    form_class = QAStatusForm
+    template_name = "nimbus_experiments/detail.html"
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form)
+        experiment = NimbusExperiment.objects.get(slug=self.kwargs["slug"])
+        context["experiment"] = experiment
+        experiment_context = build_experiment_context(experiment)
+        context.update(experiment_context)
+        context["qa_edit_mode"] = True
+        return self.render_to_response(context)
+
+    def get_success_url(self):
+        return reverse("nimbus-new-detail", kwargs={"slug": self.kwargs["slug"]})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        experiment = NimbusExperiment.objects.get(slug=self.kwargs["slug"])
+        kwargs["instance"] = experiment
+        return kwargs

@@ -13,7 +13,7 @@
   <div class="card-body" id="qa-status-form-container">
     {% if qa_edit_mode %}
       <form method="post"
-            hx-post="{% url 'nimbus-new-detail' experiment.slug %}"
+            hx-post="{% url 'update-qa-status' experiment.slug %}"
             hx-target="body"
             hx-swap="outerHTML">
         {% csrf_token %}
