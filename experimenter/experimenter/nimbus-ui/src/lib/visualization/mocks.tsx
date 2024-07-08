@@ -720,6 +720,63 @@ export const MOCK_SIZING_DATA: SizingByUserType = {
       },
     },
   },
+  all: {
+    target_recipe: {
+      app_id: "firefox_desktop",
+      channel: "release",
+      locale: "('EN-US')",
+      country: "US",
+      new_or_existing: "all",
+    },
+    sample_sizes: {
+      "Power0.8EffectSize0.05": {
+        metrics: {
+          active_hours: {
+            number_of_clients_targeted: 150000,
+            sample_size_per_branch: 15343.0,
+            population_percent_per_branch: 8.571428571,
+          },
+          search_count: {
+            number_of_clients_targeted: 150000,
+            sample_size_per_branch: 15345.0,
+            population_percent_per_branch: 14.285714285,
+          },
+          days_of_use: {
+            number_of_clients_targeted: 150000,
+            sample_size_per_branch: 153420.0,
+            population_percent_per_branch: 57.142857142,
+          },
+        },
+        parameters: {
+          power: 0.8,
+          effect_size: 0.05,
+        },
+      },
+      "Power0.8EffectSize0.01": {
+        metrics: {
+          active_hours: {
+            number_of_clients_targeted: 150000,
+            sample_size_per_branch: 15343.0,
+            population_percent_per_branch: 8.571428571,
+          },
+          search_count: {
+            number_of_clients_targeted: 150000,
+            sample_size_per_branch: 15345.0,
+            population_percent_per_branch: 14.285714285,
+          },
+          days_of_use: {
+            number_of_clients_targeted: 150000,
+            sample_size_per_branch: 153420.0,
+            population_percent_per_branch: 57.142857142,
+          },
+        },
+        parameters: {
+          power: 0.8,
+          effect_size: 0.01,
+        },
+      },
+    },
+  },
 };
 
 export const MOCK_SIZING: SampleSizes = {
