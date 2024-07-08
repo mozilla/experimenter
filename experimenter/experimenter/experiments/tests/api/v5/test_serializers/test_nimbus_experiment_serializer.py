@@ -954,10 +954,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertTrue(serializer.is_valid())
 
-        expected_collection = experiment.application_config.get_kinto_collection_for(
-            experiment,
-        )
-
+        expected_collection = experiment.kinto_collection
         experiment = serializer.save()
         self.assertEqual(
             experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED

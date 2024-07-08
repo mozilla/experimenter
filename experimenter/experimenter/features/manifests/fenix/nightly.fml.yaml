@@ -215,6 +215,29 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          microsurvey-printing-example:
+            title: microsurvey_prompt_printing_title
+            text: microsurvey_survey_printing_title
+            surface: microsurvey
+            trigger-if-all:
+              - RECENTLY_PRINTED
+            style: MICRO_SURVEY
+            microsurvey-config:
+              utm-content: homepage
+              icon: ic_print
+              answers:
+                - text: likert_scale_option_1
+                  ordering: 0
+                - text: likert_scale_option_2
+                  ordering: 1
+                - text: likert_scale_option_3
+                  ordering: 2
+                - text: likert_scale_option_4
+                  ordering: 3
+                - text: likert_scale_option_5
+                  ordering: 4
+                - text: likert_scale_option_6
+                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -464,6 +487,13 @@ features:
         description: The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
         type: Int
         default: 0
+  suggest-shipped-domains:
+    description: Feature that suggests domains from the shipped domain list.
+    variables:
+      enabled:
+        description: "Suggest domains from the shipped domain list.\n"
+        type: Boolean
+        default: false
   toolbar:
     description: The searchbar/awesomebar that user uses to search.
     variables:
