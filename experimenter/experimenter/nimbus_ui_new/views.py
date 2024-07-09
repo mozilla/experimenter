@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.urls import reverse
 from django.views.generic import DetailView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import RISK_QUESTIONS
@@ -130,28 +130,18 @@ class NimbusExperimentDetailView(DetailView):
         return context
 
 
-class QAStatusUpdateView(FormView):  # type: ignore[type-arg]
+class QAStatusUpdateView(UpdateView):
     form_class = QAStatusForm
+    model = NimbusExperiment
     template_name = "nimbus_experiments/detail.html"
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
+    context_object_name = "experiment"
 
     def form_invalid(self, form):
         context = self.get_context_data(form=form)
-        experiment = NimbusExperiment.objects.get(slug=self.kwargs["slug"])
-        context["experiment"] = experiment
-        experiment_context = build_experiment_context(experiment)
+        experiment_context = build_experiment_context(self.object)
         context.update(experiment_context)
         context["qa_edit_mode"] = True
         return self.render_to_response(context)
 
     def get_success_url(self):
-        return reverse("nimbus-new-detail", kwargs={"slug": self.kwargs["slug"]})
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        experiment = NimbusExperiment.objects.get(slug=self.kwargs["slug"])
-        kwargs["instance"] = experiment
-        return kwargs
+        return reverse("nimbus-new-detail", kwargs={"slug": self.object.slug})
