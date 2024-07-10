@@ -169,6 +169,24 @@ features:
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
             action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
+          homepage-microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+              - SECOND_HOMEPAGE_VIEW
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with your Firefox homepage?
+            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            microsurveyConfig:
+              utm-content: homepage
+              icon: homeLarge
+              options:
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption1.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption2.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption3.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption4.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption5.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption6.v129
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -246,7 +264,7 @@ features:
       enabled:
         description: "If true, the feature is active.\n"
         type: Boolean
-        default: false
+        default: true
   night-mode-feature:
     description: "Describes the night mode feature's configuration\n"
     variables:
@@ -455,7 +473,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:

@@ -274,12 +274,6 @@ urlbar:
         will be able to click the "Show less frequently" command for Pocket
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
-    pocketSuggestIndex:
-      type: int
-      fallbackPref: browser.urlbar.pocket.suggestedIndex
-      description: >-
-        The group-relative suggestedIndex of Pocket suggestions within the Firefox
-        Suggest section.
     potentialExposureKeywords:
       type: json
       fallbackPref: browser.urlbar.potentialExposureKeywords
@@ -379,10 +373,8 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.quicksuggest.sponsoredIndex
       description: >-
-        The index of sponsored Firefox Suggest results within the Firefox Suggest
-        section when "Show search suggestions ahead of browsing history in
-        address bar results" is checked. When not checked, the index is hardcoded
-        as -1. Negative indexes are relative to the end of the section.
+        The index of sponsored QuickSuggest results within the general group. A
+        negative index is relative to the end of the group
     quickSuggestSponsoredPriority:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.sponsoredPriority
@@ -481,6 +473,7 @@ urlbar:
         command without any limit.
     yelpSuggestNonPriorityIndex:
       type: int
+      fallbackPref: browser.urlbar.yelp.suggestedIndex
       description: >-
         The group-relative suggestedIndex of Yelp suggestions within the Firefox
         Suggest section. Ignored when `yelpSuggestPriority` is true.
@@ -652,6 +645,18 @@ firefoxBridge:
       description: >-
         Should Firefox Bridge be registered within firefoxBridgeNativeMessaging
         startup idle task for use with native messaging proxy.
+
+windowsJumpList:
+  description: "Controls for the Windows Jump List integration."
+  owner: mconley@mozilla.com
+  hasExposure: false
+  variables:
+    legacyBackend:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.taskbar.lists.legacyBackend
+      description: True if users should use the legacy Windows Jump List backend.
 
 abouthomecache:
   description: "The startup about:home cache."
@@ -915,12 +920,6 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.spocs.personalized
       description: >-
         Enables Pocket sponsored content personalization.
-    topicSelectionEnabled:
-      type: boolean
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.topicSelection.enabled
-      description: >-
-        Enables topic selection for discovery stream.
     spocsCacheTimeout:
       type: int
       fallbackPref: >-
@@ -976,16 +975,6 @@ pocketNewtab:
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-bff-config
       description: A comma-separated list of regions to get stories from the recommendations BFF. Also requires region-stories-config.
-    merinoProviderEnabled:
-      type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.merino-provider.enabled
-      description: Sets the recommendations provider service to Merino.
-    merinoProviderEndpoint:
-      type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.merino-provider.endpoint
-      description: Merino endpoint to use for recommendations.
     regionStoriesBlock:
       description: A comma-separated list of regions that do not get stories, regardless of locale-list-config.
       type: string
@@ -1026,19 +1015,6 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.pocket-feed-parameters
       description: >-
         Add parameters to Pocket feed URL.
-    thumbsUpDown:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.enabled
-      description: Display thumbs up and down buttons on recommended stories
-    thumbsUpDownCompactLayout:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.searchTopsitesCompact
-      description: >-
-        Change the layout of the sections to be more compact to account for the added card height with the thumbs up/down enabled.
 
 saveToPocket:
   description: The save to Pocket feature
@@ -1263,6 +1239,18 @@ pdfjs:
         branch: default
         pref: pdfjs.enableHighlightEditor
 
+addAnImageInPDF:
+  description: Add an image in an existing pdf.
+  owner: cdenizet@mozilla.com
+  hasExposure: false
+  variables:
+    boolean:
+      description: Set to true to enable the add-an-image feature
+      type: boolean
+      setPref:
+        branch: default
+        pref: pdfjs.enableStampEditor
+
 # fxms-message-* placeholder feature ids
 #
 # https://docs.google.com/spreadsheets/d/119YbeKStLL0Fg2QkK-yN93mrtD1rlneGZGTl_jAwtyw/edit#gid=1903378504
@@ -1422,14 +1410,6 @@ whatsNewPage:
       setPref:
         branch: user
         pref: startup.homepage_override_nimbus_minVersion
-    disableWNP:
-      description: >-
-        Block all What's New Pages. Used to compare no-WNP control branches to
-        WNP treatment branches.
-      type: boolean
-      setPref:
-        branch: user
-        pref: startup.homepage_override_nimbus_disable_wnp
 
 pbNewtab:
   description: "A Firefox Messaging System message for the pbNewtab message channel"
@@ -1805,24 +1785,6 @@ networking:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
-    chipsPartitionLimitEnabled:
-      description: Whether we enforce CHIPS partition limit
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitEnabled"
-    chipsPartitionLimitDryRun:
-      description: Whether we actually perform purging/rejection, used to report telemetry without webcompat issues
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitDryRun"
-    chipsPartitionLimitByteCapacity:
-      description: The actual value of the CHIPS partition limit in bytes
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitByteCapacity"
 
 networkPrioritization:
   description: "Network request prioritization"
@@ -2458,7 +2420,7 @@ gc:
         branch: user
         pref: "javascript.options.mem.incremental_weakmap"
     gc_incremental_slice_ms:
-      description: Max milliseconds to spend in an incremental GC slice.
+      description: Max milliseconds to spend in a non-idle incremental GC slice.
       type: int
       setPref:
         branch: user
@@ -3172,22 +3134,6 @@ backupService:
       setPref:
         branch: user
         pref: browser.backup.sqlite.step_delay_ms
-    idleThresholdSeconds:
-      description: >-
-        The number of seconds of user idle time to wait for before considering
-        to schedule a backup.
-      type: int
-      setPref:
-        branch: user
-        pref: browser.backup.scheduled.idle-threshold-seconds
-    minTimeBetweenBackupsSeconds:
-      description: >-
-        The minimum number of seconds since the last known backup that must
-        pass before we might schedule a backup.
-      type: int
-      setPref:
-        branch: user
-        pref: browser.backup.scheduled.minimum-time-between-backups-seconds
 
 pqcrypto:
   description: Prefs that control the use of post-quantum cryptography.
@@ -3208,13 +3154,6 @@ pqcrypto:
         pref: network.http.http3.enable_kyber
       description: >-
         Whether to enable Xyber768 for H3/QUIC.
-    sendP256:
-      type: boolean
-      setPref:
-        branch: default
-        pref: security.tls.client_hello.send_p256_keyshare
-      description: >-
-        Whether to send a P256 share in the client hello in QUIC and TLS.
 
 dtlsWebRTC:
   description: Pref that controls the use of DTLS.
@@ -3248,14 +3187,6 @@ certCompression:
         pref: security.tls.enable_certificate_compression_brotli
       description: >-
         Whether to enable Brotli for TLS certificate compression.
-    tlsEnableZstd:
-      type: boolean
-      setPref:
-        branch: default
-        pref: security.tls.enable_certificate_compression_zstd
-      description: >-
-        Whether to enable Zstd for TLS certificate compression.
-
 bounceTrackingProtection:
   description: Controls the Bounce Tracking Protection feature.
   owner: pbz@mozilla.com
