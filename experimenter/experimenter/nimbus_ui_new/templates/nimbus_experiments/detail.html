@@ -346,20 +346,7 @@
       {% endfor %}
     </div>
     <!-- QA Card -->
-    <div class="card">
-      <div class="card-header">
-        <h4>Quality Assurance</h4>
-      </div>
-      <div class="card-body">
-        <table class="table table-striped">
-          <tbody>
-            <tr>
-              <th>QA Status</th>
-              <td colspan="3">{{ experiment.qa_status|format_not_set }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    {% include "nimbus_experiments/qa_card.html" %}
+
   </div>
 {% endblock %}
