@@ -11,6 +11,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.forms import QAStatusForm
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
@@ -893,6 +894,7 @@ class NimbusExperimentDetailViewTest(TestCase):
             primary_outcomes=["outcome1", "outcome2"],
             secondary_outcomes=["outcome3", "outcome4"],
             risk_brand=True,
+            qa_status="NOT_SET",
         )
         self.user_email = "user@example.com"
 
@@ -937,3 +939,47 @@ class NimbusExperimentDetailViewTest(TestCase):
         self.assertEqual(
             response.context["secondary_outcome_links"], expected_secondary_links
         )
+
+    def test_qa_edit_mode_get(self):
+        response = self.client.get(
+            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
+            {"edit_qa_status": "true"},
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["qa_edit_mode"])
+        self.assertIsInstance(response.context["form"], QAStatusForm)
+
+    def test_qa_edit_mode_post_valid_form(self):
+        data = {
+            "qa_status": "GREEN",
+            "qa_comment": "Everything looks good.",
+        }
+        response = self.client.post(
+            reverse("update-qa-status", kwargs={"slug": self.experiment.slug}),
+            data,
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+        self.assertEqual(response.status_code, 302)  # redirect
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.qa_status, "GREEN")
+        self.assertEqual(self.experiment.qa_comment, "Everything looks good.")
+
+    def test_qa_edit_mode_post_invalid_form(self):
+        data = {
+            "qa_status": "INVALID_STATUS",  # Invalid QAStatus choice
+            "qa_comment": "Invalid status.",
+        }
+        response = self.client.post(
+            reverse("update-qa-status", kwargs={"slug": self.experiment.slug}),
+            data,
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["qa_edit_mode"])
+        self.assertIsInstance(response.context["form"], QAStatusForm)
+        self.assertFalse(response.context["form"].is_valid())
+        # Ensure changes are not saved to the database
+        self.experiment.refresh_from_db()
+        self.assertNotEqual(self.experiment.qa_status, "INVALID_STATUS")
+        self.assertEqual(self.experiment.qa_status, "NOT_SET")
