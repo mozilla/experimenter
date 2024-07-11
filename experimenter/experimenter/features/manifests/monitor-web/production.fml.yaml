@@ -5,13 +5,6 @@ about:
 channels:
   - production
 features:
-  automatic-removal-csat-survey:
-    description: Show the CSAT survey for Plus users that have automatically removed broker results
-    variables:
-      enabled:
-        description: If the feature is enabled
-        type: Boolean
-        default: false
   data-privacy-petition-banner:
     description: Show the data privacy petition banner to US users
     variables:
