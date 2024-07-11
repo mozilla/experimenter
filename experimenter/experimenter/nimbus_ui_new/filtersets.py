@@ -21,6 +21,29 @@ class StatusChoices(models.TextChoices):
     MY_EXPERIMENTS = "MyExperiments"
 
 
+STATUS_FILTERS = {
+    StatusChoices.DRAFT: lambda request: Q(
+        is_archived=False, status=NimbusExperiment.Status.DRAFT
+    ),
+    StatusChoices.PREVIEW: lambda request: Q(
+        is_archived=False, status=NimbusExperiment.Status.PREVIEW
+    ),
+    StatusChoices.LIVE: lambda request: Q(
+        is_archived=False, status=NimbusExperiment.Status.LIVE
+    ),
+    StatusChoices.COMPLETE: lambda request: Q(
+        is_archived=False, status=NimbusExperiment.Status.COMPLETE
+    ),
+    StatusChoices.REVIEW: lambda request: (
+        Q(is_archived=False) & ~Q(publish_status=NimbusExperiment.PublishStatus.IDLE)
+    ),
+    StatusChoices.ARCHIVED: lambda request: Q(is_archived=True),
+    StatusChoices.MY_EXPERIMENTS: lambda request: (
+        Q(owner=request.user) | Q(subscribers=request.user)
+    ),
+}
+
+
 class TypeChoices(models.TextChoices):
     ROLLOUT = "Rollout"
     EXPERIMENT = "Experiment"
@@ -264,22 +287,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         return queryset.order_by(value)
 
     def filter_status(self, queryset, name, value):
-        match value:
-            case StatusChoices.REVIEW:
-                return queryset.exclude(
-                    publish_status=NimbusExperiment.PublishStatus.IDLE,
-                )
-            case StatusChoices.ARCHIVED:
-                return queryset.filter(is_archived=True)
-            case StatusChoices.MY_EXPERIMENTS:
-                return queryset.filter(
-                    Q(owner=self.request.user) | Q(subscribers=self.request.user)
-                )
-            case _:
-                return queryset.filter(
-                    status=value,
-                    is_archived=False,
-                )
+        return queryset.filter(STATUS_FILTERS[value](self.request))
 
     def filter_search(self, queryset, name, value):
         search_fields = Concat(

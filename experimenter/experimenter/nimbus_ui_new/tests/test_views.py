@@ -60,6 +60,11 @@ class NimbusExperimentsListViewTest(TestCase):
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             slug="live-review-experiment",
         )
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            slug="live-waiting-experiment",
+        )
         NimbusExperimentFactory.create(is_archived=True, slug="archived-experiment")
         NimbusExperimentFactory.create(owner=self.user, slug="my-experiment")
 
@@ -77,13 +82,13 @@ class NimbusExperimentsListViewTest(TestCase):
         self.assertDictEqual(
             dict(response.context["status_counts"]),
             {
-                NimbusExperiment.Status.COMPLETE: 1,
-                NimbusExperiment.Status.DRAFT: 3,
-                NimbusExperiment.Status.LIVE: 2,
-                NimbusExperiment.Status.PREVIEW: 1,
-                "Review": 2,
-                "Archived": 1,
-                "MyExperiments": 1,
+                StatusChoices.ARCHIVED: 1,
+                StatusChoices.COMPLETE: 1,
+                StatusChoices.DRAFT: 3,
+                StatusChoices.LIVE: 3,
+                StatusChoices.MY_EXPERIMENTS: 3,
+                StatusChoices.PREVIEW: 1,
+                StatusChoices.REVIEW: 3,
             },
         )
 

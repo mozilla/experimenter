@@ -8,6 +8,7 @@ from experimenter.experiments.constants import RISK_QUESTIONS
 from experimenter.experiments.forms import QAStatusForm
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.nimbus_ui_new.filtersets import (
+    STATUS_FILTERS,
     NimbusExperimentFilter,
     SortChoices,
     StatusChoices,
@@ -55,29 +56,11 @@ class NimbusExperimentsListView(FilterView):
         return filterset_class(**kwargs)
 
     def get_context_data(self, **kwargs):
-        all_statuses = self.filterset_no_status.qs
-        archived = all_statuses.filter(is_archived=True)
-        unarchived = all_statuses.filter(is_archived=False)
+        queryset = self.filterset_no_status.qs
+
         status_counts = {
-            StatusChoices.DRAFT: unarchived.filter(
-                status=NimbusExperiment.Status.DRAFT,
-            ).count(),
-            StatusChoices.PREVIEW: unarchived.filter(
-                status=NimbusExperiment.Status.PREVIEW
-            ).count(),
-            StatusChoices.LIVE: unarchived.filter(
-                status=NimbusExperiment.Status.LIVE
-            ).count(),
-            StatusChoices.COMPLETE: unarchived.filter(
-                status=NimbusExperiment.Status.COMPLETE
-            ).count(),
-            StatusChoices.REVIEW: unarchived.filter(
-                publish_status=NimbusExperiment.PublishStatus.REVIEW
-            ).count(),
-            StatusChoices.ARCHIVED: archived.count(),
-            StatusChoices.MY_EXPERIMENTS: all_statuses.filter(
-                owner=self.request.user
-            ).count(),
+            s: queryset.filter(STATUS_FILTERS[s](self.request)).count()
+            for s in StatusChoices
         }
 
         return super().get_context_data(
