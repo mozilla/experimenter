@@ -63,7 +63,7 @@ class NimbusExperimentsListViewTest(TestCase):
         NimbusExperimentFactory.create(is_archived=True, slug="archived-experiment")
         NimbusExperimentFactory.create(owner=self.user, slug="my-experiment")
 
-        response = self.client.get(reverse("nimbus-new-list"))
+        response = self.client.get(reverse("nimbus-list"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             {e.slug for e in response.context["experiments"]},
@@ -101,7 +101,7 @@ class NimbusExperimentsListViewTest(TestCase):
             NimbusExperimentFactory.create(owner=self.user, application=application)
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {"application": NimbusExperiment.Application.DESKTOP},
         )
         self.assertEqual(response.status_code, 200)
@@ -127,10 +127,10 @@ class NimbusExperimentsListViewTest(TestCase):
                 NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
             )
 
-        response = self.client.get(reverse("nimbus-new-list"))
+        response = self.client.get(reverse("nimbus-list"))
         self.assertEqual(len(response.context["experiments"]), 3)
 
-        response = self.client.get(reverse("nimbus-new-list"), {"page": 2})
+        response = self.client.get(reverse("nimbus-list"), {"page": 2})
         self.assertEqual(len(response.context["experiments"]), 3)
 
     @parameterized.expand(
@@ -184,7 +184,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {"status": filter_status},
         )
 
@@ -215,7 +215,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {"status": NimbusExperiment.Status.LIVE, "search": test_string},
         )
         self.assertEqual(
@@ -240,7 +240,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {"status": NimbusExperiment.Status.LIVE, "type": type_choice},
         )
 
@@ -261,7 +261,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {"status": NimbusExperiment.Status.LIVE, "application": application},
         )
 
@@ -280,7 +280,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {"status": NimbusExperiment.Status.LIVE, "channel": channel},
         )
 
@@ -301,7 +301,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {"status": NimbusExperiment.Status.LIVE, "firefox_min_version": version},
         )
 
@@ -325,7 +325,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "feature_configs": feature_config.id,
@@ -349,7 +349,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "countries": country.id,
@@ -373,7 +373,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "languages": language.id,
@@ -397,7 +397,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "locales": locale.id,
@@ -423,7 +423,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "targeting_config_slug": targeting_config,
@@ -447,7 +447,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "projects": project.id,
@@ -473,7 +473,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "qa_status": qa_status,
@@ -520,7 +520,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "takeaways": takeaway_choice,
@@ -542,7 +542,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "owner": owner.id,
@@ -566,7 +566,7 @@ class NimbusExperimentsListViewTest(TestCase):
         ]
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "subscribers": subscriber.id,
@@ -585,7 +585,7 @@ class NimbusExperimentsListViewTest(TestCase):
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
         )
 
-        response = self.client.get(reverse("nimbus-new-list"))
+        response = self.client.get(reverse("nimbus-list"))
 
         self.assertEqual(
             [e.slug for e in response.context["experiments"]],
@@ -603,7 +603,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.NAME_UP,
             },
@@ -615,7 +615,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.NAME_DOWN,
             },
@@ -637,7 +637,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.QA_UP,
             },
@@ -649,7 +649,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.QA_DOWN,
             },
@@ -671,7 +671,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.APPLICATION_UP,
             },
@@ -683,7 +683,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.APPLICATION_DOWN,
             },
@@ -705,7 +705,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.CHANNEL_UP,
             },
@@ -717,7 +717,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.CHANNEL_DOWN,
             },
@@ -739,7 +739,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.SIZE_UP,
             },
@@ -751,7 +751,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.SIZE_DOWN,
             },
@@ -775,7 +775,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.FEATURES_UP,
             },
@@ -787,7 +787,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.FEATURES_DOWN,
             },
@@ -809,7 +809,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.VERSIONS_UP,
             },
@@ -821,7 +821,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.VERSIONS_DOWN,
             },
@@ -843,7 +843,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.DATES_UP,
             },
@@ -855,7 +855,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-new-list"),
+            reverse("nimbus-list"),
             {
                 "sort": SortChoices.DATES_DOWN,
             },

@@ -15,7 +15,11 @@
     </title>
     <script src="{% static 'nimbus_ui_new/app.bundle.js' %}"></script>
   </head>
-  <body class="bg-body-tertiary">
+  <body
+    {# djlint:off #}
+    id="{% block page_id %}{% endblock %}"
+    {# djlint:on #}
+    class="bg-body-tertiary">
     <div class="container-fluid bg-body border-bottom border-1 mb-4 py-1">
       {% include "common/header.html" %}
 

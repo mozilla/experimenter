@@ -29,8 +29,7 @@ def test_create_new_rollout_approve_remote_settings_cirrus(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    home = HomePage(selenium, base_url).open()
-    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
+    HomePage(selenium, base_url).open().find_in_table(experiment_name)
 
     # demo app frontend, default displays "Not Enrolled"
     navigate_to(selenium)
@@ -93,8 +92,7 @@ def test_create_new_experiment_approve_remote_settings_cirrus(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    home = HomePage(selenium, base_url).open()
-    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
+    HomePage(selenium, base_url).open().find_in_table(experiment_name)
 
     # Demo app frontend, by default, returns "Not Enrolled" message
     navigate_to(selenium)
