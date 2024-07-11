@@ -328,15 +328,13 @@ def test_get_features_with_and_without_nimbus_preview(
         },
     }
 
-    # Patch app.state.sdk and app.state.preview_sdk
     with patch(
-        "cirrus.main.app.state.sdk.compute_enrollments"
-    ) as mock_sdk_compute_enrollments, patch(
-        "cirrus.main.app.state.preview_sdk.compute_enrollments"
-    ) as mock_preview_sdk_compute_enrollments:
+        "cirrus.main.app.state.sdk_live.compute_enrollments"
+    ) as mock_sdk_live_compute_enrollments, patch(
+        "cirrus.main.app.state.sdk_preview.compute_enrollments"
+    ) as mock_sdk_preview_compute_enrollments:
 
-        # Mock the responses with different experiments and correct structure
-        mock_sdk_compute_enrollments.return_value = {
+        mock_sdk_live_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
                 "example-feature": {
                     "feature": {
@@ -370,7 +368,7 @@ def test_get_features_with_and_without_nimbus_preview(
                 }
             ],
         }
-        mock_preview_sdk_compute_enrollments.return_value = {
+        mock_sdk_preview_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
                 "example-feature": {
                     "feature": {

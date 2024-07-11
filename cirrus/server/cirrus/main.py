@@ -42,15 +42,15 @@ async def lifespan(app: FastAPI):
     initialize_sentry()
     app.state.pings, app.state.metrics = initialize_glean()
     app.state.fml = create_fml()
-    app.state.sdk = create_sdk(
+    app.state.sdk_live = create_sdk(
         app.state.fml.get_coenrolling_feature_ids(),
         CirrusMetricsHandler(app.state.metrics, app.state.pings),
     )
-    app.state.preview_sdk = create_sdk(
+    app.state.sdk_preview = create_sdk(
         app.state.fml.get_coenrolling_feature_ids(),
         CirrusMetricsHandler(app.state.metrics, app.state.pings),
     )
-    app.state.remote_setting = RemoteSettings(app.state.sdk, app.state.preview_sdk)
+    app.state.remote_setting = RemoteSettings(app.state.sdk_live, app.state.sdk_preview)
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
     send_instance_name_metric()
@@ -232,11 +232,11 @@ async def compute_features(
     }
     if nimbus_preview:
         enrolled_partial_configuration: dict[str, Any] = (
-            app.state.preview_sdk.compute_enrollments(targeting_context)
+            app.state.sdk_preview.compute_enrollments(targeting_context)
         )
     else:
         enrolled_partial_configuration: dict[str, Any] = (
-            app.state.sdk.compute_enrollments(targeting_context)
+            app.state.sdk_live.compute_enrollments(targeting_context)
         )
 
     client_feature_configuration: dict[str, Any] = (

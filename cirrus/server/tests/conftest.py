@@ -46,8 +46,8 @@ def remote_setting_mock():
 
 
 @fixture
-def remote_settings(sdk, preview_sdk):
-    return RemoteSettings(sdk, preview_sdk)
+def remote_settings(sdk_live, sdk_preview):
+    return RemoteSettings(sdk_live, sdk_preview)
 
 
 @fixture
@@ -56,22 +56,22 @@ def metrics_handler():
 
 
 @fixture
-def sdk(metrics_handler):
+def sdk_live(metrics_handler):
     return SDK(
         context=context, coenrolling_feature_ids=[], metrics_handler=metrics_handler
     )
 
 
 @fixture
-def preview_sdk(metrics_handler):
+def sdk_preview(metrics_handler):
     return SDK(
         context=context, coenrolling_feature_ids=[], metrics_handler=metrics_handler
     )
 
 
 @fixture
-def fml_setup(fml, sdk):
-    yield fml, sdk
+def fml_setup(fml, sdk_live):
+    yield fml, sdk_live
 
 
 @fixture

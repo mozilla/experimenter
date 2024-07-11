@@ -18,13 +18,13 @@ class RecipeType(Enum):
 
 
 class RemoteSettings:
-    def __init__(self, sdk: SDK, preview_sdk: SDK):
+    def __init__(self, sdk_live: SDK, sdk_preview: SDK):
         self.recipes: dict[str, list[Any]] = {"data": []}
         self.preview_recipes: dict[str, list[Any]] = {"data": []}
         self.url: str = remote_setting_url
         self.preview_url: str = remote_setting_preview_url
-        self.sdk = sdk
-        self.preview_sdk = preview_sdk
+        self.sdk_live = sdk_live
+        self.sdk_preview = sdk_preview
 
     def get_recipes(self) -> dict[str, list[Any]]:
         return self.recipes
@@ -72,8 +72,8 @@ class RemoteSettings:
 
     def update_recipes(self, new_recipes: dict[str, list[Any]]) -> None:
         self.recipes = new_recipes
-        self.sdk.set_experiments(json.dumps(self.recipes))
+        self.sdk_live.set_experiments(json.dumps(self.recipes))
 
     def update_preview_recipes(self, new_recipes: dict[str, list[Any]]) -> None:
         self.preview_recipes = new_recipes
-        self.preview_sdk.set_experiments(json.dumps(self.preview_recipes))
+        self.sdk_preview.set_experiments(json.dumps(self.preview_recipes))

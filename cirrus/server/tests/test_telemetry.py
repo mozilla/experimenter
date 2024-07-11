@@ -104,7 +104,7 @@ async def test_enrollment_metrics_recorded_with_compute_features(client, mocker,
 
     app.state.pings.enrollment.test_before_next_submit(before_enrollment_ping)
 
-    mocker.patch.object(app.state, "sdk", sdk)
+    mocker.patch.object(app.state, "sdk_live", sdk)
     ping_spy = mocker.spy(app.state.pings.enrollment, "submit")
 
     response = client.post("/v1/features/", json=request_data)
@@ -113,7 +113,7 @@ async def test_enrollment_metrics_recorded_with_compute_features(client, mocker,
     assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
 
     ping_spy.reset_mock()
-    mocker.patch.object(app.state, "preview_sdk", sdk)
+    mocker.patch.object(app.state, "sdk_preview", sdk)
 
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
@@ -166,7 +166,7 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler(
 
     app.state.pings.enrollment_status.test_before_next_submit(test_ping)
 
-    mocker.patch.object(app.state, "sdk", sdk)
+    mocker.patch.object(app.state, "sdk_live", sdk)
     ping_spy = mocker.spy(app.state.pings.enrollment_status, "submit")
 
     response = client.post("/v1/features/", json=request_data)
@@ -175,7 +175,7 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler(
     assert app.state.metrics.cirrus_events.enrollment_status.test_get_value() is None
 
     ping_spy.reset_mock()
-    mocker.patch.object(app.state, "preview_sdk", sdk)
+    mocker.patch.object(app.state, "sdk_preview", sdk)
 
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
