@@ -36,7 +36,7 @@ JS_TEST_NIMBUS_UI = DEBUG_PRINT_LIMIT=999999 CI=yes yarn workspace @experimenter
 NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
 RUFF_CHECK = ruff check experimenter/ tests/
-RUFF_FIX = ruff --fix experimenter/ tests/
+RUFF_FIX = ruff check --fix experimenter/ tests/
 BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
 BLACK_FIX = black -l 90 . --exclude node_modules
 CHECK_DOCS = python manage.py generate_docs --check=true
