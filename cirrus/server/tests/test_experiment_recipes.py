@@ -10,9 +10,9 @@ def test_get_recipes_is_empty(remote_settings):
     assert remote_settings.get_recipes() == {"data": []}
 
 
-def test_update_recipes(remote_settings):
+def test_update_live_recipes(remote_settings):
     new_recipes = {"data": [{"experiment1": True}, {"experiment2": False}]}
-    remote_settings.update_recipes(new_recipes)
+    remote_settings.update_live_recipes(new_recipes)
     assert remote_settings.get_recipes() == new_recipes
 
 
@@ -78,7 +78,7 @@ def test_empty_data_key_with_non_empty_recipes(mock_get, remote_settings):
     mock_response.json.return_value = {"data": []}
     mock_get.return_value = mock_response
 
-    remote_settings.update_recipes({"data": [{"experiment1": True}]})
+    remote_settings.update_live_recipes({"data": [{"experiment1": True}]})
     remote_settings.fetch_recipes()
     assert remote_settings.get_recipes() == {"data": []}
     assert remote_settings.get_preview_recipes() == {"data": []}
@@ -104,10 +104,10 @@ def test_non_data_key_recipes(mock_get, remote_settings):
         ("non-existent-slug", RecipeType.EMPTY.value),
     ],
 )
-def test_get_recipe_type_with_actual_recipes(
+def test_get_live_recipe_type_with_actual_recipes(
     remote_settings, recipes, slug, expected_type
 ):
-    remote_settings.update_recipes(recipes)
+    remote_settings.update_live_recipes(recipes)
 
-    experiment_type = remote_settings.get_recipe_type(slug)
+    experiment_type = remote_settings.get_live_recipe_type(slug)
     assert experiment_type == expected_type

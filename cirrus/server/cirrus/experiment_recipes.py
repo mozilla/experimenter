@@ -32,13 +32,13 @@ class RemoteSettings:
     def get_preview_recipes(self) -> dict[str, list[Any]]:
         return self.preview_recipes
 
-    def get_recipe_type(self, experiment_slug: str) -> str:
-        return self._get_recipe_type(self.get_recipes(), experiment_slug)
+    def get_live_recipe_type(self, experiment_slug: str) -> str:
+        return self._get_live_recipe_type(self.get_recipes(), experiment_slug)
 
     def get_preview_recipe_type(self, experiment_slug: str) -> str:
-        return self._get_recipe_type(self.get_preview_recipes(), experiment_slug)
+        return self._get_live_recipe_type(self.get_preview_recipes(), experiment_slug)
 
-    def _get_recipe_type(
+    def _get_live_recipe_type(
         self, recipes: dict[str, list[Any]], experiment_slug: str
     ) -> str:
         for experiment in recipes["data"]:
@@ -51,7 +51,7 @@ class RemoteSettings:
         return RecipeType.EMPTY.value
 
     def fetch_recipes(self) -> None:
-        self._fetch_and_update(self.url, self.update_recipes)
+        self._fetch_and_update(self.url, self.update_live_recipes)
         self._fetch_and_update(self.preview_url, self.update_preview_recipes)
 
     def _fetch_and_update(
@@ -70,7 +70,7 @@ class RemoteSettings:
             logger.error(f"Failed to fetch recipes: {e}")
             raise e
 
-    def update_recipes(self, new_recipes: dict[str, list[Any]]) -> None:
+    def update_live_recipes(self, new_recipes: dict[str, list[Any]]) -> None:
         self.recipes = new_recipes
         self.sdk_live.set_experiments(json.dumps(self.recipes))
 

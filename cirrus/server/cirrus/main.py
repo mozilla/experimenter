@@ -167,7 +167,7 @@ def collate_enrollment_metric_data(
                     experiment_slug
                 )
             else:
-                experiment_type = app.state.remote_setting.get_recipe_type(
+                experiment_type = app.state.remote_setting.get_live_recipe_type(
                     experiment_slug
                 )
             data.append(
