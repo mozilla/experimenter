@@ -10,7 +10,6 @@ import PageEditAudience from "src/components/PageEditAudience";
 import PageEditBranches from "src/components/PageEditBranches";
 import PageEditMetrics from "src/components/PageEditMetrics";
 import PageEditOverview from "src/components/PageEditOverview";
-import PageHome from "src/components/PageHome";
 import PageLoading from "src/components/PageLoading";
 import PageNew from "src/components/PageNew";
 import PageResults from "src/components/PageResults";
@@ -45,7 +44,6 @@ const App = () => {
   return (
     <SearchParamsStateProvider>
       <Router basepath={BASE_PATH}>
-        <PageHome path="/" />
         <PageNew path="new" />
         <ExperimentRoot path=":slug">
           <SummaryRoot path="/">
