@@ -1,23 +1,31 @@
 {% load nimbus_extras %}
 
-<ul class="nav nav-tabs">
-  {% include "common/list_tab.html" with status="Live" count=status_counts.Live icon="fa-regular fa-circle-play" %}
-  {% include "common/list_tab.html" with status="Review" count=status_counts.Review icon="fa-solid fa-eye" %}
-  {% include "common/list_tab.html" with status="Preview" count=status_counts.Preview icon="fa-solid fa-person-circle-check" %}
-  {% include "common/list_tab.html" with status="Complete" count=status_counts.Complete icon="fa-solid fa-vial-circle-check" %}
-  {% include "common/list_tab.html" with status="Draft" count=status_counts.Draft icon="fa-solid fa-pen-to-square" %}
-  {% include "common/list_tab.html" with status="Archived" count=status_counts.Archived icon="fa-solid fa-box-archive" %}
-  {% include "common/list_tab.html" with status="MyExperiments" count=status_counts.MyExperiments icon="fa-solid fa-heart" %}
+<div class="container border-bottom">
+  <div class="row">
+    <div class="col-12 p-0 d-flex flex-column flex-md-row justify-content-between align-items-center">
+      <div class="order-2 order-md-1">
+        <ul class="nav nav-tabs border-0">
+          {% include "common/list_tab.html" with status="Live" count=status_counts.Live icon="fa-regular fa-circle-play" %}
+          {% include "common/list_tab.html" with status="Review" count=status_counts.Review icon="fa-solid fa-eye" %}
+          {% include "common/list_tab.html" with status="Preview" count=status_counts.Preview icon="fa-solid fa-person-circle-check" %}
+          {% include "common/list_tab.html" with status="Complete" count=status_counts.Complete icon="fa-solid fa-vial-circle-check" %}
+          {% include "common/list_tab.html" with status="Draft" count=status_counts.Draft icon="fa-solid fa-pen-to-square" %}
+          {% include "common/list_tab.html" with status="Archived" count=status_counts.Archived icon="fa-solid fa-box-archive" %}
+          {% include "common/list_tab.html" with status="MyExperiments" count=status_counts.MyExperiments icon="fa-solid fa-heart" %}
 
-  <li class="nav-item ms-auto">
-    <a id="create-new-button"
-       class="btn btn-primary"
-       href="{% url "nimbus-create" %}">
-      <i class="fa-regular fa-pen-to-square"></i>
-      Create Experiment
-    </a>
-  </li>
-</ul>
+        </ul>
+      </div>
+      <div class="order-1 order-md-2 mb-2 mb-md-0">
+        <a id="create-new-button"
+           class="btn btn-primary"
+           href="{% url 'nimbus-create' %}">
+          <i class="fa-regular fa-pen-to-square"></i>
+          Create Experiment
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="experiment-list"></div>
 <div class="border border-1 border-top-0 border-bottom-0 mb-3">
   <table id="experiment-table" class="table table-striped mb-0">
