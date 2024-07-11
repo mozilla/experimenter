@@ -1867,6 +1867,41 @@ class TestNimbusExperiment(TestCase):
                 "http://kinto/v1/admin/#/buckets/main-workspace/collections/nimbus-secure-experiments/simple-review",
             )
 
+    def test_audience_url(self):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP, slug="a"
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP, slug="b"
+        )
+        language1 = LanguageFactory.create(code="a")
+        language2 = LanguageFactory.create(code="b")
+        locale1 = LocaleFactory.create(code="a")
+        locale2 = LocaleFactory.create(code="b")
+        country1 = CountryFactory.create(code="a")
+        country2 = CountryFactory.create(code="b")
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            feature_configs=[feature1, feature2],
+            languages=[language1, language2],
+            locales=[locale1, locale2],
+            countries=[country1, country2],
+            targeting_config_slug="targeting",
+        )
+        self.assertEqual(
+            experiment.audience_url,
+            (
+                "/nimbus/?application=firefox-desktop&channel=release&firefox_min_version=100.%21"
+                f"&feature_configs={feature1.id}&feature_configs={feature2.id}"
+                f"&countries={country1.id}&countries={country2.id}"
+                f"&locales={locale1.id}&locales={locale2.id}"
+                f"&languages={language1.id}&languages={language2.id}"
+                "&targeting_config_slug=targeting"
+            ),
+        )
+
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,

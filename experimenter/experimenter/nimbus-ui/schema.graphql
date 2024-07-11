@@ -65,6 +65,7 @@ type NimbusExperimentType {
   subscribers: [NimbusUserType!]!
   documentationLinks: [NimbusDocumentationLinkType!]
   changes: [NimbusChangeLogType]
+  audienceUrl: String!
   canArchive: Boolean
   canEdit: Boolean
   canReview: Boolean
