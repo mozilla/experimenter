@@ -27,6 +27,7 @@ from experimenter.experiments.constants import (
     BucketRandomizationUnit,
     ChangeEventType,
     NimbusConstants,
+    TargetingMultipleKintoCollectionsError,
 )
 from experimenter.experiments.models import (
     NimbusBranch,
@@ -3858,7 +3859,8 @@ class ApplicationConfigTests(TestCase):
             experiment = self._create_experiment(["feature-1", "feature-2"])
 
             with self.assertRaisesRegex(
-                AssertionError, "Experiment targets multiple collections"
+                TargetingMultipleKintoCollectionsError,
+                "Experiment targets multiple collections",
             ):
                 experiment.kinto_collection  # noqa: B018
 

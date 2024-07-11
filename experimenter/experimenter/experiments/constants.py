@@ -53,6 +53,13 @@ class BucketRandomizationUnit(models.TextChoices):
     USER_ID = "user_id"
 
 
+class TargetingMultipleKintoCollectionsError(Exception):
+    """An error that is raised when an experiment contains multiple features
+    that each would require it to be published to different kinto
+    collections.
+    """
+
+
 @dataclass
 class ApplicationConfig:
     name: str
@@ -80,7 +87,9 @@ class ApplicationConfig:
                 return next(iter(target_collections))
 
             elif len(target_collections) > 1:
-                raise AssertionError("Experiment targets multiple collections")
+                raise TargetingMultipleKintoCollectionsError(
+                    "Experiment targets multiple collections"
+                )
 
         return self.default_kinto_collection
 
