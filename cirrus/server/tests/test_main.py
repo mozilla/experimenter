@@ -214,3 +214,207 @@ def test_heartbeat_endpoint(client):
     response = client.get("/__heartbeat__")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_get_features_with_nimbus_preview(client):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
+        },
+    }
+
+    response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
+    assert response.status_code == 200
+    assert response.json() == {
+        "example-feature": {"enabled": False, "something": "wicked"}
+    }
+
+
+@pytest.mark.parametrize(
+    "request_data, expected_status, expected_message",
+    [
+        (
+            {
+                "client_id": "",
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                },
+            },
+            status.HTTP_400_BAD_REQUEST,
+            "Client ID value is missing or empty",
+        ),
+        (
+            {
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                }
+            },
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "type": "missing",
+                    "loc": ["body", "client_id"],
+                    "msg": "Field required",
+                    "input": {
+                        "context": {
+                            "key1": "value1",
+                            "key2": {"key2.1": "value2", "key2.2": "value3"},
+                        }
+                    },
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
+                }
+            ],
+        ),
+        (
+            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449", "context": {}},
+            status.HTTP_400_BAD_REQUEST,
+            "Context value is missing or empty",
+        ),
+        (
+            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "type": "missing",
+                    "loc": ["body", "context"],
+                    "msg": "Field required",
+                    "input": {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
+                }
+            ],
+        ),
+        (
+            {},
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "type": "missing",
+                    "loc": ["body", "client_id"],
+                    "msg": "Field required",
+                    "input": {},
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
+                },
+                {
+                    "type": "missing",
+                    "loc": ["body", "context"],
+                    "msg": "Field required",
+                    "input": {},
+                    "url": "https://errors.pydantic.dev/2.3/v/missing",
+                },
+            ],
+        ),
+    ],
+)
+def test_get_features_missing_required_field_nimbus_preview(
+    client, request_data, expected_status, expected_message
+):
+    response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
+    assert response.status_code == expected_status
+    assert response.json()["detail"] == expected_message
+
+
+def test_get_features_with_and_without_nimbus_preview(
+    client,
+):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
+        },
+    }
+
+    # Patch app.state.sdk and app.state.preview_sdk
+    with patch(
+        "cirrus.main.app.state.sdk.compute_enrollments"
+    ) as mock_sdk_compute_enrollments, patch(
+        "cirrus.main.app.state.preview_sdk.compute_enrollments"
+    ) as mock_preview_sdk_compute_enrollments:
+
+        # Mock the responses with different experiments and correct structure
+        mock_sdk_compute_enrollments.return_value = {
+            "enrolledFeatureConfigMap": {
+                "example-feature": {
+                    "feature": {
+                        "featureId": "example-feature",
+                        "value": {"enabled": False, "something": "wicked"},
+                    },
+                    "branch": "treatment",
+                    "featureId": "example-feature",
+                    "slug": "experiment_slug_1",
+                }
+            },
+            "enrollments": [
+                {
+                    "slug": "experiment_slug_1",
+                    "status": {
+                        "Enrolled": {
+                            "branch": "treatment",
+                            "enrollment_id": "enrollment_id_1",
+                            "reason": "Qualified",
+                        }
+                    },
+                }
+            ],
+            "events": [
+                {
+                    "branch_slug": "treatment",
+                    "change": "Enrollment",
+                    "enrollment_id": "enrollment_id_1",
+                    "experiment_slug": "experiment_slug_1",
+                    "reason": None,
+                }
+            ],
+        }
+        mock_preview_sdk_compute_enrollments.return_value = {
+            "enrolledFeatureConfigMap": {
+                "example-feature": {
+                    "feature": {
+                        "featureId": "example-feature",
+                        "value": {"enabled": True, "something": "preview"},
+                    },
+                    "branch": "treatment",
+                    "featureId": "example-feature",
+                    "slug": "experiment_slug_2",
+                }
+            },
+            "enrollments": [
+                {
+                    "slug": "experiment_slug_2",
+                    "status": {
+                        "Enrolled": {
+                            "branch": "treatment",
+                            "enrollment_id": "enrollment_id_2",
+                            "reason": "Qualified",
+                        }
+                    },
+                }
+            ],
+            "events": [
+                {
+                    "branch_slug": "treatment",
+                    "change": "Enrollment",
+                    "enrollment_id": "enrollment_id_2",
+                    "experiment_slug": "experiment_slug_2",
+                    "reason": None,
+                }
+            ],
+        }
+
+        # Without nimbus_preview
+        response = client.post("/v1/features/", json=request_data)
+        assert response.status_code == 200
+        assert response.json() == {
+            "example-feature": {"enabled": False, "something": "wicked"}
+        }
+
+        # With nimbus_preview
+        response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
+        assert response.status_code == 200
+        assert response.json() == {
+            "example-feature": {"enabled": True, "something": "preview"}
+        }

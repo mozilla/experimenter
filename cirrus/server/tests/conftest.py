@@ -46,8 +46,8 @@ def remote_setting_mock():
 
 
 @fixture
-def remote_settings(sdk):
-    return RemoteSettings(sdk)
+def remote_settings(sdk, preview_sdk):
+    return RemoteSettings(sdk, preview_sdk)
 
 
 @fixture
@@ -57,6 +57,13 @@ def metrics_handler():
 
 @fixture
 def sdk(metrics_handler):
+    return SDK(
+        context=context, coenrolling_feature_ids=[], metrics_handler=metrics_handler
+    )
+
+
+@fixture
+def preview_sdk(metrics_handler):
     return SDK(
         context=context, coenrolling_feature_ids=[], metrics_handler=metrics_handler
     )

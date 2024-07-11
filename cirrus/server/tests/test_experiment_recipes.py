@@ -25,6 +25,7 @@ def test_empty_data_key(mock_get, remote_settings):
 
     remote_settings.fetch_recipes()
     assert remote_settings.get_recipes() == {"data": []}
+    assert remote_settings.get_preview_recipes() == {"data": []}
 
 
 @patch("cirrus.experiment_recipes.requests.get")
@@ -40,6 +41,9 @@ def test_non_empty_data_key(mock_get, remote_settings):
     assert remote_settings.get_recipes() == {
         "data": [{"experiment1": True}, {"experiment2": False}]
     }
+    assert remote_settings.get_preview_recipes() == {
+        "data": [{"experiment1": True}, {"experiment2": False}]
+    }
 
 
 @patch("cirrus.experiment_recipes.requests.get")
@@ -50,7 +54,9 @@ def test_successful_response(mock_get, remote_settings):
     mock_get.return_value = mock_response
 
     remote_settings.fetch_recipes()
-    mock_get.assert_called_once_with(remote_settings.url)
+    assert mock_get.call_count == 2
+    mock_get.assert_any_call(remote_settings.url)
+    mock_get.assert_any_call(remote_settings.preview_url)
 
 
 @patch("cirrus.experiment_recipes.requests.get")
@@ -60,8 +66,9 @@ def test_failed_request(mock_get, remote_settings):
     with pytest.raises(requests.exceptions.RequestException) as context:
         remote_settings.fetch_recipes()
 
-        assert str(context.value) == "Failed request"
+    assert str(context.value) == "Failed request"
     assert remote_settings.get_recipes() == {"data": []}
+    assert remote_settings.get_preview_recipes() == {"data": []}
 
 
 @patch("cirrus.experiment_recipes.requests.get")
@@ -74,6 +81,7 @@ def test_empty_data_key_with_non_empty_recipes(mock_get, remote_settings):
     remote_settings.update_recipes({"data": [{"experiment1": True}]})
     remote_settings.fetch_recipes()
     assert remote_settings.get_recipes() == {"data": []}
+    assert remote_settings.get_preview_recipes() == {"data": []}
 
 
 @patch("cirrus.experiment_recipes.requests.get")
@@ -82,8 +90,10 @@ def test_non_data_key_recipes(mock_get, remote_settings):
     mock_response.status_code = 200
     mock_response.json.return_value = {}
     mock_get.return_value = mock_response
+
     remote_settings.fetch_recipes()
     assert remote_settings.get_recipes() == {"data": []}
+    assert remote_settings.get_preview_recipes() == {"data": []}
 
 
 @pytest.mark.parametrize(
