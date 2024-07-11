@@ -24,8 +24,7 @@ def test_create_new_experiment_approve_remote_settings(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    home = HomePage(selenium, base_url).open()
-    assert experiment_slug in [item.text for item in home.tables[0].experiments]
+    HomePage(selenium, base_url).open().find_in_table(experiment_slug)
 
 
 @pytest.mark.remote_settings
@@ -49,8 +48,7 @@ def test_create_new_rollout_approve_remote_settings(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    home = HomePage(selenium, base_url).open()
-    assert experiment_slug in [item.text for item in home.tables[0].experiments]
+    HomePage(selenium, base_url).open().find_in_table(experiment_slug)
 
 
 @pytest.mark.remote_settings
