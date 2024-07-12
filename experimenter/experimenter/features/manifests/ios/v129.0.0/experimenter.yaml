@@ -7,19 +7,14 @@ account-settings-redux-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
-address-autofill-edit:
-  description: This property defines if the address editing is enabled in Settings
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    status:
-      type: boolean
-      description: "If true, we will allow user to edit the address"
 address-autofill-feature:
   description: This property defines the address card autofill feature
   hasExposure: true
   exposureDescription: ""
   variables:
+    address-autofill-edit:
+      type: boolean
+      description: "If true, we will allow user to edit the address"
     status:
       type: boolean
       description: "If true, we will allow user to use the address autofill feature"
