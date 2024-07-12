@@ -41,6 +41,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       resultsExpectedDate
       resultsReady
       showResultsUrl
+      audienceUrl
 
       hypothesis
       application

@@ -222,6 +222,7 @@ export interface getExperiment_experimentBySlug {
   resultsExpectedDate: DateTime | null;
   resultsReady: boolean | null;
   showResultsUrl: boolean | null;
+  audienceUrl: string;
   hypothesis: string | null;
   application: NimbusExperimentApplicationEnum;
   publicDescription: string | null;
