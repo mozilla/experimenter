@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from "react";
-import { Accordion, Button, Card, Table } from "react-bootstrap";
+import { Accordion, Button, Card, Col, Row, Table } from "react-bootstrap";
 import { Code } from "src/components/Code";
 import NotSet from "src/components/NotSet";
 import { MOBILE_APPLICATIONS } from "src/components/PageEditAudience/FormAudience";
@@ -112,7 +112,18 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
 
   return (
     <Card className="border-left-0 border-right-0 border-bottom-0">
-      <Card.Header as="h5">Audience</Card.Header>
+      <Card.Header>
+        <Row>
+          <Col>
+            <h5>Audience</h5>
+          </Col>
+          <Col className="text-right">
+            <a target="_blank" href={experiment.audienceUrl} rel="noreferrer">
+              Explore matching audiences
+            </a>
+          </Col>
+        </Row>
+      </Card.Header>
       <Card.Body>
         <Table data-testid="table-audience" className="table-fixed">
           <tbody>

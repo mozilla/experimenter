@@ -95,8 +95,8 @@ const AppLayoutWithExperiment = ({
             <p>Polling will be retried automatically.</p>
           </Alert>
         )}
-        {title && <h2 className="mt-3 mb-4 h3">{title}</h2>}
-        <div className="my-4">{children}</div>
+        {title && <h2 className="mt-3 h3">{title}</h2>}
+        {children}
       </section>
     </Layout>
   );

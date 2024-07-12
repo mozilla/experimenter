@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Dict, Optional
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin
 from uuid import uuid4
 
 import packaging
@@ -789,6 +789,38 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 collection=self.application_config.get_kinto_collection_for(self),
                 review_path="simple-review",
             )
+
+    @property
+    def audience_url(self):
+        filters = [
+            ("application", self.application),
+        ]
+        if self.channel:
+            filters.append(("channel", self.channel))
+        if self.firefox_min_version:
+            filters.append(("firefox_min_version", self.firefox_min_version))
+        if self.feature_configs.exists():
+            filters.extend(
+                [
+                    ("feature_configs", f.id)
+                    for f in self.feature_configs.all().order_by("slug")
+                ]
+            )
+        if self.countries.exists():
+            filters.extend(
+                [("countries", c.id) for c in self.countries.all().order_by("code")]
+            )
+        if self.locales.exists():
+            filters.extend(
+                [("locales", l.id) for l in self.locales.all().order_by("code")]
+            )
+        if self.languages.exists():
+            filters.extend(
+                [("languages", l.id) for l in self.languages.all().order_by("code")]
+            )
+        if self.targeting_config_slug:
+            filters.append(("targeting_config_slug", self.targeting_config_slug))
+        return f"{reverse('nimbus-list')}?{urlencode(filters)}"
 
     def delete_branches(self):
         self.reference_branch = None
