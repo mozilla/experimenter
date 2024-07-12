@@ -5,6 +5,7 @@
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useContext, useState } from "react";
+import { Col, Row } from "react-bootstrap";
 import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
 import FormAudience from "src/components/PageEditAudience/FormAudience";
 import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
@@ -114,6 +115,13 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
 
   return (
     <AppLayoutWithExperiment title="Audience" testId="PageEditAudience">
+      <Row className="mb-4">
+        <Col>
+          <a target="_blank" href={experiment.audienceUrl} rel="noreferrer">
+            Explore matching audiences
+          </a>
+        </Col>
+      </Row>
       <FormAudience
         {...{
           experiment,

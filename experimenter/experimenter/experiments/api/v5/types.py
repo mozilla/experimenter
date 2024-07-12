@@ -490,6 +490,7 @@ class NimbusConfigurationType(graphene.ObjectType):
 
 class NimbusExperimentType(DjangoObjectType):
     application = graphene.NonNull(NimbusExperimentApplicationEnum)
+    audience_url = graphene.NonNull(graphene.String)
     can_archive = graphene.Boolean()
     can_edit = graphene.Boolean()
     can_review = graphene.Boolean()
@@ -584,6 +585,7 @@ class NimbusExperimentType(DjangoObjectType):
         model = NimbusExperiment
         fields = (
             "application",
+            "audience_url",
             "can_archive",
             "can_edit",
             "can_review",
