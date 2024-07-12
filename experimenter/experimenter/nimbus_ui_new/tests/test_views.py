@@ -11,7 +11,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.forms import QAStatusForm
+from experimenter.experiments.forms import QAStatusForm, TakeawaysForm
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
@@ -900,6 +900,14 @@ class NimbusExperimentDetailViewTest(TestCase):
             secondary_outcomes=["outcome3", "outcome4"],
             risk_brand=True,
             qa_status="NOT_SET",
+            takeaways_qbr_learning=True,
+            takeaways_metric_gain=True,
+            takeaways_summary="This is a summary.",
+            takeaways_gain_amount="0.5% gain in retention",
+            conclusion_recommendations=[
+                NimbusExperiment.ConclusionRecommendation.RERUN,
+                NimbusExperiment.ConclusionRecommendation.GRADUATE,
+            ],
         )
         self.user_email = "user@example.com"
 
@@ -911,6 +919,7 @@ class NimbusExperimentDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["experiment"], self.experiment)
         self.assertIn("RISK_QUESTIONS", response.context)
+        self.assertIn("takeaways_form", response.context)
 
     def test_outcome_links(self):
         response = self.client.get(
@@ -988,3 +997,80 @@ class NimbusExperimentDetailViewTest(TestCase):
         self.experiment.refresh_from_db()
         self.assertNotEqual(self.experiment.qa_status, "INVALID_STATUS")
         self.assertEqual(self.experiment.qa_status, "NOT_SET")
+
+    def test_takeaways_card(self):
+        response = self.client.get(
+            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Takeaways")
+        self.assertContains(response, "QBR Notable Learning")
+        self.assertContains(response, "Statistically significant DAU Gain")
+        self.assertContains(response, "This is a summary.")
+        self.assertContains(response, "0.5% gain in retention")
+        self.assertContains(response, "Rerun")
+        self.assertContains(response, "Graduate")
+
+    def test_takeaways_edit_mode_get(self):
+        response = self.client.get(
+            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
+            {"edit_takeaways": "true"},
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["takeaways_edit_mode"])
+        self.assertIsInstance(response.context["takeaways_form"], TakeawaysForm)
+
+    def test_takeaways_edit_mode_post_valid_form(self):
+        data = {
+            "takeaways_qbr_learning": True,
+            "takeaways_metric_gain": True,
+            "takeaways_summary": "Updated summary.",
+            "takeaways_gain_amount": "1% gain in retention",
+            "conclusion_recommendations": [
+                NimbusExperiment.ConclusionRecommendation.CHANGE_COURSE,
+                NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
+            ],
+        }
+        response = self.client.post(
+            reverse("update-takeaways", kwargs={"slug": self.experiment.slug}),
+            data,
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+        self.assertEqual(response.status_code, 302)  # redirect
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.takeaways_summary, "Updated summary.")
+        self.assertEqual(self.experiment.takeaways_gain_amount, "1% gain in retention")
+        self.assertListEqual(
+            self.experiment.conclusion_recommendations,
+            [
+                NimbusExperiment.ConclusionRecommendation.CHANGE_COURSE,
+                NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
+            ],
+        )
+
+    def test_takeaways_edit_mode_post_invalid_form(self):
+        data = {
+            "takeaways_qbr_learning": "invalid",  # Invalid boolean value
+            "takeaways_metric_gain": True,
+            "takeaways_summary": "Invalid form submission",
+            "takeaways_gain_amount": "1% gain in retention",
+            "conclusion_recommendations": [
+                NimbusExperiment.ConclusionRecommendation.CHANGE_COURSE,
+                NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
+            ],
+        }
+        response = self.client.post(
+            reverse("update-takeaways", kwargs={"slug": self.experiment.slug}),
+            data,
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["takeaways_edit_mode"])
+        self.assertIsInstance(response.context["takeaways_form"], TakeawaysForm)
+        self.assertFalse(response.context["takeaways_form"].is_valid())
+        # Ensure changes are not saved to the database
+        self.experiment.refresh_from_db()
+        self.assertNotEqual(self.experiment.takeaways_summary, "Invalid form submission")
+        self.assertEqual(self.experiment.takeaways_summary, "This is a summary.")
