@@ -2,14 +2,25 @@
 
 <nav class="navbar">
   <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center fs-3"
-       href="{% url 'nimbus-list' %}">
-      <img src="{% static 'assets/logo.svg' %}"
-           alt="Logo"
-           width="30"
-           class="d-inline-block align-text-top me-2">
-      Nimbus Experiments
-    </a>
+    <div class="d-flex align-items-center">
+      <button class="navbar-toggler me-3 d-xl-none"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#sidebarMenu"
+              aria-controls="sidebarMenu"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand d-flex align-items-center fs-3"
+         href="{% url 'nimbus-list' %}">
+        <img src="{% static 'assets/logo.svg' %}"
+             alt="Logo"
+             width="30"
+             class="d-inline-block align-text-top me-2">
+        Nimbus Experiments
+      </a>
+    </div>
     <ul class="nav nav-pills">
       <li class="nav-item">
         <a href="https://experimenter.info/"
