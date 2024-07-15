@@ -25,7 +25,11 @@ from django.utils.text import slugify
 
 from experimenter.base import UploadsStorage
 from experimenter.base.models import Country, Language, Locale
-from experimenter.experiments.constants import ChangeEventType, NimbusConstants
+from experimenter.experiments.constants import (
+    ChangeEventType,
+    NimbusConstants,
+    TargetingMultipleKintoCollectionsError,
+)
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
@@ -782,11 +786,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def review_url(self):
-        if self.application_config:
+        try:
+            collection = self.kinto_collection
+        except TargetingMultipleKintoCollectionsError:
+            return None
+
+        if collection:
             return "{base_url}{collection_path}/{collection}/{review_path}".format(
                 base_url=settings.KINTO_ADMIN_URL,
                 collection_path="#/buckets/main-workspace/collections",
-                collection=self.application_config.get_kinto_collection_for(self),
+                collection=collection,
                 review_path="simple-review",
             )
 
