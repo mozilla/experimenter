@@ -797,15 +797,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ]
         if self.channel:
             filters.append(("channel", self.channel))
-        if self.firefox_min_version:
-            filters.append(("firefox_min_version", self.firefox_min_version))
-        if self.feature_configs.exists():
-            filters.extend(
-                [
-                    ("feature_configs", f.id)
-                    for f in self.feature_configs.all().order_by("slug")
-                ]
-            )
         if self.countries.exists():
             filters.extend(
                 [("countries", c.id) for c in self.countries.all().order_by("code")]
