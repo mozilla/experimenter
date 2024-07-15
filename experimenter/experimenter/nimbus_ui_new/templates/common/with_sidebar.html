@@ -3,19 +3,10 @@
 {% load static %}
 
 {% block content %}
-  <div id="content" class="container-fluid px-3">
+  <div id="content" class="container-fluid">
     <div class="row">
-      <div class="col-lg-12 col-xl-3 col-xxl-2 d-md-block mb-4">
+      <div class="col-lg-12 col-xl-3 col-xxl-2 d-md-block">
         <nav class="navbar navbar-expand-xl py-0">
-          <button class="navbar-toggler mb-3"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#sidebarMenu"
-                  aria-controls="sidebarMenu"
-                  aria-expanded="false"
-                  aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
           <div class="collapse navbar-collapse" id="sidebarMenu">
             {% block sidebar %}
             {% endblock sidebar %}
