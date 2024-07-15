@@ -1868,12 +1868,6 @@ class TestNimbusExperiment(TestCase):
             )
 
     def test_audience_url(self):
-        feature1 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP, slug="a"
-        )
-        feature2 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP, slug="b"
-        )
         language1 = LanguageFactory.create(code="a")
         language2 = LanguageFactory.create(code="b")
         locale1 = LocaleFactory.create(code="a")
@@ -1883,8 +1877,6 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
-            feature_configs=[feature1, feature2],
             languages=[language1, language2],
             locales=[locale1, locale2],
             countries=[country1, country2],
@@ -1893,8 +1885,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.audience_url,
             (
-                "/nimbus/?application=firefox-desktop&channel=release&firefox_min_version=100.%21"
-                f"&feature_configs={feature1.id}&feature_configs={feature2.id}"
+                "/nimbus/?application=firefox-desktop&channel=release"
                 f"&countries={country1.id}&countries={country2.id}"
                 f"&locales={locale1.id}&locales={locale2.id}"
                 f"&languages={language1.id}&languages={language2.id}"
