@@ -262,6 +262,18 @@ describe("PageSummary", () => {
     await act(async () => void fireEvent.click(launchButton));
   });
 
+  it("prevents launching to preview for experiments that cannot", async () => {
+    const { mock, experiment } = mockExperimentQuery("slug", {
+      canPublishToPreview: false,
+    });
+
+    render(<Subject mocks={[mock]} />);
+
+    expect(screen.queryByTestId("launch-to-preview-instead")).toBeNull();
+
+    screen.getByTestId("cannot-launch-to-preview");
+  });
+
   it("handles Launch without Preview from Draft as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.DRAFT,

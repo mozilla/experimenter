@@ -945,6 +945,11 @@ class NimbusExperimentSerializer(
                 }
             )
 
+        if self.should_call_preview_task and not self.instance.can_publish_to_preview:
+            raise serializers.ValidationError(
+                {"status": [NimbusConstants.ERROR_CANNOT_PUBLISH_TO_PREVIEW]},
+            )
+
         return data
 
     def update(self, experiment, validated_data):

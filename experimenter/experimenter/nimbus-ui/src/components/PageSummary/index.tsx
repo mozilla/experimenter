@@ -261,13 +261,14 @@ const PageSummary = (props: RouteComponentProps) => {
       >
         {status.draft &&
           !experiment.isArchived &&
-          (showLaunchToReview ? (
+          (!experiment.canPublishToPreview || showLaunchToReview ? (
             <FormLaunchDraftToReview
               {...{
                 isLoading,
                 onSubmit: onLaunchClicked,
                 onCancel: () => setShowLaunchToReview(false),
                 onLaunchToPreview: onLaunchToPreviewClicked,
+                canPublishToPreview: experiment.canPublishToPreview,
               }}
             />
           ) : (
