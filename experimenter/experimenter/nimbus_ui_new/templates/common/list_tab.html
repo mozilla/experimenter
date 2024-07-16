@@ -12,8 +12,11 @@
     {% endfor %}
     <button type="submit"
             class="nav-link pb-3 {% if active_status == status %}active{% endif %}">
-      <i class="{{ icon }}"></i>
-      {{ status }} ({{ count }})
+      <div class="d-inline-flex align-items-center">
+        <i class="{{ icon }} me-2"></i>
+        <span>{{ status }}</span>
+      </div>
+      <span>({{ count }})</span>
     </button>
   </form>
 </li>
