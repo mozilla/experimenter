@@ -12,16 +12,13 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-  address-autofill-edit:
-    description: This property defines if the address editing is enabled in Settings
-    variables:
-      status:
-        description: "If true, we will allow user to edit the address"
-        type: Boolean
-        default: false
   address-autofill-feature:
     description: This property defines the address card autofill feature
     variables:
+      address-autofill-edit:
+        description: "If true, we will allow user to edit the address"
+        type: Boolean
+        default: false
       status:
         description: "If true, we will allow user to use the address autofill feature"
         type: Boolean
@@ -471,6 +468,10 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
+      one_tap_new_tab:
+        description: "If true, enables the one tap new tab feature for users.\n"
+        type: Boolean
+        default: false
   tracking-protection-refactor:
     description: "The Enhanced Tracking Protection refactor\n"
     variables:
@@ -680,8 +681,8 @@ objects:
     fields:
       action:
         description: "The name of a deeplink URL to be opened if the button is clicked.\n"
-        type: ActionName
-        default: OPEN_URL
+        type: Option<ActionName>
+        default: ~
       action-params:
         description: Query parameters appended to the deeplink action URL
         type: "Map<String, String>"

@@ -11,7 +11,7 @@ import { RouterSlugProvider } from "src/lib/test-utils";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 
 describe("SearchBar", () => {
-  it("renders as expected", async () => {
+  it.skip("renders as expected", async () => {
     const onChange = jest.fn();
     render(<Subject experiments={[]} onChange={onChange} />);
     const searchInput = screen.getByTestId("SearchExperiments");

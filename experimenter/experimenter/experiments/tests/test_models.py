@@ -27,6 +27,7 @@ from experimenter.experiments.constants import (
     BucketRandomizationUnit,
     ChangeEventType,
     NimbusConstants,
+    TargetingMultipleKintoCollectionsError,
 )
 from experimenter.experiments.models import (
     NimbusBranch,
@@ -1866,6 +1867,32 @@ class TestNimbusExperiment(TestCase):
                 experiment.review_url,
                 "http://kinto/v1/admin/#/buckets/main-workspace/collections/nimbus-secure-experiments/simple-review",
             )
+
+    def test_audience_url(self):
+        language1 = LanguageFactory.create(code="a")
+        language2 = LanguageFactory.create(code="b")
+        locale1 = LocaleFactory.create(code="a")
+        locale2 = LocaleFactory.create(code="b")
+        country1 = CountryFactory.create(code="a")
+        country2 = CountryFactory.create(code="b")
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            languages=[language1, language2],
+            locales=[locale1, locale2],
+            countries=[country1, country2],
+            targeting_config_slug="targeting",
+        )
+        self.assertEqual(
+            experiment.audience_url,
+            (
+                "/nimbus/?application=firefox-desktop&channel=release"
+                f"&countries={country1.id}&countries={country2.id}"
+                f"&locales={locale1.id}&locales={locale2.id}"
+                f"&languages={language1.id}&languages={language2.id}"
+                "&targeting_config_slug=targeting"
+            ),
+        )
 
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -3858,7 +3885,8 @@ class ApplicationConfigTests(TestCase):
             experiment = self._create_experiment(["feature-1", "feature-2"])
 
             with self.assertRaisesRegex(
-                AssertionError, "Experiment targets multiple collections"
+                TargetingMultipleKintoCollectionsError,
+                "Experiment targets multiple collections",
             ):
                 experiment.kinto_collection  # noqa: B018
 

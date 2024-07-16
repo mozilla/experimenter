@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Dict, Optional
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin
 from uuid import uuid4
 
 import packaging
@@ -25,7 +25,11 @@ from django.utils.text import slugify
 
 from experimenter.base import UploadsStorage
 from experimenter.base.models import Country, Language, Locale
-from experimenter.experiments.constants import ChangeEventType, NimbusConstants
+from experimenter.experiments.constants import (
+    ChangeEventType,
+    NimbusConstants,
+    TargetingMultipleKintoCollectionsError,
+)
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
@@ -782,13 +786,41 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def review_url(self):
-        if self.application_config:
+        try:
+            collection = self.kinto_collection
+        except TargetingMultipleKintoCollectionsError:
+            return None
+
+        if collection:
             return "{base_url}{collection_path}/{collection}/{review_path}".format(
                 base_url=settings.KINTO_ADMIN_URL,
                 collection_path="#/buckets/main-workspace/collections",
-                collection=self.application_config.get_kinto_collection_for(self),
+                collection=collection,
                 review_path="simple-review",
             )
+
+    @property
+    def audience_url(self):
+        filters = [
+            ("application", self.application),
+        ]
+        if self.channel:
+            filters.append(("channel", self.channel))
+        if self.countries.exists():
+            filters.extend(
+                [("countries", c.id) for c in self.countries.all().order_by("code")]
+            )
+        if self.locales.exists():
+            filters.extend(
+                [("locales", l.id) for l in self.locales.all().order_by("code")]
+            )
+        if self.languages.exists():
+            filters.extend(
+                [("languages", l.id) for l in self.languages.all().order_by("code")]
+            )
+        if self.targeting_config_slug:
+            filters.append(("targeting_config_slug", self.targeting_config_slug))
+        return f"{reverse('nimbus-list')}?{urlencode(filters)}"
 
     def delete_branches(self):
         self.reference_branch = None

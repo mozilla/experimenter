@@ -491,13 +491,13 @@ six = ">=1.10"
 
 [[package]]
 name = "django"
-version = "5.0.3"
+version = "5.0.7"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "Django-5.0.3-py3-none-any.whl", hash = "sha256:5c7d748ad113a81b2d44750ccc41edc14e933f56581683db548c9257e078cc83"},
-    {file = "Django-5.0.3.tar.gz", hash = "sha256:5fb37580dcf4a262f9258c1f4373819aacca906431f505e4688e37f3a99195df"},
+    {file = "Django-5.0.7-py3-none-any.whl", hash = "sha256:f216510ace3de5de01329463a315a629f33480e893a9024fc93d8c32c22913da"},
+    {file = "Django-5.0.7.tar.gz", hash = "sha256:bd4505cae0b9bd642313e8fb71810893df5dc2ffcacaa67a33af2d5cd61888f2"},
 ]
 
 [package.dependencies]
@@ -1447,14 +1447,20 @@ zookeeper = ["kazoo (>=2.8.0)"]
 
 [[package]]
 name = "markdown2"
-version = "2.4.0"
+version = "2.5.0"
 description = "A fast and complete Python implementation of Markdown"
 optional = false
-python-versions = ">=3.5, <4"
+python-versions = "<4,>=3.8"
 files = [
-    {file = "markdown2-2.4.0-py2.py3-none-any.whl", hash = "sha256:8d4ef4a2d090c99532069c4611a9a2b9bea6ae1fa29b6c3727c95d1e31a8f6c5"},
-    {file = "markdown2-2.4.0.tar.gz", hash = "sha256:28d769f0e544e6f68f684f01e9b186747b079a6927d9ca77ebc8c640a2829b1b"},
+    {file = "markdown2-2.5.0-py2.py3-none-any.whl", hash = "sha256:300d4429b620ebc974ef512339a9e08bc080473f95135a91f33906e24e8280c1"},
+    {file = "markdown2-2.5.0.tar.gz", hash = "sha256:9bff02911f8b617b61eb269c4c1a5f9b2087d7ff051604f66a61b63cab30adc2"},
 ]
+
+[package.extras]
+all = ["latex2mathml", "pygments (>=2.7.3)", "wavedrom"]
+code-syntax-highlighting = ["pygments (>=2.7.3)"]
+latex = ["latex2mathml"]
+wavedrom = ["wavedrom"]
 
 [[package]]
 name = "markuppy"
@@ -3003,4 +3009,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "af140d655dfea1bce9697f002e87848a2ae687d922184f1f602b0458736bf4f7"
+content-hash = "5b9f1d8e22342e45161fb024d785c0a6387d9c6401ffb808d43d5cda88f104ec"

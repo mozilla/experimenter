@@ -1,12 +1,4 @@
 ---
-automatic-removal-csat-survey:
-  description: Show the CSAT survey for Plus users that have automatically removed broker results
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: If the feature is enabled
 data-privacy-petition-banner:
   description: Show the data privacy petition banner to US users
   hasExposure: true
@@ -15,6 +7,21 @@ data-privacy-petition-banner:
     enabled:
       type: boolean
       description: If the feature is enabled
+landing-page-free-scan-cta:
+  description: Landing page free scan CTA
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: If the feature is enabled
+    variant:
+      type: string
+      description: The CTA variant to show
+      enum:
+        - ctaOnly
+        - ctaOnlyAlternativeLabel
+        - ctaWithEmail
 last-scan-date:
   description: "Show the date of the user's last scan in the top right-hand corner"
   hasExposure: true

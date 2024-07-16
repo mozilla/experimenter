@@ -153,12 +153,12 @@ def fixture_ping_server():
 
 @pytest.fixture
 def archived_tab_url(base_url):
-    return f"{base_url}?tab=archived"
+    return f"{base_url}?status=Archived"
 
 
 @pytest.fixture
 def drafts_tab_url(base_url):
-    return f"{base_url}?tab=drafts"
+    return f"{base_url}?status=Draft"
 
 
 @pytest.fixture

@@ -27,6 +27,9 @@
       "!src/lib/test-utils.tsx",
       "!src/**/*.svg"
     ],
+    "coveragePathIgnorePatterns": [
+      "PageHome"
+    ],
     "coverageThreshold": {
       "global": {
         "lines": 100

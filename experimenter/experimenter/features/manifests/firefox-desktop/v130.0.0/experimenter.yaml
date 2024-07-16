@@ -8,7 +8,7 @@
 
 "no-feature-firefox-desktop":
   description: A dummy feature for experiments that target no feature.
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   applications:
     - firefox-desktop
     - firefox-desktop-background-task
@@ -17,7 +17,7 @@
 
 testFeature:
   description: Test only feature
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   applications:
     - firefox-desktop
     - firefox-desktop-background-task
@@ -40,7 +40,7 @@ testFeature:
 
 nimbus-qa-1:
   description: A feature for testing pref-setting on the default branch.
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   hasExposure: false
   variables:
     value:
@@ -52,7 +52,7 @@ nimbus-qa-1:
 
 nimbus-qa-2:
   description: A feature for testing pref-setting on the user branch.
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   hasExposure: false
   variables:
     value:
@@ -67,7 +67,7 @@ nimbus-qa-2:
 # the prefs you will control.
 prefFlips:
   description: Flip arbitrary prefs. Controlled by release management.
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   hasExposure: false
   variables:
     prefs:
@@ -154,6 +154,8 @@ search:
       description: >-
         Whether search-config-v2 is enabled for the user. This will only take
         effect when the user restarts.
+        Obsolete. This is kept until all multi-feature roll-outs using it are
+        ended to prevent un-enrollment.
 
 # `searchConfiguration` is for search experiment features for items that require
 # isEarlyStartup to be true. These items may require a reload of the search
@@ -217,6 +219,25 @@ urlbar:
       enum:
         - best-match
         - ""
+    fakespotFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.fakespot.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of the Fakespot suggestion
+        feature are exposed to the user.
+    fakespotMinKeywordLength:
+      type: int
+      description: >-
+        The minimum prefix length of a Fakespot keyword the user must type to
+        trigger the suggestion.
+    fakespotShowLessFrequentlyCap:
+      type: int
+      fallbackPref: browser.urlbar.fakespot.showLessFrequentlyCap
+      description: >-
+        If defined and non-zero, this is the maximum number of times the user
+        will be able to click the "Show less frequently" command for Fakespot
+        suggestions. If undefined or zero, the user will be able to click the
+        command without any limit.
     mdnFeatureGate:
       type: boolean
       setPref:
@@ -921,6 +942,18 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.topicSelection.enabled
       description: >-
         Enables topic selection for discovery stream.
+    availableTopics:
+      type: string
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.topicSelection.topics
+      description: >-
+        List of available topics to select for topic selection
+    suggestedTopics:
+      type: string
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.topicSelection.suggestedTopics
+      description: >-
+        List of pre-selected topics to display on first run of topic selection modal
     spocsCacheTimeout:
       type: int
       fallbackPref: >-
@@ -977,7 +1010,7 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.region-bff-config
       description: A comma-separated list of regions to get stories from the recommendations BFF. Also requires region-stories-config.
     merinoProviderEnabled:
-      type: string
+      type: boolean
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.merino-provider.enabled
       description: Sets the recommendations provider service to Merino.
@@ -1006,6 +1039,11 @@ pocketNewtab:
       type: string
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-weather-config
+    localeWeatherConfig:
+      description: A comma-separated list of locales that weather widget supports.
+      type: string
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.locale-weather-config
     topSitesMaxSponsored:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       type: int
@@ -2184,9 +2222,22 @@ fxaButtonVisibility:
         branch: user
         pref: identity.fxaccounts.toolbar.pxiToolbarEnabled.vpnEnabled
 
+fxaClientAssociation:
+  description: Prefs to control the client association ping.
+  owner: mconley@mozilla.com
+  hasExposure: false
+  variables:
+    pingEnabled:
+      description: >-
+        True if the client association ping should be sent.
+      type: boolean
+      setPref:
+        branch: user
+        pref: identity.fxaccounts.telemetry.clientAssociationPing.enabled
+
 legacyHeartbeat:
   description: Normandy Heartbeat exposed to Nimbus
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   hasExposure: false
   schema:
     uri: "resource://normandy/schemas/LegacyHeartbeat.schema.json"

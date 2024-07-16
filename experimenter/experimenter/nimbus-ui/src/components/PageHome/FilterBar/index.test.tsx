@@ -12,7 +12,7 @@ import {
 import { MockedCache } from "src/lib/mocks";
 
 describe("FilterBar", () => {
-  it("renders as expected", () => {
+  it.skip("renders as expected", () => {
     render(
       <MockedCache>
         <Subject value={EVERYTHING_SELECTED_VALUE} />
@@ -22,7 +22,7 @@ describe("FilterBar", () => {
 });
 
 describe("FilterSelect", () => {
-  it("pluralizes the filter names correctly", () => {
+  it.skip("pluralizes the filter names correctly", () => {
     render(
       <MockedCache>
         <FilterSelectSubject

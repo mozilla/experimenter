@@ -38,9 +38,7 @@ def test_archive_experiment(
     summary.wait_for_archive_label_visible()
 
     # Check it's archived on the home page
-    HomePage(selenium, archived_tab_url).open().find_in_table(
-        "Archived", default_data.public_name
-    )
+    HomePage(selenium, archived_tab_url).open().find_in_table(default_data.public_name)
 
     # Unarchive the experiment
     summary = SummaryPage(selenium, experiment_url).open()
@@ -48,9 +46,7 @@ def test_archive_experiment(
     summary.wait_for_archive_label_not_visible()
 
     # Check it's in drafts on the home page
-    HomePage(selenium, drafts_tab_url).open().find_in_table(
-        "Draft", default_data.public_name
-    )
+    HomePage(selenium, drafts_tab_url).open().find_in_table(default_data.public_name)
 
 
 @pytest.mark.nimbus_ui
