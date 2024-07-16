@@ -5,16 +5,27 @@
 {% block content %}
   <div id="content" class="container-fluid">
     <div class="row">
-      <div class="col-lg-12 col-xl-3 col-xxl-2 d-md-block">
-        <nav class="navbar navbar-expand-xl py-0">
-          <div class="collapse navbar-collapse" id="sidebarMenu">
+      <div class="col-xl-2 col-xxl-2">
+        <div class="offcanvas-xl offcanvas-start"
+             tabindex="-1"
+             id="offcanvasSidebar"
+             aria-labelledby="offcanvasSidebarLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasSidebarLabel">Filter</h5>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="offcanvas"
+                    data-bs-target="#offcanvasSidebar"
+                    aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
             {% block sidebar %}
             {% endblock sidebar %}
 
           </div>
-        </nav>
+        </div>
       </div>
-      <div class="col-lg-12 col-xl-9 col-xxl-10">
+      <div class="col-xl-10 col-xxl-10">
         {% block main_content %}
         {% endblock main_content %}
 
