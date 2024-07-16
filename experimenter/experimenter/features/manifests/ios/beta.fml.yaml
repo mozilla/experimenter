@@ -699,8 +699,8 @@ objects:
     fields:
       action:
         description: "The name of a deeplink URL to be opened if the button is clicked.\n"
-        type: ActionName
-        default: OPEN_URL
+        type: Option<ActionName>
+        default: ~
       action-params:
         description: Query parameters appended to the deeplink action URL
         type: "Map<String, String>"
