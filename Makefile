@@ -239,7 +239,7 @@ CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
 CIRRUS_BLACK_FIX = black -l 90 .
 CIRRUS_RUFF_CHECK = ruff check .
 CIRRUS_RUFF_FIX = ruff --fix .
-CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus -vv
+CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus 
 CIRRUS_PYTHON_TYPECHECK = pyright -p .
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
