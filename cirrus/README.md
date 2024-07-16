@@ -195,7 +195,7 @@ Example input:
 
 Example usage with nimbus_preview query parameter:
 
-```json
+```shell
 curl -X POST "http://localhost:8001/v1/features/?nimbus_preview=true" -H 'Content-Type: application/json' -d '{
   "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
   "context": {

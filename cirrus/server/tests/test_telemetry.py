@@ -40,7 +40,7 @@ def before_enrollment_ping(data):
 
 @pytest.mark.asyncio
 async def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
-    app.state.remote_setting.update_live_recipes(recipes)
+    app.state.remote_setting_live.update_recipes(recipes)
     ping_spy = mocker.spy(app.state.pings.enrollment, "submit")
     enrolled_partial_configuration = {
         "events": [
@@ -99,7 +99,7 @@ async def test_enrollment_metrics_recorded_with_compute_features(client, mocker,
         "context": {"user_id": "test-client-id"},
     }
 
-    app.state.remote_setting.update_live_recipes(recipes)
+    app.state.remote_setting_live.update_recipes(recipes)
     sdk.set_experiments(json.dumps(recipes))
 
     app.state.pings.enrollment.test_before_next_submit(before_enrollment_ping)
@@ -113,6 +113,7 @@ async def test_enrollment_metrics_recorded_with_compute_features(client, mocker,
     assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
 
     ping_spy.reset_mock()
+    app.state.remote_setting_preview.update_recipes(recipes)
     mocker.patch.object(app.state, "sdk_preview", sdk)
 
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
@@ -144,7 +145,7 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler(
         "context": {"user_id": "test-client-id"},
     }
 
-    app.state.remote_setting.update_live_recipes(recipes)
+    app.state.remote_setting_live.update_recipes(recipes)
     sdk.set_experiments(json.dumps(recipes))
 
     def test_ping(data):
@@ -175,6 +176,7 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler(
     assert app.state.metrics.cirrus_events.enrollment_status.test_get_value() is None
 
     ping_spy.reset_mock()
+    app.state.remote_setting_preview.update_recipes(recipes)
     mocker.patch.object(app.state, "sdk_preview", sdk)
 
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)

@@ -11,7 +11,13 @@ from cirrus.experiment_recipes import RemoteSettings
 from cirrus.feature_manifest import FeatureManifestLanguage
 from cirrus.main import app, initialize_glean
 from cirrus.sdk import SDK
-from cirrus.settings import channel, context, fml_path
+from cirrus.settings import (
+    channel,
+    context,
+    fml_path,
+    remote_setting_preview_url,
+    remote_setting_url,
+)
 
 
 class TestMetricsHandler(MetricsHandler):
@@ -40,14 +46,27 @@ def scheduler_mock():
 
 
 @fixture
-def remote_setting_mock():
-    with mock.patch("cirrus.main.app.state.remote_setting") as remote_setting_mock:
-        yield remote_setting_mock
+def remote_setting_live_mock():
+    with mock.patch(
+        "cirrus.main.app.state.remote_setting_live"
+    ) as remote_setting_live_mock:
+        yield remote_setting_live_mock
 
 
 @fixture
-def remote_settings(sdk_live, sdk_preview):
-    return RemoteSettings(sdk_live, sdk_preview)
+def remote_setting_preview_mock():
+    with mock.patch(
+        "cirrus.main.app.state.remote_setting_preview"
+    ) as remote_setting_preview_mock:
+        yield remote_setting_preview_mock
+
+
+@fixture
+def remote_settings(request, sdk_live, sdk_preview):
+    if request.param == "remote_settings_live":
+        return RemoteSettings(remote_setting_url, sdk_live)
+    elif request.param == "remote_settings_preview":
+        return RemoteSettings(remote_setting_preview_url, sdk_preview)
 
 
 @fixture

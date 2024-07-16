@@ -2,7 +2,7 @@ import logging
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, List, NamedTuple, Optional
+from typing import Any, List, NamedTuple
 
 import sentry_sdk
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
@@ -26,7 +26,9 @@ from .settings import (
     metrics_config,
     metrics_path,
     pings_path,
+    remote_setting_preview_url,
     remote_setting_refresh_rate_in_seconds,
+    remote_setting_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,7 +52,12 @@ async def lifespan(app: FastAPI):
         app.state.fml.get_coenrolling_feature_ids(),
         CirrusMetricsHandler(app.state.metrics, app.state.pings),
     )
-    app.state.remote_setting = RemoteSettings(app.state.sdk_live, app.state.sdk_preview)
+
+    app.state.remote_setting_live = RemoteSettings(remote_setting_url, app.state.sdk_live)
+    app.state.remote_setting_preview = RemoteSettings(
+        remote_setting_preview_url, app.state.sdk_preview
+    )
+
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
     send_instance_name_metric()
@@ -162,14 +169,10 @@ def collate_enrollment_metric_data(
             experiment_slug = event.get("experiment_slug", "")
             branch_slug = event.get("branch_slug", "")
             experiment_type = None
+            remote_setting = app.state.remote_setting_live
             if nimbus_preview_flag:
-                experiment_type = app.state.remote_setting.get_preview_recipe_type(
-                    experiment_slug
-                )
-            else:
-                experiment_type = app.state.remote_setting.get_live_recipe_type(
-                    experiment_slug
-                )
+                remote_setting = app.state.remote_setting_preview
+            experiment_type = remote_setting.get_recipe_type(experiment_slug)
             data.append(
                 EnrollmentMetricData(
                     experiment_slug=experiment_slug,
@@ -213,7 +216,7 @@ def read_root():
 @app.post("/v1/features/", status_code=status.HTTP_200_OK)
 async def compute_features(
     request_data: FeatureRequest,
-    nimbus_preview: Optional[bool] = Query(False, alias="nimbus_preview"),
+    nimbus_preview: bool = Query(False, alias="nimbus_preview"),
 ):
     if not request_data.client_id:
         raise HTTPException(
@@ -230,14 +233,12 @@ async def compute_features(
         "clientId": request_data.client_id,
         "requestContext": request_data.context,
     }
+    sdk = app.state.sdk_live
     if nimbus_preview:
-        enrolled_partial_configuration: dict[str, Any] = (
-            app.state.sdk_preview.compute_enrollments(targeting_context)
-        )
-    else:
-        enrolled_partial_configuration: dict[str, Any] = (
-            app.state.sdk_live.compute_enrollments(targeting_context)
-        )
+        sdk = app.state.sdk_preview
+    enrolled_partial_configuration: dict[str, Any] = sdk.compute_enrollments(
+        targeting_context
+    )
 
     client_feature_configuration: dict[str, Any] = (
         app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
@@ -254,7 +255,8 @@ async def compute_features(
 
 async def fetch_schedule_recipes() -> None:
     try:
-        app.state.remote_setting.fetch_recipes()
+        app.state.remote_setting_live.fetch_recipes()
+        app.state.remote_setting_preview.fetch_recipes()
     except Exception as e:
         # If an exception is raised, log the error and schedule a retry
         logger.error(f"Failed to fetch recipes: {e}")
