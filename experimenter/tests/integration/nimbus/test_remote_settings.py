@@ -5,7 +5,7 @@ from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.utils import helpers
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_launch
 def test_create_new_experiment_approve_remote_settings(
     selenium,
     experiment_url,
@@ -27,7 +27,7 @@ def test_create_new_experiment_approve_remote_settings(
     HomePage(selenium, base_url).open().find_in_table(experiment_slug)
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_create_new_rollout_approve_remote_settings(
     selenium,
     experiment_url,
@@ -51,7 +51,7 @@ def test_create_new_rollout_approve_remote_settings(
     HomePage(selenium, base_url).open().find_in_table(experiment_slug)
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_create_new_experiment_reject_remote_settings(
     selenium,
     experiment_url,
@@ -70,7 +70,7 @@ def test_create_new_experiment_reject_remote_settings(
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_create_new_rollout_reject_remote_settings(
     selenium,
     experiment_url,
@@ -91,7 +91,7 @@ def test_create_new_rollout_reject_remote_settings(
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_end_experiment_and_approve_end_set_takeaways(
     selenium,
     experiment_url,
@@ -123,7 +123,7 @@ def test_end_experiment_and_approve_end_set_takeaways(
     assert summary.takeaways_recommendation_badge_text == "Change course"
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_end_rollout_and_approve_end_set_takeaways(
     selenium,
     experiment_url,
@@ -157,7 +157,7 @@ def test_end_rollout_and_approve_end_set_takeaways(
     assert summary.takeaways_recommendation_badge_text == "Change course"
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_end_experiment_and_reject_end(
     selenium,
     experiment_url,
@@ -182,7 +182,7 @@ def test_end_experiment_and_reject_end(
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_end_rollout_and_reject_end(
     selenium,
     experiment_url,
@@ -209,7 +209,7 @@ def test_end_rollout_and_reject_end(
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_rollout_live_update_approve(
     selenium,
     kinto_client,
@@ -239,7 +239,7 @@ def test_rollout_live_update_approve(
     kinto_client.approve()
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_rollout_live_update_approve_and_reject(
     selenium,
     kinto_client,
@@ -272,7 +272,7 @@ def test_rollout_live_update_approve_and_reject(
     summary.wait_for_rejection_notice_visible()
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_rollout_live_update_reject_on_experimenter(
     selenium,
     kinto_client,
@@ -307,7 +307,7 @@ def test_rollout_live_update_reject_on_experimenter(
     summary.wait_for_rejection_notice_visible()
 
 
-@pytest.mark.remote_settings
+@pytest.mark.remote_settings_all
 def test_create_new_experiment_timeout_remote_settings(
     selenium,
     application,
