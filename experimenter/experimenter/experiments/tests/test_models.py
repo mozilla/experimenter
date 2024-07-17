@@ -104,11 +104,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
@@ -177,11 +173,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
@@ -249,11 +241,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
@@ -310,11 +298,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
@@ -380,11 +364,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
@@ -455,11 +435,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
@@ -1849,10 +1825,7 @@ class TestNimbusExperiment(TestCase):
             self.assertEqual(experiment.review_url, expected)
 
     def test_review_url_prefflips_feature(self):
-        feature_config = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        feature_config = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         with override_settings(
             KINTO_ADMIN_URL="http://kinto/v1/admin/",

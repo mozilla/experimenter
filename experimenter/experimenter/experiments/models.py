@@ -822,6 +822,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             filters.append(("targeting_config_slug", self.targeting_config_slug))
         return f"{reverse('nimbus-list')}?{urlencode(filters)}"
 
+    @property
+    def can_publish_to_preview(self):
+        if self.application_config:
+            try:
+                return (
+                    self.kinto_collection
+                    == self.application_config.default_kinto_collection
+                )
+            except TargetingMultipleKintoCollectionsError:
+                return False
+
     def delete_branches(self):
         self.reference_branch = None
         self.save()

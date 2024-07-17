@@ -106,6 +106,14 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
                 )
             )
 
+    @classmethod
+    def create_desktop_prefflips_feature(cls, **kwargs):
+        return cls.create(
+            name=NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
+            slug=NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
     class Meta:
         model = NimbusFeatureConfig
 

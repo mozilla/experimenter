@@ -665,6 +665,28 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
         self.assertEqual(experiment.bucket_range.count, 5000)
 
+    def test_cannot_preview_prefflips(self):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[prefflips_feature],
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.PREVIEW,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+
+        self.assertEqual(
+            serializer.errors,
+            {"status": [NimbusExperiment.ERROR_CANNOT_PUBLISH_TO_PREVIEW]},
+        )
+
     def test_publish_status_approved_generates_bucket_allocation(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,

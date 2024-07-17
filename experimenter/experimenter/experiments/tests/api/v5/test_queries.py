@@ -2344,11 +2344,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         )
 
     def test_query_experiment_targets_multiple_kinto_collections(self):
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP,
-            name=NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
-            slug=NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
@@ -2367,6 +2363,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
                     reviewUrl
+                    canPublishToPreview
                 }
             }
             """,
@@ -2380,6 +2377,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
 
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(experiment_data["reviewUrl"], None)
+        self.assertEqual(experiment_data["canPublishToPreview"], False)
 
 
 class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
