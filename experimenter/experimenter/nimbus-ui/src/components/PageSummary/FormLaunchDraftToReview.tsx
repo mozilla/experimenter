@@ -13,11 +13,13 @@ const FormLaunchDraftToReview = ({
   onLaunchToPreview,
   onSubmit,
   onCancel,
+  canPublishToPreview,
 }: {
   isLoading: boolean;
   onLaunchToPreview: () => void;
   onSubmit: () => void;
   onCancel: () => void;
+  canPublishToPreview: boolean;
 }) => {
   const [allBoxesChecked, setAllBoxesChecked] = useState(false);
   const handleLaunchToPreviewClick = useCallback(
@@ -31,19 +33,37 @@ const FormLaunchDraftToReview = ({
   return (
     <Alert variant="secondary" id="request-launch-alert">
       <Form className="text-body">
-        <p className="my-1">
-          <span className="text-danger">
-            <AlertCircle /> We recommend previewing before launch.
-          </span>{" "}
-          <button
-            data-testid="launch-to-preview-instead"
-            type="button"
-            className="btn btn-sm btn-primary"
-            onClick={handleLaunchToPreviewClick}
-          >
-            Launch to Preview Now
-          </button>
-        </p>
+        {canPublishToPreview ? (
+          <p className="my-1">
+            <span className="text-danger">
+              <AlertCircle /> We recommend previewing before launch.
+            </span>{" "}
+            <button
+              data-testid="launch-to-preview-instead"
+              type="button"
+              className="btn btn-sm btn-primary"
+              onClick={handleLaunchToPreviewClick}
+            >
+              Launch to Preview Now
+            </button>
+          </p>
+        ) : (
+          <>
+            <p className="my-1">
+              <span
+                className="text-danger"
+                data-testid="cannot-launch-to-preview"
+              >
+                <AlertCircle /> This experiment cannot be previewed!
+              </span>
+            </p>
+            <p className="my-1">
+              This experiment uses features that prevent it from being launched
+              to preview. We highly reccomend QAing this experiment on stage
+              first.
+            </p>
+          </>
+        )}
 
         <FormLaunchConfirmationCheckboxes onChange={setAllBoxesChecked} />
 

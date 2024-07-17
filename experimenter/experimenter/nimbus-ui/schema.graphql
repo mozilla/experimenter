@@ -68,6 +68,7 @@ type NimbusExperimentType {
   audienceUrl: String!
   canArchive: Boolean
   canEdit: Boolean
+  canPublishToPreview: Boolean!
   canReview: Boolean
   computedDurationDays: Int
   computedEndDate: DateTime
