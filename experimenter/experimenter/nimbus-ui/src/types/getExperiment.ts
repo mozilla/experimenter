@@ -212,6 +212,7 @@ export interface getExperiment_experimentBySlug {
   isArchived: boolean | null;
   canEdit: boolean | null;
   canArchive: boolean | null;
+  canPublishToPreview: boolean;
   name: string;
   slug: string;
   status: NimbusExperimentStatusEnum | null;
