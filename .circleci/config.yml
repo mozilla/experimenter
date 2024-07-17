@@ -633,8 +633,6 @@ jobs:
               git add .
               git commit -m "chore(nimbus): Update fenix apks for testing"
               if [[ "${CURRENT_FENIX_BUILD_ID}" != "${LATEST_FENIX_BUILD_ID}" ]]; then
-                echo "Changes already committed, skipping"
-              else
                 git push origin update-fenix-apks
                 gh pr create -t "chore(nimbus): Update fenix apks for testing" -b "" --base main --head update-fenix-apks --repo mozilla/experimenter || echo "PR already exists, skipping"
               fi
