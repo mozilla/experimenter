@@ -44,7 +44,7 @@ class MetricsConfiguration:
     build: Optional[str] = None
     channel: str = channel
     data_dir: str = "/var/glean"
-    log_level: Union[str, int] = logging.getLevelName("WARNING")
+    log_level: Union[str, int] = logging.WARNING
     max_events_buffer: int = glean_max_events_buffer
     server_endpoint: Optional[str] = None
     upload_enabled: bool = True

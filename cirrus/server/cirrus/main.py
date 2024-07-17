@@ -216,7 +216,7 @@ def read_root():
 @app.post("/v1/features/", status_code=status.HTTP_200_OK)
 async def compute_features(
     request_data: FeatureRequest,
-    nimbus_preview: bool = Query(False, alias="nimbus_preview"),
+    nimbus_preview: bool = Query(default=False, alias="nimbus_preview"),
 ):
     if not request_data.client_id:
         raise HTTPException(
