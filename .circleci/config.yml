@@ -415,7 +415,7 @@ jobs:
       - run:
           name: Install APKs
           command: |
-            docker run -d --name fenix-files ${DOCKERHUB_REPO}:fenix-apk-store
+            docker run -d --name fenix-files mozilla/experimenter:fenix-apk-store
             docker cp fenix-files:/usr/src/app/files /home/circleci/project
             adb install /home/circleci/project/files/app-fenix-x86_64-debug.apk
             adb install /home/circleci/project/files/app-fenix-debug-androidTest.apk
