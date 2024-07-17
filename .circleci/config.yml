@@ -186,7 +186,7 @@ jobs:
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
-  integration_nimbus_desktop_remote_settings:
+  integration_nimbus_remote_settings_launch:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
@@ -194,7 +194,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings --reruns 1
+      PYTEST_ARGS: -m remote_settings_launch --reruns 1
     steps:
       - checkout
       - check_file_paths:
@@ -207,7 +207,7 @@ jobs:
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
-  integration_nimbus_fenix_remote_settings:
+  integration_nimbus_remote_settings_all:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
@@ -215,70 +215,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_FENIX -m remote_settings --reruns 1
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/"
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
-      - store_artifacts:
-          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-
-  integration_nimbus_ios_remote_settings:
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    resource_class: medium
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_IOS -m remote_settings --reruns 1
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/"
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
-      - store_artifacts:
-          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-
-  integration_nimbus_focus_android_remote_settings:
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    resource_class: medium
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FOCUS_ANDROID -m remote_settings --reruns 1
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/"
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
-      - store_artifacts:
-          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-
-  integration_nimbus_focus_ios_remote_settings:
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    resource_class: medium
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FOCUS_IOS -m remote_settings --reruns 1
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings_all --reruns 1
     steps:
       - checkout
       - check_file_paths:
@@ -753,32 +690,14 @@ workflows:
             branches:
               ignore:
                 - main
-      - integration_nimbus_desktop_remote_settings:
-          name: Test Desktop and Remote Settings (Release Firefox)
+      - integration_nimbus_remote_settings_launch:
+          name: Test Remote Settings Launch (All Applications)
           filters:
             branches:
               ignore:
                 - main
-      - integration_nimbus_fenix_remote_settings:
-          name: Test Fenix and Remote Settings (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_ios_remote_settings:
-          name: Test iOS and Remote Settings (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_focus_android_remote_settings:
-          name: Test Focus Android and Remote Settings (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_focus_ios_remote_settings:
-          name: Test Focus iOS and Remote Settings (Release Firefox)
+      - integration_nimbus_remote_settings_all:
+          name: Test Remote Settings All Workflows (Release Firefox Desktop)
           filters:
             branches:
               ignore:
