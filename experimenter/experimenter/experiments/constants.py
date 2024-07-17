@@ -778,6 +778,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FEATURE_TARGET_COLLECTION = (
         "Feature '{feature_id}' publishes to collection '{collection}'"
     )
+    ERROR_CANNOT_PUBLISH_TO_PREVIEW = "This experiment cannot be published to preview."
 
 
 RISK_QUESTIONS = {
