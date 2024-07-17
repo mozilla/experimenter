@@ -417,6 +417,14 @@
   },
   {
     "model": "base.locale",
+    "pk": 78,
+    "fields": {
+      "code": "ja-JP-macos",
+      "name": "Japanese (macOS)"
+    }
+  },
+  {
+    "model": "base.locale",
     "pk": 79,
     "fields": {
       "code": "ka",
