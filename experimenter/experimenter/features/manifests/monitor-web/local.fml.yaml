@@ -18,11 +18,11 @@ features:
       enabled:
         description: If the feature is enabled
         type: Boolean
-        default: true
+        default: false
       variant:
         description: The CTA variant to show
         type: FreeScanCtaType
-        default: ctaOnly
+        default: ctaWithEmail
   last-scan-date:
     description: "Show the date of the user's last scan in the top right-hand corner"
     variables:
