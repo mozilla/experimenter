@@ -30,12 +30,3 @@ class TakeawaysForm(forms.ModelForm):
             "takeaways_summary",
             "conclusion_recommendations",
         ]
-        widgets = {
-            "takeaways_gain_amount": forms.Textarea(
-                attrs={
-                    "placeholder": "Examples: 0.5% gain in retention, \
-                        or 0.5% gain in days of use",
-                    "rows": 5,
-                }
-            ),
-        }
