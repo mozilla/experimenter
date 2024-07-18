@@ -1,9 +1,15 @@
-{# takeaways_card.html #}
 {% load nimbus_extras %}
 
 <div class="card mb-3">
   <div class="card-header d-flex justify-content-between align-items-center">
-    <h4>Takeaways</h4>
+    <h4 class="d-flex align-items-center">
+      Takeaways
+      {% for recommendation in experiment.conclusion_recommendation_labels %}
+        <span class="badge badge-primary ml-2 border rounded-pill px-1 bg-white border-primary text-primary font-weight-normal"
+              style="font-size: 0.6em;
+                     padding: 0.15em 0.3em">{{ recommendation }}</span>
+      {% endfor %}
+    </h4>
     {% if not takeaways_edit_mode %}
       <a href="?edit_takeaways=true" class="btn btn-outline-primary btn-sm">Edit</a>
     {% endif %}
@@ -97,14 +103,6 @@
           <tr>
             <th>Gain amount</th>
             <td colspan="3">{{ experiment.takeaways_gain_amount|format_not_set }}</td>
-          </tr>
-          <tr>
-            <th>Conclusion Recommendations</th>
-            <td colspan="3">
-              {% for recommendation in experiment.conclusion_recommendations %}
-                <span class="badge badge-primary ml-2 border rounded-pill px-2 bg-white border-primary text-primary font-weight-normal">{{ recommendation }}</span>
-              {% endfor %}
-            </td>
           </tr>
         </tbody>
       </table>

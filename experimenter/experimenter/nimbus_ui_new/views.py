@@ -144,6 +144,7 @@ class TakeawaysUpdateView(UpdateView):
         experiment_context = build_experiment_context(self.object)
         context.update(experiment_context)
         context["takeaways_edit_mode"] = True
+        context["takeaways_form"] = form
         return self.render_to_response(context)
 
     def get_success_url(self):

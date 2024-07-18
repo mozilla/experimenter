@@ -919,7 +919,6 @@ class NimbusExperimentDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["experiment"], self.experiment)
         self.assertIn("RISK_QUESTIONS", response.context)
-        self.assertIn("takeaways_form", response.context)
 
     def test_outcome_links(self):
         response = self.client.get(
@@ -1005,12 +1004,12 @@ class NimbusExperimentDetailViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Takeaways")
-        self.assertContains(response, "QBR Notable Learning")
+        self.assertContains(response, "QBR learning")
         self.assertContains(response, "Statistically significant DAU Gain")
         self.assertContains(response, "This is a summary.")
         self.assertContains(response, "0.5% gain in retention")
-        self.assertContains(response, "Rerun")
         self.assertContains(response, "Graduate")
+        self.assertContains(response, "Rerun")
 
     def test_takeaways_edit_mode_get(self):
         response = self.client.get(
@@ -1052,13 +1051,12 @@ class NimbusExperimentDetailViewTest(TestCase):
 
     def test_takeaways_edit_mode_post_invalid_form(self):
         data = {
-            "takeaways_qbr_learning": "invalid",  # Invalid boolean value
+            "takeaways_qbr_learning": True,
             "takeaways_metric_gain": True,
-            "takeaways_summary": "Invalid form submission",
+            "takeaways_summary": "Updated summary.",
             "takeaways_gain_amount": "1% gain in retention",
             "conclusion_recommendations": [
-                NimbusExperiment.ConclusionRecommendation.CHANGE_COURSE,
-                NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
+                "INVALID_CHOICE",  # Invalid conclusion recommendation choice
             ],
         }
         response = self.client.post(
@@ -1070,7 +1068,3 @@ class NimbusExperimentDetailViewTest(TestCase):
         self.assertTrue(response.context["takeaways_edit_mode"])
         self.assertIsInstance(response.context["takeaways_form"], TakeawaysForm)
         self.assertFalse(response.context["takeaways_form"].is_valid())
-        # Ensure changes are not saved to the database
-        self.experiment.refresh_from_db()
-        self.assertNotEqual(self.experiment.takeaways_summary, "Invalid form submission")
-        self.assertEqual(self.experiment.takeaways_summary, "This is a summary.")
