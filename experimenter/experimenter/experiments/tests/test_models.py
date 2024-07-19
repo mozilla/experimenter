@@ -27,6 +27,7 @@ from experimenter.experiments.constants import (
     BucketRandomizationUnit,
     ChangeEventType,
     NimbusConstants,
+    TargetingMultipleKintoCollectionsError,
 )
 from experimenter.experiments.models import (
     NimbusBranch,
@@ -103,11 +104,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
@@ -176,11 +173,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
@@ -248,11 +241,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
@@ -309,11 +298,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
@@ -379,11 +364,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
@@ -454,11 +435,7 @@ class TestNimbusExperimentManager(TestCase):
             name="test-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        prefflips_feature = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            name=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         test_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
@@ -1848,10 +1825,7 @@ class TestNimbusExperiment(TestCase):
             self.assertEqual(experiment.review_url, expected)
 
     def test_review_url_prefflips_feature(self):
-        feature_config = NimbusFeatureConfigFactory.create(
-            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+        feature_config = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
 
         with override_settings(
             KINTO_ADMIN_URL="http://kinto/v1/admin/",
@@ -1868,12 +1842,6 @@ class TestNimbusExperiment(TestCase):
             )
 
     def test_audience_url(self):
-        feature1 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP, slug="a"
-        )
-        feature2 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP, slug="b"
-        )
         language1 = LanguageFactory.create(code="a")
         language2 = LanguageFactory.create(code="b")
         locale1 = LocaleFactory.create(code="a")
@@ -1883,8 +1851,6 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
-            feature_configs=[feature1, feature2],
             languages=[language1, language2],
             locales=[locale1, locale2],
             countries=[country1, country2],
@@ -1893,8 +1859,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.audience_url,
             (
-                "/nimbus/?application=firefox-desktop&channel=release&firefox_min_version=100.%21"
-                f"&feature_configs={feature1.id}&feature_configs={feature2.id}"
+                "/nimbus/?application=firefox-desktop&channel=release"
                 f"&countries={country1.id}&countries={country2.id}"
                 f"&locales={locale1.id}&locales={locale2.id}"
                 f"&languages={language1.id}&languages={language2.id}"
@@ -3893,7 +3858,8 @@ class ApplicationConfigTests(TestCase):
             experiment = self._create_experiment(["feature-1", "feature-2"])
 
             with self.assertRaisesRegex(
-                AssertionError, "Experiment targets multiple collections"
+                TargetingMultipleKintoCollectionsError,
+                "Experiment targets multiple collections",
             ):
                 experiment.kinto_collection  # noqa: B018
 

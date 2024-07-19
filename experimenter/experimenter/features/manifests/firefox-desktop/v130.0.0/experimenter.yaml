@@ -8,7 +8,7 @@
 
 "no-feature-firefox-desktop":
   description: A dummy feature for experiments that target no feature.
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   applications:
     - firefox-desktop
     - firefox-desktop-background-task
@@ -17,7 +17,7 @@
 
 testFeature:
   description: Test only feature
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   applications:
     - firefox-desktop
     - firefox-desktop-background-task
@@ -40,7 +40,7 @@ testFeature:
 
 nimbus-qa-1:
   description: A feature for testing pref-setting on the default branch.
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   hasExposure: false
   variables:
     value:
@@ -52,7 +52,7 @@ nimbus-qa-1:
 
 nimbus-qa-2:
   description: A feature for testing pref-setting on the user branch.
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   hasExposure: false
   variables:
     value:
@@ -67,7 +67,7 @@ nimbus-qa-2:
 # the prefs you will control.
 prefFlips:
   description: Flip arbitrary prefs. Controlled by release management.
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   hasExposure: false
   variables:
     prefs:
@@ -154,6 +154,13 @@ search:
       description: >-
         Whether search-config-v2 is enabled for the user. This will only take
         effect when the user restarts.
+        Obsolete. This is kept until all multi-feature roll-outs using it are
+        ended to prevent un-enrollment.
+    targetExperiment:
+      type: string
+      description: >-
+        The slug of the experiment someone is requesting enrollment and branch
+        information for. (Note that the featureId needs to be set to "search".)
 
 # `searchConfiguration` is for search experiment features for items that require
 # isEarlyStartup to be true. These items may require a reload of the search
@@ -295,7 +302,6 @@ urlbar:
         command without any limit.
     pocketSuggestIndex:
       type: int
-      fallbackPref: browser.urlbar.pocket.suggestedIndex
       description: >-
         The group-relative suggestedIndex of Pocket suggestions within the Firefox
         Suggest section.
@@ -940,6 +946,18 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.topicSelection.enabled
       description: >-
         Enables topic selection for discovery stream.
+    availableTopics:
+      type: string
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.topicSelection.topics
+      description: >-
+        List of available topics to select for topic selection
+    suggestedTopics:
+      type: string
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.topicSelection.suggestedTopics
+      description: >-
+        List of pre-selected topics to display on first run of topic selection modal
     spocsCacheTimeout:
       type: int
       fallbackPref: >-
@@ -2223,7 +2241,7 @@ fxaClientAssociation:
 
 legacyHeartbeat:
   description: Normandy Heartbeat exposed to Nimbus
-  owner: barret@mozilla.com
+  owner: beth@mozilla.com
   hasExposure: false
   schema:
     uri: "resource://normandy/schemas/LegacyHeartbeat.schema.json"

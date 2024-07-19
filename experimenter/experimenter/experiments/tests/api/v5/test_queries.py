@@ -2343,6 +2343,42 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             },
         )
 
+    def test_query_experiment_targets_multiple_kinto_collections(self):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+
+        test_feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            name="test-feature",
+            slug="test-feature",
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature, test_feature],
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    reviewUrl
+                    canPublishToPreview
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["reviewUrl"], None)
+        self.assertEqual(experiment_data["canPublishToPreview"], False)
+
 
 class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")

@@ -493,6 +493,7 @@ class NimbusExperimentType(DjangoObjectType):
     audience_url = graphene.NonNull(graphene.String)
     can_archive = graphene.Boolean()
     can_edit = graphene.Boolean()
+    can_publish_to_preview = graphene.NonNull(graphene.Boolean)
     can_review = graphene.Boolean()
     changes = graphene.List(NimbusChangeLogType)
     channel = NimbusExperimentChannelEnum()

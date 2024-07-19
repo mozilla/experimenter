@@ -25,7 +25,11 @@ from django.utils.text import slugify
 
 from experimenter.base import UploadsStorage
 from experimenter.base.models import Country, Language, Locale
-from experimenter.experiments.constants import ChangeEventType, NimbusConstants
+from experimenter.experiments.constants import (
+    ChangeEventType,
+    NimbusConstants,
+    TargetingMultipleKintoCollectionsError,
+)
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
@@ -782,11 +786,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def review_url(self):
-        if self.application_config:
+        try:
+            collection = self.kinto_collection
+        except TargetingMultipleKintoCollectionsError:
+            return None
+
+        if collection:
             return "{base_url}{collection_path}/{collection}/{review_path}".format(
                 base_url=settings.KINTO_ADMIN_URL,
                 collection_path="#/buckets/main-workspace/collections",
-                collection=self.application_config.get_kinto_collection_for(self),
+                collection=collection,
                 review_path="simple-review",
             )
 
@@ -797,15 +806,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ]
         if self.channel:
             filters.append(("channel", self.channel))
-        if self.firefox_min_version:
-            filters.append(("firefox_min_version", self.firefox_min_version))
-        if self.feature_configs.exists():
-            filters.extend(
-                [
-                    ("feature_configs", f.id)
-                    for f in self.feature_configs.all().order_by("slug")
-                ]
-            )
         if self.countries.exists():
             filters.extend(
                 [("countries", c.id) for c in self.countries.all().order_by("code")]
@@ -821,6 +821,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.targeting_config_slug:
             filters.append(("targeting_config_slug", self.targeting_config_slug))
         return f"{reverse('nimbus-list')}?{urlencode(filters)}"
+
+    @property
+    def can_publish_to_preview(self):
+        if self.application_config:
+            try:
+                return (
+                    self.kinto_collection
+                    == self.application_config.default_kinto_collection
+                )
+            except TargetingMultipleKintoCollectionsError:
+                return False
 
     def delete_branches(self):
         self.reference_branch = None

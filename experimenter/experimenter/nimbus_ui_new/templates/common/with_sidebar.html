@@ -3,16 +3,33 @@
 {% load static %}
 
 {% block content %}
-  <div id="content" class="row px-3">
-    <div class="col-2">
-      {% block sidebar %}
-      {% endblock sidebar %}
+  <div id="content" class="container-fluid">
+    <div class="row">
+      <div class="col-xl-2 col-xxl-2">
+        <div class="offcanvas-xl offcanvas-start"
+             tabindex="-1"
+             id="offcanvasSidebar"
+             aria-labelledby="offcanvasSidebarLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasSidebarLabel">Filter</h5>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="offcanvas"
+                    data-bs-target="#offcanvasSidebar"
+                    aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            {% block sidebar %}
+            {% endblock sidebar %}
 
-    </div>
-    <div class="col-10">
-      {% block main_content %}
-      {% endblock main_content %}
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-10 col-xxl-10">
+        {% block main_content %}
+        {% endblock main_content %}
 
+      </div>
     </div>
   </div>
 {% endblock content %}

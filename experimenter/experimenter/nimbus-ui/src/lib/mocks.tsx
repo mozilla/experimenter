@@ -579,6 +579,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   isRollout: false,
   canEdit: true,
   canArchive: true,
+  canPublishToPreview: true,
   owner: {
     email: "example@mozilla.com",
   },
