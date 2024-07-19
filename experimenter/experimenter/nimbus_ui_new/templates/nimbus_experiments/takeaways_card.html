@@ -4,11 +4,13 @@
   <div class="card-header d-flex justify-content-between align-items-center">
     <h4 class="d-flex align-items-center">
       Takeaways
-      {% for recommendation in experiment.conclusion_recommendation_labels %}
-        <span class="badge badge-primary ml-2 border rounded-pill px-1 bg-white border-primary text-primary font-weight-normal"
-              style="font-size: 0.6em;
-                     padding: 0.15em 0.3em">{{ recommendation }}</span>
-      {% endfor %}
+      <div class="px-2">
+        {% for recommendation in experiment.conclusion_recommendation_labels %}
+          <span class="badge badge-primary border rounded-pill px-1 bg-white border-primary text-primary font-weight-normal"
+                style="font-size: 0.6em;
+                       padding: 0.15em">{{ recommendation }}</span>
+        {% endfor %}
+      </div>
     </h4>
     {% if not takeaways_edit_mode %}
       <a href="?edit_takeaways=true" class="btn btn-outline-primary btn-sm">Edit</a>
@@ -44,7 +46,7 @@
             </div>
           </div>
         </div>
-        <div class="form-group row">
+        <div class="form-group row mb-3">
           <label for="takeawaysSummary"
                  class="col-sm-2 col-form-label font-weight-bold">Summary</label>
           <div class="col-sm-10">
@@ -54,7 +56,7 @@
                       rows="5">{{ takeaways_form.instance.takeaways_summary|default:""}}</textarea>
           </div>
         </div>
-        <div class="form-group row">
+        <div class="form-group row mb-3">
           <label for="takeawaysGainAmount"
                  class="col-sm-2 col-form-label font-weight-bold">Gain Amount</label>
           <div class="col-sm-10">
@@ -81,10 +83,10 @@
             {% endfor %}
           </div>
         </div>
-        <div class="text-right">
-          <button type="submit" class="btn btn-primary btn-sm mx-1">Save</button>
+        <div class="d-flex justify-content-end mt-3">
+          <button type="submit" class="btn btn-primary me-2">Save</button>
           <a href="{% url 'nimbus-new-detail' experiment.slug %}"
-             class="btn btn-secondary btn-sm mx-1">Cancel</a>
+             class="btn btn-secondary">Cancel</a>
         </div>
       </form>
     {% else %}
