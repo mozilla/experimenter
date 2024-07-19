@@ -169,10 +169,10 @@ def collate_enrollment_metric_data(
             experiment_slug = event.get("experiment_slug", "")
             branch_slug = event.get("branch_slug", "")
             experiment_type = None
-            remote_setting = app.state.remote_setting_live
+            remote_settings = app.state.remote_setting_live
             if nimbus_preview_flag:
-                remote_setting = app.state.remote_setting_preview
-            experiment_type = remote_setting.get_recipe_type(experiment_slug)
+                remote_settings = app.state.remote_setting_preview
+            experiment_type = remote_settings.get_recipe_type(experiment_slug)
             data.append(
                 EnrollmentMetricData(
                     experiment_slug=experiment_slug,

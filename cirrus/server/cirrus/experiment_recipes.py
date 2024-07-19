@@ -26,13 +26,15 @@ class RemoteSettings:
         return self.recipes
 
     def get_recipe_type(self, experiment_slug: str) -> str:
-        for experiment in self.recipes["data"]:
-            if experiment["slug"] == experiment_slug:
-                return (
-                    RecipeType.ROLLOUT.value
-                    if experiment.get("isRollout", False)
-                    else RecipeType.EXPERIMENT.value
-                )
+        experiment = {
+            experiment["slug"]: experiment for experiment in self.recipes["data"]
+        }.get(experiment_slug)
+        if experiment is not None:
+            return (
+                RecipeType.ROLLOUT.value
+                if experiment.get("isRollout", False)
+                else RecipeType.EXPERIMENT.value
+            )
         return RecipeType.EMPTY.value
 
     def update_recipes(self, new_recipes: dict[str, list[Any]]) -> None:
