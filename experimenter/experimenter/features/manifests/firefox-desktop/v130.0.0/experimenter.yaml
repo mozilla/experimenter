@@ -964,6 +964,12 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.spocs.cacheTimeout
       description: >-
         Set sponsored content cache timeout in minutes.
+    spocsStartupCacheTimeout:
+      type: int
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.spocs.startupCacheTimeout
+      description: >-
+        Set sponsored content startup cache timeout in minutes.
     discoveryStreamConfig:
       description: A JSON blob of discovery stream configuration.
       type: string
@@ -1822,7 +1828,7 @@ networking:
       type: boolean
       setPref:
         branch: default
-        pref: "network.decompression_off_mainthread"
+        pref: "network.decompression_off_mainthread2"
     offMainThreadStreamDecompressionThreshold:
       description: Minimum content length for off-main-thread decompression
       type: int
@@ -3332,3 +3338,30 @@ bounceTrackingProtection:
         classifies but does not purge trackers. This mode is helpful for testing
         the feature without risking data loss. Telemetry is still collected
         normally.
+
+crlite:
+  description: Prefs that control the use of CRLite
+  owner: jschanck@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: security.remote_settings.crlite_filters.enabled
+      description: >-
+        Whether CRLite artifacts will be downloaded.
+    channel:
+      type: string
+      setPref:
+        branch: default
+        pref: security.pki.crlite_channel
+      description: >-
+        The channel from which CRLite artifacts will be downloaded.
+    mode:
+      type: int
+      setPref:
+        branch: default
+        pref: security.pki.crlite_mode
+      description: >-
+        How CRLite results will be interpreted.
