@@ -924,8 +924,9 @@ pocketNewtab:
         Changes the wallpaper feature highlight cta
     weatherLocationSearch:
       type: boolean
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.weather.locationSearchEnabled
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.weather.locationSearchEnabled
       description: >-
         Turns on and off location search for newtab weather widget
     recsPersonalized:
@@ -2475,6 +2476,12 @@ gc:
       setPref:
         branch: user
         pref: "javascript.options.mem.gc_compacting"
+    gc_generational:
+      description: Whether generational GC is enabled.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "javascript.options.mem.gc_generational"
     gc_heap_growth_factor:
       description: Heap growth parameter for balanced heap limit calculation.
       type: int
@@ -3338,6 +3345,20 @@ bounceTrackingProtection:
         classifies but does not purge trackers. This mode is helpful for testing
         the feature without risking data loss. Telemetry is still collected
         normally.
+
+remoteTabManagement:
+  description: >
+    Features that let users manage tabs on other devices that are
+    connected to the same Mozilla account.
+  owner: skhamis@mozilla.com
+  hasExposure: false
+  variables:
+    closeTabsEnabled:
+      description: >-
+        When true, the user can close tabs on other devices connected to
+        the same Mozilla account from the synced tabs menu.
+      type: boolean
+      fallbackPref: identity.fxaccounts.commands.remoteTabManagement.enabled
 
 crlite:
   description: Prefs that control the use of CRLite
