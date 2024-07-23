@@ -256,10 +256,21 @@ async def compute_features(
 async def fetch_schedule_recipes() -> None:
     try:
         app.state.remote_setting_live.fetch_recipes()
+    except Exception as e:
+        # If an exception is raised, log the error and schedule a retry
+        logger.error(f"Failed to fetch live recipes: {e}")
+        app.state.scheduler.add_job(
+            fetch_schedule_recipes,
+            "interval",
+            seconds=30,
+            max_instances=1,
+            max_retries=3,
+        )
+    try:
         app.state.remote_setting_preview.fetch_recipes()
     except Exception as e:
         # If an exception is raised, log the error and schedule a retry
-        logger.error(f"Failed to fetch recipes: {e}")
+        logger.error(f"Failed to fetch preview recipes: {e}")
         app.state.scheduler.add_job(
             fetch_schedule_recipes,
             "interval",
