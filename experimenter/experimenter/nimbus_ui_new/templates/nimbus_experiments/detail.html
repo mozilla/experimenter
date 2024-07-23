@@ -26,31 +26,8 @@
       </div>
     </div>
     <!-- Takeaways Card -->
-    <div class="card mb-3">
-      <div class="card-header">
-        <h4>Takeaways</h4>
-      </div>
-      <div class="card-body">
-        <table class="table table-striped">
-          <tbody>
-            <tr>
-              <th>QBR learning</th>
-              <td>{{ experiment.takeaways_qbr_learning }}</td>
-              <th>Statistically significant DAU Gain</th>
-              <td>{{ experiment.takeaways_metric_gain }}</td>
-            </tr>
-            <tr>
-              <th>Summary</th>
-              <td colspan="3">{{ experiment.takeaways_summary|format_not_set }}</td>
-            </tr>
-            <tr>
-              <th>Gain amount</th>
-              <td colspan="3">{{ experiment.takeaways_gain_amount|format_not_set }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    {% include "nimbus_experiments/takeaways_card.html" %}
+
     <!-- Overview Card -->
     <div class="card mb-3">
       <div class="card-header">
