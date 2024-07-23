@@ -352,7 +352,7 @@ class NimbusConstants:
 
     class Takeaways(models.TextChoices):
         QBR_LEARNING = "QBR Learning"
-        DAU_GAIN = "DAU Gain"
+        DAU_GAIN = "Statistically significant DAU Gain"
 
     ARCHIVE_UPDATE_EXEMPT_FIELDS = (
         "is_archived",
