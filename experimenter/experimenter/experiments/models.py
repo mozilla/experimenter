@@ -1209,6 +1209,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.application_config:
             return self.application_config.get_kinto_collection_for(self)
 
+    @property
+    def conclusion_recommendation_labels(self):
+        return [
+            NimbusConstants.ConclusionRecommendation(rec).label
+            for rec in self.conclusion_recommendations
+        ]
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
