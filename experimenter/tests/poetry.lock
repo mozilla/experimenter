@@ -1011,22 +1011,22 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "selenium"
-version = "4.22.0"
+version = "4.23.0"
 description = "Official Python bindings for Selenium WebDriver"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "selenium-4.22.0-py3-none-any.whl", hash = "sha256:e424991196e9857e19bf04fe5c1c0a4aac076794ff5e74615b1124e729d93104"},
-    {file = "selenium-4.22.0.tar.gz", hash = "sha256:903c8c9d61b3eea6fcc9809dc7d9377e04e2ac87709876542cc8f863e482c4ce"},
+    {file = "selenium-4.23.0-py3-none-any.whl", hash = "sha256:3fa5124c8ba071a2d22f7512a80e7799f5a5492d5e20ada1909fe66a476b2a44"},
+    {file = "selenium-4.23.0.tar.gz", hash = "sha256:88f36e3fe6d1d3a9e0626f527f4bd00f0300d43e93f51f59771a911078d4f472"},
 ]
 
 [package.dependencies]
 certifi = ">=2021.10.8"
 trio = ">=0.17,<1.0"
 trio-websocket = ">=0.9,<1.0"
-typing_extensions = ">=4.9.0"
+typing_extensions = ">=4.9.0,<4.10.0"
 urllib3 = {version = ">=1.26,<3", extras = ["socks"]}
-websocket-client = ">=1.8.0"
+websocket-client = "1.8.0"
 
 [[package]]
 name = "sentry-sdk"
@@ -1190,13 +1190,13 @@ wsproto = ">=0.14"
 
 [[package]]
 name = "typing-extensions"
-version = "4.12.2"
+version = "4.9.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "typing_extensions-4.12.2-py3-none-any.whl", hash = "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d"},
-    {file = "typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"},
+    {file = "typing_extensions-4.9.0-py3-none-any.whl", hash = "sha256:af72aea155e91adfc61c3ae9e0e342dbc0cba726d6cba4b6c72c1f34e47291cd"},
+    {file = "typing_extensions-4.9.0.tar.gz", hash = "sha256:23478f88c37f27d76ac8aee6c905017a143b0b1b886c3c9f66bc2fd94f9f5783"},
 ]
 
 [[package]]
@@ -1622,4 +1622,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "54904299f55bc1f5dd289ed69fadf0c107577be4e520dd83b3f023e554948c1f"
+content-hash = "64b016ec87d368a38ce107d8dcdd8a9843b2d8c4b640ef07f5d1585feaaed2ef"
