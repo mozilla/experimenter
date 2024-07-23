@@ -1,5 +1,3 @@
-# forms.py
-
 from django import forms
 
 from experimenter.experiments.models import NimbusExperiment

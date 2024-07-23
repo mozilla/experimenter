@@ -11,13 +11,13 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.forms import QAStatusForm, TakeawaysForm
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
 from experimenter.nimbus_ui_new.filtersets import SortChoices, TypeChoices
+from experimenter.nimbus_ui_new.forms import QAStatusForm, TakeawaysForm
 from experimenter.nimbus_ui_new.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
@@ -1003,13 +1003,16 @@ class NimbusExperimentDetailViewTest(TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Takeaways")
-        self.assertContains(response, "QBR learning")
-        self.assertContains(response, "Statistically significant DAU Gain")
-        self.assertContains(response, "This is a summary.")
-        self.assertContains(response, "0.5% gain in retention")
-        self.assertContains(response, "Graduate")
-        self.assertContains(response, "Rerun")
+        self.assertContains(response, NimbusExperiment.Takeaways.QBR_LEARNING)
+        self.assertContains(response, NimbusExperiment.Takeaways.DAU_GAIN)
+        self.assertContains(response, self.experiment.takeaways_summary)
+        self.assertContains(response, self.experiment.takeaways_gain_amount)
+        self.assertContains(
+            response, NimbusExperiment.ConclusionRecommendation.GRADUATE.label
+        )
+        self.assertContains(
+            response, NimbusExperiment.ConclusionRecommendation.RERUN.label
+        )
 
     def test_takeaways_edit_mode_get(self):
         response = self.client.get(
