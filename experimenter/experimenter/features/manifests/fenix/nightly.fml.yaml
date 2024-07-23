@@ -135,7 +135,7 @@ features:
             secondary-button-label: juno_onboarding_add_search_widget_negative_button
             title: juno_onboarding_add_search_widget_title
           sync-sign-in:
-            body: juno_onboarding_sign_in_description_2
+            body: juno_onboarding_sign_in_description_3
             card-type: sync-sign-in
             disqualifiers:
               - NEVER
