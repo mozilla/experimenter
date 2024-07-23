@@ -57,6 +57,15 @@ APPLICATION_KINTO_COLLECTION = {
     BaseExperimentApplications.DEMO_APP.value: KINTO_COLLECTION_WEB,
 }
 
+APPLICATION_SELECT_VALUE = {
+    BaseExperimentApplications.FIREFOX_DESKTOP.value: "firefox-desktop",
+    BaseExperimentApplications.FIREFOX_FENIX.value: "fenix",
+    BaseExperimentApplications.FIREFOX_IOS.value: "ios",
+    BaseExperimentApplications.FOCUS_ANDROID.value: "focus-android",
+    BaseExperimentApplications.FOCUS_IOS.value: "focus-ios",
+    BaseExperimentApplications.DEMO_APP.value: "demo-app",
+}
+
 
 def slugify(name):
     return name.lower().replace(" ", "-").replace("[", "").replace("]", "")
@@ -268,13 +277,14 @@ def create_experiment(base_url, default_data):
         treatment_branch_value="{}",
     ):
         home = HomePage(selenium, base_url).open()
-        experiment = home.create_new_button()
-        experiment.public_name = default_data.public_name
-        experiment.hypothesis = default_data.hypothesis
-        experiment.application = default_data.application
+        home.create_new_button()
+        home.public_name = default_data.public_name
+        home.hypothesis = default_data.hypothesis
+        home.application = APPLICATION_SELECT_VALUE[default_data.application]
 
         # Fill Overview Page
-        overview = experiment.save_and_continue()
+        summary = home.save_and_continue()
+        overview = summary.navigate_to_overview()
         overview.select_risk_brand_false()
         overview.select_risk_message_false()
         overview.select_risk_revenue_false()
