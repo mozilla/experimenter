@@ -7,7 +7,7 @@ from typing import Any, List, NamedTuple
 import sentry_sdk
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, Query, status
 from fml_sdk import FmlError  # type: ignore
 from glean import Configuration, Glean, load_metrics, load_pings  # type: ignore
 from pydantic import BaseModel
@@ -26,7 +26,9 @@ from .settings import (
     metrics_config,
     metrics_path,
     pings_path,
+    remote_setting_preview_url,
     remote_setting_refresh_rate_in_seconds,
+    remote_setting_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -42,11 +44,20 @@ async def lifespan(app: FastAPI):
     initialize_sentry()
     app.state.pings, app.state.metrics = initialize_glean()
     app.state.fml = create_fml()
-    app.state.sdk = create_sdk(
+    app.state.sdk_live = create_sdk(
         app.state.fml.get_coenrolling_feature_ids(),
         CirrusMetricsHandler(app.state.metrics, app.state.pings),
     )
-    app.state.remote_setting = RemoteSettings(app.state.sdk)
+    app.state.sdk_preview = create_sdk(
+        app.state.fml.get_coenrolling_feature_ids(),
+        CirrusMetricsHandler(app.state.metrics, app.state.pings),
+    )
+
+    app.state.remote_setting_live = RemoteSettings(remote_setting_url, app.state.sdk_live)
+    app.state.remote_setting_preview = RemoteSettings(
+        remote_setting_preview_url, app.state.sdk_preview
+    )
+
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
     send_instance_name_metric()
@@ -149,7 +160,7 @@ class EnrollmentMetricData(NamedTuple):
 
 
 def collate_enrollment_metric_data(
-    enrolled_partial_configuration: dict[str, Any]
+    enrolled_partial_configuration: dict[str, Any], nimbus_preview_flag: bool
 ) -> list[EnrollmentMetricData]:
     events: list[dict[str, Any]] = enrolled_partial_configuration.get("events", [])
     data: list[EnrollmentMetricData] = []
@@ -157,7 +168,11 @@ def collate_enrollment_metric_data(
         if event.get("change") == "Enrollment":
             experiment_slug = event.get("experiment_slug", "")
             branch_slug = event.get("branch_slug", "")
-            experiment_type = app.state.remote_setting.get_recipe_type(experiment_slug)
+            experiment_type = None
+            remote_settings = app.state.remote_setting_live
+            if nimbus_preview_flag:
+                remote_settings = app.state.remote_setting_preview
+            experiment_type = remote_settings.get_recipe_type(experiment_slug)
             data.append(
                 EnrollmentMetricData(
                     experiment_slug=experiment_slug,
@@ -168,9 +183,14 @@ def collate_enrollment_metric_data(
     return data
 
 
-async def record_metrics(enrolled_partial_configuration: dict[str, Any], client_id: str):
+async def record_metrics(
+    enrolled_partial_configuration: dict[str, Any],
+    client_id: str,
+    nimbus_preview_flag: bool,
+):
     metrics = collate_enrollment_metric_data(
-        enrolled_partial_configuration=enrolled_partial_configuration
+        enrolled_partial_configuration=enrolled_partial_configuration,
+        nimbus_preview_flag=nimbus_preview_flag,
     )
     for experiment_slug, branch_slug, experiment_type in metrics:
         app.state.metrics.cirrus_events.enrollment.record(
@@ -194,7 +214,10 @@ def read_root():
 
 
 @app.post("/v1/features/", status_code=status.HTTP_200_OK)
-async def compute_features(request_data: FeatureRequest):
+async def compute_features(
+    request_data: FeatureRequest,
+    nimbus_preview: bool = Query(default=False, alias="nimbus_preview"),
+):
     if not request_data.client_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -210,7 +233,10 @@ async def compute_features(request_data: FeatureRequest):
         "clientId": request_data.client_id,
         "requestContext": request_data.context,
     }
-    enrolled_partial_configuration: dict[str, Any] = app.state.sdk.compute_enrollments(
+    sdk = app.state.sdk_live
+    if nimbus_preview:
+        sdk = app.state.sdk_preview
+    enrolled_partial_configuration: dict[str, Any] = sdk.compute_enrollments(
         targeting_context
     )
 
@@ -221,24 +247,42 @@ async def compute_features(request_data: FeatureRequest):
     await record_metrics(
         enrolled_partial_configuration=enrolled_partial_configuration,
         client_id=request_data.client_id,
+        nimbus_preview_flag=nimbus_preview or False,
     )
 
     return client_feature_configuration
 
 
 async def fetch_schedule_recipes() -> None:
+    live_failed = False
+    preview_failed = False
+
     try:
-        app.state.remote_setting.fetch_recipes()
+        app.state.remote_setting_live.fetch_recipes()
     except Exception as e:
-        # If an exception is raised, log the error and schedule a retry
-        logger.error(f"Failed to fetch recipes: {e}")
-        app.state.scheduler.add_job(
-            fetch_schedule_recipes,
-            "interval",
-            seconds=30,
-            max_instances=1,
-            max_retries=3,
-        )
+        # If an exception is raised, log the error
+        logger.error(f"Failed to fetch live recipes: {e}")
+        live_failed = True
+
+    try:
+        app.state.remote_setting_preview.fetch_recipes()
+    except Exception as e:
+        # If an exception is raised, log the error
+        logger.error(f"Failed to fetch preview recipes: {e}")
+        preview_failed = True
+
+    if live_failed or preview_failed:
+        schedule_retry()
+
+
+def schedule_retry():
+    app.state.scheduler.add_job(
+        fetch_schedule_recipes,
+        "interval",
+        seconds=30,
+        max_instances=1,
+        max_retries=3,
+    )
 
 
 @app.get("/__lbheartbeat__")

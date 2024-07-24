@@ -45,10 +45,10 @@ def test_invalid_context(context, expected_error_message, metrics_handler):
         assert str(e.value).startswith(expected_error_message)
 
 
-def test_compute_enrollments(sdk):
+def test_compute_enrollments(sdk_live):
     targeting_context = {"clientId": "test", "requestContext": {}}
 
-    result = sdk.compute_enrollments(targeting_context)
+    result = sdk_live.compute_enrollments(targeting_context)
     assert result == {
         "enrolledFeatureConfigMap": {},
         "enrollments": [],
@@ -64,27 +64,27 @@ def test_compute_enrollments(sdk):
         ({"clientId": "test"}),
     ],
 )
-def test_failure_cases(sdk, targeting_context):
+def test_failure_cases(sdk_live, targeting_context):
     try:
-        result = sdk.compute_enrollments(targeting_context)
+        result = sdk_live.compute_enrollments(targeting_context)
     except NimbusError:
         pytest.fail("NimbusError was raised when it should not have been")
     assert result == {}
 
 
-def test_set_experiments_recipe_both_empty(sdk):
+def test_set_experiments_recipe_both_empty(sdk_live):
     recipes = "{}"
     targeting_context = {}
-    sdk.set_experiments(recipes)
-    result = sdk.compute_enrollments(targeting_context)
+    sdk_live.set_experiments(recipes)
+    result = sdk_live.compute_enrollments(targeting_context)
     assert result == {}
 
 
-def test_set_experiments_success(sdk):
+def test_set_experiments_success(sdk_live):
     recipes = '{"data": [{"experiment1": True}, {"experiment2": False}]}'
     targeting_context = {"clientId": "test", "requestContext": {}}
-    sdk.set_experiments(recipes)
-    result = sdk.compute_enrollments(targeting_context)
+    sdk_live.set_experiments(recipes)
+    result = sdk_live.compute_enrollments(targeting_context)
     assert result == {
         "enrolledFeatureConfigMap": {},
         "enrollments": [],
@@ -99,10 +99,10 @@ def test_set_experiments_success(sdk):
         ('{"invalid}'),
     ],
 )
-def test_set_experiments_failure_invalid_malform_key(sdk, recipes):
+def test_set_experiments_failure_invalid_malform_key(sdk_live, recipes):
     targeting_context = {"clientId": "test", "requestContext": {}}
-    sdk.set_experiments(recipes)
-    result = sdk.compute_enrollments(targeting_context)
+    sdk_live.set_experiments(recipes)
+    result = sdk_live.compute_enrollments(targeting_context)
     assert result == {
         "enrolledFeatureConfigMap": {},
         "enrollments": [],
