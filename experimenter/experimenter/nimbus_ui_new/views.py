@@ -5,7 +5,6 @@ from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import RISK_QUESTIONS
-from experimenter.experiments.forms import QAStatusForm
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.nimbus_ui_new.filtersets import (
     STATUS_FILTERS,
@@ -13,6 +12,7 @@ from experimenter.nimbus_ui_new.filtersets import (
     SortChoices,
     StatusChoices,
 )
+from experimenter.nimbus_ui_new.forms import QAStatusForm, TakeawaysForm
 
 
 class NimbusChangeLogsView(DetailView):
@@ -108,8 +108,11 @@ class NimbusExperimentDetailView(DetailView):
         experiment_context = build_experiment_context(self.object)
         context.update(experiment_context)
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
+        context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
         if context["qa_edit_mode"]:
             context["form"] = QAStatusForm(instance=self.object)
+        if context["takeaways_edit_mode"]:
+            context["takeaways_form"] = TakeawaysForm(instance=self.object)
         return context
 
 
@@ -124,6 +127,24 @@ class QAStatusUpdateView(UpdateView):
         experiment_context = build_experiment_context(self.object)
         context.update(experiment_context)
         context["qa_edit_mode"] = True
+        return self.render_to_response(context)
+
+    def get_success_url(self):
+        return reverse("nimbus-new-detail", kwargs={"slug": self.object.slug})
+
+
+class TakeawaysUpdateView(UpdateView):
+    form_class = TakeawaysForm
+    model = NimbusExperiment
+    template_name = "nimbus_experiments/detail.html"
+    context_object_name = "experiment"
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form)
+        experiment_context = build_experiment_context(self.object)
+        context.update(experiment_context)
+        context["takeaways_edit_mode"] = True
+        context["takeaways_form"] = form
         return self.render_to_response(context)
 
     def get_success_url(self):
