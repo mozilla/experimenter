@@ -166,16 +166,65 @@ async def test_fetch_schedule_recipes_success(
 
 
 @pytest.mark.asyncio
-async def test_fetch_schedule_recipes_failure(
-    scheduler_mock, remote_setting_live_mock, exception
+@patch("cirrus.main.app.state.scheduler")
+@patch("cirrus.main.app.state.remote_setting_live")
+async def test_fetch_schedule_recipes_failure_live(
+    mock_remote_setting_live, scheduler_mock
 ):
-    remote_setting_live_mock.fetch_recipes.side_effect = exception
+    mock_remote_setting_live.fetch_recipes.side_effect = Exception("some error")
 
     await fetch_schedule_recipes()
 
-    remote_setting_live_mock.fetch_recipes.assert_called_once()
+    mock_remote_setting_live.fetch_recipes.assert_called_once()
 
     # Check that a job was added to the scheduler to retry after 30 seconds
+    scheduler_mock.add_job.assert_called_once_with(
+        fetch_schedule_recipes,
+        "interval",
+        seconds=30,
+        max_instances=1,
+        max_retries=3,
+    )
+
+
+@pytest.mark.asyncio
+@patch("cirrus.main.app.state.scheduler")
+@patch("cirrus.main.app.state.remote_setting_preview")
+async def test_fetch_schedule_recipes_failure_preview(
+    mock_remote_setting_preview, scheduler_mock
+):
+    mock_remote_setting_preview.fetch_recipes.side_effect = Exception("some error")
+
+    await fetch_schedule_recipes()
+
+    mock_remote_setting_preview.fetch_recipes.assert_called_once()
+
+    # Check that a job was added to the scheduler to retry after 30 seconds
+    scheduler_mock.add_job.assert_called_once_with(
+        fetch_schedule_recipes,
+        "interval",
+        seconds=30,
+        max_instances=1,
+        max_retries=3,
+    )
+
+
+@pytest.mark.asyncio
+@patch("cirrus.main.app.state.scheduler")
+@patch("cirrus.main.app.state.remote_setting_live")
+@patch("cirrus.main.app.state.remote_setting_preview")
+async def test_fetch_schedule_recipes_both_fail(
+    mock_remote_setting_live, mock_remote_setting_preview, scheduler_mock
+):
+    mock_remote_setting_live.fetch_recipes.side_effect = Exception("live error")
+    mock_remote_setting_preview.fetch_recipes.side_effect = Exception("preview error")
+
+    await fetch_schedule_recipes()
+
+    mock_remote_setting_live.fetch_recipes.assert_called_once()
+    mock_remote_setting_preview.fetch_recipes.assert_called_once()
+
+    # Check that only one job was added to the scheduler to retry after 30 seconds
     scheduler_mock.add_job.assert_called_once_with(
         fetch_schedule_recipes,
         "interval",
