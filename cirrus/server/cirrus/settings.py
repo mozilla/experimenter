@@ -9,6 +9,9 @@ remote_setting_refresh_rate_in_seconds: int = int(
     config("CIIRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS", default=10)  # type: ignore
 )
 remote_setting_url: str = cast(str, config("CIRRUS_REMOTE_SETTING_URL", default=""))
+remote_setting_preview_url: str = cast(
+    str, config("CIRRUS_REMOTE_SETTING_PREVIEW_URL", default="")
+)
 
 app_id: str = cast(str, config("CIRRUS_APP_ID", default=""))
 app_name: str = cast(str, config("CIRRUS_APP_NAME", default=""))
@@ -41,7 +44,7 @@ class MetricsConfiguration:
     build: Optional[str] = None
     channel: str = channel
     data_dir: str = "/var/glean"
-    log_level: Union[str, int] = logging.getLevelName("WARNING")
+    log_level: Union[str, int] = logging.WARNING
     max_events_buffer: int = glean_max_events_buffer
     server_endpoint: Optional[str] = None
     upload_enabled: bool = True

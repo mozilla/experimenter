@@ -18,6 +18,7 @@ To set up the Cirrus environment, follow these steps:
 
    ```plaintext
    CIRRUS_REMOTE_SETTING_URL=https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/nimbus-web-experiments/records
+   CIRRUS_REMOTE_SETTING_PREVIEW_URL=https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/nimbus-web-preview/records
    CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS=10
    CIRRUS_APP_ID=test_app_id
    CIRRUS_APP_NAME=test_app_name
@@ -33,6 +34,7 @@ To set up the Cirrus environment, follow these steps:
    Here's what each variable represents:
 
    - `CIRRUS_REMOTE_SETTING_URL`: The URL of the remote settings where the experiments data is stored. In this case, it points to the collection of nimbus web experiments.
+  - `CIRRUS_REMOTE_SETTING_PREVIEW_URL`: The URL of the remote settings where the preview experiments data is stored. In this case, it points to the collection of nimbus web preview experiments.
    - `CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS`: The refresh rate in seconds for fetching the experiments recipes from the remote settings. Set it to `10` to retrieve the latest data every 10 seconds.
    - `CIRRUS_APP_ID`: Replace `test_app_id` with the actual ID of your application for example `firefox-desktop`.
    - `CIRRUS_APP_NAME`: Replace `test_app_name` with the desired name for your application for example `firefox_desktop`.
@@ -186,6 +188,21 @@ Example input:
     "random_key": "random_value",
   }
 }
+```
+## Optional Query Parameter
+
+`nimbus_preview (boolean)`: Pass this as a query parameter to enable preview mode. When set to true, the endpoint will use the preview experiments to compute enrollments.
+
+Example usage with nimbus_preview query parameter:
+
+```shell
+curl -X POST "http://localhost:8001/v1/features/?nimbus_preview=true" -H 'Content-Type: application/json' -d '{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "language": "en",
+    "region": "US"
+  }
+}'
 ```
 ## Output
 
