@@ -24,28 +24,29 @@ from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.targeting.constants import TargetingConstants
 
 
-class NimbusChangeLogsViewTest(TestCase):
+class AuthTestCase(TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory.create(email="user@example.com")
+        self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
+
+
+class NimbusChangeLogsViewTest(AuthTestCase):
     def test_render_to_response(self):
-        user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(slug="test-experiment")
         response = self.client.get(
             reverse(
                 "nimbus-new-history",
                 kwargs={"slug": experiment.slug},
             ),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["experiment"], experiment)
 
 
-class NimbusExperimentsListViewTest(TestCase):
-    maxDiff = None
-
-    def setUp(self):
-        self.user = UserFactory.create(email="user@example.com")
-        self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
-
+class NimbusExperimentsListViewTest(AuthTestCase):
     def test_render_to_response(self):
         for status in NimbusExperiment.Status:
             NimbusExperimentFactory.create(slug=status, status=status)
@@ -872,13 +873,7 @@ class NimbusExperimentsListViewTest(TestCase):
         )
 
 
-class NimbusExperimentsListTableViewTest(TestCase):
-    maxDiff = None
-
-    def setUp(self):
-        self.user = UserFactory.create(email="user@example.com")
-        self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
-
+class NimbusExperimentsListTableViewTest(AuthTestCase):
     def test_render_to_response(self):
         response = self.client.get(reverse("nimbus-new-table"))
         self.assertEqual(response.status_code, 200)
@@ -891,8 +886,9 @@ class NimbusExperimentsListTableViewTest(TestCase):
         self.assertEqual(response.headers["HX-Push"], "?status=test")
 
 
-class NimbusExperimentDetailViewTest(TestCase):
+class NimbusExperimentDetailViewTest(AuthTestCase):
     def setUp(self):
+        super().setUp()
         self.experiment = NimbusExperimentFactory.create(
             slug="test-experiment",
             application="firefox-desktop",
@@ -909,12 +905,10 @@ class NimbusExperimentDetailViewTest(TestCase):
                 NimbusExperiment.ConclusionRecommendation.GRADUATE,
             ],
         )
-        self.user_email = "user@example.com"
 
     def test_render_to_response(self):
         response = self.client.get(
             reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["experiment"], self.experiment)
@@ -923,7 +917,6 @@ class NimbusExperimentDetailViewTest(TestCase):
     def test_outcome_links(self):
         response = self.client.get(
             reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         expected_primary_links = [
             (
@@ -957,7 +950,6 @@ class NimbusExperimentDetailViewTest(TestCase):
         response = self.client.get(
             reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
             {"edit_qa_status": "true"},
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["qa_edit_mode"])
@@ -971,7 +963,6 @@ class NimbusExperimentDetailViewTest(TestCase):
         response = self.client.post(
             reverse("update-qa-status", kwargs={"slug": self.experiment.slug}),
             data,
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 302)  # redirect
         self.experiment.refresh_from_db()
@@ -986,7 +977,6 @@ class NimbusExperimentDetailViewTest(TestCase):
         response = self.client.post(
             reverse("update-qa-status", kwargs={"slug": self.experiment.slug}),
             data,
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["qa_edit_mode"])
@@ -1000,7 +990,6 @@ class NimbusExperimentDetailViewTest(TestCase):
     def test_takeaways_card(self):
         response = self.client.get(
             reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, NimbusExperiment.Takeaways.QBR_LEARNING)
@@ -1018,7 +1007,6 @@ class NimbusExperimentDetailViewTest(TestCase):
         response = self.client.get(
             reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
             {"edit_takeaways": "true"},
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["takeaways_edit_mode"])
@@ -1038,7 +1026,6 @@ class NimbusExperimentDetailViewTest(TestCase):
         response = self.client.post(
             reverse("update-takeaways", kwargs={"slug": self.experiment.slug}),
             data,
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 302)  # redirect
         self.experiment.refresh_from_db()
@@ -1065,9 +1052,25 @@ class NimbusExperimentDetailViewTest(TestCase):
         response = self.client.post(
             reverse("update-takeaways", kwargs={"slug": self.experiment.slug}),
             data,
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["takeaways_edit_mode"])
         self.assertIsInstance(response.context["takeaways_form"], TakeawaysForm)
         self.assertFalse(response.context["takeaways_form"].is_valid())
+
+
+class TestNimbusExperimentsCreateView(AuthTestCase):
+    def test_post_creates_experiment(self):
+        response = self.client.post(
+            reverse("nimbus-new-create"),
+            {
+                "name": "Test Experiment",
+                "hypothesis": "test",
+                "application": NimbusExperiment.Application.DESKTOP,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment = NimbusExperiment.objects.get(slug="test-experiment")
+        self.assertEqual(experiment.hypothesis, "test")
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(experiment.owner, self.user)
