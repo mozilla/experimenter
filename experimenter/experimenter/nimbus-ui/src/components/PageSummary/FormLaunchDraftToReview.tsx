@@ -59,7 +59,7 @@ const FormLaunchDraftToReview = ({
             </p>
             <p className="my-1">
               This experiment uses features that prevent it from being launched
-              to preview. We highly reccomend QAing this experiment on stage
+              to preview. We highly recommend QAing this experiment on stage
               first.
             </p>
           </>
