@@ -3,6 +3,7 @@ from django.urls import re_path
 from experimenter.nimbus_ui_new.views import (
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
+    NimbusExperimentsCreateView,
     NimbusExperimentsListTableView,
     QAStatusUpdateView,
     TakeawaysUpdateView,
@@ -33,5 +34,10 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/update_takeaways/$",
         TakeawaysUpdateView.as_view(),
         name="update-takeaways",
+    ),
+    re_path(
+        r"^create/",
+        NimbusExperimentsCreateView.as_view(),
+        name="nimbus-new-create",
     ),
 ]

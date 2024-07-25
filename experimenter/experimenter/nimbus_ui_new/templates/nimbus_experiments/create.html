@@ -1,0 +1,15 @@
+{% load widget_tweaks %}
+
+{% csrf_token %}
+{% for field in form %}
+  <div class="form-group mb-2">
+    {{ field|add_class:"form-control"|add_error_class:"is-invalid" }}
+    {% for error in field.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+  </div>
+{% endfor %}
+<div class="d-flex justify-content-end">
+  <button type="submit" class="ms-auto btn btn-primary">
+    <i class="fa-regular fa-floppy-disk"></i>
+    Save
+  </button>
+</div>
