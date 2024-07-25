@@ -1081,6 +1081,13 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.pocket-feed-parameters
       description: >-
         Add parameters to Pocket feed URL.
+    merinoFeedExperiment:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.merino-feed-experiment
+      description: >-
+        Should we pass the experiment branch and slug to the Merino feed request.
     thumbsUpDown:
       type: boolean
       setPref:
@@ -1174,6 +1181,12 @@ shellService:
     disablePin:
       type: boolean
       description: Disable pin to taskbar feature
+    disableStartMenuPin:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.shell.disableStartMenuPin
+      description: Disable pin to start menu feature
     setDefaultBrowserUserChoice:
       type: boolean
       setPref:
@@ -1317,6 +1330,24 @@ pdfjs:
       setPref:
         branch: default
         pref: pdfjs.enableHighlightEditor
+    enableAltText:
+      description: Set to true to enable alt text generation.
+      type: boolean
+      setPref:
+        branch: default
+        pref: pdfjs.enableAltText
+    enableUpdatedAddImage:
+      description: Set to true to enable updated add image with alt text flow.
+      type: boolean
+      setPref:
+        branch: default
+        pref: pdfjs.enableUpdatedAddImage
+    browserMlEnable:
+      description: Set to true to enable local inference engine
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.ml.enable
 
 # fxms-message-* placeholder feature ids
 #
