@@ -15,4 +15,4 @@ features:
       something:
         description: Another variable
         type: Option<String>
-        default: wicked
+        default: gnihtemos
