@@ -1796,6 +1796,18 @@ WINDOWS_10_PLUS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+
+WINDOWS_10_NOMSIX = NimbusTargetingConfig(
+    name="Windows 10+ without msix",
+    slug="windows_10_plus_nomsix",
+    description="Windows users on version 10 or higher, but no MSIX intallations",
+    targeting="(os.isWindows && os.windowsVersion >= 10 && !isMSIX)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
     name="iPhone users only",
     slug="ios_iphone_users_only",
