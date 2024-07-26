@@ -126,3 +126,4 @@ firefox_desktop:
           - "beta"
           - "release"
           - "esr115"
+          - "esr128"
