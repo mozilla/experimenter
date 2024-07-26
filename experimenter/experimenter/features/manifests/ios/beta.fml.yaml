@@ -403,7 +403,7 @@ features:
       back_in_stock_reporting:
         description: "If true, enables for users the reporting feature for products back in stock.\n"
         type: Boolean
-        default: true
+        default: false
       config:
         description: "A Map of website configurations\n"
         type: "Map<String, WebsiteConfig>"
@@ -425,7 +425,7 @@ features:
       product_ads:
         description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
         type: Boolean
-        default: true
+        default: false
       relay:
         description: "Configurable relay URL for production environment\n"
         type: String
@@ -433,7 +433,7 @@ features:
       status:
         description: "Whether the Fakespot feature is enabled or disabled\n"
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
     variables:
