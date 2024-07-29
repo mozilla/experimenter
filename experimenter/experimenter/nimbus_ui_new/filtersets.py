@@ -71,9 +71,15 @@ class SortChoices(models.TextChoices):
 class MultiSelectWidget(forms.SelectMultiple):
     template_name = "common/sidebar_select.html"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, attrs, **kwargs):
         self.icon = kwargs.pop("icon", None)
-        super().__init__(*args, **kwargs)
+        attrs.update(
+            {
+                "class": "selectpicker form-control bg-body-tertiary",
+                "data-live-search": "true",
+            }
+        )
+        super().__init__(*args, attrs=attrs, **kwargs)
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
@@ -108,8 +114,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-flask-vial",
             attrs={
                 "title": "All Types",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -119,8 +123,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-desktop",
             attrs={
                 "title": "All Applications",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -130,8 +132,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-road",
             attrs={
                 "title": "All Channels",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -141,8 +141,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-code-branch",
             attrs={
                 "title": "All Versions",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -152,8 +150,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-boxes-stacked",
             attrs={
                 "title": "All Features",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -163,8 +159,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-globe",
             attrs={
                 "title": "All Countries",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -174,8 +168,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-language",
             attrs={
                 "title": "All Languages",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -185,8 +177,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-earth-americas",
             attrs={
                 "title": "All Locales",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -196,8 +186,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-users-rectangle",
             attrs={
                 "title": "All Audiences",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -207,8 +195,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-person-chalkboard",
             attrs={
                 "title": "All Projects",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -218,8 +204,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-user-shield",
             attrs={
                 "title": "All QA Statuses",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -233,8 +217,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-list-check",
             attrs={
                 "title": "All Takeaways",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -244,8 +226,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-users",
             attrs={
                 "title": "All Owners",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
@@ -255,8 +235,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             icon="fa-solid fa-bell",
             attrs={
                 "title": "All Subscribers",
-                "class": "selectpicker",
-                "data-live-search": "true",
             },
         ),
     )
