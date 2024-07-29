@@ -4,17 +4,24 @@ from django.urls import reverse
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
-from experimenter.nimbus_ui_new.forms import NimbusExperimentCreateForm
+from experimenter.nimbus_ui_new.forms import (
+    NimbusExperimentCreateForm,
+    QAStatusForm,
+    TakeawaysForm,
+)
 from experimenter.openidc.tests.factories import UserFactory
 
 
-class TestNimbusExperimentCreateForm(TestCase):
+class RequestFormTestCase(TestCase):
     def setUp(self):
+        super().setUp()
         self.user = UserFactory.create(email="dev@example.com")
         request_factory = RequestFactory()
         self.request = request_factory.get(reverse("nimbus-new-create"))
         self.request.user = self.user
 
+
+class TestNimbusExperimentCreateForm(RequestFormTestCase):
     def test_valid_form_creates_experiment_with_changelog(self):
         data = {
             "owner": self.user,
@@ -70,4 +77,78 @@ class TestNimbusExperimentCreateForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(
             form.errors["hypothesis"], [NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER]
+        )
+
+
+class TestQAStatusForm(RequestFormTestCase):
+    def test_form_updates_qa_fields_and_creates_changelog(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_status=NimbusExperiment.QAStatus.NOT_SET,
+            qa_comment="",
+        )
+        existing_changes = list(experiment.changes.values_list("id", flat=True))
+        data = {
+            "qa_status": NimbusExperiment.QAStatus.GREEN,
+            "qa_comment": "tests passed",
+        }
+        form = QAStatusForm(data, request=self.request, instance=experiment)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.GREEN)
+        self.assertEqual(experiment.qa_comment, "tests passed")
+
+        self.assertEqual(experiment.changes.count(), 2)
+        changelog = experiment.changes.exclude(id__in=existing_changes).get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertEqual(
+            changelog.message,
+            "dev@example.com updated QA",
+        )
+
+
+class TestTakeawaysForm(RequestFormTestCase):
+    def test_form_updates_takeaways_fields_and_creates_changelog(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            takeaways_qbr_learning=False,
+            takeaways_metric_gain=False,
+            takeaways_summary="",
+            takeaways_gain_amount="",
+            conclusion_recommendations={},
+        )
+        existing_changes = list(experiment.changes.values_list("id", flat=True))
+        data = {
+            "takeaways_qbr_learning": True,
+            "takeaways_metric_gain": True,
+            "takeaways_summary": "Updated summary.",
+            "takeaways_gain_amount": "1%% gain in retention",
+            "conclusion_recommendations": [
+                NimbusExperiment.ConclusionRecommendation.CHANGE_COURSE,
+                NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
+            ],
+        }
+        form = TakeawaysForm(data, request=self.request, instance=experiment)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.takeaways_qbr_learning, True)
+        self.assertEqual(experiment.takeaways_metric_gain, True)
+        self.assertEqual(experiment.takeaways_summary, "Updated summary.")
+        self.assertEqual(experiment.takeaways_gain_amount, "1%% gain in retention")
+        self.assertEqual(
+            experiment.conclusion_recommendations,
+            [
+                NimbusExperiment.ConclusionRecommendation.CHANGE_COURSE,
+                NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
+            ],
+        )
+
+        self.assertEqual(experiment.changes.count(), 2)
+        changelog = experiment.changes.exclude(id__in=existing_changes).get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertEqual(
+            changelog.message,
+            "dev@example.com updated takeaways",
         )
