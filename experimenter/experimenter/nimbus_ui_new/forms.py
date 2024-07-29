@@ -91,7 +91,7 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return cleaned_data
 
 
-class QAStatusForm(forms.ModelForm):
+class QAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     class Meta:
         model = NimbusExperiment
         fields = ["qa_status", "qa_comment"]
@@ -99,8 +99,11 @@ class QAStatusForm(forms.ModelForm):
             "qa_status": forms.Select(choices=NimbusExperiment.QAStatus),
         }
 
+    def get_changelog_message(self):
+        return f"{self.request.user} updated QA"
 
-class TakeawaysForm(forms.ModelForm):
+
+class TakeawaysForm(NimbusChangeLogFormMixin, forms.ModelForm):
     conclusion_recommendations = forms.MultipleChoiceField(
         choices=NimbusExperiment.ConclusionRecommendation.choices,
         widget=forms.CheckboxSelectMultiple,
@@ -116,3 +119,6 @@ class TakeawaysForm(forms.ModelForm):
             "takeaways_summary",
             "conclusion_recommendations",
         ]
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated takeaways"
