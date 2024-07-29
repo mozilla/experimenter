@@ -4,7 +4,7 @@ set -euo pipefail
 
 hg pull && hg update
 
-./mach bootstrap --no-system-changes
+./mach --no-interactive bootstrap --application-choice="GeckoView/Firefox for Android Artifact Mode"
 ./mach clobber
 ./mach build
 cd mobile/android/fenix
