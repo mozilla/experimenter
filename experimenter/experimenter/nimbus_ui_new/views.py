@@ -20,6 +20,13 @@ from experimenter.nimbus_ui_new.forms import (
 )
 
 
+class RequestFormMixin:
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
+
+
 class NimbusChangeLogsView(DetailView):
     model = NimbusExperiment
     context_object_name = "experiment"
@@ -122,7 +129,7 @@ class NimbusExperimentDetailView(DetailView):
         return context
 
 
-class QAStatusUpdateView(UpdateView):
+class QAStatusUpdateView(RequestFormMixin, UpdateView):
     form_class = QAStatusForm
     model = NimbusExperiment
     template_name = "nimbus_experiments/detail.html"
@@ -139,7 +146,7 @@ class QAStatusUpdateView(UpdateView):
         return reverse("nimbus-new-detail", kwargs={"slug": self.object.slug})
 
 
-class TakeawaysUpdateView(UpdateView):
+class TakeawaysUpdateView(RequestFormMixin, UpdateView):
     form_class = TakeawaysForm
     model = NimbusExperiment
     template_name = "nimbus_experiments/detail.html"
@@ -157,7 +164,7 @@ class TakeawaysUpdateView(UpdateView):
         return reverse("nimbus-new-detail", kwargs={"slug": self.object.slug})
 
 
-class NimbusExperimentsCreateView(CreateView):
+class NimbusExperimentsCreateView(RequestFormMixin, CreateView):
     model = NimbusExperiment
     form_class = NimbusExperimentCreateForm
     template_name = "nimbus_experiments/create.html"
@@ -166,7 +173,6 @@ class NimbusExperimentsCreateView(CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["data"] = kwargs["data"].copy()
         kwargs["data"]["owner"] = self.request.user
-        kwargs["request"] = self.request
         return kwargs
 
     def post(self, *args, **kwargs):
