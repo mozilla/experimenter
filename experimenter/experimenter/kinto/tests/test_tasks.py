@@ -1106,16 +1106,31 @@ class TestNimbusEndExperimentInKinto(
 class TestNimbusSynchronizePreviewExperimentsInKinto(
     MockKintoClientMixin, KintoTaskTestUtilsMixin, TestCase
 ):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.FOCUS_IOS,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.IOS,
+            NimbusExperiment.Application.FOCUS_ANDROID,
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.MONITOR,
+            NimbusExperiment.Application.FXA,
+            NimbusExperiment.Application.DEMO_APP,
+        ]
+    )
     def test_publishes_preview_experiments_and_unpublishes_non_preview_experiments(
-        self,
+        self, application
     ):
+
         should_publish_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PREVIEW,
             published_date=None,
+            application=application,
         )
         should_unpublish_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             published_date=timezone.now(),
+            application=application,
         )
 
         self.setup_kinto_get_main_records([should_unpublish_experiment.slug])
@@ -1138,13 +1153,17 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(
 
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
-            collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
+            collection=NimbusExperiment.APPLICATION_CONFIGS[
+                application
+            ].preview_collection,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
             if_not_exists=True,
         )
         self.mock_kinto_client.delete_record.assert_called_with(
             id=should_unpublish_experiment.slug,
-            collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
+            collection=NimbusExperiment.APPLICATION_CONFIGS[
+                application
+            ].preview_collection,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
 

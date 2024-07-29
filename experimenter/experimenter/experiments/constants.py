@@ -69,6 +69,7 @@ class ApplicationConfig:
     default_kinto_collection: str
     randomization_unit: str
     is_web: bool
+    preview_collection: str
     kinto_collections_by_feature_id: Optional[dict[str, str]] = field(default=None)
 
     def get_kinto_collection_for(self, experiment: NimbusExperiment) -> str:
@@ -123,6 +124,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     kinto_collections_by_feature_id={
         DESKTOP_PREFFLIPS_SLUG: settings.KINTO_COLLECTION_NIMBUS_SECURE,
     },
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
 )
 
 APPLICATION_CONFIG_FENIX = ApplicationConfig(
@@ -137,6 +139,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
 )
 
 APPLICATION_CONFIG_IOS = ApplicationConfig(
@@ -151,6 +154,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
 )
 
 APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
@@ -165,6 +169,7 @@ APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
 )
 
 APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
@@ -177,6 +182,7 @@ APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
 )
 
 
@@ -191,6 +197,7 @@ APPLICATION_CONFIG_FOCUS_IOS = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
 )
 
 APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
@@ -204,6 +211,7 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
 )
 
 APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
@@ -217,6 +225,7 @@ APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
 )
 
 APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
@@ -229,6 +238,7 @@ APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
 )
 
 APPLICATION_CONFIG_FXA_WEB = ApplicationConfig(
@@ -241,6 +251,7 @@ APPLICATION_CONFIG_FXA_WEB = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
 )
 
 APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
@@ -254,6 +265,7 @@ APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,
     is_web=True,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
 )
 
 NO_FEATURE_SLUG = [
