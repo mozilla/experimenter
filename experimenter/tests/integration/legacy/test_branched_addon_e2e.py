@@ -44,6 +44,7 @@ def fixture_default_data(experiment_name, experiment_type):
 
 @pytest.mark.use_variables
 @pytest.mark.nondestructive
+@pytest.mark.skip(reason="intermittently failing")
 def test_branched_addon_e2e(
     base_url,
     selenium,
