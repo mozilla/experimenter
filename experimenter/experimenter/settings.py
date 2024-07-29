@@ -482,6 +482,7 @@ KINTO_COLLECTION_NIMBUS_SECURE = "nimbus-secure-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 KINTO_COLLECTION_NIMBUS_WEB = "nimbus-web-experiments"
 KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
+KINTO_COLLECTION_NIMBUS_WEB_PREVIEW = "nimbus-web-preview"
 KINTO_ADMIN_URL = config("KINTO_ADMIN_URL", default=urljoin(KINTO_HOST, "/admin/"))
 KINTO_REVIEW_TIMEOUT = config("KINTO_REVIEW_TIMEOUT", cast=int)
 
