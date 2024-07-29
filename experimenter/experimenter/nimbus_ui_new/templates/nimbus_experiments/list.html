@@ -14,6 +14,7 @@
 
 {% block sidebar %}
   <form id="filter-form"
+        class="w-100"
         hx-get="{% url "nimbus-new-table" %}"
         hx-trigger="keyup,mouseup delay:100ms"
         hx-target="#experiment-list"
