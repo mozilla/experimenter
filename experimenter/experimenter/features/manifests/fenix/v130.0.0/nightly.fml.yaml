@@ -168,6 +168,13 @@ features:
           ALWAYS: "true"
           NEVER: "false"
         string-alias: ConditionName
+  menu-redesign:
+    description: Control the new menu redesign.
+    variables:
+      enabled:
+        description: "If true, the new menu redesign is available."
+        type: Boolean
+        default: false
   messaging:
     description: "The in-app messaging system.\n"
     variables:
@@ -244,7 +251,7 @@ features:
             surface: microsurvey
             trigger-if-all:
               - RECENTLY_PRINTED
-            style: MICRO_SURVEY
+            style: MICROSURVEY
             microsurvey-config:
               utm-content: homepage
               icon: ic_print
@@ -293,7 +300,7 @@ features:
           NOTIFICATION:
             priority: 50
             max-display-count: 1
-          MICRO_SURVEY:
+          MICROSURVEY:
             priority: 50
             max-display-count: 5
         string-alias: StyleName

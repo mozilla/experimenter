@@ -92,6 +92,14 @@ juno-onboarding:
     conditions:
       type: json
       description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
+menu-redesign:
+  description: Control the new menu redesign.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the new menu redesign is available."
 messaging:
   description: "The in-app messaging system.\n"
   hasExposure: true
