@@ -4,6 +4,7 @@ set -euo pipefail
 
 hg pull && hg update
 
+./mach bootstrap --no-system-changes
 ./mach clobber
 ./mach build
 cd mobile/android/fenix
