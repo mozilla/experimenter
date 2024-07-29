@@ -7,6 +7,7 @@ from django.utils import timezone
 from experimenter.celery import app
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.email import (
     nimbus_send_enrollment_ending_email,
     nimbus_send_experiment_ending_email,
@@ -387,10 +388,15 @@ def nimbus_synchronize_preview_experiments_in_kinto():
     """
     metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.started")
 
-    kinto_client = KintoClient(settings.KINTO_COLLECTION_NIMBUS_PREVIEW, review=False)
+    kinto_clients = {
+        app_config.slug: KintoClient(app_config.preview_collection, review=False)
+        for app_config in NimbusConstants.APPLICATION_CONFIGS.values()
+    }
 
     try:
-        published_preview_slugs = kinto_client.get_main_records().keys()
+        published_preview_slugs = []
+        for client in kinto_clients.values():
+            published_preview_slugs.extend(client.get_main_records().keys())
 
         should_publish_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.PREVIEW
@@ -398,6 +404,7 @@ def nimbus_synchronize_preview_experiments_in_kinto():
 
         for experiment in should_publish_experiments:
             data = NimbusExperimentSerializer(experiment).data
+            kinto_client = kinto_clients[experiment.application]
             kinto_client.create_record(data)
             experiment.published_dto = data
             experiment.published_date = timezone.now()
@@ -409,6 +416,7 @@ def nimbus_synchronize_preview_experiments_in_kinto():
         ).exclude(status=NimbusExperiment.Status.PREVIEW)
 
         for experiment in should_unpublish_experiments:
+            kinto_client = kinto_clients[experiment.application]
             kinto_client.delete_record(experiment.slug)
             experiment.published_date = None
             experiment.save()
