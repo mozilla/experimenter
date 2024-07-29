@@ -3888,6 +3888,7 @@ class ApplicationConfigTests(TestCase):
             randomization_unit=BucketRandomizationUnit.NORMANDY,
             is_web=False,
             kinto_collections_by_feature_id=kinto_collections_by_feature_id,
+            preview_collection="nimbus-preview",
         )
 
         self.assertEqual(
