@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-hg pull && hg update
+git pull
 
 ./mach --no-interactive bootstrap --application-choice="GeckoView/Firefox for Android Artifact Mode"
 ./mach clobber
