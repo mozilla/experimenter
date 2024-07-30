@@ -13,6 +13,8 @@ RUN dependencies=' \
         git \
         openjdk-17-jdk \
         mercurial \
+        wget \
+        curl \
     ' \
     && set -x \
     && apt-get -qq update && apt-get -qq install -y $dependencies && apt-get clean
@@ -20,7 +22,13 @@ RUN dependencies=' \
 ENV ANDROID_HOME=/root/.mozbuild/android-sdk-linux \
     AUTOCLOBBER=1
 
-RUN hg clone https://hg.mozilla.org/mozilla-central/
+RUN wget https://raw.githubusercontent.com/glandium/git-cinnabar/master/download.py -O download.py \
+    && chmod +x download.py \
+    && ./download.py \
+    && cp git-cinnabar /usr/local/bin \
+    && cp git-remote-hg /usr/local/bin
+
+RUN git clone --depth 1 hg::https://hg.mozilla.org/mozilla-central
 
 WORKDIR mozilla-central
 
