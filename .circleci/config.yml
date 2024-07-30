@@ -605,7 +605,6 @@ jobs:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
-    resource_class: 2xlarge
     steps:
       - checkout
       - docker_login:
@@ -615,7 +614,6 @@ jobs:
           name: Build and upload images
           command: |
             cd experimenter/tests/integration/nimbus/android
-            docker build -t ${DOCKERHUB_REPO}:experimenter-moz-central -f moz-central.test-container.Dockerfile .
             docker run --name fenix-builder ${DOCKERHUB_REPO}:experimenter-moz-central bash build_android.sh
             docker commit fenix-builder moz-central-builder
             docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
