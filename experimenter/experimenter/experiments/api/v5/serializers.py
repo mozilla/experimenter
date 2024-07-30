@@ -2102,6 +2102,41 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_desktop_pref_flips(self, data):
+        if not any(
+            fc.slug == NimbusConstants.DESKTOP_PREFFLIPS_SLUG
+            for fc in data.get("feature_configs", [])
+        ):
+            return data
+
+        min_version = NimbusExperiment.Version.parse(data["firefox_min_version"])
+        channel = data.get("channel")
+
+        if not channel:
+            raise serializers.ValidationError(
+                {
+                    "channel": NimbusConstants.ERROR_DESKTOP_PREFFLIPS_CHANNEL_REQUIRED,
+                }
+            )
+
+        # We have already validated that the feature is supported by the current
+        # version. However, we don't keep track of per-channel manifests. The
+        # prefFlips feature landed in 128 Nightly as a placeholder and was only
+        # implemented in 129 Nightly+, but it was uplifted to 128 ESR.
+        if channel == NimbusExperiment.Channel.ESR:
+            return data
+
+        elif min_version.major == 128:
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": (
+                        NimbusConstants.ERROR_DESKTOP_PREFFLIPS_128_ESR_ONLY
+                    )
+                }
+            )
+
+        return data
+
     def validate(self, data):
         if self.instance.status == self.instance.Status.DRAFT:
             application = data.get("application")
@@ -2121,6 +2156,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_proposed_release_date(data)
             if application == NimbusExperiment.Application.DESKTOP:
                 data = self._validate_desktop_pref_rollouts(data)
+                data = self._validate_desktop_pref_flips(data)
             else:
                 data = self._validate_languages_versions(data)
                 data = self._validate_countries_versions(data)
