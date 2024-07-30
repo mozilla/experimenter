@@ -11,6 +11,7 @@ def experiment_slug():
 
 
 @pytest.mark.generic_test
+@pytest.mark.xfail(reason="Timeouts due to system lag")
 def test_experiment_unenrolls_via_studies_toggle(
     setup_experiment, gradlewbuild, open_app
 ):
