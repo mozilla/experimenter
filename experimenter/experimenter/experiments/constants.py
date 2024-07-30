@@ -792,6 +792,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_CANNOT_PUBLISH_TO_PREVIEW = "This experiment cannot be published to preview."
 
+    ERROR_DESKTOP_PREFFLIPS_CHANNEL_REQUIRED = (
+        "A channel is required for using the prefFlips feature."
+    )
+    ERROR_DESKTOP_PREFFLIPS_128_ESR_ONLY = (
+        "The prefFlips feature is only available on Firefox 128 on the ESR branch."
+    )
+
 
 RISK_QUESTIONS = {
     "BRAND": (
