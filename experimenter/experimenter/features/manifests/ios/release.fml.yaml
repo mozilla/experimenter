@@ -12,15 +12,11 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-  address-autofill-feature:
-    description: This property defines the address card autofill feature
+  address-autofill-edit:
+    description: This property defines if the address editing is enabled in Settings
     variables:
-      address-autofill-edit:
-        description: "If true, we will allow user to edit the address"
-        type: Boolean
-        default: false
       status:
-        description: "If true, we will allow user to use the address autofill feature"
+        description: "If true, we will allow user to edit the address"
         type: Boolean
         default: false
   contextual-hint-feature:
