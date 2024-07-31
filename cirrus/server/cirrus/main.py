@@ -91,7 +91,7 @@ def initialize_sentry():
 
 
 def verify_settings():
-    if remote_setting_url == "":
+    if not remote_setting_url:
         logger.error("Remote setting URL is required but not provided.")
         sys.exit(1)
 
@@ -266,7 +266,8 @@ async def compute_features(
 
 
 async def fetch_schedule_recipes() -> None:
-    live_failed, preview_failed = False, False
+    live_failed = False
+    preview_failed = False
 
     try:
         app.state.remote_setting_live.fetch_recipes()
