@@ -1,3 +1,4 @@
+import logging
 import sys
 from unittest.mock import patch
 
@@ -12,6 +13,7 @@ from cirrus.main import (
     create_scheduler,
     create_sdk,
     fetch_schedule_recipes,
+    verify_settings,
 )
 
 
@@ -519,3 +521,30 @@ def test_get_features_with_and_without_nimbus_preview(
         assert response.json() == {
             "example-feature": {"enabled": True, "something": "preview"}
         }
+
+
+def test_get_features_preview_url_not_provided(client):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
+        },
+    }
+
+    # Assuming the remote_setting_preview_url is not set in the settings
+    with patch("cirrus.main.remote_setting_preview_url", ""):
+        response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
+        assert response.status_code == 400
+        assert response.json() == {"detail": "This Cirrus doesn’t support preview mode"}
+
+
+def test_verify_settings_logs_error_and_exits(caplog):
+    with patch("cirrus.main.remote_setting_url", ""), patch.object(
+        sys, "exit", side_effect=SystemExit
+    ) as mock_exit, caplog.at_level(logging.ERROR):
+        with pytest.raises(SystemExit):
+            verify_settings()
+
+        mock_exit.assert_called_once_with(1)
+        assert "Remote setting URL is required but not provided." in caplog.text
