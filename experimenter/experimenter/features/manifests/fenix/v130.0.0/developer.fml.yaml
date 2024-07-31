@@ -349,6 +349,13 @@ features:
           LAUNCHED_ONCE_THIS_WEEK: "'app_launched'|eventSum('Days', 7) == 1"
         string-alias: TriggerName
     allow-coenrollment: true
+  microsurveys:
+    description: Feature for microsurveys.
+    variables:
+      enabled:
+        description: "When the feature is enabled then microsurveys can be used.\n"
+        type: Boolean
+        default: true
   mr2022:
     description: Features for MR 2022.
     variables:
