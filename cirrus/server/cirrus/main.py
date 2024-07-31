@@ -42,6 +42,7 @@ class FeatureRequest(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     initialize_sentry()
+    verify_settings()
     app.state.pings, app.state.metrics = initialize_glean()
     app.state.fml = create_fml()
     app.state.sdk_live = create_sdk(
@@ -87,6 +88,12 @@ def initialize_sentry():
             profiles_sample_rate=0.1,
             environment=env_name,
         )
+
+
+def verify_settings():
+    if remote_setting_url == "":
+        logger.error("Remote setting URL is required but not provided.")
+        sys.exit(1)
 
 
 def create_fml():
@@ -223,13 +230,18 @@ async def compute_features(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Client ID value is missing or empty",
         )
-
     if not request_data.context:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Context value is missing or empty",
         )
-    targeting_context: dict[str, Any] = {
+    if nimbus_preview and not remote_setting_preview_url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This Cirrus doesn’t support preview mode",
+        )
+
+    targeting_context = {
         "clientId": request_data.client_id,
         "requestContext": request_data.context,
     }
@@ -254,20 +266,18 @@ async def compute_features(
 
 
 async def fetch_schedule_recipes() -> None:
-    live_failed = False
-    preview_failed = False
+    live_failed, preview_failed = False, False
 
     try:
         app.state.remote_setting_live.fetch_recipes()
     except Exception as e:
-        # If an exception is raised, log the error
         logger.error(f"Failed to fetch live recipes: {e}")
         live_failed = True
 
     try:
-        app.state.remote_setting_preview.fetch_recipes()
+        if app.state.remote_setting_preview:
+            app.state.remote_setting_preview.fetch_recipes()
     except Exception as e:
-        # If an exception is raised, log the error
         logger.error(f"Failed to fetch preview recipes: {e}")
         preview_failed = True
 
