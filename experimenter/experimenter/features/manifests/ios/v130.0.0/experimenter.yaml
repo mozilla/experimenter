@@ -163,6 +163,14 @@ redux-search-settings-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
+remote-tab-management:
+  description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    close-tabs-enabled:
+      type: boolean
+      description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
 search:
   description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
   hasExposure: true
