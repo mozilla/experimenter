@@ -135,6 +135,14 @@ messaging:
     triggers:
       type: json
       description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
+microsurveys:
+  description: Feature for microsurveys.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "When the feature is enabled then microsurveys can be used.\n"
 mr2022:
   description: Features for MR 2022.
   hasExposure: true
