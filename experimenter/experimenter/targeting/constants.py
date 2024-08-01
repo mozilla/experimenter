@@ -2025,6 +2025,30 @@ SEARCH_ROLLOUT_2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EARLY_DAY_USER_HAS_DEFAULT = NimbusTargetingConfig(
+    name="Early Day User Has Default",
+    slug="early_day_user_has_default",
+    description="Early day (<28 days) users who have set Firefox as their "
+    "default browser",
+    targeting=f"{PROFILELESSTHAN28DAYS} && isDefaultBrowser",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_HAS_DEFAULT = NimbusTargetingConfig(
+    name="Existing User Has Default",
+    slug="existing_user_has_default",
+    description="Existing users (>28 days) who have set Firefox as their default "
+    "browser",
+    targeting=f"{PROFILE28DAYS} && isDefaultBrowser",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
