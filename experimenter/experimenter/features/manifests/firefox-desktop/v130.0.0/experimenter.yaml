@@ -743,6 +743,19 @@ newtabSpocsCache:
       description: >-
         Controls if spocs should be included in startup cache.
 
+topicSelectionOnboarding:
+  description: the about:newtab topic selection onboarding experience.
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    topicSelectionOnboarding:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.onboarding.enabled
+      description: >-
+        Turns on and off topic selection onbaording
+
 pocketNewtab:
   description: The Pocket section in newtab
   owner: sdowne@getpocket.com
@@ -3452,6 +3465,18 @@ crlite:
         pref: security.pki.crlite_mode
       description: >-
         How CRLite results will be interpreted.
+
+chatbot:
+  description: AI chatbot feature configuration
+  owner: elee@mozilla.com
+  hasExposure: false
+  variables:
+    prefs:
+      type: json
+      description: >-
+        The prefs to set under browser.ml.chat.* with object keys as the
+        sub-pref and values objects indicating the desired branch and value
+        defaulting to clearing the user branch value.
 
 fxms_bmb_button:
   description: A feature for the Firefox Messaging System Bookmarks Bar button surface
