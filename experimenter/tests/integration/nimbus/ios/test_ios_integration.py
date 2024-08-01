@@ -16,17 +16,17 @@ def experiment_slug():
 
 @pytest.fixture(name="device_control", scope="module", autouse=True)
 def fixture_device_control(xcrun):
-    ...
+    ...  # Overriding for Experimenter Integration Test
 
 
 @pytest.fixture(name="experiment_url", scope="module")
 def fixture_experiment_url(request, variables):
-    ...
+    ...  # Overriding for Experimenter Integration Test
 
 
 @pytest.fixture(name="experiment_data")
 def fixture_experiment_data(experiment_url, request):
-    ...
+    ...  # Overriding for Experimenter Integration Test
 
 
 @pytest.fixture(name="set_env_variables", autouse=True)
