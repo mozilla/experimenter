@@ -108,10 +108,14 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
 
     @classmethod
     def create_desktop_prefflips_feature(cls, **kwargs):
+        """Create a feature for Firefox Desktop with the slug "prefFlips"."""
         return cls.create(
             name=NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
             slug=NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
             application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build_desktop_prefflips_schema(),
+            ],
         )
 
     class Meta:
@@ -120,12 +124,51 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
 
 class NimbusVersionedSchemaFactory(factory.django.DjangoModelFactory):
     feature_config = factory.SubFactory(NimbusFeatureConfigFactory)
-    version = factory.LazyAttribute(
-        lambda o: random.choice(list(NimbusExperiment.Version)[1:]).value
-    )
+    version = None
     schema = factory.LazyAttribute(lambda o: FAKER_JSON_SCHEMA)
     set_pref_vars = factory.LazyAttribute(lambda o: {})
     is_early_startup = False
+
+    @classmethod
+    def build_desktop_prefflips_schema(cls, **kwargs):
+        """Create an unversioned schema for the Desktop prefFlips feature.
+
+        The schema is a simplified version of the actual Desktop schema.
+        """
+        return cls.build(
+            **kwargs,
+            schema=json.dumps(
+                {
+                    "type": "object",
+                    "properties": {
+                        "prefs": {
+                            "type": "object",
+                            "patternProperties": {
+                                ".*": {
+                                    "type": "object",
+                                    "properties": {
+                                        "branch": {
+                                            "type": "string",
+                                            "enum": ["user", "default"],
+                                        },
+                                        "value": {
+                                            "type": [
+                                                "string",
+                                                "integer",
+                                                "boolean",
+                                                "null",
+                                            ],
+                                        },
+                                    },
+                                    "required": ["branch", "value"],
+                                },
+                            },
+                        },
+                    },
+                    "required": ["prefs"],
+                }
+            ),
+        )
 
     class Meta:
         model = NimbusVersionedSchema
