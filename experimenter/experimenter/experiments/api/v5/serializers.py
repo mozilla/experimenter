@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Any, NotRequired, Optional, Self, TypedDict
 
 import jsonschema
+import packaging
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models, transaction
@@ -1231,6 +1232,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             str, NimbusFeatureConfig.VersionedSchemaRange
         ] = {}
 
+        self.desktop_setpref_schemas: Optional[
+            dict[NimbusFeatureConfig, NimbusVersionedSchema]
+        ] = None
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["feature_config"] = None
@@ -1399,7 +1404,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 feature_config=feature_config,
                 feature_value=feature_value_data["value"],
                 localizations=localizations,
-                schemas_in_range=self.schemas_by_feature_id[feature_config.id],
+                schemas_in_range=self.schemas_by_feature_id[feature_config.slug],
                 suppress_errors=suppress_errors,
             )
 
@@ -1428,9 +1433,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             else:
                 self.errors.append(msg)
 
-    @classmethod
     def _validate_feature_value(
-        cls,
+        self,
         *,
         application: str,
         channel: str,
@@ -1440,7 +1444,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         localizations: Optional[dict[str, Any]],
         suppress_errors: bool,
     ) -> ValidateFeatureResult:
-        result = cls.ValidateFeatureResult()
+        result = self.ValidateFeatureResult()
 
         if schemas_in_range.unsupported_in_range:
             result.append(
@@ -1467,7 +1471,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         if application == NimbusExperiment.Application.DESKTOP:
             result.extend_with_result(
-                cls._validate_feature_value_with_schema(
+                self._validate_feature_value_with_schema(
                     feature_config,
                     schemas_in_range,
                     feature_value,
@@ -1477,7 +1481,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
         else:
             result.extend(
-                cls._validate_feature_value_with_fml(
+                self._validate_feature_value_with_fml(
                     schemas_in_range,
                     NimbusFmlLoader.create_loader(application, channel),
                     feature_config,
@@ -1488,16 +1492,15 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return result
 
-    @classmethod
     def _validate_feature_value_with_schema(
-        cls,
+        self,
         feature_config: NimbusFeatureConfig,
         schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         value: str,
         localizations: Optional[dict[str, Any]],
         suppress_errors: bool,
     ) -> ValidateFeatureResult:
-        result = cls.ValidateFeatureResult()
+        result = self.ValidateFeatureResult()
 
         json_value = json.loads(value)
         for schema in schemas_in_range.schemas:
@@ -1505,20 +1508,20 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 json_schema = json.loads(schema.schema)
                 if not localizations:
                     result.extend(
-                        cls._validate_schema(json_value, json_schema, schema.version),
+                        self._validate_schema(json_value, json_schema, schema.version),
                         suppress_errors,
                     )
                 else:
                     for locale_code, substitutions in localizations.items():
                         try:
-                            substituted_value = cls._substitute_localizations(
+                            substituted_value = self._substitute_localizations(
                                 json_value, substitutions, locale_code
                             )
                         except LocalizationError as e:
                             result.append(str(e), suppress_errors)
                             continue
 
-                        if schema_errors := cls._validate_schema(
+                        if schema_errors := self._validate_schema(
                             substituted_value, json_schema, schema.version
                         ):
                             err_msg = (
@@ -1546,13 +1549,77 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     continue
 
             result.extend_with_result(
-                cls._validate_desktop_feature_value_pref_lengths(
+                self._validate_desktop_feature_value_pref_lengths(
                     feature_config,
                     schema,
                     json_value,
                     suppress_errors,
                 ),
             )
+
+        if feature_config.slug == NimbusConstants.DESKTOP_PREFFLIPS_SLUG:
+            result.extend_with_result(
+                self._validate_desktop_pref_flips_value(
+                    json_value,
+                    schemas_in_range.min_version,
+                    schemas_in_range.max_version,
+                )
+            )
+
+        return result
+
+    def _validate_desktop_pref_flips_value(
+        self,
+        value: dict[str, Any],
+        min_version: packaging.version.Version,
+        max_version: Optional[packaging.version.Version],
+    ) -> ValidateFeatureResult:
+        result = self.ValidateFeatureResult()
+
+        if not self.desktop_setpref_schemas:
+            schemas = (
+                NimbusVersionedSchema.objects.filter(
+                    NimbusFeatureVersion.objects.between_versions_q(
+                        min_version,
+                        max_version,
+                        prefix="version",
+                    ),
+                    feature_config__application=NimbusExperiment.Application.DESKTOP,
+                )
+                .exclude(set_pref_vars={})
+                .prefetch_related("feature_config", "version")
+            )
+
+            self.desktop_setpref_schemas = {}
+            for schema in schemas:
+                self.desktop_setpref_schemas.setdefault(schema.feature_config, []).append(
+                    schema
+                )
+
+        for pref in value.get("prefs", {}):
+            for feature_config, schemas in self.desktop_setpref_schemas.items():
+                conflicting_versions = []
+
+                for schema in schemas:
+                    if pref in schema.set_pref_vars.values():
+                        conflicting_versions.append(schema.version.as_packaging_version())
+
+                if conflicting_versions:
+                    if len(conflicting_versions) == 1:
+                        versions = str(conflicting_versions[0])
+                    else:
+                        versions = (
+                            f"{min(conflicting_versions)}-{max(conflicting_versions)}"
+                        )
+
+                    msg = NimbusConstants.WARNING_FEATURE_VALUE_IN_VERSIONS.format(
+                        versions=versions,
+                        warning=NimbusConstants.WARNING_PREF_FLIPS_PREF_CONTROLLED_BY_FEATURE.format(
+                            pref=pref, feature_config_slug=feature_config.slug
+                        ),
+                    )
+
+                    result.append(msg, warning=True)
 
         return result
 
@@ -1692,7 +1759,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         # Cache the versioned schema range for each feature so we can re-use
         # them in the validation for each branch.
         self.schemas_by_feature_id = {
-            feature_config.id: feature_config.get_versioned_schema_range(
+            feature_config.slug: feature_config.get_versioned_schema_range(
                 min_version,
                 max_version,
             )
