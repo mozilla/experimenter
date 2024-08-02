@@ -265,6 +265,8 @@ export const GET_EXPERIMENT_QUERY = gql`
       legalSignoff
       qaSignoff
       vpSignoff
+
+      conflictingLivePrefFlipsExperiments
     }
   }
 `;
