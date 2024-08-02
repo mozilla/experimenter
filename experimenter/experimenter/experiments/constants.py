@@ -758,6 +758,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
 
     ERROR_FEATURE_VALUE_IN_VERSIONS = "In versions {versions}: {error}"
+    WARNING_FEATURE_VALUE_IN_VERSIONS = "Warning: In versions {versions}: {warning}"
 
     WARNING_ROLLOUT_PREF_REENROLL = (
         "WARNING: One or more features of this rollouts sets prefs and this rollout is "
@@ -797,6 +798,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_DESKTOP_PREFFLIPS_128_ESR_ONLY = (
         "The prefFlips feature is only available on Firefox 128 on the ESR branch."
+    )
+
+    WARNING_PREF_FLIPS_PREF_CONTROLLED_BY_FEATURE = (
+        "Pref '{pref}' is controlled by a variable in feature {feature_config_slug}'"
     )
 
 
