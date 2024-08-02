@@ -3640,6 +3640,8 @@ class NimbusFeatureConfigTests(TestCase):
         self.assertEqual(
             schemas_in_range,
             NimbusFeatureConfig.VersionedSchemaRange(
+                min_version=packaging.version.Version("111.0.0"),
+                max_version=packaging.version.Version("112.0.0"),
                 schemas=[unversioned_schema],
                 unsupported_in_range=False,
                 unsupported_versions=[],
@@ -3667,6 +3669,12 @@ class NimbusFeatureConfigTests(TestCase):
         self.assertEqual(
             info,
             NimbusFeatureConfig.VersionedSchemaRange(
+                min_version=NimbusExperiment.Version.parse(
+                    NimbusConstants.MIN_VERSIONED_FEATURE_VERSION[
+                        NimbusExperiment.Application.DESKTOP
+                    ]
+                ),
+                max_version=max_version,
                 schemas=[versioned_schema],
                 unsupported_in_range=False,
                 unsupported_versions=[],
@@ -3685,6 +3693,8 @@ class NimbusFeatureConfigTests(TestCase):
         self.assertEqual(
             info,
             NimbusFeatureConfig.VersionedSchemaRange(
+                min_version=packaging.version.Version("1.0.0"),
+                max_version=None,
                 schemas=[unversioned_schema],
                 unsupported_in_range=False,
                 unsupported_versions=[],
@@ -3704,6 +3714,8 @@ class NimbusFeatureConfigTests(TestCase):
         self.assertEqual(
             schemas_in_range,
             NimbusFeatureConfig.VersionedSchemaRange(
+                min_version=packaging.version.Version("121.0.0"),
+                max_version=packaging.version.Version("122.0.0"),
                 schemas=[],
                 unsupported_in_range=True,
                 unsupported_versions=[],
@@ -3745,6 +3757,8 @@ class NimbusFeatureConfigTests(TestCase):
         self.assertEqual(
             schemas_in_range,
             NimbusFeatureConfig.VersionedSchemaRange(
+                min_version=packaging.version.Version("121.0.0"),
+                max_version=packaging.version.Version("124.0.0"),
                 schemas=[schema],
                 unsupported_in_range=False,
                 unsupported_versions=[
@@ -3790,6 +3804,8 @@ class NimbusFeatureConfigTests(TestCase):
         self.assertEqual(
             schemas_in_range,
             NimbusFeatureConfig.VersionedSchemaRange(
+                min_version=packaging.version.Version("122.0.0"),
+                max_version=packaging.version.Version("123.1.0"),
                 schemas=[
                     schemas[versions[v]]
                     for v in (
