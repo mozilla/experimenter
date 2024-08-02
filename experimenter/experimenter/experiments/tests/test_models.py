@@ -3909,3 +3909,76 @@ class ApplicationConfigTests(TestCase):
             application_config.kinto_collections,
             expected_collections,
         )
+
+    @parameterized.expand(
+        [
+        ]
+    )
+    def test_conflicting_live_pref_flips_experiments(self, rollout_min_version, rollout_max_version, rollout_prefs, experiment_channel, should_conflict):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+
+        versions = {
+            major: NimbusFeatureVersion.objects.create(
+                major=major,
+                minor=0,
+                patch=0,
+            )
+            for major in (129, 130, 131)
+        }
+
+        setpref_feature = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+            slug="test-feature",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=versions[129],
+                    set_pref_vars={},
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=versions[130],
+                    set_pref_vars={"var": "foo.bar.baz"},
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=versions[131],
+                    set_pref_vars={"var": "qux.quux.corge"},
+                ),
+            ]
+        )
+
+        live_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.LifeCycles.CREATED,
+            slug="live",
+            application=NimbusExperiments.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=min_version,
+            firefox_max_version=max_version,
+            is_rollout=True,
+        )
+        live_rollout.reference_branch.feature_values.update(value={"prefs": rollout_prefs})
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[set_pref_feature],
+            is_rollout=True,
+            channel=channel,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+
+        if should_conflict:
+            self.assertEqual(
+                experiment.conflictingLiveSetPrefExperiments,
+                [live_rollout.slug],
+                "experiment should report conflict"
+            )
+        else:
+            self.assertEqual(
+                experiment.conflictingLiveSetPrefExperiments,
+                [],
+                "experiment should not report conflict"
+            )
+

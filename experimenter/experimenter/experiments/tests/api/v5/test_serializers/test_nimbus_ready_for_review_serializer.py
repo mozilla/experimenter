@@ -2967,10 +2967,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             feature_configs=[prefflips_feature],
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            is_rollout=True,
         )
-
-        for branch in experiment.treatment_branches:
-            branch.delete()
 
         feature_value = experiment.reference_branch.feature_values.get(
             feature_config=prefflips_feature
@@ -3010,10 +3008,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             feature_configs=[prefflips_feature],
             channel=channel,
+            is_rollout=True,
         )
-
-        for branch in experiment.treatment_branches:
-            branch.delete()
 
         feature_value = experiment.reference_branch.feature_values.get(
             feature_config=prefflips_feature
@@ -3060,10 +3056,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             feature_configs=[prefflips_feature],
             channel=channel,
+            is_rollout=True,
         )
-
-        for branch in experiment.treatment_branches:
-            branch.delete()
 
         feature_value = experiment.reference_branch.feature_values.get(
             feature_config=prefflips_feature
@@ -3115,10 +3109,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[prefflips_feature],
+            is_rollout=True,
         )
-
-        for branch in experiment.treatment_branches:
-            branch.delete()
 
         feature_value = experiment.reference_branch.feature_values.get(
             feature_config=prefflips_feature

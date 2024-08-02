@@ -1215,6 +1215,83 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             for rec in self.conclusion_recommendations
         ]
 
+    @property
+    def conflicting_live_pref_flips_experiments(self):
+        # This is only applicable to setPref experiments on desktop.
+        if not self.application_config or self.application != self.Application.DESKTOP:
+            return []
+
+        min_version = self.Version.parse_if_nonempty(self.firefox_min_version)
+        if min_version is None:
+            # The minimum version is required to launch Firefox experiments.
+            # We can report potential conflicts once that has been filled in.
+            return []
+
+        max_version = self.Version.parse_if_nonempty(self.firefox_max_version)
+
+        schemas = list(
+            NimbusVersionedSchema.objects.filter(
+                NimbusFeatureVersion.objects.between_versions_q(
+                    min_version,
+                    max_version,
+                    prefix="version",
+                ),
+                feature_config__application=self.Application.DESKTOP,
+            )
+            .exclude(set_pref_vars={})
+            .prefetch_related("feature_config", "version")
+        )
+
+        if not schemas:
+            return []
+
+        prefs = {
+            pref
+            for schema in schemas
+            for pref in schema.set_pref_vars.values()
+        }
+
+        def conflicts(experiment: NimbusExperiment) -> bool:
+            print(f"checking {experiment.slug} for conflicts")
+
+            if not NimbusExperiment.Version.version_ranges_overlap(
+                (min_version, max_version),
+                (
+                    NimbusExperiment.Version.parse(experiment.firefox_min_version),
+                    NimbusExperiment.Version.parse_if_nonempty(experiment.firefox_min_version),
+                )
+            ):
+                return False
+
+            other_feature_values = NimbusBranchFeatureValue.objects.filter(
+                branch__experiment=self,
+                feature_config__slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            )
+
+            for feature_value in other_feature_values:
+                # This experiment is live so the feature values must parse.
+                value = json.loads(feature_value.value)
+
+                if prefs & set(value.get("prefs", {}).keys()):
+                    return True
+
+            return False
+
+        filter_qs = Q(
+            status=self.Status.LIVE,
+            application=self.Application.DESKTOP,
+            feature_config__slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG
+        )
+
+        if self.channel:
+            filter_qs &= Q(channel=self.channel)
+
+        return [
+            e.slug
+            for e in NimbusExperiment.objects.filter(filter_qs)
+            if conflicts(e)
+        ]
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(

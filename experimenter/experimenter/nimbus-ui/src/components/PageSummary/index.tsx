@@ -24,6 +24,7 @@ import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   LIFECYCLE_REVIEW_FLOWS,
+  PREF_FLIPS_WARNINGS,
   QA_STATUS_PROPERTIES,
 } from "src/lib/constants";
 import { ExperimentContext } from "src/lib/contexts";
@@ -417,6 +418,7 @@ const WarningList = ({
       <Warning
         {...{
           text: submitError,
+          key: "submit-error",
           testId: "submit-error",
           variant: "warning",
         }}
@@ -430,6 +432,7 @@ const WarningList = ({
         <Warning
           {...{
             text: fieldWarnings.bucketing as SerializerMessage,
+            key: "bucketing",
             testId: "bucketing",
             learnMoreLink: EXTERNAL_URLS.BUCKET_WARNING_EXPLANATION,
           }}
@@ -442,6 +445,7 @@ const WarningList = ({
         <Warning
           {...{
             text: fieldWarnings.firefox_min_version as SerializerMessage,
+            key: "desktop-min-version",
             testId: "desktop-min-version",
             variant: "warning",
           }}
@@ -454,6 +458,7 @@ const WarningList = ({
         <Warning
           {...{
             text: fieldWarnings.pref_rollout_reenroll as SerializerMessage,
+            key: "rollout-setpref-reenroll",
             testId: "rollout-setpref-reenroll",
             learnMoreLink: EXTERNAL_URLS.ROLLOUT_SETPREF_REENROLL_EXPLANATION,
           }}
@@ -468,6 +473,7 @@ const WarningList = ({
           {...{
             text: AUDIENCE_OVERLAP_WARNINGS.EXCLUDING_EXPERIMENTS_WARNING,
             slugs: experiment.excludedLiveDeliveries,
+            key: "excluding-live-experiments",
             testId: "excluding-live-experiments",
             variant: "warning",
             learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
@@ -482,6 +488,7 @@ const WarningList = ({
           {...{
             text: AUDIENCE_OVERLAP_WARNINGS.LIVE_EXPERIMENTS_BUCKET_WARNING,
             slugs: experiment.liveExperimentsInNamespace,
+            key: "live-experiments-in-bucket",
             testId: "live-experiments-in-bucket",
             variant: "warning",
             learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
@@ -497,10 +504,25 @@ const WarningList = ({
             text: AUDIENCE_OVERLAP_WARNINGS.LIVE_MULTIFEATURE_WARNING,
             slugs: experiment.featureHasLiveMultifeatureExperiments,
             testId: "live-multifeature",
+            key: "live-multifeature",
             variant: "warning",
             learnMoreLink: EXTERNAL_URLS.AUDIENCE_OVERLAP_WARNING,
           }}
         />,
+      );
+    }
+
+    if (experiment.conflictingLivePrefFlipsExperiments.length) {
+      warnings.push(
+        <Warning
+          {...{
+            text: PREF_FLIPS_WARNINGS.LIVE_CONFLICTING_PREF_FLIPS_EXPERIMENTS,
+            slugs: experiment.conflictingLivePrefFlipsExperiments,
+            testId: "live-prefflips",
+            key: "live-prefflips",
+            variant: "warning",
+          }}
+          />
       );
     }
   }

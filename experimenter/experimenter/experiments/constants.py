@@ -405,8 +405,28 @@ class NimbusConstants:
 
     class Version(models.TextChoices):
         @staticmethod
-        def parse(version_str):
+        def parse(version_str: str) -> version:
             return version.parse(version_str.replace("!", "0"))
+
+        @classmethod
+        def parse_if_nonempty(cls, version_str: str) -> Optional[version]:
+            if version_str == cls.NO_VERSION:
+                return None
+
+            return cls.parse(version_str)
+
+        @staticmethod
+        def version_ranges_overlap(
+            a: tuple[packaging.version.Version, Optional[packaging.version.Version]],
+            b: tuple[packaging.version.Version, Optional[packaging.version.Version]],
+        ) -> bool:
+            (min_a, max_a) = a
+            (min_b, max_b) = b
+
+            return (
+                (max_b is None or min_a < max_b) and
+                (max_a is None or min_b < max_a)
+            )
 
         NO_VERSION = ""
         FIREFOX_11 = "11.!"
