@@ -102,6 +102,10 @@ export const AUDIENCE_OVERLAP_WARNINGS = {
   LIVE_MULTIFEATURE_WARNING: `The following multi-feature experiments are LIVE and may reduce the eligible population for your experiment which may result in reduced statistical power and precision. Please check that the configured population proportion has accounted for this: `,
 };
 
+export const PREF_FLIPS_WARNINGS = {
+  LIVE_CONFLICTING_PREF_FLIPS_EXPERIMENTS: "There are live prefFlips experiments that may set prefs that would be set by this experiment. Launching this experiment may cause unenrollments from the following experiments:",
+};
+
 export const LIFECYCLE_REVIEW_FLOWS = {
   LAUNCH: {
     buttonTitle: "Launch Experiment",

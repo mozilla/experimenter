@@ -602,10 +602,11 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         feature_configs=None,
         excluded_experiments=None,
         required_experiments=None,
+        is_rollout=False,
         *args,
         **kwargs,
     ):
-        experiment = super().create(*args, **kwargs)
+        experiment = super().create(*args, is_rollout=is_rollout, **kwargs)
 
         if branches is not None:
             raise factory.FactoryError(
@@ -634,7 +635,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             experiment=experiment, name="Control"
         )
         experiment.save()
-        NimbusBranchFactory.create(experiment=experiment, name="Treatment")
+
+        if not is_rollout:
+            NimbusBranchFactory.create(experiment=experiment, name="Treatment")
 
         return experiment
 

@@ -295,6 +295,7 @@ export interface getExperiment_experimentBySlug {
   legalSignoff: boolean;
   qaSignoff: boolean;
   vpSignoff: boolean;
+  conflictingLivePrefFlipsExperiments: string[];
 }
 
 export interface getExperiment {

@@ -1222,4 +1222,35 @@ describe("PageSummary Warnings", () => {
       }
     },
   );
+
+  it.each([
+    [
+      []
+    ],
+    [
+      ["slug"],
+    ],
+    [
+      ["slug", "another-slug"],
+    ],
+  ])("displays live prefFlips warnings when appropriate", async (
+    conflictingLivePrefFlipsExperiments: string[],
+  ) => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      conflictingLivePrefFlipsExperiments
+    });
+
+    const displayWarning = conflictingLivePrefFlipsExperiments.length > 0;
+
+    render(<Subject mocks={[mock]} />);
+
+    if (displayWarning) {
+      const warning = screen.getByTestId("live-prefflips");
+      const slugs = Array.from(warning.querySelectorAll("li"), el => el.textContent?.trim() ?? "");
+
+      expect(slugs).toEqual(conflictingLivePrefFlipsExperiments);
+    } else {
+      expect(screen.queryByTestId("live-prefflips")).toBeNull();
+    }
+  });
 });

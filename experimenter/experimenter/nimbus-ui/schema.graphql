@@ -74,6 +74,7 @@ type NimbusExperimentType {
   computedEndDate: DateTime
   computedEnrollmentDays: Int
   computedEnrollmentEndDate: DateTime
+  conflictingLivePrefFlipsExperiments: [String!]!
   enrollmentEndDate: DateTime
   excludedExperimentsBranches: [NimbusExperimentBranchThroughExcludedType!]!
   excludedLiveDeliveries: [String!]!
