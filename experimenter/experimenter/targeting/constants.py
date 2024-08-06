@@ -2025,6 +2025,34 @@ SEARCH_ROLLOUT_2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EARLY_DAY_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
+    name="Early Day Windows 10 1903 User Has Default",
+    slug="early_day_win1903_user_has_default",
+    description=(
+        "Early day (<28 days) Windows 10 1903+ users who have set "
+        "Firefox as their default browser"
+    ),
+    targeting=f"{PROFILELESSTHAN28DAYS} && {WIN1903} && isDefaultBrowser",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
+    name="Existing Windows 1903+ User Has Default",
+    slug="existing_win1903_user_has_default",
+    description=(
+        "Existing (>=28 days) Windows 1903+ users who have set Firefox "
+        "as their default browser"
+    ),
+    targeting=f"{PROFILE28DAYS} && {WIN1903} && isDefaultBrowser",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
