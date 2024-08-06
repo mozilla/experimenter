@@ -13,10 +13,11 @@ function App() {
   const [clientId, setClientId] = useState('');
   const [context, setContext] = useState('');
   const [apiCallTriggered, setApiCallTriggered] = useState(false);
+  const [nimbusPreview, setNimbusPreview] = useState(false);
 
   useEffect(() => {
     if (apiCallTriggered) {
-      const apiUrl = '/api/data';
+      const apiUrl = `/api/data?nimbus_preview=${nimbusPreview}`;
 
       fetch(apiUrl, {
         method: 'GET',
@@ -35,7 +36,7 @@ function App() {
           setApiCallTriggered(false);
         });
     }
-  }, [apiCallTriggered, clientId, context]);
+  }, [apiCallTriggered, clientId, context, nimbusPreview]);
 
   const displayText = message && message['example-feature'] && message['example-feature']['something']
     ? message['example-feature']['something']
@@ -57,9 +58,16 @@ function App() {
           value={context}
           onChange={(e) => setContext(e.target.value)}
         />
+        <label>
+          <input
+            type="checkbox"
+            checked={nimbusPreview}
+            onChange={(e) => setNimbusPreview(e.target.checked)}
+          />
+          Nimbus Preview
+        </label>
         <button onClick={() => setApiCallTriggered(true)}>Send My Details</button>
       </div>
     </div>
   );
 }
-

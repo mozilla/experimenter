@@ -247,3 +247,74 @@ def test_check_cirrus_targeting(
     # returns the default value
     result_text_element = demo_app.wait_for_result_text(["wicked"])
     assert result_text_element.is_displayed()
+
+
+@pytest.mark.cirrus_enrollment
+def test_nimbus_preview_flag(
+    selenium,
+    experiment_url,
+    create_experiment,
+    kinto_client,
+    base_url,
+    experiment_name,
+    demo_app,
+):
+    reference_branch_value = '{"enabled": true, "something": "Control branch"}'
+    treatment_branch_value = '{"enabled": true, "something": "Treatment branch"}'
+    create_experiment(
+        selenium,
+        reference_branch_value=reference_branch_value,
+        treatment_branch_value=treatment_branch_value,
+    ).launch_to_preview()
+
+    SummaryPage(selenium, experiment_url).open().wait_for_preview_status()
+
+    navigate_to(selenium)
+    selenium.refresh()
+    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
+    assert result_text_element.is_displayed()
+
+    demo_app.fill_and_send_form_data("test", '{"test1":"test2"}', nimbus_preview=True)
+    demo_app.click_send_my_details()
+
+    displayed_text = demo_app.wait_for_result_text(
+        ["Control branch", "Treatment branch"]
+    ).text
+    assert displayed_text in ["Control branch", "Treatment branch"]
+
+    navigate_to(selenium)
+    selenium.refresh()
+    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
+    assert result_text_element.is_displayed()
+
+    demo_app.fill_and_send_form_data("example1", '{"test1":"test2"}')
+    demo_app.click_send_my_details()
+
+    result_text_element = demo_app.wait_for_result_text(["wicked"])
+    assert result_text_element.is_displayed()
+
+    # summary = SummaryPage(selenium, experiment_url).open()
+    # summary.end_and_approve()
+    # kinto_client.approve()
+    # summary = SummaryPage(selenium, experiment_url).open()
+    # summary.wait_for_complete_status()
+
+    # navigate_to(selenium)
+    # selenium.refresh()
+    # result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
+    # assert result_text_element.is_displayed()
+
+    # demo_app.fill_and_send_form_data(
+    #     "example1", '{"test1":"test2"}', nimbus_preview=True
+    # )
+    # demo_app.click_send_my_details()
+
+    # result_text_element = demo_app.wait_for_result_text(["wicked"])
+    # assert result_text_element.is_displayed()
+
+    # navigate_to(selenium)
+    # demo_app.fill_and_send_form_data("test", '{"test1":"test2"}', nimbus_preview=True)
+    # demo_app.click_send_my_details()
+
+    # result_text_element = demo_app.wait_for_result_text(["wicked"])
+    # assert result_text_element.is_displayed()
