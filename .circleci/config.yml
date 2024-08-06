@@ -662,7 +662,7 @@ jobs:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
-    resource_class: large
+    resource_class: xlarge
     steps:
       - checkout
       - docker_login:
@@ -680,7 +680,7 @@ jobs:
             docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
             docker build -f fenix-apk-store.Dockerfile -t ${DOCKERHUB_REPO}:fenix-apk-store .
             docker push ${DOCKERHUB_REPO}:fenix-apk-store
-          no_output_timeout: 1h
+          no_output_timeout: 60m
 
 workflows:
   build_firefox:
