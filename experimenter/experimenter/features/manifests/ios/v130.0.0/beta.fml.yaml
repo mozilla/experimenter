@@ -257,7 +257,7 @@ features:
       enabled:
         description: "If true, the feature is active.\n"
         type: Boolean
-        default: true
+        default: false
   night-mode-feature:
     description: "Describes the night mode feature's configuration\n"
     variables:
