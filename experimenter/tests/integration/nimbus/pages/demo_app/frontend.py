@@ -29,9 +29,7 @@ class DemoAppPage(Base):
         context_input.send_keys(context)
 
         if nimbus_preview:
-            preview_checkbox_xpath = (
-                "//input[@type='checkbox']"
-            )
+            preview_checkbox_xpath = "//input[@type='checkbox']"
             preview_checkbox = self.wait_for_and_find_element(
                 By.XPATH, preview_checkbox_xpath, description=None
             )
