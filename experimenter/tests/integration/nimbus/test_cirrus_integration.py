@@ -292,29 +292,3 @@ def test_nimbus_preview_flag(
 
     result_text_element = demo_app.wait_for_result_text(["wicked"])
     assert result_text_element.is_displayed()
-
-    # summary = SummaryPage(selenium, experiment_url).open()
-    # summary.end_and_approve()
-    # kinto_client.approve()
-    # summary = SummaryPage(selenium, experiment_url).open()
-    # summary.wait_for_complete_status()
-
-    # navigate_to(selenium)
-    # selenium.refresh()
-    # result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
-    # assert result_text_element.is_displayed()
-
-    # demo_app.fill_and_send_form_data(
-    #     "example1", '{"test1":"test2"}', nimbus_preview=True
-    # )
-    # demo_app.click_send_my_details()
-
-    # result_text_element = demo_app.wait_for_result_text(["wicked"])
-    # assert result_text_element.is_displayed()
-
-    # navigate_to(selenium)
-    # demo_app.fill_and_send_form_data("test", '{"test1":"test2"}', nimbus_preview=True)
-    # demo_app.click_send_my_details()
-
-    # result_text_element = demo_app.wait_for_result_text(["wicked"])
-    # assert result_text_element.is_displayed()

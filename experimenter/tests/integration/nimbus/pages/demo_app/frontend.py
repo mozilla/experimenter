@@ -30,7 +30,7 @@ class DemoAppPage(Base):
 
         if nimbus_preview:
             preview_checkbox_xpath = (
-                "//input[@type='checkbox' and @name='nimbus_preview']"
+                "//input[@type='checkbox']"
             )
             preview_checkbox = self.wait_for_and_find_element(
                 By.XPATH, preview_checkbox_xpath, description=None
