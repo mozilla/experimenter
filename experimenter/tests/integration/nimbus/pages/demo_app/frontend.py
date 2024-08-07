@@ -23,8 +23,6 @@ class DemoAppPage(Base):
         context_input = self.wait_for_and_find_element(
             By.XPATH, context_xpath, description=None
         )
-        time.sleep(10)
-
         client_id_input.send_keys(client_id)
         context_input.send_keys(context)
 
@@ -35,6 +33,8 @@ class DemoAppPage(Base):
             )
             if not preview_checkbox.is_selected():
                 preview_checkbox.click()
+
+        time.sleep(10)
 
     def click_send_my_details(self):
         details_xpath = "//button[contains(text(), 'Send My Details')]"

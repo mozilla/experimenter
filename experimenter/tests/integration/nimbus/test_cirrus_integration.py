@@ -177,11 +177,9 @@ def test_check_cirrus_targeting(
         treatment_branch_value=treatment_branch_value,
         languages=True,
         countries=True,
-    ).launch_and_approve()
+    ).launch_without_preview()
 
-    kinto_client.approve()
-
-    SummaryPage(selenium, experiment_url).open().wait_for_live_status()
+    SummaryPage(selenium, experiment_url).open().wait_for_preview_status()
 
     HomePage(selenium, base_url).open()
 
