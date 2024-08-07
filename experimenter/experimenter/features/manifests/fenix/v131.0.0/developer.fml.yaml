@@ -348,7 +348,7 @@ features:
       enabled:
         description: "When the feature is enabled then microsurveys can be used.\n"
         type: Boolean
-        default: true
+        default: false
   mr2022:
     description: Features for MR 2022.
     variables:
@@ -410,6 +410,13 @@ features:
           - sync
           - tcp
           - privacy-notice
+  one-click-search:
+    description: Enable/disable the one click search feature.
+    variables:
+      enabled:
+        description: "If true, the one click search will be enabled."
+        type: Boolean
+        default: false
   pdfjs:
     description: PDF.js features
     variables:
