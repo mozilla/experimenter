@@ -177,9 +177,11 @@ def test_check_cirrus_targeting(
         treatment_branch_value=treatment_branch_value,
         languages=True,
         countries=True,
-    ).launch_without_preview()
+    ).launch_and_approve()
 
-    SummaryPage(selenium, experiment_url).open().wait_for_preview_status()
+    kinto_client.approve()
+
+    SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
     HomePage(selenium, base_url).open()
 
@@ -263,7 +265,7 @@ def test_nimbus_preview_flag(
         selenium,
         reference_branch_value=reference_branch_value,
         treatment_branch_value=treatment_branch_value,
-    ).launch_to_preview()
+    ).launch_without_preview()
 
     SummaryPage(selenium, experiment_url).open().wait_for_preview_status()
 
