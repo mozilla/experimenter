@@ -189,6 +189,14 @@ onboarding:
     order:
       type: json
       description: Determines the order of the onboarding page panels
+one-click-search:
+  description: Enable/disable the one click search feature.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the one click search will be enabled."
 pdfjs:
   description: PDF.js features
   hasExposure: true
