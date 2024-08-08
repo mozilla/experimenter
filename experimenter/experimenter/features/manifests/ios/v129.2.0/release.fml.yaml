@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - developer
+  - release
 features:
   account-settings-redux-feature:
     description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
@@ -18,7 +18,7 @@ features:
       status:
         description: "If true, we will allow user to edit the address"
         type: Boolean
-        default: true
+        default: false
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
@@ -40,11 +40,11 @@ features:
       felt-deletion-enabled:
         description: "If true, enable Felt Deletion part of Felt Privacy"
         type: Boolean
-        default: true
+        default: false
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: true
+        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -58,7 +58,7 @@ features:
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -66,7 +66,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: true
+          status: false
   glean-server-knobs:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -80,7 +80,7 @@ features:
       prefer-switch-to-open-tab:
         description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
         type: Boolean
-        default: true
+        default: false
       sections-enabled:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
         type: "Map<HomeScreenSection, Boolean>"
@@ -162,34 +162,6 @@ features:
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
             action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
-          homepage-microsurvey-message:
-            surface: microsurvey
-            style: MICROSURVEY
-            trigger-if-all:
-              - SECOND_HOMEPAGE_VIEW
-            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
-            text: How satisfied are you with your Firefox homepage?
-            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
-            microsurveyConfig:
-              utm-content: homepage
-              icon: homeLarge
-              options:
-                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption1.v127
-                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption2.v127
-                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption3.v127
-                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption4.v127
-                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption5.v127
-                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption6.v129
-          survey-surface-message:
-            surface: survey
-            style: SURVEY
-            trigger-if-all:
-              - NEVER
-            text: ResearchSurface/Body.Text.v112
-            button-label: ResearchSurface/PrimaryButton.Label.v112
-            action: OPEN_URL
-            action-params:
-              url: "https://www.macrumors.com"
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -263,13 +235,6 @@ features:
     allow-coenrollment: true
   microsurvey-feature:
     description: "A feature that shows the microsurvey for users to interact with and submit responses.\n"
-    variables:
-      enabled:
-        description: "If true, the feature is active.\n"
-        type: Boolean
-        default: true
-  native-error-page-feature:
-    description: "This feature is for managing the roll out of the native error page feature\n"
     variables:
       enabled:
         description: "If true, the feature is active.\n"
@@ -348,49 +313,6 @@ features:
             onboarding-type: fresh-install
             prerequisites:
               - ALWAYS
-          customization-theme:
-            card-type: multiple-choice
-            order: 40
-            title: Onboarding/Onboarding.Customization.Theme.Title.v123
-            body: Onboarding/Onboarding.Customization.Theme.Description.v123
-            image: themeing
-            buttons:
-              primary:
-                title: Onboarding/Onboarding.Customization.Theme.Continue.Action.v123
-                action: forward-one-card
-            multiple-choice-buttons:
-              - title: Onboarding/Onboarding.Customization.Theme.System.Action.v123
-                image: theme-system
-                action: theme-system-default
-              - title: Onboarding/Onboarding.Customization.Theme.Light.Action.v123
-                image: theme-light
-                action: theme-light
-              - title: Onboarding/Onboarding.Customization.Theme.Dark.Action.v123
-                image: theme-dark
-                action: theme-dark
-            onboarding-type: fresh-install
-            prerequisites:
-              - ALWAYS
-          customization-toolbar:
-            card-type: multiple-choice
-            order: 41
-            title: Onboarding/Onboarding.Customization.Toolbar.Title.v123
-            body: Onboarding/Onboarding.Customization.Toolbar.Description.v123
-            image: toolbar
-            buttons:
-              primary:
-                title: Onboarding/Onboarding.Customization.Toolbar.Continue.Action.v123
-                action: forward-one-card
-            multiple-choice-buttons:
-              - title: Onboarding/Onboarding.Customization.Toolbar.Top.Action.v123
-                image: toolbar-top
-                action: toolbar-top
-              - title: Onboarding/Onboarding.Customization.Toolbar.Bottom.Action.v123
-                image: toolbar-bottom
-                action: toolbar-bottom
-            onboarding-type: fresh-install
-            prerequisites:
-              - ALWAYS
           update-welcome:
             card-type: basic
             order: 10
@@ -439,13 +361,6 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-  remote-tab-management:
-    description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
-    variables:
-      close-tabs-enabled:
-        description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
-        type: Boolean
-        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -455,7 +370,7 @@ features:
         default:
           min-search-term: 3
           position:
-            is-bottom: false
+            is-bottom: true
             is-position-feature-enabled: true
             is-toolbar-cfr-on: false
           search-highlights: false
@@ -503,22 +418,22 @@ features:
       enabled:
         description: "If true, the feature is active.\n"
         type: Boolean
-        default: true
+        default: false
       maximum_duration_ms:
         description: "The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.\n"
         type: Int
-        default: 6000
+        default: 0
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: "If this is true, then on each page load adds a new item to Spotlight."
         type: Boolean
-        default: true
+        default: false
       icon-type:
         description: "The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.\n"
         type: Option<IconType>
-        default: screenshot
+        default: letter
       keep-for-days:
         description: "Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.\n"
         type: Option<Int>
@@ -533,7 +448,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: true
+        default: false
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -549,17 +464,13 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-      one_tap_new_tab:
-        description: "If true, enables the one tap new tab feature for users.\n"
-        type: Boolean
-        default: false
   tracking-protection-refactor:
     description: "The Enhanced Tracking Protection refactor\n"
     variables:
       enabled:
         description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
         type: Boolean
-        default: true
+        default: false
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:
@@ -762,8 +673,8 @@ objects:
     fields:
       action:
         description: "The name of a deeplink URL to be opened if the button is clicked.\n"
-        type: Option<ActionName>
-        default: ~
+        type: ActionName
+        default: OPEN_URL
       action-params:
         description: Query parameters appended to the deeplink action URL
         type: "Map<String, String>"
