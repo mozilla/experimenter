@@ -133,6 +133,14 @@ microsurvey-feature:
     enabled:
       type: boolean
       description: "If true, the feature is active.\n"
+native-error-page-feature:
+  description: "This feature is for managing the roll out of the native error page feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the feature is active.\n"
 night-mode-feature:
   description: "Describes the night mode feature's configuration\n"
   hasExposure: true

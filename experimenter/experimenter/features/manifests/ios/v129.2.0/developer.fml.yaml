@@ -162,7 +162,17 @@ features:
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
             action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
-          homepage-microsurvey-message:
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+              - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            action: OPEN_URL
+            action-params:
+              url: "https://www.macrumors.com"
+          microsurvey-message:
             surface: microsurvey
             style: MICROSURVEY
             trigger-if-all:
@@ -179,17 +189,6 @@ features:
                 - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption3.v127
                 - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption4.v127
                 - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption5.v127
-                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption6.v129
-          survey-surface-message:
-            surface: survey
-            style: SURVEY
-            trigger-if-all:
-              - NEVER
-            text: ResearchSurface/Body.Text.v112
-            button-label: ResearchSurface/PrimaryButton.Label.v112
-            action: OPEN_URL
-            action-params:
-              url: "https://www.macrumors.com"
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -268,13 +267,6 @@ features:
         description: "If true, the feature is active.\n"
         type: Boolean
         default: true
-  native-error-page-feature:
-    description: "This feature is for managing the roll out of the native error page feature\n"
-    variables:
-      enabled:
-        description: "If true, the feature is active.\n"
-        type: Boolean
-        default: false
   night-mode-feature:
     description: "Describes the night mode feature's configuration\n"
     variables:
@@ -348,49 +340,6 @@ features:
             onboarding-type: fresh-install
             prerequisites:
               - ALWAYS
-          customization-theme:
-            card-type: multiple-choice
-            order: 40
-            title: Onboarding/Onboarding.Customization.Theme.Title.v123
-            body: Onboarding/Onboarding.Customization.Theme.Description.v123
-            image: themeing
-            buttons:
-              primary:
-                title: Onboarding/Onboarding.Customization.Theme.Continue.Action.v123
-                action: forward-one-card
-            multiple-choice-buttons:
-              - title: Onboarding/Onboarding.Customization.Theme.System.Action.v123
-                image: theme-system
-                action: theme-system-default
-              - title: Onboarding/Onboarding.Customization.Theme.Light.Action.v123
-                image: theme-light
-                action: theme-light
-              - title: Onboarding/Onboarding.Customization.Theme.Dark.Action.v123
-                image: theme-dark
-                action: theme-dark
-            onboarding-type: fresh-install
-            prerequisites:
-              - ALWAYS
-          customization-toolbar:
-            card-type: multiple-choice
-            order: 41
-            title: Onboarding/Onboarding.Customization.Toolbar.Title.v123
-            body: Onboarding/Onboarding.Customization.Toolbar.Description.v123
-            image: toolbar
-            buttons:
-              primary:
-                title: Onboarding/Onboarding.Customization.Toolbar.Continue.Action.v123
-                action: forward-one-card
-            multiple-choice-buttons:
-              - title: Onboarding/Onboarding.Customization.Toolbar.Top.Action.v123
-                image: toolbar-top
-                action: toolbar-top
-              - title: Onboarding/Onboarding.Customization.Toolbar.Bottom.Action.v123
-                image: toolbar-bottom
-                action: toolbar-bottom
-            onboarding-type: fresh-install
-            prerequisites:
-              - ALWAYS
           update-welcome:
             card-type: basic
             order: 10
@@ -439,13 +388,6 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-  remote-tab-management:
-    description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
-    variables:
-      close-tabs-enabled:
-        description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
-        type: Boolean
-        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -547,10 +489,6 @@ features:
     variables:
       enabled:
         description: "Enables the feature\n"
-        type: Boolean
-        default: false
-      one_tap_new_tab:
-        description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
         default: false
   tracking-protection-refactor:
@@ -762,8 +700,8 @@ objects:
     fields:
       action:
         description: "The name of a deeplink URL to be opened if the button is clicked.\n"
-        type: Option<ActionName>
-        default: ~
+        type: ActionName
+        default: OPEN_URL
       action-params:
         description: Query parameters appended to the deeplink action URL
         type: "Map<String, String>"
