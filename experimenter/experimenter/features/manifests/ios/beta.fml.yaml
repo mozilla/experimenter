@@ -258,6 +258,13 @@ features:
         description: "If true, the feature is active.\n"
         type: Boolean
         default: false
+  native-error-page-feature:
+    description: "This feature is for managing the roll out of the native error page feature\n"
+    variables:
+      enabled:
+        description: "If true, the feature is active.\n"
+        type: Boolean
+        default: false
   night-mode-feature:
     description: "Describes the night mode feature's configuration\n"
     variables:
