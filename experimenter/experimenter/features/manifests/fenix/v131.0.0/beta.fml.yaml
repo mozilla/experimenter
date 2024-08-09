@@ -73,6 +73,14 @@ features:
         description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
         type: "Map<String, Boolean>"
         default: {}
+      ping-lifetime-max-time:
+        description: After what time to auto-flush
+        type: Int
+        default: 0
+      ping-lifetime-threshold:
+        description: Write count threshold when to auto-flush
+        type: Int
+        default: 1000
     allow-coenrollment: true
   growth-data:
     description: A feature measuring campaign growth data
