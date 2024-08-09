@@ -14,7 +14,7 @@ class DemoAppPage(Base):
 
         return self.wait_for_and_find_element(By.XPATH, xpath, description=None)
 
-    def fill_and_send_form_data(self, client_id, context):
+    def fill_and_send_form_data(self, client_id, context, nimbus_preview=False):
         client_xpath = "//input[@placeholder='Client ID']"
         client_id_input = self.wait_for_and_find_element(
             By.XPATH, client_xpath, description=None
@@ -23,15 +23,23 @@ class DemoAppPage(Base):
         context_input = self.wait_for_and_find_element(
             By.XPATH, context_xpath, description=None
         )
-        time.sleep(10)
-
         client_id_input.send_keys(client_id)
         context_input.send_keys(context)
 
+        if nimbus_preview:
+            preview_checkbox_xpath = "//input[@type='checkbox']"
+            preview_checkbox = self.wait_for_and_find_element(
+                By.XPATH, preview_checkbox_xpath, description=None
+            )
+            if not preview_checkbox.is_selected():
+                preview_checkbox.click()
+
+        time.sleep(30)
+
     def click_send_my_details(self):
+        time.sleep(30)
         details_xpath = "//button[contains(text(), 'Send My Details')]"
         send_details_button = self.wait_for_and_find_element(
             By.XPATH, details_xpath, description=None
         )
-
         send_details_button.click()
