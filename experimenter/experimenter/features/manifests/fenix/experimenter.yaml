@@ -57,6 +57,12 @@ glean:
     metrics-enabled:
       type: json
       description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+    ping-lifetime-max-time:
+      type: int
+      description: After what time to auto-flush
+    ping-lifetime-threshold:
+      type: int
+      description: Write count threshold when to auto-flush
 growth-data:
   description: A feature measuring campaign growth data
   hasExposure: true
