@@ -29,10 +29,14 @@ const server = http.createServer(async (req, res) => {
       nimbus_preview: nimbusPreview,
     };
 
+    let pathName = '/v1/features/'
+    if(nimbusPreview) {
+      pathName= pathName+"?nimbus_preview=" + nimbusPreview;
+    }
     const options = {
-      hostname: 'cirrus',
+      hostname: 'localhost',
       port: 8001,
-      path: '/v1/features/',
+      path: pathName,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
