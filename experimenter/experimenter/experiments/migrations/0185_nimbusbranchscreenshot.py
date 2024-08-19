@@ -28,7 +28,6 @@ class Migration(migrations.Migration):
                 (
                     "image",
                     models.ImageField(
-                        storage=experimenter.base.UploadsStorage,
                         upload_to=experimenter.experiments.models.nimbus_branch_screenshot_upload_to,
                     ),
                 ),
