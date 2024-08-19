@@ -38,11 +38,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
-    @patch("django.core.files.storage.default_storage.open")
-    @patch("django.core.files.storage.default_storage.exists")
-    def test_valid_results_data_parsed_and_stored(
-        self, lifecycle, mock_exists, mock_open
-    ):
+    def test_valid_results_data_parsed_and_stored(self, lifecycle):
         primary_outcomes = ["default-browser"]
         secondary_outcomes = ["secondary_outcome"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -598,12 +594,16 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         def open_file(filename):
             return File(filename)
 
-        mock_open.side_effect = open_file
-        mock_exists.return_value = True
+        with (
+            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+        ):
+            mock_open.side_effect = open_file
+            mock_exists.return_value = True
 
-        tasks.fetch_experiment_data(experiment.id)
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.results_data, FULL_DATA)
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertEqual(experiment.results_data, FULL_DATA)
 
     @parameterized.expand(
         [
@@ -612,10 +612,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             ("2022-08-31T04:30:03+00:00", "2022-08-31T04:32:03+00:00"),
         ]
     )
-    @patch("django.core.files.storage.default_storage.open")
-    @patch("django.core.files.storage.default_storage.exists")
     def test_valid_error_and_analysis_timestamps(
-        self, analysis_start_time, error_timestamp, mock_exists, mock_open
+        self,
+        analysis_start_time,
+        error_timestamp,
     ):
         experiment = NimbusExperimentFactory.create()
 
@@ -721,16 +721,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         def open_file(filename):
             return File(filename)
 
-        mock_open.side_effect = open_file
-        mock_exists.return_value = True
+        with (
+            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+        ):
+            mock_open.side_effect = open_file
+            mock_exists.return_value = True
 
-        if not error_timestamp:
-            with self.assertRaises(Exception):
+            if not error_timestamp:
+                with self.assertRaises(Exception):
+                    tasks.fetch_experiment_data(experiment.id)
+            else:
                 tasks.fetch_experiment_data(experiment.id)
-        else:
-            tasks.fetch_experiment_data(experiment.id)
-            experiment = NimbusExperiment.objects.get(id=experiment.id)
-            self.assertEqual(experiment.results_data, FULL_DATA)
+                experiment = NimbusExperiment.objects.get(id=experiment.id)
+                self.assertEqual(experiment.results_data, FULL_DATA)
 
     @parameterized.expand(
         [
@@ -738,11 +742,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
-    @patch("django.core.files.storage.default_storage.open")
-    @patch("django.core.files.storage.default_storage.exists")
-    def test_partial_exposures_results_data_parsed_and_stored(
-        self, lifecycle, mock_exists, mock_open
-    ):
+    def test_partial_exposures_results_data_parsed_and_stored(self, lifecycle):
         primary_outcomes = []
         secondary_outcomes = []
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -805,13 +805,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         def open_file(filename):
             return File(filename)
 
-        mock_open.side_effect = open_file
-        mock_exists.return_value = True
+        with (
+            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+        ):
+            mock_open.side_effect = open_file
+            mock_exists.return_value = True
 
-        tasks.fetch_experiment_data(experiment.id)
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.results_data, FULL_DATA)
-        self.assertTrue(experiment.has_displayable_results)
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertEqual(experiment.results_data, FULL_DATA)
+            self.assertTrue(experiment.has_displayable_results)
 
     @parameterized.expand(
         [
@@ -819,10 +823,9 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
-    @patch("django.core.files.storage.default_storage.open")
-    @patch("django.core.files.storage.default_storage.exists")
     def test_results_data_with_zeros_parsed_and_stored(
-        self, lifecycle, mock_exists, mock_open
+        self,
+        lifecycle,
     ):
         primary_outcomes = ["default-browser"]
         secondary_outcomes = ["secondary_outcome"]
@@ -1069,13 +1072,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         def open_file(filename):
             return File(filename)
 
-        mock_open.side_effect = open_file
-        mock_exists.return_value = True
+        with (
+            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+        ):
+            mock_open.side_effect = open_file
+            mock_exists.return_value = True
 
-        tasks.fetch_experiment_data(experiment.id)
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.results_data, FULL_DATA)
-        self.assertTrue(experiment.has_displayable_results)
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertEqual(experiment.results_data, FULL_DATA)
+            self.assertTrue(experiment.has_displayable_results)
 
     @parameterized.expand(
         [
@@ -1084,10 +1091,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     @patch("experimenter.jetstream.client.get_metadata")
-    @patch("django.core.files.storage.default_storage.open")
-    @patch("django.core.files.storage.default_storage.exists")
     def test_results_data_with_null_conversion_percent(
-        self, lifecycle, mock_exists, mock_open, mock_get_metadata
+        self, lifecycle, mock_get_metadata
     ):
         primary_outcomes = ["default-browser"]
         secondary_outcomes = ["secondary_outcome"]
@@ -1124,19 +1129,25 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         def open_file(filename):
             return File(filename)
 
-        mock_open.side_effect = open_file
-        mock_exists.return_value = True
+        with (
+            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+        ):
+            mock_open.side_effect = open_file
+            mock_exists.return_value = True
 
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertIsNone(experiment.results_data)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertIsNone(experiment.results_data)
 
-        mock_get_metadata.return_value = {
-            "outcomes": {"default-browser": {"metrics": ["test"], "default_metrics": []}}
-        }
+            mock_get_metadata.return_value = {
+                "outcomes": {
+                    "default-browser": {"metrics": ["test"], "default_metrics": []}
+                }
+            }
 
-        tasks.fetch_experiment_data(experiment.id)
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertIsNotNone(experiment.results_data)
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertIsNotNone(experiment.results_data)
 
     @parameterized.expand(
         [
@@ -1145,10 +1156,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     @patch("experimenter.jetstream.client.get_metadata")
-    @patch("django.core.files.storage.default_storage.open")
-    @patch("django.core.files.storage.default_storage.exists")
     def test_results_data_with_pairwise_branch_comparisons(
-        self, lifecycle, mock_exists, mock_open, mock_get_metadata
+        self, lifecycle, mock_get_metadata
     ):
         primary_outcomes = ["default-browser"]
         secondary_outcomes = ["secondary_outcome"]
@@ -2079,19 +2088,25 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         def open_file(filename):
             return File(filename)
 
-        mock_open.side_effect = open_file
-        mock_exists.return_value = True
+        with (
+            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+        ):
+            mock_open.side_effect = open_file
+            mock_exists.return_value = True
 
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertIsNone(experiment.results_data)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertIsNone(experiment.results_data)
 
-        mock_get_metadata.return_value = {
-            "outcomes": {"default-browser": {"metrics": ["test"], "default_metrics": []}}
-        }
+            mock_get_metadata.return_value = {
+                "outcomes": {
+                    "default-browser": {"metrics": ["test"], "default_metrics": []}
+                }
+            }
 
-        tasks.fetch_experiment_data(experiment.id)
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.results_data, FULL_DATA)
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertEqual(experiment.results_data, FULL_DATA)
 
     @parameterized.expand(
         [
@@ -2099,29 +2114,31 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
-    @patch("django.core.files.storage.default_storage.exists")
-    def test_results_data_null(self, lifecycle, mock_exists):
-        mock_exists.return_value = False
+    def test_results_data_null(self, lifecycle):
         primary_outcome = "default-browser"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, primary_outcomes=[primary_outcome]
         )
 
-        tasks.fetch_experiment_data(experiment.id)
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(
-            experiment.results_data,
-            {
-                "v3": {
-                    "metadata": None,
-                    "overall": {},
-                    "show_analysis": False,
-                    "weekly": {},
-                    "errors": {"experiment": []},
+        with (
+            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+        ):
+            mock_exists.return_value = False
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertEqual(
+                experiment.results_data,
+                {
+                    "v3": {
+                        "metadata": None,
+                        "overall": {},
+                        "show_analysis": False,
+                        "weekly": {},
+                        "errors": {"experiment": []},
+                    },
                 },
-            },
-        )
-        self.assertFalse(experiment.has_displayable_results)
+            )
+            self.assertFalse(experiment.has_displayable_results)
 
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_data_fetch_in_loop(self, mock_delay):
@@ -2242,8 +2259,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         assert "AnalysisWindow" not in filename
         assert "overall" in filename
 
-    @patch("django.core.files.storage.default_storage.open")
-    @patch("django.core.files.storage.default_storage.exists")
+    @patch("experimenter.jetstream.client.default_storage.open")
+    @patch("experimenter.jetstream.client.default_storage.exists")
     def test_sizing_data_parsed_and_stored(self, mock_exists, mock_open):
         sizing_test_data = SampleSizesFactory.build().json()
 
@@ -2271,8 +2288,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             sizing_results.json(exclude_unset=True),
         )
 
-    @patch("django.core.files.storage.default_storage.open")
-    @patch("django.core.files.storage.default_storage.exists")
+    @patch("experimenter.jetstream.client.default_storage.open")
+    @patch("experimenter.jetstream.client.default_storage.exists")
     def test_empty_fetch_population_sizing_data(self, mock_exists, mock_open):
         class File:
             def __init__(self, filename):
@@ -2294,8 +2311,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         sizing_results = cache.get(SIZING_DATA_KEY)
         self.assertEqual(sizing_results.json(), "{}")
 
-    @patch("django.core.files.storage.default_storage.open")
-    @patch("django.core.files.storage.default_storage.exists")
+    @patch("experimenter.jetstream.client.default_storage.open")
+    @patch("experimenter.jetstream.client.default_storage.exists")
     def test_fetch_population_sizing_data_invalid(self, mock_exists, mock_open):
         class File:
             def __init__(self, filename):
