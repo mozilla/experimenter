@@ -23,7 +23,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
-from experimenter.base import UploadsStorage
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import (
     ChangeEventType,
@@ -1298,7 +1297,6 @@ class NimbusBranchScreenshot(models.Model):
         on_delete=models.CASCADE,
     )
     image = models.ImageField(
-        storage=UploadsStorage,
         upload_to=nimbus_branch_screenshot_upload_to,
     )
     description = models.TextField(blank=True, default="")

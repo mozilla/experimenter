@@ -1,10 +1,8 @@
 from unittest import mock
 
-from django.core.files.storage import FileSystemStorage
-from django.test import TestCase, override_settings
-from inmemorystorage import InMemoryStorage
+from django.test import TestCase
 
-from experimenter.base import UploadsStorage, app_version, get_uploads_storage
+from experimenter.base import app_version
 
 
 class TestAppVersion(TestCase):
@@ -41,33 +39,3 @@ class TestAppVersion(TestCase):
         version = app_version()
         mock_app_version_json_path.open.assert_called_once()
         self.assertEqual(version, "")
-
-
-class TestGetUploadsStorage(TestCase):
-    @override_settings(UPLOADS_GS_BUCKET_NAME=None, UPLOADS_FILE_STORAGE=None)
-    def test_get_uploads_storage_default(self):
-        self.assertIsInstance(get_uploads_storage(), FileSystemStorage)
-
-    @override_settings(
-        UPLOADS_GS_BUCKET_NAME="bazquux",
-        UPLOADS_FILE_STORAGE="inmemorystorage.InMemoryStorage",
-    )
-    def test_get_uploads_storage_custom(self):
-        self.assertIsInstance(get_uploads_storage(), InMemoryStorage)
-
-    @override_settings(
-        UPLOADS_GS_BUCKET_NAME="bazquux",
-        UPLOADS_FILE_STORAGE=None,
-    )
-    @mock.patch("experimenter.base.GoogleCloudStorage")
-    def test_get_uploads_storage_gcp(self, MockGoogleCloudStorage):
-        storage = get_uploads_storage()
-        self.assertEqual(storage, MockGoogleCloudStorage.return_value)
-        MockGoogleCloudStorage.assert_called_with(
-            bucket_name="bazquux",
-        )
-
-    @mock.patch("experimenter.base.get_uploads_storage")
-    def test_uploads_storage_class(self, mock_get_uploads_storage):
-        storage = UploadsStorage()
-        self.assertTrue(storage._wrapped, mock_get_uploads_storage.return_value)
