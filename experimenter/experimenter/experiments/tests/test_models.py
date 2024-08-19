@@ -15,7 +15,6 @@ from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
 import experimenter.experiments.constants
-from experimenter.base import UploadsStorage
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -3523,7 +3522,6 @@ class TestNimbusBranchScreenshot(TestCase):
 
     @mock.patch("experimenter.experiments.models.uuid4")
     def test_nimbus_branch_screenshot_upload_to(self, mock_uuid4):
-        self.assertEqual(type(self.screenshot.image.storage), UploadsStorage)
         with mock.patch.object(self.screenshot.image.storage, "save") as mock_save:
             mock_uuid4.return_value = "predictable"
             mock_save.return_value = "saved/path/dontcare"

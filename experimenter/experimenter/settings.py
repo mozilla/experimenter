@@ -487,7 +487,6 @@ KINTO_ADMIN_URL = config("KINTO_ADMIN_URL", default=urljoin(KINTO_HOST, "/admin/
 KINTO_REVIEW_TIMEOUT = config("KINTO_REVIEW_TIMEOUT", cast=int)
 
 # Jetstream GCS Bucket data
-DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 GS_PROJECT_ID = "experiments-analysis"
 GS_BUCKET_NAME = "mozanalysis"
 
@@ -495,7 +494,23 @@ GS_BUCKET_NAME = "mozanalysis"
 UPLOADS_GS_BUCKET_NAME = config("UPLOADS_GS_BUCKET_NAME", default=None)
 
 # Custom file storage override for user uploads (e.g. for testing)
-UPLOADS_FILE_STORAGE = config("UPLOADS_FILE_STORAGE", default=None)
+UPLOADS_FILE_STORAGE = config(
+    "UPLOADS_FILE_STORAGE", default="storages.backends.gcloud.GoogleCloudStorage"
+)
+
+STORAGES = {
+    "default": {
+        "BACKEND": UPLOADS_FILE_STORAGE,
+        "OPTIONS": {
+            "bucket_name": UPLOADS_GS_BUCKET_NAME,
+        }
+        if UPLOADS_GS_BUCKET_NAME
+        else {},
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 NIMBUS_SCHEMA_VERSION = (
     # TODO: #8492
