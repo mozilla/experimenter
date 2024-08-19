@@ -55,7 +55,7 @@ def test_analysis_errors():
     )
 
     analysis_errors = AnalysisErrors.parse_obj([ae0, ae1])
-    assert type(analysis_errors) == AnalysisErrors
+    assert type(analysis_errors) is AnalysisErrors
     assert len(analysis_errors.__root__) == 2
     analysis_errors.__root__.append(ae2)
     assert len(analysis_errors.__root__) == 3

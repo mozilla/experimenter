@@ -53,7 +53,7 @@ def test_statistics():
     )
 
     stats = Statistics.parse_obj([s0, s1])
-    assert type(stats) == Statistics
+    assert type(stats) is Statistics
     assert len(stats.__root__) == 2
     stats.__root__.append(s2)
     assert len(stats.__root__) == 3
