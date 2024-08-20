@@ -322,6 +322,15 @@ urlbar:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.allowPositionInSuggestions
       description: Whether quick suggest results can be shown in position specified in the suggestions.
+    quickSuggestAmpTopPickCharThreshold:
+      type: int
+      fallbackPref: browser.urlbar.quicksuggest.ampTopPickCharThreshold
+      description: >-
+        Character-count threshold (inclusive) for showing AMP suggestions as top
+        picks. If an AMP suggestion is triggered by a keyword at least this many
+        characters long, it will be shown as a top pick. When this variable is
+        set, full keywords will also show AMP suggestions as top picks even if
+        they have fewer characters than this threshold.
     quickSuggestContextualOptInEnabled:
       type: boolean
       setPref:
@@ -2241,6 +2250,18 @@ networkingAuth:
       setPref:
         branch: default
         pref: "network.auth.use_redirect_for_retries"
+
+networkingDenyIpAddrAny:
+  description: "Firefox Networking (Necko) Deny IP Address Any"
+  owner: vgosu@mozilla.com
+  hasExposure: false
+  variables:
+    denyIpAddrAny:
+      description: Whether to deny empty (0.0.0.0) IP addresses
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.socket.ip_addr_any.disabled"
 
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
