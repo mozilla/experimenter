@@ -413,6 +413,8 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/"
       - run:
           name: Create experiment on experimenter
           command: |
