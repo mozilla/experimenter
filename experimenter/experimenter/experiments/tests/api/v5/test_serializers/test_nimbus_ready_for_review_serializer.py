@@ -3582,20 +3582,20 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                                 "'true' is not of type 'boolean' at version 121.0.0",
                                 (
                                     "Schema validation errors occured during locale "
-                                    "substitution for locale en-CA at version 121.0.0"
-                                ),
-                                "'true' is not of type 'boolean' at version 121.0.0",
-                                (
-                                    "Schema validation errors occured during locale "
                                     "substitution for locale en-US at version 120.0.0"
                                 ),
                                 "'true' is not of type 'boolean' at version 120.0.0",
                                 (
                                     "Schema validation errors occured during locale "
+                                    "substitution for locale en-CA at version 121.0.0"
+                                ),
+                                "'true' is not of type 'boolean' at version 121.0.0",
+                                (
+                                    "Schema validation errors occured during locale "
                                     "substitution for locale en-CA at version 120.0.0"
                                 ),
                                 "'true' is not of type 'boolean' at version 120.0.0",
-                            ],
+                            ]
                         }
                     ]
                 }
