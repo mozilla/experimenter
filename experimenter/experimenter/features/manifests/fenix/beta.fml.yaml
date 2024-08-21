@@ -483,6 +483,25 @@ features:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
         default: false
+  set-as-default-prompt:
+    description: "Displays native default browser prompt to existing users.\n"
+    variables:
+      app-cold-starts-between-prompts:
+        description: "Minimum number of app cold starts before the next prompt should be displayed to the user.\n"
+        type: Int
+        default: 4
+      days-between-prompts:
+        description: "Minimum number of days between displays of Set as default prompt.\n"
+        type: Int
+        default: 14
+      enabled:
+        description: "When the feature is enabled then the Set as default prompt can be triggered for existing users.\n"
+        type: Boolean
+        default: false
+      max-number-of-times-to-display:
+        description: "Maximum number of time the prompt should be displayed.\n"
+        type: Int
+        default: 3
   shopping-experience:
     description: A feature that shows product review quality information.
     variables:
