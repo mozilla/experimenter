@@ -1503,38 +1503,46 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         result = self.ValidateFeatureResult()
 
         json_value = json.loads(value)
+        schema_versions = defaultdict(list)
         for schema in schemas_in_range.schemas:
-            if schema.schema:  # Only None in tests.
-                json_schema = json.loads(schema.schema)
-                if not localizations:
-                    result.extend(
-                        self._validate_schema(json_value, json_schema, schema.version),
-                        suppress_errors,
-                    )
-                else:
-                    for locale_code, substitutions in localizations.items():
-                        try:
-                            substituted_value = self._substitute_localizations(
-                                json_value, substitutions, locale_code
-                            )
-                        except LocalizationError as e:
-                            result.append(str(e), suppress_errors)
-                            continue
+            schema_versions[schema.schema].append(schema)
 
-                        if schema_errors := self._validate_schema(
-                            substituted_value, json_schema, schema.version
-                        ):
+        for schema_str, schemas in schema_versions.items():
+            if schema_str is None:
+                continue
+            json_schema = json.loads(schema_str)
+            versions = [s.version for s in schemas]
+            if not localizations:
+                result.extend(
+                    self._validate_schema(json_value, json_schema, versions),
+                    suppress_errors,
+                )
+            else:
+                for locale_code, substitutions in localizations.items():
+                    try:
+                        substituted_value = self._substitute_localizations(
+                            json_value, substitutions, locale_code
+                        )
+                    except LocalizationError as e:
+                        result.append(str(e), suppress_errors)
+                        continue
+
+                    if schema_errors := self._validate_schema(
+                        substituted_value, json_schema, versions
+                    ):
+                        for schema_error, version in zip(schema_errors, versions):
                             err_msg = (
                                 f"Schema validation errors occured during locale "
                                 f"substitution for locale {locale_code}"
                             )
 
-                            if schema.version is not None:
-                                err_msg += f" at version {schema.version}"
+                            if version is not None:
+                                err_msg += f" at version {version}"
 
                             result.append(err_msg, suppress_errors)
-                            result.extend(schema_errors, suppress_errors)
+                            result.append(schema_error, suppress_errors)
 
+        for schema in schemas_in_range.schemas:
             if not schema.is_early_startup:
                 # Normally localized experiments cannot set prefs, but
                 # isEarlyStartup features will always set prefs for all the
@@ -1707,16 +1715,19 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
     @classmethod
     def _validate_schema(
-        cls, obj: Any, schema: dict[str, Any], version: Optional[NimbusFeatureVersion]
+        cls,
+        obj: Any,
+        schema: dict[str, Any],
+        versions: list[Optional[NimbusFeatureVersion]],
     ) -> list[str]:
         try:
             jsonschema.validate(obj, schema, resolver=NestedRefResolver(schema))
         except jsonschema.ValidationError as e:
             err_msg = e.message
-            if version is not None:
-                err_msg += f" at version {version}"
-
-            return [err_msg]
+            return [
+                f"{err_msg} at version {version}" if version is not None else err_msg
+                for version in versions
+            ]
 
         return []
 
