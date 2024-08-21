@@ -1,17 +1,4 @@
 #-------------------------
-FROM alpine:3.12.0 as file-loader
-
-# To preserve layer caching across machines which may have different local file properties
-# such as permissions, timestamps, etc, all files are copied into a container and their
-# permissions and timestamps are reset to consistent values
-# Credit: https://gist.github.com/kekru/8ac61cd87536a4355220b56ae2f4b0a9
-COPY . /experimenter/
-RUN chmod -R 555 /experimenter \
-    && chown -R root:root /experimenter \
-    && find /experimenter -exec touch -a -m -t 201512180130.09 {} \;
-
-
-#-------------------------
 # System packages
 FROM python:3.11-bullseye AS system-builder
 
@@ -46,8 +33,8 @@ ENV PATH "/root/.cargo/bin:$PATH"
 FROM system-builder AS python-builder
 WORKDIR /experimenter
 
-COPY --from=file-loader /experimenter/pyproject.toml /experimenter/pyproject.toml
-COPY --from=file-loader /experimenter/poetry.lock /experimenter/poetry.lock
+COPY ./pyproject.toml /experimenter/pyproject.toml
+COPY ./poetry.lock /experimenter/poetry.lock
 RUN poetry install
 
 # If any package is installed, that is incompatible by version, this command
@@ -61,12 +48,15 @@ FROM system-builder AS node-builder
 WORKDIR /experimenter
 
 # Node packages for legacy and nimbus ui
-COPY --from=file-loader /experimenter/package.json /experimenter/package.json
-COPY --from=file-loader /experimenter/yarn.lock /experimenter/yarn.lock
-COPY --from=file-loader /experimenter/experimenter/legacy/legacy-ui/core/package.json /experimenter/experimenter/legacy/legacy-ui/core/package.json
-COPY --from=file-loader /experimenter/experimenter/nimbus-ui/package.json /experimenter/experimenter/nimbus-ui/package.json
-COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/static/package.json /experimenter/experimenter/nimbus_ui_new/static/package.json
+COPY ./package.json /experimenter/package.json
+COPY ./yarn.lock /experimenter/yarn.lock
+COPY ./experimenter/legacy/legacy-ui/core/package.json /experimenter/experimenter/legacy/legacy-ui/core/package.json
+COPY ./experimenter/nimbus-ui/package.json /experimenter/experimenter/nimbus-ui/package.json
+COPY ./experimenter/nimbus_ui_new/static/package.json /experimenter/experimenter/nimbus_ui_new/static/package.json
 RUN yarn install --frozen-lockfile
+COPY ./experimenter/legacy/legacy-ui/core/ /experimenter/experimenter/legacy/legacy-ui/core/
+COPY ./experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
+COPY ./experimenter/nimbus_ui_new/ /experimenter/experimenter/nimbus_ui_new/
 
 
 # Dev image
@@ -75,7 +65,7 @@ FROM system-builder AS dev
 WORKDIR /experimenter
 
 # Scripts for waiting for the db and setting up kinto
-COPY --from=file-loader /experimenter/bin/ /experimenter/bin/
+COPY ./bin/ /experimenter/bin/
 RUN chmod +x /experimenter/bin/wait-for-it.sh
 
 # Python packages
@@ -102,7 +92,7 @@ RUN mkdir -p /application-services/bin/ && \
 FROM dev AS test
 
 # Copy source
-COPY --from=file-loader /experimenter/ /experimenter/
+COPY . /experimenter/
 
 
 # Build image
@@ -110,15 +100,15 @@ COPY --from=file-loader /experimenter/ /experimenter/
 FROM test AS ui
 
 # Build legacy assets
-COPY --from=file-loader /experimenter/experimenter/legacy/legacy-ui/* /experimenter/experimenter/legacy/legacy-ui/
+COPY ./experimenter/legacy/legacy-ui/* /experimenter/experimenter/legacy/legacy-ui/
 RUN yarn workspace @experimenter/core build
 
 # Build nimbus ui assets
-COPY --from=file-loader /experimenter/experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
+COPY ./experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/nimbus-ui build
 
 # Build nimbus_ui_new assets
-COPY --from=file-loader /experimenter/experimenter/nimbus_ui_new/ /experimenter/experimenter/nimbus_ui_new/
+COPY ./experimenter/nimbus_ui_new/ /experimenter/experimenter/nimbus_ui_new/
 RUN yarn workspace @experimenter/nimbus_ui_new build
 
 
@@ -144,9 +134,9 @@ COPY --from=dev /usr/local/bin/ /usr/local/bin/
 COPY --from=dev /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 COPY --from=dev /experimenter/bin/ /experimenter/bin/
 COPY --from=dev /application-services/nimbus_megazord/ /application-services/nimbus_megazord/
-COPY --from=file-loader /experimenter/manage.py /experimenter/manage.py
-COPY --from=file-loader /experimenter/experimenter/ /experimenter/experimenter/
-COPY --from=file-loader /experimenter/manifesttool/ /experimenter/manifesttool/
+COPY ./manage.py /experimenter/manage.py
+COPY ./experimenter/ /experimenter/experimenter/
+COPY ./manifesttool/ /experimenter/manifesttool/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
 COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
 COPY --from=ui /experimenter/experimenter/nimbus_ui_new/static/dist/ /experimenter/experimenter/nimbus_ui_new/static/dist/
