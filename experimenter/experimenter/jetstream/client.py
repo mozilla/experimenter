@@ -5,7 +5,7 @@ from itertools import chain
 from pathlib import Path
 
 from django.conf import settings
-from django.core.files.storage import default_storage
+from django.core.files.storage import storages
 from mozilla_nimbus_schemas.jetstream import (
     AnalysisBasis,
     AnalysisErrors,
@@ -41,8 +41,11 @@ ALL_STATISTICS = {
 
 
 def load_data_from_gcs(path):
-    if default_storage.exists(path):
-        return json.loads(default_storage.open(path).read())
+    analysis_storage = storages["analysis"]
+    if analysis_storage.exists(path):
+        return json.loads(analysis_storage.open(path).read())
+    else:
+        raise RuntimeError(f"Could not find data in analysis bucket at path {path}")
 
 
 def validate_data(data_json):
