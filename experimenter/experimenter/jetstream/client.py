@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.files.storage import storages
 from mozilla_nimbus_schemas.jetstream import (
     AnalysisBasis,
+    AnalysisError,
     AnalysisErrors,
     Metadata,
     SampleSizes,
@@ -39,9 +40,10 @@ ALL_STATISTICS = {
     Statistic.PERCENT,
 }
 
+analysis_storage = storages["analysis"]
+
 
 def load_data_from_gcs(path):
-    analysis_storage = storages["analysis"]
     if analysis_storage.exists(path):
         return json.loads(analysis_storage.open(path).read())
     else:
@@ -192,12 +194,22 @@ def get_experiment_data(experiment: NimbusExperiment):
         AnalysisWindow.OVERALL: {},
     }
 
-    experiment_metadata = get_metadata(recipe_slug)
+    runtime_errors = []
+    experiment_metadata = None
+    try:
+        experiment_metadata = get_metadata(recipe_slug)
+    except RuntimeError as e:
+        runtime_errors.append(str(e))
+
     outcomes_metadata = (
         experiment_metadata.get("outcomes") if experiment_metadata is not None else None
     )
 
-    experiment_errors = get_analysis_errors(recipe_slug)
+    experiment_errors = None
+    try:
+        experiment_errors = get_analysis_errors(recipe_slug)
+    except RuntimeError as e:
+        runtime_errors.append(str(e))
 
     experiment_data = {
         "show_analysis": settings.FEATURE_ANALYSIS,
@@ -206,7 +218,11 @@ def get_experiment_data(experiment: NimbusExperiment):
 
     for window in windows:
         experiment_data[window] = {}
-        data_from_jetstream = get_data(recipe_slug, window) or []
+        data_from_jetstream = []
+        try:
+            data_from_jetstream = get_data(recipe_slug, window)
+        except RuntimeError as e:
+            runtime_errors.append(str(e))
 
         segment_points_enrollments = defaultdict(list)
         segment_points_exposures = defaultdict(list)
@@ -317,6 +333,17 @@ def get_experiment_data(experiment: NimbusExperiment):
                 except (ValueError, TypeError, KeyError):
                     # ill-formatted/missing timestamp: default to including the error
                     errors_experiment_overall.append(err)
+
+    for e in runtime_errors:
+        analysis_error = AnalysisError(
+            experiment=experiment.slug,
+            filename="experimenter/jetstream/client.py",
+            func_name="load_data_from_gcs",
+            log_level="ERROR",
+            message=e,
+            timestamp=datetime.now(),
+        )
+        errors_experiment_overall.append(analysis_error.dict())
 
     errors_by_metric["experiment"] = errors_experiment_overall
 
