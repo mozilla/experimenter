@@ -487,8 +487,9 @@ KINTO_ADMIN_URL = config("KINTO_ADMIN_URL", default=urljoin(KINTO_HOST, "/admin/
 KINTO_REVIEW_TIMEOUT = config("KINTO_REVIEW_TIMEOUT", cast=int)
 
 # Jetstream GCS Bucket data
-GS_PROJECT_ID = "experiments-analysis"
-GS_BUCKET_NAME = "mozanalysis"
+ANALYSIS_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+ANALYSIS_GS_PROJECT_ID = "experiments-analysis"
+ANALYSIS_GS_BUCKET_NAME = "mozanalysis"
 
 # GCS bucket for user uploads, e.g. branch screenshots
 UPLOADS_GS_BUCKET_NAME = config("UPLOADS_GS_BUCKET_NAME", default=None)
@@ -509,6 +510,12 @@ STORAGES = {
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    "analysis": {
+        "BACKEND": ANALYSIS_FILE_STORAGE,
+        "OPTIONS": {
+            "bucket_name": ANALYSIS_GS_BUCKET_NAME,
+        },
     },
 }
 
