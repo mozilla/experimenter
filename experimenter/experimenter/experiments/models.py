@@ -23,7 +23,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
-from experimenter.base import UploadsStorage
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import (
     ChangeEventType,
@@ -1298,7 +1297,6 @@ class NimbusBranchScreenshot(models.Model):
         on_delete=models.CASCADE,
     )
     image = models.ImageField(
-        storage=UploadsStorage,
         upload_to=nimbus_branch_screenshot_upload_to,
     )
     description = models.TextField(blank=True, default="")
@@ -1480,8 +1478,8 @@ class NimbusFeatureConfig(models.Model):
 
     def schemas_between_versions(
         self,
-        min_version: packaging.version,
-        max_version: Optional[packaging.version],
+        min_version: packaging.version.Version,
+        max_version: Optional[packaging.version.Version],
     ) -> QuerySet["NimbusVersionedSchema"]:
         return (
             self.schemas.filter(
@@ -1495,6 +1493,12 @@ class NimbusFeatureConfig(models.Model):
 
     @dataclass
     class VersionedSchemaRange:
+        # The minimum version of the range.
+        min_version: packaging.version.Version
+
+        # The maximum version of the range.
+        max_version: Optional[packaging.version.Version]
+
         # The versioned schemas in the requested range, or a single element list
         # with an unversioned schema.
         schemas: list["NimbusVersionedSchema"]
@@ -1507,8 +1511,8 @@ class NimbusFeatureConfig(models.Model):
 
     def get_versioned_schema_range(
         self,
-        min_version: packaging.version,
-        max_version: Optional[packaging.version],
+        min_version: packaging.version.Version,
+        max_version: Optional[packaging.version.Version],
     ) -> VersionedSchemaRange:
         unsupported_versions: list[NimbusFeatureVersion] = []
 
@@ -1576,6 +1580,8 @@ class NimbusFeatureConfig(models.Model):
                 # There are versioned schemas outside this range. This feature
                 # is unsupported in this range.
                 return NimbusFeatureConfig.VersionedSchemaRange(
+                    min_version=min_version,
+                    max_version=max_version,
                     schemas=[],
                     unsupported_in_range=True,
                     unsupported_versions=[],
@@ -1586,6 +1592,8 @@ class NimbusFeatureConfig(models.Model):
                 schemas = [self.schemas.get(version=None)]
 
         return NimbusFeatureConfig.VersionedSchemaRange(
+            min_version=min_version,
+            max_version=max_version,
             schemas=schemas,
             unsupported_in_range=False,
             unsupported_versions=unsupported_versions,
@@ -1654,6 +1662,9 @@ class NimbusFeatureVersion(models.Model):
 
     def __str__(self):  # pragma: no cover
         return f"{self.major}.{self.minor}.{self.patch}"
+
+    def as_packaging_version(self) -> packaging.version.Version:
+        return packaging.version.parse(str(self))
 
 
 class NimbusVersionedSchema(models.Model):

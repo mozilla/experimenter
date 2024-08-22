@@ -2958,17 +2958,25 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             )
 
     def test_desktop_prefflips_channel_required(self):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            feature_configs=[
-                NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
-            ],
+            feature_configs=[prefflips_feature],
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps({"prefs": {}})
+        feature_value.save()
 
         serializer = NimbusReviewSerializer(
             experiment,
@@ -2993,22 +3001,30 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
     )
     def test_desktop_prefflips_feature_allowed_on_v128_esr_only(self, channel):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_128,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            feature_configs=[
-                NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
-            ],
+            feature_configs=[prefflips_feature],
             channel=channel,
         )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps({"prefs": {}})
+        feature_value.save()
 
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         if channel == NimbusExperiment.Channel.ESR:
@@ -3035,17 +3051,25 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
     )
     def test_desktop_prefflips_feature_allowed_on_v129(self, channel):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            feature_configs=[
-                NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
-            ],
+            feature_configs=[prefflips_feature],
             channel=channel,
         )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps({"prefs": {}})
+        feature_value.save()
 
         serializer = NimbusReviewSerializer(
             experiment,
@@ -3054,6 +3078,85 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @parameterized.expand(
+        [
+            ([(126, 0, 0)], None),
+            ([(129, 1, 2)], "129.1.2"),
+            ([(129, 0, 0), (129, 0, 1), (130, 0, 0)], "129.0.0-130.0.0"),
+        ]
+    )
+    def test_desktop_prefflips_warns_setpref_conflicts(
+        self, versions, formatted_versions
+    ):
+        pref = "foo.bar.baz"
+
+        NimbusFeatureConfigFactory.create(
+            name="test-feature",
+            slug="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    set_pref_vars={"variable": pref},
+                    version=NimbusFeatureVersion.objects.create(
+                        major=major, minor=minor, patch=patch
+                    ),
+                )
+                for (major, minor, patch) in versions
+            ],
+        )
+
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[prefflips_feature],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps(
+            {"prefs": {pref: {"branch": "user", "value": "hello, world"}}}
+        )
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        if formatted_versions is None:
+            self.assertEqual(serializer.warnings, {})
+        else:
+            self.assertEqual(
+                serializer.warnings,
+                {
+                    "reference_branch": {
+                        "feature_values": [
+                            {
+                                "value": [
+                                    NimbusConstants.WARNING_FEATURE_VALUE_IN_VERSIONS.format(
+                                        versions=formatted_versions,
+                                        warning=NimbusConstants.WARNING_PREF_FLIPS_PREF_CONTROLLED_BY_FEATURE.format(
+                                            pref=pref, feature_config_slug="test-feature"
+                                        ),
+                                    )
+                                ]
+                            }
+                        ]
+                    }
+                },
+            )
 
 
 class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
@@ -3479,20 +3582,20 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                                 "'true' is not of type 'boolean' at version 121.0.0",
                                 (
                                     "Schema validation errors occured during locale "
-                                    "substitution for locale en-CA at version 121.0.0"
-                                ),
-                                "'true' is not of type 'boolean' at version 121.0.0",
-                                (
-                                    "Schema validation errors occured during locale "
                                     "substitution for locale en-US at version 120.0.0"
                                 ),
                                 "'true' is not of type 'boolean' at version 120.0.0",
                                 (
                                     "Schema validation errors occured during locale "
+                                    "substitution for locale en-CA at version 121.0.0"
+                                ),
+                                "'true' is not of type 'boolean' at version 121.0.0",
+                                (
+                                    "Schema validation errors occured during locale "
                                     "substitution for locale en-CA at version 120.0.0"
                                 ),
                                 "'true' is not of type 'boolean' at version 120.0.0",
-                            ],
+                            ]
                         }
                     ]
                 }

@@ -3,6 +3,7 @@ orbs:
   gh: circleci/github-cli@2.2
   gcp-cli: circleci/gcp-cli@3.1.1
   android: circleci/android@2.5.0
+  macos: circleci/macos@2.5.1
 commands:
   check_file_paths:
     description: "Check file paths"
@@ -367,6 +368,64 @@ jobs:
       - store_artifacts:
           path: /home/circleci/project/test-reports/report.htm
 
+  integration_test_ios_fennec:
+    macos:
+      xcode: 15.3.0
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "experimenter/"
+      - macos/preboot-simulator:
+          version: "17.4"
+          platform: "iOS"
+          device: "iPhone 15"
+      - attach_workspace:
+          at: /tmp/experimenter
+      - run:
+          name: Clone Firefox iOS Repo
+          command: git clone https://github.com/mozilla-mobile/firefox-ios.git
+      - run:
+          name: Install nimbus-cli
+          command: curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
+      - run:
+          name: Setup and build Firefox app
+          command: |
+            cd firefox-ios
+            sh ./bootstrap.sh
+            cd firefox-ios
+            pip3 install virtualenv poetry
+            xcodebuild build-for-testing -project Client.xcodeproj -scheme Fennec -configuration Fennec -sdk iphonesimulator -quiet -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4'
+      - run:
+          name: Run Tests
+          command: |
+            cd firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests
+            export SIMULATOR_UDID=$(python get_specific_device_udid.py)
+            cp -f ~/project/experimenter/tests/integration/nimbus/ios/test_ios_integration.py ./
+            poetry install
+            poetry run pytest -k test_ios_integration.py --feature ios_enrollment
+      - store_artifacts:
+          path: ~/project/firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests/results/index.html
+
+  create_fenix_fennec_recipes:
+    working_directory: ~/experimenter
+    machine:
+      image: ubuntu-2004:2023.10.1
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "experimenter/"
+      - run:
+          name: Create experiment on experimenter
+          command: |
+            cp .env.integration-tests .env
+            export CIRRUS=1
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="-k test_create_ios_experiment_for_integration_test[FIREFOX_IOS]"
+      - persist_to_workspace:
+          root: experimenter
+          paths:
+            - tests/integration/ios_recipe.json
+      
   deploy_experimenter:
     working_directory: ~/experimenter
     machine:
@@ -605,6 +664,7 @@ jobs:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
+    resource_class: xlarge
     steps:
       - checkout
       - docker_login:
@@ -614,15 +674,13 @@ jobs:
           name: Build and upload images
           command: |
             cd experimenter/tests/integration/nimbus/android
-            docker run --name fenix-builder ${DOCKERHUB_REPO}:experimenter-moz-central bash build_android.sh
-            docker commit fenix-builder moz-central-builder
-            docker tag moz-central-builder ${DOCKERHUB_REPO}:experimenter-moz-central
-            docker push ${DOCKERHUB_REPO}:experimenter-moz-central
+            docker build -t fenix-builder -f moz-central.test-container.Dockerfile .
+            docker run -d --name fenix-builder fenix-builder
             docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
             docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
             docker build -f fenix-apk-store.Dockerfile -t ${DOCKERHUB_REPO}:fenix-apk-store .
             docker push ${DOCKERHUB_REPO}:fenix-apk-store
-          no_output_timeout: 1h
+          no_output_timeout: 60m
 
 workflows:
   build_firefox:
@@ -661,6 +719,12 @@ workflows:
           name: Check Cirrus aarch64
       - check_schemas:
           name: Check Schemas
+          filters:
+            branches:
+              ignore:
+                - main
+      - create_fenix_fennec_recipes:
+          name: Create fenix and fennec recipes
           filters:
             branches:
               ignore:
@@ -727,6 +791,14 @@ workflows:
                 - main
       - integration_test_android_fenix:
           name: Test Firefox for Android (Fenix)
+          filters:
+            branches:
+              ignore:
+                - main
+      - integration_test_ios_fennec:
+          name: Test Firefox for iOS (Fennec)
+          requires:
+            - Create fenix and fennec recipes
           filters:
             branches:
               ignore:
