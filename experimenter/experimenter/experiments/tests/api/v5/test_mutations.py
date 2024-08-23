@@ -1654,6 +1654,32 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
         experiment = NimbusExperiment.objects.get()
         self.assertEqual(experiment.qa_status, new_status)
 
+    def test_update_use_group_id(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            use_group_id=False,
+        )
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "useGroupId": True,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get()
+        self.assertTrue(experiment.use_group_id)
+
 
 @mock_valid_outcomes
 class TestCloneExperimentMutation(GraphQLTestCase):

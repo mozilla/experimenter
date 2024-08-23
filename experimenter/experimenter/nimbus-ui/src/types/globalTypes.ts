@@ -326,6 +326,7 @@ export interface ExperimentInput {
   targetingConfigSlug?: string | null;
   totalEnrolledClients?: number | null;
   treatmentBranches?: (BranchInput | null)[] | null;
+  useGroupId?: boolean | null;
   vpSignoff?: boolean | null;
   warnFeatureSchema?: boolean | null;
 }
