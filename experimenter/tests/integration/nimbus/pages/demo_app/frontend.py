@@ -56,7 +56,8 @@ class DemoAppPage(Base):
         self.click_button(self.SEND_DETAILS_BUTTON_XPATH, "Send My Details Button")
 
     def fill_and_send_form_data(self, client_id, context, nimbus_preview=False):
-        """Fill the form with client_id and context, optionally enable Nimbus preview, and submit the form."""
+        """Fill the form with client_id and context, \
+            optionally enable Nimbus preview, and submit the form."""
         self.fill_form(client_id, context)
         if nimbus_preview:
             self.enable_nimbus_preview()
