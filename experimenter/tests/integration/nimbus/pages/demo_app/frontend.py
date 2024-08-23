@@ -23,7 +23,8 @@ class DemoAppPage(Base):
         context_input = self.wait_for_and_find_element(
             By.XPATH, context_xpath, description=None
         )
-        time.sleep(2)
+        time.sleep(10)
+        
         client_id_input.send_keys(client_id)
         context_input.send_keys(context)
 
