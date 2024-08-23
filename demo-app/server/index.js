@@ -17,7 +17,7 @@ const server = http.createServer(async (req, res) => {
         },
       },
     };
-
+    // Get client ID and context and nimbus preview flag from request headers
     const clientID = req.headers['x-client-id'] || defaultApiInput.client_id;
     const contextJSON = req.headers['x-context'] || JSON.stringify(defaultApiInput.context);
     const context = JSON.parse(contextJSON);

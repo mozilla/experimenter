@@ -225,8 +225,6 @@ async def compute_features(
     request_data: FeatureRequest,
     nimbus_preview: bool = Query(default=False, alias="nimbus_preview"),
 ):
-    print(nimbus_preview, "nimbus preview")
-    print("request data", request_data)
     if not request_data.client_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
