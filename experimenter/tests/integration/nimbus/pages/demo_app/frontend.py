@@ -61,7 +61,7 @@ class DemoAppPage(Base):
         self.fill_form(client_id, context)
         if nimbus_preview:
             self.enable_nimbus_preview()
-        time.sleep(10)  # Adjust as needed based on test environment
+        time.sleep(10)
         self.click_send_my_details()
 
     def enter_text(self, xpath, text, description):
