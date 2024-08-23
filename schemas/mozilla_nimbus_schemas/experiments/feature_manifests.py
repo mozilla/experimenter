@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Literal, Optional, Union
 
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, Field, RootModel
 
 
 class FeatureVariableType(Enum):
@@ -22,11 +22,11 @@ class SetPref(BaseModel):
 
 
 class FeatureVariable(BaseModel):
-    description: Optional[str]
-    enum: Optional[list[str]]
-    fallback_pref: Optional[str] = Field(alias="fallbackPref")
-    type: Optional[FeatureVariableType]
-    set_pref: Optional[Union[str, SetPref]] = Field(alias="setPref")
+    description: Optional[str] = None
+    enum: Optional[list[str]] = None
+    fallback_pref: Optional[str] = Field(None, alias="fallbackPref")
+    type: Optional[FeatureVariableType] = None
+    set_pref: Optional[Union[str, SetPref]] = Field(None, alias="setPref")
 
 
 class NimbusFeatureSchema(BaseModel):
@@ -42,12 +42,12 @@ class BaseFeature(BaseModel):
     the fields common in both cases.
     """
 
-    description: Optional[str]
-    is_early_startup: Optional[bool] = Field(alias="isEarlyStartup")
+    description: Optional[str] = None
+    is_early_startup: Optional[bool] = Field(None, alias="isEarlyStartup")
     variables: dict[str, FeatureVariable]
 
     #: Only used by Firefox Desktop.
-    json_schema: Optional[NimbusFeatureSchema] = Field(alias="schema")
+    json_schema: Optional[NimbusFeatureSchema] = Field(None, alias="schema")
 
 
 class FeatureWithExposure(BaseFeature):
@@ -67,20 +67,11 @@ class FeatureWithoutExposure(BaseFeature):
         return None
 
 
-class Feature(BaseModel):
-    __root__: Union[FeatureWithExposure, FeatureWithoutExposure] = Field(
+class Feature(RootModel):
+    root: Union[FeatureWithExposure, FeatureWithoutExposure] = Field(
         discriminator="has_exposure"
     )
 
 
-# `extra=Extra.allow` is needed for the pydantic2ts generation of
-# typescript definitions. Without this, models with only a custom
-# __root__ dictionary field will generate as empty types.
-#
-# See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
-# and https://github.com/phillipdupuis/pydantic-to-typescript/issues/39
-# for more info.
-#
-# If this is fixed we should remove `extra=Extra.allow`.
-class FeatureManifest(BaseModel, extra=Extra.allow):
-    __root__: dict[str, Feature]
+class FeatureManifest(RootModel):
+    root: dict[str, Feature]

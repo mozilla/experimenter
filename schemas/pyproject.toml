@@ -9,7 +9,7 @@ packages = [{ include = "mozilla_nimbus_schemas" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pydantic = "^1.10.7"
+pydantic = "^2"
 polyfactory = "^2.7.2"
 
 [tool.poetry.group.dev.dependencies]
@@ -47,11 +47,7 @@ ignore = [
 ]
 line-length = 90
 [tool.ruff.pep8-naming]
-classmethod-decorators = [
-    "classmethod",
-    "pydantic.validator",
-    "pydantic.root_validator",
-]
+classmethod-decorators = ["classmethod"]
 
 [tool.flake8]
 max-line-length = 90

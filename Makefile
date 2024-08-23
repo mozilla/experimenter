@@ -289,9 +289,10 @@ SCHEMAS_DIFF_PYDANTIC = \
 	diff /tmp/test_index.d.ts index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1) &&\
 	echo 'Done. No problems found in schemas.'
 SCHEMAS_TEST = pytest
-SCHEMAS_FORMAT = ruff --fix . && black .
+SCHEMAS_FORMAT = ruff check --fix . && black .
 SCHEMAS_DIST_PYPI = poetry build
-SCHEMAS_DIST_NPM = pydantic2ts --module mozilla_nimbus_schemas.__init__ --output ./index.d.ts --json2ts-cmd 'yarn json2ts'
+# SCHEMAS_DIST_NPM = pydantic2ts --module mozilla_nimbus_schemas.__init__ --output ./index.d.ts --json2ts-cmd 'yarn json2ts'
+SCHEMAS_DIST_NPM = poetry run python generate_json_schema.py | yarn json2ts > index.d.ts
 SCHEMAS_DEPLOY_PYPI = twine upload --skip-existing dist/*;
 SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc;yarn publish --new-version ${SCHEMAS_VERSION} --access public;
 SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
@@ -315,7 +316,7 @@ schemas_check: schemas_lint
 schemas_dist_pypi: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_PYPI)"
 
-schemas_dist_npm: schemas_docker_build
+schemas_dist_npm: schemas_docker_build schemas_dist_pypi
 	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_NPM)"
 
 schemas_dist: schemas_docker_build schemas_dist_pypi schemas_dist_npm

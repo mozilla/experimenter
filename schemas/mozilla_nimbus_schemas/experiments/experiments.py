@@ -18,7 +18,7 @@ class ExperimentOutcome(BaseModel):
 
 class ExperimentFeatureConfig(BaseModel):
     featureId: str
-    enabled: Optional[bool]
+    enabled: Optional[bool] = None
     value: dict
 
 
@@ -51,9 +51,9 @@ class NimbusExperiment(BaseModel):
     userFacingName: str
     userFacingDescription: str
     isEnrollmentPaused: bool
-    isRollout: Optional[bool]
+    isRollout: Optional[bool] = None
     bucketConfig: ExperimentBucketConfig
-    outcomes: Optional[List[ExperimentOutcome]]
+    outcomes: Optional[List[ExperimentOutcome]] = None
     featureIds: List[str]
     branches: List[
         Union[
@@ -62,13 +62,13 @@ class NimbusExperiment(BaseModel):
             ExperimentMultiFeatureMobileBranch,
         ]
     ]
-    targeting: Optional[str]
-    startDate: Optional[str]
-    enrollmentEndDate: Optional[str]
-    endDate: Optional[str]
-    proposedDuration: Optional[int]
-    proposedEnrollment: Optional[int]
-    referenceBranch: Optional[str]
-    featureValidationOptOut: Optional[bool]
-    localizations: Optional[dict]
-    locales: Optional[List[str]]
+    targeting: Optional[str] = None
+    startDate: Optional[str] = None
+    enrollmentEndDate: Optional[str] = None
+    endDate: Optional[str] = None
+    proposedDuration: Optional[int] = None
+    proposedEnrollment: Optional[int] = None
+    referenceBranch: Optional[str] = None
+    featureValidationOptOut: Optional[bool] = None
+    localizations: Optional[dict] = None
+    locales: Optional[List[str]] = None
