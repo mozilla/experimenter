@@ -24,7 +24,6 @@ class DemoAppPage(Base):
             By.XPATH, context_xpath, description=None
         )
         time.sleep(10)
-           
         client_id_input.send_keys(client_id)
         context_input.send_keys(context)
 
