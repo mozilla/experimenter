@@ -273,7 +273,7 @@ def test_nimbus_preview_flag(
     selenium.refresh()
     result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
     assert result_text_element.is_displayed()
-
+    # enable nimbus preview flag
     demo_app.fill_and_send_form_data("test", '{"test1":"test2"}', nimbus_preview=True)
     demo_app.click_send_my_details()
 
@@ -286,7 +286,7 @@ def test_nimbus_preview_flag(
     selenium.refresh()
     result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
     assert result_text_element.is_displayed()
-
+    # not using nimbus preview flag
     demo_app.fill_and_send_form_data("example1", '{"test1":"test2"}')
     demo_app.click_send_my_details()
 
