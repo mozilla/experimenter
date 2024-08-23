@@ -34,7 +34,7 @@ class DemoAppPage(Base):
             if not preview_checkbox.is_selected():
                 preview_checkbox.click()
 
-        time.sleep(600)
+        time.sleep(200)
 
     def click_send_my_details(self):
         details_xpath = "//button[contains(text(), 'Send My Details')]"
