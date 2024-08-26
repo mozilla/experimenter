@@ -49,6 +49,11 @@ def start_process(path, command):
         return process
 
 
+@pytest.fixture
+def experiment_slug():
+    return "firefox-fenix-integration-test-experiment"
+
+
 @pytest.fixture(name="run_nimbus_cli_command")
 def fixture_run_nimbus_cli_command(gradlewbuild_log):
     def _run_nimbus_cli_command(command):
@@ -152,7 +157,6 @@ def fixture_setup_experiment(
     run_nimbus_cli_command, delete_telemetry_pings, experiment_slug
 ):
     def setup_experiment():
-        experiment_json = next(iter(here.glob("**/fixtures/experiment.json")))
         delete_telemetry_pings()
         logging.info("Testing fenix e2e experiment")
         command = [
@@ -166,7 +170,7 @@ def fixture_setup_experiment(
             "--branch",
             "control",
             "--file",
-            f"{experiment_json}",
+            "/tmp/experimenter/tests/integration/fenix_recipe.json",
             "--reset-app",
         ]
         run_nimbus_cli_command(" ".join(command))
