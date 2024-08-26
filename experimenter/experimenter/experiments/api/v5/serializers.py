@@ -782,6 +782,7 @@ class NimbusExperimentSerializer(
             "targeting_config_slug",
             "total_enrolled_clients",
             "treatment_branches",
+            "use_group_id",
             "vp_signoff",
             "warn_feature_schema",
         ]

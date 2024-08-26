@@ -51,6 +51,7 @@ class BucketRandomizationUnit(models.TextChoices):
     NORMANDY = "normandy_id"
     NIMBUS = "nimbus_id"
     USER_ID = "user_id"
+    GROUP_ID = "group_id"
 
 
 class TargetingMultipleKintoCollectionsError(Exception):

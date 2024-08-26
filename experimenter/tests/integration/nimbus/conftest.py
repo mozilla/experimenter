@@ -134,6 +134,13 @@ def application(request):
     return request.param.value
 
 
+@pytest.fixture(
+    params=[False, True],
+)
+def use_group_id(request):
+    return request.param
+
+
 @pytest.fixture(scope="session")
 def _verify_url(request, base_url):
     """Verifies the base URL"""
