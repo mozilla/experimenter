@@ -5,11 +5,6 @@
 import pytest
 
 
-@pytest.fixture
-def experiment_slug():
-    return "firefox-fenix-test-experiment"
-
-
 @pytest.mark.generic_test
 @pytest.mark.xfail(reason="Timeouts due to system lag")
 def test_experiment_unenrolls_via_studies_toggle(

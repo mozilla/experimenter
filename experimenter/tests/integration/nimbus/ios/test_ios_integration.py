@@ -11,7 +11,7 @@ here = Path(__file__)
 
 @pytest.fixture
 def experiment_slug():
-    return "firefox-ios-integration-test"
+    return "firefox-ios-integration-test-experiment"
 
 
 @pytest.fixture(name="device_control", scope="module", autouse=True)
