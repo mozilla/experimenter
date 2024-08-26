@@ -71,11 +71,14 @@ def test_check_telemetry_enrollment_unenrollment(
     experiment_slug,
     experiment_url,
     default_data_api,
+    use_group_id,
 ):
+    data = default_data_api.copy()
+    data["useGroupId"] = use_group_id
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        default_data_api,
+        data,
     )
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()

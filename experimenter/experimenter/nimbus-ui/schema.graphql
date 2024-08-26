@@ -599,6 +599,7 @@ input ExperimentInput {
   targetingConfigSlug: String
   totalEnrolledClients: Int
   treatmentBranches: [BranchInput]
+  useGroupId: Boolean
   vpSignoff: Boolean
   warnFeatureSchema: Boolean
 }
