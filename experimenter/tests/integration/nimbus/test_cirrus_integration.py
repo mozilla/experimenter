@@ -20,9 +20,10 @@ def test_create_new_rollout_approve_remote_settings_cirrus(
     demo_app,
 ):
     # Launch a rollout with 100% population
-    reference_branch_value = '{"enabled": true, "something": "You are enrolled"}'
     create_experiment(
-        selenium, is_rollout=True, reference_branch_value=reference_branch_value
+        selenium,
+        is_rollout=True,
+        reference_branch_value=demo_app.REFERENCE_BRANCH_VALUE,
     ).launch_and_approve()
 
     kinto_client.approve()
@@ -31,20 +32,20 @@ def test_create_new_rollout_approve_remote_settings_cirrus(
 
     HomePage(selenium, base_url).open().find_in_table(experiment_name)
 
-    # demo app frontend, default displays "Not Enrolled"
+    # Demo app frontend, default displays "Not Enrolled"
     navigate_to(selenium)
     selenium.refresh()
-    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
-    assert result_text_element.is_displayed()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
 
-    # send client_id and context in a request to backend, backend will connect to
-    # cirrus and will return back the response
-    demo_app.fill_and_send_form_data("dummy_client_id", '{"test1":"test2"}')
-    demo_app.click_send_my_details()
+    # Send client_id and context to backend
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_1["client_id"], demo_app.CLIENT_1["context"]
+    )
 
-    # it should render "You are enrolled", reference branch value
-    result_text_element = demo_app.wait_for_result_text(["You are enrolled"])
-    assert result_text_element.is_displayed()
+    # Should render "You are enrolled"
+    assert demo_app.wait_for_result_text([demo_app.CONTROL_BRANCH]).is_displayed()
 
     # Unenroll
     summary = SummaryPage(selenium, experiment_url).open()
@@ -56,17 +57,17 @@ def test_create_new_rollout_approve_remote_settings_cirrus(
     # Demo app frontend, default displays "Not Enrolled" again
     navigate_to(selenium)
     selenium.refresh()
-
-    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
-    assert result_text_element.is_displayed()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
 
     # Send the same client_id and context after the rollout has ended
-    demo_app.fill_and_send_form_data("dummy_client_id", '{"test1":"test2"}')
-    demo_app.click_send_my_details()
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_1["client_id"], demo_app.CLIENT_1["context"]
+    )
 
-    # returns the default value
-    result_text_element = demo_app.wait_for_result_text(["wicked"])
-    assert result_text_element.is_displayed()
+    # Returns the default value
+    assert demo_app.wait_for_result_text([demo_app.DEFAULT_WICKED_TEXT]).is_displayed()
 
 
 @pytest.mark.cirrus_enrollment
@@ -80,12 +81,10 @@ def test_create_new_experiment_approve_remote_settings_cirrus(
     demo_app,
 ):
     # Launch an experiment with two branches
-    reference_branch_value = '{"enabled": true, "something": "Control branch"}'
-    treatment_branch_value = '{"enabled": true, "something": "Treatment branch"}'
     create_experiment(
         selenium,
-        reference_branch_value=reference_branch_value,
-        treatment_branch_value=treatment_branch_value,
+        reference_branch_value=demo_app.REFERENCE_BRANCH_VALUE,
+        treatment_branch_value=demo_app.TREATMENT_BRANCH_VALUE,
     ).launch_and_approve()
 
     kinto_client.approve()
@@ -98,33 +97,36 @@ def test_create_new_experiment_approve_remote_settings_cirrus(
     navigate_to(selenium)
     selenium.refresh()
 
-    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
-    assert result_text_element.is_displayed()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
 
     # Pass client_id and context
-    demo_app.fill_and_send_form_data("test", '{"test1":"test2"}')
-    demo_app.click_send_my_details()
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_1["client_id"], demo_app.CLIENT_1["context"]
+    )
 
     # Determine the variation displayed and assert accordingly
-    # Check if either "Control branch" or "Treatment branch" is displayed
     displayed_text = demo_app.wait_for_result_text(
-        ["Control branch", "Treatment branch"]
+        [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
     ).text
-    assert displayed_text in ["Control branch", "Treatment branch"]
+    assert displayed_text in [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
 
     # Refresh the page and try passing a new client
     selenium.refresh()
-    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
-    assert result_text_element.is_displayed()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
 
-    demo_app.fill_and_send_form_data("example1", '{"test1":"test2"}')
-    demo_app.click_send_my_details()
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_2["client_id"], demo_app.CLIENT_2["context"]
+    )
 
     # Determine the variation displayed and assert accordingly
     displayed_text = demo_app.wait_for_result_text(
-        ["Control branch", "Treatment branch"]
+        [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
     ).text
-    assert displayed_text in ["Control branch", "Treatment branch"]
+    assert displayed_text in [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
 
     # Unenroll
     summary = SummaryPage(selenium, experiment_url).open()
@@ -136,26 +138,26 @@ def test_create_new_experiment_approve_remote_settings_cirrus(
     navigate_to(selenium)
     selenium.refresh()
 
-    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
-    assert result_text_element.is_displayed()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
 
     # Send the same client_id and context after the experiment has ended
-    demo_app.fill_and_send_form_data("example1", '{"test1":"test2"}')
-    demo_app.click_send_my_details()
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_2["client_id"], demo_app.CLIENT_2["context"]
+    )
 
-    # returns the default value
-    result_text_element = demo_app.wait_for_result_text(["wicked"])
-    assert result_text_element.is_displayed()
+    # Returns the default value
+    assert demo_app.wait_for_result_text([demo_app.DEFAULT_WICKED_TEXT]).is_displayed()
 
     # Check another client id
     selenium.refresh()
-    # Send the same client_id and context after the experiment has ended
-    demo_app.fill_and_send_form_data("test", '{"test1":"test2"}')
-    demo_app.click_send_my_details()
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_1["client_id"], demo_app.CLIENT_1["context"]
+    )
 
-    # returns the default value
-    result_text_element = demo_app.wait_for_result_text(["wicked"])
-    assert result_text_element.is_displayed()
+    # Returns the default value
+    assert demo_app.wait_for_result_text([demo_app.DEFAULT_WICKED_TEXT]).is_displayed()
 
 
 @pytest.mark.cirrus_enrollment
@@ -169,12 +171,10 @@ def test_check_cirrus_targeting(
     demo_app,
 ):
     # Launch an experiment with two branches
-    reference_branch_value = '{"enabled": true, "something": "Control branch"}'
-    treatment_branch_value = '{"enabled": true, "something": "Treatment branch"}'
     create_experiment(
         selenium,
-        reference_branch_value=reference_branch_value,
-        treatment_branch_value=treatment_branch_value,
+        reference_branch_value=demo_app.REFERENCE_BRANCH_VALUE,
+        treatment_branch_value=demo_app.TREATMENT_BRANCH_VALUE,
         languages=True,
         countries=True,
     ).launch_and_approve()
@@ -189,33 +189,36 @@ def test_check_cirrus_targeting(
     navigate_to(selenium)
     selenium.refresh()
 
-    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
-    assert result_text_element.is_displayed()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
 
     # Pass client_id and context
-    demo_app.fill_and_send_form_data("test", '{"language":"en", "region":"CA"}')
-    demo_app.click_send_my_details()
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_3["client_id"], demo_app.CLIENT_3["context"]
+    )
 
     # Determine the variation displayed and assert accordingly
-    # Check if either "Control branch" or "Treatment branch" is displayed
     displayed_text = demo_app.wait_for_result_text(
-        ["Control branch", "Treatment branch"]
+        [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
     ).text
-    assert displayed_text in ["Control branch", "Treatment branch"]
+    assert displayed_text in [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
 
     # Refresh the page and try passing a new client
     selenium.refresh()
-    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
-    assert result_text_element.is_displayed()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
 
-    demo_app.fill_and_send_form_data("example1", '{"language":"en", "region":"CA"}')
-    demo_app.click_send_my_details()
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_2["client_id"], demo_app.CLIENT_3["context"]
+    )
 
     # Determine the variation displayed and assert accordingly
     displayed_text = demo_app.wait_for_result_text(
-        ["Control branch", "Treatment branch"]
+        [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
     ).text
-    assert displayed_text in ["Control branch", "Treatment branch"]
+    assert displayed_text in [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
 
     # Unenroll
     summary = SummaryPage(selenium, experiment_url).open()
@@ -227,23 +230,73 @@ def test_check_cirrus_targeting(
     navigate_to(selenium)
     selenium.refresh()
 
-    result_text_element = demo_app.wait_for_result_text(["Not Enrolled"])
-    assert result_text_element.is_displayed()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
 
     # Send the same client_id and context after the experiment has ended
-    demo_app.fill_and_send_form_data("example1", '{"language":"en", "region":"CA"}')
-    demo_app.click_send_my_details()
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_3["client_id"], demo_app.CLIENT_3["context"]
+    )
 
-    # returns the default value
-    result_text_element = demo_app.wait_for_result_text(["wicked"])
-    assert result_text_element.is_displayed()
+    # Returns the default value
+    assert demo_app.wait_for_result_text([demo_app.DEFAULT_WICKED_TEXT]).is_displayed()
 
     # Check another client id
     selenium.refresh()
-    # Send the same client_id and context after the experiment has ended
-    demo_app.fill_and_send_form_data("test", '{"language":"en", "region":"CA"}')
-    demo_app.click_send_my_details()
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_1["client_id"], demo_app.CLIENT_3["context"]
+    )
 
-    # returns the default value
-    result_text_element = demo_app.wait_for_result_text(["wicked"])
-    assert result_text_element.is_displayed()
+    # Returns the default value
+    assert demo_app.wait_for_result_text([demo_app.DEFAULT_WICKED_TEXT]).is_displayed()
+
+
+@pytest.mark.cirrus_enrollment
+def test_nimbus_preview_flag(
+    selenium,
+    experiment_url,
+    create_experiment,
+    kinto_client,
+    base_url,
+    experiment_name,
+    demo_app,
+):
+    create_experiment(
+        selenium,
+        reference_branch_value=demo_app.REFERENCE_BRANCH_VALUE,
+        treatment_branch_value=demo_app.TREATMENT_BRANCH_VALUE,
+    ).launch_to_preview()
+
+    SummaryPage(selenium, experiment_url).open().wait_for_preview_status()
+
+    navigate_to(selenium)
+    selenium.refresh()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
+
+    # Enable nimbus preview flag
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_1["client_id"],
+        demo_app.CLIENT_1["context"],
+        nimbus_preview=True,
+    )
+
+    displayed_text = demo_app.wait_for_result_text(
+        [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
+    ).text
+    assert displayed_text in [demo_app.CONTROL_BRANCH, demo_app.TREATMENT_BRANCH]
+
+    navigate_to(selenium)
+    selenium.refresh()
+    assert demo_app.wait_for_result_text(
+        [demo_app.DEFAULT_NOT_ENROLLED_TEXT]
+    ).is_displayed()
+
+    # Not using nimbus preview flag
+    demo_app.fill_and_send_form_data(
+        demo_app.CLIENT_2["client_id"], demo_app.CLIENT_2["context"]
+    )
+
+    assert demo_app.wait_for_result_text([demo_app.DEFAULT_WICKED_TEXT]).is_displayed()

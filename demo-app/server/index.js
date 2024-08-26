@@ -1,7 +1,10 @@
 const http = require('http');
+const url = require('url');
 
 const server = http.createServer(async (req, res) => {
-  if (req.url === '/api/data' && req.method === 'GET') {
+  const parsedUrl = url.parse(req.url, true);
+
+  if (parsedUrl.pathname === '/api/data' && req.method === 'GET') {
     res.setHeader('Content-Type', 'application/json');
 
     const defaultApiInput = {
@@ -14,21 +17,26 @@ const server = http.createServer(async (req, res) => {
         },
       },
     };
-
-    // Get client ID and context from request headers
+    // Get client ID and context and nimbus preview flag from request headers
     const clientID = req.headers['x-client-id'] || defaultApiInput.client_id;
     const contextJSON = req.headers['x-context'] || JSON.stringify(defaultApiInput.context);
     const context = JSON.parse(contextJSON);
+    const nimbusPreview = parsedUrl.query.nimbus_preview === 'true';
 
     const apiInput = {
       client_id: clientID,
       context: context,
+      nimbus_preview: nimbusPreview,
     };
 
+    let pathName = '/v1/features/'
+    if(nimbusPreview) {
+      pathName= pathName+"?nimbus_preview=" + nimbusPreview;
+    }
     const options = {
-      hostname: 'cirrus', // Use the service name
+      hostname: 'cirrus',
       port: 8001,
-      path: '/v1/features/',
+      path: pathName,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
