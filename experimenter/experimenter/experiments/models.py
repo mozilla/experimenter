@@ -25,6 +25,7 @@ from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import (
+    BucketRandomizationUnit,
     ChangeEventType,
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
@@ -361,6 +362,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         verbose_name="Subscribers",
     )
+    use_group_id = models.BooleanField(default=False)
     objects = NimbusExperimentManager()
 
     class Meta:
@@ -855,6 +857,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if self.targeting_config_slug:
                 keys.append(self.targeting_config_slug)
             keys.append("rollout")
+
+        if self.use_group_id:
+            keys.append(BucketRandomizationUnit.GROUP_ID)
 
         return "-".join(keys)
 
@@ -1384,6 +1389,8 @@ class NimbusIsolationGroup(models.Model):
 
     @property
     def randomization_unit(self):
+        if self.bucket_ranges.filter(experiment__use_group_id=True).exists():
+            return BucketRandomizationUnit.GROUP_ID
         return NimbusExperiment.APPLICATION_CONFIGS[self.application].randomization_unit
 
     @property
