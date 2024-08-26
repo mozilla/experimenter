@@ -595,8 +595,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             return File(filename)
 
         with (
-            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
-            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+            patch("experimenter.jetstream.client.analysis_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
         ):
             mock_open.side_effect = open_file
             mock_exists.return_value = True
@@ -722,8 +722,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             return File(filename)
 
         with (
-            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
-            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+            patch("experimenter.jetstream.client.analysis_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
         ):
             mock_open.side_effect = open_file
             mock_exists.return_value = True
@@ -806,8 +806,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             return File(filename)
 
         with (
-            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
-            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+            patch("experimenter.jetstream.client.analysis_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
         ):
             mock_open.side_effect = open_file
             mock_exists.return_value = True
@@ -1073,8 +1073,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             return File(filename)
 
         with (
-            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
-            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+            patch("experimenter.jetstream.client.analysis_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
         ):
             mock_open.side_effect = open_file
             mock_exists.return_value = True
@@ -1130,8 +1130,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             return File(filename)
 
         with (
-            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
-            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+            patch("experimenter.jetstream.client.analysis_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
         ):
             mock_open.side_effect = open_file
             mock_exists.return_value = True
@@ -2089,8 +2089,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             return File(filename)
 
         with (
-            patch("experimenter.jetstream.client.default_storage.open") as mock_open,
-            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+            patch("experimenter.jetstream.client.analysis_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
         ):
             mock_open.side_effect = open_file
             mock_exists.return_value = True
@@ -2120,10 +2120,78 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             lifecycle, primary_outcomes=[primary_outcome]
         )
 
+        now = datetime.datetime.now()
+
         with (
-            patch("experimenter.jetstream.client.default_storage.exists") as mock_exists,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
+            patch("experimenter.jetstream.client.datetime") as mock_datetime,
         ):
             mock_exists.return_value = False
+            mock_datetime.now.return_value = now
+
+            experiment_errors = [
+                {
+                    "analysis_basis": None,
+                    "source": None,
+                    "exception": None,
+                    "exception_type": None,
+                    "experiment": f"{experiment.slug}",
+                    "filename": "experimenter/jetstream/client.py",
+                    "func_name": "load_data_from_gcs",
+                    "log_level": "ERROR",
+                    "message": f"Could not find data in analysis bucket at path metadata/metadata_{experiment.slug.replace('-', '_')}.json",  # noqa: E501
+                    "metric": None,
+                    "segment": None,
+                    "statistic": None,
+                    "timestamp": now.isoformat(timespec="milliseconds"),
+                },
+                {
+                    "analysis_basis": None,
+                    "source": None,
+                    "exception": None,
+                    "exception_type": None,
+                    "experiment": f"{experiment.slug}",
+                    "filename": "experimenter/jetstream/client.py",
+                    "func_name": "load_data_from_gcs",
+                    "log_level": "ERROR",
+                    "message": f"Could not find data in analysis bucket at path errors/errors_{experiment.slug.replace('-', '_')}.json",  # noqa: E501
+                    "metric": None,
+                    "segment": None,
+                    "statistic": None,
+                    "timestamp": now.isoformat(timespec="milliseconds"),
+                },
+                {
+                    "analysis_basis": None,
+                    "source": None,
+                    "exception": None,
+                    "exception_type": None,
+                    "experiment": f"{experiment.slug}",
+                    "filename": "experimenter/jetstream/client.py",
+                    "func_name": "load_data_from_gcs",
+                    "log_level": "ERROR",
+                    "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_weekly.json",  # noqa: E501
+                    "metric": None,
+                    "segment": None,
+                    "statistic": None,
+                    "timestamp": now.isoformat(timespec="milliseconds"),
+                },
+                {
+                    "analysis_basis": None,
+                    "source": None,
+                    "exception": None,
+                    "exception_type": None,
+                    "experiment": f"{experiment.slug}",
+                    "filename": "experimenter/jetstream/client.py",
+                    "func_name": "load_data_from_gcs",
+                    "log_level": "ERROR",
+                    "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_overall.json",  # noqa: E501
+                    "metric": None,
+                    "segment": None,
+                    "statistic": None,
+                    "timestamp": now.isoformat(timespec="milliseconds"),
+                },
+            ]
+
             tasks.fetch_experiment_data(experiment.id)
             experiment = NimbusExperiment.objects.get(id=experiment.id)
             self.assertEqual(
@@ -2134,7 +2202,9 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "overall": {},
                         "show_analysis": False,
                         "weekly": {},
-                        "errors": {"experiment": []},
+                        "errors": {
+                            "experiment": experiment_errors,
+                        },
                     },
                 },
             )
@@ -2259,8 +2329,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         assert "AnalysisWindow" not in filename
         assert "overall" in filename
 
-    @patch("experimenter.jetstream.client.default_storage.open")
-    @patch("experimenter.jetstream.client.default_storage.exists")
+    @patch("experimenter.jetstream.client.analysis_storage.open")
+    @patch("experimenter.jetstream.client.analysis_storage.exists")
     def test_sizing_data_parsed_and_stored(self, mock_exists, mock_open):
         sizing_test_data = SampleSizesFactory.build().json()
 
@@ -2288,8 +2358,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             sizing_results.json(exclude_unset=True),
         )
 
-    @patch("experimenter.jetstream.client.default_storage.open")
-    @patch("experimenter.jetstream.client.default_storage.exists")
+    @patch("experimenter.jetstream.client.analysis_storage.open")
+    @patch("experimenter.jetstream.client.analysis_storage.exists")
     def test_empty_fetch_population_sizing_data(self, mock_exists, mock_open):
         class File:
             def __init__(self, filename):
@@ -2311,8 +2381,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         sizing_results = cache.get(SIZING_DATA_KEY)
         self.assertEqual(sizing_results.json(), "{}")
 
-    @patch("experimenter.jetstream.client.default_storage.open")
-    @patch("experimenter.jetstream.client.default_storage.exists")
+    @patch("experimenter.jetstream.client.analysis_storage.open")
+    @patch("experimenter.jetstream.client.analysis_storage.exists")
     def test_fetch_population_sizing_data_invalid(self, mock_exists, mock_open):
         class File:
             def __init__(self, filename):
