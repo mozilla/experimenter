@@ -116,6 +116,7 @@ class ExperimentInput(graphene.InputObjectType):
     targeting_config_slug = graphene.String()
     total_enrolled_clients = graphene.Int()
     treatment_branches = graphene.List(BranchInput)
+    use_group_id = graphene.Boolean()
     vp_signoff = graphene.Boolean()
     warn_feature_schema = graphene.Boolean()
 
