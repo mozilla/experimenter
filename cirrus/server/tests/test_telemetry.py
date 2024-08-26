@@ -119,6 +119,7 @@ async def test_enrollment_metrics_recorded_with_compute_features(client, mocker,
     response = client.post("/v1/features/", json=request_data)
     assert response.status_code == 200
     assert ping_spy.call_count == 1
+    assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
 
     ping_spy.reset_mock()
 
@@ -137,6 +138,7 @@ async def test_enrollment_metrics_recorded_with_compute_features(client, mocker,
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
     assert ping_spy.call_count == 1
+    assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
 
 
 @pytest.mark.asyncio
