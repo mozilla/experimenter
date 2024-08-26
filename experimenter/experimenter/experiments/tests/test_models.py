@@ -2011,6 +2011,23 @@ class TestNimbusExperiment(TestCase):
             "firefox-desktop-feature-release-mac_only-rollout",
         )
 
+    def test_bucket_namespace_with_group_id(self):
+        feature = NimbusFeatureConfigFactory(slug="feature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            population_percent=Decimal("50.0"),
+            use_group_id=True,
+        )
+
+        self.assertEqual(
+            experiment.bucket_namespace,
+            "firefox-desktop-feature-release-group_id",
+        )
+
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -3280,6 +3297,20 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(
             bucket.isolation_group.randomization_unit,
             experiment.application_config.randomization_unit,
+        )
+
+    def test_isolation_group_with_group_id(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create(
+            application=self.application, use_group_id=True
+        )
+        bucket = NimbusIsolationGroup.request_isolation_group_buckets(
+            experiment.slug, experiment, 100
+        )
+        self.assertEqual(
+            bucket.isolation_group.randomization_unit,
+            BucketRandomizationUnit.GROUP_ID,
         )
 
     def test_existing_isolation_group_with_matching_name_but_not_application_is_filtered(
