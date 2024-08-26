@@ -25,6 +25,9 @@ cirrus_events:
       app_id:
         type: string
         description: A unique identifier for application
+      is_preview:
+        type: boolean
+        description: Indicates whether this is preview mode
     bugs:
       - https://github.com/mozilla/experimenter/issues/8928
     data_reviews:
