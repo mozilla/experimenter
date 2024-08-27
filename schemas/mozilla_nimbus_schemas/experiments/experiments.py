@@ -1,10 +1,18 @@
-from typing import List, Optional, Union
+from enum import Enum
+from typing import Optional, Union
 
 from pydantic import BaseModel
 
 
+class RandomizationUnit(str, Enum):
+    NORMANDY = "normandy_id"
+    NIMBUS = "nimbus_id"
+    USER_ID = "user_id"
+    GROUP_ID = "group_id"
+
+
 class ExperimentBucketConfig(BaseModel):
-    randomizationUnit: str
+    randomizationUnit: RandomizationUnit
     namespace: str
     start: int
     count: int
@@ -32,13 +40,13 @@ class ExperimentMultiFeatureDesktopBranch(BaseModel):
     slug: str
     ratio: int
     feature: ExperimentFeatureConfig
-    features: List[ExperimentFeatureConfig]
+    features: list[ExperimentFeatureConfig]
 
 
 class ExperimentMultiFeatureMobileBranch(BaseModel):
     slug: str
     ratio: int
-    features: List[ExperimentFeatureConfig]
+    features: list[ExperimentFeatureConfig]
 
 
 class NimbusExperiment(BaseModel):
@@ -53,9 +61,9 @@ class NimbusExperiment(BaseModel):
     isEnrollmentPaused: bool
     isRollout: Optional[bool]
     bucketConfig: ExperimentBucketConfig
-    outcomes: Optional[List[ExperimentOutcome]]
-    featureIds: List[str]
-    branches: List[
+    outcomes: Optional[list[ExperimentOutcome]]
+    featureIds: list[str]
+    branches: list[
         Union[
             ExperimentSingleFeatureBranch,
             ExperimentMultiFeatureDesktopBranch,
@@ -71,4 +79,4 @@ class NimbusExperiment(BaseModel):
     referenceBranch: Optional[str]
     featureValidationOptOut: Optional[bool]
     localizations: Optional[dict]
-    locales: Optional[List[str]]
+    locales: Optional[list[str]]
