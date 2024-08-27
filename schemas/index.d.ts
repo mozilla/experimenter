@@ -11,6 +11,7 @@ export type AnalysisErrors = AnalysisError[];
 export type Feature = FeatureWithExposure | FeatureWithoutExposure;
 export type FeatureVariableType = "int" | "string" | "boolean" | "json";
 export type PrefBranch = "default" | "user";
+export type RandomizationUnit = "normandy_id" | "nimbus_id" | "user_id" | "group_id";
 export type SizingReleaseChannel = "release" | "beta" | "nightly";
 export type SizingUserType = "new" | "existing" | "all";
 export type Statistics = Statistic[];
@@ -149,7 +150,7 @@ export interface NimbusExperiment {
   locales?: string[];
 }
 export interface ExperimentBucketConfig {
-  randomizationUnit: string;
+  randomizationUnit: RandomizationUnit;
   namespace: string;
   start: number;
   count: number;
