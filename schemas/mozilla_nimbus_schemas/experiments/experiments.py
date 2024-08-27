@@ -18,6 +18,9 @@ class ExperimentBucketConfig(BaseModel):
     count: int
     total: int
 
+    class Config:
+        use_enum_values = True
+
 
 class ExperimentOutcome(BaseModel):
     slug: str
