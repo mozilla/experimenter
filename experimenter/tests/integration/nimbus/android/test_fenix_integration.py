@@ -49,6 +49,11 @@ def start_process(path, command):
         return process
 
 
+@pytest.fixture
+def experiment_slug():
+    return f"firefox-fenix-integration-test"
+
+
 @pytest.fixture(name="run_nimbus_cli_command")
 def fixture_run_nimbus_cli_command(gradlewbuild_log):
     def _run_nimbus_cli_command(command):
