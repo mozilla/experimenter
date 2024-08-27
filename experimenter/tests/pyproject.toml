@@ -61,6 +61,7 @@ wrapt = "^1.16.0"
 pytest-rerunfailures = "^14.0"
 setuptools = "^70.3.0"
 dataclasses-json = "^0.6.7"
+flask = "^3.0.3"
 
 
 [build-system]

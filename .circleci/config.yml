@@ -342,6 +342,8 @@ jobs:
       PYTEST_ARGS: --reruns 1
     steps:
       - checkout
+      - attach_workspace:
+          at: /tmp/experimenter
       - android/accept-licenses
       - android/create-avd:
           avd-name: myavd
@@ -353,10 +355,8 @@ jobs:
       - run:
           name: Install APKs
           command: |
-            docker run -d --name fenix-files mozilla/experimenter:fenix-apk-store
-            docker cp fenix-files:/usr/src/app/files /home/circleci/project
-            adb install /home/circleci/project/files/app-fenix-x86_64-debug.apk
-            adb install /home/circleci/project/files/app-fenix-debug-androidTest.apk
+            adb install /tmp/experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+            adb install /tmp/experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
       - run:
           name: Download test files and run
           command: |
@@ -420,11 +420,12 @@ jobs:
           command: |
             cp .env.integration-tests .env
             export CIRRUS=1
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="-k test_create_ios_experiment_for_integration_test[FIREFOX_IOS]"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="-k test_create_mobile_experiment_for_integration_test"
       - persist_to_workspace:
           root: experimenter
           paths:
             - tests/integration/ios_recipe.json
+            - tests/integration/fenix_recipe.json
       
   deploy_experimenter:
     working_directory: ~/experimenter
@@ -678,9 +679,12 @@ jobs:
             docker run -d --name fenix-builder fenix-builder
             docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
             docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
-            docker build -f fenix-apk-store.Dockerfile -t ${DOCKERHUB_REPO}:fenix-apk-store .
-            docker push ${DOCKERHUB_REPO}:fenix-apk-store
           no_output_timeout: 60m
+      - persist_to_workspace:
+          root: experimenter
+          paths:
+            - tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+            - tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
 
 workflows:
   build_firefox:
@@ -723,78 +727,92 @@ workflows:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - create_fenix_fennec_recipes:
           name: Create fenix and fennec recipes
           filters:
             branches:
-              ignore:
-                - main
+              only:
+                - update-fenix-apks
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_nimbus_desktop_beta_targeting:
           name: Test Desktop Targeting (Beta Firefox)
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_nimbus_desktop_nightly_targeting:
           name: Test Desktop Targeting (Nightly Firefox)
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_nimbus_remote_settings_launch:
           name: Test Remote Settings Launch (All Applications)
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_nimbus_remote_settings_all:
           name: Test Remote Settings All Workflows (Release Firefox Desktop)
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_nimbus_desktop_enrollment:
           name: Test Desktop Enrollment (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_nimbus_sdk_targeting:
           name: Test SDK Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_nimbus_cirrus:
           name: Test Demo app with Cirrus
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_legacy:
           name: Test Legacy Desktop (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
+                - update-fenix-apks
       - integration_test_android_fenix:
           name: Test Firefox for Android (Fenix)
+          requires:
+            - Create fenix and fennec recipes
+            - Build Fenix APKs
           filters:
             branches:
-              ignore:
-                - main
+              only:
+                - update-fenix-apks
       - integration_test_ios_fennec:
           name: Test Firefox for iOS (Fennec)
           requires:
