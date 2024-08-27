@@ -11,9 +11,9 @@ here = Path(__file__)
 
 @pytest.fixture
 def experiment_slug():
-    return f"firefox-ios-integration-test"
+    return "firefox-ios-integration-test"
 
-    
+
 @pytest.fixture(name="device_control", scope="module", autouse=True)
 def fixture_device_control(xcrun):
     ...  # Overriding for Experimenter Integration Test

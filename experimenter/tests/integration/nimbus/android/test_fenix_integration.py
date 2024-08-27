@@ -51,7 +51,7 @@ def start_process(path, command):
 
 @pytest.fixture
 def experiment_slug():
-    return f"firefox-fenix-integration-test"
+    return "firefox-fenix-integration-test"
 
 
 @pytest.fixture(name="run_nimbus_cli_command")
