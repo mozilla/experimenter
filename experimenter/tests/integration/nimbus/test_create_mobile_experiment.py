@@ -10,11 +10,6 @@ from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.utils import helpers
 
 
-@pytest.fixture
-def experiment_slug(application):
-    return f"firefox-{application.lower()}-integration-test-experiment"
-
-
 def test_create_mobile_experiment_for_integration_test(
     selenium, experiment_url, kinto_client, default_data_api, experiment_slug, application
 ):

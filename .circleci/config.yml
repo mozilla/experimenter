@@ -800,8 +800,8 @@ workflows:
             - Build Fenix APKs
           filters:
             branches:
-              only:
-                - update-fenix-apks
+              ignore:
+                - main
       - integration_test_ios_fennec:
           name: Test Firefox for iOS (Fennec)
           requires:
@@ -835,5 +835,5 @@ workflows:
           name: Build Fenix APKs
           filters:
             branches:
-              only:
-                - update-fenix-apks
+              ignore:
+                - main
