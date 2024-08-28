@@ -29,6 +29,7 @@ def before_enrollment_ping(data):
     assert extra_1["experiment"] == "cirrus-test-1"
     assert extra_1["branch"] == "control"
     assert extra_1["experiment_type"] == RecipeType.ROLLOUT.value
+    assert extra_1["is_preview"] == "false"
 
     extra_2 = snapshot[1].extra
     assert extra_2["app_id"] == "test_app_id"
@@ -36,6 +37,7 @@ def before_enrollment_ping(data):
     assert extra_2["experiment"] == "cirrus-test-2"
     assert extra_2["branch"] == "control"
     assert extra_2["experiment_type"] == RecipeType.EXPERIMENT.value
+    assert extra_2["is_preview"] == "false"
 
 
 @pytest.mark.asyncio
@@ -102,7 +104,14 @@ async def test_enrollment_metrics_recorded_with_compute_features(client, mocker,
     app.state.remote_setting_live.update_recipes(recipes)
     sdk.set_experiments(json.dumps(recipes))
 
-    app.state.pings.enrollment.test_before_next_submit(before_enrollment_ping)
+    def validate_before_submit(data):
+        snapshot = app.state.metrics.cirrus_events.enrollment.test_get_value()
+        assert snapshot is not None
+        assert len(snapshot) == 2
+        assert snapshot[0].extra["is_preview"] == "false"
+        assert snapshot[1].extra["is_preview"] == "false"
+
+    app.state.pings.enrollment.test_before_next_submit(validate_before_submit)
 
     mocker.patch.object(app.state, "sdk_live", sdk)
     ping_spy = mocker.spy(app.state.pings.enrollment, "submit")
@@ -113,8 +122,18 @@ async def test_enrollment_metrics_recorded_with_compute_features(client, mocker,
     assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
 
     ping_spy.reset_mock()
+
     app.state.remote_setting_preview.update_recipes(recipes)
     mocker.patch.object(app.state, "sdk_preview", sdk)
+
+    def validate_before_submit_preview(data):
+        snapshot = app.state.metrics.cirrus_events.enrollment.test_get_value()
+        assert snapshot is not None
+        assert len(snapshot) == 2
+        assert snapshot[0].extra["is_preview"] == "true"
+        assert snapshot[1].extra["is_preview"] == "true"
+
+    app.state.pings.enrollment.test_before_next_submit(validate_before_submit_preview)
 
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
