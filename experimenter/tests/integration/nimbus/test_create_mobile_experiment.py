@@ -20,7 +20,7 @@ def test_create_mobile_experiment_for_integration_test(
 ):
     """Create a mobile experiment for device integration tests"""
     apps = ["IOS", "FENIX"]
-    logging.info(application)
+
     if str(application) not in apps:
         pytest.skip()
     feature_config_id = helpers.get_feature_id_as_string("messaging", application)

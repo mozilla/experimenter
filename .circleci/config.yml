@@ -598,7 +598,7 @@ jobs:
             else
               echo "No config changes, skipping"
             fi
-  update_fenix_apks:
+  update_mobile_files:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
@@ -626,12 +626,12 @@ jobs:
             ./update-fenix-apks.sh
             LATEST_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
             if (($(git status --porcelain | wc -c) > 0)); then
-              git checkout -B update-fenix-apks
+              git checkout -B check-mobile-integrations
               git add .
-              git commit -m "chore(nimbus): Update fenix apks for testing"
+              git commit -m "chore(nimbus): Check mobile integrations and update keys"
               if [[ "${CURRENT_FENIX_BUILD_ID}" != "${LATEST_FENIX_BUILD_ID}" ]]; then
-                git push origin update-fenix-apks
-                gh pr create -t "chore(nimbus): Update fenix apks for testing" -b "" --base main --head update-fenix-apks --repo mozilla/experimenter || echo "PR already exists, skipping"
+                git push origin check-mobile-integrations
+                gh pr create -t "chore(nimbus): Check mobile integrations and update keys" -b "" --base main --head check-mobile-integrations --repo mozilla/experimenter || echo "PR already exists, skipping"
               fi
             else
               echo "No config changes, skipping"
@@ -709,7 +709,7 @@ workflows:
     jobs:
       - update_external_configs
       - update_application_services
-      - update_fenix_apks
+      - update_mobile_files
 
   build:
     jobs:
@@ -727,83 +727,83 @@ workflows:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - create_fenix_fennec_recipes:
           name: Create fenix and fennec recipes
           filters:
             branches:
               only:
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_nimbus_desktop_beta_targeting:
           name: Test Desktop Targeting (Beta Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_nimbus_desktop_nightly_targeting:
           name: Test Desktop Targeting (Nightly Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_nimbus_remote_settings_launch:
           name: Test Remote Settings Launch (All Applications)
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_nimbus_remote_settings_all:
           name: Test Remote Settings All Workflows (Release Firefox Desktop)
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_nimbus_desktop_enrollment:
           name: Test Desktop Enrollment (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_nimbus_sdk_targeting:
           name: Test SDK Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_nimbus_cirrus:
           name: Test Demo app with Cirrus
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_legacy:
           name: Test Legacy Desktop (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_test_android_fenix:
           name: Test Firefox for Android (Fenix)
           requires:
@@ -812,15 +812,15 @@ workflows:
           filters:
             branches:
               only:
-                - update-fenix-apks
+                - check-mobile-integrations
       - integration_test_ios_fennec:
           name: Test Firefox for iOS (Fennec)
           requires:
             - Create fenix and fennec recipes
           filters:
             branches:
-              ignore:
-                - main
+              only:
+                - check-mobile-integrations
       - deploy_experimenter:
           name: Deploy Experimenter
           filters:
@@ -847,4 +847,4 @@ workflows:
           filters:
             branches:
               only:
-                - update-fenix-apks
+                - check-mobile-integrations
