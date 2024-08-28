@@ -507,13 +507,13 @@ jobs:
       - run:
           name: Deploy to Google Artifact Registry
           command: |
-            gcloud auth configure-docker us-docker.pkg.dev
+            gcloud auth configure-docker us-docker.pkg.dev --quiet
             DOCKER_IMAGE="us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/experimenter"
             docker tag experimenter:deploy ${DOCKER_IMAGE}:latest
             docker push "${DOCKER_IMAGE}:latest"
             GIT_SHA=$(git rev-parse --short HEAD)
             docker tag experimenter:deploy ${DOCKER_IMAGE}:${GIT_SHA}
-            docker push ${DOCKERHUB_REPO}:${GIT_SHA}
+            docker push ${DOCKER_IMAGE}:${GIT_SHA}
 
   deploy_cirrus:
     working_directory: ~/cirrus
