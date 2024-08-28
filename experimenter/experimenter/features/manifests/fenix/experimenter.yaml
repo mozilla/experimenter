@@ -377,3 +377,11 @@ unified-search:
     enabled:
       type: boolean
       description: "If true, the feature shows up in the search bar."
+user-characteristics:
+  description: A feature for control user characteristic data collection
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    currentVersion:
+      type: int
+      description: The current collection version of the user characteristics.
