@@ -489,9 +489,6 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - docker_login:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Build Image
           command: |
@@ -768,7 +765,9 @@ workflows:
 
   build:
     jobs:
-      - push_to_gar
+      - push_to_gar:
+          context:
+            - gcpv2-workload-identity
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
