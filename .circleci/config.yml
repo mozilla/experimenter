@@ -461,39 +461,6 @@ jobs:
             GIT_SHA=$(git rev-parse --short HEAD)
             docker tag experimenter:deploy ${DOCKERHUB_REPO}:${GIT_SHA}
             docker push ${DOCKERHUB_REPO}:${GIT_SHA}
-#      - run:
-#          name: Prepare environment variables for OIDC authentication
-#          command: |
-#            echo 'export GOOGLE_PROJECT_ID="moz-fx-experimenter-prod-6cd5"' >> "$BASH_ENV"
-#            echo "export OIDC_WIP_ID=$GCPV2_WORKLOAD_IDENTITY_POOL_ID" >> "$BASH_ENV"
-#            echo "export OIDC_WIP_PROVIDER_ID=$GCPV2_CIRCLECI_WORKLOAD_IDENTITY_PROVIDER" >> "$BASH_ENV"
-#            echo "export GOOGLE_PROJECT_NUMBER=$GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER" >> "$BASH_ENV"
-#            echo "export OIDC_SERVICE_ACCOUNT_EMAIL=$GCP_SERVICE_ACCOUNT_EMAIL" >> "$BASH_ENV"
-#      - gcp-cli/setup:
-#          use_oidc: true
-#      - run:
-#          name: Deploy to Google Artifact Registry
-#          command: |
-#            DOCKER_IMAGE="us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/experimenter"
-#            docker tag experimenter:deploy ${DOCKER_IMAGE}:latest
-#            docker push "${DOCKER_IMAGE}:latest"
-#            GIT_SHA=$(git rev-parse --short HEAD)
-#            docker tag experimenter:deploy ${DOCKERHUB_REPO}:${GIT_SHA}
-#            docker push ${DOCKERHUB_REPO}:${GIT_SHA}
-
-  # Temporary step to test CI in PR, will be moved to deploy_experimenter when ready
-  push_to_gar:
-    working_directory: ~/experimenter
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    steps:
-      - checkout
-      - run:
-          name: Build Image
-          command: |
-            ./scripts/store_git_info.sh
-            make build_prod
       - run:
           name: Prepare environment variables for OIDC authentication
           command: |
@@ -766,9 +733,6 @@ workflows:
 
   build:
     jobs:
-      - push_to_gar:
-          context:
-            - gcpv2-workload-identity
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
@@ -879,6 +843,8 @@ workflows:
                 - main
       - deploy_experimenter:
           name: Deploy Experimenter
+          context:
+            - gcpv2-workload-identity
           filters:
             branches:
               only: main
