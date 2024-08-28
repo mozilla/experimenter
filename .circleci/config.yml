@@ -512,7 +512,7 @@ jobs:
             docker tag experimenter:deploy ${DOCKER_IMAGE}:latest
             docker push "${DOCKER_IMAGE}:latest"
             GIT_SHA=$(git rev-parse --short HEAD)
-            docker tag experimenter:deploy ${DOCKERHUB_REPO}:${GIT_SHA}
+            docker tag experimenter:deploy ${DOCKER_IMAGE}:${GIT_SHA}
             docker push ${DOCKERHUB_REPO}:${GIT_SHA}
 
   deploy_cirrus:
