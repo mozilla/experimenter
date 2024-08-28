@@ -580,6 +580,13 @@ features:
         description: "If true, the feature shows up in the search bar."
         type: Boolean
         default: true
+  user-characteristics:
+    description: A feature for control user characteristic data collection
+    variables:
+      currentVersion:
+        description: The current collection version of the user characteristics.
+        type: Int
+        default: 0
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
