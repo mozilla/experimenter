@@ -507,6 +507,7 @@ jobs:
       - run:
           name: Deploy to Google Artifact Registry
           command: |
+            gcloud auth configure-docker us-docker.pkg.dev
             DOCKER_IMAGE="us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/experimenter"
             docker tag experimenter:deploy ${DOCKER_IMAGE}:latest
             docker push "${DOCKER_IMAGE}:latest"
