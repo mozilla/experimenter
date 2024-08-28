@@ -530,6 +530,14 @@ JETSTREAM_CONFIG_OUTCOMES_PATH = (
     BASE_DIR / "outcomes" / "metric-hub-main" / "jetstream" / "outcomes"
 )
 
+JETSTREAM_CONFIG_SEGMENTS_PATH = (
+    BASE_DIR / "segments" / "metric-hub-main" / "jetstream" / "definitions"
+)
+
+DEFINITIONS_CONFIG_SEGMENTS_PATH = (
+    BASE_DIR / "segments" / "metric-hub-main" / "definitions"
+)
+
 
 # Feature Manifest path
 FEATURE_MANIFESTS_PATH = BASE_DIR / "features" / "manifests"

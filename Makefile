@@ -81,6 +81,9 @@ jetstream_config:
 	curl -LJ -o experimenter/experimenter/outcomes/metric-hub.zip $(JETSTREAM_CONFIG_URL)
 	unzip -o -d experimenter/experimenter/outcomes experimenter/experimenter/outcomes/metric-hub.zip
 	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
+	cp experimenter/experimenter/outcomes/metric-hub.zip experimenter/experimenter/segments/metric-hub.zip
+	unzip -o -d experimenter/experimenter/segments experimenter/experimenter/segments/metric-hub.zip
+	rm -Rf experimenter/experimenter/segments/metric-hub-main/.script/
 
 feature_manifests: build_dev
 	$(COMPOSE) run -e GITHUB_BEARER_TOKEN=$(GITHUB_BEARER_TOKEN) experimenter /experimenter/bin/manifest-tool.py fetch $(FETCH_ARGS)

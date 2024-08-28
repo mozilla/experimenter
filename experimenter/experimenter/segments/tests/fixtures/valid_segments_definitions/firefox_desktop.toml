@@ -1,0 +1,14 @@
+[segments.desktop_segment_1]
+friendly_name = "Desktop Segment 1"
+description = "Firefox desktop segment used for testing"
+select_expression="country_code in ('IN', 'US')"
+
+[segments.desktop_segment_2]
+friendly_name = "Desktop Segment 2"
+description = "Firefox desktop segment used for testing"
+select_expression="country_code in ('IN', 'US')"
+
+[segments.desktop_segment_3]
+friendly_name = "Desktop Segment 3"
+description = "Firefox desktop segment used for testing"
+select_expression="country_code in ('IN', 'US')"
