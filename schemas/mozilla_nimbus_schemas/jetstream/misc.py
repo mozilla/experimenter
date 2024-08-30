@@ -1,4 +1,14 @@
-from enum import StrEnum
+from enum import Enum
+
+
+class StrEnum(str, Enum):
+    """This replicates the behavior of StrEnum from Python 3.11.
+
+    TODO: replace with `StrEnum` from enum package in Python 3.11+
+    """
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class AnalysisSegment(StrEnum):
