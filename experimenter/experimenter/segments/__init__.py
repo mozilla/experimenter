@@ -27,8 +27,8 @@ class Segments:
             a.app_name: a for a in NimbusConstants.APPLICATION_CONFIGS.values()
         }
         paths = [
-            settings.JETSTREAM_CONFIG_SEGMENTS_PATH,
-            settings.DEFINITIONS_CONFIG_SEGMENTS_PATH,
+            settings.METRIC_HUB_SEGMENTS_PATH_JETSTREAM,
+            settings.METRIC_HUB_SEGMENTS_PATH_DEFAULT,
         ]
 
         for path in paths:
@@ -54,10 +54,10 @@ class Segments:
                                         application=app_name_application_config[
                                             app_name
                                         ].slug,
-                                        description=segment_info["description"],
-                                        select_expression=segment_info[
-                                            "select_expression"
-                                        ],
+                                        description=segment_info.get("description", ""),
+                                        select_expression=segment_info.get(
+                                            "select_expression", ""
+                                        ),
                                     )
                                 )
 

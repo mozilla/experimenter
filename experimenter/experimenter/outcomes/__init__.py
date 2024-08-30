@@ -35,8 +35,8 @@ class Outcomes:
         app_name_application_config = {
             a.app_name: a for a in NimbusConstants.APPLICATION_CONFIGS.values()
         }
-        for app_name in settings.JETSTREAM_CONFIG_OUTCOMES_PATH.iterdir():
-            app_path = settings.JETSTREAM_CONFIG_OUTCOMES_PATH / app_name
+        for app_name in settings.METRIC_HUB_OUTCOMES_PATH.iterdir():
+            app_path = settings.METRIC_HUB_OUTCOMES_PATH / app_name
 
             for outcome_name in app_path.iterdir():
                 if outcome_name.suffix != ".example":
