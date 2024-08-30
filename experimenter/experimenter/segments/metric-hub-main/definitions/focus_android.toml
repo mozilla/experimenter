@@ -1,0 +1,400 @@
+[metrics]
+
+[metrics.baseline_ping_count]
+data_source = "baseline"
+select_expression = "COUNT(document_id)"
+friendly_name = "Baseline pings"
+description = "Counts the number of `baseline` pings received from each client."
+
+
+
+[metrics.metric_ping_count]
+data_source = "metrics"
+select_expression = "COUNT(document_id)"
+friendly_name = "Metrics pings"
+description = "Counts the number of `metrics` pings received from each client."
+
+
+
+[metrics.first_run_date]
+data_source = "baseline"
+select_expression = "MIN(client_info.first_run_date)"
+friendly_name = "First run date"
+description = "The earliest first-run date reported by each client."
+
+
+[metrics.active_hours]
+select_expression = "COALESCE(SUM(metrics.timespan.glean_baseline_duration.value), 0) / 3600.0"
+data_source = "baseline"
+friendly_name = "Active Hours"
+description = "Total time Firefox was active"
+
+
+[metrics.days_of_use]
+friendly_name = "Days of use"
+description = "The number of days in an observation window that clients used the browser."
+select_expression = "COUNT(DISTINCT DATE(submission_timestamp))"
+data_source = "baseline"
+
+
+[metrics.daily_active_users]
+data_source = "baseline_v2"
+select_expression = "COUNT(DISTINCT CASE WHEN LOWER(metadata.isp.name) != 'browserstack' THEN client_info.client_id ELSE NULL END)"
+type = "scalar"
+friendly_name = "DAU"
+description = """
+    The number of unique clients that we received a baseline ping from each day, excluding
+    pings originating from BrowserStack. To be comparable to DAU used for KPI tracking,
+    this metric needs to be aggregated by `submission_date`. If the metric is NOT
+    aggregated by `submission_date`, the metric is similar to a "days of use" metric. Note
+    that data retention on `focus_android.baseline` has [historically been only 180 days](https://bugzilla.mozilla.org/show_bug.cgi?id=1828666),
+    which is shorter than other mobile `baseline` tables. For more details, refer to
+    [the DAU description in the Mozilla Data Documentation](https://docs.telemetry.mozilla.org/concepts/terminology.html#dau).
+
+    For questions, please contact bochocki@mozilla.com or firefox-kpi@mozilla.com.
+"""
+category = "KPI"
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = true
+
+[metrics.daily_active_users_v2]
+data_source = "focus_android_active_users_aggregates_view"
+select_expression = "SUM(dau)"
+type = "scalar"
+friendly_name = "Focus Android DAU"
+description = """
+    This is the official DAU reporting definition. The logic is
+    [detailed on the Confluence DAU page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric)
+    and is automatically cross-checked, actively monitored, and change controlled.
+    Whenever possible, this is the preferred DAU reporting definition to use for Focus Android.
+    This metric needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`,
+    it is similar to a "days of use" metric, and not DAU.
+    
+    For more information, refer to [the DAU description in Confluence](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric).
+    For questions please contact bochocki@mozilla.com or firefox-kpi@mozilla.com.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.client_level_daily_active_users_v1]
+data_source = "baseline_v2"
+select_expression = "COUNT(DISTINCT CASE WHEN LOWER(metadata.isp.name) != 'browserstack' THEN client_info.client_id ELSE NULL END)"
+type = "scalar"
+friendly_name = "Focus Android Client-Level DAU"
+description = """
+    This metric reports DAU values similar (but not necessarily identical)
+    to the [official DAU reporting definition](https://mozilla.github.io/metric-hub/metrics/focus_android/#daily_active_users_v2).
+    It's generally preferable to use the official DAU reporting definition when possible; this metric
+    exists only for cases where reporting `client_id` is required (e.g. for experiments). This metric
+    needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`, it is
+    similar to a "days of use" metric, and not DAU.
+    
+    For more information, refer to [the DAU description in Confluence](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric).
+    For questions please contact bochocki@mozilla.com or firefox-kpi@mozilla.com.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = true
+
+[metrics.client_level_daily_active_users_v2]
+data_source = "baseline_v2"
+select_expression = """
+    COUNT(DISTINCT CASE WHEN metrics.timespan.glean_baseline_duration.value > 0
+                         AND LOWER(metadata.isp.name) != 'browserstack'
+                        THEN client_info.client_id
+                        ELSE NULL END)
+"""
+type = "scalar"
+friendly_name = "Focus Android Client-Level DAU"
+description = """
+    This metric reports DAU values similar (but not necessarily identical)
+    to the [official DAU reporting definition](https://mozilla.github.io/metric-hub/metrics/focus_android/#daily_active_users_v2).
+    It's generally preferable to use the official DAU reporting definition when possible; this metric
+    exists only for cases where reporting `client_id` is required (e.g. for experiments). This metric
+    needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`, it is
+    similar to a "days of use" metric, and not DAU.
+
+For more information, refer to [the DAU description in Confluence](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric).
+    For questions please contact bochocki@mozilla.com or firefox-kpi@mozilla.com.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = true
+
+[metrics.client_level_daily_active_users_v3]
+friendly_name = "Focus Android Client-Level DAU"
+data_source = "focus_android_active_users_view"
+select_expression = """COUNTIF(is_dau)"""
+type = "scalar"
+description = """
+    Client-level DAU. The logic is
+    [detailed on the Confluence DAU page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric)
+    and is automatically cross-checked, actively monitored, and change controlled.
+    This metric needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`, it is
+    similar to a "days of use" metric, and not DAU.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.ad_clicks]
+select_expression = "{{agg_sum('ad_click')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+friendly_name = "Ad Clicks"
+description = """
+    Counts clicks on ads on search engine result pages with a Mozilla
+    partner tag.
+"""
+category = "search"
+type = "scalar" 
+owner = "xluo-all@mozilla.com"
+
+
+[metrics.ad_clicks_organic]
+friendly_name = "Ad Clicks through organic traffic"
+description = """
+    Counts clicks on ads on search engine result pages that are _not_ tagged with an eligible Mozilla
+    partner code.
+"""
+select_expression = "{{agg_sum('ad_click_organic')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+[metrics.searches_with_ads_organic]
+friendly_name = "Organic Search With Ads Count"
+description = "Total number of Organic Search With Ads Counts"
+select_expression = "{{agg_sum('search_with_ads_organic')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+[metrics.search_count]
+friendly_name = "SAP search count"
+description = "Number of searches performed through a Search Access Point."
+select_expression = "{{agg_sum('search_count')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+category = "search"
+type = "scalar" 
+owner = "xluo-all@mozilla.com"
+
+[metrics.search_count_imputed]
+friendly_name = "SAP search count (legacy to glean conversion)"
+description = "Imputed SAP for converting historical search counts from legacy to glean"
+select_expression = "ROUND(SUM(IF(submission_date < '2023-01-01', search_count * 0.49, search_count)))"
+data_source = "mobile_search_clients_engines_sources_daily"
+category = "search"
+type = "scalar" 
+owner = "xluo-all@mozilla.com"
+
+[metrics.tagged_search_count]
+data_source = "mobile_search_clients_engines_sources_daily"
+select_expression = '{{agg_sum("tagged_sap")}}'
+friendly_name = "Tagged SAP searches"
+description = """
+    Counts the number of searches a user performed through Firefox's
+    Search Access Points that were submitted with a partner code
+    and were potentially revenue-generating.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+
+[metrics.tagged_follow_on_search_count]
+data_source = "mobile_search_clients_engines_sources_daily"
+select_expression = '{{agg_sum("tagged_follow_on")}}'
+friendly_name = "Tagged follow-on searches"
+description = """
+    Counts the number of follow-on searches with a Mozilla partner tag.
+    These are additional searches that users performed from a search engine
+    results page after executing a tagged search through a SAP.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+
+[metrics.searches_with_ads]
+data_source = "mobile_search_clients_engines_sources_daily"
+select_expression = '{{agg_sum("search_with_ads")}}'
+friendly_name = "Search result pages with ads"
+description = """
+    Counts search result pages served with advertising.
+    Users may not actually see these ads thanks to e.g. ad-blockers.
+    Learn more in the
+    [search analysis documentation](https://mozilla-private.report/search-analysis-docs/book/in_content_searches.html).
+"""
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+
+[metrics.organic_search_count]
+data_source = "mobile_search_clients_engines_sources_daily"
+select_expression = '{{agg_sum("organic")}}'
+friendly_name = "Organic searches"
+description = """
+    Counts organic searches, which are searches that are _not_ performed
+    through a Firefox SAP and which are not monetizable.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+[metrics.engagement_rate_v1]
+friendly_name = "Focus Android Engagement Rate"
+data_source = "focus_android_engagement_view"
+select_expression = "SUM(dau) / SUM(mau)"
+type = "scalar"
+description = """
+    The Engagement Rate is calculated as the ratio between DAU and MAU. For each day, we use the single-day DAU number and divide 
+    it by the MAU corresponding to the 28-day period ending on that day. For OKR reporting, we then calculate a 
+    28-day moving average of this number. More information is provided on the
+    [New Profiles, Retention and Engagement Rate Confluence Page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/814481685/Firefox+New+Profiles+Retention+and+Engagement#Engagement-Rate).
+"""
+owner = ["vsabino@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.retention_rate_v1]
+friendly_name = "Focus Android Retention Rate"
+data_source = "focus_android_retention_view"
+select_expression = "SUM(retained_week_4) / SUM(active_metric_date)"
+type = "scalar"
+description = """
+    The Retention Rate is calculated as the proportion of clients that are active on the 4th week after the metric date.
+"""
+owner = ["vsabino@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.new_profile_retention_rate_v1]
+friendly_name = "Focus Android New Proflie Retention Rate"
+data_source = "focus_android_retention_view"
+select_expression = "SUM(retained_week_4_new_profiles) / SUM(new_profiles_metric_date)"
+type = "scalar"
+description = """
+    The New Profile Retention Rate is calculated as the proportion of new profiles that are active on the 4th week after the metric date. 
+    More information is provided on the
+    [New Profiles, Retention and Engagement Rate Confluence Page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/814481685/Firefox+New+Profiles+Retention+and+Engagement#New-Profile-Retention).
+"""
+owner = ["vsabino@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[data_sources]
+
+[data_sources.focus_android_active_users_aggregates_view]
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.telemetry.active_users_aggregates`
+    WHERE app_name = 'Focus Android'
+)"""
+friendly_name = "Active Users Aggregates"
+description = "Active Users Aggregates, filtered on Focus Android"
+submission_date_column = "submission_date"
+client_id_column = "NULL"  # this table doesn't include client_id, and we don't need it for calculating DAU
+
+[data_sources.baseline]
+from_expression = """(
+    SELECT
+        p.*,
+        DATE(p.submission_timestamp) AS submission_date
+    FROM `moz-fx-data-shared-prod.{dataset}.baseline` p
+)"""
+client_id_column = "client_info.client_id"
+experiments_column_type = "glean"
+default_dataset = "org_mozilla_focus"
+friendly_name = "Baseline"
+description = "Baseline Ping"
+build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
+
+[data_sources.baseline_v2]
+from_expression = """(
+    SELECT
+        p.*,
+        DATE(p.submission_timestamp) AS submission_date
+    FROM `moz-fx-data-shared-prod.{dataset}.baseline` p
+)"""
+client_id_column = "client_info.client_id"
+submission_date_column = "submission_date"
+experiments_column_type = "glean"
+default_dataset = "focus_android"
+friendly_name = "Baseline"
+description = "Baseline Ping"
+build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
+
+[data_sources.events]
+from_expression = """(
+    SELECT
+        p.* EXCEPT (events),
+        DATE(p.submission_timestamp) AS submission_date,
+        event
+    FROM
+        `moz-fx-data-shared-prod.{dataset}.events` p
+    CROSS JOIN
+        UNNEST(p.events) AS event
+)"""
+client_id_column = "client_info.client_id"
+experiments_column_type = "glean"
+default_dataset = "org_mozilla_focus"
+friendly_name = "Events"
+description = "Events Ping"
+build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
+
+[data_sources.metrics]
+from_expression = """(
+    SELECT
+        p.*,
+        DATE(p.submission_timestamp) AS submission_date
+    FROM `moz-fx-data-shared-prod.{dataset}.metrics` p
+)"""
+client_id_column = "client_info.client_id"
+experiments_column_type = "glean"
+default_dataset = "org_mozilla_focus"
+friendly_name = "Metrics"
+description = "Metrics Ping"
+build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
+
+[data_sources.mobile_search_clients_engines_sources_daily]
+from_expression = "mozdata.search.mobile_search_clients_engines_sources_daily"
+experiments_column_type = "simple"
+client_id_column = "client_id"
+submission_date_column = "submission_date"
+
+[data_sources.focus_android_engagement_view]
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.focus_android.engagement`
+    WHERE is_mobile
+)"""
+submission_date_column = "submission_date"
+description = "Aggregated DAU, WAU, and MAU by different attributes for engagement ratio calculation."
+friendly_name = "Focus Android Engagement"
+client_id_column = "NULL"
+
+[data_sources.focus_android_retention_view]
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.focus_android.retention`
+    WHERE is_mobile
+)"""
+submission_date_column = "metric_date"
+description = "Aggregated 4th Week Retention Outcomes of Focus Android New and Existing Users."
+friendly_name = "Focus Android Retention"
+client_id_column = "NULL"
+
+[data_sources.focus_android_active_users_view]
+friendly_name = "Focus Android Active Users"
+description = "Client-level table that indicates whether a client meets 'active user' criteria on a given submission_date."
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.focus_android.active_users`
+    WHERE is_mobile
+)"""
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+deprecated = false

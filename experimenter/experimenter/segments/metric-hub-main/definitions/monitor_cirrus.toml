@@ -1,0 +1,33 @@
+[metrics]
+
+[metrics.monitor_pageviews_v1]
+data_source = "monitor_events_v1"
+select_expression = """
+    COUNTIF(event.category = 'page' AND event.name = 'view')
+"""
+type = "scalar"
+friendly_name = "Monitor Page Views"
+description = """
+    This is a metric intended to test the functionality of Cirrus within Monitor.
+    It simply sums the page view events for Monitor.
+"""
+owner = ["mwilliams@mozilla.com"]
+deprecated = false
+
+[data_sources]
+
+[data_sources.monitor_events_v1]
+from_expression = """(
+    SELECT
+        DATE(submission_timestamp) AS submission_date,
+        e.* EXCEPT (events),
+        mozfun.map.get_key(event.extra, 'user_id') as client_id,
+        event
+    FROM
+        `moz-fx-data-shared-prod.monitor_frontend.events` e
+    CROSS JOIN
+    	UNNEST(e.events) AS event
+)"""
+experiments_column_type = "glean"
+friendly_name = "Monitor Events"
+description = "Monitor Events"

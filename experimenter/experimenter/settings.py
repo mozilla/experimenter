@@ -525,9 +525,16 @@ NIMBUS_SCHEMA_VERSION = (
 )
 
 
-# Jetstream config paths
-JETSTREAM_CONFIG_OUTCOMES_PATH = (
+METRIC_HUB_OUTCOMES_PATH = (
     BASE_DIR / "outcomes" / "metric-hub-main" / "jetstream" / "outcomes"
+)
+
+METRIC_HUB_SEGMENTS_PATH_JETSTREAM = (
+    BASE_DIR / "segments" / "metric-hub-main" / "jetstream" / "definitions"
+)
+
+METRIC_HUB_SEGMENTS_PATH_DEFAULT = (
+    BASE_DIR / "segments" / "metric-hub-main" / "definitions"
 )
 
 
