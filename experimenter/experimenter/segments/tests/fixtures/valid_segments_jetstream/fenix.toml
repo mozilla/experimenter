@@ -1,0 +1,4 @@
+[segments.fenix_segment]
+friendly_name = "Fenix Segment"
+description = "Fenix segment for testing"
+select_expression = "{{agg_sum('ad_click')}}"

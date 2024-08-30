@@ -1,0 +1,3 @@
+[segments.invalid_segment]
+friendly_name = "Invalid Segment"
+description = "This segment belongs to an unknown application"
