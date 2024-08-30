@@ -232,6 +232,7 @@ features:
             action: MAKE_DEFAULT_BROWSER
             trigger-if-all:
               - USER_ESTABLISHED_INSTALL
+              - ANDROID_API_BELOW_29
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             style: PERSISTENT
@@ -287,6 +288,7 @@ features:
         type: "Map<TriggerName, String>"
         default:
           USER_ESTABLISHED_INSTALL: number_of_app_launches >=4
+          ANDROID_API_BELOW_29: android_version < 29
           USER_RECENTLY_INSTALLED: days_since_install < 7
           USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
           USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
