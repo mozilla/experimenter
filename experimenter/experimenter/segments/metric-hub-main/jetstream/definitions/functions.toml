@@ -1,0 +1,15 @@
+[functions]
+
+[functions.agg_sum]
+definition = "COALESCE(SUM({select_expr}), 0)"
+
+[functions.agg_any]
+definition = "COALESCE(LOGICAL_OR({select_expr}), FALSE)"
+
+[functions.agg_histogram_mean]
+definition = """
+    SAFE_DIVIDE(
+        SUM(CAST(JSON_EXTRACT_SCALAR({select_expr}, "$.sum") AS int64)),
+        SUM((SELECT SUM(value) FROM UNNEST(mozfun.hist.extract({select_expr}).values)))
+    )
+"""

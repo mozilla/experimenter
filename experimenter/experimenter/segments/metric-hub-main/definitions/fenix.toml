@@ -1,0 +1,731 @@
+[metrics]
+
+[metrics.uri_count]
+data_source = "baseline"
+select_expression = '{{agg_sum("metrics.counter.events_normal_and_private_uri_count")}}'
+friendly_name = "URIs visited"
+description = "Counts the number of URIs each client visited"
+
+[metrics.active_hours]
+select_expression = "COALESCE(SUM(metrics.timespan.glean_baseline_duration.value), 0) / 3600.0"
+data_source = "baseline"
+friendly_name = "Active Hours"
+description = "Total time Firefox was active"
+
+[metrics.days_of_use]
+friendly_name = "Days of use"
+description = "The number of days in an observation window that clients used the browser."
+select_expression = "COUNT(DISTINCT DATE(submission_timestamp))"
+data_source = "baseline"
+
+
+[metrics.daily_active_users]
+data_source = "baseline_v2"
+select_expression = "COUNT(DISTINCT CASE WHEN LOWER(metadata.isp.name) != 'browserstack' THEN client_info.client_id ELSE NULL END)"
+type = "scalar"
+friendly_name = "DAU"
+description = """
+    The number of unique clients that we received a baseline ping from each day, excluding
+    pings originating from BrowserStack. To be comparable to DAU used for KPI tracking,
+    this metric needs to be aggregated by `submission_date`. If the metric is NOT
+    aggregated by `submission_date`, the metric is similar to a "days of use" metric. For more details, refer to
+    [the DAU description in the Mozilla Data Documentation](https://docs.telemetry.mozilla.org/concepts/terminology.html#dau).
+
+    For questions, please contact bochocki@mozilla.com or firefox-kpi@mozilla.com.
+"""
+category = "KPI"
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = true
+
+[metrics.daily_active_users_v2]
+data_source = "fenix_active_users_aggregates_view"
+select_expression = "SUM(dau)"
+type = "scalar"
+friendly_name = "Fenix DAU"
+description = """
+    This is the official DAU reporting definition. The logic is
+    [detailed on the Confluence DAU page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric)
+    and is automatically cross-checked, actively monitored, and change controlled.
+    Whenever possible, this is the preferred DAU reporting definition to use for Fenix.
+    This metric needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`,
+    it is similar to a "days of use" metric, and not DAU.
+
+    For more information, refer to [the DAU description in Confluence](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric).
+    For questions please contact bochocki@mozilla.com or firefox-kpi@mozilla.com.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.client_level_daily_active_users_v1]
+data_source = "baseline_v2"
+select_expression = "COUNT(DISTINCT CASE WHEN LOWER(metadata.isp.name) != 'browserstack' THEN client_info.client_id ELSE NULL END)"
+type = "scalar"
+friendly_name = "Fenix Client-Level DAU"
+description = """
+    This metric reports DAU values similar (but not necessarily identical)
+    to the [official DAU reporting definition](https://mozilla.github.io/metric-hub/metrics/fenix/#daily_active_users_v2).
+    It's generally preferable to use the official DAU reporting definition when possible; this metric
+    exists only for cases where reporting `client_id` is required (e.g. for experiments). This metric
+    needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`, it is
+    similar to a "days of use" metric, and not DAU.
+
+    For more information, refer to [the DAU description in Confluence](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric).
+    For questions please contact bochocki@mozilla.com or firefox-kpi@mozilla.com.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = true
+
+[metrics.client_level_daily_active_users_v2]
+data_source = "baseline_v2"
+select_expression = """
+    COUNT(DISTINCT CASE WHEN metrics.timespan.glean_baseline_duration.value > 0
+                         AND LOWER(metadata.isp.name) != 'browserstack'
+                        THEN client_info.client_id
+                        ELSE NULL END)
+"""
+type = "scalar"
+friendly_name = "Fenix Client-Level DAU"
+description = """
+    This metric reports DAU values similar (but not necessarily identical)
+    to the [official DAU reporting definition](https://mozilla.github.io/metric-hub/metrics/fenix/#daily_active_users_v2).
+    It's generally preferable to use the official DAU reporting definition when possible; this metric
+    exists only for cases where reporting `client_id` is required (e.g. for experiments). This metric
+    needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`, it is
+    similar to a "days of use" metric, and not DAU.
+
+    For more information, refer to [the DAU description in Confluence](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric).
+    For questions please contact bochocki@mozilla.com or firefox-kpi@mozilla.com.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = true
+
+[metrics.client_level_daily_active_users_v3]
+friendly_name = "Fenix Client-Level DAU"
+data_source = "fenix_active_users_view"
+select_expression = """COUNTIF(is_dau)"""
+type = "scalar"
+description = """
+    Client-level DAU. The logic is
+    [detailed on the Confluence DAU page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric)
+    and is automatically cross-checked, actively monitored, and change controlled.
+    This metric needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`, it is
+    similar to a "days of use" metric, and not DAU.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.user_reports_site_issue_count]
+data_source = "events"
+select_expression = """
+    COUNTIF(event.name = 'browser_menu_action' AND
+    mozfun.map.get_key(event.extra, 'item') = 'report_site_issue')
+"""
+friendly_name = "Site issues reported"
+description = "Counts the number of times clients reported an issue with a site."
+
+
+[metrics.user_reload_count]
+data_source = "events"
+select_expression = """
+    COUNTIF(event.name = 'browser_menu_action' AND
+    mozfun.map.get_key(event.extra, 'item') = 'reload')
+"""
+friendly_name = "Pages reloaded"
+description = "Counts the number of times a client reloaded a page."
+bigger_is_better = false
+
+
+[metrics.baseline_ping_count]
+data_source = "baseline"
+select_expression = "COUNT(document_id)"
+friendly_name = "Baseline pings"
+description = "Counts the number of `baseline` pings received from each client."
+
+
+[metrics.metric_ping_count]
+data_source = "metrics"
+select_expression = "COUNT(document_id)"
+friendly_name = "Metrics pings"
+description = "Counts the number of `metrics` pings received from each client."
+
+
+
+[metrics.first_run_date]
+data_source = "baseline"
+select_expression = "MIN(client_info.first_run_date)"
+friendly_name = "First run date"
+description = "The earliest first-run date reported by each client."
+
+[metrics.performance_pageload_load_time]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.performance_pageload_load_time IGNORE NULLS)"
+friendly_name = "Pageload Load Time"
+description = "Time in milliseconds from navigationStart to loadEventStart for the foreground http or https root content document."
+category = "performance"
+type = "histogram"
+
+[metrics.performance_pageload_load_time_responsestart]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.performance_pageload_load_time_responsestart IGNORE NULLS)"
+friendly_name = "Pageload Load Time Response Start"
+description = "Time in milliseconds from responseStart to loadEventStart for the foreground http or https root content document."
+category = "performance"
+type = "histogram"
+
+
+[metrics.performance_page_non_blank_paint]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.performance_page_non_blank_paint IGNORE NULLS)"
+friendly_name = "Page Non Blank Paint"
+description = "The time between navigationStart and the first non-blank paint of a foreground root content document, in milliseconds."
+category = "performance"
+type = "histogram"
+
+[metrics.performance_pageload_req_anim_frame_callback]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.performance_pageload_req_anim_frame_callback IGNORE NULLS)"
+friendly_name = "Pageload Load Req Animation Frame Callback"
+description = "Time spent in milliseconds calling all request animation frame callbacks for a document before it has reached readystate complete."
+category = "performance"
+type = "histogram"
+
+[metrics.performance_pageload_dcl]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.performance_pageload_dcl IGNORE NULLS)"
+friendly_name = "Pageload DCL"
+description = "Time in milliseconds from navigationStart to domContentLoaded for the foreground http or https root content document."
+category = "performance"
+type = "histogram"
+
+[metrics.performance_pageload_dcl_responsestart]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.performance_pageload_dcl_responsestart IGNORE NULLS)"
+friendly_name = "Pageload DCL Response Start"
+description = "Time in milliseconds from responseStart to domContentLoaded for the foreground http or https root content document."
+category = "performance"
+type = "histogram"
+
+[metrics.performance_pageload_fcp]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.performance_pageload_fcp IGNORE NULLS)"
+friendly_name = "Pageload FCP"
+description = "The time between navigationStart and the first contentful paint of a foreground http or https root content document, in milliseconds. The contentful paint timestamp is taken during display list building and does not include rasterization or compositing of that paint."
+category = "performance"
+type = "histogram"
+
+[metrics.performance_pageload_fcp_responsestart]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.performance_pageload_fcp_responsestart IGNORE NULLS)"
+friendly_name = "Pageload FCP Response Start"
+description = "The time between responseStart and the first contentful paint of a foreground http or https root content document, in milliseconds. The contentful paint timestamp is taken during display list building and does not include rasterization or compositing of that paint."
+category = "performance"
+type = "histogram"
+
+[metrics.perf_startup_cold_main_app_to_first_frame]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.perf_startup_cold_main_app_to_first_frame IGNORE NULLS)"
+friendly_name = "Startup Cold Main App to First Frame"
+description = "The duration from `*Application`'s initializer to the first Android frame\nbeing drawn in a [COLD MAIN start\nup](https://wiki.mozilla.org/index.php?title=Performance/Fenix/Glossary)."
+category = "performance"
+type = "histogram"
+
+[metrics.perf_startup_cold_view_app_to_first_frame]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.timing_distribution.perf_startup_cold_view_app_to_first_frame IGNORE NULLS)"
+friendly_name = "Startup Cold View App to First Frame"
+description = "The duration from `*Application`'s initializer to the first Android frame\nbeing drawn in a [COLD VIEW start\nup](https://wiki.mozilla.org/index.php?title=Performance/Fenix/Glossary)."
+category = "performance"
+type = "histogram"
+
+[metrics.storage_stats_app_bytes]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.memory_distribution.storage_stats_app_bytes IGNORE NULLS)"
+friendly_name = "App Byte Size"
+description = "The size of the app's APK and related files as installed: this is expected\nto be larger than download size."
+category = "performance"
+type = "histogram"
+
+[metrics.storage_stats_cache_bytes]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.memory_distribution.storage_stats_cache_bytes IGNORE NULLS)"
+friendly_name = "Cache Byte Size"
+description = "The size of all cached data in the app."
+category = "performance"
+type = "histogram"
+
+[metrics.storage_stats_data_dir_bytes]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.memory_distribution.storage_stats_data_dir_bytes IGNORE NULLS)"
+friendly_name = "Data Dir Byte Size"
+description = "The size of all data minus `cache_bytes`."
+category = "performance"
+type = "histogram"
+
+
+#### search metrics
+
+[metrics.tagged_sap_searches]
+select_expression = "{{agg_sum('tagged_sap')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+friendly_name = "Tagged SAP Searches"
+description = "Total number of tagged SAP searches. This metric is deprecated, use tagged_search_count instead"
+deprecated = true
+
+[metrics.organic_search_count]
+friendly_name = "Organic searches"
+description = """
+    Counts organic searches, which are searches that are _not_ performed
+    through a Firefox SAP and which are not monetizable.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+select_expression = "{{agg_sum('organic')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+[metrics.ad_click_organic]
+friendly_name = "Organic Ad Click Count"
+description = "Total number of Organic Ad Click Counts"
+select_expression = "{{agg_sum('ad_click_organic')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+[metrics.searches_with_ads_organic]
+friendly_name = "Organic Search With Ads Count"
+description = "Total number of Organic Search With Ads Counts"
+select_expression = "{{agg_sum('search_with_ads_organic')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+[metrics.search_count]
+friendly_name = "SAP searches"
+description = """
+    Counts the number of searches a user performed through Firefox's
+    Search Access Points.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+select_expression = "{{agg_sum('search_count')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+[metrics.searches_with_ads]
+friendly_name = "Search result pages with ads"
+description = """
+    Counts search result pages served with advertising.
+    Users may not actually see these ads thanks to e.g. ad-blockers.
+    Learn more in the
+    [search analysis documentation](https://mozilla-private.report/search-analysis-docs/book/in_content_searches.html).
+"""
+category = "search"
+type = "scalar"
+select_expression = "{{agg_sum('search_with_ads')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+owner = "xluo-all@mozilla.com"
+
+[metrics.ad_clicks]
+select_expression = "{{agg_sum('ad_click')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+friendly_name = "Ad clicks"
+description = """
+    Counts clicks on ads on search engine result pages with a Mozilla
+    partner tag.
+"""
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+[metrics.tagged_search_count]
+select_expression = "{{agg_sum('tagged_sap')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+friendly_name = "Tagged SAP searches"
+description = """
+    Counts the number of searches a user performed through Firefox's
+    Search Access Points that were submitted with a partner code
+    and were potentially revenue-generating.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+[metrics.tagged_follow_on]
+select_expression = "{{agg_sum('tagged_follow_on')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+friendly_name = "Tagged follow-on searches"
+description = """
+    Counts the number of follow-on searches with a Mozilla partner tag.
+    These are additional searches that users performed from a search engine
+    results page after executing a tagged search through a SAP.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+type = "scalar"
+owner = "xluo-all@mozilla.com"
+
+### Sponsored Tiles metrics
+
+[metrics.spoc_tiles_impressions]
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'top_sites'
+          AND event.name = 'contile_impression'
+      ),0)
+"""
+data_source = "events"
+friendly_name = "Sponsored Tiles Impressions"
+description = "Number of times Contile Sponsored Tiles are shown."
+owner = "xluo-all@mozilla.com"
+
+[metrics.spoc_tiles_clicks]
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'top_sites'
+          AND event.name = 'contile_click'
+      ),0)
+"""
+data_source = "events"
+friendly_name = "Sponsored Tiles Clicks"
+description = "Number of times user clicked a Contile Sponsored Tile."
+owner = "xluo-all@mozilla.com"
+
+[metrics.spoc_tiles_disable_rate]
+select_expression = """
+  COALESCE(MAX(
+    CAST(
+       metrics.boolean.customize_home_contile AS int )
+  ),0)
+"""
+data_source = "metrics"
+bigger_is_better = false
+friendly_name = "Sponsored Tiles Disable Rate"
+description = "Fraction of users who disable Contile Sponsored Tiles"
+owner = "xluo-all@mozilla.com"
+
+[metrics.spoc_tiles_preference_toggled]
+select_expression = """
+  COALESCE(SUM(CASE WHEN
+          event.category = 'customize_home'
+          AND event.name = 'preference_toggled'
+          AND `mozfun.map.get_key`(event.extra, 'preference_key') = 'contile'
+	THEN 1 ELSE 0 END
+  ),0)
+"""
+data_source = "events"
+bigger_is_better = false
+friendly_name = "Sponsored Tiles Preference Toggled"
+description = "Number of times Contile Sponsored Tiles setting is flipped."
+owner = "xluo-all@mozilla.com"
+
+[metrics.new_profile_activation]
+select_expression = "COALESCE(SUM(activated))"
+data_source = "new_profile_activation"
+friendly_name = "New Profile Activation"
+description = "A new profile is counted as activated one week after creation if it meets the following conditions: 1) at least 3 days of use during first week 2) at least one search between days 4-7."
+owner = "vsabino@mozilla.com"
+
+[metrics.fxa_sign_in]
+select_expression = """MAX(IF(metrics.boolean.preferences_signed_in_sync, 1, 0))"""
+data_source = "metrics"
+friendly_name = "Firefox Accounts Signed In"
+description = "Whether a user was signed into FxA at any point in the period"
+owner = "loines@mozilla.com"
+
+[metrics.turn_on_notifications_ctr_onboarding]
+select_expression = "COALESCE(SUM(turn_on_notifications_flag))"
+data_source = "special_onboarding_events"
+friendly_name = "Turn on Notification Click"
+description = "This metric looks at proportion of all new profiles that were exposed to the turn on notification card and clicked the action during on-boarding."
+owner = "rbaffourawuah@mozilla.com"
+
+[metrics.set_to_default_ctr_onboarding]
+select_expression = "COALESCE(SUM(set_to_default_flag))"
+data_source = "special_onboarding_events"
+friendly_name = "Set to Default Click"
+description = "This metric looks at proportion of all new profiles that were exposed to the set to default card and clicked the action during on-boarding."
+owner = "rbaffourawuah@mozilla.com"
+
+[metrics.sign_in_ctr_onboarding]
+select_expression = "COALESCE(SUM(sign_in_flag))"
+data_source = "special_onboarding_events"
+friendly_name = "Sign in Click"
+description = "This metric looks at proportion of all new profiles that were exposed to the sign-in card and clicked the action during on-boarding."
+owner = "rbaffourawuah@mozilla.com"
+
+[metrics.at_least_1_cta_ctr_onboarding]
+select_expression = "COALESCE(SUM(at_least_1_cta))"
+data_source = "special_onboarding_events"
+friendly_name = "Clicked at least one CTA"
+description = "This metric looks at proportion of all new profiles that were exposed to onboarding cards and clicked at least one action during on-boarding."
+owner = "rbaffourawuah@mozilla.com"
+
+[metrics.bookmarks_add_v1]
+select_expression = "SUM(bookmarks_add)"
+data_source = "feature_usage_metrics_v1"
+friendly_name = "Added Bookmarks"
+description = "Number of Added Bookmarks"
+owner = "rzhao@mozilla.com"
+
+[metrics.bookmarks_delete_v1]
+select_expression = "SUM(bookmarks_delete)"
+data_source = "feature_usage_metrics_v1"
+friendly_name = "Deleted Bookmarks"
+description = "Number of Deleted Bookmarks"
+owner = "rzhao@mozilla.com"
+
+[metrics.bookmarks_add_users_v1]
+select_expression = "SUM(bookmarks_add_users)"
+data_source = "feature_usage_metrics_v1"
+friendly_name = "Added Bookmarks Users"
+description = "Number of Users that Added Bookmarks"
+owner = "rzhao@mozilla.com"
+
+[metrics.bookmarks_delete_users_v1]
+select_expression = "SUM(bookmarks_delete_users)"
+data_source = "feature_usage_metrics_v1"
+friendly_name = "Deleted Bookmarks Users"
+description = "Number of Users that Deleted Bookmarks"
+owner = "rzhao@mozilla.com"
+
+[metrics.engagement_rate_v1]
+friendly_name = "Fenix Engagement Rate"
+data_source = "fenix_engagement_view"
+select_expression = "SUM(dau) / SUM(mau)"
+type = "scalar"
+description = """
+    The Engagement Rate is calculated as the ratio between DAU and MAU. For each day, we use the single-day DAU number and divide 
+    it by the MAU corresponding to the 28-day period ending on that day. For OKR reporting, we then calculate a 
+    28-day moving average of this number. More information is provided on the
+    [New Profiles, Retention and Engagement Rate Confluence Page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/814481685/Firefox+New+Profiles+Retention+and+Engagement#Engagement-Rate).
+"""
+owner = ["vsabino@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.retention_rate_v1]
+friendly_name = "Fenix Retention Rate"
+data_source = "fenix_retention_view"
+select_expression = "SUM(retained_week_4) / SUM(active_metric_date)"
+type = "scalar"
+description = """
+    The Retention Rate is calculated as the proportion of clients that are active on the 4th week after the metric date.
+"""
+owner = ["vsabino@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.new_profile_retention_rate_v1]
+friendly_name = "Fenix New Proflie Retention Rate"
+data_source = "fenix_retention_view"
+select_expression = "SUM(retained_week_4_new_profiles) / SUM(new_profiles_metric_date)"
+type = "scalar"
+description = """
+    The New Profile Retention Rate is calculated as the proportion of new profiles that are active on the 4th week after the metric date. 
+    More information is provided on the
+    [New Profiles, Retention and Engagement Rate Confluence Page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/814481685/Firefox+New+Profiles+Retention+and+Engagement#New-Profile-Retention).
+"""
+owner = ["vsabino@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[data_sources]
+
+[data_sources.fenix_active_users_aggregates_view]
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.telemetry.active_users_aggregates`
+    WHERE app_name = 'Fenix'
+)"""
+friendly_name = "Active Users Aggregates"
+description = "Active Users Aggregates, filtered on Fenix"
+submission_date_column = "submission_date"
+client_id_column = "NULL"  # this table doesn't include client_id, and we don't need it for calculating DAU
+
+[data_sources.baseline]
+from_expression = """(
+    SELECT
+        p.*,
+        DATE(p.submission_timestamp) AS submission_date
+    FROM `moz-fx-data-shared-prod.{dataset}.baseline` p
+)"""
+client_id_column = "client_info.client_id"
+experiments_column_type = "glean"
+default_dataset = "org_mozilla_firefox"
+friendly_name = "Baseline"
+description = "Baseline Ping"
+build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
+
+[data_sources.baseline_v2]
+from_expression = """(
+    SELECT
+        p.*,
+        DATE(p.submission_timestamp) AS submission_date
+    FROM `moz-fx-data-shared-prod.{dataset}.baseline` p
+)"""
+client_id_column = "client_info.client_id"
+experiments_column_type = "glean"
+submission_date_column = "submission_date"
+default_dataset = "fenix"
+friendly_name = "Baseline"
+description = "Baseline Ping"
+build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
+
+[data_sources.events]
+from_expression = """(
+    SELECT
+        p.* EXCEPT (events),
+        DATE(p.submission_timestamp) AS submission_date,
+        event
+    FROM
+        `moz-fx-data-shared-prod.{dataset}.events` p
+    CROSS JOIN
+        UNNEST(p.events) AS event
+)"""
+client_id_column = "client_info.client_id"
+experiments_column_type = "glean"
+default_dataset = "org_mozilla_firefox"
+friendly_name = "Events"
+description = "Events Ping"
+build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
+
+[data_sources.metrics]
+from_expression = """(
+    SELECT
+        p.*,
+        DATE(p.submission_timestamp) AS submission_date
+    FROM `moz-fx-data-shared-prod.{dataset}.metrics` p
+)"""
+client_id_column = "client_info.client_id"
+experiments_column_type = "glean"
+default_dataset = "org_mozilla_firefox"
+friendly_name = "Metrics"
+description = "Metrics Ping"
+build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
+
+[data_sources.mobile_search_clients_engines_sources_daily]
+from_expression = """(
+    SELECT *
+    FROM `mozdata.search.mobile_search_clients_engines_sources_daily`
+    WHERE normalized_app_name_os = 'Firefox Android'
+)"""
+experiments_column_type = "simple"
+client_id_column = "client_id"
+submission_date_column = "submission_date"
+
+[data_sources.new_profile_activation]
+from_expression = "`moz-fx-data-shared-prod.fenix.new_profile_activation`"
+experiments_column_type = "none"
+
+[data_sources.special_onboarding_events]
+from_expression = """(
+SELECT
+    expo.submission_date
+    , expo.client_id
+    , case when (conv.set_to_default >= 1 AND expo.set_to_default_card >= 1) then 1
+           when (coalesce(conv.set_to_default, 0) = 0 AND expo.set_to_default_card >= 1) then 0 else null end as set_to_default_flag
+    , case when (conv.turn_on_notifications >= 1 AND expo.turn_on_notifications_card >= 1) then 1
+           when (coalesce(conv.turn_on_notifications, 0) = 0 AND expo.turn_on_notifications_card >= 1) then 0 else null end as turn_on_notifications_flag
+    , case when (conv.sign_in >= 1 AND expo.sign_in_card >= 1) then 1
+           when (coalesce(conv.sign_in,0) = 0 AND expo.sign_in_card >= 1) then 0 else null end as sign_in_flag
+    , case when (conv.set_to_default >= 1 AND expo.set_to_default_card >= 1) OR (conv.turn_on_notifications >= 1 AND expo.turn_on_notifications_card >= 1) OR (conv.sign_in >= 1 AND expo.sign_in_card >= 1)then 1
+           when (coalesce(conv.set_to_default, 0) = 0 AND coalesce(conv.turn_on_notifications, 0) = 0 AND coalesce(conv.sign_in,0) = 0)  AND (set_to_default_card >= 1 OR turn_on_notifications_card >= 1 OR sign_in_card >= 1) then 0 else null end as at_least_1_cta
+
+FROM (
+      SELECT
+            client_info.client_id as client_id
+            , min(DATE(submission_timestamp)) as submission_date
+            , count(case when event.name = "set_to_default_card" then DATE(submission_timestamp) END) as set_to_default_card
+            , count(case when event.name = "turn_on_notifications_card" then DATE(submission_timestamp) END) as turn_on_notifications_card
+            , count(case when event.name = "sign_in_card" then DATE(submission_timestamp) END) as sign_in_card
+      FROM
+        `mozdata.org_mozilla_firefox.events` tm
+      CROSS JOIN
+        UNNEST(events) AS event
+      CROSS JOIN
+        UNNEST(event.extra) AS ext
+      WHERE event.category = "onboarding" AND ext.value ="impression" AND event.name in ("set_to_default_card", "turn_on_notifications_card", "sign_in_card")
+      AND DATE(submission_timestamp) >= "2023-01-01"
+      GROUP BY 1
+      ) expo
+LEFT JOIN (
+  SELECT
+      client_info.client_id as client_id
+            , count(case when event.name = "set_to_default" then DATE(submission_timestamp) END) as set_to_default
+            , count(case when event.name = "turn_on_notifications" then DATE(submission_timestamp) END) as turn_on_notifications
+            , count(case when event.name = "sign_in" then DATE(submission_timestamp) END) as sign_in
+  FROM
+    `mozdata.org_mozilla_firefox.events` tm
+  CROSS JOIN
+     UNNEST(events) AS event
+  CROSS JOIN
+     UNNEST(event.extra) AS ext
+  WHERE event.category = "onboarding" AND ext.key ="action" AND event.name in  ("set_to_default", "turn_on_notifications", "sign_in")
+  AND DATE(submission_timestamp) >= "2023-01-01"
+  GROUP BY 1
+) conv
+ON expo.client_id = conv.client_id
+GROUP BY 1, 2, 3, 4, 5, 6
+)
+"""
+experiments_column_type = "none"
+
+
+[data_sources.feature_usage_metrics_v1]
+from_expression = """(
+    SELECT
+        *
+    FROM `mozdata.fenix.feature_usage_metrics` p
+    LEFT JOIN (
+        SELECT
+        submission_date,
+        SUM(dau) AS dau
+        FROM `mozdata.telemetry.active_users_aggregates`
+        WHERE app_name = 'Fenix'
+        GROUP BY submission_date
+    )
+    USING(submission_date)
+)"""
+client_id_column = "NULL"
+friendly_name = "Feature Usage Metrics"
+description = "Fenix feature usage metrics"
+
+[data_sources.fenix_engagement_view]
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.fenix.engagement`
+    WHERE is_mobile
+)"""
+submission_date_column = "submission_date"
+description = "Aggregated DAU, WAU, and MAU by different attributes for engagement ratio calculation."
+friendly_name = "Fenix Engagement"
+client_id_column = "NULL"
+
+[data_sources.fenix_retention_view]
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.fenix.retention`
+    WHERE is_mobile
+)"""
+submission_date_column = "metric_date"
+description = "Aggregated 4th Week Retention Outcomes of Fenix New and Existing Users."
+friendly_name = "Fenix Retention"
+client_id_column = "NULL"
+
+[data_sources.fenix_active_users_view]
+friendly_name = "Fenix Active Users"
+description = "Client-level table that indicates whether a client meets 'active user' criteria on a given submission_date."
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.fenix.active_users`
+    WHERE is_mobile
+)"""
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+deprecated = false

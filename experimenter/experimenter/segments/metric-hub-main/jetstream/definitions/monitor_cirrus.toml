@@ -1,0 +1,6 @@
+[metrics]
+
+[metrics.monitor_pageviews_v1.statistics]
+bootstrap_mean = {}
+deciles = {}
+empirical_cdf = {}
