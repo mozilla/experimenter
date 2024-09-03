@@ -1,5 +1,6 @@
 import copy
 import datetime
+import json
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
@@ -1219,6 +1220,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             NimbusConstants.ConclusionRecommendation(rec).label
             for rec in self.conclusion_recommendations
         ]
+
+    @property
+    def recipe_json(self):
+        from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
+
+        return (
+            json.dumps(
+                self.published_dto or NimbusExperimentSerializer(self).data,
+                indent=2,
+                sort_keys=True,
+            )
+            .replace("&&", "\n&&")  # Add helpful newlines to targeting
+            .replace("\\n", "\n")  # Handle hard coded newlines in targeting
+        )
 
 
 class NimbusBranch(models.Model):
