@@ -643,7 +643,7 @@ jobs:
             git checkout main
             git pull origin main
             CURRENT_FENIX_BUILD_ID=$(cat experimenter/tests/fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
-            ./experimenter/tests/integration/nimbus/android/update-fenix-apks.sh
+            ./scripts/update-fenix-apks.sh
             LATEST_FENIX_BUILD_ID=$(cat experimenter/tests/fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
             if (($(git status --porcelain | wc -c) > 0)); then
               git checkout -B check-mobile-integrations
