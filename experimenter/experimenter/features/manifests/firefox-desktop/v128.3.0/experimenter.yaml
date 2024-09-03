@@ -8,7 +8,7 @@
 
 "no-feature-firefox-desktop":
   description: A dummy feature for experiments that target no feature.
-  owner: beth@mozilla.com
+  owner: barret@mozilla.com
   applications:
     - firefox-desktop
     - firefox-desktop-background-task
@@ -17,7 +17,7 @@
 
 testFeature:
   description: Test only feature
-  owner: beth@mozilla.com
+  owner: barret@mozilla.com
   applications:
     - firefox-desktop
     - firefox-desktop-background-task
@@ -40,7 +40,7 @@ testFeature:
 
 nimbus-qa-1:
   description: A feature for testing pref-setting on the default branch.
-  owner: beth@mozilla.com
+  owner: barret@mozilla.com
   hasExposure: false
   variables:
     value:
@@ -52,7 +52,7 @@ nimbus-qa-1:
 
 nimbus-qa-2:
   description: A feature for testing pref-setting on the user branch.
-  owner: beth@mozilla.com
+  owner: barret@mozilla.com
   hasExposure: false
   variables:
     value:
@@ -67,7 +67,7 @@ nimbus-qa-2:
 # the prefs you will control.
 prefFlips:
   description: Flip arbitrary prefs. Controlled by release management.
-  owner: beth@mozilla.com
+  owner: barret@mozilla.com
   hasExposure: false
   variables:
     prefs:
@@ -154,13 +154,6 @@ search:
       description: >-
         Whether search-config-v2 is enabled for the user. This will only take
         effect when the user restarts.
-        Obsolete. This is kept until all multi-feature roll-outs using it are
-        ended to prevent un-enrollment.
-    targetExperiment:
-      type: string
-      description: >-
-        The slug of the experiment someone is requesting enrollment and branch
-        information for. (Note that the featureId needs to be set to "search".)
 
 # `searchConfiguration` is for search experiment features for items that require
 # isEarlyStartup to be true. These items may require a reload of the search
@@ -224,31 +217,6 @@ urlbar:
       enum:
         - best-match
         - ""
-    fakespotFeatureGate:
-      type: boolean
-      fallbackPref: browser.urlbar.fakespot.featureGate
-      description: >-
-        Feature gate that controls whether all aspects of the Fakespot suggestion
-        feature are exposed to the user.
-    fakespotMinKeywordLength:
-      type: int
-      description: >-
-        The minimum prefix length of a Fakespot keyword the user must type to
-        trigger the suggestion.
-    fakespotShowLessFrequentlyCap:
-      type: int
-      fallbackPref: browser.urlbar.fakespot.showLessFrequentlyCap
-      description: >-
-        If defined and non-zero, this is the maximum number of times the user
-        will be able to click the "Show less frequently" command for Fakespot
-        suggestions. If undefined or zero, the user will be able to click the
-        command without any limit.
-    fakespotSuggestedIndex:
-      type: int
-      fallbackPref: browser.urlbar.fakespot.suggestedIndex
-      description: >-
-        The index of Fakespot results within the Firefox Suggest section. A
-        negative index is relative to the end of the section.
     mdnFeatureGate:
       type: boolean
       setPref:
@@ -306,11 +274,6 @@ urlbar:
         will be able to click the "Show less frequently" command for Pocket
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
-    pocketSuggestIndex:
-      type: int
-      description: >-
-        The group-relative suggestedIndex of Pocket suggestions within the Firefox
-        Suggest section.
     potentialExposureKeywords:
       type: json
       fallbackPref: browser.urlbar.potentialExposureKeywords
@@ -322,15 +285,6 @@ urlbar:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.allowPositionInSuggestions
       description: Whether quick suggest results can be shown in position specified in the suggestions.
-    quickSuggestAmpTopPickCharThreshold:
-      type: int
-      fallbackPref: browser.urlbar.quicksuggest.ampTopPickCharThreshold
-      description: >-
-        Character-count threshold (inclusive) for showing AMP suggestions as top
-        picks. If an AMP suggestion is triggered by a keyword at least this many
-        characters long, it will be shown as a top pick. When this variable is
-        set, full keywords will also show AMP suggestions as top picks even if
-        they have fewer characters than this threshold.
     quickSuggestContextualOptInEnabled:
       type: boolean
       setPref:
@@ -419,10 +373,8 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.quicksuggest.sponsoredIndex
       description: >-
-        The index of sponsored Firefox Suggest results within the Firefox Suggest
-        section when "Show search suggestions ahead of browsing history in
-        address bar results" is checked. When not checked, the index is hardcoded
-        as -1. Negative indexes are relative to the end of the section.
+        The index of sponsored QuickSuggest results within the general group. A
+        negative index is relative to the end of the group
     quickSuggestSponsoredPriority:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.sponsoredPriority
@@ -521,6 +473,7 @@ urlbar:
         command without any limit.
     yelpSuggestNonPriorityIndex:
       type: int
+      fallbackPref: browser.urlbar.yelp.suggestedIndex
       description: >-
         The group-relative suggestedIndex of Yelp suggestions within the Firefox
         Suggest section. Ignored when `yelpSuggestPriority` is true.
@@ -693,6 +646,18 @@ firefoxBridge:
         Should Firefox Bridge be registered within firefoxBridgeNativeMessaging
         startup idle task for use with native messaging proxy.
 
+windowsJumpList:
+  description: "Controls for the Windows Jump List integration."
+  owner: mconley@mozilla.com
+  hasExposure: false
+  variables:
+    legacyBackend:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.taskbar.lists.legacyBackend
+      description: True if users should use the legacy Windows Jump List backend.
+
 abouthomecache:
   description: "The startup about:home cache."
   owner: omc@mozilla.com, mconley@mozilla.com
@@ -732,118 +697,16 @@ newtab:
       type: boolean
       description: Allow Contile to use additonal sponsored top sites
 
-newtabSpocsCache:
-  description: The about:newtab sponsored content cache.
-  owner: sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    spocsCacheTimeout:
-      type: int
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.spocs.cacheTimeout
-      description: >-
-        Set sponsored content cache timeout in minutes.
-    spocsStartupCache:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.spocs.startupCache.enabled
-      description: >-
-        Controls if spocs should be included in startup cache.
-
-newtabLayoutExperiment:
-  description: >-
-    Change the default layout of new tab by adjusting sizes and spacing of elements.
-  owner: achurchwell@mozilla.com, sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    variantA:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabLayouts.variant-a
-      description: >-
-        Variant A in layouts experiment.
-    variantB:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabLayouts.variant-b
-      description: >-
-        Variant B in layouts experiment.
-
-newtabSponsoredContent:
-  description: >-
-    Change and control the sponsored content on newtab.
-  owner: sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    spocPositions:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.spoc-positions
-      description: CSV string of spoc position indexes on newtab Pocket grid
-
-newtabTopicSelection:
-  description: the about:newtab topic selection experience.
-  owner: nbarrett@mozilla.com
-  hasExposure: false
-  variables:
-    availableTopics:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.topics
-      description: >-
-        List of available topics to select for topic selection
-    suggestedTopics:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.suggestedTopics
-      description: >-
-        List of pre-selected topics to display on first run of topic selection modal
-    topicSelectionOnboarding:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.onboarding.enabled
-      description: >-
-        Turns on and off topic selection onbaording
-    regionTopicsConfig:
-      description: A comma-separated list of regions that get topics selection by default.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.region-topics-config
-    localeTopicsConfig:
-      description: A comma-separated list of locales that get topics selection by default.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.locale-topics-config
-    regionTopicLabelConfig:
-      description: A comma-separated list of regions that get topic labels by default.
-      type: string
-      setPref:
-        branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.topicLabels.region-topic-label-config
-    localeTopicLabelConfig:
-      description: A comma-separated list of locales that get topic Labels by default.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicLabels.locale-topic-label-config
-
-
 pocketNewtab:
   description: The Pocket section in newtab
-  owner: sdowne@mozilla.com
+  owner: sdowne@getpocket.com
   hasExposure: false
   isEarlyStartup: true
   variables:
+    spocPositions:
+      type: string
+      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spoc-positions
+      description: CSV string of spoc position indexes on newtab Pocket grid
     spocTopsitesPositions:
       type: string
       fallbackPref: browser.newtabpage.activity-stream.discoverystream.spoc-topsites-positions
@@ -1058,6 +921,12 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.spocs.personalized
       description: >-
         Enables Pocket sponsored content personalization.
+    spocsCacheTimeout:
+      type: int
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.spocs.cacheTimeout
+      description: >-
+        Set sponsored content cache timeout in minutes.
     discoveryStreamConfig:
       description: A JSON blob of discovery stream configuration.
       type: string
@@ -1107,16 +976,6 @@ pocketNewtab:
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-bff-config
       description: A comma-separated list of regions to get stories from the recommendations BFF. Also requires region-stories-config.
-    merinoProviderEnabled:
-      type: boolean
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.merino-provider.enabled
-      description: Sets the recommendations provider service to Merino.
-    merinoProviderEndpoint:
-      type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.merino-provider.endpoint
-      description: Merino endpoint to use for recommendations.
     regionStoriesBlock:
       description: A comma-separated list of regions that do not get stories, regardless of locale-list-config.
       type: string
@@ -1137,11 +996,6 @@ pocketNewtab:
       type: string
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-weather-config
-    localeWeatherConfig:
-      description: A comma-separated list of locales that weather widget supports.
-      type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.locale-weather-config
     topSitesMaxSponsored:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       type: int
@@ -1162,43 +1016,10 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.pocket-feed-parameters
       description: >-
         Add parameters to Pocket feed URL.
-    merinoFeedExperiment:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.merino-feed-experiment
-      description: >-
-        Should we pass the experiment branch and slug to the Merino feed request.
-    thumbsUpDown:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.enabled
-      description: Display thumbs up and down buttons on recommended stories
-    regionThumbsUpDownConfig:
-      description: A comma-separated list of regions that get thumbs up and down buttons by default.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.region-thumbs-config
-      description: Display thumbs up and down buttons on recommended stories
-    localeThumbsUpDownConfig:
-      description: A comma-separated list of locales that get thumbs up and down buttons by default.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.locale-thumbs-config
-    thumbsUpDownCompactLayout:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.searchTopsitesCompact
-      description: >-
-        Change the layout of the sections to be more compact to account for the added card height with the thumbs up/down enabled.
 
 saveToPocket:
   description: The save to Pocket feature
-  owner: sdowne@mozilla.com
+  owner: sdowne@getpocket.com
   hasExposure: false
   variables:
     emailButton:
@@ -1275,12 +1096,6 @@ shellService:
     disablePin:
       type: boolean
       description: Disable pin to taskbar feature
-    disableStartMenuPin:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.shell.disableStartMenuPin
-      description: Disable pin to start menu feature
     setDefaultBrowserUserChoice:
       type: boolean
       setPref:
@@ -1424,24 +1239,18 @@ pdfjs:
       setPref:
         branch: default
         pref: pdfjs.enableHighlightEditor
-    enableAltText:
-      description: Set to true to enable alt text generation.
+
+addAnImageInPDF:
+  description: Add an image in an existing pdf.
+  owner: cdenizet@mozilla.com
+  hasExposure: false
+  variables:
+    boolean:
+      description: Set to true to enable the add-an-image feature
       type: boolean
       setPref:
         branch: default
-        pref: pdfjs.enableAltText
-    enableUpdatedAddImage:
-      description: Set to true to enable updated add image with alt text flow.
-      type: boolean
-      setPref:
-        branch: default
-        pref: pdfjs.enableUpdatedAddImage
-    browserMlEnable:
-      description: Set to true to enable local inference engine
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.ml.enable
+        pref: pdfjs.enableStampEditor
 
 # fxms-message-* placeholder feature ids
 #
@@ -1602,14 +1411,6 @@ whatsNewPage:
       setPref:
         branch: user
         pref: startup.homepage_override_nimbus_minVersion
-    disableWNP:
-      description: >-
-        Block all What's New Pages. Used to compare no-WNP control branches to
-        WNP treatment branches.
-      type: boolean
-      setPref:
-        branch: user
-        pref: startup.homepage_override_nimbus_disable_wnp
 
 pbNewtab:
   description: "A Firefox Messaging System message for the pbNewtab message channel"
@@ -1960,7 +1761,7 @@ networking:
       type: boolean
       setPref:
         branch: default
-        pref: "network.decompression_off_mainthread2"
+        pref: "network.decompression_off_mainthread"
     offMainThreadStreamDecompressionThreshold:
       description: Minimum content length for off-main-thread decompression
       type: int
@@ -1985,24 +1786,6 @@ networking:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
-    chipsPartitionLimitEnabled:
-      description: Whether we enforce CHIPS partition limit
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitEnabled"
-    chipsPartitionLimitDryRun:
-      description: Whether we actually perform purging/rejection, used to report telemetry without webcompat issues
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitDryRun"
-    chipsPartitionLimitByteCapacity:
-      description: The actual value of the CHIPS partition limit in bytes
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitByteCapacity"
 
 networkPrioritization:
   description: "Network request prioritization"
@@ -2280,18 +2063,6 @@ networkingAuth:
         branch: default
         pref: "network.auth.use_redirect_for_retries"
 
-networkingDenyIpAddrAny:
-  description: "Firefox Networking (Necko) Deny IP Address Any"
-  owner: vgosu@mozilla.com
-  hasExposure: false
-  variables:
-    denyIpAddrAny:
-      description: Whether to deny empty (0.0.0.0) IP addresses
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.socket.ip_addr_any.disabled"
-
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
   owner: nalexander@mozilla.com
@@ -2322,36 +2093,6 @@ dapTelemetry:
     visitCountingExperimentList:
       type: json
       description: A list of experiments with URLs for which we want to count visits.
-
-dapAggregators:
-  description: Aggregator server configuration to use for submitting DAP reports.
-  owner: tcampbell@mozilla.com
-  hasExposure: false
-  variables:
-    leader_url:
-      description: The URL of the DAP Leader server where reports are submitted.
-      type: string
-      setPref:
-        branch: default
-        pref: "toolkit.telemetry.dap.leader.url"
-    leader_hpke:
-      description: The base64-encode HPKE key to encrypt leader shares with.
-      type: string
-      setPref:
-        branch: default
-        pref: "toolkit.telemetry.dap.leader.hpke"
-    helper_url:
-      description: The URL of the DAP Helper server.
-      type: string
-      setPref:
-        branch: default
-        pref: "toolkit.telemetry.dap.helper.url"
-    helper_hpke:
-      description: The base64-encode HPKE key to encrypt helper shares with.
-      type: string
-      setPref:
-        branch: default
-        pref: "toolkit.telemetry.dap.helper.hpke"
 
 etpLevel2PBMPref:
   description: The pref that controls the ETP level 2 list in the private browsing mode
@@ -2406,22 +2147,9 @@ fxaButtonVisibility:
         branch: user
         pref: identity.fxaccounts.toolbar.pxiToolbarEnabled.vpnEnabled
 
-fxaClientAssociation:
-  description: Prefs to control the client association ping.
-  owner: mconley@mozilla.com
-  hasExposure: false
-  variables:
-    pingEnabled:
-      description: >-
-        True if the client association ping should be sent.
-      type: boolean
-      setPref:
-        branch: user
-        pref: identity.fxaccounts.telemetry.clientAssociationPing.enabled
-
 legacyHeartbeat:
   description: Normandy Heartbeat exposed to Nimbus
-  owner: beth@mozilla.com
+  owner: barret@mozilla.com
   hasExposure: false
   schema:
     uri: "resource://normandy/schemas/LegacyHeartbeat.schema.json"
@@ -2521,18 +2249,6 @@ fingerprintingProtection:
         pref: javascript.options.use_fdlibm_for_sin_cos_tan
       description: >-
         Uses a different math backend for Math.sin/cos/tan in JavaScript that exposes less entropy
-
-userCharacteristics:
-  description: Control user characteristic data collection
-  owner: tihuang@mozilla.com
-  hasExposure: false
-  variables:
-    currentVersion:
-      type: int
-      setPref:
-        branch: user
-        pref: toolkit.telemetry.user_characteristics_ping.current_version
-      description: The current collection version of the user characteristics.
 
 migrationWizard:
   description: Prefs to control the Migration Wizard UI.
@@ -2661,12 +2377,6 @@ gc:
       setPref:
         branch: user
         pref: "javascript.options.mem.gc_compacting"
-    gc_generational:
-      description: Whether generational GC is enabled.
-      type: boolean
-      setPref:
-        branch: user
-        pref: "javascript.options.mem.gc_generational"
     gc_heap_growth_factor:
       description: Heap growth parameter for balanced heap limit calculation.
       type: int
@@ -2711,7 +2421,7 @@ gc:
         branch: user
         pref: "javascript.options.mem.incremental_weakmap"
     gc_incremental_slice_ms:
-      description: Max milliseconds to spend in an incremental GC slice.
+      description: Max milliseconds to spend in a non-idle incremental GC slice.
       type: int
       setPref:
         branch: user
@@ -3376,6 +3086,19 @@ contentRelevancy:
       type: boolean
       fallbackPref: toolkit.contentRelevancy.ingestEnabled
 
+tabPreview:
+  description: Prefs to control Tab Previews
+  owner: dwalker@mozilla.com
+  hasExposure: false
+  variables:
+    tabPreviewsEnabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.tabs.hoverPreview.enabled
+      description: >-
+        When true, users will see the new card preview when hovering a tab, instead of the standard tooltip
+
 backupService:
   description: Prefs to control the profile backup service
   owner: mconley@mozilla.com
@@ -3412,22 +3135,6 @@ backupService:
       setPref:
         branch: user
         pref: browser.backup.sqlite.step_delay_ms
-    idleThresholdSeconds:
-      description: >-
-        The number of seconds of user idle time to wait for before considering
-        to schedule a backup.
-      type: int
-      setPref:
-        branch: user
-        pref: browser.backup.scheduled.idle-threshold-seconds
-    minTimeBetweenBackupsSeconds:
-      description: >-
-        The minimum number of seconds since the last known backup that must
-        pass before we might schedule a backup.
-      type: int
-      setPref:
-        branch: user
-        pref: browser.backup.scheduled.minimum-time-between-backups-seconds
 
 pqcrypto:
   description: Prefs that control the use of post-quantum cryptography.
@@ -3448,13 +3155,6 @@ pqcrypto:
         pref: network.http.http3.enable_kyber
       description: >-
         Whether to enable Xyber768 for H3/QUIC.
-    sendP256:
-      type: boolean
-      setPref:
-        branch: default
-        pref: security.tls.client_hello.send_p256_keyshare
-      description: >-
-        Whether to send a P256 share in the client hello in QUIC and TLS.
 
 dtlsWebRTC:
   description: Pref that controls the use of DTLS.
@@ -3488,87 +3188,24 @@ certCompression:
         pref: security.tls.enable_certificate_compression_brotli
       description: >-
         Whether to enable Brotli for TLS certificate compression.
-    tlsEnableZstd:
-      type: boolean
-      setPref:
-        branch: default
-        pref: security.tls.enable_certificate_compression_zstd
-      description: >-
-        Whether to enable Zstd for TLS certificate compression.
-
 bounceTrackingProtection:
   description: Controls the Bounce Tracking Protection feature.
   owner: pbz@mozilla.com
   hasExposure: false
   variables:
     enabled:
-      type: int
-      setPref:
-        branch: default
-        pref: privacy.bounceTrackingProtection.mode
-      description: Mode to run the feature in. See nsIBounceTrackingProtection.idl for documentation.
-
-remoteTabManagement:
-  description: >
-    Features that let users manage tabs on other devices that are
-    connected to the same Mozilla account.
-  owner: skhamis@mozilla.com
-  hasExposure: false
-  variables:
-    closeTabsEnabled:
-      description: >-
-        When true, the user can close tabs on other devices connected to
-        the same Mozilla account from the synced tabs menu.
-      type: boolean
-      fallbackPref: identity.fxaccounts.commands.remoteTabManagement.enabled
-
-crlite:
-  description: Prefs that control the use of CRLite
-  owner: jschanck@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
       type: boolean
       setPref:
         branch: default
-        pref: security.remote_settings.crlite_filters.enabled
-      description: >-
-        Whether CRLite artifacts will be downloaded.
-    channel:
-      type: string
+        pref: privacy.bounceTrackingProtection.enabled
+      description: Main flag to enable / disable the feature.
+    enableDryRunMode:
+      type: boolean
       setPref:
         branch: default
-        pref: security.pki.crlite_channel
+        pref: privacy.bounceTrackingProtection.enableDryRunMode
       description: >-
-        The channel from which CRLite artifacts will be downloaded.
-    mode:
-      type: int
-      setPref:
-        branch: default
-        pref: security.pki.crlite_mode
-      description: >-
-        How CRLite results will be interpreted.
-
-chatbot:
-  description: AI chatbot feature configuration
-  owner: elee@mozilla.com
-  hasExposure: false
-  variables:
-    prefs:
-      type: json
-      description: >-
-        The prefs to set under browser.ml.chat.* with object keys as the
-        sub-pref and values objects indicating the desired branch and value
-        defaulting to clearing the user branch value.
-
-fxms_bmb_button:
-  description: A feature for the Firefox Messaging System Bookmarks Bar button surface
-  owner: omc@mozilla.com
-  hasExposure: true
-  exposureDescription: >-
-    Exposure is sent if the message is about to be shown after trigger and
-    targeting conditions on the message matched.
-  schema:
-    uri: chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json
-    path: browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json
-  variables: {}
+        Enables a mode where if bounce tracking protection is enabled it
+        classifies but does not purge trackers. This mode is helpful for testing
+        the feature without risking data loss. Telemetry is still collected
+        normally.
