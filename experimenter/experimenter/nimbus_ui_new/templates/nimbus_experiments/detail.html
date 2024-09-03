@@ -216,7 +216,23 @@
             </tr>
             <tr>
               <th>Recipe JSON</th>
-              <td colspan="3">{{ experiment.targeting }}</td>
+              <td colspan="3">
+                <div class="collapse" id="collapseRecipe">
+                  <code>
+                    <pre class="text-monospace" style="white-space: pre-wrap; word-wrap: break-word;">
+                      {{ experiment.recipe_json|linebreaks|linebreaksbr }}
+                    </pre>
+                  </code>
+                </div>
+                <button class="btn btn-outline-primary btn-sm"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseRecipe"
+                        aria-expanded="false"
+                        aria-controls="collapseRecipe">
+                  <i class="fa-solid fa-plus"></i> Show/Hide Recipe
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
