@@ -1,4 +1,5 @@
 import datetime
+import json
 from decimal import Decimal
 from itertools import product
 from pathlib import Path
@@ -20,6 +21,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import (
     ApplicationConfig,
@@ -3182,6 +3184,21 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.FIREFOX_100
         )
         self.assertEqual(experiment.get_firefox_max_version_display, "100.0")
+
+    def test_recipe_json_renders_published_dto(self):
+        published_dto = {"published": "dto"}
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, published_dto=published_dto
+        )
+        self.assertEqual(experiment.recipe_json, '{\n  "published": "dto"\n}')
+
+    def test_recipe_json_renders_nimbus_experiment_serializer(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        serialized_keys = sorted(NimbusExperimentSerializer(experiment).data.keys())
+        recipe_json_keys = sorted(json.loads(experiment.recipe_json.replace("\n", "")))
+        self.assertEqual(serialized_keys, recipe_json_keys)
 
 
 class TestNimbusBranch(TestCase):
