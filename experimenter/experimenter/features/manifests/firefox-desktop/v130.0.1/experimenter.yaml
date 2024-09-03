@@ -322,15 +322,6 @@ urlbar:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.allowPositionInSuggestions
       description: Whether quick suggest results can be shown in position specified in the suggestions.
-    quickSuggestAmpTopPickCharThreshold:
-      type: int
-      fallbackPref: browser.urlbar.quicksuggest.ampTopPickCharThreshold
-      description: >-
-        Character-count threshold (inclusive) for showing AMP suggestions as top
-        picks. If an AMP suggestion is triggered by a keyword at least this many
-        characters long, it will be shown as a top pick. When this variable is
-        set, full keywords will also show AMP suggestions as top picks even if
-        they have fewer characters than this threshold.
     quickSuggestContextualOptInEnabled:
       type: boolean
       setPref:
@@ -734,7 +725,7 @@ newtab:
 
 newtabSpocsCache:
   description: The about:newtab sponsored content cache.
-  owner: sdowne@mozilla.com
+  owner: sdowne@getpocket.com
   hasExposure: false
   variables:
     spocsCacheTimeout:
@@ -751,40 +742,6 @@ newtabSpocsCache:
         pref: browser.newtabpage.activity-stream.discoverystream.spocs.startupCache.enabled
       description: >-
         Controls if spocs should be included in startup cache.
-
-newtabLayoutExperiment:
-  description: >-
-    Change the default layout of new tab by adjusting sizes and spacing of elements.
-  owner: achurchwell@mozilla.com, sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    variantA:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabLayouts.variant-a
-      description: >-
-        Variant A in layouts experiment.
-    variantB:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabLayouts.variant-b
-      description: >-
-        Variant B in layouts experiment.
-
-newtabSponsoredContent:
-  description: >-
-    Change and control the sponsored content on newtab.
-  owner: sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    spocPositions:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.spoc-positions
-      description: CSV string of spoc position indexes on newtab Pocket grid
 
 newtabTopicSelection:
   description: the about:newtab topic selection experience.
@@ -824,26 +781,17 @@ newtabTopicSelection:
       setPref:
         branch: user
         pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.locale-topics-config
-    regionTopicLabelConfig:
-      description: A comma-separated list of regions that get topic labels by default.
-      type: string
-      setPref:
-        branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.topicLabels.region-topic-label-config
-    localeTopicLabelConfig:
-      description: A comma-separated list of locales that get topic Labels by default.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicLabels.locale-topic-label-config
-
 
 pocketNewtab:
   description: The Pocket section in newtab
-  owner: sdowne@mozilla.com
+  owner: sdowne@getpocket.com
   hasExposure: false
   isEarlyStartup: true
   variables:
+    spocPositions:
+      type: string
+      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spoc-positions
+      description: CSV string of spoc position indexes on newtab Pocket grid
     spocTopsitesPositions:
       type: string
       fallbackPref: browser.newtabpage.activity-stream.discoverystream.spoc-topsites-positions
@@ -1198,7 +1146,7 @@ pocketNewtab:
 
 saveToPocket:
   description: The save to Pocket feature
-  owner: sdowne@mozilla.com
+  owner: sdowne@getpocket.com
   hasExposure: false
   variables:
     emailButton:
@@ -2323,36 +2271,6 @@ dapTelemetry:
       type: json
       description: A list of experiments with URLs for which we want to count visits.
 
-dapAggregators:
-  description: Aggregator server configuration to use for submitting DAP reports.
-  owner: tcampbell@mozilla.com
-  hasExposure: false
-  variables:
-    leader_url:
-      description: The URL of the DAP Leader server where reports are submitted.
-      type: string
-      setPref:
-        branch: default
-        pref: "toolkit.telemetry.dap.leader.url"
-    leader_hpke:
-      description: The base64-encode HPKE key to encrypt leader shares with.
-      type: string
-      setPref:
-        branch: default
-        pref: "toolkit.telemetry.dap.leader.hpke"
-    helper_url:
-      description: The URL of the DAP Helper server.
-      type: string
-      setPref:
-        branch: default
-        pref: "toolkit.telemetry.dap.helper.url"
-    helper_hpke:
-      description: The base64-encode HPKE key to encrypt helper shares with.
-      type: string
-      setPref:
-        branch: default
-        pref: "toolkit.telemetry.dap.helper.hpke"
-
 etpLevel2PBMPref:
   description: The pref that controls the ETP level 2 list in the private browsing mode
   owner: tihuang@mozilla.com
@@ -2521,18 +2439,6 @@ fingerprintingProtection:
         pref: javascript.options.use_fdlibm_for_sin_cos_tan
       description: >-
         Uses a different math backend for Math.sin/cos/tan in JavaScript that exposes less entropy
-
-userCharacteristics:
-  description: Control user characteristic data collection
-  owner: tihuang@mozilla.com
-  hasExposure: false
-  variables:
-    currentVersion:
-      type: int
-      setPref:
-        branch: user
-        pref: toolkit.telemetry.user_characteristics_ping.current_version
-      description: The current collection version of the user characteristics.
 
 migrationWizard:
   description: Prefs to control the Migration Wizard UI.
@@ -3376,6 +3282,19 @@ contentRelevancy:
       type: boolean
       fallbackPref: toolkit.contentRelevancy.ingestEnabled
 
+tabPreview:
+  description: Prefs to control Tab Previews
+  owner: dwalker@mozilla.com
+  hasExposure: false
+  variables:
+    tabPreviewsEnabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.tabs.hoverPreview.enabled
+      description: >-
+        When true, users will see the new card preview when hovering a tab, instead of the standard tooltip
+
 backupService:
   description: Prefs to control the profile backup service
   owner: mconley@mozilla.com
@@ -3502,11 +3421,21 @@ bounceTrackingProtection:
   hasExposure: false
   variables:
     enabled:
-      type: int
+      type: boolean
       setPref:
         branch: default
-        pref: privacy.bounceTrackingProtection.mode
-      description: Mode to run the feature in. See nsIBounceTrackingProtection.idl for documentation.
+        pref: privacy.bounceTrackingProtection.enabled
+      description: Main flag to enable / disable the feature.
+    enableDryRunMode:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.bounceTrackingProtection.enableDryRunMode
+      description: >-
+        Enables a mode where if bounce tracking protection is enabled it
+        classifies but does not purge trackers. This mode is helpful for testing
+        the feature without risking data loss. Telemetry is still collected
+        normally.
 
 remoteTabManagement:
   description: >
