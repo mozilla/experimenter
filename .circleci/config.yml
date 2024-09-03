@@ -21,6 +21,11 @@ commands:
                 exit 0
             fi
 
+            if [ "$CIRCLE_BRANCH" == "check-mobile-integrations" ]; then
+                echo "Skipping desktop tests."
+                circleci-agent step halt
+            fi
+
             diff_output=$(git diff --name-only main HEAD)
             echo "Changed files:"
             echo "$diff_output"
@@ -373,8 +378,6 @@ jobs:
       xcode: 15.3.0
     steps:
       - checkout
-      - check_file_paths:
-          paths: "experimenter/"
       - macos/preboot-simulator:
           version: "17.4"
           platform: "iOS"
@@ -413,8 +416,6 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - check_file_paths:
-          paths: "experimenter/"
       - run:
           name: Create experiment on experimenter
           command: |
@@ -747,7 +748,6 @@ workflows:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - create_fenix_fennec_recipes:
           name: Create fenix and fennec recipes
           filters:
@@ -760,70 +760,60 @@ workflows:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_nimbus_desktop_beta_targeting:
           name: Test Desktop Targeting (Beta Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_nimbus_desktop_nightly_targeting:
           name: Test Desktop Targeting (Nightly Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_nimbus_remote_settings_launch:
           name: Test Remote Settings Launch (All Applications)
           filters:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_nimbus_remote_settings_all:
           name: Test Remote Settings All Workflows (Release Firefox Desktop)
           filters:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_nimbus_desktop_enrollment:
           name: Test Desktop Enrollment (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_nimbus_sdk_targeting:
           name: Test SDK Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_nimbus_cirrus:
           name: Test Demo app with Cirrus
           filters:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_legacy:
           name: Test Legacy Desktop (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-                - check-mobile-integrations
       - integration_test_android_fenix:
           name: Test Firefox for Android (Fenix)
           requires:
