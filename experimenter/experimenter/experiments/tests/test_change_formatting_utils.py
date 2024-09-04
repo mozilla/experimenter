@@ -284,6 +284,16 @@ class TestChangeFormattingMethod(TestCase):
             experiment, self.user, "primary outcomes were added", timestamp_2
         )
 
+        old_value_segments = []
+        new_value_segments = ["test-segment"]
+
+        experiment.segments = new_value_segments
+        experiment.save()
+
+        generate_nimbus_changelog(
+            experiment, self.user, "segments were added", timestamp_2
+        )
+
         changelogs = list(
             experiment.changes.order_by("-changed_on").prefetch_related("changed_by")
         )
@@ -314,6 +324,42 @@ class TestChangeFormattingMethod(TestCase):
         }
 
         self.assertDictEqual(change, expected_change)
+
+        field_name_segments = "segments"
+        field_diff_segments = {
+            "old_value": old_value_segments,
+            "new_value": new_value_segments,
+        }
+        change_timestamp_segments = self._create_formatted_timestamp(
+            comparison_log.changed_on
+        )
+        field_instance_segments = NimbusExperiment._meta.get_field(field_name_segments)
+        field_display_name_segments = (
+            field_instance_segments.verbose_name
+            if hasattr(field_instance_segments, "verbose_name")
+            else field_name_segments
+        )
+
+        change_segments = get_formatted_change_object(
+            field_name_segments,
+            field_diff_segments,
+            comparison_log,
+            change_timestamp_segments,
+        )
+
+        expected_change_segments = {
+            "id": change_segments["id"],
+            "event": ChangeEventType.DETAILED.name,
+            "event_message": (
+                f"{self.user} changed value of {field_display_name_segments}"
+            ),
+            "changed_by": self.user,
+            "timestamp": change_timestamp_segments,
+            "old_value": json.dumps(old_value_segments, indent=2),
+            "new_value": json.dumps(new_value_segments, indent=2),
+        }
+
+        self.assertDictEqual(change_segments, expected_change_segments)
 
     def test_formatting_for_JSON_fields(self):
         experiment = NimbusExperimentFactory.create(

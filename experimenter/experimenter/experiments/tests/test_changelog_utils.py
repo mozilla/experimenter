@@ -20,9 +20,12 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
+from experimenter.segments import Segments
+from experimenter.segments.tests import mock_valid_segments
 
 
 @mock_valid_outcomes
+@mock_valid_segments
 class TestNimbusExperimentChangeLogSerializer(TestCase):
     maxDiff = None
 
@@ -94,6 +97,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "risk_partner_related": None,
                 "risk_revenue": None,
                 "secondary_outcomes": [],
+                "segments": [],
                 "slug": "",
                 "status": NimbusExperiment.Status.DRAFT,
                 "status_next": None,
@@ -117,6 +121,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         project = ProjectFactory.create()
         primary_outcome = Outcomes.by_application(application)[0].slug
         secondary_outcome = Outcomes.by_application(application)[1].slug
+        segment = Segments.by_application(application)[0].slug
         parent_experiment = NimbusExperimentFactory.create()
         subscriber = UserFactory.create()
 
@@ -136,6 +141,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 projects=[project],
                 primary_outcomes=[primary_outcome],
                 secondary_outcomes=[secondary_outcome],
+                segments=[segment],
                 subscribers=[subscriber],
                 parent=parent_experiment,
             )
@@ -195,6 +201,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "risk_partner_related": experiment.risk_partner_related,
                 "risk_revenue": experiment.risk_revenue,
                 "secondary_outcomes": [secondary_outcome],
+                "segments": [segment],
                 "slug": experiment.slug,
                 "status": experiment.status,
                 "status_next": experiment.status_next,

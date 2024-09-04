@@ -263,6 +263,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=list,
         verbose_name="Secondary Outcomes",
     )
+    segments = ArrayField(
+        models.CharField(max_length=255),
+        default=list,
+        verbose_name="Segments",
+    )
     feature_configs = models.ManyToManyField["NimbusFeatureConfig"](
         "NimbusFeatureConfig", blank=True, verbose_name="Feature configurations"
     )
