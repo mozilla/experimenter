@@ -369,14 +369,6 @@ translations:
     page-settings-enabled:
       type: boolean
       description: "Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.\n"
-unified-search:
-  description: A feature allowing user to easily search for specified results directly in the search bar.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If true, the feature shows up in the search bar."
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true
