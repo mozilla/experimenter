@@ -642,10 +642,9 @@ jobs:
           command: |
             git checkout main
             git pull origin main
-            cd experimenter/tests/integration/nimbus/android
-            CURRENT_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
-            ./update-fenix-apks.sh
-            LATEST_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
+            CURRENT_FENIX_BUILD_ID=$(cat experimenter/tests/fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
+            ./scripts/update-fenix-apks.sh
+            LATEST_FENIX_BUILD_ID=$(cat experimenter/tests/fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
             if (($(git status --porcelain | wc -c) > 0)); then
               git checkout -B check-mobile-integrations
               git add .
