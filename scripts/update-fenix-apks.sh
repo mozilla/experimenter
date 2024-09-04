@@ -12,3 +12,5 @@ TASK_ID=$(curl ${CURLFLAGS[@]} "${TASKCLUSTER_API}/tasks/${INDEX_BASE}" | jq '.t
 echo TASK ID "${TASK_ID}"
 
 echo "FIREFOX_FENIX_TASK_ID=${TASK_ID}" > fenix-build.env
+
+mv fenix-build.env experimenter/tests
