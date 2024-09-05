@@ -85,6 +85,32 @@ class TestNimbusExperimentAdminForm(TestCase):
         self.assertEqual(experiment.primary_outcomes, ["outcome1", "outcome2"])
         self.assertEqual(experiment.secondary_outcomes, ["outcome3", "outcome4"])
 
+    def test_form_saves_segments(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            segments=[],
+        )
+        form = NimbusExperimentAdminForm(
+            instance=experiment,
+            data={
+                "owner": experiment.owner,
+                "status": experiment.status,
+                "publish_status": experiment.publish_status,
+                "name": experiment.name,
+                "slug": experiment.slug,
+                "proposed_duration": experiment.proposed_duration,
+                "proposed_enrollment": experiment.proposed_enrollment,
+                "population_percent": experiment.population_percent,
+                "total_enrolled_clients": experiment.total_enrolled_clients,
+                "application": experiment.application,
+                "hypothesis": experiment.hypothesis,
+                "segments": "segment1, segment2",
+            },
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertEqual(experiment.segments, ["segment1", "segment2"])
+
     def test_form_rejects_any_branch_if_no_experiment_provided(self):
         branch = NimbusBranchFactory.create()
 

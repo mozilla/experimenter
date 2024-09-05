@@ -2515,6 +2515,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.hypothesis, NimbusExperiment.HYPOTHESIS_DEFAULT)
         self.assertEqual(child.primary_outcomes, [])
         self.assertEqual(child.secondary_outcomes, [])
+        self.assertEqual(child.segments, [])
         self.assertEqual(child.feature_configs.count(), 0)
         self.assertEqual(
             child.targeting_config_slug, NimbusExperiment.TargetingConfig.NO_TARGETING
@@ -2624,6 +2625,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.risk_mitigation_link, parent.risk_mitigation_link)
         self.assertEqual(child.primary_outcomes, parent.primary_outcomes)
         self.assertEqual(child.secondary_outcomes, parent.secondary_outcomes)
+        self.assertEqual(child.segments, parent.segments)
         self.assertEqual(child.targeting_config_slug, parent.targeting_config_slug)
         self.assertEqual(child.risk_partner_related, parent.risk_partner_related)
         self.assertEqual(child.risk_revenue, parent.risk_revenue)

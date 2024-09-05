@@ -270,50 +270,110 @@ class TestChangeFormattingMethod(TestCase):
             slug="experiment-1",
             published_dto={"id": "experiment", "test": False},
         )
-        timestamp_2 = self._create_timestamp(2)
+
+        timestamp_outcomes = self._create_timestamp(2)
+        timestamp_segments = self._create_timestamp(3)
 
         generate_nimbus_changelog(experiment, self.user, "created", self.first_timestamp)
 
-        old_value = []
-        new_value = ["test-outcome"]
+        old_value_outcomes = []
+        new_value_outcomes = ["test-outcome"]
 
-        experiment.primary_outcomes = new_value
+        experiment.primary_outcomes = new_value_outcomes
         experiment.save()
 
         generate_nimbus_changelog(
-            experiment, self.user, "primary outcomes were added", timestamp_2
+            experiment, self.user, "primary outcomes were added", timestamp_outcomes
+        )
+
+        old_value_segments = []
+        new_value_segments = ["test-segment"]
+
+        experiment.segments = new_value_segments
+        experiment.save()
+
+        generate_nimbus_changelog(
+            experiment, self.user, "segments were added", timestamp_segments
         )
 
         changelogs = list(
             experiment.changes.order_by("-changed_on").prefetch_related("changed_by")
         )
 
-        comparison_log = changelogs[0]
-        field_name = "primary_outcomes"
-        field_diff = {"old_value": old_value, "new_value": new_value}
-        change_timestamp = self._create_formatted_timestamp(comparison_log.changed_on)
-        field_instance = NimbusExperiment._meta.get_field(field_name)
-        field_display_name = (
-            field_instance.verbose_name
-            if hasattr(field_instance, "verbose_name")
-            else field_name
+        comparison_log_outcomes = changelogs[0]
+        comparison_log_segments = changelogs[1]
+
+        field_name_outcomes = "primary_outcomes"
+        field_diff_outcomes = {
+            "old_value": old_value_outcomes,
+            "new_value": new_value_outcomes,
+        }
+        change_timestamp_outcomes = self._create_formatted_timestamp(
+            comparison_log_outcomes.changed_on
+        )
+        field_instance_outcomes = NimbusExperiment._meta.get_field(field_name_outcomes)
+        field_display_name_outcomes = (
+            field_instance_outcomes.verbose_name
+            if hasattr(field_instance_outcomes, "verbose_name")
+            else field_name_outcomes
         )
 
-        change = get_formatted_change_object(
-            field_name, field_diff, comparison_log, change_timestamp
+        change_outcomes = get_formatted_change_object(
+            field_name_outcomes,
+            field_diff_outcomes,
+            comparison_log_outcomes,
+            change_timestamp_outcomes,
         )
 
-        expected_change = {
-            "id": change["id"],
+        expected_change_outcomes = {
+            "id": change_outcomes["id"],
             "event": ChangeEventType.DETAILED.name,
-            "event_message": f"{self.user} changed value of {field_display_name}",
+            "event_message": (
+                f"{self.user} changed value of {field_display_name_outcomes}"
+            ),
             "changed_by": self.user,
-            "timestamp": change_timestamp,
-            "old_value": json.dumps(old_value, indent=2),
-            "new_value": json.dumps(new_value, indent=2),
+            "timestamp": change_timestamp_outcomes,
+            "old_value": json.dumps(old_value_outcomes, indent=2),
+            "new_value": json.dumps(new_value_outcomes, indent=2),
         }
 
-        self.assertDictEqual(change, expected_change)
+        self.assertDictEqual(change_outcomes, expected_change_outcomes)
+
+        field_name_segments = "segments"
+        field_diff_segments = {
+            "old_value": old_value_segments,
+            "new_value": new_value_segments,
+        }
+        change_timestamp_segments = self._create_formatted_timestamp(
+            comparison_log_segments.changed_on
+        )
+        field_instance_segments = NimbusExperiment._meta.get_field(field_name_segments)
+        field_display_name_segments = (
+            field_instance_segments.verbose_name
+            if hasattr(field_instance_segments, "verbose_name")
+            else field_name_segments
+        )
+
+        change_segments = get_formatted_change_object(
+            field_name_segments,
+            field_diff_segments,
+            comparison_log_segments,
+            change_timestamp_segments,
+        )
+
+        expected_change_segments = {
+            "id": change_segments["id"],
+            "event": ChangeEventType.DETAILED.name,
+            "event_message": (
+                f"{self.user} changed value of {field_display_name_segments}"
+            ),
+            "changed_by": self.user,
+            "timestamp": change_timestamp_segments,
+            "old_value": json.dumps(old_value_segments, indent=2),
+            "new_value": json.dumps(new_value_segments, indent=2),
+        }
+
+        self.assertDictEqual(change_segments, expected_change_segments)
 
     def test_formatting_for_JSON_fields(self):
         experiment = NimbusExperimentFactory.create(

@@ -36,6 +36,7 @@ from experimenter.experiments.models import (
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.tests.factories import ProjectFactory
+from experimenter.segments import Segments
 
 faker = Faker()
 
@@ -457,6 +458,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     secondary_outcomes = factory.LazyAttribute(
         lambda o: [oc.slug for oc in Outcomes.all()[2:]]
     )
+    segments = factory.LazyAttribute(lambda o: [s.slug for s in Segments.all()])
     risk_partner_related = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_revenue = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_brand = factory.LazyAttribute(lambda o: random.choice([True, False]))
