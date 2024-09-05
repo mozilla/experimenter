@@ -251,7 +251,6 @@ export interface Statistic {
   point?: number;
   lower?: number;
   upper?: number;
-  p_value?: number;
   segment?: string;
   analysis_basis?: AnalysisBasis;
   window_index?: string;
