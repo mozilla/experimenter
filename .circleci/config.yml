@@ -21,11 +21,6 @@ commands:
                 exit 0
             fi
 
-            if [ "$CIRCLE_BRANCH" == "check-mobile-integrations" ]; then
-                echo "Skipping desktop tests."
-                circleci-agent step halt
-            fi
-
             diff_output=$(git diff --name-only main HEAD)
             echo "Changed files:"
             echo "$diff_output"
@@ -161,7 +156,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+          paths: "experimenter/tests/firefox-desktop-beta-build.env"
       - run:
           name: Run integration tests
           command: |
@@ -347,6 +342,8 @@ jobs:
       PYTEST_ARGS: --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/tests/firefox-fenix-build.env"
       - attach_workspace:
           at: /tmp/experimenter
       - android/accept-licenses
@@ -378,6 +375,8 @@ jobs:
       xcode: 15.3.0
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/tests/firefox-fenix-build.env" 
       - macos/preboot-simulator:
           version: "17.4"
           platform: "iOS"
@@ -619,7 +618,8 @@ jobs:
             else
               echo "No config changes, skipping"
             fi
-  update_mobile_files:
+  
+  check_external_firefox_integrations:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
@@ -638,24 +638,9 @@ jobs:
             git config --local user.email "dataops+ci-bot@mozilla.com"
             gh config set git_protocol https
       - run:
-          name: Check for Fenix Update
+          name: Check for external Update
           command: |
-            git checkout main
-            git pull origin main
-            CURRENT_FENIX_BUILD_ID=$(cat experimenter/tests/fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
-            ./scripts/update-fenix-apks.sh
-            LATEST_FENIX_BUILD_ID=$(cat experimenter/tests/fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
-            if (($(git status --porcelain | wc -c) > 0)); then
-              git checkout -B check-mobile-integrations
-              git add .
-              git commit -m "chore(nimbus): Check mobile integrations and update keys"
-              if [[ "${CURRENT_FENIX_BUILD_ID}" != "${LATEST_FENIX_BUILD_ID}" ]]; then
-                git push origin check-mobile-integrations
-                gh pr create -t "chore(nimbus): Check mobile integrations and update keys" -b "" --base main --head check-mobile-integrations --repo mozilla/experimenter || echo "PR already exists, skipping"
-              fi
-            else
-              echo "No config changes, skipping"
-            fi
+            ./.circleci/updater_script.sh
 
   build_firefox_versions:
     working_directory: ~/experimenter
@@ -688,6 +673,8 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/tests/firefox-fenix-build.env" 
       - docker_login:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -729,7 +716,7 @@ workflows:
     jobs:
       - update_external_configs
       - update_application_services
-      - update_mobile_files
+      - check_external_firefox_integrations
 
   build:
     jobs:
@@ -752,7 +739,7 @@ workflows:
           filters:
             branches:
               only:
-                - check-mobile-integrations
+                - check_external_firefox_integrations
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
@@ -821,7 +808,7 @@ workflows:
           filters:
             branches:
               only:
-                - check-mobile-integrations
+                - check_external_firefox_integrations
       - integration_test_ios_fennec:
           name: Test Firefox for iOS (Fennec)
           requires:
@@ -829,7 +816,7 @@ workflows:
           filters:
             branches:
               only:
-                - check-mobile-integrations
+                - check_external_firefox_integrations
       - deploy_experimenter:
           name: Deploy Experimenter
           context:
@@ -858,4 +845,5 @@ workflows:
           filters:
             branches:
               only:
-                - check-mobile-integrations
+                - check_external_firefox_integrations
+      - check_external_firefox_integrations
