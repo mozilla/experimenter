@@ -106,6 +106,17 @@ FIRST_RUN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+MSIX_FIRST_RUN = NimbusTargetingConfig(
+    name="First start-up users with MSIX Firefox",
+    slug="msix_first_run",
+    description=("First start-up users (e.g. for about:welcome) with MSIX Firefox"),
+    targeting="(isFirstRun && os.isWindows && os.windowsVersion >= 10 && isMSIX)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=True,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FIRST_RUN_NEW_PROFILE = NimbusTargetingConfig(
     name="First start-up new users",
     slug="first_run_new_profile",
