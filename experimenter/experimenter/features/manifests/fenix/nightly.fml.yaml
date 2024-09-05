@@ -247,6 +247,29 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          microsurvey-printing-example-nightly:
+            title: microsurvey_prompt_printing_title
+            text: microsurvey_survey_printing_title
+            surface: microsurvey
+            trigger-if-all:
+              - RECENTLY_PRINTED
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: homepage
+              icon: ic_print
+              answers:
+                - text: likert_scale_option_1
+                  ordering: 0
+                - text: likert_scale_option_2
+                  ordering: 1
+                - text: likert_scale_option_3
+                  ordering: 2
+                - text: likert_scale_option_4
+                  ordering: 3
+                - text: likert_scale_option_5
+                  ordering: 4
+                - text: likert_scale_option_6
+                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -317,6 +340,7 @@ features:
           INACTIVE_5_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 5"
           RECENTLY_PRINTED: "'print_tapped'|eventLastSeen('Hours') <= 24"
           SECOND_HOMEPAGE_VIEW: "'home_screen_displayed'|eventSum('Years', 4, 0) >= 2"
+          PERFORMED_A_SEARCH_AGAIN_RECENTLY: "'performed_search'|eventSum('Years', 4, 0) >= 2 && 'performed_search'|eventLastSeen('Minutes') < 1"
           FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
           FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
           USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"
