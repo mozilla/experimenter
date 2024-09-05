@@ -20,6 +20,11 @@
         hx-target="#experiment-list"
         hx-push-url="true">
     {% for field in filter.form %}{{ field }}{% endfor %}
+    <a class="text-sm link-secondary link-underline-opacity-0"
+       href="{% url "nimbus-list" %}">
+      <i class="fa-solid fa-square-xmark" style="width:30px;"></i>
+      <span class="ms-1">Reset Filters</span>
+    </a>
   </form>
 {% endblock sidebar %}
 
