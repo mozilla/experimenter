@@ -1,0 +1,83 @@
+friendly_name = "CRLite"
+description = "Metrics for the CRLite certificate revocation checking system"
+
+[metrics.cert_storage_memory]
+data_source = "metrics"
+select_expression = "ARRAY_AGG(metrics.memory_distribution.cert_storage_memory IGNORE NULLS)"
+friendly_name = "Certificate storage memory usage (bytes)"
+description = "Heap memory usage of cert_storage::SecurityState. This includes CRLite artifacts and preloaded intermediate certificates."
+type = "histogram"
+
+[metrics.cert_storage_memory.statistics.deciles]
+
+[metrics.cert_storage_memory.statistics.empirical_cdf]
+
+
+[metrics.revocation_check_counter]
+data_source = "metrics"
+select_expression = """
+    COALESCE(SUM(mozfun.map.extract_keyed_scalar_sum(metrics.labeled_counter.cert_verifier_cert_revocation_mechanisms)), 0)
+"""
+friendly_name = "Certificate revocation checks"
+description = "Number of revocation checks performed."
+type = "scalar"
+
+[metrics.revocation_check_counter.statistics.sum]
+
+
+[metrics.crlite_use_counter]
+data_source = "metrics"
+select_expression = """
+    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.cert_verifier_cert_revocation_mechanisms, 'CRLite')), 0)
+"""
+friendly_name = "CRLite usage"
+description = "Number of revocation checks performed using CRLite."
+type = "scalar"
+
+[metrics.crlite_use_counter.statistics.sum]
+
+[metrics.crlite_use_counter.statistics.ratio]
+numerator = "crlite_use_counter.sum"
+denominator = "revocation_check_counter.sum"
+
+
+[metrics.ocsp_use_counter]
+data_source = "metrics"
+select_expression = """
+        COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.cert_verifier_cert_revocation_mechanisms, 'OCSP')), 0)
+"""
+friendly_name = "OCSP usage"
+description = "Number of revocation checks performed using OCSP."
+type = "scalar"
+
+[metrics.ocsp_use_counter.statistics.sum]
+
+[metrics.ocsp_use_counter.statistics.ratio]
+numerator = "ocsp_use_counter.sum"
+denominator = "revocation_check_counter.sum"
+
+
+[metrics.crlite_revoked_in_filter]
+data_source = "metrics"
+select_expression = """
+        COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.cert_verifier_crlite_status, 'revoked_in_filter')), 0)
+"""
+friendly_name = "CRLite filter hits"
+description = "Number of revoked certificates detected by the CRLite filter."
+type = "scalar"
+
+[metrics.crlite_revoked_in_filter.statistics.sum]
+[metrics.crlite_revoked_in_filter.statistics.client_count]
+
+
+[metrics.crlite_revoked_in_stash]
+data_source = "metrics"
+select_expression = """
+        COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.cert_verifier_crlite_status, 'revoked_in_stash')), 0)
+"""
+friendly_name = "CRLite stash hits"
+description = "Number of revoked certificates detected by a CRLite stash."
+type = "scalar"
+
+[metrics.crlite_revoked_in_stash.statistics.sum]
+[metrics.crlite_revoked_in_stash.statistics.client_count]
