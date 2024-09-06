@@ -1,5 +1,4 @@
 import datetime as dt
-import json
 from typing import Optional
 
 from polyfactory.factories.pydantic_factory import ModelFactory
@@ -8,20 +7,11 @@ from pydantic import BaseModel, HttpUrl, field_validator
 from mozilla_nimbus_schemas.jetstream.statistics import SCHEMA_VERSION, AnalysisBasis
 
 
-def nonstrict_json_loads(*args, **kwargs):
-    kwargs["strict"] = False
-    return json.loads(*args, **kwargs)
-
-
 class Metric(BaseModel):
     analysis_bases: list[AnalysisBasis]
     bigger_is_better: bool
     description: Optional[str] = None
     friendly_name: Optional[str] = None
-    # TODO[pydantic]: The following keys were removed: `json_loads`.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config
-    # for more information.
-    # model_config = ConfigDict(json_loads=nonstrict_json_loads)
 
 
 class Outcome(BaseModel):
@@ -65,11 +55,6 @@ class Metadata(BaseModel):
     @classmethod
     def treat_empty_str_as_none(cls, v):
         return None if v == "" else v
-
-    # TODO[pydantic]: The following keys were removed: `json_loads`.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config
-    # for more information.
-    # model_config = ConfigDict(json_loads=nonstrict_json_loads)
 
 
 class MetadataFactory(ModelFactory[Metadata]):

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class RandomizationUnit(str, Enum):
@@ -18,8 +18,7 @@ class ExperimentBucketConfig(BaseModel):
     count: int
     total: int
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ExperimentOutcome(BaseModel):
@@ -64,7 +63,7 @@ class NimbusExperiment(BaseModel):
     isEnrollmentPaused: bool
     isRollout: Optional[bool] = None
     bucketConfig: ExperimentBucketConfig
-    outcomes: Optional[list[ExperimentOutcome]]
+    outcomes: Optional[list[ExperimentOutcome]] = None
     featureIds: list[str]
     branches: list[
         Union[
@@ -73,13 +72,13 @@ class NimbusExperiment(BaseModel):
             ExperimentMultiFeatureMobileBranch,
         ]
     ]
-    targeting: Optional[str]
-    startDate: Optional[str]
-    enrollmentEndDate: Optional[str]
-    endDate: Optional[str]
-    proposedDuration: Optional[int]
-    proposedEnrollment: Optional[int]
-    referenceBranch: Optional[str]
-    featureValidationOptOut: Optional[bool]
-    localizations: Optional[dict]
-    locales: Optional[list[str]]
+    targeting: Optional[str] = None
+    startDate: Optional[str] = None
+    enrollmentEndDate: Optional[str] = None
+    endDate: Optional[str] = None
+    proposedDuration: Optional[int] = None
+    proposedEnrollment: Optional[int] = None
+    referenceBranch: Optional[str] = None
+    featureValidationOptOut: Optional[bool] = None
+    localizations: Optional[dict] = None
+    locales: Optional[list[str]] = None

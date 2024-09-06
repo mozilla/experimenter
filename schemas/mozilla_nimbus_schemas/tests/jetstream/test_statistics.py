@@ -52,11 +52,11 @@ def test_statistics():
         window_index="1",
     )
 
-    stats = Statistics.parse_obj([s0, s1])
+    stats = Statistics.model_validate([s0, s1])
     assert type(stats) is Statistics
-    assert len(stats.__root__) == 2
-    stats.__root__.append(s2)
-    assert len(stats.__root__) == 3
+    assert len(stats.root) == 2
+    stats.root.append(s2)
+    assert len(stats.root) == 3
 
 
 def test_parse_statistics():
@@ -101,17 +101,17 @@ def test_parse_statistics():
             }
         ]
     """
-    stats = Statistics.parse_raw(stats_json)
-    assert len(stats.__root__) == 3
+    stats = Statistics.model_validate_json(stats_json)
+    assert len(stats.root) == 3
 
 
 def test_statistics_factory():
     stats = StatisticsFactory.build()
-    Statistics.validate(stats)
+    Statistics.model_validate(stats)
 
 
 def test_statistics_invalid():
-    stats_dict = StatisticsFactory.build().dict()
-    stats_dict["__root__"][0]["ci_width"] = "invalid data"
+    stats_dict = StatisticsFactory.build().model_dump()
+    stats_dict[0]["ci_width"] = "invalid data"
     with pytest.raises(ValidationError):
-        Statistics.parse_obj(stats_dict)
+        Statistics.model_validate(stats_dict)

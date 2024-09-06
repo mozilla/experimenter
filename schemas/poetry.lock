@@ -581,13 +581,13 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "polyfactory"
-version = "2.16.0"
+version = "2.16.2"
 description = "Mock data generation factories"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "polyfactory-2.16.0-py3-none-any.whl", hash = "sha256:168d8e50b77e91e35e691e8b3eedac43d7e423a6857fa26d473def96d53f0ecf"},
-    {file = "polyfactory-2.16.0.tar.gz", hash = "sha256:03d8c706b70c4782ac8e637d0f6ab52760a7d11b712da5936a95a8f7022b2688"},
+    {file = "polyfactory-2.16.2-py3-none-any.whl", hash = "sha256:e5eaf97358fee07d0d8de86a93e81dc56e3be1e1514d145fea6c5f486cda6ea1"},
+    {file = "polyfactory-2.16.2.tar.gz", hash = "sha256:6d0d90deb85e5bb1733ea8744c2d44eea2b31656e11b4fa73832d2e2ab5422da"},
 ]
 
 [package.dependencies]
@@ -738,14 +738,14 @@ files = [
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
-name = "pydantic-to-typescript"
-version = "1.0.10"
-description = "Convert pydantic models to typescript interfaces"
+name = "pydantic-to-typescript2"
+version = "1.0.4"
+description = "Convert pydantic v1 and pydantic v2 models to typescript interfaces"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pydantic-to-typescript-1.0.10.tar.gz", hash = "sha256:c0d030f213b9b225381fc59a5ad7544a0e20bfb6856323f324fd3cf73e4fd447"},
-    {file = "pydantic_to_typescript-1.0.10-py3-none-any.whl", hash = "sha256:b2b3954fd4aa55f367aa0513ee3c21cd327221936c0cfbeb8d46b51542eceea7"},
+    {file = "pydantic-to-typescript2-1.0.4.tar.gz", hash = "sha256:1bd25dea0e1ce4220c495ad408d028ddd905376cbed1a856b2caa6f31c344371"},
+    {file = "pydantic_to_typescript2-1.0.4-py3-none-any.whl", hash = "sha256:597f1848e918d0b95879c9a371ff664c8f300894d43aafb0b7f693f6c84f3657"},
 ]
 
 [package.dependencies]
@@ -1104,4 +1104,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a96d02973628ac5d6a7cd96bbef6fce5b17713aec21e3f311e9678bb096b0d37"
+content-hash = "96c9e709c03d898ec0a3a92fd6df21970f7546556dd7e19b866de0682209dac0"

@@ -11,13 +11,13 @@ packages = [{ include = "mozilla_nimbus_schemas" }]
 python = "^3.10"
 pydantic = "^2"
 polyfactory = "^2.7.2"
+pydantic-to-typescript2 = "^1.0.4"
 
 [tool.poetry.group.dev.dependencies]
 ruff = ">=0.5.0,<0.6.2"
 black = ">=23.3,<25.0"
 pytest = "^7.3.1"
 twine = "^4.0.2"
-pydantic-to-typescript = "^1.0.10"
 PyYAML = "^6.0"
 
 [build-system]
@@ -29,8 +29,8 @@ addopts = ["--import-mode=importlib"]
 
 [tool.ruff]
 # # Enable Pyflakes `E` and `F` codes by default.
-select = ["F", "E", "W", "I", "N", "YTT", "A", "C4", "RET", "SIM"]
-ignore = [
+lint.select = ["F", "E", "W", "I", "N", "YTT", "A", "C4", "RET", "SIM"]
+lint.ignore = [
     "A003",
     "E402",
     "E741",
@@ -46,7 +46,7 @@ ignore = [
     "SIM102",
 ]
 line-length = 90
-[tool.ruff.pep8-naming]
+[tool.ruff.lint.pep8-naming]
 classmethod-decorators = ["classmethod"]
 
 [tool.flake8]
