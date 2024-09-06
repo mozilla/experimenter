@@ -81,6 +81,8 @@ jetstream_config:
 	curl -LJ -o experimenter/experimenter/outcomes/metric-hub.zip $(JETSTREAM_CONFIG_URL)
 	unzip -o -d experimenter/experimenter/outcomes experimenter/experimenter/outcomes/metric-hub.zip
 	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
+	unzip -o -d experimenter/experimenter/segments experimenter/experimenter/outcomes/metric-hub.zip
+	rm -Rf experimenter/experimenter/segments/metric-hub-main/.script/
 
 feature_manifests: build_dev
 	$(COMPOSE) run -e GITHUB_BEARER_TOKEN=$(GITHUB_BEARER_TOKEN) experimenter /experimenter/bin/manifest-tool.py fetch $(FETCH_ARGS)
@@ -230,8 +232,8 @@ integration_test_nimbus_rust: build_integration_test build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
 
 integration_test_nimbus_fenix:
-	poetry -C experimenter/tests/integration/nimbus/android -vvv install --no-root
-	poetry -C experimenter/tests/integration/nimbus/android -vvv run pytest --html=test-reports/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android -vvv
+	poetry -C experimenter/tests/integration/ -vvv install --no-root
+	poetry -C experimenter/tests/integration/ -vvv run pytest --html=experimenter/tests/integration/test-reports/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android -vvv
 
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&

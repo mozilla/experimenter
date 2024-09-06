@@ -1,5 +1,6 @@
 import copy
 import datetime
+import json
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
@@ -25,6 +26,7 @@ from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import (
+    BucketRandomizationUnit,
     ChangeEventType,
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
@@ -262,6 +264,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=list,
         verbose_name="Secondary Outcomes",
     )
+    segments = ArrayField(
+        models.CharField(max_length=255),
+        default=list,
+        verbose_name="Segments",
+    )
     feature_configs = models.ManyToManyField["NimbusFeatureConfig"](
         "NimbusFeatureConfig", blank=True, verbose_name="Feature configurations"
     )
@@ -361,6 +368,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         verbose_name="Subscribers",
     )
+    use_group_id = models.BooleanField(default=False)
     objects = NimbusExperimentManager()
 
     class Meta:
@@ -856,6 +864,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 keys.append(self.targeting_config_slug)
             keys.append("rollout")
 
+        if self.use_group_id:
+            keys.append(BucketRandomizationUnit.GROUP_ID)
+
         return "-".join(keys)
 
     def allocate_bucket_range(self):
@@ -1215,6 +1226,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             for rec in self.conclusion_recommendations
         ]
 
+    @property
+    def recipe_json(self):
+        from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
+
+        return (
+            json.dumps(
+                self.published_dto or NimbusExperimentSerializer(self).data,
+                indent=2,
+                sort_keys=True,
+            )
+            .replace("&&", "\n&&")  # Add helpful newlines to targeting
+            .replace("\\n", "\n")  # Handle hard coded newlines in targeting
+        )
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
@@ -1384,6 +1409,8 @@ class NimbusIsolationGroup(models.Model):
 
     @property
     def randomization_unit(self):
+        if self.bucket_ranges.filter(experiment__use_group_id=True).exists():
+            return BucketRandomizationUnit.GROUP_ID
         return NimbusExperiment.APPLICATION_CONFIGS[self.application].randomization_unit
 
     @property

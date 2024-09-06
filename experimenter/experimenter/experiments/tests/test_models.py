@@ -1,4 +1,5 @@
 import datetime
+import json
 from decimal import Decimal
 from itertools import product
 from pathlib import Path
@@ -20,6 +21,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import (
     ApplicationConfig,
@@ -2011,6 +2013,23 @@ class TestNimbusExperiment(TestCase):
             "firefox-desktop-feature-release-mac_only-rollout",
         )
 
+    def test_bucket_namespace_with_group_id(self):
+        feature = NimbusFeatureConfigFactory(slug="feature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            population_percent=Decimal("50.0"),
+            use_group_id=True,
+        )
+
+        self.assertEqual(
+            experiment.bucket_namespace,
+            "firefox-desktop-feature-release-group_id",
+        )
+
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2496,6 +2515,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.hypothesis, NimbusExperiment.HYPOTHESIS_DEFAULT)
         self.assertEqual(child.primary_outcomes, [])
         self.assertEqual(child.secondary_outcomes, [])
+        self.assertEqual(child.segments, [])
         self.assertEqual(child.feature_configs.count(), 0)
         self.assertEqual(
             child.targeting_config_slug, NimbusExperiment.TargetingConfig.NO_TARGETING
@@ -2605,6 +2625,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.risk_mitigation_link, parent.risk_mitigation_link)
         self.assertEqual(child.primary_outcomes, parent.primary_outcomes)
         self.assertEqual(child.secondary_outcomes, parent.secondary_outcomes)
+        self.assertEqual(child.segments, parent.segments)
         self.assertEqual(child.targeting_config_slug, parent.targeting_config_slug)
         self.assertEqual(child.risk_partner_related, parent.risk_partner_related)
         self.assertEqual(child.risk_revenue, parent.risk_revenue)
@@ -3166,6 +3187,21 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(experiment.get_firefox_max_version_display, "100.0")
 
+    def test_recipe_json_renders_published_dto(self):
+        published_dto = {"published": "dto"}
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, published_dto=published_dto
+        )
+        self.assertEqual(experiment.recipe_json, '{\n  "published": "dto"\n}')
+
+    def test_recipe_json_renders_nimbus_experiment_serializer(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        serialized_keys = sorted(NimbusExperimentSerializer(experiment).data.keys())
+        recipe_json_keys = sorted(json.loads(experiment.recipe_json.replace("\n", "")))
+        self.assertEqual(serialized_keys, recipe_json_keys)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
@@ -3280,6 +3316,20 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(
             bucket.isolation_group.randomization_unit,
             experiment.application_config.randomization_unit,
+        )
+
+    def test_isolation_group_with_group_id(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create(
+            application=self.application, use_group_id=True
+        )
+        bucket = NimbusIsolationGroup.request_isolation_group_buckets(
+            experiment.slug, experiment, 100
+        )
+        self.assertEqual(
+            bucket.isolation_group.randomization_unit,
+            BucketRandomizationUnit.GROUP_ID,
         )
 
     def test_existing_isolation_group_with_matching_name_but_not_application_is_filtered(

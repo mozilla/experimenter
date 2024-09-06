@@ -207,6 +207,7 @@ async def record_metrics(
                 experiment=experiment_slug,
                 branch=branch_slug,
                 experiment_type=experiment_type,
+                is_preview=nimbus_preview_flag,
             )
         )
     app.state.pings.enrollment.submit()

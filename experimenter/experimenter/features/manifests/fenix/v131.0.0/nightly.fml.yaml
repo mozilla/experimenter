@@ -232,6 +232,7 @@ features:
             action: MAKE_DEFAULT_BROWSER
             trigger-if-all:
               - USER_ESTABLISHED_INSTALL
+              - ANDROID_API_BELOW_29
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             style: PERSISTENT
@@ -246,29 +247,6 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-              - RECENTLY_PRINTED
-            style: MICROSURVEY
-            microsurvey-config:
-              utm-content: homepage
-              icon: ic_print
-              answers:
-                - text: likert_scale_option_1
-                  ordering: 0
-                - text: likert_scale_option_2
-                  ordering: 1
-                - text: likert_scale_option_3
-                  ordering: 2
-                - text: likert_scale_option_4
-                  ordering: 3
-                - text: likert_scale_option_5
-                  ordering: 4
-                - text: likert_scale_option_6
-                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -310,6 +288,7 @@ features:
         type: "Map<TriggerName, String>"
         default:
           USER_ESTABLISHED_INSTALL: number_of_app_launches >=4
+          ANDROID_API_BELOW_29: android_version < 29
           USER_RECENTLY_INSTALLED: days_since_install < 7
           USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
           USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
@@ -603,6 +582,13 @@ features:
         description: "If true, the feature shows up in the search bar."
         type: Boolean
         default: true
+  user-characteristics:
+    description: A feature for control user characteristic data collection
+    variables:
+      currentVersion:
+        description: The current collection version of the user characteristics.
+        type: Int
+        default: 0
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.

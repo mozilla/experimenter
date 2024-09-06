@@ -1,14 +1,25 @@
-from typing import List, Optional, Union
+from enum import Enum
+from typing import Optional, Union
 
 from pydantic import BaseModel
 
 
+class RandomizationUnit(str, Enum):
+    NORMANDY = "normandy_id"
+    NIMBUS = "nimbus_id"
+    USER_ID = "user_id"
+    GROUP_ID = "group_id"
+
+
 class ExperimentBucketConfig(BaseModel):
-    randomizationUnit: str
+    randomizationUnit: RandomizationUnit
     namespace: str
     start: int
     count: int
     total: int
+
+    class Config:
+        use_enum_values = True
 
 
 class ExperimentOutcome(BaseModel):
@@ -32,13 +43,13 @@ class ExperimentMultiFeatureDesktopBranch(BaseModel):
     slug: str
     ratio: int
     feature: ExperimentFeatureConfig
-    features: List[ExperimentFeatureConfig]
+    features: list[ExperimentFeatureConfig]
 
 
 class ExperimentMultiFeatureMobileBranch(BaseModel):
     slug: str
     ratio: int
-    features: List[ExperimentFeatureConfig]
+    features: list[ExperimentFeatureConfig]
 
 
 class NimbusExperiment(BaseModel):
@@ -53,22 +64,22 @@ class NimbusExperiment(BaseModel):
     isEnrollmentPaused: bool
     isRollout: Optional[bool] = None
     bucketConfig: ExperimentBucketConfig
-    outcomes: Optional[List[ExperimentOutcome]] = None
-    featureIds: List[str]
-    branches: List[
+    outcomes: Optional[list[ExperimentOutcome]]
+    featureIds: list[str]
+    branches: list[
         Union[
             ExperimentSingleFeatureBranch,
             ExperimentMultiFeatureDesktopBranch,
             ExperimentMultiFeatureMobileBranch,
         ]
     ]
-    targeting: Optional[str] = None
-    startDate: Optional[str] = None
-    enrollmentEndDate: Optional[str] = None
-    endDate: Optional[str] = None
-    proposedDuration: Optional[int] = None
-    proposedEnrollment: Optional[int] = None
-    referenceBranch: Optional[str] = None
-    featureValidationOptOut: Optional[bool] = None
-    localizations: Optional[dict] = None
-    locales: Optional[List[str]] = None
+    targeting: Optional[str]
+    startDate: Optional[str]
+    enrollmentEndDate: Optional[str]
+    endDate: Optional[str]
+    proposedDuration: Optional[int]
+    proposedEnrollment: Optional[int]
+    referenceBranch: Optional[str]
+    featureValidationOptOut: Optional[bool]
+    localizations: Optional[dict]
+    locales: Optional[list[str]]

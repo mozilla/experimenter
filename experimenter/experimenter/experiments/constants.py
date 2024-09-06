@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 
 from django.conf import settings
 from django.db import models
+from mozilla_nimbus_schemas.experiments import RandomizationUnit
 from packaging import version
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -47,10 +48,9 @@ class RelationalFields:
     ]
 
 
-class BucketRandomizationUnit(models.TextChoices):
-    NORMANDY = "normandy_id"
-    NIMBUS = "nimbus_id"
-    USER_ID = "user_id"
+BucketRandomizationUnit = models.TextChoices(
+    "BucketRandomizationUnit", [(r.name, r.value) for r in RandomizationUnit]
+)
 
 
 class TargetingMultipleKintoCollectionsError(Exception):

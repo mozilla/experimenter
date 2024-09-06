@@ -1,0 +1,32 @@
+[functions]
+
+[functions.agg_sum]
+definition = "COALESCE(SUM({select_expr}), 0)"
+friendly_name = "Sum"
+description = "Calculates the sum of the select expression"
+
+[functions.agg_any]
+definition = "COALESCE(LOGICAL_OR({select_expr}), FALSE)"
+friendly_name = "Any"
+description = "Returns true if any of the boolean selected values are TRUE, otherwise FALSE"
+
+[functions.agg_histogram_mean]
+definition = """
+    SAFE_DIVIDE(
+        SUM(CAST(JSON_EXTRACT_SCALAR({select_expr}, "$.sum") AS int64)),
+        SUM((SELECT SUM(value) FROM UNNEST(mozfun.hist.extract({select_expr}).values)))
+    )
+"""
+friendly_name = "Histogram Mean"
+description = "Computes the mean of the histogram"
+
+
+[functions.agg_hist_zero_fract]
+definition = """
+    SAFE_DIVIDE(
+        SUM(mozfun.map.get_key(mozfun.hist.extract({select_expr}).values,0)),
+        SUM(mozfun.hist.threshold_count({select_expr},1))
+    )
+"""
+friendly_name = "Histogram Zero Fraction"
+description = "Computes the fraction of entries in a Histogram which are zero"

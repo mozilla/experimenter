@@ -106,6 +106,17 @@ FIRST_RUN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+MSIX_FIRST_RUN = NimbusTargetingConfig(
+    name="First start-up users with MSIX Firefox",
+    slug="msix_first_run",
+    description=("First start-up users (e.g. for about:welcome) with MSIX Firefox"),
+    targeting="(isFirstRun && os.isWindows && os.windowsVersion >= 10 && isMSIX)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=True,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FIRST_RUN_NEW_PROFILE = NimbusTargetingConfig(
     name="First start-up new users",
     slug="first_run_new_profile",
@@ -1813,6 +1824,17 @@ WINDOWS_10_NOMSIX = NimbusTargetingConfig(
     slug="windows_10_plus_nomsix",
     description="Windows users on version 10 or higher, but no MSIX intallations",
     targeting="(os.isWindows && os.windowsVersion >= 10 && !isMSIX)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_MSIX_ONLY = NimbusTargetingConfig(
+    name="Windows 10+ msix only",
+    slug="windows_10_plus_msix_only",
+    description="Windows users on version 10 or higher using msix installation",
+    targeting="(os.isWindows && os.windowsVersion >= 10 && isMSIX)",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

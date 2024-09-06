@@ -13,7 +13,7 @@ RUN chmod -R 555 /schemas \
 
 #-------------------------
 # System packages
-FROM python:3.11.1 AS system-builder
+FROM python:3.10.14 AS system-builder
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
@@ -72,7 +72,7 @@ WORKDIR /schemas
 
 # Python packages
 COPY --from=python-builder /usr/local/bin/ /usr/local/bin/
-COPY --from=python-builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=python-builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
 
 # Node packages
 COPY --from=node-builder /schemas/node_modules/ /schemas/node_modules/

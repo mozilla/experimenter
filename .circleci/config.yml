@@ -156,7 +156,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests"
+          paths: "experimenter/tests/firefox-desktop-beta-build.env"
       - run:
           name: Run integration tests
           command: |
@@ -342,6 +342,10 @@ jobs:
       PYTEST_ARGS: --reruns 1
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/tests/firefox-fenix-build.env"
+      - attach_workspace:
+          at: /tmp/experimenter
       - android/accept-licenses
       - android/create-avd:
           avd-name: myavd
@@ -353,10 +357,8 @@ jobs:
       - run:
           name: Install APKs
           command: |
-            docker run -d --name fenix-files mozilla/experimenter:fenix-apk-store
-            docker cp fenix-files:/usr/src/app/files /home/circleci/project
-            adb install /home/circleci/project/files/app-fenix-x86_64-debug.apk
-            adb install /home/circleci/project/files/app-fenix-debug-androidTest.apk
+            adb install /tmp/experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+            adb install /tmp/experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
       - run:
           name: Download test files and run
           command: |
@@ -374,7 +376,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/"
+          paths: "experimenter/tests/firefox-fenix-build.env" 
       - macos/preboot-simulator:
           version: "17.4"
           platform: "iOS"
@@ -413,18 +415,17 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - check_file_paths:
-          paths: "experimenter/"
       - run:
           name: Create experiment on experimenter
           command: |
             cp .env.integration-tests .env
             export CIRRUS=1
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="-k test_create_ios_experiment_for_integration_test[FIREFOX_IOS]"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="-k test_create_mobile_experiment_for_integration_test"
       - persist_to_workspace:
           root: experimenter
           paths:
             - tests/integration/ios_recipe.json
+            - tests/integration/fenix_recipe.json
       
   deploy_experimenter:
     working_directory: ~/experimenter
@@ -460,6 +461,26 @@ jobs:
             GIT_SHA=$(git rev-parse --short HEAD)
             docker tag experimenter:deploy ${DOCKERHUB_REPO}:${GIT_SHA}
             docker push ${DOCKERHUB_REPO}:${GIT_SHA}
+      - run:
+          name: Prepare environment variables for OIDC authentication
+          command: |
+            echo 'export GOOGLE_PROJECT_ID="moz-fx-experimenter-prod-6cd5"' >> "$BASH_ENV"
+            echo "export OIDC_WIP_ID=$GCPV2_WORKLOAD_IDENTITY_POOL_ID" >> "$BASH_ENV"
+            echo "export OIDC_WIP_PROVIDER_ID=$GCPV2_CIRCLECI_WORKLOAD_IDENTITY_PROVIDER" >> "$BASH_ENV"
+            echo "export GOOGLE_PROJECT_NUMBER=$GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER" >> "$BASH_ENV"
+            echo "export OIDC_SERVICE_ACCOUNT_EMAIL=$GCP_SERVICE_ACCOUNT_EMAIL" >> "$BASH_ENV"
+      - gcp-cli/setup:
+          use_oidc: true
+      - run:
+          name: Deploy to Google Artifact Registry
+          command: |
+            gcloud auth configure-docker us-docker.pkg.dev --quiet
+            DOCKER_IMAGE="us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/experimenter"
+            docker tag experimenter:deploy ${DOCKER_IMAGE}:latest
+            docker push "${DOCKER_IMAGE}:latest"
+            GIT_SHA=$(git rev-parse --short HEAD)
+            docker tag experimenter:deploy ${DOCKER_IMAGE}:${GIT_SHA}
+            docker push ${DOCKER_IMAGE}:${GIT_SHA}
 
   deploy_cirrus:
     working_directory: ~/cirrus
@@ -597,7 +618,8 @@ jobs:
             else
               echo "No config changes, skipping"
             fi
-  update_fenix_apks:
+  
+  check_external_firefox_integrations:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
@@ -616,25 +638,9 @@ jobs:
             git config --local user.email "dataops+ci-bot@mozilla.com"
             gh config set git_protocol https
       - run:
-          name: Check for Fenix Update
+          name: Check for external Update
           command: |
-            git checkout main
-            git pull origin main
-            cd experimenter/tests/integration/nimbus/android
-            CURRENT_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
-            ./update-fenix-apks.sh
-            LATEST_FENIX_BUILD_ID=$(cat fenix-build.env | grep -oP '(?<=FIREFOX_FENIX_TASK_ID=).*')
-            if (($(git status --porcelain | wc -c) > 0)); then
-              git checkout -B update-fenix-apks
-              git add .
-              git commit -m "chore(nimbus): Update fenix apks for testing"
-              if [[ "${CURRENT_FENIX_BUILD_ID}" != "${LATEST_FENIX_BUILD_ID}" ]]; then
-                git push origin update-fenix-apks
-                gh pr create -t "chore(nimbus): Update fenix apks for testing" -b "" --base main --head update-fenix-apks --repo mozilla/experimenter || echo "PR already exists, skipping"
-              fi
-            else
-              echo "No config changes, skipping"
-            fi
+            ./.circleci/updater_script.sh
 
   build_firefox_versions:
     working_directory: ~/experimenter
@@ -667,6 +673,8 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout
+      - check_file_paths:
+          paths: "experimenter/tests/firefox-fenix-build.env" 
       - docker_login:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -678,9 +686,12 @@ jobs:
             docker run -d --name fenix-builder fenix-builder
             docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-debug-androidTest.apk ./
             docker cp fenix-builder:mozilla-central/mobile/android/fenix/app-fenix-x86_64-debug.apk ./
-            docker build -f fenix-apk-store.Dockerfile -t ${DOCKERHUB_REPO}:fenix-apk-store .
-            docker push ${DOCKERHUB_REPO}:fenix-apk-store
           no_output_timeout: 60m
+      - persist_to_workspace:
+          root: experimenter
+          paths:
+            - tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+            - tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
 
 workflows:
   build_firefox:
@@ -705,7 +716,7 @@ workflows:
     jobs:
       - update_external_configs
       - update_application_services
-      - update_fenix_apks
+      - check_external_firefox_integrations
 
   build:
     jobs:
@@ -727,8 +738,8 @@ workflows:
           name: Create fenix and fennec recipes
           filters:
             branches:
-              ignore:
-                - main
+              only:
+                - check_external_firefox_integrations
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
@@ -791,20 +802,25 @@ workflows:
                 - main
       - integration_test_android_fenix:
           name: Test Firefox for Android (Fenix)
+          requires:
+            - Create fenix and fennec recipes
+            - Build Fenix APKs
           filters:
             branches:
-              ignore:
-                - main
+              only:
+                - check_external_firefox_integrations
       - integration_test_ios_fennec:
           name: Test Firefox for iOS (Fennec)
           requires:
             - Create fenix and fennec recipes
           filters:
             branches:
-              ignore:
-                - main
+              only:
+                - check_external_firefox_integrations
       - deploy_experimenter:
           name: Deploy Experimenter
+          context:
+            - gcpv2-workload-identity
           filters:
             branches:
               only: main
@@ -829,4 +845,4 @@ workflows:
           filters:
             branches:
               only:
-                - update-fenix-apks
+                - check_external_firefox_integrations
