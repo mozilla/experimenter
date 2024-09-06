@@ -640,7 +640,7 @@ jobs:
       - run:
           name: Check for external Update
           command: |
-            ./.circleci/updater_script.sh
+            ./scripts/external_integration_updater_script.sh
 
   build_firefox_versions:
     working_directory: ~/experimenter
