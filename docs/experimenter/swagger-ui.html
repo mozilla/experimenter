@@ -2005,6 +2005,486 @@
         ]
       }
     },
+    "/api/v8/experiments/": {
+      "get": {
+        "operationId": "listNimbusExperiments",
+        "description": "",
+        "parameters": [
+          {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Preview",
+                "Live",
+                "Complete"
+              ]
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NimbusExperiment"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/v8/experiments/{slug}/": {
+      "get": {
+        "operationId": "retrieveNimbusExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Preview",
+                "Live",
+                "Complete"
+              ]
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NimbusExperiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/v8/experiments-first-run/": {
+      "get": {
+        "operationId": "listNimbusExperiments",
+        "description": "",
+        "parameters": [
+          {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NimbusExperiment"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/v8/experiments-first-run/{slug}/": {
+      "get": {
+        "operationId": "retrieveNimbusExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NimbusExperiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/v8/draft-experiments/": {
+      "get": {
+        "operationId": "listNimbusExperiments",
+        "description": "",
+        "parameters": [
+          {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NimbusExperiment"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/v8/draft-experiments/{slug}/": {
+      "get": {
+        "operationId": "retrieveNimbusExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_localized",
+            "required": false,
+            "in": "query",
+            "description": "is_localized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "application",
+            "required": false,
+            "in": "query",
+            "description": "application",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "firefox-desktop",
+                "fenix",
+                "ios",
+                "focus-android",
+                "klar-android",
+                "focus-ios",
+                "klar-ios",
+                "monitor-web",
+                "vpn-web",
+                "fxa-web",
+                "demo-app"
+              ]
+            }
+          },
+          {
+            "name": "feature_config",
+            "required": false,
+            "in": "query",
+            "description": "feature_config",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NimbusExperiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
     "/api/v2/experiments/{slug}/intent-to-ship-email": {
       "put": {
         "operationId": "updateExperiment",
@@ -3857,36 +4337,8 @@
             "readOnly": true
           },
           "branches": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "slug": {
-                  "type": "string",
-                  "maxLength": 80,
-                  "pattern": "^[-a-zA-Z0-9_]+$"
-                },
-                "ratio": {
-                  "type": "integer",
-                  "maximum": 2147483647,
-                  "minimum": 0
-                },
-                "features": {
-                  "type": "string",
-                  "readOnly": true
-                },
-                "description": {
-                  "type": "string"
-                },
-                "screenshots": {
-                  "type": "string",
-                  "readOnly": true
-                }
-              },
-              "required": [
-                "slug"
-              ]
-            }
+            "type": "string",
+            "readOnly": true
           },
           "targeting": {
             "type": "string",
@@ -3920,11 +4372,11 @@
             "type": "string",
             "readOnly": true
           },
-          "locales": {
+          "localizations": {
             "type": "string",
             "readOnly": true
           },
-          "localizations": {
+          "locales": {
             "type": "string",
             "readOnly": true
           },
@@ -3937,7 +4389,6 @@
           "slug",
           "channel",
           "bucketConfig",
-          "branches",
           "startDate",
           "enrollmentEndDate",
           "endDate",
