@@ -274,33 +274,3 @@ class TestNimbusExperimentDraftViewSet(
 
         response = self.client.get(reverse(self.LIST_VIEW))
         self.assert_returned_slugs(response, expected_slugs)
-
-
-class TestNimbusExperimentFirstRunViewSet(NimbusExperimentFilterMixin, CachedViewSetTest):
-    maxDiff = None
-
-    LIST_VIEW = "nimbus-experiment-rest-v8-first-run-list"
-    DETAIL_VIEW = "nimbus-experiment-rest-v8-first-run-detail"
-
-    def create_experiment_kwargs(self):
-        return {"is_first_run": True}
-
-    def test_list_view_serializes_live_first_run_experiments(self):
-        expected_slugs = []
-
-        for lifecycle in NimbusExperimentFactory.Lifecycles:
-            experiment = NimbusExperimentFactory.create_with_lifecycle(
-                lifecycle,
-                slug=lifecycle.name,
-                **self.create_experiment_kwargs(),
-            )
-
-            if experiment.status == NimbusExperiment.Status.LIVE:
-                expected_slugs.append(experiment.slug)
-
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, is_first_run=False
-        )
-
-        response = self.client.get(reverse(self.LIST_VIEW))
-        self.assert_returned_slugs(response, expected_slugs)

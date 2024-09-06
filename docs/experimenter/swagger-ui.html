@@ -2091,7 +2091,7 @@
           }
         },
         "tags": [
-          "api"
+          "Nimbus: Public Analysis"
         ]
       }
     },
@@ -2187,145 +2187,7 @@
           }
         },
         "tags": [
-          "api"
-        ]
-      }
-    },
-    "/api/v8/experiments-first-run/": {
-      "get": {
-        "operationId": "listNimbusExperiments",
-        "description": "",
-        "parameters": [
-          {
-            "name": "is_localized",
-            "required": false,
-            "in": "query",
-            "description": "is_localized",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "application",
-            "required": false,
-            "in": "query",
-            "description": "application",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "firefox-desktop",
-                "fenix",
-                "ios",
-                "focus-android",
-                "klar-android",
-                "focus-ios",
-                "klar-ios",
-                "monitor-web",
-                "vpn-web",
-                "fxa-web",
-                "demo-app"
-              ]
-            }
-          },
-          {
-            "name": "feature_config",
-            "required": false,
-            "in": "query",
-            "description": "feature_config",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/NimbusExperiment"
-                  }
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "api"
-        ]
-      }
-    },
-    "/api/v8/experiments-first-run/{slug}/": {
-      "get": {
-        "operationId": "retrieveNimbusExperiment",
-        "description": "",
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "is_localized",
-            "required": false,
-            "in": "query",
-            "description": "is_localized",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "application",
-            "required": false,
-            "in": "query",
-            "description": "application",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "firefox-desktop",
-                "fenix",
-                "ios",
-                "focus-android",
-                "klar-android",
-                "focus-ios",
-                "klar-ios",
-                "monitor-web",
-                "vpn-web",
-                "fxa-web",
-                "demo-app"
-              ]
-            }
-          },
-          {
-            "name": "feature_config",
-            "required": false,
-            "in": "query",
-            "description": "feature_config",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NimbusExperiment"
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "api"
+          "Nimbus: Public Analysis"
         ]
       }
     },
@@ -2400,7 +2262,7 @@
           }
         },
         "tags": [
-          "api"
+          "Nimbus: Public Analysis"
         ]
       }
     },
@@ -2481,7 +2343,7 @@
           }
         },
         "tags": [
-          "api"
+          "Nimbus: Public Analysis"
         ]
       }
     },

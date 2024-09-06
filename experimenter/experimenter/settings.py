@@ -205,7 +205,6 @@ OPENIDC_AUTH_WHITELIST = (
     "nimbus-experiment-rest-v7-detail",
     "nimbus-experiment-rest-v8-list",
     "nimbus-experiment-rest-v8-detail",
-    "nimbus-experiment-rest-v8-first-run-list",
     "nimbus-experiment-rest-v8-draft-list",
     "nimbus-experiment-rest-v8-draft-detail",
 )
