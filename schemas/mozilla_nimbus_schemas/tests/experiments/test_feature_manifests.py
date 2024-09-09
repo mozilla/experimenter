@@ -13,4 +13,4 @@ def test_manifest_fixtures_are_valid(manifest_file):
     with manifest_file.open() as f:
         contents = yaml.safe_load(f)
 
-    FeatureManifest.parse_obj(contents)
+    FeatureManifest.model_validate(contents)
