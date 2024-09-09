@@ -152,6 +152,7 @@ jobs:
     environment:
       FIREFOX_VERSION: nimbus-firefox-beta
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
+      FIREFOX_BETA: 1
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
