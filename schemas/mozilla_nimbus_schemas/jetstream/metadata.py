@@ -1,16 +1,10 @@
 import datetime as dt
-import json
 from typing import Optional
 
 from polyfactory.factories.pydantic_factory import ModelFactory
-from pydantic import BaseModel, HttpUrl, validator
+from pydantic import BaseModel, HttpUrl, field_validator
 
 from mozilla_nimbus_schemas.jetstream.statistics import SCHEMA_VERSION, AnalysisBasis
-
-
-def nonstrict_json_loads(*args, **kwargs):
-    kwargs["strict"] = False
-    return json.loads(*args, **kwargs)
 
 
 class Metric(BaseModel):
@@ -19,13 +13,9 @@ class Metric(BaseModel):
     description: Optional[str] = None
     friendly_name: Optional[str] = None
 
-    class Config:
-        # override json_loads because `description` field may contain \n
-        json_loads = nonstrict_json_loads
-
 
 class Outcome(BaseModel):
-    commit_hash: Optional[str]
+    commit_hash: Optional[str] = None
     default_metrics: list[str]
     description: str
     friendly_name: str
@@ -61,13 +51,10 @@ class Metadata(BaseModel):
     version_date: Optional[dt.datetime] = None
     schema_version: int = SCHEMA_VERSION
 
-    @validator("analysis_start_time", pre=True)
+    @field_validator("analysis_start_time", mode="before")
+    @classmethod
     def treat_empty_str_as_none(cls, v):
         return None if v == "" else v
-
-    class Config:
-        # override json_loads because `description` field in Metric may contain \n
-        json_loads = nonstrict_json_loads
 
 
 class MetadataFactory(ModelFactory[Metadata]):
