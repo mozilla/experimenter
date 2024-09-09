@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mozilla-nimbus-schemas"
-version = "2024.9.2"
+version = "2024.9.3"
 description = "Schemas used by Mozilla Nimbus and related projects."
 authors = ["mikewilli"]
 license = "MPL 2.0"
@@ -16,7 +16,7 @@ polyfactory = "^2.7.2"
 ruff = ">=0.5.0,<0.6.2"
 black = ">=23.3,<25.0"
 pytest = "^7.3.1"
-twine = "^4.0.2"
+twine = "^5.1.1"
 PyYAML = "^6.0"
 
 [build-system]
