@@ -163,19 +163,19 @@ class TestPopulationSizing(TestCase):
             }
         }
         """
-        sample_sizes = SampleSizes.parse_raw(sizing_test_data)
+        sample_sizes = SampleSizes.model_validate_json(sizing_test_data)
         self.assertEqual(
-            json.dumps(json.loads(sizing_test_data)),
-            sample_sizes.json(exclude_unset=True),
+            json.dumps(json.loads(sizing_test_data), separators=(",", ":")),
+            sample_sizes.model_dump_json(exclude_unset=True),
         )
 
     def test_parse_population_sizing_factory(self):
         sample_sizes = SampleSizesFactory.build()
-        SampleSizes.validate(sample_sizes)
+        SampleSizes.model_validate(sample_sizes)
 
     def test_parse_population_sizing_factory_invalid(self):
-        sample_sizes_dict = SampleSizesFactory.build().dict()["__root__"]
+        sample_sizes_dict = SampleSizesFactory.build().model_dump()
         first_key = list(sample_sizes_dict.keys())[0]
         sample_sizes_dict[first_key]["BAD"] = {}
         with pytest.raises(ValidationError):
-            SampleSizes.parse_obj(sample_sizes_dict)
+            SampleSizes.model_validate(sample_sizes_dict)

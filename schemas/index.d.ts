@@ -1,122 +1,33 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-/* This file was automatically generated from pydantic models by running pydantic2ts.
-/* Do not modify it by hand - just update the pydantic models and then re-run the script
-*/
+/* This file was automatically generated from pydantic models.
+/* Do not modify by hand - update the pydantic models and re-run the script
+ */
 
-export type AnalysisBasis = "enrollments" | "exposures";
-export type LogSource = "jetstream" | "sizing" | "jetstream-preview";
-export type AnalysisErrors = AnalysisError[];
+export type RandomizationUnit = "normandy_id" | "nimbus_id" | "user_id" | "group_id";
 export type Feature = FeatureWithExposure | FeatureWithoutExposure;
 export type FeatureVariableType = "int" | "string" | "boolean" | "json";
 export type PrefBranch = "default" | "user";
-export type RandomizationUnit = "normandy_id" | "nimbus_id" | "user_id" | "group_id";
+export type AnalysisBasis = "enrollments" | "exposures";
+export type LogSource = "jetstream" | "sizing" | "jetstream-preview";
+export type AnalysisErrors = AnalysisError[];
+export type AnalysisSegment = "all";
+export type AnalysisSignificance = "positive" | "negative" | "neutral";
+export type AnalysisWindow = "daily" | "weekly" | "overall";
+export type BranchComparison = "absolute" | "difference" | "relative_uplift";
+export type MetricGroup = "search_metrics" | "usage_metrics" | "other_metrics";
+export type MetricIngestEnum = "retained" | "search_count" | "days_of_use" | "identity";
 export type SizingReleaseChannel = "release" | "beta" | "nightly";
 export type SizingUserType = "new" | "existing" | "all";
+export type SizingMetricName = "active_hours" | "search_count" | "days_of_use" | "tagged_search_count";
+/**
+ * This is the list of statistics supported in Experimenter,
+ * not a complete list of statistics available in Jetstream.
+ */
+export type StatisticIngestEnum = "percentage" | "binomial" | "mean" | "count";
 export type Statistics = Statistic[];
 
-export interface AnalysisError {
-  analysis_basis?: AnalysisBasis;
-  source?: LogSource;
-  exception?: string;
-  exception_type?: string;
-  experiment?: string;
-  filename: string;
-  func_name: string;
-  log_level: string;
-  message: string;
-  metric?: string;
-  segment?: string;
-  statistic?: string;
-  timestamp: string;
-}
-export interface ConfigVersionDetails {
-  path?: string;
-  revision?: string;
-}
-export interface ConfigVersions {
-  metric_definitions?: ConfigVersionDetails[];
-  jetstream_image?: ConfigVersionDetails;
-}
-export interface ExternalConfig {
-  reference_branch?: string;
-  end_date?: string;
-  start_date?: string;
-  enrollment_period?: number;
-  skip?: boolean;
-  url: string;
-}
-export interface FeatureManifest {
-  [k: string]: Feature;
-}
-/**
- * A feature that has exposure.
- */
-export interface FeatureWithExposure {
-  description?: string;
-  isEarlyStartup?: boolean;
-  variables: {
-    [k: string]: FeatureVariable;
-  };
-  schema?: NimbusFeatureSchema;
-  hasExposure: true;
-  exposureDescription: string;
-}
-export interface FeatureVariable {
-  description?: string;
-  enum?: string[];
-  fallbackPref?: string;
-  type?: FeatureVariableType;
-  setPref?: string | SetPref;
-}
-export interface SetPref {
-  branch: PrefBranch;
-  pref: string;
-}
-export interface NimbusFeatureSchema {
-  uri: string;
-  path: string;
-}
-/**
- * A feature without exposure.
- */
-export interface FeatureWithoutExposure {
-  description?: string;
-  isEarlyStartup?: boolean;
-  variables: {
-    [k: string]: FeatureVariable;
-  };
-  schema?: NimbusFeatureSchema;
-  hasExposure: false;
-}
-export interface Metadata {
-  analysis_start_time?: string;
-  external_config?: ExternalConfig;
-  metrics: {
-    [k: string]: Metric;
-  };
-  outcomes?: {
-    [k: string]: Outcome;
-  };
-  version_info?: ConfigVersions;
-  version_date?: string;
-  schema_version?: number;
-}
-export interface Metric {
-  analysis_bases: AnalysisBasis[];
-  bigger_is_better: boolean;
-  description?: string;
-  friendly_name?: string;
-}
-export interface Outcome {
-  commit_hash?: string;
-  default_metrics: string[];
-  description: string;
-  friendly_name: string;
-  metrics: string[];
-  slug: string;
-}
 export interface NimbusExperiment {
   schemaVersion: string;
   slug: string;
@@ -127,27 +38,27 @@ export interface NimbusExperiment {
   userFacingName: string;
   userFacingDescription: string;
   isEnrollmentPaused: boolean;
-  isRollout?: boolean;
+  isRollout?: boolean | null;
   bucketConfig: ExperimentBucketConfig;
-  outcomes?: ExperimentOutcome[];
+  outcomes?: ExperimentOutcome[] | null;
   featureIds: string[];
   branches: (
     | ExperimentSingleFeatureBranch
     | ExperimentMultiFeatureDesktopBranch
     | ExperimentMultiFeatureMobileBranch
   )[];
-  targeting?: string;
-  startDate?: string;
-  enrollmentEndDate?: string;
-  endDate?: string;
-  proposedDuration?: number;
-  proposedEnrollment?: number;
-  referenceBranch?: string;
-  featureValidationOptOut?: boolean;
+  targeting?: string | null;
+  startDate?: string | null;
+  enrollmentEndDate?: string | null;
+  endDate?: string | null;
+  proposedDuration?: number | null;
+  proposedEnrollment?: number | null;
+  referenceBranch?: string | null;
+  featureValidationOptOut?: boolean | null;
   localizations?: {
     [k: string]: unknown;
-  };
-  locales?: string[];
+  } | null;
+  locales?: string[] | null;
 }
 export interface ExperimentBucketConfig {
   randomizationUnit: RandomizationUnit;
@@ -167,7 +78,7 @@ export interface ExperimentSingleFeatureBranch {
 }
 export interface ExperimentFeatureConfig {
   featureId: string;
-  enabled?: boolean;
+  enabled?: boolean | null;
   value: {
     [k: string]: unknown;
   };
@@ -183,31 +94,110 @@ export interface ExperimentMultiFeatureMobileBranch {
   ratio: number;
   features: ExperimentFeatureConfig[];
 }
+export interface FeatureManifest {
+  [k: string]: Feature;
+}
 /**
- * `extra=Extra.allow` is needed for the pydantic2ts generation of
- * typescript definitions. Without this, models with only a custom
- * __root__ dictionary field will generate as empty types.
- *
- * See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
- * and https://github.com/phillipdupuis/pydantic-to-typescript/issues/39
- * for more info.
- *
- * If this is fixed we should remove `extra=Extra.allow`.
+ * A feature that has exposure.
  */
+export interface FeatureWithExposure {
+  description?: string | null;
+  isEarlyStartup?: boolean | null;
+  variables: {
+    [k: string]: FeatureVariable;
+  };
+  schema?: NimbusFeatureSchema | null;
+  hasExposure: true;
+  exposureDescription: string;
+}
+export interface FeatureVariable {
+  description?: string | null;
+  enum?: string[] | null;
+  fallbackPref?: string | null;
+  type?: FeatureVariableType | null;
+  setPref?: string | SetPref | null;
+}
+export interface SetPref {
+  branch: PrefBranch;
+  pref: string;
+}
+export interface NimbusFeatureSchema {
+  uri: string;
+  path: string;
+}
+/**
+ * A feature without exposure.
+ */
+export interface FeatureWithoutExposure {
+  description?: string | null;
+  isEarlyStartup?: boolean | null;
+  variables: {
+    [k: string]: FeatureVariable;
+  };
+  schema?: NimbusFeatureSchema | null;
+  hasExposure: false;
+}
+export interface AnalysisError {
+  analysis_basis?: AnalysisBasis | null;
+  source?: LogSource | null;
+  exception?: string | null;
+  exception_type?: string | null;
+  experiment?: string | null;
+  filename: string;
+  func_name: string;
+  log_level: string;
+  message: string;
+  metric?: string | null;
+  segment?: string | null;
+  statistic?: string | null;
+  timestamp: string;
+}
+export interface ConfigVersions {
+  metric_definitions?: ConfigVersionDetails[] | null;
+  jetstream_image?: ConfigVersionDetails | null;
+}
+export interface ConfigVersionDetails {
+  path?: string | null;
+  revision?: string | null;
+}
+export interface ExternalConfig {
+  reference_branch?: string | null;
+  end_date?: string | null;
+  start_date?: string | null;
+  enrollment_period?: number | null;
+  skip?: boolean | null;
+  url: string;
+}
+export interface Metadata {
+  analysis_start_time?: string | null;
+  external_config?: ExternalConfig | null;
+  metrics: {
+    [k: string]: Metric;
+  };
+  outcomes?: {
+    [k: string]: Outcome;
+  };
+  version_info?: ConfigVersions | null;
+  version_date?: string | null;
+  schema_version?: number;
+}
+export interface Metric {
+  analysis_bases: AnalysisBasis[];
+  bigger_is_better: boolean;
+  description?: string | null;
+  friendly_name?: string | null;
+}
+export interface Outcome {
+  commit_hash?: string | null;
+  default_metrics: string[];
+  description: string;
+  friendly_name: string;
+  metrics: string[];
+  slug: string;
+}
 export interface SampleSizes {
   [k: string]: SizingByUserType;
 }
-/**
- * `extra=Extra.allow` is needed for the pydantic2ts generation of
- * typescript definitions. Without this, models with only a custom
- * __root__ dictionary field will generate as empty types.
- *
- * See https://github.com/phillipdupuis/pydantic-to-typescript/blob/master/pydantic2ts/cli/script.py#L150-L153
- * and https://github.com/phillipdupuis/pydantic-to-typescript/issues/39
- * for more info.
- *
- * If this is fixed we should remove `extra=Extra.allow`.
- */
 export interface SizingByUserType {
   [k: string]: SizingTarget;
 }
@@ -220,8 +210,8 @@ export interface SizingTarget {
 export interface SizingRecipe {
   app_id: string;
   channel: SizingReleaseChannel;
-  locale?: string;
-  language?: string;
+  locale?: string | null;
+  language?: string | null;
   country: string;
   new_or_existing: SizingUserType;
 }
@@ -244,14 +234,14 @@ export interface Statistic {
   metric: string;
   statistic: string;
   branch: string;
-  parameter?: number;
-  comparison?: string;
-  comparison_to_branch?: string;
-  ci_width?: number;
-  point?: number;
-  lower?: number;
-  upper?: number;
+  parameter?: number | null;
+  comparison?: string | null;
+  comparison_to_branch?: string | null;
+  ci_width?: number | null;
+  point?: number | null;
+  lower?: number | null;
+  upper?: number | null;
   segment?: string;
-  analysis_basis?: AnalysisBasis;
-  window_index?: string;
+  analysis_basis?: AnalysisBasis | null;
+  window_index?: string | null;
 }

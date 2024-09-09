@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 
 from polyfactory.factories.pydantic_factory import ModelFactory
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 
 from mozilla_nimbus_schemas.jetstream.statistics import AnalysisBasis
 
@@ -30,8 +30,8 @@ class AnalysisError(BaseModel):
     timestamp: dt.datetime
 
 
-class AnalysisErrors(BaseModel):
-    __root__: list[AnalysisError]
+class AnalysisErrors(RootModel):
+    root: list[AnalysisError]
 
 
 class AnalysisErrorsFactory(ModelFactory[AnalysisErrors]):

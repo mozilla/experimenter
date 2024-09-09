@@ -54,11 +54,11 @@ def test_analysis_errors():
         timestamp="2023-05-17T06:42:31+00:00",
     )
 
-    analysis_errors = AnalysisErrors.parse_obj([ae0, ae1])
+    analysis_errors = AnalysisErrors.model_validate([ae0, ae1])
     assert type(analysis_errors) is AnalysisErrors
-    assert len(analysis_errors.__root__) == 2
-    analysis_errors.__root__.append(ae2)
-    assert len(analysis_errors.__root__) == 3
+    assert len(analysis_errors.root) == 2
+    analysis_errors.root.append(ae2)
+    assert len(analysis_errors.root) == 3
 
 
 def test_parse_analysis_errors():
@@ -108,8 +108,8 @@ def test_parse_analysis_errors():
             }
         ]
     """
-    stats = AnalysisErrors.parse_raw(stats_json)
-    assert len(stats.__root__) == 3
+    stats = AnalysisErrors.model_validate_json(stats_json)
+    assert len(stats.root) == 3
 
 
 def test_parse_analysis_errors_fails():
@@ -132,17 +132,17 @@ def test_parse_analysis_errors_fails():
         }
     """
     with pytest.raises(ValidationError):
-        AnalysisErrors.parse_raw(error_json)
+        AnalysisErrors.model_validate_json(error_json)
 
 
 def test_analysis_errors_factory():
     analysis_errors = AnalysisErrorsFactory.build()
-    AnalysisErrors.validate(analysis_errors)
+    AnalysisErrors.model_validate(analysis_errors)
 
 
 def test_analysis_errors_invalid():
-    analysis_errors_dict = AnalysisErrorsFactory.build().dict()
+    analysis_errors_dict = AnalysisErrorsFactory.build().model_dump()
     print(analysis_errors_dict)
-    analysis_errors_dict["__root__"][0]["timestamp"] = "not a date!"
+    analysis_errors_dict[0]["timestamp"] = "not a date!"
     with pytest.raises(ValidationError):
-        AnalysisErrors.parse_obj(analysis_errors_dict)
+        AnalysisErrors.model_validate(analysis_errors_dict)

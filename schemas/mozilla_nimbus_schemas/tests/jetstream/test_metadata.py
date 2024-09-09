@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 
 import pytest
 from pydantic import ValidationError
@@ -57,7 +58,7 @@ def test_parse_metadata():
             "schema_version": 4
         }
     """
-    metadata = Metadata.parse_raw(metadata_json)
+    metadata = Metadata.model_validate(json.loads(metadata_json, strict=False))
     assert metadata.external_config is not None
     assert not metadata.external_config.skip
     assert metadata.outcomes != {}
@@ -70,12 +71,12 @@ def test_parse_metadata():
 
 def test_metadata_factory():
     metadata = MetadataFactory.build()
-    Metadata.validate(metadata)
+    Metadata.model_validate(metadata)
 
 
 def test_metadata_invalid():
-    metadata_dict = MetadataFactory.build().dict()
+    metadata_dict = MetadataFactory.build().model_dump()
     print(metadata_dict)
     metadata_dict["schema_version"] = "not a number"
     with pytest.raises(ValidationError):
-        Metadata.parse_obj(metadata_dict)
+        Metadata.model_validate(metadata_dict)
