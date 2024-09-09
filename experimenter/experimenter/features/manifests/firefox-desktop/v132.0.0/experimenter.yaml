@@ -356,6 +356,23 @@ urlbar:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.enabled
       description: Gate for the Firefox Suggest feature as a whole. If false, the Firefox Suggest preferences UI and Suggest suggestions will not be shown. If true, the preferences UI will be shown, and the user can turn suggestions on or off.
+    quickSuggestExposureSuggestionTypes:
+      type: string
+      setPref:
+        pref: browser.urlbar.quicksuggest.exposureSuggestionTypes
+        branch: default
+      description: >-
+        Comma-separated list of Suggest exposure suggestion types to enable.
+        Exposure suggestions are used to test potential exposures. They trigger
+        exposure telemetry based on a set of keywords you provide but they are
+        never visible. Set this variable to the `suggestion_type` defined in the
+        remote settings record(s) that contains your keywords. If you want to
+        test multiple suggestion types, separate them with commas, but also
+        consider using one experiment branch per type. Exposure suggestions are
+        recorded in telemetry with the "rust_exposure" result type. It's not
+        necessary to include "rust_exposure" in `exposureResults`. Unless you
+        are testing other results in the same experiment branch, it's also not
+        necessary to set `showExposureResults: false`.
     quickSuggestImpressionCapsSponsoredEnabled:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.impressionCaps.sponsoredEnabled
@@ -857,6 +874,46 @@ newtabTopicSelection:
         branch: user
         pref: browser.newtabpage.activity-stream.discoverystream.topicLabels.locale-topic-label-config
 
+newtabContextualContent:
+  description: about:newtab contextual content feed
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    contextualContentEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref:  browser.newtabpage.activity-stream.discoverystream.contextualContent.enabled
+      description: >-
+        Override the contextual content enabled value set via region/locale
+    localeContextualContentConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.contextualContent.locale-content-config
+      description: >-
+        A comma-separated list of locales that get contextual content by default.
+    regionContextualContentConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.contextualContent.region-content-config
+      description: >-
+        A comma-separated list of regions that get contextual content by default.
+    contextualContentTopics:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.contextualContent.topics
+      description: >-
+        CSV list of possible topics for the contextual content feed
+    contextualContentDetailedView:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.contextualContent.detailedView
+      description: >-
+        Controls if cards in contextual content feed display meta information and images
 
 pocketNewtab:
   description: The Pocket section in newtab
