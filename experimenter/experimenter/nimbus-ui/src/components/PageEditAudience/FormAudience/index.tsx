@@ -6,6 +6,7 @@ import { useQuery } from "@apollo/client";
 import {
   SampleSizes,
   SizingByUserType,
+  SizingRecipe,
   SizingTarget,
 } from "@mozilla/nimbus-schemas";
 import React, { useCallback, useMemo, useState } from "react";
@@ -15,6 +16,7 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Select, { createFilter, FormatOptionLabelMeta } from "react-select";
 import ReactTooltip from "react-tooltip";
+import { Code } from "src/components/Code";
 import LinkExternal from "src/components/LinkExternal";
 import PopulationSizing from "src/components/PageEditAudience/PopulationSizing";
 import { GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY } from "src/gql/experiments";
@@ -85,6 +87,20 @@ export const MOBILE_APPLICATIONS = [
   NimbusExperimentApplicationEnum.FOCUS_ANDROID,
   NimbusExperimentApplicationEnum.FOCUS_IOS,
 ];
+
+const APP_NAME_TO_SLUG_MAP: Record<NimbusExperimentApplicationEnum, string> = {
+  DESKTOP: "firefox_desktop",
+  FENIX: "fenix",
+  IOS: "firefox_ios",
+  DEMO_APP: "NOT_SUPPORTED",
+  FOCUS_ANDROID: "focus_android",
+  FOCUS_IOS: "focus_ios",
+  FXA: "NOT_SUPPORTED",
+  KLAR_ANDROID: "klar_android",
+  KLAR_IOS: "klar_ios",
+  MONITOR: "monitor_cirrus",
+  VPN: "NOT_SUPPORTED",
+};
 
 interface SelectExperimentBranchOption {
   id: number;
@@ -535,6 +551,23 @@ export const FormAudience = ({
     return false;
   }, [config, countries, experiment, languages, locales, watch]);
 
+  const getSizingAvailableTargets = useMemo((): SizingRecipe[] => {
+    const { populationSizingData } = config;
+    const sizingJson: SampleSizes = JSON.parse(populationSizingData || "{}");
+    if (Object.keys(sizingJson).length < 1) {
+      return []; // no sizing data available
+    }
+
+    const allSizing: SizingRecipe[] = Object.keys(sizingJson).map(
+      (targetKey: string) => sizingJson[targetKey].new.target_recipe,
+    );
+    // filter to current application for brevity
+    return allSizing.filter(
+      (recipe) =>
+        APP_NAME_TO_SLUG_MAP[experiment.application] === recipe.app_id,
+    );
+  }, [config, experiment.application]);
+
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
   const isMobile =
@@ -965,7 +998,7 @@ export const FormAudience = ({
           </Form.Group>
         </Form.Row>
 
-        {getSizingFromAudienceConfig && (
+        {getSizingFromAudienceConfig ? (
           <>
             <hr />
             <PopulationSizing
@@ -981,6 +1014,33 @@ export const FormAudience = ({
                 getSizingFromAudienceConfig.all,
               )}
             />
+          </>
+        ) : (
+          <>
+            <h5>Pre-computed Sizing Data Not Available</h5>
+            <hr />
+            <p className="text-secondary">
+              Pre-computed sizing information is available for certain targeting
+              criteria. See below for target combinations with sizing available
+              for the current application (
+              {APP_NAME_TO_SLUG_MAP[experiment.application]}):
+            </p>
+            <p>
+              {getSizingAvailableTargets.length > 0 ? (
+                getSizingAvailableTargets.map((target) => (
+                  <Code
+                    codeString={JSON.stringify(target, (k, v) =>
+                      k === "new_or_existing" || k === "app_id" || v === null
+                        ? undefined
+                        : v,
+                    )}
+                    key={JSON.stringify(target)}
+                  />
+                ))
+              ) : (
+                <Code codeString="No pre-computed sizing available for this application." />
+              )}
+            </p>
           </>
         )}
       </Form.Group>
