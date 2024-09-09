@@ -52,7 +52,7 @@ class NimbusExperimentViewSet(
     filter_backends = [DjangoFilterBackend]
     filterset_class = NimbusExperimentFilterSet
 
-    @method_decorator(cache_page(settings.V6_API_CACHE_DURATION))
+    @method_decorator(cache_page(settings.API_CACHE_DURATION))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
