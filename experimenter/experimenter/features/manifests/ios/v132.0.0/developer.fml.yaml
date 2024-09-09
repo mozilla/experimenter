@@ -336,7 +336,7 @@ features:
             card-type: basic
             order: 20
             title: Onboarding/Onboarding.Sync.Title.v120
-            body: Onboarding/Onboarding.Sync.Description.v120
+            body: Onboarding/Onboarding.Sync.Description.v123
             image: sync-devices
             buttons:
               primary:
@@ -667,6 +667,8 @@ enums:
         description: "Will take the user to the next card\n"
       open-instructions-popup:
         description: "Will open up a popup with instructions for something\n"
+      open-ios-fx-settings:
+        description: "Will take the user to the default browser settings in the iOS system settings\n"
       read-privacy-policy:
         description: "Will open a webview where the user can read the privacy policy\n"
       request-notifications:
