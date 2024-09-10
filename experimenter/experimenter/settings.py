@@ -203,6 +203,10 @@ OPENIDC_AUTH_WHITELIST = (
     "nimbus-experiment-rest-v6-draft-detail",
     "nimbus-experiment-rest-v7-list",
     "nimbus-experiment-rest-v7-detail",
+    "nimbus-experiment-rest-v8-list",
+    "nimbus-experiment-rest-v8-detail",
+    "nimbus-experiment-rest-v8-draft-list",
+    "nimbus-experiment-rest-v8-draft-detail",
 )
 
 # Internationalization
@@ -367,7 +371,7 @@ CACHES = {
         "TIMEOUT": None,
     },
 }
-V6_API_CACHE_DURATION = 60 * 60
+API_CACHE_DURATION = 60 * 60
 SIZING_DATA_KEY = "population_sizing"
 
 # Celery
