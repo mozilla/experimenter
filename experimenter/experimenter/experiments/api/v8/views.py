@@ -5,7 +5,7 @@ from django_filters import FilterSet, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 
-from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
+from experimenter.experiments.api.v8.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 
 
