@@ -5,6 +5,17 @@ about:
 channels:
   - developer
 features:
+  alternative-app-launcher-icon:
+    description: A feature that changes the app launcher icon background color.
+    variables:
+      enabled:
+        description: "If true, the feature is active."
+        type: Boolean
+        default: false
+      reset-to-default:
+        description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
+        type: Boolean
+        default: false
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -344,6 +355,7 @@ features:
           RECENTLY_PRINTED: "'print_tapped'|eventLastSeen('Hours') <= 24"
           SECOND_HOMEPAGE_VIEW: "'home_screen_displayed'|eventSum('Years', 4, 0) >= 2"
           PERFORMED_A_SEARCH_AGAIN_RECENTLY: "'performed_search'|eventSum('Years', 4, 0) >= 2 && 'performed_search'|eventLastSeen('Minutes') < 1"
+          FXA_CURRENTLY_SIGNED_IN: is_fxa_signed_in == true
           FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
           FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
           USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"

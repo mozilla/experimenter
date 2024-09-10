@@ -1,4 +1,15 @@
 ---
+alternative-app-launcher-icon:
+  description: A feature that changes the app launcher icon background color.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the feature is active."
+    reset-to-default:
+      type: boolean
+      description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
 awesomebar-suggestion-provider:
   description: Configuration for the Firefox Suggest awesomebar suggestion provider.
   hasExposure: true
