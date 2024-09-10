@@ -31,10 +31,18 @@ last-scan-date:
       type: boolean
       description: If the feature is enabled
 welcome-scan-optional-info:
-  description: Show additional optional inputs to provide middle name and name suffix for broker scan
+  description: Show additional optional input fields for the data broker scan
   hasExposure: true
   exposureDescription: ""
   variables:
     enabled:
       type: boolean
       description: If the feature is enabled
+    variant:
+      type: string
+      description: The optional fields to show
+      enum:
+        - middleName
+        - none
+        - suffix
+        - suffixAndMiddleName
