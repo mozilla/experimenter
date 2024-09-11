@@ -16,10 +16,9 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Select, { createFilter, FormatOptionLabelMeta } from "react-select";
 import ReactTooltip from "react-tooltip";
-import { Code } from "src/components/Code";
 import LinkExternal from "src/components/LinkExternal";
 import PopulationSizing from "src/components/PageEditAudience/PopulationSizing";
-import TooltipWithMarkdown from "src/components/PageResults/TooltipWithMarkdown";
+import PopulationSizingNoData from "src/components/PageEditAudience/PopulationSizingNoData";
 import { GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY } from "src/gql/experiments";
 import { useCommonForm, useConfig, useReviewCheck } from "src/hooks";
 import { ReactComponent as Info } from "src/images/info.svg";
@@ -81,10 +80,6 @@ export const audienceFieldNames = [
   "isSticky",
   "isFirstRun",
 ] as const;
-
-const popSizingNoDataMarkdown =
-  "Pre-computed sizing is computed for limited targets using the [auto-sizing](https://experimenter.info/auto-sizing-cli/) tool.";
-
 
 export const MOBILE_APPLICATIONS = [
   NimbusExperimentApplicationEnum.FENIX,
@@ -333,7 +328,10 @@ export const FormAudience = ({
       applicationConfig?.application === experiment.application,
   );
 
-  const applicationName = config.applicationNameMap!.find((appName) => appName!.value === experiment.application)!.label;
+  const applicationName =
+    config.applicationNameMap!.find(
+      (appName) => appName!.value === experiment.application,
+    )?.label || experiment.application;
 
   const [populationPercent, setPopulationPercent] = useState(
     experiment!.populationPercent?.toString(),
@@ -556,7 +554,7 @@ export const FormAudience = ({
     );
     // filter to current application for brevity
     return allSizing.filter((recipe) => applicationName === recipe.app_id);
-  }, [config, experiment.application]);
+  }, [config, applicationName]);
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
@@ -1006,49 +1004,10 @@ export const FormAudience = ({
             />
           </>
         ) : (
-          <>
-            <Form.Label
-              as="h5"
-              className="d-flex align-items-center"
-              data-testid="population-sizing-precomputed-values"
-            >
-              Pre-computed population sizing data Not Available
-              <Info
-                data-tip
-                data-for="auto-sizing-nodata-help"
-                width="20"
-                height="20"
-                className="ml-1"
-              />
-              <TooltipWithMarkdown
-                tooltipId="auto-sizing-nodata-help"
-                markdown={popSizingNoDataMarkdown}
-              />
-            </Form.Label>
-            <hr />
-            <p className="text-secondary">
-              Pre-computed sizing information is available for certain targeting
-              criteria. See below for target combinations with sizing available
-              for the current application (
-              <strong>{applicationName}</strong>):
-            </p>
-            <p>
-              {getSizingAvailableTargets.length > 0 ? (
-                getSizingAvailableTargets.map((target) => (
-                  <Code
-                    codeString={JSON.stringify(target, (k, v) =>
-                      k === "new_or_existing" || k === "app_id" || v === null
-                        ? undefined
-                        : v,
-                    )}
-                    key={JSON.stringify(target)}
-                  />
-                ))
-              ) : (
-                <Code codeString="No pre-computed sizing available for this application." />
-              )}
-            </p>
-          </>
+          <PopulationSizingNoData
+            availableTargets={getSizingAvailableTargets}
+            applicationName={applicationName!}
+          />
         )}
       </Form.Group>
 
