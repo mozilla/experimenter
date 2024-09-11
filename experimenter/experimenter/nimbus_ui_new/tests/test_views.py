@@ -17,7 +17,7 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
 )
 from experimenter.nimbus_ui_new.filtersets import SortChoices, TypeChoices
-from experimenter.nimbus_ui_new.forms import QAStatusForm, TakeawaysForm
+from experimenter.nimbus_ui_new.forms import QAStatusForm, SignoffForm, TakeawaysForm
 from experimenter.nimbus_ui_new.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
@@ -1057,6 +1057,31 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertTrue(response.context["takeaways_edit_mode"])
         self.assertIsInstance(response.context["takeaways_form"], TakeawaysForm)
         self.assertFalse(response.context["takeaways_form"].is_valid())
+
+    def test_signoff_edit_mode_get(self):
+        response = self.client.get(
+            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
+            {"edit_signoff": "true"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["signoff_edit_mode"])
+        self.assertIsInstance(response.context["signoff_form"], SignoffForm)
+
+    def test_signoff_edit_mode_post_valid_form(self):
+        data = {
+            "qa_signoff": True,
+            "vp_signoff": True,
+            "legal_signoff": True,
+        }
+        response = self.client.post(
+            reverse("update-signoff", kwargs={"slug": self.experiment.slug}),
+            data,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.experiment.refresh_from_db()
+        self.assertTrue(self.experiment.qa_signoff)
+        self.assertTrue(self.experiment.vp_signoff)
+        self.assertTrue(self.experiment.legal_signoff)
 
 
 class TestNimbusExperimentsCreateView(AuthTestCase):

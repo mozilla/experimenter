@@ -16,6 +16,7 @@ from experimenter.nimbus_ui_new.filtersets import (
 from experimenter.nimbus_ui_new.forms import (
     NimbusExperimentCreateForm,
     QAStatusForm,
+    SignoffForm,
     TakeawaysForm,
 )
 
@@ -122,10 +123,14 @@ class NimbusExperimentDetailView(DetailView):
         context.update(experiment_context)
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
+        context["signoff_edit_mode"] = self.request.GET.get("edit_signoff") == "true"
+
         if context["qa_edit_mode"]:
             context["form"] = QAStatusForm(instance=self.object)
         if context["takeaways_edit_mode"]:
             context["takeaways_form"] = TakeawaysForm(instance=self.object)
+        if context["signoff_edit_mode"]:
+            context["signoff_form"] = SignoffForm(instance=self.object)
         return context
 
 
@@ -159,6 +164,15 @@ class TakeawaysUpdateView(RequestFormMixin, UpdateView):
         context["takeaways_edit_mode"] = True
         context["takeaways_form"] = form
         return self.render_to_response(context)
+
+    def get_success_url(self):
+        return reverse("nimbus-new-detail", kwargs={"slug": self.object.slug})
+
+
+class SignoffUpdateView(RequestFormMixin, UpdateView):
+    model = NimbusExperiment
+    form_class = SignoffForm
+    template_name = "nimbus_experiments/signoff_card.html"
 
     def get_success_url(self):
         return reverse("nimbus-new-detail", kwargs={"slug": self.object.slug})

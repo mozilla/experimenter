@@ -239,38 +239,8 @@
       </div>
     </div>
     <!-- Actions Recommended Before Launch Card -->
-    <div class="card mb-3">
-      <div class="card-header">
-        <h4>Actions that were recommended before launch</h4>
-      </div>
-      <div class="card-body">
-        <table class="table table-striped">
-          <tbody>
-            <tr>
-              <th>QA Sign-off</th>
-              <td colspan="3">
-                {% if experiment.signoff_recommendations.qa_signoff %}<span class="text-success">Recommended:</span>{% endif %}
-                Please file a QA request. Learn More
-              </td>
-            </tr>
-            <tr>
-              <th>VP Sign-off</th>
-              <td colspan="3">
-                {% if experiment.signoff_recommendations.vp_signoff %}<span class="text-success">Recommended:</span>{% endif %}
-                Please email your VP. Learn More
-              </td>
-            </tr>
-            <tr>
-              <th>Legal Sign-off</th>
-              <td colspan="3">
-                {% if experiment.signoff_recommendations.legal_signoff %}<span class="text-success">Recommended:</span>{% endif %}
-                Please email legal. Learn More
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    {% include "nimbus_experiments/signoff_card.html" %}
+
     <!-- Branches Card -->
     <div class="card mb-3">
       <div class="card-header">
