@@ -475,6 +475,7 @@ type NimbusExperimentTargetingConfigType {
 type NimbusConfigurationType {
   applicationConfigs: [NimbusExperimentApplicationConfigType]
   applications: [NimbusLabelValueType]
+  applicationNameMap: [NimbusLabelValueType]
   channels: [NimbusLabelValueType]
   countries: [NimbusCountryType]
   documentationLink: [NimbusLabelValueType]

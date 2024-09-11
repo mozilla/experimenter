@@ -88,20 +88,6 @@ export const MOBILE_APPLICATIONS = [
   NimbusExperimentApplicationEnum.FOCUS_IOS,
 ];
 
-const APP_NAME_TO_SLUG_MAP: Record<NimbusExperimentApplicationEnum, string> = {
-  DESKTOP: "firefox_desktop",
-  FENIX: "fenix",
-  IOS: "firefox_ios",
-  DEMO_APP: "NOT_SUPPORTED",
-  FOCUS_ANDROID: "focus_android",
-  FOCUS_IOS: "focus_ios",
-  FXA: "NOT_SUPPORTED",
-  KLAR_ANDROID: "klar_android",
-  KLAR_IOS: "klar_ios",
-  MONITOR: "monitor_cirrus",
-  VPN: "NOT_SUPPORTED",
-};
-
 interface SelectExperimentBranchOption {
   id: number;
   name: string;
@@ -342,6 +328,8 @@ export const FormAudience = ({
       applicationConfig?.application === experiment.application,
   );
 
+  const applicationName = config.applicationNameMap!.find((appName) => appName!.value === experiment.application)!.label;
+
   const [populationPercent, setPopulationPercent] = useState(
     experiment!.populationPercent?.toString(),
   );
@@ -562,10 +550,7 @@ export const FormAudience = ({
       (targetKey: string) => sizingJson[targetKey].new.target_recipe,
     );
     // filter to current application for brevity
-    return allSizing.filter(
-      (recipe) =>
-        APP_NAME_TO_SLUG_MAP[experiment.application] === recipe.app_id,
-    );
+    return allSizing.filter((recipe) => applicationName === recipe.app_id);
   }, [config, experiment.application]);
 
   const isDesktop =
@@ -1023,7 +1008,7 @@ export const FormAudience = ({
               Pre-computed sizing information is available for certain targeting
               criteria. See below for target combinations with sizing available
               for the current application (
-              {APP_NAME_TO_SLUG_MAP[experiment.application]}):
+              <strong>{applicationName}</strong>):
             </p>
             <p>
               {getSizingAvailableTargets.length > 0 ? (

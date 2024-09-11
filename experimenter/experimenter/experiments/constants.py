@@ -280,6 +280,29 @@ NO_FEATURE_SLUG = [
 ]
 
 
+class ApplicationNameMap(models.TextChoices):
+    DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.app_name)
+    FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.app_name)
+    IOS = (APPLICATION_CONFIG_IOS.slug, APPLICATION_CONFIG_IOS.app_name)
+    FOCUS_ANDROID = (
+        APPLICATION_CONFIG_FOCUS_ANDROID.slug,
+        APPLICATION_CONFIG_FOCUS_ANDROID.app_name,
+    )
+    KLAR_ANDROID = (
+        APPLICATION_CONFIG_KLAR_ANDROID.slug,
+        APPLICATION_CONFIG_KLAR_ANDROID.app_name,
+    )
+    FOCUS_IOS = (APPLICATION_CONFIG_FOCUS_IOS.slug, APPLICATION_CONFIG_FOCUS_IOS.app_name)
+    KLAR_IOS = (APPLICATION_CONFIG_KLAR_IOS.slug, APPLICATION_CONFIG_KLAR_IOS.app_name)
+    MONITOR = (
+        APPLICATION_CONFIG_MONITOR_WEB.slug,
+        APPLICATION_CONFIG_MONITOR_WEB.app_name,
+    )
+    VPN = (APPLICATION_CONFIG_VPN_WEB.slug, APPLICATION_CONFIG_VPN_WEB.app_name)
+    FXA = (APPLICATION_CONFIG_FXA_WEB.slug, APPLICATION_CONFIG_FXA_WEB.app_name)
+    DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.app_name)
+
+
 class Application(models.TextChoices):
     DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
     FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)
@@ -357,6 +380,8 @@ class NimbusConstants:
         NONE = "NONE", "None"
 
     Application = Application
+
+    ApplicationNameMap = ApplicationNameMap
 
     class Type(models.TextChoices):
         EXPERIMENT = "Experiment"

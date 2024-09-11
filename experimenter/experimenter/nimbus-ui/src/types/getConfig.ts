@@ -14,6 +14,11 @@ export interface getConfig_nimbusConfig_applications {
   value: string | null;
 }
 
+export interface getConfig_nimbusConfig_applicationNameMap {
+  label: string | null;
+  value: string | null;
+}
+
 export interface getConfig_nimbusConfig_channels {
   label: string | null;
   value: string | null;
@@ -140,6 +145,7 @@ export interface getConfig_nimbusConfig_subscribers {
 
 export interface getConfig_nimbusConfig {
   applications: (getConfig_nimbusConfig_applications | null)[] | null;
+  applicationNameMap: (getConfig_nimbusConfig_applicationNameMap | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
   conclusionRecommendationsChoices: (getConfig_nimbusConfig_conclusionRecommendationsChoices | null)[] | null;
   applicationConfigs: (getConfig_nimbusConfig_applicationConfigs | null)[] | null;
