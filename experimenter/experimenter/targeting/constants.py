@@ -2075,6 +2075,17 @@ EXISTING_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SYNC_USER = NimbusTargetingConfig(
+    name="Sync User",
+    slug="sync_user",
+    description="Users who have sync enabled and are signed into FxA",
+    targeting="isFxASignedIn && usesFirefoxSync",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
