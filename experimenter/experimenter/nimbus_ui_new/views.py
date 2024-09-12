@@ -123,7 +123,6 @@ class NimbusExperimentDetailView(DetailView):
         context.update(experiment_context)
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
-
         if context["qa_edit_mode"]:
             context["form"] = QAStatusForm(instance=self.object)
         if context["takeaways_edit_mode"]:
