@@ -91,6 +91,28 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: NimbusExperimentApplicationEnum.MONITOR,
     },
   ],
+  applicationNameMap: [
+    {
+      label: "firefox_desktop",
+      value: NimbusExperimentApplicationEnum.DESKTOP,
+    },
+    {
+      label: "toaster",
+      value: "TOASTER",
+    },
+    {
+      label: "ios",
+      value: NimbusExperimentApplicationEnum.IOS,
+    },
+    {
+      label: "fenix",
+      value: NimbusExperimentApplicationEnum.FENIX,
+    },
+    {
+      label: "monitor_cirrus",
+      value: NimbusExperimentApplicationEnum.MONITOR,
+    },
+  ],
   takeaways: [
     { label: "DAU Gain", value: "DAU_GAIN" },
     { label: "QBR Learning", value: "QBR_LEARNING" },
