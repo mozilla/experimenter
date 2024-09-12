@@ -543,6 +543,13 @@ features:
         description: "Maximum number of time the prompt should be displayed.\n"
         type: Int
         default: 3
+  ship:
+    description: The feature that controls Session History in Parent (SHIP) in Gecko.
+    variables:
+      disabled:
+        description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
+        type: Boolean
+        default: true
   shopping-experience:
     description: A feature that shows product review quality information.
     variables:
