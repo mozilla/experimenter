@@ -322,6 +322,7 @@ class NimbusExperimentBranchThroughExcludedType(DjangoObjectType):
 class NimbusConfigurationType(graphene.ObjectType):
     application_configs = graphene.List(NimbusExperimentApplicationConfigType)
     applications = graphene.List(NimbusLabelValueType)
+    application_name_map = graphene.List(NimbusLabelValueType)
     channels = graphene.List(NimbusLabelValueType)
     countries = graphene.List(NimbusCountryType)
     documentation_link = graphene.List(NimbusLabelValueType)
@@ -358,6 +359,9 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_applications(self, info):
         return self._text_choices_to_label_value_list(NimbusExperiment.Application)
+
+    def resolve_application_name_map(self, info):
+        return self._text_choices_to_label_value_list(NimbusExperiment.ApplicationNameMap)
 
     def resolve_channels(self, info):
         return self._text_choices_to_label_value_list(NimbusExperiment.Channel)

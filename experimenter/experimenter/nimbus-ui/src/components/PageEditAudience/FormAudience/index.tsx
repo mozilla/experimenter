@@ -6,6 +6,7 @@ import { useQuery } from "@apollo/client";
 import {
   SampleSizes,
   SizingByUserType,
+  SizingRecipe,
   SizingTarget,
 } from "@mozilla/nimbus-schemas";
 import React, { useCallback, useMemo, useState } from "react";
@@ -17,6 +18,7 @@ import Select, { createFilter, FormatOptionLabelMeta } from "react-select";
 import ReactTooltip from "react-tooltip";
 import LinkExternal from "src/components/LinkExternal";
 import PopulationSizing from "src/components/PageEditAudience/PopulationSizing";
+import PopulationSizingNoData from "src/components/PageEditAudience/PopulationSizingNoData";
 import { GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY } from "src/gql/experiments";
 import { useCommonForm, useConfig, useReviewCheck } from "src/hooks";
 import { ReactComponent as Info } from "src/images/info.svg";
@@ -326,6 +328,11 @@ export const FormAudience = ({
       applicationConfig?.application === experiment.application,
   );
 
+  const applicationName =
+    config.applicationNameMap!.find(
+      (appName) => appName!.value === experiment.application,
+    )?.label || experiment.application;
+
   const [populationPercent, setPopulationPercent] = useState(
     experiment!.populationPercent?.toString(),
   );
@@ -534,6 +541,20 @@ export const FormAudience = ({
     }
     return false;
   }, [config, countries, experiment, languages, locales, watch]);
+
+  const getSizingAvailableTargets = useMemo((): SizingRecipe[] => {
+    const { populationSizingData } = config;
+    const sizingJson: SampleSizes = JSON.parse(populationSizingData || "{}");
+    if (Object.keys(sizingJson).length < 1) {
+      return []; // no sizing data available
+    }
+
+    const allSizing: SizingRecipe[] = Object.keys(sizingJson).map(
+      (targetKey: string) => sizingJson[targetKey].new.target_recipe,
+    );
+    // filter to current application for brevity
+    return allSizing.filter((recipe) => applicationName === recipe.app_id);
+  }, [config, applicationName]);
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
@@ -965,7 +986,7 @@ export const FormAudience = ({
           </Form.Group>
         </Form.Row>
 
-        {getSizingFromAudienceConfig && (
+        {getSizingFromAudienceConfig ? (
           <>
             <hr />
             <PopulationSizing
@@ -982,6 +1003,11 @@ export const FormAudience = ({
               )}
             />
           </>
+        ) : (
+          <PopulationSizingNoData
+            availableTargets={getSizingAvailableTargets}
+            applicationName={applicationName!}
+          />
         )}
       </Form.Group>
 

@@ -393,6 +393,10 @@ class NimbusConstants:
         Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
     }
 
+    ApplicationNameMap = models.TextChoices(
+        "ApplicationNameMap", [(a.slug, a.app_name) for a in APPLICATION_CONFIGS.values()]
+    )
+
     DESKTOP_PREFFLIPS_SLUG = DESKTOP_PREFFLIPS_SLUG
 
     Channel = Channel

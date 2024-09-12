@@ -2249,25 +2249,27 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             experiment=experiment,
             feature_values=[],
         )
-        NimbusBranchFeatureValue.objects.bulk_create(
-            [
-                NimbusBranchFeatureValue(
-                    branch=treatment,
-                    feature_config=feature2,
-                    value="""{"value": 2}""",
-                ),
-                NimbusBranchFeatureValue(
-                    branch=treatment,
-                    feature_config=feature3,
-                    value="""{"value": 3}""",
-                ),
-                NimbusBranchFeatureValue(
-                    branch=treatment,
-                    feature_config=feature1,
-                    value="""{"value": 1}""",
-                ),
-            ]
-        ),
+        (
+            NimbusBranchFeatureValue.objects.bulk_create(
+                [
+                    NimbusBranchFeatureValue(
+                        branch=treatment,
+                        feature_config=feature2,
+                        value="""{"value": 2}""",
+                    ),
+                    NimbusBranchFeatureValue(
+                        branch=treatment,
+                        feature_config=feature3,
+                        value="""{"value": 3}""",
+                    ),
+                    NimbusBranchFeatureValue(
+                        branch=treatment,
+                        feature_config=feature1,
+                        value="""{"value": 1}""",
+                    ),
+                ]
+            ),
+        )
         experiment.branches.add(treatment)
         experiment.save()
 
@@ -2463,6 +2465,10 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
                         label
                         value
                     }
+                    applicationNameMap {
+                        label
+                        value
+                    }
                     channels {
                         label
                         value
@@ -2575,6 +2581,7 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
                 self.assertEqual(data[index]["value"], name)
 
         assertChoices(config["applications"], NimbusExperiment.Application)
+        assertChoices(config["applicationNameMap"], NimbusExperiment.ApplicationNameMap)
         assertChoices(config["takeaways"], NimbusExperiment.Takeaways)
         assertChoices(config["qaStatus"], NimbusExperiment.QAStatus)
         assertChoices(config["types"], NimbusExperiment.Type)
