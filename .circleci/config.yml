@@ -717,6 +717,16 @@ workflows:
     jobs:
       - update_external_configs
       - update_application_services
+  
+  check_firefox_integrations:
+    triggers:
+      - schedule:
+          cron: "0 12 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
       - check_external_firefox_integrations
 
   build:
