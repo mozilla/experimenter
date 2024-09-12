@@ -313,6 +313,14 @@ set-as-default-prompt:
     max-number-of-times-to-display:
       type: int
       description: "Maximum number of time the prompt should be displayed.\n"
+ship:
+  description: The feature that controls Session History in Parent (SHIP) in Gecko.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    disabled:
+      type: boolean
+      description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
 shopping-experience:
   description: A feature that shows product review quality information.
   hasExposure: true
