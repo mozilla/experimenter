@@ -122,3 +122,17 @@ class TakeawaysForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated takeaways"
+
+
+class SignoffForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["qa_signoff", "vp_signoff", "legal_signoff"]
+        widgets = {
+            "qa_signoff": forms.CheckboxInput(),
+            "vp_signoff": forms.CheckboxInput(),
+            "legal_signoff": forms.CheckboxInput(),
+        }
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated sign off"
