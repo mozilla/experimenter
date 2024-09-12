@@ -17,7 +17,7 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
 )
 from experimenter.nimbus_ui_new.filtersets import SortChoices, TypeChoices
-from experimenter.nimbus_ui_new.forms import QAStatusForm, SignoffForm, TakeawaysForm
+from experimenter.nimbus_ui_new.forms import QAStatusForm, TakeawaysForm
 from experimenter.nimbus_ui_new.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
@@ -1057,7 +1057,6 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertTrue(response.context["takeaways_edit_mode"])
         self.assertIsInstance(response.context["takeaways_form"], TakeawaysForm)
         self.assertFalse(response.context["takeaways_form"].is_valid())
-
 
     def test_signoff_edit_mode_post_valid_form(self):
         data = {

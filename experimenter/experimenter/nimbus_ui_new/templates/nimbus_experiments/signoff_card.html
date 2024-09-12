@@ -26,64 +26,59 @@
     {% endif %}
   </div>
   <div class="card-body p-0">
-    <div class="container">
-      <div class="row py-2">
-        <div class="col-md-2">
-          <strong>QA Signoff</strong>
-        </div>
-        <div class="col-md-10 d-flex align-items-center">
-          {% if edit %}
-            {{ form.qa_signoff }}
-          {% else %}
-            {% if experiment.qa_signoff %}
-              <i class="fa fa-check-circle text-success"></i>
+    <table class="table table-striped mb-0">
+      <tbody>
+        <tr>
+          <th scope="row">QA Signoff</th>
+          <td class="d-flex align-items-center">
+            {% if edit %}
+              {{ form.qa_signoff }}
             {% else %}
-              <i class="fa fa-times-circle text-danger"></i>
+              {% if experiment.qa_signoff %}
+                <i class="fa fa-check-circle text-success"></i>
+              {% else %}
+                <i class="fa fa-times-circle text-danger"></i>
+              {% endif %}
             {% endif %}
-          {% endif %}
-          {% if experiment.signoff_recommendations.qa_signoff %}
-            <span class="text-success ms-3">Recommended: Please file a QA request. <a href="#">Learn More</a></span>
-          {% endif %}
-        </div>
-      </div>
-      <div class="row py-2">
-        <div class="col-md-2">
-          <strong>VP Signoff</strong>
-        </div>
-        <div class="col-md-10 d-flex align-items-center">
-          {% if edit %}
-            {{ form.vp_signoff }}
-          {% else %}
-            {% if experiment.vp_signoff %}
-              <i class="fa fa-check-circle text-success"></i>
+            {% if experiment.signoff_recommendations.qa_signoff %}<span class="text-success ms-1">Recommended:</span>{% endif %}
+            <span class="ms-1">Please file a QA request. <a href="https://experimenter.info/qa-sign-off">Learn More</a></span>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">VP Signoff</th>
+          <td class="d-flex align-items-center">
+            {% if edit %}
+              {{ form.vp_signoff }}
             {% else %}
-              <i class="fa fa-times-circle text-danger"></i>
+              {% if experiment.vp_signoff %}
+                <i class="fa fa-check-circle text-success"></i>
+              {% else %}
+                <i class="fa fa-times-circle text-danger"></i>
+              {% endif %}
             {% endif %}
-          {% endif %}
-          {% if experiment.signoff_recommendations.vp_signoff %}
-            <span class="text-success ms-3">Recommended: Please email your VP. <a href="#">Learn More</a></span>
-          {% endif %}
-        </div>
-      </div>
-      <div class="row py-2">
-        <div class="col-md-2">
-          <strong>Legal Signoff</strong>
-        </div>
-        <div class="col-md-10 d-flex align-items-center">
-          {% if edit %}
-            {{ form.legal_signoff }}
-          {% else %}
-            {% if experiment.legal_signoff %}
-              <i class="fa fa-check-circle text-success"></i>
+            {% if experiment.signoff_recommendations.vp_signoff %}<span class="text-success ms-1">Recommended:</span>{% endif %}
+            <span class="ms-1">Please email your VP. <a href="https://experimenter.info/vp-sign-off">Learn More</a></span>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Legal Signoff</th>
+          <td class="d-flex align-items-center">
+            {% if edit %}
+              {{ form.legal_signoff }}
             {% else %}
-              <i class="fa fa-times-circle text-danger"></i>
+              {% if experiment.legal_signoff %}
+                <i class="fa fa-check-circle text-success"></i>
+              {% else %}
+                <i class="fa fa-times-circle text-danger"></i>
+              {% endif %}
             {% endif %}
-          {% endif %}
-          {% if experiment.signoff_recommendations.legal_signoff %}
-            <span class="text-success ms-3">Recommended: Please email legal. <a href="#">Learn More</a></span>
-          {% endif %}
-        </div>
-      </div>
-    </div>
+            {% if experiment.signoff_recommendations.legal_signoff %}
+              <span class="text-success ms-1">Recommended:</span>
+            {% endif %}
+            <span class="ms-1">Please email legal. <a href="https://experimenter.info/legal-sign-off">Learn More</a></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </form>
