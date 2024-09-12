@@ -11,6 +11,10 @@ export const GET_CONFIG_QUERY = gql`
         label
         value
       }
+      applicationNameMap {
+        label
+        value
+      }
       channels {
         label
         value
