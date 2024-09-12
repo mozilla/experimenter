@@ -7,6 +7,7 @@ from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.forms import (
     NimbusExperimentCreateForm,
     QAStatusForm,
+    SignoffForm,
     TakeawaysForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
@@ -152,3 +153,44 @@ class TestTakeawaysForm(RequestFormTestCase):
             changelog.message,
             "dev@example.com updated takeaways",
         )
+
+
+class TestSignoffForm(RequestFormTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperimentFactory.create(
+            name="Test Experiment",
+            owner=self.user,
+            qa_signoff=False,
+            vp_signoff=False,
+            legal_signoff=False,
+        )
+
+    def test_signoff_form_valid(self):
+        data = {
+            "qa_signoff": True,
+            "vp_signoff": True,
+            "legal_signoff": False,
+        }
+        form = SignoffForm(data=data, instance=self.experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertTrue(experiment.qa_signoff)
+        self.assertTrue(experiment.vp_signoff)
+        self.assertFalse(experiment.legal_signoff)
+
+    def test_signoff_form_saves_to_changelog(self):
+        """Test that saving the form also creates an entry in the changelog."""
+        data = {
+            "qa_signoff": True,
+            "vp_signoff": True,
+            "legal_signoff": True,
+        }
+        form = SignoffForm(data=data, instance=self.experiment, request=self.request)
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        changelog = experiment.changes.get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("dev@example.com updated sign off", changelog.message)
