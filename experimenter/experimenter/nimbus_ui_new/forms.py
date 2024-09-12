@@ -135,12 +135,4 @@ class SignoffForm(NimbusChangeLogFormMixin, forms.ModelForm):
         }
 
     def get_changelog_message(self):
-        changed_fields = []
-        if self.cleaned_data.get("qa_signoff") != self.initial.get("qa_signoff"):
-            changed_fields.append("QA signoff")
-        if self.cleaned_data.get("vp_signoff") != self.initial.get("vp_signoff"):
-            changed_fields.append("VP signoff")
-        if self.cleaned_data.get("legal_signoff") != self.initial.get("legal_signoff"):
-            changed_fields.append("Legal signoff")
-
-        return f"{self.request.user} updated {', '.join(changed_fields)}"
+        return f"{self.request.user} updated sign off"

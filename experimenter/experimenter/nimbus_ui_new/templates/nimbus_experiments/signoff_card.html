@@ -1,94 +1,89 @@
-<div class="card mb-3">
+{% load nimbus_extras %}
+
+<form id="signoff" class="card mb-3">
+  {% csrf_token %}
   <div class="card-header d-flex justify-content-between align-items-center">
-    <h4 class="mb-0">Sign-offs</h4>
-    {% if not signoff_edit_mode %}
-      <button class="btn btn-outline-primary btn-sm"
-              hx-get="{% url 'nimbus-new-detail' experiment.slug %}?edit_signoff=true"
-              hx-target="body"
-              hx-swap="outerHTML">Edit</button>
-    {% endif %}
-  </div>
-  <div class="card-body" id="signoff-form-container">
-    {% if signoff_edit_mode %}
-      <form method="post"
-            hx-post="{% url 'update-signoff' experiment.slug %}"
-            hx-target="body"
-            hx-swap="outerHTML">
-        {% csrf_token %}
-        <div class="mb-3">
-          <label for="id_qa_signoff">QA Sign-off:</label>
-          {{ signoff_form.qa_signoff }}
-          {% if experiment.signoff_recommendations.qa_signoff %}
-            <span class="text-success">Recommended: Please file a QA request. <a href="#">Learn More</a></span>
-          {% endif %}
-        </div>
-        <div class="mb-3">
-          <label for="id_vp_signoff">VP Sign-off:</label>
-          {{ signoff_form.vp_signoff }}
-          {% if experiment.signoff_recommendations.vp_signoff %}
-            <span class="text-success">Recommended: Please email your VP. <a href="#">Learn More</a></span>
-          {% endif %}
-        </div>
-        <div class="mb-3">
-          <label for="id_legal_signoff">Legal Sign-off:</label>
-          {{ signoff_form.legal_signoff }}
-          {% if experiment.signoff_recommendations.legal_signoff %}
-            <span class="text-success">Recommended: Please email legal. <a href="#">Learn More</a></span>
-          {% endif %}
-        </div>
-        <div class="d-flex justify-content-end mt-3">
-          <button type="submit" class="btn btn-primary me-2">Save</button>
-          <button type="button"
-                  class="btn btn-secondary"
-                  hx-get="{% url 'nimbus-new-detail' experiment.slug %}"
-                  hx-target="body"
-                  hx-swap="outerHTML">Cancel</button>
-        </div>
-      </form>
+    <h4>Sign-Offs</h4>
+    {{ errors }}
+    {% if edit %}
+      <div>
+        <a class="btn btn-primary btn-sm me-2"
+           hx-post="{% url 'update-signoff' experiment.slug %}"
+           hx-select="#signoff"
+           hx-target="#signoff"
+           hx-swap="outerHTML">Save</a>
+        <a class="btn btn-secondary btn-sm"
+           hx-get="{% url 'nimbus-new-detail' experiment.slug %}"
+           hx-select="#signoff"
+           hx-target="#signoff"
+           hx-swap="outerHTML">Cancel</a>
+      </div>
     {% else %}
-      <table class="table table-striped">
-        <tbody>
-          <tr>
-            <th>QA Sign-off</th>
-            <td>
-              {% if experiment.qa_signoff %}
-                <i class="fa fa-check-circle text-success"></i>
-              {% else %}
-                <i class="fa fa-times-circle text-danger"></i>
-              {% endif %}
-              {% if experiment.signoff_recommendations.qa_signoff %}
-                <span class="text-success">Recommended: Please file a QA request. <a href="https://experimenter.info/qa-sign-off/">Learn More</a></span>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th>VP Sign-off</th>
-            <td>
-              {% if experiment.vp_signoff %}
-                <i class="fa fa-check-circle text-success"></i>
-              {% else %}
-                <i class="fa fa-times-circle text-danger"></i>
-              {% endif %}
-              {% if experiment.signoff_recommendations.vp_signoff %}
-                <span class="text-success">Recommended: Please email your VP. <a href="https://experimenter.info/vp-sign-off/">Learn More</a></span>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th>Legal Sign-off</th>
-            <td>
-              {% if experiment.legal_signoff %}
-                <i class="fa fa-check-circle text-success"></i>
-              {% else %}
-                <i class="fa fa-times-circle text-danger"></i>
-              {% endif %}
-              {% if experiment.signoff_recommendations.legal_signoff %}
-                <span class="text-success">Recommended: Please email legal. <a href="https://experimenter.info/legal-sign-off/">Learn More</a></span>
-              {% endif %}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <a class="btn btn-outline-primary btn-sm"
+         hx-get="{% url 'update-signoff' experiment.slug %}"
+         hx-target="#signoff"
+         hx-swap="outerHTML">Edit</a>
     {% endif %}
   </div>
-</div>
+  <div class="card-body p-0">
+    <div class="container">
+      <div class="row py-2">
+        <div class="col-md-2">
+          <strong>QA Signoff</strong>
+        </div>
+        <div class="col-md-10 d-flex align-items-center">
+          {% if edit %}
+            {{ form.qa_signoff }}
+          {% else %}
+            {% if experiment.qa_signoff %}
+              <i class="fa fa-check-circle text-success"></i>
+            {% else %}
+              <i class="fa fa-times-circle text-danger"></i>
+            {% endif %}
+          {% endif %}
+          {% if experiment.signoff_recommendations.qa_signoff %}
+            <span class="text-success ms-3">Recommended: Please file a QA request. <a href="#">Learn More</a></span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="row py-2">
+        <div class="col-md-2">
+          <strong>VP Signoff</strong>
+        </div>
+        <div class="col-md-10 d-flex align-items-center">
+          {% if edit %}
+            {{ form.vp_signoff }}
+          {% else %}
+            {% if experiment.vp_signoff %}
+              <i class="fa fa-check-circle text-success"></i>
+            {% else %}
+              <i class="fa fa-times-circle text-danger"></i>
+            {% endif %}
+          {% endif %}
+          {% if experiment.signoff_recommendations.vp_signoff %}
+            <span class="text-success ms-3">Recommended: Please email your VP. <a href="#">Learn More</a></span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="row py-2">
+        <div class="col-md-2">
+          <strong>Legal Signoff</strong>
+        </div>
+        <div class="col-md-10 d-flex align-items-center">
+          {% if edit %}
+            {{ form.legal_signoff }}
+          {% else %}
+            {% if experiment.legal_signoff %}
+              <i class="fa fa-check-circle text-success"></i>
+            {% else %}
+              <i class="fa fa-times-circle text-danger"></i>
+            {% endif %}
+          {% endif %}
+          {% if experiment.signoff_recommendations.legal_signoff %}
+            <span class="text-success ms-3">Recommended: Please email legal. <a href="#">Learn More</a></span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

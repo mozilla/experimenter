@@ -172,7 +172,8 @@ class TakeawaysUpdateView(RequestFormMixin, UpdateView):
 class SignoffUpdateView(RequestFormMixin, UpdateView):
     model = NimbusExperiment
     form_class = SignoffForm
-    template_name = "nimbus_experiments/signoff_card.html"
+    template_name = "nimbus_experiments/update_signoff.html"
+    context_object_name = "experiment"
 
     def get_success_url(self):
         return reverse("nimbus-new-detail", kwargs={"slug": self.object.slug})

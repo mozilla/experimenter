@@ -1,5 +1,6 @@
 {% extends "common/with_sidebar.html" %}
 
+{% load static %}
 {% load nimbus_extras %}
 
 {% block title %}Summary{% endblock %}
@@ -239,7 +240,7 @@
       </div>
     </div>
     <!-- Actions Recommended Before Launch Card -->
-    {% include "nimbus_experiments/signoff_card.html" %}
+    {% include "nimbus_experiments/signoff_card.html" with edit=False experiment=experiment %}
 
     <!-- Branches Card -->
     <div class="card mb-3">
@@ -312,4 +313,9 @@
     {% include "nimbus_experiments/qa_card.html" %}
 
   </div>
+{% endblock %}
+
+{% block extrascripts %}
+  {{ block.super }}
+  <script src="{% static 'nimbus_ui_new/experiment_detail.bundle.js' %}"></script>
 {% endblock %}

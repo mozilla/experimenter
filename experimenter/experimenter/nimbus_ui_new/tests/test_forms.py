@@ -193,4 +193,4 @@ class TestSignoffForm(RequestFormTestCase):
 
         changelog = experiment.changes.get()
         self.assertEqual(changelog.changed_by, self.user)
-        self.assertIn("updated QA signoff, VP signoff, Legal signoff", changelog.message)
+        self.assertIn("dev@example.com updated sign off", changelog.message)
