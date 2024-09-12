@@ -1943,6 +1943,46 @@ DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+ELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
+    name="Eligible for default PDF handler",
+    slug="eligible_for_default_pdf_handler",
+    description=(
+        "Targeting users that are eligible to set Firefox as the default PDF "
+        "handler and have yet to do so. This excludes users with enterprise "
+        "policies, and users that have set their default PDF handler to an app "
+        "other than a browser (like a PDF editor)."
+    ),
+    targeting=(
+        "!hasActiveEnterprisePolicies "
+        "&& !isDefaultHandler.pdf "
+        "&& (!defaultPDFHandler.registered || defaultPDFHandler.knownBrowser)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
+    name="Ineligible for default PDF handler",
+    slug="ineligible_for_default_pdf_handler",
+    description=(
+        "Targeting users that are ineligible to set Firefox as the default PDF "
+        "handler or have already done so. This includes users with enterprise "
+        "policies, users that have set Firefox as their default PDF handler, "
+        "and users who have set their default PDF handler to a non-browser app."
+    ),
+    targeting=(
+        "hasActiveEnterprisePolicies "
+        "|| isDefaultHandler.pdf "
+        "|| (defaultPDFHandler.registered && !defaultPDFHandler.knownBrowser)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 SHOPPING_OPTED_IN = NimbusTargetingConfig(
     name="Users opted in to shopping",
     slug="shopping_opted_in",
