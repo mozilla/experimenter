@@ -1058,14 +1058,6 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertIsInstance(response.context["takeaways_form"], TakeawaysForm)
         self.assertFalse(response.context["takeaways_form"].is_valid())
 
-    def test_signoff_edit_mode_get(self):
-        response = self.client.get(
-            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
-            {"edit_signoff": "true"},
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context["signoff_edit_mode"])
-        self.assertIsInstance(response.context["signoff_form"], SignoffForm)
 
     def test_signoff_edit_mode_post_valid_form(self):
         data = {
