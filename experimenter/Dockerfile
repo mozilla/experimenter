@@ -116,8 +116,8 @@ RUN yarn workspace @experimenter/nimbus_ui_new build
 FROM python:3.11.1-slim AS deploy
 
 # Create a non-root user with UID 10001
-RUN groupadd -g 10001 appuser && \
-    useradd -r -u 10001 -g appuser appuser
+RUN groupadd -g 10001 app && \
+    useradd -r -u 10001 -g app app
 
 WORKDIR /experimenter
 EXPOSE 7001
@@ -144,7 +144,7 @@ COPY --from=ui /experimenter/experimenter/nimbus_ui_new/static/dist/ /experiment
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
 
 # Ensure the non-root user owns the required directories
-RUN chown -R appuser:appuser /experimenter /application-services
+RUN chown -R app:app /experimenter /application-services
 
 # Switch to the non-root user
-USER appuser
+USER app
