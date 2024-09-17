@@ -354,14 +354,6 @@ suggest-shipped-domains:
     enabled:
       type: boolean
       description: "Suggest domains from the shipped domain list.\n"
-toolbar:
-  description: The searchbar/awesomebar that user uses to search.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    toolbar-position-top:
-      type: boolean
-      description: "If true, toolbar appears at top of the screen."
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
