@@ -125,9 +125,6 @@ EXPOSE 7001
 # Disable python pyc files
 ENV PYTHONDONTWRITEBYTECODE 1
 
-# Add poetry to path
-ENV PATH "/home/appuser/.poetry/bin:${PATH}"
-
 # System packages
 RUN apt-get update
 RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client
