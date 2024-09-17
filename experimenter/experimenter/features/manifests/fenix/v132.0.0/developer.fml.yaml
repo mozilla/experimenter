@@ -583,13 +583,6 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
-  toolbar:
-    description: The searchbar/awesomebar that user uses to search.
-    variables:
-      toolbar-position-top:
-        description: "If true, toolbar appears at top of the screen."
-        type: Boolean
-        default: false
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
