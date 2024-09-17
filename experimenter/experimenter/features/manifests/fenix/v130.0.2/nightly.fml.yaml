@@ -3,19 +3,8 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - beta
+  - nightly
 features:
-  alternative-app-launcher-icon:
-    description: A feature that changes the app launcher icon background color.
-    variables:
-      enabled:
-        description: "If true, the feature is active."
-        type: Boolean
-        default: false
-      reset-to-default:
-        description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
-        type: Boolean
-        default: false
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -68,7 +57,7 @@ features:
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: false
+        default: true
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -84,14 +73,6 @@ features:
         description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
         type: "Map<String, Boolean>"
         default: {}
-      ping-lifetime-max-time:
-        description: After what time to auto-flush
-        type: Int
-        default: 0
-      ping-lifetime-threshold:
-        description: Write count threshold when to auto-flush
-        type: Int
-        default: 1000
     allow-coenrollment: true
   growth-data:
     description: A feature measuring campaign growth data
@@ -243,7 +224,6 @@ features:
             action: MAKE_DEFAULT_BROWSER
             trigger-if-all:
               - USER_ESTABLISHED_INSTALL
-              - ANDROID_API_BELOW_29
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             style: PERSISTENT
@@ -258,6 +238,29 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          microsurvey-printing-example:
+            title: microsurvey_prompt_printing_title
+            text: microsurvey_survey_printing_title
+            surface: microsurvey
+            trigger-if-all:
+              - RECENTLY_PRINTED
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: homepage
+              icon: ic_print
+              answers:
+                - text: likert_scale_option_1
+                  ordering: 0
+                - text: likert_scale_option_2
+                  ordering: 1
+                - text: likert_scale_option_3
+                  ordering: 2
+                - text: likert_scale_option_4
+                  ordering: 3
+                - text: likert_scale_option_5
+                  ordering: 4
+                - text: likert_scale_option_6
+                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -299,7 +302,6 @@ features:
         type: "Map<TriggerName, String>"
         default:
           USER_ESTABLISHED_INSTALL: number_of_app_launches >=4
-          ANDROID_API_BELOW_29: android_version < 29
           USER_RECENTLY_INSTALLED: days_since_install < 7
           USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
           USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
@@ -328,8 +330,6 @@ features:
           INACTIVE_5_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 5"
           RECENTLY_PRINTED: "'print_tapped'|eventLastSeen('Hours') <= 24"
           SECOND_HOMEPAGE_VIEW: "'home_screen_displayed'|eventSum('Years', 4, 0) >= 2"
-          PERFORMED_A_SEARCH_AGAIN_RECENTLY: "'performed_search'|eventSum('Years', 4, 0) >= 2 && 'performed_search'|eventLastSeen('Minutes') < 1"
-          FXA_CURRENTLY_SIGNED_IN: is_fxa_signed_in == true
           FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
           FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
           USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"
@@ -365,7 +365,7 @@ features:
       enabled:
         description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
         type: Boolean
-        default: false
+        default: true
   nimbus-is-ready:
     description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
     variables:
@@ -407,13 +407,6 @@ features:
           - sync
           - tcp
           - privacy-notice
-  one-click-search:
-    description: Enable/disable the one click search feature.
-    variables:
-      enabled:
-        description: "If true, the one click search will be enabled."
-        type: Boolean
-        default: false
   pdfjs:
     description: PDF.js features
     variables:
@@ -497,32 +490,6 @@ features:
       enabled:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
-        default: false
-  set-as-default-prompt:
-    description: "Displays native default browser prompt to existing users.\n"
-    variables:
-      app-cold-starts-between-prompts:
-        description: "Minimum number of app cold starts before the next prompt should be displayed to the user.\n"
-        type: Int
-        default: 4
-      days-between-prompts:
-        description: "Minimum number of days between displays of Set as default prompt.\n"
-        type: Int
-        default: 14
-      enabled:
-        description: "When the feature is enabled then the Set as default prompt can be triggered for existing users.\n"
-        type: Boolean
-        default: false
-      max-number-of-times-to-display:
-        description: "Maximum number of time the prompt should be displayed.\n"
-        type: Int
-        default: 3
-  ship:
-    description: The feature that controls Session History in Parent (SHIP) in Gecko.
-    variables:
-      disabled:
-        description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
-        type: Boolean
         default: true
   shopping-experience:
     description: A feature that shows product review quality information.
@@ -556,7 +523,14 @@ features:
       enabled:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
-        default: true
+        default: false
+  toolbar:
+    description: The searchbar/awesomebar that user uses to search.
+    variables:
+      toolbar-position-top:
+        description: "If true, toolbar appears at top of the screen."
+        type: Boolean
+        default: false
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -588,13 +562,13 @@ features:
         description: "Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.\n"
         type: Boolean
         default: true
-  user-characteristics:
-    description: A feature for control user characteristic data collection
+  unified-search:
+    description: A feature allowing user to easily search for specified results directly in the search bar.
     variables:
-      currentVersion:
-        description: The current collection version of the user characteristics.
-        type: Int
-        default: 0
+      enabled:
+        description: "If true, the feature shows up in the search bar."
+        type: Boolean
+        default: true
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
