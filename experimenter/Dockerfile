@@ -2,6 +2,10 @@
 # System packages
 FROM python:3.11-bullseye AS system-builder
 
+# Create a non-root user with UID 10001
+RUN groupadd -g 10001 appuser && \
+    useradd -r -u 10001 -g appuser appuser
+
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN apt-get update
@@ -9,8 +13,8 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 
 # Install nvm with node and npm
 ENV NODE_VERSION=16.19.0
-ENV NVM_DIR=/root/.nvm
-ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+ENV NVM_DIR=/home/appuser/.nvm
+ENV PATH="/home/appuser/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.35.3/install.sh | bash
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
 RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
@@ -21,12 +25,18 @@ ENV PYTHONDONTWRITEBYTECODE 1
 
 # Python packages
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.6.0
-ENV PATH "/root/.local/bin:$PATH"
+ENV PATH "/home/appuser/.local/bin:$PATH"
 RUN poetry config virtualenvs.create false
 
 # Rust cargo
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y --profile minimal
-ENV PATH "/root/.cargo/bin:$PATH"
+ENV PATH "/home/appuser/.cargo/bin:$PATH"
+
+# Change ownership of directories to the non-root user
+RUN chown -R appuser:appuser /home/appuser/.nvm /home/appuser/.cargo /home/appuser/.local
+
+# Switch to the non-root user
+USER appuser
 
 # Python image
 #-------------------------
@@ -83,7 +93,6 @@ COPY --from=experimenter:megazords /application-services/megazords/nimbus-experi
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
 
 # Install nimbus-cli
-
 RUN mkdir -p /application-services/bin/ && \
     curl --proto '=https' --tlsv1.2 -sSf -o "/application-services/install-nimbus-cli.sh" "https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh" && \
     bash /application-services/install-nimbus-cli.sh --directory /application-services/bin
@@ -123,7 +132,7 @@ EXPOSE 7001
 ENV PYTHONDONTWRITEBYTECODE 1
 
 # Add poetry to path
-ENV PATH "/root/.poetry/bin:${PATH}"
+ENV PATH "/home/appuser/.poetry/bin:${PATH}"
 
 # System packages
 RUN apt-get update
@@ -142,3 +151,9 @@ COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experim
 COPY --from=ui /experimenter/experimenter/nimbus_ui_new/static/dist/ /experimenter/experimenter/nimbus_ui_new/static/dist/
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
+
+# Ensure the non-root user owns the required directories
+RUN chown -R appuser:appuser /experimenter /application-services
+
+# Switch to the non-root user
+USER appuser
