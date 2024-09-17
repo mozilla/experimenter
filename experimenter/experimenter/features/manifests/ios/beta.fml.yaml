@@ -547,6 +547,10 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
+      navigation_hint:
+        description: "If true, enables the navigation contextual hint.\n"
+        type: Boolean
+        default: false
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
