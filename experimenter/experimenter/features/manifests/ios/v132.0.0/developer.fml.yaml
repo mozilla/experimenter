@@ -252,6 +252,7 @@ features:
           SUPPORTS_DEFAULT_BROWSER: "os_version|versionCompare('14.!') >= 0"
           INACTIVE_NEW_USER: is_inactive_new_user
           ALLOWED_TIPS_NOTIFICATIONS: allowed_tips_notifications
+          FXA_CURRENTLY_SIGNED_IN: is_fxa_signed_in == true
           SECOND_HOMEPAGE_VIEW: "'homepage_viewed'|eventSum('Years', 4, 0) >= 2"
           ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
         string-alias: TriggerName
