@@ -2,7 +2,7 @@
 
 git checkout main
 git pull origin main
-git checkout -B check-external-firefox-integrations
+git checkout -B check_external_firefox_integrations
 firefox_types=("fenix" "desktop-beta")
 for name in "${firefox_types[@]}"
 do
