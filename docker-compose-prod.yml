@@ -33,7 +33,7 @@ services:
     depends_on:
       - db
       - redis
-    command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l DEBUG"
+    command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat -l DEBUG"
 
   nginx:
     build: ./nginx
