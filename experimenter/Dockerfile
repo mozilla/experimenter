@@ -83,7 +83,6 @@ COPY --from=experimenter:megazords /application-services/megazords/nimbus-experi
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
 
 # Install nimbus-cli
-
 RUN mkdir -p /application-services/bin/ && \
     curl --proto '=https' --tlsv1.2 -sSf -o "/application-services/install-nimbus-cli.sh" "https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh" && \
     bash /application-services/install-nimbus-cli.sh --directory /application-services/bin
@@ -116,14 +115,15 @@ RUN yarn workspace @experimenter/nimbus_ui_new build
 #-------------------------
 FROM python:3.11.1-slim AS deploy
 
+# Create a non-root user with UID 10001
+RUN groupadd -g 10001 app && \
+    useradd -r -u 10001 -g app app
+
 WORKDIR /experimenter
 EXPOSE 7001
 
 # Disable python pyc files
 ENV PYTHONDONTWRITEBYTECODE 1
-
-# Add poetry to path
-ENV PATH "/root/.poetry/bin:${PATH}"
 
 # System packages
 RUN apt-get update
@@ -142,3 +142,9 @@ COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experim
 COPY --from=ui /experimenter/experimenter/nimbus_ui_new/static/dist/ /experimenter/experimenter/nimbus_ui_new/static/dist/
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
+
+# Ensure the non-root user owns the required directories
+RUN chown -R app:app /experimenter /application-services
+
+# Switch to the non-root user
+USER app
