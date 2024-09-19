@@ -3,7 +3,7 @@
 git checkout main
 git pull origin main
 git checkout -B check_external_firefox_integrations
-firefox_types=("fenix" "desktop-beta")
+firefox_types=("fenix" "desktop-beta" "desktop-release")
 for name in "${firefox_types[@]}"
 do
     CURRENT_BUILD_ID=$(cat experimenter/tests/firefox-$name-build.env | grep -oP '(?<=TASK_ID=).*')
