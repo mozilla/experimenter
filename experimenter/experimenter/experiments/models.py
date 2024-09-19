@@ -1249,6 +1249,23 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             .replace("\\n", "\n")  # Handle hard coded newlines in targeting
         )
 
+    @property
+    def draft_date(self):
+        first_changelog_entry = self.changes.order_by("changed_on").first()
+        return first_changelog_entry.changed_on.date() if first_changelog_entry else None
+
+    @property
+    def preview_date(self):
+        """
+        Finds the first changelog entry where the status changed to 'PREVIEW'.
+        """
+        preview_changelog = (
+            self.changes.filter(new_status=self.Status.PREVIEW)
+            .order_by("changed_on")
+            .first()
+        )
+        return preview_changelog.changed_on.date() if preview_changelog else None
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(

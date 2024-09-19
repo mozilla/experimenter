@@ -1,0 +1,25 @@
+<div class="container-fluid py-4">
+  <!-- Timeline Row -->
+  <div class="d-flex align-items-center justify-content-between position-relative">
+    <!-- Draft Status -->
+    <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Draft' %}bg-primary text-white{% else %}bg-light{% endif %}">
+      <div>Draft</div>
+      <div>{{ experiment.draft_date|default:'---' }}</div>
+    </div>
+    <!-- Preview Status -->
+    <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Preview' %}bg-warning text-white{% else %}bg-light{% endif %}">
+      <div>Preview</div>
+      <div>{{ experiment.preview_date|default:'---' }}</div>
+    </div>
+    <!-- Live Status -->
+    <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Live' %}bg-success text-white{% else %}bg-light{% endif %}">
+      <div>Live</div>
+      <div>{{ experiment.start_date|default:'---' }}</div>
+    </div>
+    <!-- Complete Status -->
+    <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Complete' %}bg-info text-white{% else %}bg-light{% endif %}">
+      <div>Complete</div>
+      <div>{{ experiment.end_date|default:'---' }}</div>
+    </div>
+  </div>
+</div>
