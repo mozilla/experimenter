@@ -1948,12 +1948,14 @@ ELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
     slug="eligible_for_default_pdf_handler",
     description=(
         "Targeting users that are eligible to set Firefox as the default PDF "
-        "handler and have yet to do so. This excludes users with enterprise "
-        "policies, and users that have set their default PDF handler to an app "
-        "other than a browser (like a PDF editor)."
+        "handler and have yet to do so. This includes only users of Windows "
+        "10+, and excludes users with enterprise policies and users that have "
+        "set their default PDF handler to an app other than a browser (like a "
+        "PDF editor)."
     ),
     targeting=(
-        "!hasActiveEnterprisePolicies "
+        "(os.isWindows && os.windowsVersion >= 10) "
+        "&& !hasActiveEnterprisePolicies "
         "&& !isDefaultHandler.pdf "
         "&& (!defaultPDFHandler.registered || defaultPDFHandler.knownBrowser)"
     ),
@@ -1968,12 +1970,14 @@ INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
     slug="ineligible_for_default_pdf_handler",
     description=(
         "Targeting users that are ineligible to set Firefox as the default PDF "
-        "handler or have already done so. This includes users with enterprise "
-        "policies, users that have set Firefox as their default PDF handler, "
-        "and users who have set their default PDF handler to a non-browser app."
+        "handler or have already done so. This includes users of non-Windows "
+        "OSes, users of Windows versions < 10, users with enterprise policies, "
+        "users that have set Firefox as their default PDF handler, and users "
+        "who have set their default PDF handler to a non-browser app."
     ),
     targeting=(
-        "hasActiveEnterprisePolicies "
+        "(!os.isWindows || os.windowsVersion < 10) "
+        "|| hasActiveEnterprisePolicies "
         "|| isDefaultHandler.pdf "
         "|| (defaultPDFHandler.registered && !defaultPDFHandler.knownBrowser)"
     ),
