@@ -4,6 +4,7 @@ set -euo pipefail
 set +x
 
 TASKCLUSTER_API="https://firefox-ci-tc.services.mozilla.com/api/index/v1"
+WHAT_TRAIN_IS_IT_NOW_API="https://whattrainisitnow.com/api/firefox/releases/"
 CURLFLAGS=("--proto" "=https" "--tlsv1.2" "-sS")
 
 if [ $# -eq 0 ]; then
@@ -27,6 +28,12 @@ case $input in
         echo FIREFOX_BETA_TASK_ID "${TASK_ID}"
         echo "FIREFOX_BETA_TASK_ID=${TASK_ID}" > firefox-desktop-beta-build.env
         mv firefox-desktop-beta-build.env experimenter/tests
+        ;;
+    desktop-release)
+        RELEASE_VERSION=$(curl ${CURLFLAGS[@]} "${WHAT_TRAIN_IS_IT_NOW_API}" | jq 'to_entries | last | .key')
+        echo FIREFOX_RELEASE_VERSION_ID "${RELEASE_VERSION}"
+        echo "FIREFOX_RELEASE_VERSION_ID=${RELEASE_VERSION}" > firefox-desktop-release-build.env
+        mv firefox-desktop-release-build.env experimenter/tests
         ;;
     *)
         echo "Invalid option."
