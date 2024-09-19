@@ -1640,6 +1640,33 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
+    def test_draft_date_uses_first_changelog_if_no_start_date(self):
+        experiment = NimbusExperimentFactory.create(_start_date=None)
+        first_changelog = NimbusChangeLogFactory.create(
+            experiment=experiment, changed_on=datetime.datetime(2023, 2, 1)
+        )
+        self.assertEqual(experiment.draft_date, first_changelog.changed_on.date())
+
+    def test_preview_date_returns_first_preview_change(self):
+        experiment = NimbusExperimentFactory.create()
+        preview_change = NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.PREVIEW,
+            changed_on=datetime.datetime(2023, 3, 1),
+        )
+        self.assertEqual(experiment.preview_date, preview_change.changed_on.date())
+
+    def test_preview_date_returns_none_if_no_preview_status(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.DRAFT,
+            changed_on=datetime.datetime(2023, 4, 1),
+        )
+        self.assertIsNone(experiment.preview_date)
+
     def test_monitoring_dashboard_url_is_valid_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
