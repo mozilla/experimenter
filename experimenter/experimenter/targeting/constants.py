@@ -2130,6 +2130,23 @@ SYNC_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR = NimbusTargetingConfig(
+    name="Existing User, Hasn't Changed Bookmarks Toolbar Behavior",
+    slug="existing_user_bookmarks_toolbar_unchanged",
+    description=(
+        "Existing users (>=28 days) who have not edited the default bookmarks' "
+        "toolbar behavior"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} &&"
+        " !('browser.toolbars.bookmarks.visibility'|preferenceIsUserSet)"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
