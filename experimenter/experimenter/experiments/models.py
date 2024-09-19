@@ -1256,9 +1256,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def preview_date(self):
-        """
-        Finds the first changelog entry where the status changed to 'PREVIEW'.
-        """
         preview_changelog = (
             self.changes.filter(new_status=self.Status.PREVIEW)
             .order_by("changed_on")
