@@ -4186,6 +4186,10 @@
             "type": "string",
             "readOnly": true
           },
+          "segments": {
+            "type": "string",
+            "readOnly": true
+          },
           "branches": {
             "type": "string",
             "readOnly": true

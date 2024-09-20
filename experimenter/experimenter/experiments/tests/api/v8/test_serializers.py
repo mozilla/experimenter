@@ -34,6 +34,7 @@ class TestNimbusExperimentSerializer(TestCase):
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
+            segments=["segment1", "segment2"],
             locales=[locale_en_us],
             _enrollment_end_date=datetime.date(2022, 1, 5),
         )
@@ -88,6 +89,7 @@ class TestNimbusExperimentSerializer(TestCase):
                     {"priority": "secondary", "slug": "quux"},
                     {"priority": "secondary", "slug": "xyzzy"},
                 ],
+                "segments": [{"slug": "segment1"}, {"slug": "segment2"}],
                 "featureValidationOptOut": experiment.is_client_schema_disabled,
                 "localizations": None,
                 "locales": ["en-US"],
@@ -149,6 +151,7 @@ class TestNimbusExperimentSerializer(TestCase):
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
+            segments=["segment1", "segment2"],
             locales=[locale_en_us],
         )
         serializer = NimbusExperimentSerializer(experiment)
@@ -310,6 +313,7 @@ class TestNimbusExperimentSerializer(TestCase):
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["qux", "quux"],
+            segments=["segment1", "segment2"],
             is_localized=True,
             localizations=TEST_LOCALIZATIONS,
             locales=[locale_en_us, locale_en_ca, locale_fr],
