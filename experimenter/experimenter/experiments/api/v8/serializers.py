@@ -99,6 +99,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     featureIds = serializers.SerializerMethodField()
     probeSets = serializers.ReadOnlyField(default=[])
     outcomes = serializers.SerializerMethodField()
+    segments = serializers.SerializerMethodField()
     startDate = serializers.DateField(source="start_date")
     enrollmentEndDate = serializers.DateField(source="actual_enrollment_end_date")
     endDate = serializers.DateField(source="end_date")
@@ -131,6 +132,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "featureIds",
             "probeSets",
             "outcomes",
+            "segments",
             "branches",
             "targeting",
             "startDate",
@@ -178,6 +180,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             for (priority, outcomes) in prioritized_outcomes
             for slug in outcomes
         ]
+
+    def get_segments(self, obj):
+        return [{"slug": slug} for slug in obj.segments]
 
     def get_referenceBranch(self, obj):
         if obj.reference_branch:
