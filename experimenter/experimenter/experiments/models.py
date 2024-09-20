@@ -430,6 +430,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_absolute_url(self):
         return reverse("nimbus-detail", kwargs={"slug": self.slug})
 
+    def get_detail_url(self):
+        return reverse("nimbus-new-detail", kwargs={"slug": self.slug})
+
+    def get_history_url(self):
+        return reverse("nimbus-new-history", kwargs={"slug": self.slug})
+
+    def get_update_metrics_url(self):
+        return reverse("nimbus-new-update-metrics", kwargs={"slug": self.slug})
+
     @property
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())

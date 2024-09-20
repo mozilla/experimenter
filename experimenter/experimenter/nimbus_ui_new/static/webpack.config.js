@@ -4,9 +4,7 @@ const webpack = require("webpack");
 module.exports = {
   entry: {
     app: "./js/index.js",
-    experiment_list: "./js/scripts/experiment_list.js",
-    experiment_detail: "./js/scripts/experiment_detail.js",
-    theme: "./js/scripts/theme.js",
+    experiment_list: "./js/experiment_list.js",
   },
   output: {
     filename: "[name].bundle.js",
@@ -33,17 +31,8 @@ module.exports = {
   },
   plugins: [
     new webpack.ProvidePlugin({
-      $: "jquery",
-      jQuery: "jquery",
-      "window.jQuery": "jquery",
-      Popper: ["popper.js", "default"],
       bootstrap: "bootstrap",
     }),
   ],
-  resolve: {
-    alias: {
-      jquery: "jquery/src/jquery",
-    },
-  },
   mode: "production",
 };
