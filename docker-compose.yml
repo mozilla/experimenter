@@ -83,7 +83,7 @@ services:
     volumes:
       - ./experimenter:/experimenter
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
-    command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat -l DEBUG"
+    command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat -s /tmp/celerybeat-schedule -l DEBUG"
 
   nginx:
     build: ./nginx
