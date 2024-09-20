@@ -7,6 +7,18 @@ export PATH=$PATH:/home/seluser/.local/bin
 
 PYTEST_ARGS=${PYTEST_ARGS:-"-k FIREFOX_DESKTOP"}
 
+install_firefox() {
+    local firefox_version="$1"
+    sudo apt-get update -qqy
+    sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+    sudo wget --no-verbose -O /tmp/firefox.tar.bz2 $firefox_version
+    sudo rm -rf /opt/firefox-latest
+    sudo tar -C /opt -xjf /tmp/firefox.tar.bz2
+    sudo rm /tmp/firefox.tar.bz2
+    sudo ln -fs /opt/firefox/firefox /usr/bin/firefox
+    sudo chown -R seluser /opt/firefox/firefox
+}
+
 if [[ -n "${UPDATE_FIREFOX_VERSION}" ]]; then
     sudo ./experimenter/tests/integration/nimbus/utils/nightly-install.sh
 fi
@@ -15,19 +27,19 @@ if [[ -n "${FIREFOX_BETA}" ]]; then
     source ./experimenter/tests/firefox-desktop-beta-build.env
     FIREFOX_BETA_TASK_ID=${FIREFOX_BETA_TASK_ID//\"/}
     echo "Installing firefox beta from taskcluster"
-    sudo apt-get update -qqy
-    sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-    sudo wget --no-verbose -O /tmp/firefox.tar.bz2 "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${FIREFOX_BETA_TASK_ID}/artifacts/public/build/target.tar.bz2"
-    sudo rm -rf /opt/firefox-latest
-    sudo tar -C /opt -xjf /tmp/firefox.tar.bz2
-    sudo rm /tmp/firefox.tar.bz2
-    sudo ln -fs /opt/firefox/firefox /usr/bin/firefox
-    sudo chown -R seluser /opt/firefox/firefox
+    install_firefox "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${FIREFOX_BETA_TASK_ID}/artifacts/public/build/target.tar.bz2"
+fi
+
+if [[ -n "${FIREFOX_RELEASE}" ]]; then
+    source ./experimenter/tests/firefox-desktop-release-build.env
+    FIREFOX_RELEASE_VERSION_ID=${FIREFOX_RELEASE_VERSION_ID//\"/}
+    echo "Installing firefox release v${FIREFOX_RELEASE_VERSION_ID}"
+    install_firefox "https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX_RELEASE_VERSION_ID}/linux-x86_64/en-US/firefox-${FIREFOX_RELEASE_VERSION_ID}.tar.bz2"
 fi
 
 curl -sSL https://install.python-poetry.org | python3 - --version 1.8.3
 sudo chmod -R a+rwx /code/experimenter/tests/integration/
-mkdir -m a+rwx /code/experimenter/tests/integration/test-reports
+mkdir -m a+rwx -p /code/experimenter/tests/integration/test-reports
 
 firefox --version
 
