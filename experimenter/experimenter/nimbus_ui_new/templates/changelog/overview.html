@@ -1,13 +1,8 @@
-{% extends "common/with_sidebar.html" %}
+{% extends "nimbus_experiments/experiment_base.html" %}
 
-{% block title %}
-  History
-{% endblock title %}
+{% load nimbus_extras %}
 
-{% block sidebar %}
-  {% include "common/experiment_details_sidebar.html" with experiment=experiment %}
-
-{% endblock sidebar %}
+{% block title %}{{ experiment.name }} - History{% endblock %}
 
 {% block main_content %}
   <div class="container-fluid">

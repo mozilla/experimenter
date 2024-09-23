@@ -1,13 +1,13 @@
 <ul class="nav nav-pills flex-column ps-4">
-  {% include "common/sidebar_link.html" with title="Summary" link=experiment.get_absolute_url icon="fa-regular fa-paper-plane" %}
-  {% include "common/sidebar_link.html" with title="History" link="" icon="fa-solid fa-network-wired" active=True %}
+  {% include "common/sidebar_link.html" with title="Summary" link=experiment.get_detail_url icon="fa-regular fa-paper-plane" %}
+  {% include "common/sidebar_link.html" with title="History" link=experiment.get_history_url icon="fa-solid fa-network-wired" active=True %}
 
   <li class="border-bottom my-2 ms-3">
     <span class="small text-muted">Edit</span>
   </li>
   {% include "common/sidebar_link.html" with title="Overview" link="" icon="fa-regular fa-solid fa-gear" disabled=True %}
   {% include "common/sidebar_link.html" with title="Branches" link="" icon="fa-solid fa-layer-group" disabled=True %}
-  {% include "common/sidebar_link.html" with title="Metrics" link="" icon="fa-solid fa-arrow-trend-up" disabled=True %}
+  {% include "common/sidebar_link.html" with title="Metrics" link=experiment.get_update_metrics_url icon="fa-solid fa-arrow-trend-up" %}
   {% include "common/sidebar_link.html" with title="Audience" link="" icon="fa-solid fa-user-group" disabled=True %}
 
   <li class="border-bottom my-2 ms-3">

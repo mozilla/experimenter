@@ -7,6 +7,7 @@ from django.db.models.functions import Concat
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
+from experimenter.nimbus_ui_new.forms import MultiSelectWidget
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
@@ -68,17 +69,11 @@ class SortChoices(models.TextChoices):
     DATES_DOWN = "-_start_date"
 
 
-class MultiSelectWidget(forms.SelectMultiple):
+class IconMultiSelectWidget(MultiSelectWidget):
     template_name = "common/sidebar_select.html"
 
     def __init__(self, *args, attrs, **kwargs):
         self.icon = kwargs.pop("icon", None)
-        attrs.update(
-            {
-                "class": "selectpicker form-control bg-body-tertiary",
-                "data-live-search": "true",
-            }
-        )
         super().__init__(*args, attrs=attrs, **kwargs)
 
     def get_context(self, name, value, attrs):
@@ -110,7 +105,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     type = django_filters.MultipleChoiceFilter(
         method="filter_type",
         choices=TypeChoices.choices,
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-flask-vial",
             attrs={
                 "title": "All Types",
@@ -119,7 +114,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     application = django_filters.MultipleChoiceFilter(
         choices=NimbusExperiment.Application.choices,
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-desktop",
             attrs={
                 "title": "All Applications",
@@ -128,7 +123,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     channel = django_filters.MultipleChoiceFilter(
         choices=NimbusExperiment.Channel.choices,
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-road",
             attrs={
                 "title": "All Channels",
@@ -137,7 +132,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     firefox_min_version = django_filters.MultipleChoiceFilter(
         choices=reversed(NimbusExperiment.Version.choices),
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-code-branch",
             attrs={
                 "title": "All Versions",
@@ -146,7 +141,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     feature_configs = django_filters.ModelMultipleChoiceFilter(
         queryset=NimbusFeatureConfig.objects.all().order_by("application", "slug"),
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-boxes-stacked",
             attrs={
                 "title": "All Features",
@@ -155,7 +150,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     countries = django_filters.ModelMultipleChoiceFilter(
         queryset=Country.objects.all().order_by("code"),
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-globe",
             attrs={
                 "title": "All Countries",
@@ -164,7 +159,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     languages = django_filters.ModelMultipleChoiceFilter(
         queryset=Language.objects.all().order_by("code"),
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-language",
             attrs={
                 "title": "All Languages",
@@ -173,7 +168,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     locales = django_filters.ModelMultipleChoiceFilter(
         queryset=Locale.objects.all().order_by("code"),
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-earth-americas",
             attrs={
                 "title": "All Locales",
@@ -182,7 +177,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     targeting_config_slug = django_filters.MultipleChoiceFilter(
         choices=sorted(TargetingConstants.TargetingConfig.choices),
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-users-rectangle",
             attrs={
                 "title": "All Audiences",
@@ -191,7 +186,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     projects = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all().order_by("slug"),
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-person-chalkboard",
             attrs={
                 "title": "All Projects",
@@ -200,7 +195,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     qa_status = django_filters.MultipleChoiceFilter(
         choices=NimbusExperiment.QAStatus.choices,
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-user-shield",
             attrs={
                 "title": "All QA Statuses",
@@ -213,7 +208,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             *NimbusExperiment.Takeaways.choices,
             *NimbusExperiment.ConclusionRecommendation.choices,
         ],
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-list-check",
             attrs={
                 "title": "All Takeaways",
@@ -222,7 +217,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     owner = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.order_by("email"),
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-users",
             attrs={
                 "title": "All Owners",
@@ -231,7 +226,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     )
     subscribers = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.order_by("email"),
-        widget=MultiSelectWidget(
+        widget=IconMultiSelectWidget(
             icon="fa-solid fa-bell",
             attrs={
                 "title": "All Subscribers",
