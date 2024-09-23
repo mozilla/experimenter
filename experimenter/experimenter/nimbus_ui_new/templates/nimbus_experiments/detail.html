@@ -1,17 +1,12 @@
-{% extends "common/with_sidebar.html" %}
+{% extends "nimbus_experiments/experiment_base.html" %}
 
 {% load static %}
 {% load nimbus_extras %}
 
-{% block title %}Summary{% endblock %}
-
-{% block sidebar %}
-  {% include "common/experiment_details_sidebar.html" with experiment=experiment %}
-
-{% endblock %}
+{% block title %}{{ experiment.name }}{% endblock %}
 
 {% block main_content %}
-  <div class="container-fluid py-4">
+  <div class="container-fluid">
     <!-- Experiment Details Card -->
     <div class="card mb-3">
       <div class="card-header">
@@ -317,5 +312,5 @@
 
 {% block extrascripts %}
   {{ block.super }}
-  <script src="{% static 'nimbus_ui_new/experiment_detail.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui_new/setup_selectpicker.bundle.js' %}"></script>
 {% endblock %}

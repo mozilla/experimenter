@@ -14,6 +14,7 @@ from experimenter.nimbus_ui_new.filtersets import (
     StatusChoices,
 )
 from experimenter.nimbus_ui_new.forms import (
+    MetricsForm,
     NimbusExperimentCreateForm,
     QAStatusForm,
     SignoffForm,
@@ -28,14 +29,16 @@ class RequestFormMixin:
         return kwargs
 
 
-class NimbusChangeLogsView(DetailView):
+class NimbusExperimentViewMixin:
     model = NimbusExperiment
     context_object_name = "experiment"
+
+
+class NimbusChangeLogsView(NimbusExperimentViewMixin, DetailView):
     template_name = "changelog/overview.html"
 
 
-class NimbusExperimentsListView(FilterView):
-    model = NimbusExperiment
+class NimbusExperimentsListView(NimbusExperimentViewMixin, FilterView):
     queryset = (
         NimbusExperiment.objects.all()
         .order_by("-_updated_date_time")
@@ -112,10 +115,8 @@ def build_experiment_context(experiment):
     return context
 
 
-class NimbusExperimentDetailView(DetailView):
-    model = NimbusExperiment
+class NimbusExperimentDetailView(NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/detail.html"
-    context_object_name = "experiment"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -130,11 +131,9 @@ class NimbusExperimentDetailView(DetailView):
         return context
 
 
-class QAStatusUpdateView(RequestFormMixin, UpdateView):
+class QAStatusUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     form_class = QAStatusForm
-    model = NimbusExperiment
     template_name = "nimbus_experiments/detail.html"
-    context_object_name = "experiment"
 
     def form_invalid(self, form):
         context = self.get_context_data(form=form)
@@ -147,11 +146,9 @@ class QAStatusUpdateView(RequestFormMixin, UpdateView):
         return reverse("nimbus-new-detail", kwargs={"slug": self.object.slug})
 
 
-class TakeawaysUpdateView(RequestFormMixin, UpdateView):
+class TakeawaysUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     form_class = TakeawaysForm
-    model = NimbusExperiment
     template_name = "nimbus_experiments/detail.html"
-    context_object_name = "experiment"
 
     def form_invalid(self, form):
         context = self.get_context_data(form=form)
@@ -175,8 +172,9 @@ class SignoffUpdateView(RequestFormMixin, UpdateView):
         return reverse("nimbus-new-detail", kwargs={"slug": self.object.slug})
 
 
-class NimbusExperimentsCreateView(RequestFormMixin, CreateView):
-    model = NimbusExperiment
+class NimbusExperimentsCreateView(
+    NimbusExperimentViewMixin, RequestFormMixin, CreateView
+):
     form_class = NimbusExperimentCreateForm
     template_name = "nimbus_experiments/create.html"
 
@@ -195,3 +193,12 @@ class NimbusExperimentsCreateView(RequestFormMixin, CreateView):
                 "nimbus-detail", kwargs={"slug": self.object.slug}
             )
         return response
+
+
+class MetricsUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = MetricsForm
+    template_name = "nimbus_experiments/edit_metrics.html"
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))

@@ -15,7 +15,7 @@ class TestOutcomes(TestCase):
 
     def test_load_all_outcomes_and_ignore_examples(self):
         outcomes = Outcomes.all()
-        self.assertEqual(len(outcomes), 5)
+        self.assertEqual(len(outcomes), 6)
         self.assertIn(
             Outcome(
                 application=NimbusExperiment.Application.FENIX,

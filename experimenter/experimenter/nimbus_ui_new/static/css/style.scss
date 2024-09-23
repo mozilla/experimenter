@@ -49,11 +49,8 @@
 
     .bs-searchbox {
       input {
-        background-color: var(
-          --bs-dropdown-link-hover-bg
-        ); // Darker background on hover/focus
         color: var(--bs-input-color); // White text for search box
-        border: 1px solid var(--bs-input-border-color); // Border color for search box
+        border: 1px solid var(--bs-border-color); // Border color for search box
 
         &::placeholder {
           color: var(--bs-input-placeholder-color); // Placeholder color
@@ -111,11 +108,8 @@
 
     .bs-searchbox {
       input {
-        background-color: var(
-          --bs-dropdown-link-hover-bg
-        ); // Darker background on hover/focus
         color: var(--bs-input-color); // White text for search box
-        border: 1px solid var(--bs-input-border-color); // Border color for search box
+        border: 1px solid var(--bs-border-color); // Border color for search box
 
         &::placeholder {
           color: var(--bs-input-placeholder-color); // Placeholder color
