@@ -3,22 +3,22 @@
   <div class="d-flex align-items-center justify-content-between position-relative">
     <!-- Draft Status -->
     <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Draft' %}bg-primary text-white{% else %}bg-light{% endif %}">
-      <div>Draft</div>
+      <h5>Draft</h5>
       <div>{{ experiment.draft_date|default:'---' }}</div>
     </div>
     <!-- Preview Status -->
     <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Preview' %}bg-warning text-white{% else %}bg-light{% endif %}">
-      <div>Preview</div>
+      <h5>Preview</h5>
       <div>{{ experiment.preview_date|default:'---' }}</div>
     </div>
     <!-- Live Status -->
     <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Live' %}bg-success text-white{% else %}bg-light{% endif %}">
-      <div>Live</div>
+      <h5>Live</h5>
       <div>{{ experiment.start_date|default:'---' }}</div>
     </div>
     <!-- Complete Status -->
     <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Complete' %}bg-info text-white{% else %}bg-light{% endif %}">
-      <div>Complete</div>
+      <h5>Complete</h5>
       <div>{{ experiment.end_date|default:'---' }}</div>
     </div>
   </div>
