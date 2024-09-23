@@ -15,12 +15,19 @@ fi
 input="$1"
 
 case $input in
-    fenix)
-        INDEX_BASE="gecko.v2.mozilla-beta.latest.mobile"
-        TASK_ID=$(curl ${CURLFLAGS[@]} "${TASKCLUSTER_API}/tasks/${INDEX_BASE}" | jq '.tasks[] | select(.namespace == "gecko.v2.mozilla-beta.latest.mobile.fenix-beta") | .taskId')
-        echo FIREFOX_FENIX_TASK_ID TASK ID "${TASK_ID}"
-        echo "FIREFOX_FENIX_TASK_ID=${TASK_ID}" > firefox-fenix-build.env
-        mv firefox-fenix-build.env experimenter/tests
+    fenix-beta)
+        INDEX_BASE="mobile.v3.firefox-android.apks.fenix-beta.latest"
+        TASK_ID=$(curl ${CURLFLAGS[@]} "${TASKCLUSTER_API}/tasks/${INDEX_BASE}" | jq '.tasks[] | select(.namespace == "mobile.v3.firefox-android.apks.fenix-beta.latest.x86_64") | .taskId')
+        echo FIREFOX_FENIX_BETA_TASK_ID TASK ID "${TASK_ID}"
+        echo "FIREFOX_FENIX_BETA_TASK_ID=${TASK_ID}" > firefox-fenix-beta-build.env
+        mv firefox-fenix-beta-build.env experimenter/tests
+        ;;
+    fenix-nightly)
+        INDEX_BASE="mobile.v3.firefox-android.apks.fenix-nightly.latest"
+        TASK_ID=$(curl ${CURLFLAGS[@]} "${TASKCLUSTER_API}/tasks/${INDEX_BASE}" | jq '.tasks[] | select(.namespace == "mobile.v3.firefox-android.apks.fenix-nightly.latest.x86_64") | .taskId')
+        echo FIREFOX_FENIX_NIGHTLY_TASK_ID TASK ID "${TASK_ID}"
+        echo "FIREFOX_FENIX_NIGHTLY_TASK_ID=${TASK_ID}" > firefox-fenix-nightly-build.env
+        mv firefox-fenix-nightly-build.env experimenter/tests
         ;;
     desktop-beta)
         INDEX_BASE="gecko.v2.mozilla-beta.latest.firefox"
