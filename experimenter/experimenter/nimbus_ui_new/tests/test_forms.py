@@ -5,12 +5,15 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.forms import (
+    MetricsForm,
     NimbusExperimentCreateForm,
     QAStatusForm,
     SignoffForm,
     TakeawaysForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.outcomes import Outcomes
+from experimenter.outcomes.tests import mock_valid_outcomes
 
 
 class RequestFormTestCase(TestCase):
@@ -194,3 +197,63 @@ class TestSignoffForm(RequestFormTestCase):
         changelog = experiment.changes.get()
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("dev@example.com updated sign off", changelog.message)
+
+
+@mock_valid_outcomes
+class TestMetricsForm(RequestFormTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
+    def test_valid_form_saves_and_creates_chanelog(self):
+        application = NimbusExperiment.Application.DESKTOP
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+        existing_changes = list(experiment.changes.values_list("id", flat=True))
+
+        outcomes = Outcomes.by_application(application)
+        outcome1 = outcomes[0]
+        outcome2 = outcomes[1]
+        data = {
+            "primary_outcomes": [outcome1.slug],
+            "secondary_outcomes": [outcome2.slug],
+        }
+        form = MetricsForm(data=data, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
+        self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
+
+        changelog = experiment.changes.exclude(id__in=existing_changes).get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertEqual(
+            changelog.message,
+            "dev@example.com updated metrics",
+        )
+
+    def test_invalid_form_with_wrong_application_outcomes(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        outcomes = Outcomes.by_application(NimbusExperiment.Application.FENIX)
+        outcome1 = outcomes[0]
+        outcome2 = outcomes[1]
+
+        data = {
+            "primary_outcomes": [outcome1],
+            "secondary_outcomes": [outcome2],
+        }
+        form = MetricsForm(data=data, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertIn("primary_outcomes", form.errors)
+        self.assertIn("secondary_outcomes", form.errors)

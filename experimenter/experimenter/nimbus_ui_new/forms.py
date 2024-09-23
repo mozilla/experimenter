@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
+from experimenter.outcomes import Outcomes
 
 
 class NimbusChangeLogFormMixin:
@@ -136,3 +137,46 @@ class SignoffForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated sign off"
+
+
+class MultiSelectWidget(forms.SelectMultiple):
+    def __init__(self, *args, attrs=None, **kwargs):
+        attrs = attrs or {}
+        attrs.update(
+            {
+                "class": "selectpicker form-control bg-body-tertiary",
+                "data-live-search": "true",
+                "data-live-search-placeholder": "Search",
+            }
+        )
+        super().__init__(*args, attrs=attrs, **kwargs)
+
+
+class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    primary_outcomes = forms.MultipleChoiceField(
+        required=False, widget=MultiSelectWidget(attrs={"data-max-options": 2})
+    )
+    secondary_outcomes = forms.MultipleChoiceField(
+        required=False, widget=MultiSelectWidget()
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "primary_outcomes",
+            "secondary_outcomes",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        application_outcomes = sorted(
+            [
+                (o.slug, o.friendly_name)
+                for o in Outcomes.by_application(self.instance.application)
+            ]
+        )
+        self.fields["primary_outcomes"].choices = application_outcomes
+        self.fields["secondary_outcomes"].choices = application_outcomes
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated metrics"

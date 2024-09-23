@@ -20,6 +20,8 @@ from experimenter.nimbus_ui_new.filtersets import SortChoices, TypeChoices
 from experimenter.nimbus_ui_new.forms import QAStatusForm, TakeawaysForm
 from experimenter.nimbus_ui_new.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.outcomes import Outcomes
+from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.targeting.constants import TargetingConstants
 
@@ -1090,3 +1092,44 @@ class TestNimbusExperimentsCreateView(AuthTestCase):
         self.assertEqual(experiment.hypothesis, "test")
         self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
         self.assertEqual(experiment.owner, self.user)
+
+
+@mock_valid_outcomes
+class TestMetricsUpdateView(AuthTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
+    def test_get_renders_page(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-update-metrics", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_updates_metrics(self):
+        application = NimbusExperiment.Application.DESKTOP
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+        outcomes = Outcomes.by_application(application)
+        outcome1 = outcomes[0]
+        outcome2 = outcomes[1]
+        response = self.client.post(
+            reverse("nimbus-new-update-metrics", kwargs={"slug": experiment.slug}),
+            {
+                "primary_outcomes": [outcome1.slug],
+                "secondary_outcomes": [outcome2.slug],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment = NimbusExperiment.objects.get(slug=experiment.slug)
+        self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
+        self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
