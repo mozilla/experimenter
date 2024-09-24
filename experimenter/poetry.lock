@@ -522,17 +522,20 @@ files = [
 
 [[package]]
 name = "django-bootstrap5"
-version = "24.2"
+version = "24.3"
 description = "Bootstrap 5 for Django"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "django_bootstrap5-24.2-py3-none-any.whl", hash = "sha256:6a5d83e9ff1952f7c07c54cebcb76c85f09787b8b57eeb4ec07554cd583acc64"},
-    {file = "django_bootstrap5-24.2.tar.gz", hash = "sha256:a3cee2b3d45745210c5b898af2917f310f44df746269fe09a93be28a0adc2a4b"},
+    {file = "django_bootstrap5-24.3-py3-none-any.whl", hash = "sha256:98f7916f9f7f9c34dfe157f7c062a28ebf6d17ff95307bef260ba794ba34e2a0"},
+    {file = "django_bootstrap5-24.3.tar.gz", hash = "sha256:ca5ec5568fc2a3fc239f0cb8ce41a7df3802b8c4af930d7f64451784ec7ddc16"},
 ]
 
 [package.dependencies]
 Django = ">=4.2"
+
+[package.extras]
+jinja = ["Jinja2 (>=3.0,<4)"]
 
 [[package]]
 name = "django-cors-headers"
@@ -3012,4 +3015,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "5ee511e1973b49186aced79c240c149f1314f779b9918508ea913df47e06f77b"
+content-hash = "decdc6afa6ed29f2a0978ca63c76c9f2dd28f309ea387526f0393f33e4fdbe4c"
