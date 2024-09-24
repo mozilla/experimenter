@@ -1,29 +1,29 @@
 <div class="col-8">
   <ul class="list-group list-group-horizontal justify-content-between mb-3">
     <!-- Draft Status -->
-    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.status == 'Draft'  and experiment.publish_status == 'Idle' %} bg-primary text-white {% else %} bg-light text-muted {% endif %}">
+    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.status == 'Draft' and experiment.publish_status == 'Idle' %} bg-primary text-light {% else %} mode-sensitive text-dark {% endif %}">
       <strong>Draft</strong>
-      <small class="{% if experiment.status == 'Draft' %}text-white{% else %}text-secondary{% endif %}">{{ experiment.draft_date|default:'---' }}</small>
+      <small>{{ experiment.draft_date|default:'---' }}</small>
     </li>
     <!-- Preview Status -->
-    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.status == 'Preview'  and experiment.publish_status == 'Idle' %} bg-warning text-white {% else %} bg-light text-muted {% endif %}">
+    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.status == 'Preview' and experiment.publish_status == 'Idle' %} bg-primary text-light {% else %} mode-sensitive text-dark {% endif %}">
       <strong>Preview</strong>
-      <small class="{% if experiment.status == 'Preview' %}text-white{% else %}text-secondary{% endif %}">{{ experiment.preview_date|default:'---' }}</small>
+      <small>{{ experiment.preview_date|default:'---' }}</small>
     </li>
     <!-- Review Status -->
-    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.publish_status != 'Idle' %} {% if experiment.status == 'Preview' %} bg-danger text-white {% elif experiment.status == 'Draft' %} bg-danger text-white {% else %} bg-light text-muted {% endif %} {% else %} bg-light text-muted {% endif %}">
+    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.publish_status != 'Idle' %} {% if experiment.status == 'Preview' or experiment.status == 'Draft' %} bg-primary text-light {% else %} mode-sensitive text-dark {% endif %} {% else %} mode-sensitive text-dark {% endif %}">
       <strong>Review</strong>
-      <small class="{% if experiment.publish_status != 'Idle' and experiment.status == 'Preview' %}text-white{% elif experiment.publish_status != 'Idle' and experiment.status == 'Draft' %}text-white{% else %}text-secondary{% endif %}">{{ experiment.review_date|default:'---' }}</small>
+      <small>{{ experiment.review_date|default:'---' }}</small>
     </li>
     <!-- Live Status -->
-    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.status == 'Live' %} bg-success text-white {% else %} bg-light text-muted {% endif %}">
+    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.status == 'Live' %} bg-primary text-light {% else %} mode-sensitive text-dark {% endif %}">
       <strong>Live</strong>
-      <small class="{% if experiment.status == 'Live' %}text-white{% else %}text-secondary{% endif %}">{{ experiment.start_date|default:'---' }}</small>
+      <small>{{ experiment.start_date|default:'---' }}</small>
     </li>
     <!-- Complete Status -->
-    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.status == 'Complete' %} bg-secondary text-white {% else %} bg-light text-muted {% endif %}">
+    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if experiment.status == 'Complete' %} bg-primary text-light {% else %} mode-sensitive text-dark {% endif %}">
       <strong>Complete</strong>
-      <small class="{% if experiment.status == 'Complete' %}text-white{% else %}text-secondary{% endif %}">{{ experiment.end_date|default:'---' }}</small>
+      <small>{{ experiment.end_date|default:'---' }}</small>
     </li>
   </ul>
 </div>
