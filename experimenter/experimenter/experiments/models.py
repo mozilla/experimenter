@@ -1249,19 +1249,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             .replace("\\n", "\n")  # Handle hard coded newlines in targeting
         )
 
+    def get_changelog_date(self, status_field=None, status_value=None):
+        queryset = self.changes.order_by("changed_on")
+        if status_field and status_value:
+            queryset = queryset.filter(**{status_field: status_value})
+        changelog = queryset.first()
+        return changelog.changed_on.date() if changelog else None
+
     @property
     def draft_date(self):
-        first_changelog_entry = self.changes.order_by("changed_on").first()
-        return first_changelog_entry.changed_on.date() if first_changelog_entry else None
+        return self.get_changelog_date()
 
     @property
     def preview_date(self):
-        preview_changelog = (
-            self.changes.filter(new_status=self.Status.PREVIEW)
-            .order_by("changed_on")
-            .first()
+        return self.get_changelog_date(
+            status_field="new_status", status_value=self.Status.PREVIEW
         )
-        return preview_changelog.changed_on.date() if preview_changelog else None
+
+    @property
+    def review_date(self):
+        return self.get_changelog_date(
+            status_field="new_publish_status", status_value=self.PublishStatus.REVIEW
+        )
 
 
 class NimbusBranch(models.Model):

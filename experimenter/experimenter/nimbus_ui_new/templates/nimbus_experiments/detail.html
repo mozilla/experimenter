@@ -8,20 +8,13 @@
 {% block main_content %}
   <div class="container-fluid">
     <!-- Experiment Details Card -->
-    <div class="card mb-3">
-      <div class="card-header">
-        <h4>Experiment Details</h4>
+    <div class="row">
+      <div class="col-4">
+        <h4 class="mb-0">{{ experiment.name }}</h4>
+        <p class="text-secondary">{{ experiment.slug }}</p>
       </div>
-      <div class="card-body">
-        {% include "nimbus_experiments/timeline.html" %}
+      {% include "nimbus_experiments/timeline.html" %}
 
-        <p>
-          <strong>Slug:</strong> {{ experiment.slug }}
-        </p>
-        <p>
-          <strong>Name:</strong> {{ experiment.name }}
-        </p>
-      </div>
     </div>
     <!-- Takeaways Card -->
     {% include "nimbus_experiments/takeaways_card.html" %}

@@ -1,25 +1,29 @@
-<div class="container-fluid py-4">
-  <!-- Timeline Row -->
-  <div class="d-flex align-items-center justify-content-between position-relative">
+<!-- Timeline Row -->
+<div class="col-8">
+  <ul class="list-group list-group-horizontal justify-content-end mb-3">
     <!-- Draft Status -->
-    <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Draft' %}bg-primary text-white{% else %}bg-light{% endif %}">
-      <h5>Draft</h5>
-      <div>{{ experiment.draft_date|default:'---' }}</div>
-    </div>
+    <li class="list-group-item flex-fill text-center {% if experiment.status == 'Draft' and experiment.publish_status == 'Idle' %}bg-info text-white{% else %}bg-light{% endif %}">
+      <strong>Draft</strong>
+      <p class="m-0 p-0 text-secondary small">{{ experiment.draft_date|default:'---' }}</p>
+    </li>
     <!-- Preview Status -->
-    <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Preview' %}bg-warning text-white{% else %}bg-light{% endif %}">
-      <h5>Preview</h5>
-      <div>{{ experiment.preview_date|default:'---' }}</div>
-    </div>
+    <li class="list-group-item flex-fill text-center {% if experiment.status == 'Preview' and experiment.publish_status == 'Idle' %}bg-warning text-white{% else %}bg-light{% endif %}">
+      <strong>Preview</strong>
+      <p class="m-0 p-0 text-secondary small">{{ experiment.preview_date|default:'---' }}</p>
+    </li>
+    <li class="list-group-item flex-fill text-center {% if experiment.publish_status != 'Idle' %}{% if experiment.status == 'Preview' or experiment.status == 'Draft' %}bg-danger text-white{% else %}bg-light{% endif %}{% endif %}">
+      <strong>Review</strong>
+      <p class="m-0 p-0 text-secondary small">{{ experiment.review_date|default:'---' }}</p>
+    </li>
     <!-- Live Status -->
-    <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Live' %}bg-success text-white{% else %}bg-light{% endif %}">
-      <h5>Live</h5>
-      <div>{{ experiment.start_date|default:'---' }}</div>
-    </div>
+    <li class="list-group-item flex-fill text-center {% if experiment.status == 'Live' %}bg-success text-white{% else %}bg-light{% endif %}">
+      <strong>Live</strong>
+      <p class="m-0 p-0 text-secondary small">{{ experiment.start_date|default:'---' }}</p>
+    </li>
     <!-- Complete Status -->
-    <div class="border border-dark rounded p-3 text-center flex-grow-1 mx-2 {% if experiment.status == 'Complete' %}bg-info text-white{% else %}bg-light{% endif %}">
-      <h5>Complete</h5>
-      <div>{{ experiment.end_date|default:'---' }}</div>
-    </div>
-  </div>
+    <li class="list-group-item flex-fill text-center {% if experiment.status == 'Complete' %}bg-secondary text-white{% else %}bg-light{% endif %}">
+      <strong>Complete</strong>
+      <p class="m-0 p-0 text-secondary small">{{ experiment.end_date|default:'---' }}</p>
+    </li>
+  </ul>
 </div>
