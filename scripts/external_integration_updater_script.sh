@@ -36,8 +36,8 @@ fetch_task_info() {
         desktop_release)
             # Fetch release version separately 
             release_version=$(curl "${CURLFLAGS[@]}" "${WHAT_TRAIN_IS_IT_NOW_API}" | jq 'to_entries | last | .key')
-            echo "FIREFOX_RELEASE_VERSION_ID ${release_version}"
-            echo "FIREFOX_RELEASE_VERSION_ID=${release_version}" > firefox_desktop_release_build.env
+            echo "FIREFOX_DESKTOP_RELEASE_VERSION_ID ${release_version}"
+            echo "FIREFOX_DESKTOP_RELEASE_VERSION_ID=${release_version}" > firefox_desktop_release_build.env
             mv firefox_desktop_release_build.env experimenter/tests
             return
             ;;
