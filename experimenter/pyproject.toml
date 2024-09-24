@@ -72,7 +72,7 @@ ruff = "^0.6.1"
 django = "^5.1"
 dockerflow = "^2024.4.1"
 django-filter = "^23.5"
-django-bootstrap5 = "^24.2"
+django-bootstrap5 = "^24.3"
 djlint = "^1.35.2"
 
 [tool.poetry.dev-dependencies]
