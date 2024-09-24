@@ -24,14 +24,14 @@ if [[ -n "${UPDATE_FIREFOX_VERSION}" ]]; then
 fi
 
 if [[ -n "${FIREFOX_BETA}" ]]; then
-    source ./experimenter/tests/firefox-desktop-beta-build.env
+    source ./experimenter/tests/firefox_desktop_beta_build.env
     FIREFOX_BETA_TASK_ID=${FIREFOX_BETA_TASK_ID//\"/}
     echo "Installing firefox beta from taskcluster"
     install_firefox "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${FIREFOX_BETA_TASK_ID}/artifacts/public/build/target.tar.bz2"
 fi
 
 if [[ -n "${FIREFOX_RELEASE}" ]]; then
-    source ./experimenter/tests/firefox-desktop-release-build.env
+    source ./experimenter/tests/firefox_desktop_release_build.env
     FIREFOX_RELEASE_VERSION_ID=${FIREFOX_RELEASE_VERSION_ID//\"/}
     echo "Installing firefox release v${FIREFOX_RELEASE_VERSION_ID}"
     install_firefox "https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX_RELEASE_VERSION_ID}/linux-x86_64/en-US/firefox-${FIREFOX_RELEASE_VERSION_ID}.tar.bz2"
