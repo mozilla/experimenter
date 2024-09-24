@@ -1667,6 +1667,26 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertIsNone(experiment.preview_date)
 
+    def test_review_date_returns_first_review_change(self):
+        experiment = NimbusExperimentFactory.create()
+        review_change = NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_publish_status=NimbusExperiment.Status.PREVIEW,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            changed_on=datetime.datetime(2023, 5, 1),
+        )
+        self.assertEqual(experiment.review_date, review_change.changed_on.date())
+
+    def test_review_date_returns_none_if_no_review_status(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_publish_status=NimbusExperiment.Status.DRAFT,
+            new_publish_status=NimbusExperiment.Status.PREVIEW,
+            changed_on=datetime.datetime(2023, 6, 1),
+        )
+        self.assertIsNone(experiment.review_date)
+
     def test_monitoring_dashboard_url_is_valid_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
