@@ -18,6 +18,14 @@ awesomebar-suggestion-provider:
     available-suggestion-types:
       type: json
       description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
+bookmarks:
+  description: Feature for Bookmarks
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    new-compose-ui:
+      type: boolean
+      description: "if true, enable new compose based UI"
 cookie-banners:
   description: Features for cookie banner handling.
   hasExposure: true
