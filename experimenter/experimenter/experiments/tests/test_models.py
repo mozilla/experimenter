@@ -1687,6 +1687,69 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertIsNone(experiment.review_date)
 
+    def test_timeline_dates_includes_correct_status_dates_and_flags(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            new_status=NimbusExperiment.Status.DRAFT,
+            changed_on=datetime.datetime(2023, 1, 1),
+        )
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.PREVIEW,
+            changed_on=datetime.datetime(2023, 3, 1),
+        )
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_publish_status=NimbusExperiment.Status.PREVIEW,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            changed_on=datetime.datetime(2023, 4, 1),
+        )
+        timeline = experiment.timeline()
+        expected_timeline = [
+            {
+                "label": "Draft",
+                "date": experiment.draft_date,
+                "is_active": False,
+            },
+            {
+                "label": "Preview",
+                "date": experiment.preview_date,
+                "is_active": False,
+            },
+            {
+                "label": "Review",
+                "date": experiment.review_date,
+                "is_active": False,
+            },
+            {"label": "Live", "date": experiment.start_date, "is_active": True},
+            {
+                "label": "Complete",
+                "date": experiment.computed_end_date,
+                "is_active": False,
+            },
+        ]
+        for i, expected in enumerate(expected_timeline):
+            self.assertEqual(timeline[i]["label"], expected["label"])
+            self.assertEqual(timeline[i]["date"], expected["date"])
+            self.assertEqual(timeline[i]["is_active"], expected["is_active"])
+
+    def test_timeline_dates_complete_is_active_when_status_is_complete(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            end_date=datetime.date(2023, 7, 1),
+        )
+        timeline = experiment.timeline()
+        self.assertTrue(
+            timeline[-1]["is_active"]
+        )  # Check if the last status "Complete" is active
+        self.assertEqual(timeline[-1]["date"], experiment.end_date)
+
     def test_monitoring_dashboard_url_is_valid_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
