@@ -58,9 +58,6 @@
       }
     }
   }
-  .mode-sensitive {
-    background-color: var(--bg-light-color);
-  }
 }
 
 @include color-mode(dark) {
@@ -119,9 +116,5 @@
         }
       }
     }
-  }
-  .mode-sensitive {
-    background-color: var(--bs-secondary);
-    /* Bootstrap's secondary color */
   }
 }
