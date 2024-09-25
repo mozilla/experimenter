@@ -34,7 +34,7 @@ PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 WIN1903 = "os.windowsBuildNumber >= 18362"
-WIN22H2 = "os.windowsBuildNumber >= 19045.3393"
+WIN22H2 = "os.windowsBuildNumber >= 19045"
 CORE_ACTIVE_USERS_TARGETING = "'{event}'|eventCountNonZero('Days', 28, 0) >= 21"
 RECENTLY_LOGGED_IN_USERS_TARGETING = "'{event}'|eventCountNonZero('Weeks', 12, 0) >= 1"
 
@@ -422,9 +422,7 @@ WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
 WINDOWS_WITH_USERCHOICE_22H2 = NimbusTargetingConfig(
     name="Users on Windows version 22H2 with UserChoice support",
     slug="windows_userchoice_22h2",
-    description=(
-        "Windows 22H2 with UserChoice support (version 22H2+/build ID 19045.3393+)"
-    ),
+    description=("Windows 22H2 with UserChoice support (version 22H2+/build ID 19045+)"),
     targeting=f"{WIN22H2}",
     desktop_telemetry="",
     sticky_required=False,
