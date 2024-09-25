@@ -26,6 +26,13 @@ features:
           amp: true
           ampMobile: false
           wikipedia: true
+  bookmarks:
+    description: Feature for Bookmarks
+    variables:
+      new-compose-ui:
+        description: "if true, enable new compose based UI"
+        type: Boolean
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
