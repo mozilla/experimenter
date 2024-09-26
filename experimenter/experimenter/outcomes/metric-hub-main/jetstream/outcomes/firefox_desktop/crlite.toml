@@ -36,7 +36,7 @@ type = "scalar"
 
 [metrics.crlite_use_counter.statistics.sum]
 
-[metrics.crlite_use_counter.statistics.ratio]
+[metrics.crlite_use_counter.statistics.population_ratio]
 numerator = "crlite_use_counter.sum"
 denominator = "revocation_check_counter.sum"
 
@@ -52,7 +52,7 @@ type = "scalar"
 
 [metrics.ocsp_use_counter.statistics.sum]
 
-[metrics.ocsp_use_counter.statistics.ratio]
+[metrics.ocsp_use_counter.statistics.population_ratio]
 numerator = "ocsp_use_counter.sum"
 denominator = "revocation_check_counter.sum"
 
@@ -67,7 +67,7 @@ description = "Number of revoked certificates detected by the CRLite filter."
 type = "scalar"
 
 [metrics.crlite_revoked_in_filter.statistics.sum]
-[metrics.crlite_revoked_in_filter.statistics.client_count]
+[metrics.crlite_revoked_in_filter.statistics.count]
 
 
 [metrics.crlite_revoked_in_stash]
@@ -80,4 +80,4 @@ description = "Number of revoked certificates detected by a CRLite stash."
 type = "scalar"
 
 [metrics.crlite_revoked_in_stash.statistics.sum]
-[metrics.crlite_revoked_in_stash.statistics.client_count]
+[metrics.crlite_revoked_in_stash.statistics.count]
