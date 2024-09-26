@@ -537,6 +537,10 @@ features:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
         default: false
+      unified_search_enabled:
+        description: "Enables the unified search feature\n"
+        type: Boolean
+        default: false
   tracking-protection-refactor:
     description: "The Enhanced Tracking Protection refactor\n"
     variables:

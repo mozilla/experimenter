@@ -273,6 +273,9 @@ toolbar-refactor-feature:
     one_tap_new_tab:
       type: boolean
       description: "If true, enables the one tap new tab feature for users.\n"
+    unified_search_enabled:
+      type: boolean
+      description: "Enables the unified search feature\n"
 tracking-protection-refactor:
   description: "The Enhanced Tracking Protection refactor\n"
   hasExposure: true
