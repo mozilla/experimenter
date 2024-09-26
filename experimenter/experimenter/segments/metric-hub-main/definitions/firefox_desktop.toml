@@ -2136,6 +2136,18 @@ description = "Aggregated 4th Week Retention Outcomes of Desktop New and Existin
 friendly_name = "Desktop Retention"
 client_id_column = "NULL"
 
+[data_sources.glean_events_stream]
+from_expression = """(
+    SELECT *, DATE(submission_timestamp) AS submission_date
+    FROM `moz-fx-data-shared-prod.firefox_desktop.events_stream`
+)"""
+analysis_units = ["profile_group_id"]
+description = "Glean events_stream dataset (events ping unnested to a single row per event)"
+friendly_name = "Glean Events Stream"
+experiments_column_type = "none"
+
+
+
 [segments]
 
 [segments.regular_users_v3]
