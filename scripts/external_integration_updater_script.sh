@@ -18,6 +18,11 @@ fetch_task_info() {
     local task_id=""
     
     case "$variant" in
+        fenix_release)
+            index_base="mobile.v3.firefox-android.apks.fenix-release.latest"
+            namespace="mobile.v3.firefox-android.apks.fenix-release.latest.x86_64"
+            env_file="firefox_fenix_release_build.env"
+            ;;
         fenix_beta)
             index_base="mobile.v3.firefox-android.apks.fenix-beta.latest"
             namespace="mobile.v3.firefox-android.apks.fenix-beta.latest.x86_64"
