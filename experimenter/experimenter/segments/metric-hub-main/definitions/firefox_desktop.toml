@@ -2141,10 +2141,11 @@ from_expression = """(
     SELECT *, DATE(submission_timestamp) AS submission_date
     FROM `moz-fx-data-shared-prod.firefox_desktop.events_stream`
 )"""
-analysis_units = ["profile_group_id"]
+analysis_units = ["profile_group_id", "client_id"]
 description = "Glean events_stream dataset (events ping unnested to a single row per event)"
 friendly_name = "Glean Events Stream"
 experiments_column_type = "none"
+client_id_column = "legacy_telemetry_client_id"
 
 
 
