@@ -74,6 +74,13 @@ features:
         description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
         type: "Map<String, Boolean>"
         default: {}
+  homepage-rebuild-feature:
+    description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
+    variables:
+      enabled:
+        description: "If true, enables the feature\n"
+        type: Boolean
+        default: false
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
