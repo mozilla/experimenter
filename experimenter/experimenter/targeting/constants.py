@@ -2163,7 +2163,7 @@ MOZILLA_TESTDAY_EVENT = NimbusTargetingConfig(
     name="Mozilla Testday",
     slug="users_that_have_testday_pref",
     description="Users that will be part of the Mozilla Testday events",
-    targeting="messaging-system-action.testday|preferenceValue == 'testday'",
+    targeting="'messaging-system-action.testday'|preferenceValue == 'testday'",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
