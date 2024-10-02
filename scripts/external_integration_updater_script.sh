@@ -99,9 +99,9 @@ done
 
 if (($(git status --porcelain | wc -c) > 0)); then
     git add .
-    git commit -m "chore(nimbus): Check external firefox integrations and update keys"
+    git commit -m "chore(nimbus): Check external firefox integrations and task ids and versions"
     git push origin -f check_external_firefox_integrations
-    gh pr create -t "chore(nimbus): Check external firefox integrations and update keys" -b "" --base main --head check_external_firefox_integrations --repo mozilla/experimenter || echo "PR already exists, skipping"
+    gh pr create -t "chore(nimbus):  Check external firefox integrations and task ids and versions" -b "" --base main --head check_external_firefox_integrations --repo mozilla/experimenter || echo "PR already exists, skipping"
 else
     echo "No config changes, skipping"
 fi
