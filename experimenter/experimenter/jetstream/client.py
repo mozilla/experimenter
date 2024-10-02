@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from datetime import datetime
+from datetime import date, datetime
 from itertools import chain
 from pathlib import Path
 
@@ -335,15 +335,21 @@ def get_experiment_data(experiment: NimbusExperiment):
                     errors_experiment_overall.append(err)
 
     for e in runtime_errors:
-        analysis_error = AnalysisError(
-            experiment=experiment.slug,
-            filename="experimenter/jetstream/client.py",
-            func_name="load_data_from_gcs",
-            log_level="ERROR",
-            message=e,
-            timestamp=datetime.now(),
-        )
-        errors_experiment_overall.append(analysis_error.dict())
+        # only store runtime errors for overall window if we expect those results
+        if "overall.json" not in e or (
+            "overall.json" in e
+            and experiment.end_date
+            and experiment.end_date < date.today()
+        ):
+            analysis_error = AnalysisError(
+                experiment=experiment.slug,
+                filename="experimenter/jetstream/client.py",
+                func_name="load_data_from_gcs",
+                log_level="WARNING",
+                message=e,
+                timestamp=datetime.now(),
+            )
+            errors_experiment_overall.append(analysis_error.dict())
 
     errors_by_metric["experiment"] = errors_experiment_overall
 

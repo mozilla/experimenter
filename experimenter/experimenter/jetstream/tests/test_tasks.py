@@ -2135,10 +2135,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "source": None,
                     "exception": None,
                     "exception_type": None,
-                    "experiment": f"{experiment.slug}",
+                    "experiment": experiment.slug,
                     "filename": "experimenter/jetstream/client.py",
                     "func_name": "load_data_from_gcs",
-                    "log_level": "ERROR",
+                    "log_level": "WARNING",
                     "message": f"Could not find data in analysis bucket at path metadata/metadata_{experiment.slug.replace('-', '_')}.json",  # noqa: E501
                     "metric": None,
                     "segment": None,
@@ -2150,10 +2150,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "source": None,
                     "exception": None,
                     "exception_type": None,
-                    "experiment": f"{experiment.slug}",
+                    "experiment": experiment.slug,
                     "filename": "experimenter/jetstream/client.py",
                     "func_name": "load_data_from_gcs",
-                    "log_level": "ERROR",
+                    "log_level": "WARNING",
                     "message": f"Could not find data in analysis bucket at path errors/errors_{experiment.slug.replace('-', '_')}.json",  # noqa: E501
                     "metric": None,
                     "segment": None,
@@ -2165,32 +2165,35 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "source": None,
                     "exception": None,
                     "exception_type": None,
-                    "experiment": f"{experiment.slug}",
+                    "experiment": experiment.slug,
                     "filename": "experimenter/jetstream/client.py",
                     "func_name": "load_data_from_gcs",
-                    "log_level": "ERROR",
+                    "log_level": "WARNING",
                     "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_weekly.json",  # noqa: E501
                     "metric": None,
                     "segment": None,
                     "statistic": None,
                     "timestamp": now.isoformat(timespec="milliseconds"),
                 },
-                {
-                    "analysis_basis": None,
-                    "source": None,
-                    "exception": None,
-                    "exception_type": None,
-                    "experiment": f"{experiment.slug}",
-                    "filename": "experimenter/jetstream/client.py",
-                    "func_name": "load_data_from_gcs",
-                    "log_level": "ERROR",
-                    "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_overall.json",  # noqa: E501
-                    "metric": None,
-                    "segment": None,
-                    "statistic": None,
-                    "timestamp": now.isoformat(timespec="milliseconds"),
-                },
             ]
+            if lifecycle == NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE:
+                experiment_errors.append(
+                    {
+                        "analysis_basis": None,
+                        "source": None,
+                        "exception": None,
+                        "exception_type": None,
+                        "experiment": experiment.slug,
+                        "filename": "experimenter/jetstream/client.py",
+                        "func_name": "load_data_from_gcs",
+                        "log_level": "WARNING",
+                        "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_overall.json",  # noqa: E501
+                        "metric": None,
+                        "segment": None,
+                        "statistic": None,
+                        "timestamp": now.isoformat(timespec="milliseconds"),
+                    },
+                )
 
             tasks.fetch_experiment_data(experiment.id)
             experiment = NimbusExperiment.objects.get(id=experiment.id)
