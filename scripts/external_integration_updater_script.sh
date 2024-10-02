@@ -25,6 +25,7 @@ fetch_task_info() {
             index_base="mobile.v3.firefox-android.apks.fenix-release.latest"
             namespace="mobile.v3.firefox-android.apks.fenix-release.latest.x86_64"
             env_file="firefox_fenix_release_build.env"
+            ;;
         desktop_beta)
             index_base="gecko.v2.mozilla-beta.latest.firefox"
             namespace="gecko.v2.mozilla-beta.latest.firefox.linux64-debug"
