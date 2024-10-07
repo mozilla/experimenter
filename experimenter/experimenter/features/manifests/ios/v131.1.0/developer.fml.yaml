@@ -627,6 +627,8 @@ enums:
         description: "Corresponding to the notifications image for CTD\n"
       search-widget:
         description: "Corresponding to the fox search widget image\n"
+      set-default-steps:
+        description: "Corresponding to the set to default steps image\n"
       set-to-dock:
         description: "Corresponding to the set to dock image\n"
       sync-devices:
