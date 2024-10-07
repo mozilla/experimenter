@@ -613,8 +613,53 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return list(branches)
 
     @property
+    def is_draft(self):
+        return self.status == self.Status.DRAFT
+
+    @property
+    def is_review(self):
+        return self.is_draft and self.publish_status == self.PublishStatus.REVIEW
+
+    @property
+    def is_preview(self):
+        return self.status == self.Status.PREVIEW
+
+    @property
+    def is_live(self):
+        return self.status == self.Status.LIVE
+
+    @property
+    def is_complete(self):
+        return self.status == self.Status.COMPLETE
+
+    @property
     def is_started(self):
         return self.status in (self.Status.LIVE, self.Status.COMPLETE)
+
+    @property
+    def draft_date(self):
+        if change := self.changes.all().order_by("changed_on").first():
+            return change.changed_on.date()
+
+    @property
+    def preview_date(self):
+        if change := (
+            self.changes.filter(new_status=self.Status.PREVIEW)
+            .order_by("changed_on")
+            .first()
+        ):
+            return change.changed_on.date()
+
+    @property
+    def review_date(self):
+        if change := (
+            self.changes.filter(
+                new_status=self.Status.DRAFT, new_publish_status=self.PublishStatus.REVIEW
+            )
+            .order_by("changed_on")
+            .first()
+        ):
+            return change.changed_on.date()
 
     @property
     def start_date(self):
@@ -746,6 +791,35 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.computed_end_date and self.enrollment_start_date is not None:
             return (self.computed_end_date - self.enrollment_start_date).days
         return self.proposed_duration
+
+    def timeline(self):
+        return [
+            {
+                "label": self.Status.DRAFT,
+                "date": self.draft_date,
+                "is_active": self.is_draft,
+            },
+            {
+                "label": self.Status.PREVIEW,
+                "date": self.preview_date,
+                "is_active": self.is_preview,
+            },
+            {
+                "label": self.PublishStatus.REVIEW,
+                "date": self.review_date,
+                "is_active": self.is_review,
+            },
+            {
+                "label": self.Status.LIVE,
+                "date": self.start_date,
+                "is_active": self.is_live,
+            },
+            {
+                "label": self.Status.COMPLETE,
+                "date": self.computed_end_date,
+                "is_active": self.is_complete,
+            },
+        ]
 
     @property
     def should_end(self):
