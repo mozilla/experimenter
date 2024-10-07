@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 
 import pytest
@@ -27,15 +28,19 @@ def test_check_advanced_targeting(
     default_data_api,
     filter_expression_path,
 ):
-    helpers.create_experiment(
+    default_data_api["targetingConfigSlug"] = targeting_config_slug
+    experiment = helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
         default_data_api,
         targeting=targeting_config_slug,
     )
+    logging.info(f"GraphQL creation: {experiment}")
     experiment_data = helpers.load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
+    logging.info(f"Experiment Targeting: {targeting}")
     recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
+    logging.info(f"Experiment Recipe: {recipe}")
 
     # Inject filter expression
     selenium.get("about:blank")
@@ -80,15 +85,18 @@ def test_check_audience_targeting(
     filter_expression_path,
 ):
     default_data_api.update(audience_field)
-    helpers.create_experiment(
+    experiment = helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
         default_data_api,
         targeting="no_targeting",
     )
+    logging.info(f"GraphQL creation: {experiment}")
     experiment_data = helpers.load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
+    logging.info(f"Experiment Targeting: {targeting}")
     recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
+    logging.info(f"Experiment Recipe: {recipe}")
 
     # Inject filter expression
     selenium.get("about:blank")

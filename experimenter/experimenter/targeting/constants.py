@@ -111,7 +111,7 @@ MSIX_FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users with MSIX Firefox",
     slug="msix_first_run",
     description=("First start-up users (e.g. for about:welcome) with MSIX Firefox"),
-    targeting="(isFirstRun && os.isWindows && os.windowsVersion >= 10 && isMSIX)",
+    targeting="(isFirstStartup && os.isWindows && os.windowsVersion >= 10 && isMSIX)",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=True,
@@ -1432,17 +1432,6 @@ POST_FIRST_RUN_USER_UNSUPPORTED_WINDOWS_VERSION = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TEST_STICKY_TARGETING = NimbusTargetingConfig(
-    name="Test targeting",
-    slug="test_targeting",
-    description="Config for sticky targeting",
-    targeting="'sticky.targeting.test.pref'|preferenceValue",
-    desktop_telemetry="",
-    sticky_required=True,
-    is_first_run_required=False,
-    application_choice_names=[a.name for a in Application],
-)
-
 ANDROID_CORE_ACTIVE_USER = NimbusTargetingConfig(
     name="Core Active Users",
     slug="android_core_active_users",
@@ -1960,8 +1949,7 @@ DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
         "than the current Firefox installation"
     ),
     targeting=(
-        "!(isDefaultHandler || {})['pdf'] &&"
-        "  (defaultPDFHandler || {})['knownBrowser']"
+        "!(isDefaultHandler || {}).pdf &&  (defaultPDFHandler || {}).knownBrowser"
     ),
     desktop_telemetry="",
     sticky_required=False,

@@ -262,7 +262,7 @@ def default_data(
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=106,
-            targeting="test_targeting",
+            targeting="no_targeting",
             percentage="50",
             expected_clients=50,
             locale=None,
