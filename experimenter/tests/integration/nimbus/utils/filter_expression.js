@@ -9,7 +9,11 @@ async function remoteSettings(arguments) {
     // See https://bugzilla.mozilla.org/show_bug.cgi?id=1868838 -
     // ASRouterTargeting was moved from browser/components/newtab into
     // browser/components/asrouter and its import path changed.
+    const { TelemetryEnvironment } = ChromeUtils.importESModule("resource://gre/modules/TelemetryEnvironment.sys.mjs");
+    await TelemetryEnvironment.onInitialized();
+    
     let ASRouterTargeting;
+
     try {
         ASRouterTargeting = ChromeUtils.import("resource:///modules/asrouter/ASRouterTargeting.jsm");
     } catch (ex) {
@@ -26,14 +30,20 @@ async function remoteSettings(arguments) {
 
     const context = TargetingContext.TargetingContext.combineContexts(
         _experiment,
-        {defaultProfile: {}}, // Workaround for supporting background tasks
+        {
+            defaultProfile: {},
+            attributionData: {},
+            isMSIX: {},
+            isDefaultHandler: {},
+            defaultPDFHandler: {}
+        }, // Workaround for supporting background tasks
         ExperimentManager.ExperimentManager.createTargetingContext(),
         ASRouterTargeting.ASRouterTargeting.Environment
     );
     const targetingContext = new TargetingContext.TargetingContext(context);
     let result = false;
     try {
-        result = await targetingContext.evalWithDefault(arguments[0]);
+        result = await targetingContext.evalWithDefault(arguments[0]) !== undefined;
     } catch (err) {
         result = null;
     }
