@@ -657,7 +657,7 @@ enums:
       request-notifications:
         description: "Will request to allow notifications from the user\n"
       set-default-browser:
-        description: "Will send the user to settings to set Firefox as their default browser\n"
+        description: "Will send the user to settings to set Firefox as their default browser and advance to next card\n"
       sync-sign-in:
         description: "Will take the user to the sync sign in flow\n"
   OnboardingCardType:
