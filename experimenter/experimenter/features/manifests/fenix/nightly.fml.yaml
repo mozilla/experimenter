@@ -543,7 +543,7 @@ features:
       enabled:
         description: "When the feature is enabled then the Set as default prompt can be triggered for existing users.\n"
         type: Boolean
-        default: false
+        default: true
       max-number-of-times-to-display:
         description: "Maximum number of time the prompt should be displayed.\n"
         type: Int

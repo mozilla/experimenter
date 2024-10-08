@@ -37,8 +37,8 @@ type = "scalar"
 [metrics.crlite_use_counter.statistics.sum]
 
 [metrics.crlite_use_counter.statistics.population_ratio]
-numerator = "crlite_use_counter.sum"
-denominator = "revocation_check_counter.sum"
+numerator = "crlite_use_counter"
+denominator = "revocation_check_counter"
 
 
 [metrics.ocsp_use_counter]
@@ -53,8 +53,8 @@ type = "scalar"
 [metrics.ocsp_use_counter.statistics.sum]
 
 [metrics.ocsp_use_counter.statistics.population_ratio]
-numerator = "ocsp_use_counter.sum"
-denominator = "revocation_check_counter.sum"
+numerator = "ocsp_use_counter"
+denominator = "revocation_check_counter"
 
 
 [metrics.crlite_revoked_in_filter]
