@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - release
+  - beta
 features:
   account-settings-redux-feature:
     description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
@@ -66,7 +66,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: false
+          status: true
   glean-server-knobs:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -162,6 +162,24 @@ features:
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
             action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
+          homepage-microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+              - SECOND_HOMEPAGE_VIEW
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with your Firefox homepage?
+            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            microsurveyConfig:
+              utm-content: homepage
+              icon: homeLarge
+              options:
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption1.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption2.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption3.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption4.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption5.v127
+                - Microsurvey/Microsurvey.Survey.Options.LikertScaleOption6.v129
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -224,7 +242,6 @@ features:
           SUPPORTS_DEFAULT_BROWSER: "os_version|versionCompare('14.!') >= 0"
           INACTIVE_NEW_USER: is_inactive_new_user
           ALLOWED_TIPS_NOTIFICATIONS: allowed_tips_notifications
-          FXA_CURRENTLY_SIGNED_IN: is_fxa_signed_in == true
           SECOND_HOMEPAGE_VIEW: "'homepage_viewed'|eventSum('Years', 4, 0) >= 2"
           ON_FOURTH_LAUNCH_THIS_YEAR: "'app_cycle.foreground'|eventSum('Years', 1, 0) > 3"
         string-alias: TriggerName
@@ -309,7 +326,7 @@ features:
             card-type: basic
             order: 20
             title: Onboarding/Onboarding.Sync.Title.v120
-            body: Onboarding/Onboarding.Sync.Description.v123
+            body: Onboarding/Onboarding.Sync.Description.v120
             image: sync-devices
             buttons:
               primary:
@@ -435,7 +452,7 @@ features:
         default:
           min-search-term: 3
           position:
-            is-bottom: true
+            is-bottom: false
             is-position-feature-enabled: true
             is-toolbar-cfr-on: false
           search-highlights: false
@@ -529,16 +546,8 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-      navigation_hint:
-        description: "If true, enables the navigation contextual hint.\n"
-        type: Boolean
-        default: false
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
-        type: Boolean
-        default: false
-      unified_search_enabled:
-        description: "Enables the unified search feature\n"
         type: Boolean
         default: false
   tracking-protection-refactor:
