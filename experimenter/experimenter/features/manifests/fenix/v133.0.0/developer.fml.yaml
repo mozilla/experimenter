@@ -94,7 +94,7 @@ features:
       ping-lifetime-max-time:
         description: After what time to auto-flush
         type: Int
-        default: 0
+        default: 2000
       ping-lifetime-threshold:
         description: Write count threshold when to auto-flush
         type: Int
