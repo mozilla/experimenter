@@ -480,8 +480,9 @@ jobs:
             docker tag experimenter:deploy ${DOCKER_IMAGE}:latest
             docker push "${DOCKER_IMAGE}:latest"
             GIT_SHA=$(git rev-parse --short HEAD)
-            docker tag experimenter:deploy ${DOCKER_IMAGE}:${GIT_SHA}
-            docker push ${DOCKER_IMAGE}:${GIT_SHA}
+            docker tag experimenter:deploy ${DOCKER_IMAGE}:sha-${GIT_SHA}
+            docker push ${DOCKER_IMAGE}:sha-${GIT_SHA}
+
 
   deploy_cirrus:
     working_directory: ~/cirrus
