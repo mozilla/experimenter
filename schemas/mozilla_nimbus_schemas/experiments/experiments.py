@@ -194,14 +194,14 @@ class NimbusExperiment(BaseModel):
         list[ExperimentMultiFeatureMobileBranch],
     ] = Field(description="Branch configuration for the experiment.")
     targeting: str | None = None
-    startDate: str | None = Field(
+    startDate: datetime.date | None = Field(
         description=(
             "Actual publish date of the experiment.\n"
             "\n"
             "Note that this value is expected to be null in Remote Settings."
         ),
     )
-    enrollmentEndDate: Optional[str] = Field(
+    enrollmentEndDate: Optional[datetime.date] = Field(
         description=(
             "Actual enrollment end date of the experiment.\n"
             "\n"
@@ -209,7 +209,7 @@ class NimbusExperiment(BaseModel):
         ),
         default=None,
     )
-    endDate: str | None = Field(
+    endDate: datetime.date | None = Field(
         description=(
             "Actual end date of this experiment.\n"
             "\n"
