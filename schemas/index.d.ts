@@ -5,6 +5,9 @@
 /* Do not modify by hand - update the pydantic models and re-run the script
  */
 
+/**
+ * A unique, stable indentifier for the user used as an input to bucket hashing.
+ */
 export type RandomizationUnit = "normandy_id" | "nimbus_id" | "user_id" | "group_id";
 export type Feature = FeatureWithExposure | FeatureWithoutExposure;
 export type FeatureVariableType = "int" | "string" | "boolean" | "json";
@@ -28,70 +31,255 @@ export type SizingMetricName = "active_hours" | "search_count" | "days_of_use" |
 export type StatisticIngestEnum = "percentage" | "binomial" | "mean" | "count";
 export type Statistics = Statistic[];
 
+/**
+ * The experiment definition accessible to:
+ *
+ * 1. The Nimbus SDK via Remote Settings
+ * 2. Jetstream via the Experimenter API
+ */
 export interface NimbusExperiment {
+  /**
+   * Version of the NimbusExperiment schema this experiment refers to
+   */
   schemaVersion: string;
+  /**
+   * Unique identifier for the experiment
+   */
   slug: string;
+  /**
+   * Unique identifier for the experiiment.
+   *
+   * This is a duplicate of slug, but is required field for all Remote Settings records.
+   */
   id: string;
+  /**
+   * A slug identifying the targeted product of this experiment.
+   *
+   * It should be a lowercased_with_underscores name that is short and unambiguous and it should match the app_name found in https://probeinfo.telemetry.mozilla.org/glean/repositories. Examples are "fenix" and "firefox_desktop".
+   */
   appName: string;
+  /**
+   * The platform identifier for the targeted app.
+   *
+   * This should match app's identifier exactly as it appears in the relevant app store listing (for relevant platforms) or the app's Glean initialization (for other platforms).
+   *
+   * Examples are "org.mozilla.firefox_beta" and "firefox-desktop".
+   */
   appId: string;
+  /**
+   * A specific channel of an application such as "nightly", "beta", or "release".
+   */
   channel: string;
+  /**
+   * Public name of the experiment that will be displayed on "about:studies".
+   */
   userFacingName: string;
+  /**
+   * Short public description of the experiment that will be displayed on "about:studies".
+   */
   userFacingDescription: string;
+  /**
+   * When this property is set to true, the SDK should not enroll new users into the experiment that have not already been enrolled.
+   */
   isEnrollmentPaused: boolean;
-  isRollout?: boolean | null;
+  /**
+   * When this property is set to true, treat this experiment as a rollout.
+   *
+   * Rollouts are currently handled as single-branch experiments separated from the bucketing namespace for normal experiments.
+   *
+   * See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
+   */
+  isRollout?: boolean;
   bucketConfig: ExperimentBucketConfig;
-  outcomes?: ExperimentOutcome[] | null;
-  featureIds: string[];
-  branches: (
-    | ExperimentSingleFeatureBranch
-    | ExperimentMultiFeatureDesktopBranch
-    | ExperimentMultiFeatureMobileBranch
-  )[];
+  /**
+   * A list of outcomes relevant to the experiment analysis.
+   */
+  outcomes?: ExperimentOutcome[];
+  /**
+   * A list of featureIds the experiment contains configurations for.
+   */
+  featureIds?: string[];
+  /**
+   * Branch configuration for the experiment.
+   */
+  branches:
+    | ExperimentSingleFeatureBranch[]
+    | ExperimentMultiFeatureDesktopBranch[]
+    | ExperimentMultiFeatureMobileBranch[];
   targeting?: string | null;
-  startDate?: string | null;
+  /**
+   * Actual publish date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
+   */
+  startDate: string | null;
+  /**
+   * Actual enrollment end date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
+   */
   enrollmentEndDate?: string | null;
-  endDate?: string | null;
-  proposedDuration?: number | null;
-  proposedEnrollment?: number | null;
-  referenceBranch?: string | null;
-  featureValidationOptOut?: boolean | null;
+  /**
+   * Actual end date of this experiment.
+   *
+   * Note that this field is expected to be null in Remote Settings.
+   */
+  endDate: string | null;
+  /**
+   * Duration of the experiment from the start date in days.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
+   */
+  proposedDuration?: number;
+  /**
+   * This represents the number of days that we expect to enroll new users.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
+   */
+  proposedEnrollment: number;
+  /**
+   * The slug of the reference branch (i.e., the branch we consider "control").
+   */
+  referenceBranch: string | null;
+  /**
+   * Opt out of feature schema validation. Only supported on desktop.
+   */
+  featureValidationOptOut?: boolean;
+  /**
+   * Per-locale localization substitutions.
+   *
+   * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of string IDs to their localized equivalents.
+   *
+   * Only supported on desktop.
+   */
   localizations?: {
-    [k: string]: unknown;
+    [k: string]: {
+      [k: string]: string;
+    };
   } | null;
+  /**
+   * The list of locale codes (e.g., "en-US" or "fr") that this experiment is targeting.
+   *
+   * If null, all locales are targeted.
+   */
   locales?: string[] | null;
+  /**
+   * The date that this experiment was first published to Remote Settings.
+   *
+   * If null, it has not yet been published.
+   */
+  publishedDate?: string;
 }
 export interface ExperimentBucketConfig {
   randomizationUnit: RandomizationUnit;
+  /**
+   * Additional inputs to the hashing function.
+   */
   namespace: string;
+  /**
+   * Index of the starting bucket of the range.
+   */
   start: number;
+  /**
+   * Number of buckets in the range.
+   */
   count: number;
+  /**
+   * The total number of buckets.
+   *
+   * You can assume this will always be 10000
+   */
   total: number;
 }
 export interface ExperimentOutcome {
+  /**
+   * Identifier for the outcome.
+   */
   slug: string;
+  /**
+   * e.g., "primary" or "secondary".
+   */
   priority: string;
 }
+/**
+ * A single-feature branch definition.
+ *
+ * Supported by Firefox Desktop for versions before 95, Firefox for Android for versions
+ * before 96, and Firefox for iOS for versions before 39.
+ */
 export interface ExperimentSingleFeatureBranch {
+  /**
+   * Identifier for the branch.
+   */
   slug: string;
+  /**
+   * Relative ratio of population for the branch.
+   *
+   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
+   */
   ratio: number;
   feature: ExperimentFeatureConfig;
 }
 export interface ExperimentFeatureConfig {
+  /**
+   * The identifier for the feature flag.
+   */
   featureId: string;
-  enabled?: boolean | null;
+  /**
+   * The values that define the feature configuration.
+   *
+   * This should be validated against a schema.
+   */
   value: {
     [k: string]: unknown;
   };
 }
+/**
+ * The branch definition supported on Firefox Desktop 95+.
+ */
 export interface ExperimentMultiFeatureDesktopBranch {
+  /**
+   * Identifier for the branch.
+   */
   slug: string;
+  /**
+   * Relative ratio of population for the branch.
+   *
+   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
+   */
   ratio: number;
-  feature: ExperimentFeatureConfig;
+  /**
+   * An array of feature configurations.
+   */
   features: ExperimentFeatureConfig[];
+  feature: DesktopTombstoneFeatureConfig;
 }
+export interface DesktopTombstoneFeatureConfig {
+  featureId: "unused-feature-id-for-legacy-support";
+  value: {
+    [k: string]: unknown;
+  };
+  enabled: false;
+}
+/**
+ * The branch definition for mobile browsers.
+ *
+ * Supported on Firefox for Android 96+ and Firefox for iOS 39+.
+ */
 export interface ExperimentMultiFeatureMobileBranch {
+  /**
+   * Identifier for the branch.
+   */
   slug: string;
+  /**
+   * Relative ratio of population for the branch.
+   *
+   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
+   */
   ratio: number;
+  /**
+   * An array of feature configurations.
+   */
   features: ExperimentFeatureConfig[];
 }
 export interface FeatureManifest {
