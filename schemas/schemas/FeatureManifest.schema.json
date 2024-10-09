@@ -1,0 +1,231 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FeatureManifest",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/$defs/Feature"
+  },
+  "$defs": {
+    "Feature": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/FeatureWithExposure"
+        },
+        {
+          "$ref": "#/$defs/FeatureWithoutExposure"
+        }
+      ]
+    },
+    "FeatureVariable": {
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "enum": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fallbackPref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureVariableType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "setPref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/SetPref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "FeatureVariableType": {
+      "enum": [
+        "int",
+        "string",
+        "boolean",
+        "json"
+      ],
+      "type": "string"
+    },
+    "FeatureWithExposure": {
+      "description": "A feature that has exposure.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isEarlyStartup": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variables": {
+          "additionalProperties": {
+            "$ref": "#/$defs/FeatureVariable"
+          },
+          "type": "object"
+        },
+        "schema": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NimbusFeatureSchema"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hasExposure": {
+          "const": true,
+          "type": "boolean"
+        },
+        "exposureDescription": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "variables",
+        "hasExposure",
+        "exposureDescription"
+      ],
+      "type": "object"
+    },
+    "FeatureWithoutExposure": {
+      "description": "A feature without exposure.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isEarlyStartup": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variables": {
+          "additionalProperties": {
+            "$ref": "#/$defs/FeatureVariable"
+          },
+          "type": "object"
+        },
+        "schema": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NimbusFeatureSchema"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hasExposure": {
+          "const": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "variables",
+        "hasExposure"
+      ],
+      "type": "object"
+    },
+    "NimbusFeatureSchema": {
+      "properties": {
+        "uri": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri",
+        "path"
+      ],
+      "type": "object"
+    },
+    "PrefBranch": {
+      "enum": [
+        "default",
+        "user"
+      ],
+      "type": "string"
+    },
+    "SetPref": {
+      "properties": {
+        "branch": {
+          "$ref": "#/$defs/PrefBranch"
+        },
+        "pref": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "branch",
+        "pref"
+      ],
+      "type": "object"
+    }
+  }
+}
