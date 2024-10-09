@@ -64,6 +64,9 @@ def clean_schema(schema: dict[str, Any]) -> None:
     """
     for prop in schema.get("properties", {}).values():
         prop.pop("title", None)
+        if "$ref" in prop:
+            # json-schema-to-typescript will generate a redundant type.
+            prop.pop("description", None)
 
     if "enum" in schema and schema.get("description") == "An enumeration.":
         del schema["description"]
