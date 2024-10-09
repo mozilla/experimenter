@@ -1,0 +1,127 @@
+[metrics]
+
+[metrics.amp_avg_cpc]
+data_source = "admarketplace"
+select_expression = "AVG(avg_pub_cpc)"
+friendly_name = "Average Publisher CPC"
+description = "Average cost per click (paid to Mozilla, in USD). Calculated as CPC payout divided by valid clicks."
+
+[metrics.amp_revenue]
+data_source = "admarketplace"
+select_expression = "SUM(billed_revenue)"
+friendly_name = "Billed Revenue"
+description = "Total amount paid to Mozilla in USD."
+
+[metrics.amp_valid_clicks]
+data_source = "admarketplace"
+select_expression = "SUM(valid_clicks)"
+friendly_name = "Total Valid Clicks"
+description = "Total number of valid clicks recorded."
+
+[metrics.amp_valid_impressions]
+data_source = "admarketplace"
+select_expression = "SUM(valid_impressions)"
+friendly_name = "Total Valid Impressions"
+description = "Total number of valid impressions recorded."
+
+[metrics.amp_rpm_rate]
+data_source = "admarketplace"
+select_expression = "AVG(rpm_rate)"
+friendly_name = "RPM Rate"
+description = "Average revenue per thousand impressions (paid to Mozilla, in USD), calculated as RPM payout divided by valid impressions times 1000."
+
+[metrics.amp_cpc_rate]
+data_source = "admarketplace"
+select_expression = "SAFE_DIVIDE(SUM(billed_revenue), SUM(valid_clicks))"
+friendly_name = "CPC Rate"
+description = "Calculated as total payout divided by the number of valid clicks. Returns NULL if number of billed clicks is zero."
+
+[metrics.amp_revenue_per_thousand_impressions]
+data_source = "admarketplace"
+select_expression = "SAFE_DIVIDE(SUM(billed_revenue), SUM(valid_impressions)) * 1000"
+friendly_name = "Revenue Per Thousand Impressions"
+description = "RPM Payout divided by the number of valid impressions times 1000. Returns NULL if number of valid impressions is zero."
+
+[metrics.amp_alternative_revenue]
+data_source = "admarketplace"
+select_expression = "SUM(alternative_revenue)"
+friendly_name = "Alternative Revenue"
+description = "Potential Revenue from the other report. Note that this is zero for all revenue coming from CPC since we don't get data for RPM for mobile tiles or instant suggestions."
+
+
+[data_sources]
+
+[data_sources.admarketplace]
+from_expression = "mozdata.revenue.admarketplace"
+client_id_column = "advertiser"
+friendly_name = "AdMarketplace"
+description = "Data source for AdMarketplace metrics. Includes dimensions such as advertiser, device, country, and more."
+submission_date_column = "adm_date"
+
+[dimensions]
+
+[dimensions.adm_date]
+data_source = "admarketplace"
+select_expression = "adm_date"
+friendly_name = "Report Date"
+description = "Date field from the adM report. Not the date the report was sent to us from adM."
+
+[dimensions.amp_created_date]
+data_source = "admarketplace"
+select_expression = "created_date"
+friendly_name = "Ingestion Date"
+description = "Date field created upon Ingestion."
+
+[dimensions.amp_file_date]
+data_source = "admarketplace"
+select_expression = "file_date"
+friendly_name = "File Date"
+description = "Date field tied to when the file was received."
+
+[dimensions.amp_advertiser]
+data_source = "admarketplace"
+select_expression = "advertiser"
+friendly_name = "Advertiser"
+description = "The advertiser associated with the data."
+
+[dimensions.amp_country_code]
+data_source = "admarketplace"
+select_expression = "country_code"
+friendly_name = "Country Code"
+description = "Two-letter country code following the ISO 3166-1 alpha-2 standard."
+
+[dimensions.amp_device]
+data_source = "admarketplace"
+select_expression = "device"
+friendly_name = "Device"
+description = "Device type from which the ad interaction originated."
+
+[dimensions.amp_partner_name]
+data_source = "admarketplace"
+select_expression = "partner_name"
+friendly_name = "Partner Name"
+description = "Name of the partner associated with the ad data."
+
+[dimensions.amp_placement]
+data_source = "admarketplace"
+select_expression = "placement"
+friendly_name = "Placement"
+description = "Location or position where the ad was displayed."
+
+[dimensions.amp_product]
+data_source = "admarketplace"
+select_expression = "product"
+friendly_name = "Product"
+description = "Product category or type associated with the ad displayed."
+
+[dimensions.amp_pricing_model]
+data_source = "admarketplace"
+select_expression = "pricing_model"
+friendly_name = "Pricing Model"
+description = "Pricing model used for billing the ad interaction, e.g., CPC (Cost Per Click) or RPM (Revenue Per Mille)."
+
+[dimensions.amp_position]
+data_source = "admarketplace"
+select_expression = "position"
+friendly_name = "Ad Position"
+description = "Position in which the content was shown."
