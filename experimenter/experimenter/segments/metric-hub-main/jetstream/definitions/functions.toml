@@ -13,3 +13,11 @@ definition = """
         SUM((SELECT SUM(value) FROM UNNEST(mozfun.hist.extract({select_expr}).values)))
     )
 """
+
+[functions.agg_histogram_mean_glean]
+definition = """
+    SAFE_DIVIDE(
+        SUM({select_expr}.sum),
+        SUM((SELECT SUM(value) FROM UNNEST({select_expr}.values)))
+    )
+"""
