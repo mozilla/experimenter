@@ -3,10 +3,10 @@ description = "Metrics for the CRLite certificate revocation checking system"
 
 [metrics.cert_storage_memory]
 data_source = "metrics"
-select_expression = "ARRAY_AGG(metrics.memory_distribution.cert_storage_memory IGNORE NULLS)"
+select_expression = "{{agg_histogram_mean_glean('metrics.memory_distribution.cert_storage_memory')}}"
 friendly_name = "Certificate storage memory usage (bytes)"
 description = "Heap memory usage of cert_storage::SecurityState. This includes CRLite artifacts and preloaded intermediate certificates."
-type = "histogram"
+type = "scalar"
 
 [metrics.cert_storage_memory.statistics.deciles]
 

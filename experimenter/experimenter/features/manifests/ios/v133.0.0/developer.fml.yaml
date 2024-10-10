@@ -19,6 +19,13 @@ features:
         description: "If true, we will allow user to edit the address"
         type: Boolean
         default: true
+  bookmark-refactor-feature:
+    description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
+    variables:
+      enabled:
+        description: "Enables the bookmark refactor feature\n"
+        type: Boolean
+        default: false
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
