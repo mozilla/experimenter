@@ -373,13 +373,14 @@ jobs:
 
   integration_test_ios_fennec:
     macos:
-      xcode: 15.3.0
+      xcode: 15.4.0
+    resource_class: m2pro.medium
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/tests/firefox-fenix-build.env" 
+          paths: "experimenter/tests/firefox_fennec_beta.env"
       - macos/preboot-simulator:
-          version: "17.4"
+          version: "17.5"
           platform: "iOS"
           device: "iPhone 15"
       - attach_workspace:
@@ -397,7 +398,7 @@ jobs:
             sh ./bootstrap.sh
             cd firefox-ios
             pip3 install virtualenv poetry
-            xcodebuild build-for-testing -project Client.xcodeproj -scheme Fennec -configuration Fennec -sdk iphonesimulator -quiet -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4'
+            xcodebuild build-for-testing -scheme Fennec -target Client -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ARCHS="arm64"
       - run:
           name: Run Tests
           command: |
