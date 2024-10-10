@@ -824,8 +824,8 @@ RISK_QUESTIONS = {
         "the Message Consult"
     ),
     "PARTNER": (
-        "Does this experiment impact or rely on a partner or outside company "
-        "(e.g. Google, Amazon) or deliver any encryption or VPN?"
+        "Does this experiment rely on AI (e.g. ML, chatbot), impact or rely on a partner "
+        "or outside company (e.g. Google, Amazon), or deliver any encryption or VPN?"
     ),
     "REVENUE": (
         "Does this experiment have a risk to negatively impact revenue "
