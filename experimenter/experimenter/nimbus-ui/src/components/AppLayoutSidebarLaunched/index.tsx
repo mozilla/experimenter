@@ -117,14 +117,16 @@ export const AppLayoutSidebarLaunched = ({
           </li>
         );
       }
+      const metricName =
+        metrics[sidebarKey] !== null ? metrics[sidebarKey] : sidebarKey;
       return (
         <LinkNav
-          key={metrics[sidebarKey]}
+          key={sidebarKey}
           route={`${slug}/results#${sidebarKey}`}
           textColor="inherit-color"
           className="font-weight-normal ml-4 mb-2"
         >
-          {metrics[sidebarKey]}
+          {metricName}
         </LinkNav>
       );
     });
