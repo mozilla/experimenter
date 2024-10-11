@@ -44,14 +44,11 @@ export const EXTERNAL_URLS = {
     "https://experimenter.info/deep-dives/jetstream/metrics",
   // EXP-866 TBD URL
   PREVIEW_LAUNCH_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
-  RISK_BRAND:
-    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
+  RISK_BRAND: "https://experimenter.info/comms-sign-off",
   RISK_MESSAGE:
     "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation",
-  RISK_PARTNER:
-    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Isthisstudypartnerrelated?riskPARTNER",
-  RISK_REVENUE:
-    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-riskREV",
+  RISK_PARTNER: "https://experimenter.info/legal-sign-off",
+  RISK_REVENUE: "https://experimenter.info/vp-sign-off",
   SIGNOFF_QA: "https://experimenter.info/qa-sign-off",
   SIGNOFF_VP: "https://experimenter.info/vp-sign-off",
   SIGNOFF_LEGAL: "https://experimenter.info/legal-sign-off",
@@ -83,7 +80,7 @@ export const RISK_QUESTIONS = {
   MESSAGE:
     "Does your experiment include ANY messages? If yes, this requires the",
   PARTNER:
-    "Does this experiment impact or rely on a partner or outside company (e.g. Google, Amazon) or deliver any encryption or VPN?",
+    "Does this experiment rely on AI (e.g. ML, chatbot), impact or rely on a partner or outside company (e.g. Google, Amazon), or deliver any encryption or VPN?",
   REVENUE:
     "Does this experiment have a risk to negatively impact revenue (e.g. search, Pocket revenue)?",
 };
