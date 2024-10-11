@@ -36,7 +36,12 @@ type = "scalar"
 
 [metrics.crlite_use_counter.statistics.sum]
 
-[metrics.crlite_use_counter.statistics.population_ratio]
+[metrics.crlite_use_counter_ratio]
+friendly_name = "CRLite usage vs revocation checks"
+description = "Ratio of revocation checks performed using CRLite compared to total."
+depends_on = ["crlite_use_counter", "revocation_check_counter"]
+
+[metrics.crlite_use_counter_ratio.statistics.population_ratio]
 numerator = "crlite_use_counter"
 denominator = "revocation_check_counter"
 
@@ -52,7 +57,13 @@ type = "scalar"
 
 [metrics.ocsp_use_counter.statistics.sum]
 
-[metrics.ocsp_use_counter.statistics.population_ratio]
+
+[metrics.ocsp_use_counter_ratio]
+friendly_name = "OCSP usage vs revocation checks"
+description = "Ratio of revocation checks performed using OCSP compared to total."
+depends_on = ["ocsp_use_counter", "revocation_check_counter"]
+
+[metrics.ocsp_use_counter_ratio.statistics.population_ratio]
 numerator = "ocsp_use_counter"
 denominator = "revocation_check_counter"
 
