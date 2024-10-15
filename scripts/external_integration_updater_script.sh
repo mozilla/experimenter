@@ -60,12 +60,18 @@ fetch_task_info() {
             return
             ;;
         fennec_beta)
-            version=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/branches?protected=true" | jq --argjson major "$major_version" '
-                .[-1].name as $name | 
-                ( $name | capture("release/v(?<major_version>[0-9]+)") 
-                | (.major_version | tonumber) == ($major | tonumber + 1) ) 
-                // empty | if . then $name else empty end'
-            )
+            check_branches() {
+                local protected_flag="$1"
+                version=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/branches?protected=${protected_flag}&per_page=100" | jq --argjson major "$major_version" 'map(select(.name=="release/v" + ($major + 1 | tostring)).name)[]')
+                echo $version
+            }
+
+            version=$(check_branches "false")
+
+            if [ -z "$version" ]; then
+                version=$(check_branches "true")
+            fi
+
             echo "FIREFOX_FENNEC_BETA_VERSION_ID ${version}"
             echo "FIREFOX_FENNEC_BETA_VERSION_ID=${version}" > firefox_fennec_beta_build.env
             echo "BRANCH=${version}" >> firefox_fennec_beta_build.env
