@@ -189,6 +189,7 @@ def test_experiment_unenrolls_via_studies_toggle(
     setup_experiment()
     open_app()
     gradlewbuild.test("GenericExperimentIntegrationTest#disableStudiesViaStudiesToggle")
+    gradlewbuild.test("GenericExperimentIntegrationTest#verifyStudiesAreDisabled")
     gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentUnenrolled")
 
 
