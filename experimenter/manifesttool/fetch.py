@@ -174,8 +174,8 @@ def fetch_legacy_app(
         # once.
         fetched_schemas = set()
 
-        for feature_slug, feature in manifest.__root__.items():
-            feature = feature.__root__
+        for feature_slug, feature in manifest.root.items():
+            feature = feature.root
 
             if feature.json_schema is not None:
                 if feature.json_schema.path in fetched_schemas:
@@ -222,7 +222,7 @@ def fetch_releases(
 
     versions = {}
     for strategy in app_config.release_discovery.strategies:
-        strategy = strategy.__root__
+        strategy = strategy.root
         if strategy.type == DiscoveryStrategyType.TAGGED:
             versions.update(discover_tagged_releases(app_name, app_config, strategy))
         elif strategy.type == DiscoveryStrategyType.BRANCHED:

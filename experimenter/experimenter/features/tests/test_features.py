@@ -197,10 +197,10 @@ class TestCheckFeatures(TestCase):
             [
                 Error(
                     msg=(
-                        "Error loading feature data 1 validation error for "
-                        "FeatureManifest\n__root__ -> readerMode -> __root__ -> "
-                        "FeatureWithoutExposure -> variables -> fallbackPref\n"
-                        "  value is not a valid dict (type=type_error.dict)"
+                        "Error loading feature data 1 validation error for FeatureManifest\n"
+                        "readerMode.0.variables\n"
+                        "  Input should be a valid dictionary [type=dict_type, input_value=[{'fallbackPref': 'reader...pty string is no CTA)'}], input_type=list]\n"
+                        "    For further information visit https://errors.pydantic.dev/2.9/v/dict_type"
                     )
                 )
             ],
