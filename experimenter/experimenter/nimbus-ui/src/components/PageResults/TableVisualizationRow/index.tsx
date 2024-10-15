@@ -142,7 +142,9 @@ const countField = (
   referenceBranch: string,
   branchComparison: BranchComparisonValues,
 ) => {
-  const interval = `${lower.toFixed(2)} to ${upper.toFixed(2)}`;
+  const interval = `${lower ? lower.toFixed(2) : lower} to ${
+    upper ? upper.toFixed(2) : upper
+  }`;
   return showSignificanceField(
     significance,
     interval,
