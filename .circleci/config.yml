@@ -344,7 +344,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/tests/firefox-fenix-build.env|experimenter/tests/integration/nimbus/android"
+          paths: "experimenter/tests/firefox-fenix-build.env"
       - attach_workspace:
           at: /tmp/experimenter
       - android/accept-licenses
@@ -676,7 +676,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/tests/firefox-fenix-build.env|experimenter/tests/integration/nimbus/android"
+          paths: "experimenter/tests/firefox-fenix-build.env" 
       - docker_login:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -750,10 +750,8 @@ workflows:
           name: Create fenix and fennec recipes
           filters:
             branches:
-              #only:
-              #  - check_external_firefox_integrations
-              ignore:
-                - main
+              only:
+                - check_external_firefox_integrations
       - integration_nimbus_desktop_release_targeting:
           name: Test Desktop Targeting (Release Firefox)
           filters:
@@ -821,10 +819,8 @@ workflows:
             - Build Fenix APKs
           filters:
             branches:
-              #only:
-              #  - check_external_firefox_integrations
-              ignore:
-                - main
+              only:
+                - check_external_firefox_integrations
       - integration_test_ios_fennec:
           name: Test Firefox for iOS (Fennec)
           requires:
@@ -860,7 +856,5 @@ workflows:
           name: Build Fenix APKs
           filters:
             branches:
-              #only:
-              #  - check_external_firefox_integrations
-              ignore:
-                - main
+              only:
+                - check_external_firefox_integrations
