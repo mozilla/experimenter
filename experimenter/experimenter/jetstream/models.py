@@ -3,7 +3,7 @@ from typing import Any
 
 from mozilla_nimbus_schemas.jetstream import AnalysisBasis
 from mozilla_nimbus_schemas.jetstream import Statistic as JetstreamStatisticResult
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, Field, RootModel, create_model, field_validator
 
 from experimenter.experiments.models import NimbusExperiment
 
@@ -90,35 +90,35 @@ class JetstreamDataPoint(JetstreamStatisticResult):
         use_enum_values = True
 
 
-class JetstreamData(BaseModel):
+class JetstreamData(RootModel[JetstreamDataPoint]):
     """
     Parameters:
-        __root__: list[JetstreamDataPoint] = []
+        root: list[JetstreamDataPoint]
             The list should be filtered as needed coming in (e.g., by a given segment).
     """
 
-    __root__: list[JetstreamDataPoint] = []
+    root: list[JetstreamDataPoint] = Field(default_factory=list)
 
     def __iter__(self):
-        return iter(self.__root__)
+        return iter(self.root)
 
     def __len__(self):
-        return len(self.__root__)
+        return len(self.root)
 
     def append(self, item):
-        self.__root__.append(item)
+        self.root.append(item)
 
     def extend(self, item):
-        self.__root__.extend(item)
+        self.root.extend(item)
 
     def get_segment(self):
-        return self.__root__[0].segment or Segment.ALL
+        return self.root[0].segment or Segment.ALL
 
     def append_population_percentages(self):
         total_population = 0
         branches = {}
 
-        for jetstream_data_point in self.__root__:
+        for jetstream_data_point in self:
             if jetstream_data_point.metric == Metric.USER_COUNT:
                 if jetstream_data_point.point is not None:
                     total_population += jetstream_data_point.point
@@ -159,34 +159,39 @@ class JetstreamData(BaseModel):
 
 
 class DataPoint(BaseModel):
-    lower: float = None
-    upper: float = None
-    point: float = None
-    window_index: str = None
-    count: float = None
+    lower: float | None = None
+    upper: float | None = None
+    point: float | None = None
+    window_index: str | None = None
+    count: float | None = None
 
-    def set_window_index(self, window_index):
-        self.window_index = window_index
+    @field_validator("window_index", mode="before")
+    @classmethod
+    def coerce_window_index(cls, v: Any):
+        if isinstance(v, int):
+            return str(v)
+
+        return v
 
     def has_bounds(self) -> bool:
         return self.lower and self.upper
 
 
 class BranchComparisonData(BaseModel):
-    all: list[DataPoint] = []
-    first: DataPoint = DataPoint()
+    all: list[DataPoint] = Field(default_factory=list)
+    first: DataPoint = Field(default_factory=DataPoint)
 
 
 class SignificanceData(BaseModel):
-    overall: dict[str, Any] = {}
-    weekly: dict[str, Any] = {}
+    overall: dict[str, Any] = Field(default_factory=dict)
+    weekly: dict[str, Any] = Field(default_factory=dict)
 
 
 class MetricData(BaseModel):
-    absolute: BranchComparisonData
-    difference: BranchComparisonData
-    relative_uplift: BranchComparisonData
-    significance: SignificanceData
+    absolute: BranchComparisonData = Field(default_factory=BranchComparisonData)
+    difference: BranchComparisonData = Field(default_factory=BranchComparisonData)
+    relative_uplift: BranchComparisonData = Field(default_factory=BranchComparisonData)
+    significance: SignificanceData = Field(default_factory=BranchComparisonData)
     percent: float = None
 
 
@@ -268,7 +273,7 @@ class ResultsObjectModelBase(BaseModel):
                         ] = significance
 
                 if window == AnalysisWindow.WEEKLY:
-                    data_point.set_window_index(window_index)
+                    data_point.window_index = window_index
 
                 comparison_data = getattr(metric_data, branch_comparison)
                 if branch_comparison == BranchComparison.ABSOLUTE:
@@ -330,70 +335,81 @@ class ResultsObjectModelBase(BaseModel):
 
 
 def create_results_object_model(data: JetstreamData):
-    branches = {}
-    metrics = {}
-
-    for jetstream_data_point in data:
-        branches[jetstream_data_point.branch] = {}
+    branches = {data_point.branch for data_point in data}
 
     # create a dynamic model with all branches, leveraging BranchComparisonData
-    branches_data = {b: BranchComparisonData() for b in branches}
     PairwiseBranchComparisonData = create_model(
         "PairwiseBranchComparisonData",
-        **branches_data,
+        **{
+            branch: (BranchComparisonData, Field(default_factory=BranchComparisonData))
+            for branch in branches
+        },
     )
 
     # create a dynamic model with all branches, leveraging SignificanceData
-    branches_significance_data = {b: SignificanceData() for b in branches}
     PairwiseSignificanceData = create_model(
         "PairwiseSignificanceData",
-        **branches_significance_data,
+        **{
+            branch: (SignificanceData, Field(default_factory=SignificanceData))
+            for branch in branches
+        },
     )
 
     class PairwiseMetricData(MetricData):
-        difference: PairwiseBranchComparisonData
-        relative_uplift: PairwiseBranchComparisonData
-        significance: PairwiseSignificanceData
-
-    for jetstream_data_point in data:
-        metrics[jetstream_data_point.metric] = PairwiseMetricData(
-            absolute=BranchComparisonData(),
-            difference=PairwiseBranchComparisonData(),
-            relative_uplift=PairwiseBranchComparisonData(),
-            significance=PairwiseSignificanceData(),
+        difference: PairwiseBranchComparisonData = Field(
+            default_factory=PairwiseBranchComparisonData
+        )
+        relative_uplift: PairwiseBranchComparisonData = Field(
+            default_factory=PairwiseBranchComparisonData
+        )
+        significance: PairwiseSignificanceData = Field(
+            default_factory=PairwiseSignificanceData
         )
 
-    search_data = {k: v for k, v in metrics.items() if k in SEARCH_METRICS}
-    usage_data = {k: v for k, v in metrics.items() if k in USAGE_METRICS}
-    other_data = {
-        k: v for k, v in metrics.items() if k not in SEARCH_METRICS + USAGE_METRICS
-    }
+    metrics = {data_point.metric for data_point in data}
 
     # Dynamically create our grouped models which are dependent on metrics
     # available for a given experiment
-    SearchData = create_model("SearchData", **search_data)
-    UsageData = create_model("UsageData", **usage_data)
-    OtherData = create_model("OtherData", **other_data)
+    SearchData = create_model(
+        "SearchData",
+        **{
+            metric_name: (PairwiseMetricData, Field(default_factory=PairwiseMetricData))
+            for metric_name in metrics
+            if metric_name in SEARCH_METRICS
+        },
+    )
+
+    UsageData = create_model(
+        "UsageData",
+        **{
+            metric_name: (PairwiseMetricData, Field(default_factory=PairwiseMetricData))
+            for metric_name in metrics
+            if metric_name in USAGE_METRICS
+        },
+    )
+
+    OtherData = create_model(
+        "OtherData",
+        **{
+            metric_name: (PairwiseMetricData, Field(default_factory=PairwiseMetricData))
+            for metric_name in metrics
+            if metric_name not in SEARCH_METRICS + USAGE_METRICS
+        },
+    )
 
     class BranchData(BaseModel):
-        search_metrics: SearchData
-        usage_metrics: UsageData
-        other_metrics: OtherData
+        search_metrics: SearchData = Field(default_factory=SearchData)
+        usage_metrics: UsageData = Field(default_factory=UsageData)
+        other_metrics: OtherData = Field(default_factory=OtherData)
 
     class Branch(BaseModel):
         is_control: bool = False
-        branch_data: BranchData
-
-    for branch in branches:
-        branches[branch] = Branch(
-            is_control=False,
-            branch_data=BranchData(
-                search_metrics=SearchData(),
-                usage_metrics=UsageData(),
-                other_metrics=OtherData(),
-            ),
-        )
+        branch_data: BranchData = Field(default_factory=BranchData)
 
     # Create ResultsObjectModel model which is dependent on
     # branches available for a given experiment
-    return create_model("ResultsObjectModel", **branches, __base__=ResultsObjectModelBase)
+    return create_model(
+        "ResultsObjectModel",
+        **{branch: (Branch, Field(default_factory=Branch)) for branch in branches},
+        __base__=ResultsObjectModelBase,
+    )
