@@ -112,6 +112,9 @@ menu-refactor-feature:
     enabled:
       type: boolean
       description: "Controls which menu users will see\n"
+    menu_hint:
+      type: boolean
+      description: "If true, enables the menu contextual hint.\n"
 messaging:
   description: "The in-app messaging system\n"
   hasExposure: true
