@@ -377,7 +377,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/tests/firefox-fenix-build.env" 
+          paths: "experimenter/tests/firefox-fenix-build.env"
       - macos/preboot-simulator:
           version: "17.4"
           platform: "iOS"
