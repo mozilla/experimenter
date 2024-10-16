@@ -23,6 +23,8 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
+from experimenter.segments import Segments
+from experimenter.segments.tests import mock_valid_segments
 from experimenter.targeting.constants import TargetingConstants
 
 
@@ -1095,6 +1097,7 @@ class TestNimbusExperimentsCreateView(AuthTestCase):
 
 
 @mock_valid_outcomes
+@mock_valid_segments
 class TestMetricsUpdateView(AuthTestCase):
     @classmethod
     def setUpClass(cls):
@@ -1118,18 +1121,27 @@ class TestMetricsUpdateView(AuthTestCase):
             application=application,
             primary_outcomes=[],
             secondary_outcomes=[],
+            segments=[],
         )
         outcomes = Outcomes.by_application(application)
+        segments = Segments.by_application(application)
+
         outcome1 = outcomes[0]
         outcome2 = outcomes[1]
+        segment1 = segments[0]
+        segment2 = segments[1]
+
         response = self.client.post(
             reverse("nimbus-new-update-metrics", kwargs={"slug": experiment.slug}),
             {
                 "primary_outcomes": [outcome1.slug],
                 "secondary_outcomes": [outcome2.slug],
+                "segments": [segment1.slug, segment2.slug],
             },
         )
+
         self.assertEqual(response.status_code, 200)
         experiment = NimbusExperiment.objects.get(slug=experiment.slug)
         self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
         self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
+        self.assertEqual(experiment.segments, [segment1.slug, segment2.slug])

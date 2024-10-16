@@ -61,6 +61,21 @@
               <p class="form-text">Select the user action or feature that you are measuring with this experiment.</p>
             </div>
           </div>
+          <hr>
+          <div class="row">
+            <div class="col">
+              <label for="segments" class="form-label">
+                Segments
+                <i class="fa-regular fa-circle-question"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   data-bs-title="Select user segments if you want to view your results sliced by specific sub-groups of users."></i>
+                {% if form.is_bound %}<i class="fa-solid fa-check text-success"></i>{% endif %}
+              </label>
+              <div class="rounded border border-1 p-0 {% if form.is_bound %}border-success{% endif %}">{{ form.segments }}</div>
+              <p class="form-text">Select the user segments you wish to analyze.</p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="d-flex justify-content-end">
