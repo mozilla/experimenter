@@ -182,14 +182,13 @@ def fixture_setup_experiment(
 
 
 @pytest.mark.generic_test
-@pytest.mark.xfail(reason="Timeouts due to system lag")
 def test_experiment_unenrolls_via_studies_toggle(
     setup_experiment, gradlewbuild, open_app
 ):
     setup_experiment()
     open_app()
     gradlewbuild.test("GenericExperimentIntegrationTest#disableStudiesViaStudiesToggle")
-    gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentUnenrolled")
+    gradlewbuild.test("GenericExperimentIntegrationTest#verifyStudiesAreDisabled")
 
 
 @pytest.mark.generic_test
