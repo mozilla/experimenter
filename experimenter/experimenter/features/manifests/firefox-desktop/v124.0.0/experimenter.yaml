@@ -1325,6 +1325,7 @@ glean:
 
 gleanInternalSdk:
   description: "The Glean internal SDK feature intended only for internal Glean Team use"
+  owner: glean-team@mozilla.com
   hasExposure: false
   # Some variables are used through the C++ API and thus require pref-storage.
   # We rely on those values at Glean.init time, which happens at startup.
@@ -2294,6 +2295,7 @@ backgroundThreads:
 
 reportBrokenSite:
   description: the Report Broken Site feature
+  owner: twisniewski@mozilla.com
   hasExposure: false
   isEarlyStartup: true
   variables:
