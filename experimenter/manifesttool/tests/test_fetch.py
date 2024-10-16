@@ -874,7 +874,7 @@ class FetchTests(TestCase):
         self.assertEqual(
             cache,
             RefCache(
-                __root__={
+                {
                     "branch": "foo",
                     "tag": "bar",
                 }
@@ -970,7 +970,7 @@ class FetchTests(TestCase):
         )
 
         cache = RefCache(
-            __root__={
+            {
                 "branch": "outdated-branch",
                 "tag": "up-to-date-tag",
             }
@@ -993,7 +993,7 @@ class FetchTests(TestCase):
         self.assertEqual(
             cache,
             RefCache(
-                __root__={
+                {
                     "branch": "up-to-date-branch",
                     "tag": "up-to-date-tag",
                 }
