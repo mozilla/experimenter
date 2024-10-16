@@ -14,6 +14,8 @@ from experimenter.nimbus_ui_new.forms import (
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
+from experimenter.segments import Segments
+from experimenter.segments.tests import mock_valid_segments
 
 
 class RequestFormTestCase(TestCase):
@@ -200,11 +202,13 @@ class TestSignoffForm(RequestFormTestCase):
 
 
 @mock_valid_outcomes
+@mock_valid_segments
 class TestMetricsForm(RequestFormTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         Outcomes.clear_cache()
+        Segments.clear_cache()
 
     def test_valid_form_saves_and_creates_chanelog(self):
         application = NimbusExperiment.Application.DESKTOP
@@ -213,15 +217,21 @@ class TestMetricsForm(RequestFormTestCase):
             application=application,
             primary_outcomes=[],
             secondary_outcomes=[],
+            segments=[],
         )
         existing_changes = list(experiment.changes.values_list("id", flat=True))
 
         outcomes = Outcomes.by_application(application)
+        segments = Segments.by_application(application)
+
         outcome1 = outcomes[0]
         outcome2 = outcomes[1]
+        segment = segments[0]
+
         data = {
             "primary_outcomes": [outcome1.slug],
             "secondary_outcomes": [outcome2.slug],
+            "segments": [segment.slug],
         }
         form = MetricsForm(data=data, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
@@ -229,6 +239,7 @@ class TestMetricsForm(RequestFormTestCase):
         experiment = form.save()
         self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
         self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
+        self.assertEqual(experiment.segments, [segment.slug])
 
         changelog = experiment.changes.exclude(id__in=existing_changes).get()
         self.assertEqual(changelog.changed_by, self.user)
@@ -237,23 +248,29 @@ class TestMetricsForm(RequestFormTestCase):
             "dev@example.com updated metrics",
         )
 
-    def test_invalid_form_with_wrong_application_outcomes(self):
+    def test_invalid_form_with_wrong_application_outcomes_and_segments(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[],
             secondary_outcomes=[],
+            segments=[],
         )
 
         outcomes = Outcomes.by_application(NimbusExperiment.Application.FENIX)
+        segments = Segments.by_application(NimbusExperiment.Application.FENIX)
+
         outcome1 = outcomes[0]
         outcome2 = outcomes[1]
+        segment = segments[0]
 
         data = {
             "primary_outcomes": [outcome1],
             "secondary_outcomes": [outcome2],
+            "segments": [segment.slug],
         }
         form = MetricsForm(data=data, instance=experiment, request=self.request)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertIn("primary_outcomes", form.errors)
         self.assertIn("secondary_outcomes", form.errors)
+        self.assertIn("segments", form.errors)
