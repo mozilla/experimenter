@@ -1,0 +1,213 @@
+{% extends "nimbus_experiments/experiment_base.html" %}
+
+{% load static %}
+{% load nimbus_extras %}
+{% load django_bootstrap5 %}
+
+{% block title %}{{ experiment.name }} - Overview{% endblock %}
+
+{% block main_content %}
+    <form id="metrics-form"
+          hx-post="{% url 'nimbus-new-update-overview' experiment.slug %}"
+          hx-select="#metrics-form"
+          hx-target="#metrics-form"
+          hx-swap="outerHTML">
+      {% csrf_token %}
+      {{ form.errors }}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4>Overview</h4>
+        </div>
+        <div class="card-body">
+
+          <div class="row mb-3">
+            <div class="col">
+              <label for="id_name" class="form-label">
+                Public Name
+                {% if form.is_bound %}<i class="fa-solid fa-check text-success"></i>{% endif %}
+              </label>
+              {{ form.name }}
+              <p class="form-text">
+                This name will be public to users in about:studies.              
+              </p>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label for="id_hypothesis" class="form-label">
+                Hypothesis
+                {% if form.is_bound %}<i class="fa-solid fa-check text-success"></i>{% endif %}
+              </label>
+              {{ form.hypothesis }}
+              <p class="form-text">
+                You can add any supporting documents here.            
+              </p>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-10">
+              <label for="id_risk_brand" class="form-label">
+                If the public, users or press, were to discover this experiment and description, do you think it could negatively impact their perception of the brand? 
+                <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?">
+                  Learn more
+                </a>
+              </label>
+            </div>
+            <div class="col-2 text-end">
+              {{ form.risk_brand }}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-10">
+              <label for="id_risk_message" class="form-label">
+                Does your experiment include ANY messages? If yes, this requires the 
+                <a target="_blank" href="https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation">
+                  Message Consult
+                </a>
+              </label>
+            </div>
+            <div class="col-2 text-end">
+              {{ form.risk_message }}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label for="id_application" class="form-label">
+                Application
+              </label>
+              {{ form.application }}
+              <p class="form-text">
+                Experiments can only target one Application at a time. <br>
+                Application can not be changed after an experiment is created.
+              </p>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label for="id_projects" class="form-label">
+                Team Projects
+              </label>
+              <div class="border border-1 rounded">
+                {{ form.projects }}
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label for="id_public_description" class="form-label">
+                Public Description
+                {% if form.is_bound %}<i class="fa-solid fa-check text-success"></i>{% endif %}
+              </label>
+              {{ form.public_description }}
+              <p class="form-text">
+                This description will be public to users on about:studies          
+              </p>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-10">
+              <label for="id_risk_revenue" class="form-label">
+                Does this experiment have a risk to negatively impact revenue (e.g. search, Pocket revenue)?
+                <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-riskREV">
+                  Learn more
+                </a>
+              </label>
+            </div>
+            <div class="col-2 text-end">
+              {{ form.risk_revenue }}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-10">
+              <label for="id_risk_partner_related" class="form-label">
+                Does this experiment impact or rely on a partner or outside company (e.g. Google, Amazon) or deliver any encryption or VPN?
+                <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Isthisstudypartnerrelated?riskPARTNER">
+                  Learn more
+                </a>
+              </label>
+            </div>
+            <div class="col-2 text-end">
+              {{ form.risk_partner_related }}
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-12">
+              <div>
+                Additional Links
+                <i class="fa-regular fa-circle-question"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   data-bs-title="Any additional links you would like to add, for example, Jira DS Ticket, Jira QA ticket, or experiment brief."></i>
+              </div>
+            </div>
+          </div>
+
+          <div id="documentation-links">
+            {% for link_form in form.documentation_links %}
+              <div class="row mb-3">
+                <div class="col-4">
+                  {{ link_form.title }}
+                </div>
+                <div class="col-8 d-flex justify-content-between align-items-center">
+                  {{ link_form.link }}
+                  <span class="ms-3">
+                    <a 
+                      class="text-primary"
+                      hx-post="{% url 'nimbus-new-delete-documentation-link' slug=experiment.slug %}" 
+                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                      hx-params="link_id"
+                      hx-vals='{"link_id": {{ link_form.instance.id }} }'
+                      hx-select="#documentation-links"
+                      hx-target="#documentation-links"
+                      >
+                      <i class="fa-solid fa-circle-xmark"></i>
+                  </a>
+                  </span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-12 text-end">
+                <button 
+                  class="btn btn-outline-primary btn-sm"
+                  type="button"
+                  hx-post="{% url 'nimbus-new-create-documentation-link' slug=experiment.slug %}" 
+                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                  hx-params="none"
+                  hx-select="#documentation-links"
+                  hx-target="#documentation-links"
+                  >
+                    + Add Link
+                </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-secondary ms-2">Save and Continue</button>
+      </div>
+      {% if form.is_bound %}
+        <div class="toast text-bg-success position-absolute top-0 end-0 m-3 w-auto"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
+          <div class="toast-body">
+            <i class="fa-regular fa-circle-check"></i>
+            Overview saved!
+          </div>
+        </div>
+      {% endif %}
+    </form>
+{% endblock main_content %}
