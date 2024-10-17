@@ -2176,6 +2176,19 @@ MOZILLA_TESTDAY_EVENT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+DEFAULT_WINDOWS_CONTENT_PROCESS_SANDBOX_LEVEL = NimbusTargetingConfig(
+    name="Windows users and default content process sandbox level",
+    slug="default_windows_content_process_sandbox_level",
+    description=(
+        "Windows users who have not changed the content process sandbox level pref"
+    ),
+    targeting=("os.isWindows && !('security.sandbox.content.level'|preferenceIsUserSet)"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
