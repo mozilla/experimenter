@@ -1,12 +1,13 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusDocumentationLink, NimbusExperiment
 from experimenter.nimbus_ui_new.filtersets import (
     STATUS_FILTERS,
     NimbusExperimentFilter,
@@ -14,8 +15,11 @@ from experimenter.nimbus_ui_new.filtersets import (
     StatusChoices,
 )
 from experimenter.nimbus_ui_new.forms import (
+    DocumentationLinkCreateForm,
+    DocumentationLinkDeleteForm,
     MetricsForm,
     NimbusExperimentCreateForm,
+    OverviewForm,
     QAStatusForm,
     SignoffForm,
     TakeawaysForm,
@@ -27,6 +31,13 @@ class RequestFormMixin:
         kwargs = super().get_form_kwargs()
         kwargs["request"] = self.request
         return kwargs
+
+
+class RenderResponseMixin:
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class NimbusExperimentViewMixin:
@@ -195,10 +206,23 @@ class NimbusExperimentsCreateView(
         return response
 
 
-class MetricsUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class OverviewUpdateView(
+    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+):
+    form_class = OverviewForm
+    template_name = "nimbus_experiments/edit_overview.html"
+
+
+class DocumentationLinkCreateView(OverviewUpdateView):
+    form_class = DocumentationLinkCreateForm
+
+
+class DocumentationLinkDeleteView(OverviewUpdateView):
+    form_class = DocumentationLinkDeleteForm
+
+
+class MetricsUpdateView(
+    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+):
     form_class = MetricsForm
     template_name = "nimbus_experiments/edit_metrics.html"
-
-    def form_valid(self, form):
-        super().form_valid(form)
-        return self.render_to_response(self.get_context_data(form=form))

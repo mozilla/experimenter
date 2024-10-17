@@ -1,11 +1,14 @@
 from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
+    DocumentationLinkCreateView,
+    DocumentationLinkDeleteView,
     MetricsUpdateView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
     NimbusExperimentsListTableView,
+    OverviewUpdateView,
     QAStatusUpdateView,
     SignoffUpdateView,
     TakeawaysUpdateView,
@@ -41,6 +44,21 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/update_signoff/$",
         SignoffUpdateView.as_view(),
         name="update-signoff",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/update_overview/$",
+        OverviewUpdateView.as_view(),
+        name="nimbus-new-update-overview",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/create_documentation_link/$",
+        DocumentationLinkCreateView.as_view(),
+        name="nimbus-new-create-documentation-link",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/delete_documentation_link/$",
+        DocumentationLinkDeleteView.as_view(),
+        name="nimbus-new-delete-documentation-link",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/update_metrics/$",
