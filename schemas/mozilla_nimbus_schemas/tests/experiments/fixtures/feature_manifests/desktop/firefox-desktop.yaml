@@ -25,7 +25,9 @@ testFeature:
       description: Int pref used by platform API tests
     testSetString:
       type: string
-      setPref: nimbus.testing.testSetString
+      setPref:
+        branch: user
+        pref: nimbus.testing.testSetString
       description: A string pref set by Nimbus tests
 
 nimbus-qa-1:
@@ -35,7 +37,9 @@ nimbus-qa-1:
   variables:
     value:
       type: string
-      setPref: nimbus.qa.pref-1
+      setPref:
+        branch: default
+        pref: nimbus.qa.pref-1
       description: The value to set for the pref.
 
 nimbus-qa-2:
@@ -46,19 +50,24 @@ nimbus-qa-2:
   variables:
     value:
       type: string
-      setPref: nimbus.qa.pref-2
+      setPref:
+        branch: user
+        pref: nimbus.qa.pref-2
       description: The value to set for the pref.
 
 feature-with-exposure:
+  description: A feature with exposure.
   hasExposure: true
   owner: nobody@example.com
   exposureDescription: A description of the exposure event.
   variables: {}
 
 feature-with-schema:
+  description: A feature with a schema.
   variables: {}
   owner: nobody@example.com
   hasExposure: false
+  variables: {}
   schema:
     uri: "resource://gre/foo/schema.json"
     path: "/toolkit/components/foo/schema.json"
