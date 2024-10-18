@@ -2,6 +2,7 @@ from enum import Enum
 
 from pydantic import (
     BaseModel,
+    ConfigDict,
     Field,
     RootModel,
     model_validator,
@@ -56,6 +57,18 @@ class SdkFeatureVariable(BaseFeatureVariable):
         default=None,
     )
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "dependentSchemas": {
+                "enum": {
+                    "properties": {
+                        "type": {"const": FeatureVariableType.STRING.value},
+                    }
+                }
+            }
+        }
+    )
+
     @model_validator(mode="after")
     @classmethod
     def validate_enum(cls, data: Self) -> Self:
@@ -100,6 +113,87 @@ class DesktopFeatureVariable(BaseFeatureVariable):
             "Using a string is deprecated and unsupported in Firefox 124+."
         ),
         default=None,
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "dependentSchemas": {
+                # This is the equivalent of the `validate_enums` validator.
+                #
+                # This could also be done declaratively by specializing FeatureVariable
+                # into specifically typed child classes and using a union in the parent
+                # class, but that is much more verbose and generates a bunch of
+                # boilerplate types.
+                #
+                # From a JSON Schema perspective, don't have to tuck this away in
+                # dependentSchemas and the allOf clause could live at the top-level, but
+                # then json-schema-to-typescript gets confused and generates an empty type
+                # for `DesktopFeatureVariable`.
+                "enum": {
+                    "allOf": [
+                        *(
+                            {
+                                "if": {
+                                    "properties": {
+                                        "type": {"const": ty},
+                                    },
+                                },
+                                "then": {
+                                    "properties": {
+                                        "enum": {
+                                            "items": {"type": json_schema_ty},
+                                        },
+                                    },
+                                },
+                            }
+                            for ty, json_schema_ty in (
+                                (FeatureVariableType.STRING, "string"),
+                                (FeatureVariableType.INT, "integer"),
+                            )
+                        ),
+                        *(
+                            {
+                                "if": {
+                                    "properties": {
+                                        "type": {"const": ty},
+                                    },
+                                },
+                                "then": {
+                                    "properties": {
+                                        "enum": {"const": None},
+                                    },
+                                },
+                            }
+                            for ty in (
+                                FeatureVariableType.BOOLEAN,
+                                FeatureVariableType.JSON,
+                            )
+                        ),
+                    ],
+                },
+                # These are the the equivalent of the
+                # `validate_set_pref_fallback_pref_mutually_exclusive` validator.
+                #
+                # Pydantic does not have a way to encode this relationship outside custom
+                # validation.
+                "fallbackPref": {
+                    "description": "setPref is mutually exclusive with fallbackPref",
+                    "properties": {
+                        "setPref": {
+                            "const": None,
+                        }
+                    },
+                },
+                "setPref": {
+                    "description": "fallbackPref is mutually exclusive with setPref",
+                    "properties": {
+                        "fallbackPref": {
+                            "const": None,
+                        }
+                    },
+                },
+            },
+        },
     )
 
     @model_validator(mode="after")
@@ -168,6 +262,21 @@ class BaseFeature(BaseModel):
             "Only required if hasExposure is true."
         ),
         default=None,
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "if": {
+                "properties": {
+                    "hasExposure": {
+                        "const": True,
+                    },
+                },
+            },
+            "then": {
+                "required": ["exposureDescription"],
+            },
+        }
     )
 
     @model_validator(mode="after")

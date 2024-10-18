@@ -427,7 +427,7 @@ jobs:
           paths:
             - tests/integration/ios_recipe.json
             - tests/integration/fenix_recipe.json
-      
+
   deploy_experimenter:
     working_directory: ~/experimenter
     machine:
@@ -517,10 +517,6 @@ jobs:
                 echo "No changes in package version. Skipping mozilla-nimbus-schemas deployment."
                 circleci-agent step halt
             fi
-      - run:
-          name: Create the distribution files
-          command: |
-            make schemas_dist
       - run:
           name: Upload to PyPI
           command: |
@@ -620,7 +616,7 @@ jobs:
             else
               echo "No config changes, skipping"
             fi
-  
+
   check_external_firefox_integrations:
     machine:
       image: ubuntu-2004:2023.10.1
@@ -676,7 +672,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/tests/firefox-fenix-build.env" 
+          paths: "experimenter/tests/firefox-fenix-build.env"
       - docker_login:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -718,7 +714,7 @@ workflows:
     jobs:
       - update_external_configs
       - update_application_services
-  
+
   check_firefox_integrations:
     triggers:
       - schedule:
