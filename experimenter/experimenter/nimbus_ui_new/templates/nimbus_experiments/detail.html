@@ -78,6 +78,17 @@
               </td>
             </tr>
             <tr>
+              <th>Segments</th>
+              <td colspan="3">
+                {% for segment, url in segment_links %}
+                  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ segment.title|remove_underscores }}</a>
+                  {% if not forloop.last %},{% endif %}
+                {% empty %}
+                  <span class="text-danger">Not set</span>
+                {% endfor %}
+              </td>
+            </tr>
+            <tr>
               <th>Team projects</th>
               <td>
                 {% for project in experiment.projects.all %}
