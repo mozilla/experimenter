@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal, Union
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import SkipJsonSchema
@@ -193,15 +193,18 @@ class NimbusExperiment(BaseModel):
         list[ExperimentMultiFeatureDesktopBranch],
         list[ExperimentMultiFeatureMobileBranch],
     ] = Field(description="Branch configuration for the experiment.")
-    targeting: str | None = None
-    startDate: str | None = Field(
+    targeting: str | None = Field(
+        description="A JEXL targeting expression used to filter out experiments.",
+        default=None,
+    )
+    startDate: datetime.date | None = Field(
         description=(
             "Actual publish date of the experiment.\n"
             "\n"
             "Note that this value is expected to be null in Remote Settings."
         ),
     )
-    enrollmentEndDate: Optional[str] = Field(
+    enrollmentEndDate: datetime.date | None = Field(
         description=(
             "Actual enrollment end date of the experiment.\n"
             "\n"
@@ -209,7 +212,7 @@ class NimbusExperiment(BaseModel):
         ),
         default=None,
     )
-    endDate: str | None = Field(
+    endDate: datetime.date | None = Field(
         description=(
             "Actual end date of this experiment.\n"
             "\n"
@@ -262,7 +265,7 @@ class NimbusExperiment(BaseModel):
         ),
         default=None,
     )
-    publishedDate: datetime.datetime | SkipJsonSchema[None] = Field(
+    publishedDate: datetime.datetime | None = Field(
         description=(
             "The date that this experiment was first published to Remote Settings.\n"
             "\n"

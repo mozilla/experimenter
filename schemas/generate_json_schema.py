@@ -43,7 +43,8 @@ def clean_output_file(ts_path: Path) -> None:
         "/* eslint-disable */\n",
         "/**\n",
         "/* This file was automatically generated from pydantic models.\n",
-        "/* Do not modify by hand - update the pydantic models and re-run the script\n",
+        "/* Do not modify by hand - update the pydantic models and re-run\n",
+        " * make schemas_build\n",
         " */\n\n",
     ]
 
