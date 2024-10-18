@@ -292,8 +292,8 @@ SCHEMAS_DIFF_PYDANTIC = \
 	echo 'Done. No problems found in schemas.'
 SCHEMAS_TEST = pytest
 SCHEMAS_FORMAT = ruff check --fix . && black .
+SCHEMAS_GENERATE = poetry run python generate_json_schema.py
 SCHEMAS_DIST_PYPI = poetry build
-SCHEMAS_DIST_NPM = poetry run python generate_json_schema.py --output index.d.ts
 SCHEMAS_DEPLOY_PYPI = twine upload --skip-existing dist/*;
 SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc;yarn publish --new-version ${SCHEMAS_VERSION} --access public;
 SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
@@ -302,7 +302,8 @@ SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 schemas_docker_build:  ## Build schemas docker image
 	$(DOCKER_BUILD) --target dev -f schemas/Dockerfile -t schemas:dev schemas/
 
-schemas_build: schemas_docker_build schemas_dist  ## Build schemas
+schemas_build: schemas_docker_build  ## Build the mozilla_nimbus_schemas packages.
+	$(SCHEMAS_RUN) "$(SCHEMAS_GENERATE) && $(SCHEMAS_DIST_PYPI)"
 
 schemas_bash: schemas_docker_build
 	$(SCHEMAS_RUN) "bash"
@@ -312,20 +313,17 @@ schemas_format: schemas_docker_build  ## Format schemas source tree
 
 schemas_lint: schemas_docker_build  ## Lint schemas source tree
 	$(SCHEMAS_RUN) "$(SCHEMAS_BLACK)&&$(SCHEMAS_RUFF)&&$(SCHEMAS_DIFF_PYDANTIC)&&$(SCHEMAS_TEST)"
+
 schemas_check: schemas_lint
 
-schemas_dist_pypi: schemas_docker_build
-	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_PYPI)"
+schemas_generate: schemas_docker_build
+	$(SCHEMAS_RUN) "$(SCHEMAS_GENERATE)"
 
-schemas_dist_npm: schemas_docker_build schemas_dist_pypi
-	$(SCHEMAS_RUN) "$(SCHEMAS_DIST_NPM)"
 
-schemas_dist: schemas_docker_build schemas_dist_pypi schemas_dist_npm
-
-schemas_deploy_pypi: schemas_docker_build
+schemas_deploy_pypi: schemas_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_PYPI)"
 
-schemas_deploy_npm: schemas_docker_build
+schemas_deploy_npm: schemas_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_NPM)"
 
 schemas_version_pypi: schemas_docker_build

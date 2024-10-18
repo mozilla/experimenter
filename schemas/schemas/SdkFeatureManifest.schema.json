@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "SdkFeatureManifest",
+  "description": "The SDK-specific feature manifest.",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/$defs/SdkFeature"
+  },
+  "$defs": {
+    "FeatureVariableType": {
+      "enum": [
+        "int",
+        "string",
+        "boolean",
+        "json"
+      ],
+      "type": "string"
+    },
+    "SdkFeature": {
+      "description": "A feature.",
+      "if": {
+        "properties": {
+          "hasExposure": {
+            "const": true
+          }
+        }
+      },
+      "properties": {
+        "description": {
+          "description": "The description of the feature.",
+          "type": "string"
+        },
+        "hasExposure": {
+          "description": "Whether or not this feature records exposure telemetry.",
+          "type": "boolean"
+        },
+        "exposureDescription": {
+          "description": "A description of the exposure telemetry collected by this feature. Only required if hasExposure is true.",
+          "type": "string"
+        },
+        "variables": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SdkFeatureVariable"
+          },
+          "description": "The variables that this feature can set.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "description",
+        "hasExposure",
+        "variables"
+      ],
+      "then": {
+        "required": [
+          "exposureDescription"
+        ]
+      },
+      "type": "object"
+    },
+    "SdkFeatureVariable": {
+      "dependentSchemas": {
+        "enum": {
+          "properties": {
+            "type": {
+              "const": "string"
+            }
+          }
+        }
+      },
+      "description": "A feature variable.",
+      "properties": {
+        "description": {
+          "description": "A description of the feature.",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/FeatureVariableType",
+          "description": "The field type."
+        },
+        "enum": {
+          "description": "An optional list of possible string values. Only allowed when type is string.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "description",
+        "type"
+      ],
+      "type": "object"
+    }
+  }
+}

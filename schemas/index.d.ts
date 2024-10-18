@@ -33,15 +33,6 @@ export type StatisticIngestEnum = "percentage" | "binomial" | "mean" | "count";
 export type Statistics = Statistic[];
 
 /**
- * The Firefox Desktop-specific feature manifest.
- *
- * Firefox Desktop requires different fields for its features compared to the general
- * Nimbus feature manifest.
- */
-export interface DesktopFeatureManifest {
-  [k: string]: DesktopFeature;
-}
-/**
  * A feature.
  */
 export interface DesktopFeature {
@@ -132,6 +123,15 @@ export interface NimbusFeatureSchema {
    * Required by Experimenter so that it can find schema files in source checkouts.
    */
   path: string;
+}
+/**
+ * The Firefox Desktop-specific feature manifest.
+ *
+ * Firefox Desktop requires different fields for its features compared to the general
+ * Nimbus feature manifest.
+ */
+export interface DesktopFeatureManifest {
+  [k: string]: DesktopFeature;
 }
 /**
  * The experiment definition accessible to:
