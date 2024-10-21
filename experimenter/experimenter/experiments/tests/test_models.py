@@ -2582,6 +2582,23 @@ class TestNimbusExperiment(TestCase):
             )
             self.assertEqual(experiment.should_timeout, expected)
 
+    @parameterized.expand(
+        [
+            [NimbusExperiment.QAStatus.RED, "badge rounded-pill bg-danger"],
+            [
+                NimbusExperiment.QAStatus.YELLOW,
+                "badge rounded-pill bg-warning text-dark",
+            ],
+            [NimbusExperiment.QAStatus.GREEN, "badge rounded-pill bg-success"],
+            [NimbusExperiment.QAStatus.NOT_SET, "badge rounded-pill bg-secondary"],
+        ]
+    )
+    def test_qa_status_badge_class(self, qa_status, expected_badge_class):
+        experiment = NimbusExperimentFactory.create(
+            name="Test Experiment", slug="test-experiment", qa_status=qa_status
+        )
+        self.assertEqual(experiment.qa_status_badge_class, expected_badge_class)
+
     def test_clone_created_experiment(self):
         owner = UserFactory.create()
         required_experiment = NimbusExperimentFactory.create()
