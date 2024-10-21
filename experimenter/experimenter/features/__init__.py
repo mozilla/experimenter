@@ -8,10 +8,11 @@ import yaml
 from django.conf import settings
 from django.core.checks import Error, register
 from mozilla_nimbus_schemas.experiments.feature_manifests import (
-    FeatureManifest,
+    DesktopFeature,
+    DesktopFeatureManifest,
     FeatureVariableType,
-    FeatureWithExposure,
-    FeatureWithoutExposure,
+    SdkFeature,
+    SdkFeatureManifest,
 )
 
 from experimenter.experiments.constants import ApplicationConfig, NimbusConstants
@@ -34,16 +35,17 @@ FEATURE_PYTHON_TYPES = {
 class Feature:
     slug: str
     application_slug: str
-    model: Union[FeatureWithExposure, FeatureWithoutExposure]
-    version: Optional[Version] = None
+    model: SdkFeature | DesktopFeature
+    version: Version | None = None
 
-    def load_remote_jsonschema(self):
-        if self.model.json_schema is not None:
+    @classmethod
+    def load_remote_jsonschema(cls, application_slug: str, feature_model: DesktopFeature):
+        if feature_model.json_schema is not None:
             schema_path = (
                 settings.FEATURE_MANIFESTS_PATH
-                / self.application_slug
+                / application_slug
                 / "schemas"
-                / self.model.json_schema.path
+                / feature_model.json_schema.path
             )
 
             with schema_path.open() as f:
@@ -51,6 +53,8 @@ class Feature:
                     return json.dumps(json.load(f), indent=2)
                 except json.JSONDecodeError:
                     return None
+
+        return None
 
     def generate_jsonschema(self):
         schema = {
@@ -76,8 +80,9 @@ class Feature:
         return json.dumps(schema, indent=2)
 
     def get_jsonschema(self):
-        if self.model.json_schema is not None:
-            return self.load_remote_jsonschema()
+        if isinstance(self.model, DesktopFeature) and self.model.json_schema is not None:
+            return self.load_remote_jsonschema(self.application_slug, self.model)
+
         return self.generate_jsonschema()
 
 
@@ -93,13 +98,19 @@ class Features:
     ):
         with manifest_path.open() as manifest_file:
             application_data = yaml.safe_load(manifest_file)
-            manifest = FeatureManifest.parse_obj(application_data)
 
-            for feature_slug, feature_model in manifest.__root__.items():
+            if application.slug == NimbusConstants.Application.DESKTOP:
+                manifest_cls = DesktopFeatureManifest
+            else:
+                manifest_cls = SdkFeatureManifest
+
+            manifest = manifest_cls.parse_obj(application_data)
+
+            for feature_slug, feature_model in manifest.root.items():
                 yield Feature(
                     slug=feature_slug,
                     application_slug=application.slug,
-                    model=feature_model.__root__,
+                    model=feature_model,
                     version=version,
                 )
 

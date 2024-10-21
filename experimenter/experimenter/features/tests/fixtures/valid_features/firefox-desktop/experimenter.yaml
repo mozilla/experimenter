@@ -53,11 +53,13 @@ setPrefFeature:
   variables:
     user:
       type: string
+      description: string property on user branch
       setPref:
         branch: user
         pref: nimbus.user
     default:
       type: string
+      description: string property on default branch
       setPref:
         branch: default
         pref: nimbus.default
