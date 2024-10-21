@@ -2164,6 +2164,19 @@ networking:
         branch: default
         pref: "network.cookie.chips.partitionLimitByteCapacity"
 
+disableHttp3:
+  description: "Whether HTTP/3 is disabled"
+  owner: kershaw@mozilla.com
+  hasExposure: false
+  variables:
+    withThirdPartyRoots:
+      description: If third party roots are detected, disable HTTP/3
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.disable_when_third_party_roots_found"
+
+
 networkPrioritization:
   description: "Network request prioritization"
   owner: vgosu@mozilla.com
@@ -2662,6 +2675,46 @@ fxaClientAssociation:
       setPref:
         branch: user
         pref: identity.fxaccounts.telemetry.clientAssociationPing.enabled
+
+fxaAppMenuItem:
+  description: >-
+    Prefs to control the appearance and copy of the FxA sign-in button in the
+    AppMenu when signed out.
+  owner: mconley@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Exposure is recorded when the user is enrolled in an experiment using this
+    feature and the AppMenu on Firefox Desktop is opened.
+  variables:
+    ctaCopyVariant:
+      description: >-
+        One of the following values:
+          - control
+          - sync-devices
+          - backup-data
+          - backup-sync
+          - mobile
+      type: string
+
+fxaAvatarMenuItem:
+  description: >-
+    Prefs to control the appearance and copy of the FxA sign-in button in the
+    FxA avatar menu when signed out.
+  owner: mconley@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Exposure is recorded when the user is enrolled in an experiment using this
+    feature and the FxA avatar menu on Firefox Desktop is opened.
+  variables:
+    ctaCopyVariant:
+      description: >-
+        One of the following values:
+          - control
+          - sync-devices
+          - backup-data
+          - backup-sync
+          - mobile
+      type: string
 
 legacyHeartbeat:
   description: Normandy Heartbeat exposed to Nimbus
@@ -3837,3 +3890,15 @@ fxms_bmb_button:
     uri: chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json
     path: browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json
   variables: {}
+
+contentProcessSandbox:
+  description: Prefs that control the content process sandbox.
+  owner: bowen@mozilla.com
+  hasExposure: false
+  variables:
+    Level:
+      description: Content process sandbox level
+      type: int
+      setPref:
+        branch: user
+        pref: security.sandbox.content.level
