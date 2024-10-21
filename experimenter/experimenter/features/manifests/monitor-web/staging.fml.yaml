@@ -5,6 +5,13 @@ about:
 channels:
   - staging
 features:
+  data-broker-removal-time-estimates:
+    description: Show the data broker removal time estimates
+    variables:
+      enabled:
+        description: If the feature is enabled
+        type: Boolean
+        default: false
   data-privacy-petition-banner:
     description: Show the data privacy petition banner to US users
     variables:
