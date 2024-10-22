@@ -1,0 +1,6 @@
+friendly_name = "Main process stability"
+description = "Crash and hang metrics relating to the main process."
+
+[metrics.main_crashes.statistics.sum]
+[metrics.startup_crashes.statistics.sum]
+[metrics.shutdown_hangs.statistics.sum]
