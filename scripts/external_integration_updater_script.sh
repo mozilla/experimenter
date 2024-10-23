@@ -55,7 +55,7 @@ fetch_task_info() {
             echo "FIREFOX_FENNEC_RELEASE_VERSION_ID ${version}"
             echo "FIREFOX_FENNEC_RELEASE_VERSION_ID=${version}" > firefox_fennec_release_build.env
             echo "BRANCH=${branch}" >> firefox_fennec_release_build.env
-            echo "Firefox version is ${release_version}" >> firefox_fennec_release_build.env
+            echo "# Firefox version is ${release_version}" >> firefox_fennec_release_build.env
             mv firefox_fennec_release_build.env experimenter/tests
             return
             ;;
@@ -75,7 +75,7 @@ fetch_task_info() {
             echo "FIREFOX_FENNEC_BETA_VERSION_ID ${version}"
             echo "FIREFOX_FENNEC_BETA_VERSION_ID=${version}" > firefox_fennec_beta_build.env
             echo "BRANCH=${version}" >> firefox_fennec_beta_build.env
-            echo "Firefox version is ${release_version}" >> firefox_fennec_beta_build.env
+            echo "# Firefox version is ${release_version}" >> firefox_fennec_beta_build.env
             mv firefox_fennec_beta_build.env experimenter/tests
             return
             ;;
