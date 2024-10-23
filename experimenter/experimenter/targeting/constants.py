@@ -2005,6 +2005,26 @@ INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+DEBUG_INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
+    name="DEBUG Ineligible for default PDF handler",
+    slug="debug_ineligible_for_default_pdf_handler",
+    description=(
+        "Targeting users that are ineligible to set Firefox as the default PDF "
+        "handler or have already done so. This omits safe navigators so bugs "
+        "in the targeting getters can be debugged."
+    ),
+    targeting=(
+        "(!os.isWindows || os.windowsVersion < 10) "
+        "|| hasActiveEnterprisePolicies "
+        "|| isDefaultHandler.pdf "
+        "|| (defaultPDFHandler.registered && !defaultPDFHandler.knownBrowser)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 SHOPPING_OPTED_IN = NimbusTargetingConfig(
     name="Users opted in to shopping",
     slug="shopping_opted_in",
