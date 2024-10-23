@@ -374,10 +374,13 @@ jobs:
   integration_test_ios_fennec:
     macos:
       xcode: 15.3.0
+    parameters:
+      file_path:
+        type: string
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/tests/firefox-fenix-build.env"
+          paths: << parameters.file_path >>
       - macos/preboot-simulator:
           version: "17.4"
           platform: "iOS"
@@ -386,7 +389,10 @@ jobs:
           at: /tmp/experimenter
       - run:
           name: Clone Firefox iOS Repo
-          command: git clone https://github.com/mozilla-mobile/firefox-ios.git
+          command: |
+            source << parameters.file_path >>
+            git clone https://github.com/mozilla-mobile/firefox-ios.git
+            git checkout "$BRANCH"
       - run:
           name: Install nimbus-cli
           command: curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
@@ -818,9 +824,19 @@ workflows:
               only:
                 - check_external_firefox_integrations
       - integration_test_ios_fennec:
-          name: Test Firefox for iOS (Fennec)
+          name: Test Firefox for iOS (Fennec) Beta
           requires:
             - Create fenix and fennec recipes
+          file_path: experimenter/tests/firefox_fennec_beta_build.env
+          filters:
+            branches:
+              only:
+                - check_external_firefox_integrations
+      - integration_test_ios_fennec:
+          name: Test Firefox for iOS (Fennec) Release
+          requires:
+            - Create fenix and fennec recipes
+          file_path: experimenter/tests/firefox_fennec_release_build.env
           filters:
             branches:
               only:
