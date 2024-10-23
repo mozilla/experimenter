@@ -1,0 +1,5 @@
+friendly_name = "Content process stability"
+description = "Crash metrics relating to the content process."
+
+[metrics.content_crashes.statistics.sum]
+[metrics.content_shutdown_crashes.statistics.sum]
