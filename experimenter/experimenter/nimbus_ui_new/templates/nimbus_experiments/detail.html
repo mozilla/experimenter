@@ -11,6 +11,9 @@
     <div class="row">
       <div class="col-6">
         <h4 class="mb-0">{{ experiment.name }}</h4>
+        <span class="{{ experiment.qa_status_badge_class }}">
+          QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
+        </span>
         <p class="text-secondary">{{ experiment.slug }}</p>
       </div>
       {% include "nimbus_experiments/timeline.html" %}
