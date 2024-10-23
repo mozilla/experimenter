@@ -1323,6 +1323,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             .replace("\\n", "\n")  # Handle hard coded newlines in targeting
         )
 
+    @property
+    def qa_status_badge_class(self):
+        if self.qa_status == self.QAStatus.RED:
+            return "badge rounded-pill bg-danger"
+        elif self.qa_status == self.QAStatus.YELLOW:
+            return "badge rounded-pill bg-warning text-dark"
+        elif self.qa_status == self.QAStatus.GREEN:
+            return "badge rounded-pill bg-success"
+        else:
+            return "badge rounded-pill bg-secondary"
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
