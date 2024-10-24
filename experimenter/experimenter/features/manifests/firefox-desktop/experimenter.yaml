@@ -3358,6 +3358,12 @@ bookmarks:
         branch: user
         pref: browser.toolbars.bookmarks.visibility
       description: If the bookmarks toolbar should never, always, or only show on newtab.
+    showOtherBookmarks:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.toolbars.bookmarks.showOtherBookmarks
+      description: Display state of the "Other Bookmarks" toolbar button.
 
 cookieBannerHandling:
   description: Automatically handle cookie banners on the user's behalf.
@@ -3830,6 +3836,13 @@ crlite:
         pref: security.pki.crlite_mode
       description: >-
         How CRLite results will be interpreted.
+    timestamps_for_coverage:
+      type: int
+      setPref:
+        branch: default
+        pref: security.pki.crlite_timestamps_for_coverage
+      description: >-
+        How many covered timestamps do we need to see before we enforce a CRLite result.
 
 chatbot:
   description: AI chatbot feature configuration
