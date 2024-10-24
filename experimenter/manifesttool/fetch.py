@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional, TextIO
 
 import yaml
-from mozilla_nimbus_schemas import FeatureManifest
+from mozilla_nimbus_schemas import DesktopFeatureManifest, SdkFeatureManifest
 
 from manifesttool import github_api, hgmo_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, DiscoveryStrategyType, RepositoryType
@@ -165,7 +165,7 @@ def fetch_legacy_app(
 
         with manifest_path.open() as f:
             raw_manifest = yaml.safe_load(f)
-            manifest = FeatureManifest.parse_obj(raw_manifest)
+            manifest = DesktopFeatureManifest.parse_obj(raw_manifest)
 
         schema_dir = app_dir / "schemas"
         schema_dir.mkdir(exist_ok=True)
@@ -174,9 +174,7 @@ def fetch_legacy_app(
         # once.
         fetched_schemas = set()
 
-        for feature_slug, feature in manifest.__root__.items():
-            feature = feature.__root__
-
+        for feature_slug, feature in manifest.root.items():
             if feature.json_schema is not None:
                 if feature.json_schema.path in fetched_schemas:
                     print(
@@ -222,7 +220,7 @@ def fetch_releases(
 
     versions = {}
     for strategy in app_config.release_discovery.strategies:
-        strategy = strategy.__root__
+        strategy = strategy.root
         if strategy.type == DiscoveryStrategyType.TAGGED:
             versions.update(discover_tagged_releases(app_name, app_config, strategy))
         elif strategy.type == DiscoveryStrategyType.BRANCHED:
