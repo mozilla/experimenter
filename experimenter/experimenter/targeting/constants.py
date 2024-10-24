@@ -1819,6 +1819,17 @@ ANDROID_8_OR_HIGHER_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+ANDROID_10_OR_HIGHER_USERS = NimbusTargetingConfig(
+    name="Android Version 10+ Users",
+    slug="android_10_or_higher_users",
+    description="Users on Android version 10 or higher",
+    targeting="(android_sdk_version|versionCompare('29') >= 0)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 WINDOWS_10_PLUS = NimbusTargetingConfig(
     name="Windows 10+",
     slug="windows_10_plus",
