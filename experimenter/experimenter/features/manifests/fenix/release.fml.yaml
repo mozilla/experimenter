@@ -385,6 +385,13 @@ features:
         description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
         type: Boolean
         default: false
+  networking:
+    description: Enables networking features
+    variables:
+      fetchPriorityEnabled:
+        description: "Enables or disables network.fetchpriority.enabled preference.\n"
+        type: Boolean
+        default: true
   nimbus-is-ready:
     description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
     variables:
