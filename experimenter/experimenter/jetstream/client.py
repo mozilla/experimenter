@@ -38,6 +38,7 @@ ALL_STATISTICS = {
     Statistic.MEAN,
     Statistic.COUNT,
     Statistic.PERCENT,
+    Statistic.POPULATION_RATIO,
 }
 
 analysis_storage = storages["analysis"]

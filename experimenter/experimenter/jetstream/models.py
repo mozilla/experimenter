@@ -43,6 +43,7 @@ class Statistic(StrEnum):
     BINOMIAL = "binomial"
     MEAN = "mean"
     COUNT = "count"
+    POPULATION_RATIO = "population_ratio"
 
 
 class Segment(StrEnum):
