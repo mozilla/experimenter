@@ -74,6 +74,7 @@ dockerflow = "^2024.4.1"
 django-filter = "^23.5"
 django-bootstrap5 = "^24.3"
 djlint = "^1.35.2"
+pyyaml = "^6.0.1"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
