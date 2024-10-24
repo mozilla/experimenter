@@ -55,7 +55,6 @@ LEGACY_MANIFEST_PATH = "experimenter.yaml"
 
 LEGACY_MANIFEST = {
     "feature": {
-        "owner": "owner@example.com",
         "description": "Feature",
         "hasExposure": False,
         "variables": {},
@@ -875,7 +874,7 @@ class FetchTests(TestCase):
         self.assertEqual(
             cache,
             RefCache(
-                {
+                __root__={
                     "branch": "foo",
                     "tag": "bar",
                 }
@@ -971,7 +970,7 @@ class FetchTests(TestCase):
         )
 
         cache = RefCache(
-            {
+            __root__={
                 "branch": "outdated-branch",
                 "tag": "up-to-date-tag",
             }
@@ -994,7 +993,7 @@ class FetchTests(TestCase):
         self.assertEqual(
             cache,
             RefCache(
-                {
+                __root__={
                     "branch": "up-to-date-branch",
                     "tag": "up-to-date-tag",
                 }

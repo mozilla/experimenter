@@ -241,7 +241,7 @@ def get_experiment_data(experiment: NimbusExperiment):
 
         for segment, segment_data in segment_points_enrollments.items():
             data = raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = JetstreamData(
-                segment_data
+                __root__=(segment_data)
             )
             (
                 result_metrics,
@@ -279,7 +279,7 @@ def get_experiment_data(experiment: NimbusExperiment):
 
         for segment, segment_data in segment_points_exposures.items():
             data = raw_data[window][AnalysisBasis.EXPOSURES][segment] = JetstreamData(
-                segment_data
+                __root__=(segment_data)
             )
             (
                 result_metrics,

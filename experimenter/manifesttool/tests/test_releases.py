@@ -66,7 +66,8 @@ def mocks_for_discover_tagged_releases(
     # Mocking plist files is more annoying.
     assert app_config.release_discovery is not None
     assert (
-        app_config.release_discovery.version_file.root.type == VersionFileType.PLAIN_TEXT
+        app_config.release_discovery.version_file.__root__.type
+        == VersionFileType.PLAIN_TEXT
     )
 
     # Ensure tags are defined if app specifies a tag regex.
@@ -84,7 +85,7 @@ def mocks_for_discover_tagged_releases(
     ):
         assert repo == app_config.repo.name
         assert download_path is None
-        assert path == app_config.release_discovery.version_file.root.path
+        assert path == app_config.release_discovery.version_file.__root__.path
         assert ref in ref_versions
 
         return str(ref_versions[ref])
@@ -159,9 +160,9 @@ class ReleaseTests(TestCase):
             manifest_dir.joinpath(app_config.slug).mkdir()
 
             with mocks_for_discover_tagged_releases(
-                app_config, strategy.root, branches, tags, ref_versions
+                app_config, strategy.__root__, branches, tags, ref_versions
             ):
-                releases = discover_tagged_releases("app", app_config, strategy.root)
+                releases = discover_tagged_releases("app", app_config, strategy.__root__)
 
         self.assertEqual(
             releases,
@@ -226,12 +227,12 @@ class ReleaseTests(TestCase):
 
             with mocks_for_discover_tagged_releases(
                 app_config,
-                strategy.root,
+                strategy.__root__,
                 branches,
                 tags,
                 ref_versions,
             ):
-                releases = discover_tagged_releases("app", app_config, strategy.root)
+                releases = discover_tagged_releases("app", app_config, strategy.__root__)
 
             self.assertEqual(
                 releases,
@@ -300,12 +301,12 @@ class ReleaseTests(TestCase):
 
             with mocks_for_discover_tagged_releases(
                 app_config,
-                strategy.root,
+                strategy.__root__,
                 branches,
                 tags,
                 ref_versions,
             ):
-                releases = discover_tagged_releases("app", app_config, strategy.root)
+                releases = discover_tagged_releases("app", app_config, strategy.__root__)
 
         self.assertEqual(
             releases,
@@ -345,13 +346,13 @@ class ReleaseTests(TestCase):
             manifest_dir.joinpath(app_config.slug).mkdir()
 
             with mocks_for_discover_tagged_releases(
-                app_config, strategy.root, branches, None, ref_versions
+                app_config, strategy.__root__, branches, None, ref_versions
             ) as (
                 get_branches,
                 get_tags,
                 resolve_ref_versions,
             ):
-                releases = discover_tagged_releases("app", app_config, strategy.root)
+                releases = discover_tagged_releases("app", app_config, strategy.__root__)
 
                 get_tags.assert_not_called()
 
@@ -390,7 +391,7 @@ class ReleaseTests(TestCase):
             with self.assertRaisesRegex(
                 Exception, "Could not find a major release for app."
             ):
-                discover_tagged_releases("app", app_config, strategy.root)
+                discover_tagged_releases("app", app_config, strategy.__root__)
 
     @parameterized.expand(
         [
@@ -432,7 +433,7 @@ class ReleaseTests(TestCase):
         ]
     )
     def test_discover_branched_releases(self, app_config: AppConfig, api):
-        strategy = app_config.release_discovery.strategies[0].root
+        strategy = app_config.release_discovery.strategies[0].__root__
         app_name = app_config.slug.replace("-", "_")
 
         branches = {"foo": "1", "bar": "2", "baz": "3"}
@@ -507,7 +508,9 @@ class ReleaseTests(TestCase):
             manifest_dir = Path(tmp)
             manifest_dir.joinpath(app_config.slug).mkdir()
 
-            releases = discover_branched_releases("legacy_app", app_config, strategy.root)
+            releases = discover_branched_releases(
+                "legacy_app", app_config, strategy.__root__
+            )
 
             self.assertEqual(
                 releases,
