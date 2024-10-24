@@ -27,7 +27,9 @@ from manifesttool.version import Version
 def make_app_configs(app_configs: list[AppConfig]) -> AppConfigs:
     """Generate the AppConfigs for a single app."""
     return AppConfigs(
-        {app_config.slug.replace("-", "_"): app_config for app_config in app_configs}
+        __root__={
+            app_config.slug.replace("-", "_"): app_config for app_config in app_configs
+        }
     )
 
 
@@ -195,7 +197,7 @@ class CliTests(TestCase):
             self.assertTrue(cache_path.exists(), "cli writes per-app ref cache")
             cache = RefCache.load_from_file(cache_path)
 
-        self.assertEqual(cache, RefCache({"foo": "bar"}))
+        self.assertEqual(cache, RefCache(__root__={"foo": "bar"}))
 
         # This is technically called with an empty cache, but the mock stores
         # the args it was called with. ``cache`` is an object, so when we update
@@ -228,7 +230,7 @@ class CliTests(TestCase):
     @patch.object(
         manifesttool.fetch.RefCache,
         "load_or_create",
-        lambda *args: RefCache({"foo": "bar"}),
+        lambda *args: RefCache(__root__={"foo": "bar"}),
     )
     def test_fetch_summary_filename(self):
         app_config = AppConfig(

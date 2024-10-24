@@ -8,7 +8,6 @@ feature-1:
       description: baz
 
 feature-2:
-  owner: owner@example.com
   description: Feature 2 for version 120.1.0
   hasExposure: false
   variables: {}

@@ -60,14 +60,14 @@ def fetch(ctx: click.Context, *, summary_filename: Optional[Path], app_names: li
 
     if app_names:
         for app_name in app_names:
-            if app_name not in context.app_configs.root.keys():
+            if app_name not in context.app_configs.__root__.keys():
                 print(f"fetch: unknown app {app_name}", file=sys.stderr)
                 sys.exit(1)
     else:
-        app_names = context.app_configs.root.keys()
+        app_names = context.app_configs.__root__.keys()
 
     for app_name in app_names:
-        app_config = context.app_configs.root[app_name]
+        app_config = context.app_configs.__root__[app_name]
 
         app_dir = context.manifest_dir.joinpath(app_config.slug)
         app_dir.mkdir(exist_ok=True)
