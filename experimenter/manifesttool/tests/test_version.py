@@ -164,11 +164,11 @@ class VersionTests(TestCase):
     ):
         """Testing find_versioned_refs with real branch data."""
         strategy = next(
-            release_discovery.root
-            for release_discovery in self.app_configs.root[
+            release_discovery.__root__
+            for release_discovery in self.app_configs.__root__[
                 app_name
             ].release_discovery.strategies
-            if release_discovery.root.type == DiscoveryStrategyType.TAGGED
+            if release_discovery.__root__.type == DiscoveryStrategyType.TAGGED
         )
         self._test_find_versioned_refs(
             strategy.branch_re,
@@ -250,11 +250,11 @@ class VersionTests(TestCase):
     ):
         """Testing find_versioned_refs with real tag data."""
         strategy = next(
-            release_discovery.root
-            for release_discovery in self.app_configs.root[
+            release_discovery.__root__
+            for release_discovery in self.app_configs.__root__[
                 app_name
             ].release_discovery.strategies
-            if release_discovery.root.type == DiscoveryStrategyType.TAGGED
+            if release_discovery.__root__.type == DiscoveryStrategyType.TAGGED
         )
         self._test_find_versioned_refs(
             strategy.tag_re,
@@ -366,7 +366,7 @@ class VersionTests(TestCase):
     )
     def test_validate_invalid_types(self, v: Any):
         """Testing Version.validate with invalid input types."""
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValidationError):
             VersionModel.parse_obj({"version": v})
 
     def test_validate_version(self):
@@ -472,7 +472,7 @@ class VersionTests(TestCase):
                     make_responses_for_fetch(
                         app_config.repo.name,
                         ref.target,
-                        app_config.release_discovery.version_file.root.path,
+                        app_config.release_discovery.version_file.__root__.path,
                         body,
                     )
                 )
@@ -480,7 +480,7 @@ class VersionTests(TestCase):
                 rsps.append(
                     responses.get(
                         f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
-                        f"{ref.target}/{app_config.release_discovery.version_file.root.path}",
+                        f"{ref.target}/{app_config.release_discovery.version_file.__root__.path}",
                         body=body,
                     )
                 )
@@ -542,7 +542,7 @@ class VersionTests(TestCase):
     )
     @responses.activate
     def test_resolve_ref_versions_multiple_files(self, app_config, bodies, expected):
-        version_paths = app_config.release_discovery.version_file.root.path
+        version_paths = app_config.release_discovery.version_file.__root__.path
 
         refs = []
         rsps = []
@@ -605,7 +605,7 @@ class VersionTests(TestCase):
                 status=404,
                 body=b"",
             )
-            for path in app_config.release_discovery.version_file.root.path
+            for path in app_config.release_discovery.version_file.__root__.path
         ]
 
         with self.assertRaisesRegex(
