@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from mozilla_nimbus_schemas.experiments.feature_manifests import SetPref
+from mozilla_nimbus_schemas.experiments.feature_manifests import DesktopFeature, SetPref
 
 from experimenter.experiments.constants import NO_FEATURE_SLUG, Application
 from experimenter.experiments.models import (
@@ -147,6 +147,10 @@ class Command(BaseCommand):
         schemas_to_create = []
         for feature in Features.all():
             feature_config = feature_configs[(feature.application_slug, feature.slug)]
+            is_early_startup = (
+                isinstance(feature.model, DesktopFeature)
+                and feature.model.is_early_startup
+            )
 
             feature_version: Optional[NimbusFeatureVersion] = None
             feature_version_id: Optional[int] = None
@@ -163,7 +167,7 @@ class Command(BaseCommand):
                 schema = NimbusVersionedSchema(
                     feature_config=feature_config,
                     version=feature_version,
-                    is_early_startup=feature.model.is_early_startup or False,
+                    is_early_startup=is_early_startup,
                     set_pref_vars={},
                 )
 
@@ -183,10 +187,7 @@ class Command(BaseCommand):
                     schema.set_pref_vars = set_pref_vars
                     dirty_fields.append("set_pref_vars")
 
-                if (
-                    feature.model.is_early_startup is not None
-                    and schema.is_early_startup != feature.model.is_early_startup
-                ):
+                if schema.is_early_startup != is_early_startup:
                     schema.is_early_startup = feature.model.is_early_startup
                     dirty_fields.append("is_early_startup")
 
