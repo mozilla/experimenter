@@ -609,6 +609,21 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
+  third-party-cookie-blocking:
+    description: Control third-party cookie blocking.
+    variables:
+      enabled:
+        description: "If true, the feature is active."
+        type: Boolean
+        default: false
+      enabled-normal:
+        description: "Enables / disables third-party cookie blocking in normal browsing mode.\n"
+        type: Boolean
+        default: false
+      enabled-private:
+        description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
+        type: Boolean
+        default: true
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
