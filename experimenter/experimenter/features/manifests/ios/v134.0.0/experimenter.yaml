@@ -1,0 +1,313 @@
+---
+account-settings-redux-feature:
+  description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
+address-autofill-edit:
+  description: This property defines if the address editing is enabled in Settings
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "If true, we will allow user to edit the address"
+bookmark-refactor-feature:
+  description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the bookmark refactor feature\n"
+contextual-hint-feature:
+  description: This set holds all features pertaining to contextual hints.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    features-enabled:
+      type: json
+      description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+credit-card-autofill:
+  description: This property defines the credit card autofill feature
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    credit-card-autofill-status:
+      type: boolean
+      description: "If true, we will allow user to use the credit autofill feature"
+felt-privacy-feature:
+  description: The feature that enhances private browsing mode
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    felt-deletion-enabled:
+      type: boolean
+      description: "If true, enable Felt Deletion part of Felt Privacy"
+    simplified-ui-enabled:
+      type: boolean
+      description: "If true, enable simplified UI part of Felt Privacy"
+firefox-suggest-feature:
+  description: Configuration for the Firefox Suggest feature.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    available-suggestions-types:
+      type: json
+      description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
+    status:
+      type: boolean
+      description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
+general-app-features:
+  description: The feature that contains feature flags for the entire application
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    report-site-issue:
+      type: json
+      description: This property defines whether or not the feature is enabled
+glean-server-knobs:
+  description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    metrics-enabled:
+      type: json
+      description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+homepage-rebuild-feature:
+  description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, enables the feature\n"
+homescreenFeature:
+  description: The homescreen that the user goes to when they press home or new tab.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    prefer-switch-to-open-tab:
+      type: boolean
+      description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
+    sections-enabled:
+      type: json
+      description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
+login-autofill:
+  description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    login-autofill-status:
+      type: boolean
+      description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+menu-refactor-feature:
+  description: "Controls the menu refactor feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Controls which menu users will see\n"
+    menu-hint:
+      type: boolean
+      description: "If true, enables the menu contextual hint.\n"
+messaging:
+  description: "The in-app messaging system\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    actions:
+      type: json
+      description: A growable map of action URLs.
+    message-under-experiment:
+      type: string
+      description: "Deprecated. Please use \"experiment\": \"{experiment}\" instead."
+    messages:
+      type: json
+      description: "A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.\n"
+    on-control:
+      type: string
+      description: What should be displayed when a control message is selected.
+      enum:
+        - show-next-message
+        - show-none
+    styles:
+      type: json
+      description: "A map of styles to configure message appearance.\n"
+    triggers:
+      type: json
+      description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
+    ~~experiment:
+      type: string
+      description: Not to be set by experiment.
+microsurvey-feature:
+  description: "A feature that shows the microsurvey for users to interact with and submit responses.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the feature is active.\n"
+native-error-page-feature:
+  description: "This feature is for managing the roll out of the native error page feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the feature is active.\n"
+night-mode-feature:
+  description: "Describes the night mode feature's configuration\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether night mode is available for users or not\n"
+onboarding-framework-feature:
+  description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    cards:
+      type: json
+      description: "The list of available cards for onboarding.\n"
+    conditions:
+      type: json
+      description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
+    dismissable:
+      type: boolean
+      description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
+password-generator-feature:
+  description: Password Generator Feature
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the password generator feature is enabled"
+redux-search-settings-feature:
+  description: "This feature is for managing the roll out of redux on the search settings screen\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
+remote-tab-management:
+  description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    close-tabs-enabled:
+      type: boolean
+      description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
+search:
+  description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    awesome-bar:
+      type: json
+      description: Configuring the awesome bar.
+shopping2023:
+  description: "The configuration setting for the status of the Fakespot feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    back_in_stock_reporting:
+      type: boolean
+      description: "If true, enables for users the reporting feature for products back in stock.\n"
+    config:
+      type: json
+      description: "A Map of website configurations\n"
+    product_ads:
+      type: boolean
+      description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
+    relay:
+      type: string
+      description: "Configurable relay URL for production environment\n"
+    status:
+      type: boolean
+      description: "Whether the Fakespot feature is enabled or disabled\n"
+splash-screen:
+  description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the feature is active.\n"
+    maximum_duration_ms:
+      type: int
+      description: "The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.\n"
+spotlight-search:
+  description: Add pages as items findable with Spotlight.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If this is true, then on each page load adds a new item to Spotlight."
+    icon-type:
+      type: string
+      description: "The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.\n"
+    keep-for-days:
+      type: int
+      description: "Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.\n"
+    searchable-content:
+      type: string
+      description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
+tab-tray-refactor-feature:
+  description: "This feature is for managing the roll out of the Tab Tray refactor feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
+tabTrayFeature:
+  description: The tab tray screen that the user goes to when they open the tab tray.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    sections-enabled:
+      type: json
+      description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
+toolbar-refactor-feature:
+  description: "This feature is for managing the roll out of the Toolbar refactor feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
+    navigation_hint:
+      type: boolean
+      description: "If true, enables the navigation contextual hint.\n"
+    one_tap_new_tab:
+      type: boolean
+      description: "If true, enables the one tap new tab feature for users.\n"
+    unified_search:
+      type: boolean
+      description: "Enables the unified search feature\n"
+tracking-protection-refactor:
+  description: "The Enhanced Tracking Protection refactor\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
+zoom-feature:
+  description: "The configuration for the status of the zoom feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "Whether the page zoom feature is enabled or not\n"
