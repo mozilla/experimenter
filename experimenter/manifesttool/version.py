@@ -3,6 +3,7 @@ from __future__ import annotations
 import plistlib
 import re
 from dataclasses import dataclass
+from pydantic import ValidationInfo
 from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 from requests import HTTPError
@@ -90,7 +91,7 @@ class Version:
         yield cls.validate
 
     @classmethod
-    def validate(cls, value: Any):
+    def validate(cls, value: Any, info: ValidationInfo):
         if isinstance(value, cls):
             # Allow using Version directly in app configurations in tests.
             return value
@@ -169,10 +170,10 @@ def parse_version_file(f: VersionFile, contents: str) -> Optional[Version]:
     """
     from manifesttool.appconfig import VersionFileType
 
-    if f.__root__.type == VersionFileType.PLAIN_TEXT:
+    if f.root.type == VersionFileType.PLAIN_TEXT:
         return _parse_plain_text_version_file(contents)
-    elif f.__root__.type == VersionFileType.PLIST:
-        return _parse_plist_version_file(contents, f.__root__.key)
+    elif f.root.type == VersionFileType.PLIST:
+        return _parse_plist_version_file(contents, f.root.key)
 
 
 def _parse_plain_text_version_file(contents: str) -> Optional[Version]:
@@ -212,7 +213,7 @@ def resolve_ref_versions(
 
     version_file_paths: str | list[
         str
-    ] = app_config.release_discovery.version_file.__root__.path
+    ] = app_config.release_discovery.version_file.root.path
     if not isinstance(version_file_paths, list):
         version_file_paths = [version_file_paths]
 
