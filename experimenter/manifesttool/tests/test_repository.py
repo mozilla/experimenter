@@ -26,7 +26,7 @@ class CacheTests(TestCase):
                 cache = RefCache.load_from_file(path)
 
             self.assertEqual(
-                cache.root,
+                cache.__root__,
                 {
                     "foo": "foo-target",
                     "bar": "bar-target",
@@ -36,7 +36,7 @@ class CacheTests(TestCase):
     def test_write_to_file(self):
         """Testing RefCache.write_to_file."""
         cache = RefCache(
-            {
+            __root__={
                 "foo": "foo-target",
                 "bar": "bar-target",
             }
