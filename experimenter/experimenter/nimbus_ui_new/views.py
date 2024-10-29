@@ -1,9 +1,8 @@
 from django.conf import settings
 from django.http import HttpResponse
-from django.urls import reverse
-from django.views.generic import CreateView, DetailView, View
-from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.urls import reverse
+from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
@@ -218,6 +217,7 @@ class MetricsUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView)
         super().form_valid(form)
         return self.render_to_response(self.get_context_data(form=form))
 
+
 class SubscriptionToggleView(RequestFormMixin, NimbusExperimentViewMixin, UpdateView):
     def post(self, request, *args, **kwargs):
         experiment = self.get_object()
@@ -230,11 +230,10 @@ class SubscriptionToggleView(RequestFormMixin, NimbusExperimentViewMixin, Update
             experiment.subscribers.add(user)
 
         context = {
-                'experiment': experiment,
-                'request': request  # Passing request if your template needs it
-            }
+            "experiment": experiment,
+        }
         html = render_to_string(
-            "nimbus_experiments/subscribers_list_template.html",
+            "nimbus_experiments/subscribers_list.html",
             context,
             request=request,
         )

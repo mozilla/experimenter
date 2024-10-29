@@ -1090,6 +1090,33 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertTrue(self.experiment.vp_signoff)
         self.assertTrue(self.experiment.legal_signoff)
 
+    def test_subscribe_to_experiment(self):
+        self.assertNotIn(self.user, self.experiment.subscribers.all())
+
+        response = self.client.post(
+            reverse("toggle-subscription", kwargs={"slug": self.experiment.slug})
+        )
+
+        self.experiment.refresh_from_db()
+
+        self.assertIn(self.user, self.experiment.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
+    def test_unsubscribe_from_experiment(self):
+        self.experiment.subscribers.add(self.user)
+        self.experiment.save()
+
+        self.assertIn(self.user, self.experiment.subscribers.all())
+
+        response = self.client.post(
+            reverse("toggle-subscription", kwargs={"slug": self.experiment.slug})
+        )
+
+        self.experiment.refresh_from_db()
+
+        self.assertNotIn(self.user, self.experiment.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
 
 class TestNimbusExperimentsCreateView(AuthTestCase):
     def test_post_creates_experiment(self):
