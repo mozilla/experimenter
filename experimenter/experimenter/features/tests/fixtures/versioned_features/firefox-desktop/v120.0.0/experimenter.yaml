@@ -8,7 +8,6 @@ feature-1:
       description: bar
 
 feature-2:
-  owner: owner@example.com
   description: Feature 2 for version 120.0.0
   hasExposure: false
   variables: {}

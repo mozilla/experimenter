@@ -1,5 +1,4 @@
 someFeature:
-  owner: owner@example.com
   description: Some Firefox Feature
   hasExposure: true
   exposureDescription: An exposure event
@@ -26,14 +25,12 @@ someFeature:
       type: json
       description: Arbitrary JSON Property
 missingVariables:
-  owner: owner@example.com
   description: Some Firefox Feature
   hasExposure: true
   exposureDescription: An exposure event
   isEarlyStartup: true
   variables: {}
 oldSetPrefFeature:
-  owner: owner@example.com
   description: A feature that sets prefs via the old setPref schema
   hasExposure: true
   exposureDescription: An exposure event
@@ -51,19 +48,16 @@ oldSetPrefFeature:
       setPref: nimbus.test.boolean
       description: Boolean property
 setPrefFeature:
-  owner: owner@example.com
   description: A feature that sets prefs
   hasExposure: false
   variables:
     user:
       type: string
-      description: string property on user branch
       setPref:
         branch: user
         pref: nimbus.user
     default:
       type: string
-      description: string property on default branch
       setPref:
         branch: default
         pref: nimbus.default

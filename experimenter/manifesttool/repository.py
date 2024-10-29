@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel, Field, RootModel
+from pydantic import BaseModel, Field
 import yaml
 
 
@@ -27,8 +27,8 @@ class Ref:
         return s
 
 
-class RefCache(RootModel):
-    root: dict[str, str] = Field(default_factory=dict)
+class RefCache(BaseModel):
+    __root__: dict[str, str] = Field(default_factory=dict)
 
     @classmethod
     def load_or_create(cls, path: Path) -> "RefCache":
@@ -46,14 +46,14 @@ class RefCache(RootModel):
 
     def write_to_file(self, path: Path):
         with path.open("w") as f:
-            yaml.safe_dump(self.root, f)
+            yaml.safe_dump(self.__root__, f)
 
     def get(self, name: str) -> Optional[Ref]:
-        if target := self.root.get(name):
+        if target := self.__root__.get(name):
             return Ref(name, target)
 
         return None
 
     def add(self, ref: Ref):
         assert ref.is_resolved
-        self.root[ref.name] = ref.target
+        self.__root__[ref.name] = ref.target

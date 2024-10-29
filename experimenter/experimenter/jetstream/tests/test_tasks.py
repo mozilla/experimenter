@@ -2357,8 +2357,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         sizing_results = cache.get(SIZING_DATA_KEY)
 
         self.assertEqual(
-            json.loads(sizing_test_data),
-            sizing_results.model_dump(exclude_unset=True),
+            json.dumps(json.loads(sizing_test_data)),
+            sizing_results.json(exclude_unset=True),
         )
 
     @patch("experimenter.jetstream.client.analysis_storage.open")
