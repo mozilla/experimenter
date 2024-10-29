@@ -45,7 +45,7 @@
       "type": "boolean"
     },
     "isFirefoxLabsOptIn": {
-      "description": "Whether this experiment is a Firefox Labs experiment",
+      "description": "When this property is set to true, treat this experiment as aFirefox Labs experiment",
       "type": "boolean"
     },
     "firefoxLabsTitle": {

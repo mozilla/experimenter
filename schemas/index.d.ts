@@ -193,7 +193,7 @@ export interface NimbusExperiment {
    */
   isRollout?: boolean;
   /**
-   * Whether this experiment is a Firefox Labs experiment
+   * When this property is set to true, treat this experiment as aFirefox Labs experiment
    */
   isFirefoxLabsOptIn?: boolean;
   /**
