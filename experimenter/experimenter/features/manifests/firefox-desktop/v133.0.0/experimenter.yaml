@@ -431,6 +431,11 @@ urlbar:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.impressionCaps.nonSponsoredEnabled
       description: Whether non-sponsored suggestions are subject to impression frequency caps. If false, non-sponsored suggestions can be shown an unlimited number of times over any given period. If true, non-sponsored suggestion impressions will be subject to the caps in the remote settings configuration.
+    quickSuggestMlEnabled:
+      type: boolean
+      fallbackPref: browser.urlbar.quicksuggest.mlEnabled
+      description: >-
+        Whether Suggest will use the ML backend in addition to Rust.
     quickSuggestNonSponsoredEnabled:
       type: boolean
       description: Whether non-sponsored suggestions should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) non-sponsored suggestions, if the user has already toggled that preference.
@@ -538,21 +543,7 @@ urlbar:
       fallbackPref: browser.urlbar.weather.featureGate
       description: >-
         Feature gate that controls whether all aspects of the weather suggestion
-        feature are exposed to the user. See also `weatherKeywords` and
-        `weatherKeywordsMinimumLength`. In summary: To enable the weather
-        suggestion, set `weatherFeatureGate` to true, `weatherKeywords` to an
-        array of full keyword strings, and `weatherKeywordsMinimumLength` to a
-        non-zero integer. To disable the weather suggestion, leave out all
-        weather-related variables.
-    weatherKeywords:
-      type: json
-      description: >-
-        An array of full keyword strings that will trigger the weather
-        suggestion when the user types them in the address bar. If absent or
-        null, Firefox will fall back to the weather keywords defined in remote
-        settings. If neither Nimbus nor remote settings defines any keywords,
-        the weather suggestion will be disabled. See also
-        `weatherKeywordsMinimumLength`.
+        feature are exposed to the user.
     weatherKeywordsMinimumLength:
       type: int
       description: >-
@@ -561,8 +552,7 @@ urlbar:
         `weatherKeywordsMinimumLength` characters long. If this variable is
         absent or zero, Firefox will fall back to the minimum length defined in
         remote settings. If neither Nimbus nor remote settings defines a minimum
-        length, only full keywords will trigger the suggestion. See also
-        `weatherKeywords`.
+        length, only full keywords will trigger the suggestion.
     weatherKeywordsMinimumLengthCap:
       type: int
       description: >-
@@ -587,6 +577,12 @@ urlbar:
       description: >-
         The minimum prefix length of a Yelp keyword the user must type to
         trigger the suggestion.
+    yelpMlEnabled:
+      type: boolean
+      fallbackPref: browser.urlbar.yelp.mlEnabled
+      description: >-
+        Whether Yelp suggestions will be served from the Suggest ML backend
+        instead of Rust.
     yelpFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.yelp.featureGate
@@ -859,6 +855,27 @@ newtabSpocsCache:
         pref: browser.newtabpage.activity-stream.discoverystream.spocs.startupCache.enabled
       description: >-
         Controls if spocs should be included in startup cache.
+
+newtabAdSizingExperiment:
+  description: >-
+    Change the default ad size and UI for certain ad formats.
+  owner: achurchwell@mozilla.com, sdowne@mozilla.com
+  hasExposure: false
+  variables:
+    variantA:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabAdSize.variant-a
+      description: >-
+        Variant A ad size and UI.
+    variantB:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabAdSize.variant-b
+      description: >-
+        Variant B ad size and UI.
 
 newtabLayoutExperiment:
   description: >-
@@ -1426,6 +1443,18 @@ address-autofill-feature:
         branch: default
         pref: extensions.formautofill.addresses.experiments.enabled
       description: If true, we will allow user to use address autofill
+
+creditcards-autofill-enabled:
+  description: Credit card autofill is enabled in all regions
+  owner: issozi@mozilla.com
+  hasExposure: false
+  variables:
+   creditcardsSupported:
+      description: Enable credit card autofill in all regions
+      type: string
+      setPref:
+        branch: default
+        pref: extensions.formautofill.creditCards.supported
 
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
@@ -2139,6 +2168,12 @@ networking:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
+    chipsEnabled:
+      description: Whether CHIPS is enabled or not
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.CHIPS.enabled"
     chipsPartitionLimitEnabled:
       description: Whether we enforce CHIPS partition limit
       type: boolean
@@ -2157,6 +2192,19 @@ networking:
       setPref:
         branch: default
         pref: "network.cookie.chips.partitionLimitByteCapacity"
+
+disableHttp3:
+  description: "Whether HTTP/3 is disabled"
+  owner: kershaw@mozilla.com
+  hasExposure: false
+  variables:
+    withThirdPartyRoots:
+      description: If third party roots are detected, disable HTTP/3
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.disable_when_third_party_roots_found"
+
 
 networkPrioritization:
   description: "Network request prioritization"
@@ -2656,6 +2704,46 @@ fxaClientAssociation:
       setPref:
         branch: user
         pref: identity.fxaccounts.telemetry.clientAssociationPing.enabled
+
+fxaAppMenuItem:
+  description: >-
+    Prefs to control the appearance and copy of the FxA sign-in button in the
+    AppMenu when signed out.
+  owner: mconley@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Exposure is recorded when the user is enrolled in an experiment using this
+    feature and the AppMenu on Firefox Desktop is opened.
+  variables:
+    ctaCopyVariant:
+      description: >-
+        One of the following values:
+          - control
+          - sync-devices
+          - backup-data
+          - backup-sync
+          - mobile
+      type: string
+
+fxaAvatarMenuItem:
+  description: >-
+    Prefs to control the appearance and copy of the FxA sign-in button in the
+    FxA avatar menu when signed out.
+  owner: mconley@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Exposure is recorded when the user is enrolled in an experiment using this
+    feature and the FxA avatar menu on Firefox Desktop is opened.
+  variables:
+    ctaCopyVariant:
+      description: >-
+        One of the following values:
+          - control
+          - sync-devices
+          - backup-data
+          - backup-sync
+          - mobile
+      type: string
 
 legacyHeartbeat:
   description: Normandy Heartbeat exposed to Nimbus
@@ -3314,6 +3402,12 @@ bookmarks:
         branch: user
         pref: browser.toolbars.bookmarks.visibility
       description: If the bookmarks toolbar should never, always, or only show on newtab.
+    showOtherBookmarks:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.toolbars.bookmarks.showOtherBookmarks
+      description: Display state of the "Other Bookmarks" toolbar button.
 
 cookieBannerHandling:
   description: Automatically handle cookie banners on the user's behalf.
@@ -3786,6 +3880,13 @@ crlite:
         pref: security.pki.crlite_mode
       description: >-
         How CRLite results will be interpreted.
+    timestamps_for_coverage:
+      type: int
+      setPref:
+        branch: default
+        pref: security.pki.crlite_timestamps_for_coverage
+      description: >-
+        How many covered timestamps do we need to see before we enforce a CRLite result.
 
 chatbot:
   description: AI chatbot feature configuration
@@ -3831,3 +3932,15 @@ fxms_bmb_button:
     uri: chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json
     path: browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json
   variables: {}
+
+contentProcessSandbox:
+  description: Prefs that control the content process sandbox.
+  owner: bowen@mozilla.com
+  hasExposure: false
+  variables:
+    Level:
+      description: Content process sandbox level
+      type: int
+      setPref:
+        branch: user
+        pref: security.sandbox.content.level

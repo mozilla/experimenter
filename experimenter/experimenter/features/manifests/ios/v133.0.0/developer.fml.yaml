@@ -115,6 +115,10 @@ features:
         description: "Controls which menu users will see\n"
         type: Boolean
         default: false
+      menu-hint:
+        description: "If true, enables the menu contextual hint.\n"
+        type: Boolean
+        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:

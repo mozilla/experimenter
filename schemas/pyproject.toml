@@ -1,23 +1,27 @@
 [tool.poetry]
 name = "mozilla-nimbus-schemas"
-version = "2024.9.3"
+version = "2024.10.1"
 description = "Schemas used by Mozilla Nimbus and related projects."
 authors = ["mikewilli"]
 license = "MPL 2.0"
 readme = "README.md"
 packages = [{ include = "mozilla_nimbus_schemas" }]
+include = [{ path = "mozilla_nimbus_schemas/schemas", format = ["sdist", "wheel"] }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 pydantic = "^2"
 polyfactory = "^2.7.2"
+typing-extensions = ">=4.0.1" # Required until Python 3.11
+jsonschema = "^4.23.0"
 
 [tool.poetry.group.dev.dependencies]
-ruff = ">=0.5.0,<0.6.2"
+ruff = ">=0.5.0,<0.7.1"
 black = ">=23.3,<25.0"
 pytest = "^7.3.1"
 twine = "^5.1.1"
 PyYAML = "^6.0"
+
 
 [build-system]
 requires = ["poetry-core"]

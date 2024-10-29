@@ -24,7 +24,6 @@ import { OutcomesList } from "src/lib/types";
 import { AnalysisData, MetadataPoint } from "src/lib/visualization/types";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
-export const RESULTS_LOADING_TEXT = "Checking results availability...";
 export const RESULTS_WAITING_FOR_LAUNCH_TEXT =
   "Waiting for experiment to launch";
 
@@ -105,26 +104,27 @@ export const AppLayoutSidebarLaunched = ({
     title: string,
   ) => {
     const sidebarItems = Object.keys(metrics).map((sidebarKey) => {
+      const metricName = metrics[sidebarKey] || sidebarKey;
       if (analysisRequired) {
         return (
-          <li className="ml-4 mb-2" key={metrics[sidebarKey]}>
+          <li className="ml-4 mb-2" key={metricName}>
             <a
               href={`#${sidebarKey}`}
               className="inherit-color font-weight-normal"
             >
-              {metrics[sidebarKey]}
+              {metricName}
             </a>
           </li>
         );
       }
       return (
         <LinkNav
-          key={metrics[sidebarKey]}
+          key={sidebarKey}
           route={`${slug}/results#${sidebarKey}`}
           textColor="inherit-color"
           className="font-weight-normal ml-4 mb-2"
         >
-          {metrics[sidebarKey]}
+          {metricName}
         </LinkNav>
       );
     });

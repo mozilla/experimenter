@@ -98,19 +98,32 @@ class NimbusExperimentsListTableView(NimbusExperimentsListView):
 
 
 def build_experiment_context(experiment):
-    doc_base_url = "https://mozilla.github.io/metric-hub/outcomes/"
+    outcome_doc_base_url = "https://mozilla.github.io/metric-hub/outcomes/"
     primary_outcome_links = [
-        (outcome, f"{doc_base_url}{experiment.application}/{outcome}")
+        (outcome, f"{outcome_doc_base_url}{experiment.application}/{outcome}")
         for outcome in experiment.primary_outcomes
     ]
     secondary_outcome_links = [
-        (outcome, f"{doc_base_url}{experiment.application}/{outcome}")
+        (outcome, f"{outcome_doc_base_url}{experiment.application}/{outcome}")
         for outcome in experiment.secondary_outcomes
+    ]
+
+    segment_doc_base_url = "https://mozilla.github.io/metric-hub/segments/"
+    segment_links = [
+        (
+            segment,
+            # ruff prefers this implicit syntax for concatenating strings
+            f"{segment_doc_base_url}"
+            f"{experiment.application.replace('-', '_')}/"
+            f"#{segment}",
+        )
+        for segment in experiment.segments
     ]
     context = {
         "RISK_QUESTIONS": RISK_QUESTIONS,
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
+        "segment_links": segment_links,
     }
     return context
 

@@ -71,7 +71,7 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
-    "@mozilla/nimbus-schemas": "^2024.9.1",
+    "@mozilla/nimbus-schemas": "^2024.10.1",
     "@rescripts/cli": "^0.0.16",
     "@testing-library/dom": "^8.20.0",
     "@testing-library/jest-dom": "^5.17.0",
@@ -109,7 +109,7 @@
     "prettier": "^2.8.0",
     "prettier-plugin-organize-imports": "^2.3.2",
     "react-select-event": "^5.5.0",
-    "sass": "^1.79.3",
+    "sass": "^1.80.3",
     "stylelint": "^13.13.1",
     "stylelint-config-prettier": "^8.0.2"
   },

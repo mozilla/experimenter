@@ -93,7 +93,7 @@ features:
       enable-event-timestamps:
         description: Enables precise event timestamps for Glean events
         type: Boolean
-        default: false
+        default: true
       metrics-enabled:
         description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
         type: "Map<String, Boolean>"
@@ -135,6 +135,7 @@ features:
         type: "Map<OnboardingCardKey, OnboardingCardData>"
         default:
           default-browser:
+            add-ons-data: []
             body: juno_onboarding_default_browser_description_nimbus_3
             card-type: default-browser
             disqualifiers:
@@ -148,6 +149,7 @@ features:
             secondary-button-label: juno_onboarding_default_browser_negative_button
             title: juno_onboarding_default_browser_title_nimbus_2
           add-search-widget:
+            add-ons-data: []
             body: juno_onboarding_add_search_widget_description
             card-type: add-search-widget
             disqualifiers:
@@ -161,6 +163,7 @@ features:
             secondary-button-label: juno_onboarding_add_search_widget_negative_button
             title: juno_onboarding_add_search_widget_title
           sync-sign-in:
+            add-ons-data: []
             body: juno_onboarding_sign_in_description_3
             card-type: sync-sign-in
             disqualifiers:
@@ -174,6 +177,7 @@ features:
             secondary-button-label: juno_onboarding_sign_in_negative_button
             title: juno_onboarding_sign_in_title_2
           notification-permission:
+            add-ons-data: []
             body: juno_onboarding_enable_notifications_description_nimbus_2
             card-type: notification-permission
             disqualifiers:
@@ -381,6 +385,13 @@ features:
         description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
         type: Boolean
         default: false
+  networking:
+    description: Enables networking features
+    variables:
+      fetchPriorityEnabled:
+        description: "Enables or disables network.fetchpriority.enabled preference.\n"
+        type: Boolean
+        default: true
   nimbus-is-ready:
     description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
     variables:
@@ -572,6 +583,21 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: true
+  third-party-cookie-blocking:
+    description: Control third-party cookie blocking.
+    variables:
+      enabled:
+        description: "If true, the feature is active."
+        type: Boolean
+        default: false
+      enabled-normal:
+        description: "Enables / disables third-party cookie blocking in normal browsing mode.\n"
+        type: Boolean
+        default: false
+      enabled-private:
+        description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
+        type: Boolean
+        default: true
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -666,6 +692,8 @@ enums:
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
+      add-ons:
+        description: Allows user to install add-ons from onboarding.
       add-search-widget:
         description: Allows user to add search widget to homescreen.
       default-browser:
@@ -708,6 +736,33 @@ enums:
       wikipedia:
         description: A Firefox Suggestion for a Wikipedia page.
 objects:
+  AddOnData:
+    description: An object to describe an add-on to be installed from the onboarding card.
+    fields:
+      average-rating:
+        description: The average rating of the add-on.
+        type: String
+        default: "0.0"
+      description:
+        description: A small description of the add-on to be displayed to the user.
+        type: Text
+        default: ""
+      icon-res:
+        description: The resource id of the icon of the add-on to be displayed.
+        type: Image
+        default: ic_onboarding_welcome
+      install-url:
+        description: The url from where the add-on can be installed.
+        type: Text
+        default: ""
+      name:
+        description: The name of the add-on to be displayed to the user.
+        type: Text
+        default: ""
+      review-count:
+        description: The amount of reviews the add-on has.
+        type: String
+        default: "0.0"
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
     fields:
@@ -795,6 +850,10 @@ objects:
   OnboardingCardData:
     description: An object to describe a user facing onboarding card.
     fields:
+      add-ons-data:
+        description: "An optional list of add-ons which will be shown in add-on onboarding card.\n"
+        type: List<AddOnData>
+        default: []
       body:
         description: The message text displayed to the user. May contain linkable text.
         type: Text

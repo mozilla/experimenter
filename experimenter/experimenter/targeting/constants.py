@@ -1819,6 +1819,17 @@ ANDROID_8_OR_HIGHER_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+ANDROID_10_OR_HIGHER_USERS = NimbusTargetingConfig(
+    name="Android Version 10+ Users",
+    slug="android_10_or_higher_users",
+    description="Users on Android version 10 or higher",
+    targeting="(android_sdk_version|versionCompare('29') >= 0)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 WINDOWS_10_PLUS = NimbusTargetingConfig(
     name="Windows 10+",
     slug="windows_10_plus",
@@ -2005,6 +2016,26 @@ INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+DEBUG_INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
+    name="DEBUG Ineligible for default PDF handler",
+    slug="debug_ineligible_for_default_pdf_handler",
+    description=(
+        "Targeting users that are ineligible to set Firefox as the default PDF "
+        "handler or have already done so. This omits safe navigators so bugs "
+        "in the targeting getters can be debugged."
+    ),
+    targeting=(
+        "(!os.isWindows || os.windowsVersion < 10) "
+        "|| hasActiveEnterprisePolicies "
+        "|| isDefaultHandler.pdf "
+        "|| (defaultPDFHandler.registered && !defaultPDFHandler.knownBrowser)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 SHOPPING_OPTED_IN = NimbusTargetingConfig(
     name="Users opted in to shopping",
     slug="shopping_opted_in",
@@ -2170,6 +2201,19 @@ MOZILLA_TESTDAY_EVENT = NimbusTargetingConfig(
     slug="users_that_have_testday_pref",
     description="Users that will be part of the Mozilla Testday events",
     targeting="'messaging-system-action.testday'|preferenceValue == 'testday'",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+DEFAULT_WINDOWS_CONTENT_PROCESS_SANDBOX_LEVEL = NimbusTargetingConfig(
+    name="Windows users and default content process sandbox level",
+    slug="default_windows_content_process_sandbox_level",
+    description=(
+        "Windows users who have not changed the content process sandbox level pref"
+    ),
+    targeting=("os.isWindows && !('security.sandbox.content.level'|preferenceIsUserSet)"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

@@ -1,4 +1,10 @@
 from .experiments import NimbusExperiment, RandomizationUnit
-from .feature_manifests import FeatureManifest
+from .feature_manifests import DesktopFeature, DesktopFeatureManifest, SdkFeatureManifest
 
-__all__ = ("NimbusExperiment", "RandomizationUnit", "FeatureManifest")
+__all__ = (
+    "DesktopFeature",
+    "DesktopFeatureManifest",
+    "NimbusExperiment",
+    "RandomizationUnit",
+    "SdkFeatureManifest",
+)

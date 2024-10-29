@@ -2,16 +2,17 @@
 /* eslint-disable */
 /**
 /* This file was automatically generated from pydantic models.
-/* Do not modify by hand - update the pydantic models and re-run the script
+/* Do not modify by hand - update the pydantic models and re-run
+ * make schemas_build
  */
 
+export type DesktopApplication = "firefox-desktop" | "firefox-desktop-background-task";
+export type FeatureVariableType = "int" | "string" | "boolean" | "json";
+export type PrefBranch = "default" | "user";
 /**
  * A unique, stable indentifier for the user used as an input to bucket hashing.
  */
 export type RandomizationUnit = "normandy_id" | "nimbus_id" | "user_id" | "group_id";
-export type Feature = FeatureWithExposure | FeatureWithoutExposure;
-export type FeatureVariableType = "int" | "string" | "boolean" | "json";
-export type PrefBranch = "default" | "user";
 export type AnalysisBasis = "enrollments" | "exposures";
 export type LogSource = "jetstream" | "sizing" | "jetstream-preview";
 export type AnalysisErrors = AnalysisError[];
@@ -31,6 +32,107 @@ export type SizingMetricName = "active_hours" | "search_count" | "days_of_use" |
 export type StatisticIngestEnum = "percentage" | "binomial" | "mean" | "count";
 export type Statistics = Statistic[];
 
+/**
+ * A feature.
+ */
+export interface DesktopFeature {
+  /**
+   * The description of the feature.
+   */
+  description: string;
+  /**
+   * Whether or not this feature records exposure telemetry.
+   */
+  hasExposure: boolean;
+  /**
+   * A description of the exposure telemetry collected by this feature.
+   *
+   * Only required if hasExposure is true.
+   */
+  exposureDescription?: string;
+  /**
+   * The owner of the feature.
+   */
+  owner: string;
+  /**
+   * If true, the feature values will be cached in prefs so that they can be read before Nimbus is initialized during Firefox startup.
+   */
+  isEarlyStartup?: boolean;
+  /**
+   * The applications that can enroll in experiments for this feature.
+   *
+   * Defaults to "firefox-desktop".
+   */
+  applications?: DesktopApplication[];
+  /**
+   * The variables that this feature can set.
+   */
+  variables: {
+    [k: string]: DesktopFeatureVariable;
+  };
+  schema?: NimbusFeatureSchema;
+}
+/**
+ * A feature variable.
+ */
+export interface DesktopFeatureVariable {
+  /**
+   * A description of the feature.
+   */
+  description: string;
+  type: FeatureVariableType;
+  /**
+   * An optional list of possible string or integer values.
+   *
+   * Only allowed when type is string or int.
+   *
+   * The types in the enum must match the type of the field.
+   */
+  enum?: string[] | number[];
+  /**
+   * A pref that provides the default value for a feature when none is present.
+   */
+  fallbackPref?: string;
+  /**
+   * A pref that should be set to the value of this variable when enrolling in experiments.
+   *
+   * Using a string is deprecated and unsupported in Firefox 124+.
+   */
+  setPref?: string | SetPref;
+}
+export interface SetPref {
+  branch: PrefBranch;
+  /**
+   * The name of the pref to set.
+   */
+  pref: string;
+}
+/**
+ * Information about a JSON schema.
+ */
+export interface NimbusFeatureSchema {
+  /**
+   * The resource:// or chrome:// URI that can be loaded at runtime within Firefox.
+   *
+   * Required by Firefox so that Nimbus can import the schema for validation.
+   */
+  uri: string;
+  /**
+   * The path to the schema file in the source checkout.
+   *
+   * Required by Experimenter so that it can find schema files in source checkouts.
+   */
+  path: string;
+}
+/**
+ * The Firefox Desktop-specific feature manifest.
+ *
+ * Firefox Desktop requires different fields for its features compared to the general
+ * Nimbus feature manifest.
+ */
+export interface DesktopFeatureManifest {
+  [k: string]: DesktopFeature;
+}
 /**
  * The experiment definition accessible to:
  *
@@ -106,6 +208,9 @@ export interface NimbusExperiment {
     | ExperimentSingleFeatureBranch[]
     | ExperimentMultiFeatureDesktopBranch[]
     | ExperimentMultiFeatureMobileBranch[];
+  /**
+   * A JEXL targeting expression used to filter out experiments.
+   */
   targeting?: string | null;
   /**
    * Actual publish date of the experiment.
@@ -168,7 +273,7 @@ export interface NimbusExperiment {
    *
    * If null, it has not yet been published.
    */
-  publishedDate?: string;
+  publishedDate?: string | null;
 }
 export interface ExperimentBucketConfig {
   randomizationUnit: RandomizationUnit;
@@ -282,48 +387,52 @@ export interface ExperimentMultiFeatureMobileBranch {
    */
   features: ExperimentFeatureConfig[];
 }
-export interface FeatureManifest {
-  [k: string]: Feature;
+/**
+ * The SDK-specific feature manifest.
+ */
+export interface SdkFeatureManifest {
+  [k: string]: SdkFeature;
 }
 /**
- * A feature that has exposure.
+ * A feature.
  */
-export interface FeatureWithExposure {
-  description?: string | null;
-  isEarlyStartup?: boolean | null;
+export interface SdkFeature {
+  /**
+   * The description of the feature.
+   */
+  description: string;
+  /**
+   * Whether or not this feature records exposure telemetry.
+   */
+  hasExposure: boolean;
+  /**
+   * A description of the exposure telemetry collected by this feature.
+   *
+   * Only required if hasExposure is true.
+   */
+  exposureDescription?: string;
+  /**
+   * The variables that this feature can set.
+   */
   variables: {
-    [k: string]: FeatureVariable;
+    [k: string]: SdkFeatureVariable;
   };
-  schema?: NimbusFeatureSchema | null;
-  hasExposure: true;
-  exposureDescription: string;
-}
-export interface FeatureVariable {
-  description?: string | null;
-  enum?: string[] | null;
-  fallbackPref?: string | null;
-  type?: FeatureVariableType | null;
-  setPref?: string | SetPref | null;
-}
-export interface SetPref {
-  branch: PrefBranch;
-  pref: string;
-}
-export interface NimbusFeatureSchema {
-  uri: string;
-  path: string;
 }
 /**
- * A feature without exposure.
+ * A feature variable.
  */
-export interface FeatureWithoutExposure {
-  description?: string | null;
-  isEarlyStartup?: boolean | null;
-  variables: {
-    [k: string]: FeatureVariable;
-  };
-  schema?: NimbusFeatureSchema | null;
-  hasExposure: false;
+export interface SdkFeatureVariable {
+  /**
+   * A description of the feature.
+   */
+  description: string;
+  type: FeatureVariableType;
+  /**
+   * An optional list of possible string values.
+   *
+   * Only allowed when type is string.
+   */
+  enum?: string[];
 }
 export interface AnalysisError {
   analysis_basis?: AnalysisBasis | null;

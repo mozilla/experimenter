@@ -23,6 +23,8 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
+from experimenter.segments import Segments
+from experimenter.segments.tests import mock_valid_segments
 from experimenter.targeting.constants import TargetingConstants
 
 
@@ -896,6 +898,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             application="firefox-desktop",
             primary_outcomes=["outcome1", "outcome2"],
             secondary_outcomes=["outcome3", "outcome4"],
+            segments=["segment1", "segment2"],
             risk_brand=True,
             qa_status="NOT_SET",
             takeaways_qbr_learning=True,
@@ -916,7 +919,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertEqual(response.context["experiment"], self.experiment)
         self.assertIn("RISK_QUESTIONS", response.context)
 
-    def test_outcome_links(self):
+    def test_outcome_and_segment_links(self):
         response = self.client.get(
             reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
         )
@@ -940,6 +943,16 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
                 "https://mozilla.github.io/metric-hub/outcomes/firefox-desktop/outcome4",
             ),
         ]
+        expected_segment_links = [
+            (
+                "segment1",
+                "https://mozilla.github.io/metric-hub/segments/firefox_desktop/#segment1",
+            ),
+            (
+                "segment2",
+                "https://mozilla.github.io/metric-hub/segments/firefox_desktop/#segment2",
+            ),
+        ]
 
         self.assertEqual(
             response.context["primary_outcome_links"], expected_primary_links
@@ -947,6 +960,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertEqual(
             response.context["secondary_outcome_links"], expected_secondary_links
         )
+        self.assertEqual(response.context["segment_links"], expected_segment_links)
 
     def test_qa_edit_mode_get(self):
         response = self.client.get(
@@ -1095,6 +1109,7 @@ class TestNimbusExperimentsCreateView(AuthTestCase):
 
 
 @mock_valid_outcomes
+@mock_valid_segments
 class TestMetricsUpdateView(AuthTestCase):
     @classmethod
     def setUpClass(cls):
@@ -1111,25 +1126,34 @@ class TestMetricsUpdateView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_post_updates_metrics(self):
+    def test_post_updates_metrics_and_segments(self):
         application = NimbusExperiment.Application.DESKTOP
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             primary_outcomes=[],
             secondary_outcomes=[],
+            segments=[],
         )
         outcomes = Outcomes.by_application(application)
+        segments = Segments.by_application(application)
+
         outcome1 = outcomes[0]
         outcome2 = outcomes[1]
+        segment1 = segments[0]
+        segment2 = segments[1]
+
         response = self.client.post(
             reverse("nimbus-new-update-metrics", kwargs={"slug": experiment.slug}),
             {
                 "primary_outcomes": [outcome1.slug],
                 "secondary_outcomes": [outcome2.slug],
+                "segments": [segment1.slug, segment2.slug],
             },
         )
+
         self.assertEqual(response.status_code, 200)
         experiment = NimbusExperiment.objects.get(slug=experiment.slug)
         self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
         self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
+        self.assertEqual(experiment.segments, [segment1.slug, segment2.slug])

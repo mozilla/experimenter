@@ -7,6 +7,7 @@ from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
+from experimenter.segments import Segments
 
 
 class NimbusChangeLogFormMixin:
@@ -159,12 +160,14 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
     secondary_outcomes = forms.MultipleChoiceField(
         required=False, widget=MultiSelectWidget()
     )
+    segments = forms.MultipleChoiceField(required=False, widget=MultiSelectWidget())
 
     class Meta:
         model = NimbusExperiment
         fields = [
             "primary_outcomes",
             "secondary_outcomes",
+            "segments",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -177,6 +180,14 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
         )
         self.fields["primary_outcomes"].choices = application_outcomes
         self.fields["secondary_outcomes"].choices = application_outcomes
+
+        application_segments = sorted(
+            [
+                (s.slug, s.friendly_name)
+                for s in Segments.by_application(self.instance.application)
+            ]
+        )
+        self.fields["segments"].choices = application_segments
 
     def get_changelog_message(self):
         return f"{self.request.user} updated metrics"

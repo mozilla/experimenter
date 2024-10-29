@@ -184,6 +184,14 @@ navigation-toolbar:
     enabled:
       type: boolean
       description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
+networking:
+  description: Enables networking features
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    fetchPriorityEnabled:
+      type: boolean
+      description: "Enables or disables network.fetchpriority.enabled preference.\n"
 nimbus-is-ready:
   description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
   hasExposure: true
@@ -370,6 +378,20 @@ suggest-shipped-domains:
     enabled:
       type: boolean
       description: "Suggest domains from the shipped domain list.\n"
+third-party-cookie-blocking:
+  description: Control third-party cookie blocking.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the feature is active."
+    enabled-normal:
+      type: boolean
+      description: "Enables / disables third-party cookie blocking in normal browsing mode.\n"
+    enabled-private:
+      type: boolean
+      description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
