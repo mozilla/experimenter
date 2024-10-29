@@ -1,7 +1,6 @@
 from copy import deepcopy
-from functools import cache
 
-from pydantic import Field, create_model
+from pydantic import create_model
 
 from experimenter.jetstream.models import (
     AnalysisBasis,
@@ -49,14 +48,14 @@ class JetstreamTestData:
 
         # initialize pairwise branch comparisons inside dicts
         for branch in branches:
-            significance[branch] = SignificanceData().model_dump()
-            difference[branch] = BranchComparisonData().model_dump()
+            significance[branch] = SignificanceData().dict()
+            difference[branch] = BranchComparisonData().dict()
 
         # set the comparison branch's data
         comparison_data = BranchComparisonData(
             first=DATA_POINT, all=all_data_points
         ).dict()
-        significance[comparison_to_branch] = deepcopy(SIGNIFICANCE.model_dump())
+        significance[comparison_to_branch] = deepcopy(SIGNIFICANCE.dict())
         difference[comparison_to_branch] = comparison_data
 
         return cls.get_pairwise_metric_data()(
@@ -67,37 +66,27 @@ class JetstreamTestData:
         )
 
     @classmethod
-    @cache
     def get_pairwise_branch_comparison_data(cls, branches=None):
         if not branches:
             branches = DEFAULT_TEST_BRANCHES
+        branches_data = {b: BranchComparisonData() for b in branches}
         return create_model(
             "PairwiseBranchComparisonData",
-            **{
-                branch: (
-                    BranchComparisonData,
-                    Field(default_factory=BranchComparisonData),
-                )
-                for branch in branches
-            },
+            **branches_data,
         )
 
     @classmethod
-    @cache
     def get_pairwise_significance_data(cls, branches=None):
         if not branches:
             branches = DEFAULT_TEST_BRANCHES
         # create a dynamic model that extends SignificanceData with all branches
+        branches_significance_data = {b: SignificanceData() for b in branches}
         return create_model(
             "PairwiseSignificanceData",
-            **{
-                branch: (SignificanceData, Field(default_factory=SignificanceData))
-                for branch in branches
-            },
+            **branches_significance_data,
         )
 
     @classmethod
-    @cache
     def get_pairwise_metric_data(cls):
         PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
         PairwiseSignificanceData = cls.get_pairwise_significance_data()
