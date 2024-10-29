@@ -9,7 +9,7 @@
   </td>
   <td style="text-align: right;">
     <form method="POST"
-          hx-post="/nimbus_new/progressive-exuding-complexity/toggle-subscription/"
+          hx-post="{% url 'toggle-subscription' slug=experiment.slug %}"
           hx-trigger="submit"
           hx-target=".subscribers-section"
           hx-swap="outerHTML">
