@@ -21,32 +21,32 @@ fetch_task_info() {
     local task_id=""
     
     case "$variant" in
-        fenix_release)
-            index_base="mobile.v3.firefox-android.apks.fenix-release.latest"
-            namespace="mobile.v3.firefox-android.apks.fenix-release.latest.x86_64"
-            env_file="firefox_fenix_release_build.env"
-            ;;
-        desktop_beta)
-            index_base="gecko.v2.mozilla-beta.latest.firefox"
-            namespace="gecko.v2.mozilla-beta.latest.firefox.linux64-debug"
-            env_file="firefox_desktop_beta_build.env"
-            ;;
         desktop_release)
-            # Fetch release version separately 
+            # Fetch release version separately
             # release_version=$(curl "${CURLFLAGS[@]}" "${WHAT_TRAIN_IS_IT_NOW_API}" | jq 'to_entries | last | .key')
             echo "FIREFOX_DESKTOP_RELEASE_VERSION_ID ${release_version}"
             echo "FIREFOX_DESKTOP_RELEASE_VERSION_ID=${release_version}" > firefox_desktop_release_build.env
             mv firefox_desktop_release_build.env experimenter/tests
             return
             ;;
+        desktop_beta)
+            index_base="gecko.v2.mozilla-beta.latest.firefox"
+            namespace="gecko.v2.mozilla-beta.latest.firefox.linux64-debug"
+            env_file="firefox_desktop_beta_build.env"
+            ;;
+        fenix_release)
+            index_base="gecko.v2.mozilla-release.latest.mobile"
+            namespace="gecko.v2.mozilla-release.latest.mobile.fenix-release"
+            env_file="firefox_fenix_release_build.env"
+            ;;
         fenix_beta)
-            index_base="mobile.v3.firefox-android.apks.fenix-beta.latest"
-            namespace="mobile.v3.firefox-android.apks.fenix-beta.latest.x86_64"
+            index_base="gecko.v2.mozilla-beta.latest.mobile"
+            namespace="gecko.v2.mozilla-beta.latest.mobile.fenix-beta"
             env_file="firefox_fenix_beta_build.env"
             ;;
         fenix_nightly)
-            index_base="mobile.v3.firefox-android.apks.fenix-nightly.latest"
-            namespace="mobile.v3.firefox-android.apks.fenix-nightly.latest.x86_64"
+            index_base="gecko.v2.mozilla-central.latest.mobile"
+            namespace="gecko.v2.mozilla-central.latest.mobile.fenix-nightly"
             env_file="firefox_fenix_nightly_build.env"
             ;;
         fennec_release)
