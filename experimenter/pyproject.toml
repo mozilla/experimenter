@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "app"
+name = "experimenter"
 version = "0.1.0"
 description = ""
-authors = [""]
+authors = ["Mozilla"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
