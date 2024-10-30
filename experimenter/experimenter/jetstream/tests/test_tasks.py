@@ -2,9 +2,10 @@ import datetime
 import json
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase, override_settings
-from mozilla_nimbus_schemas.jetstream import SampleSizesFactory
+from mozilla_nimbus_schemas.jetstream import SampleSizes, SampleSizesFactory
 from parameterized import parameterized
 
 from experimenter.experiments.models import NimbusExperiment
@@ -20,7 +21,6 @@ from experimenter.jetstream.tests.constants import (
 )
 from experimenter.jetstream.tests.mixins import MockSizingDataMixin
 from experimenter.outcomes import Outcomes
-from experimenter.settings import SIZING_DATA_KEY
 
 
 @mock_valid_outcomes
@@ -2350,11 +2350,11 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         mock_open.side_effect = open_file
         mock_exists.return_value = True
 
-        sizing_results = cache.get(SIZING_DATA_KEY)
+        sizing_results = cache.get(settings.SIZING_DATA_KEY)
         self.assertIsNone(sizing_results)
 
         tasks.fetch_population_sizing_data()
-        sizing_results = cache.get(SIZING_DATA_KEY)
+        sizing_results = SampleSizes.parse_raw(cache.get(settings.SIZING_DATA_KEY))
 
         self.assertEqual(
             json.dumps(json.loads(sizing_test_data)),
@@ -2377,12 +2377,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         mock_open.side_effect = open_file
         mock_exists.return_value = True
 
-        sizing_results = cache.get(SIZING_DATA_KEY)
+        sizing_results = cache.get(settings.SIZING_DATA_KEY)
         self.assertIsNone(sizing_results)
 
         tasks.fetch_population_sizing_data()
-        sizing_results = cache.get(SIZING_DATA_KEY)
-        self.assertEqual(sizing_results.json(), "{}")
+        sizing_results = cache.get(settings.SIZING_DATA_KEY)
+        self.assertEqual(sizing_results, "{}")
 
     @patch("experimenter.jetstream.client.analysis_storage.open")
     @patch("experimenter.jetstream.client.analysis_storage.exists")
