@@ -369,6 +369,10 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
         "TIMEOUT": None,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SERIALIZER": "django_redis.serializers.json.JSONSerializer",
+        },
     },
 }
 API_CACHE_DURATION = 60 * 60
