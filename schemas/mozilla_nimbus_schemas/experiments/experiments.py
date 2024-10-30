@@ -2,8 +2,9 @@ import datetime
 from enum import Enum
 from typing import Any, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic.json_schema import SkipJsonSchema
+from typing_extensions import Self
 
 
 class RandomizationUnit(str, Enum):
@@ -96,6 +97,9 @@ class ExperimentMultiFeatureDesktopBranch(BaseExperimentMultiFeatureBranch):
             "is encountered by Desktop clients earlier than version 95."
         )
     )
+    firefoxLabsTitle: str | SkipJsonSchema[None] = Field(
+        description="An optional string containing the title of the branch"
+    )
 
 
 class ExperimentMultiFeatureMobileBranch(BaseExperimentMultiFeatureBranch):
@@ -177,6 +181,23 @@ class NimbusExperiment(BaseModel):
             "\n"
             "See-also: https://mozilla-hub.atlassian.net/browse/SDK-405"
         ),
+        default=None,
+    )
+    isFirefoxLabsOptIn: bool = Field(
+        description=(
+            "When this property is set to true, treat this experiment as a"
+            "Firefox Labs experiment"
+        ),
+        default=None,
+    )
+    firefoxLabsTitle: str | SkipJsonSchema[None] = Field(
+        description="An optional string containing the Fluent ID "
+        "for the title of the opt-in",
+        default=None,
+    )
+    firefoxLabsDescription: str | SkipJsonSchema[None] = Field(
+        description="An optional string containing the Fluent ID "
+        "for the description of the opt-in",
         default=None,
     )
     bucketConfig: ExperimentBucketConfig = Field(description="Bucketing configuration.")
@@ -272,4 +293,65 @@ class NimbusExperiment(BaseModel):
             "If null, it has not yet been published."
         ),
         default=None,
+    )
+
+    @model_validator(mode="after")
+    @classmethod
+    def validate_firefox_labs(cls, data: Self) -> Self:
+        if data.isFirefoxLabsOptIn:
+            if data.firefoxLabsTitle is None:
+                raise ValueError(
+                    "missing field firefoxLabsTitle "
+                    "(required because isFirefoxLabsOptIn is True)"
+                )
+            if data.firefoxLabsDescription is None:
+                raise ValueError(
+                    "missing field firefoxLabsDescription "
+                    "(required because isFirefoxLabsOptIn is True)"
+                )
+            if not data.isRollout:
+                for branch in data.branches:
+                    if branch.firefoxLabsTitle is None:
+                        raise ValueError(
+                            f"branch with slug {branch.slug} is missing "
+                            f"firefoxLabsTitle field "
+                            f"(required because firefoxLabsTitle is True)"
+                        )
+
+        return data
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "dependentSchemas": {
+                "isFirefoxLabsOptIn": {
+                    "if": {
+                        "properties": {
+                            "isFirefoxLabsOptIn": {"const": True},
+                        },
+                    },
+                    "then": {
+                        "properties": {
+                            "firefoxLabsTitle": {"type": "string"},
+                            "firefoxLabsDescription": {"type": "string"},
+                        },
+                        "required": ["firefoxLabsTitle", "firefoxLabsDescription"],
+                        "if": {
+                            "properties": {
+                                "isRollout": {"const": False},
+                            },
+                            "required": ["isRollout"],
+                        },
+                        "then": {
+                            "properties": {
+                                "branches": {
+                                    "items": {
+                                        "required": ["firefoxLabsTitle"],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                }
+            }
+        }
     )
