@@ -3,10 +3,11 @@ import json
 from django.core.checks import Error
 from django.test import TestCase
 from mozilla_nimbus_schemas.experiments.feature_manifests import (
-    FeatureVariable,
+    DesktopFeature,
+    DesktopFeatureVariable,
     FeatureVariableType,
-    FeatureWithExposure,
-    FeatureWithoutExposure,
+    SdkFeature,
+    SdkFeatureVariable,
 )
 
 from experimenter.experiments.models import NimbusExperiment
@@ -39,29 +40,30 @@ class TestFeatures(TestCase):
             Feature(
                 slug="someFeature",
                 application_slug="firefox-desktop",
-                model=FeatureWithExposure.parse_obj(
+                model=DesktopFeature.parse_obj(
                     {
+                        "owner": "owner@example.com",
                         "description": "Some Firefox Feature",
                         "hasExposure": True,
                         "exposureDescription": "An exposure event",
                         "isEarlyStartup": True,
                         "variables": {
-                            "stringEnumProperty": FeatureVariable(
+                            "stringEnumProperty": DesktopFeatureVariable(
                                 description="String Property",
                                 enum=["v1", "v2"],
                                 fallbackPref="browser.somePref",
                                 type=FeatureVariableType.STRING,
                             ),
-                            "boolProperty": FeatureVariable(
+                            "boolProperty": DesktopFeatureVariable(
                                 description="Boolean Property",
                                 type="boolean",
                             ),
-                            "intProperty": FeatureVariable(
+                            "intProperty": DesktopFeatureVariable(
                                 description="Integer Property",
                                 enum=[1, 2, 3],
                                 type="int",
                             ),
-                            "jsonProperty": FeatureVariable(
+                            "jsonProperty": DesktopFeatureVariable(
                                 description="Arbitrary JSON Property",
                                 type="json",
                             ),
@@ -76,13 +78,13 @@ class TestFeatures(TestCase):
             Feature(
                 slug="defaultBrowser",
                 application_slug="fenix",
-                model=FeatureWithoutExposure.parse_obj(
+                model=SdkFeature.parse_obj(
                     {
                         "description": "Default Android Browser",
                         "hasExposure": False,
                         "isEarlyStartup": None,
                         "variables": {
-                            "default": FeatureVariable(
+                            "default": SdkFeatureVariable(
                                 description="Default browser setting",
                                 fallbackPref=None,
                                 type=FeatureVariableType.BOOLEAN,
@@ -101,29 +103,30 @@ class TestFeatures(TestCase):
             Feature(
                 slug="someFeature",
                 application_slug="firefox-desktop",
-                model=FeatureWithExposure.parse_obj(
+                model=DesktopFeature.parse_obj(
                     {
                         "description": "Some Firefox Feature",
+                        "owner": "owner@example.com",
                         "exposureDescription": "An exposure event",
                         "hasExposure": True,
                         "isEarlyStartup": True,
                         "variables": {
-                            "stringEnumProperty": FeatureVariable(
+                            "stringEnumProperty": DesktopFeatureVariable(
                                 description="String Property",
                                 enum=["v1", "v2"],
                                 fallbackPref="browser.somePref",
                                 type=FeatureVariableType.STRING,
                             ),
-                            "boolProperty": FeatureVariable(
+                            "boolProperty": DesktopFeatureVariable(
                                 description="Boolean Property",
                                 type="boolean",
                             ),
-                            "intProperty": FeatureVariable(
+                            "intProperty": DesktopFeatureVariable(
                                 description="Integer Property",
                                 type="int",
                                 enum=[1, 2, 3],
                             ),
-                            "jsonProperty": FeatureVariable(
+                            "jsonProperty": DesktopFeatureVariable(
                                 description="Arbitrary JSON Property",
                                 type="json",
                             ),
@@ -198,9 +201,13 @@ class TestCheckFeatures(TestCase):
                 Error(
                     msg=(
                         "Error loading feature data 1 validation error for "
-                        "FeatureManifest\n__root__ -> readerMode -> __root__ -> "
-                        "FeatureWithoutExposure -> variables -> fallbackPref\n"
-                        "  value is not a valid dict (type=type_error.dict)"
+                        "DesktopFeatureManifest\n"
+                        "readerMode.variables\n"
+                        "  Input should be a valid dictionary [type=dict_type, "
+                        "input_value=[{'fallbackPref': "
+                        "'reader...pty string is no CTA)'}], input_type=list]\n"
+                        "    For further information visit "
+                        "https://errors.pydantic.dev/2.9/v/dict_type"
                     )
                 )
             ],
