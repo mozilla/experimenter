@@ -1,4 +1,5 @@
 readerMode:
+  owner: owner@example.com
   description: Firefox Reader Mode
   hasExposure: false
   isEarlyStartup: true
