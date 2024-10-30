@@ -76,6 +76,9 @@ target/
 # VS Code
 **/.vscode/*
 
+# IntelliJ
+**/.idea/*
+
 # Hosted assets
 experimenter/experimenter/static/scripts/
 experimenter/experimenter/served/
