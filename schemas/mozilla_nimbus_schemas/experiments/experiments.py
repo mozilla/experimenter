@@ -301,18 +301,22 @@ class NimbusExperiment(BaseModel):
         if data.isFirefoxLabsOptIn:
             if data.firefoxLabsTitle is None:
                 raise ValueError(
-                    "firefoxLabsTitle field cannot be none "
-                    "if isFirefoxLabsOptIn is True"
+                    "missing field firefoxLabsTitle "
+                    "(required because isFirefoxLabsOptIn is True)"
                 )
             if data.firefoxLabsDescription is None:
                 raise ValueError(
-                    "firefoxLabsDescription field cannot be none "
-                    "if isFirefoxLabsOptIn is True"
+                    "missing field firefoxLabsDescription "
+                    "(required because isFirefoxLabsOptIn is True)"
                 )
             if not data.isRollout:
                 for branch in data.branches:
                     if branch.firefoxLabsTitle is None:
-                        raise ValueError(f"{branch.slug} missing firefoxLabsTitle")
+                        raise ValueError(
+                            f"branch with slug {branch.slug} is missing "
+                            f"firefoxLabsTitle field "
+                            f"(required because firefoxLabsTitle is True)"
+                        )
 
         return data
 
@@ -320,7 +324,11 @@ class NimbusExperiment(BaseModel):
         json_schema_extra={
             "dependentSchemas": {
                 "isFirefoxLabsOptIn": {
-                    "if": {"properties": {"isFirefoxLabsOptIn": {"const": True}}},
+                    "if": {
+                        "properties": {
+                            "isFirefoxLabsOptIn": {"const": True},
+                        },
+                    },
                     "then": {
                         "properties": {
                             "firefoxLabsTitle": {"type": "string"},
@@ -328,13 +336,19 @@ class NimbusExperiment(BaseModel):
                         },
                         "required": ["firefoxLabsTitle", "firefoxLabsDescription"],
                         "if": {
-                            "properties": {"isRollout": {"const": False}},
+                            "properties": {
+                                "isRollout": {"const": False},
+                            },
                             "required": ["isRollout"],
                         },
                         "then": {
                             "properties": {
-                                "branches": {"items": {"required": ["firefoxLabsTitle"]}}
-                            }
+                                "branches": {
+                                    "items": {
+                                        "required": ["firefoxLabsTitle"],
+                                    },
+                                },
+                            },
                         },
                     },
                 }
