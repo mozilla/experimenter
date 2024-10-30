@@ -510,11 +510,14 @@ UPLOADS_FILE_STORAGE = config(
 STORAGES = {
     "default": {
         "BACKEND": UPLOADS_FILE_STORAGE,
-        "OPTIONS": {
-            "bucket_name": UPLOADS_GS_BUCKET_NAME,
-        }
-        if UPLOADS_GS_BUCKET_NAME
-        else {},
+        "OPTIONS": (
+            {
+                "bucket_name": UPLOADS_GS_BUCKET_NAME,
+                "querystring_auth": False,
+            }
+            if UPLOADS_GS_BUCKET_NAME
+            else {}
+        ),
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
