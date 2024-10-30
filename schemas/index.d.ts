@@ -192,6 +192,18 @@ export interface NimbusExperiment {
    * See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
    */
   isRollout?: boolean;
+  /**
+   * When this property is set to true, treat this experiment as aFirefox Labs experiment
+   */
+  isFirefoxLabsOptIn?: boolean;
+  /**
+   * An optional string containing the Fluent ID for the title of the opt-in
+   */
+  firefoxLabsTitle?: string;
+  /**
+   * An optional string containing the Fluent ID for the description of the opt-in
+   */
+  firefoxLabsDescription?: string;
   bucketConfig: ExperimentBucketConfig;
   /**
    * A list of outcomes relevant to the experiment analysis.
@@ -358,6 +370,10 @@ export interface ExperimentMultiFeatureDesktopBranch {
    */
   features: ExperimentFeatureConfig[];
   feature: DesktopTombstoneFeatureConfig;
+  /**
+   * An optional string containing the title of the branch
+   */
+  firefoxLabsTitle: string;
 }
 export interface DesktopTombstoneFeatureConfig {
   featureId: "unused-feature-id-for-legacy-support";

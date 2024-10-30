@@ -44,6 +44,18 @@
       "description": "When this property is set to true, treat this experiment as a rollout. Rollouts are currently handled as single-branch experiments separated from the bucketing namespace for normal experiments. See-also: https://mozilla-hub.atlassian.net/browse/SDK-405",
       "type": "boolean"
     },
+    "isFirefoxLabsOptIn": {
+      "description": "When this property is set to true, treat this experiment as aFirefox Labs experiment",
+      "type": "boolean"
+    },
+    "firefoxLabsTitle": {
+      "description": "An optional string containing the Fluent ID for the title of the opt-in",
+      "type": "string"
+    },
+    "firefoxLabsDescription": {
+      "description": "An optional string containing the Fluent ID for the description of the opt-in",
+      "type": "string"
+    },
     "bucketConfig": {
       "$ref": "#/$defs/ExperimentBucketConfig",
       "description": "Bucketing configuration."
@@ -216,6 +228,52 @@
     "proposedEnrollment",
     "referenceBranch"
   ],
+  "dependentSchemas": {
+    "isFirefoxLabsOptIn": {
+      "if": {
+        "properties": {
+          "isFirefoxLabsOptIn": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "if": {
+          "properties": {
+            "isRollout": {
+              "const": false
+            }
+          },
+          "required": [
+            "isRollout"
+          ]
+        },
+        "properties": {
+          "firefoxLabsTitle": {
+            "type": "string"
+          },
+          "firefoxLabsDescription": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "firefoxLabsTitle",
+          "firefoxLabsDescription"
+        ],
+        "then": {
+          "properties": {
+            "branches": {
+              "items": {
+                "required": [
+                  "firefoxLabsTitle"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "$defs": {
     "DesktopTombstoneFeatureConfig": {
       "properties": {
@@ -307,13 +365,18 @@
         "feature": {
           "$ref": "#/$defs/DesktopTombstoneFeatureConfig",
           "description": "The feature key must be provided with values to prevent crashes if the is encountered by Desktop clients earlier than version 95."
+        },
+        "firefoxLabsTitle": {
+          "description": "An optional string containing the title of the branch",
+          "type": "string"
         }
       },
       "required": [
         "slug",
         "ratio",
         "features",
-        "feature"
+        "feature",
+        "firefoxLabsTitle"
       ],
       "type": "object"
     },
