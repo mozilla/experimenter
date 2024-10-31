@@ -109,7 +109,7 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
 1.  Setup the database
 
-        make refresh
+        make refresh_db
 
 #### Fully Dockerized Setup (continuation from General Setup 1-7)
 
@@ -298,7 +298,10 @@ Populates the database with dummy experiments of all types/statuses using the te
 
 #### make refresh
 
-Run kill, migrate, load_locales_countries load_dummy_experiments. Useful for resetting your dev environment when switching branches or after package updates.
+Run kill followed by refresh_db. Useful for resetting your dev environment when switching branches or after package updates.
+
+### make refresh_db
+Run migrate, load_locales_countries, and load_dummy_experiments.
 
 ### Running a dev instance
 
