@@ -201,7 +201,9 @@ migrate: build_dev  ## Run database migrations
 bash: build_dev
 	$(COMPOSE) run experimenter bash
 
-refresh: kill build_dev compose_build  ## Rebuild all containers
+refresh: kill build_dev compose_build refresh_db  ## Rebuild all containers and the database
+
+refresh_db:  # Rebuild the database
 	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 dependabot_approve:
