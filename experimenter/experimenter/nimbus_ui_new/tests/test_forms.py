@@ -278,7 +278,7 @@ class TestMetricsForm(RequestFormTestCase):
         self.assertIn("segments", form.errors)
 
 
-class TestSignoffForm(RequestFormTestCase):
+class SubscriptionFormTests(RequestFormTestCase):
     def setUp(self):
         super().setUp()
         self.experiment = NimbusExperimentFactory.create(
