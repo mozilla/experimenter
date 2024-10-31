@@ -191,3 +191,35 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated metrics"
+
+
+class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        self.instance.subscribers.add(self.user)
+        if commit:
+            self.instance.save()
+        return self.instance
+
+
+class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        self.instance.subscribers.remove(self.user)
+        if commit:
+            self.instance.save()
+        return self.instance

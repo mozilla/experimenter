@@ -1094,7 +1094,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertNotIn(self.user, self.experiment.subscribers.all())
 
         response = self.client.post(
-            reverse("toggle-subscription", kwargs={"slug": self.experiment.slug})
+            reverse("subscribe", kwargs={"slug": self.experiment.slug})
         )
 
         self.experiment.refresh_from_db()
@@ -1109,7 +1109,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertIn(self.user, self.experiment.subscribers.all())
 
         response = self.client.post(
-            reverse("toggle-subscription", kwargs={"slug": self.experiment.slug})
+            reverse("unsubscribe", kwargs={"slug": self.experiment.slug})
         )
 
         self.experiment.refresh_from_db()

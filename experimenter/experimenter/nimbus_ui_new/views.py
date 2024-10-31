@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponse
-from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
@@ -19,7 +19,9 @@ from experimenter.nimbus_ui_new.forms import (
     NimbusExperimentCreateForm,
     QAStatusForm,
     SignoffForm,
+    SubscribeForm,
     TakeawaysForm,
+    UnsubscribeForm,
 )
 
 
@@ -218,23 +220,25 @@ class MetricsUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView)
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class SubscriptionToggleView(RequestFormMixin, NimbusExperimentViewMixin, UpdateView):
-    def post(self, request, *args, **kwargs):
-        experiment = self.get_object()
-        user = request.user
-        is_subscribed = user in experiment.subscribers.all()
+class SubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = SubscribeForm
+    template_name = "nimbus_experiments/subscribers_list.html"
 
-        if is_subscribed:
-            experiment.subscribers.remove(user)
-        else:
-            experiment.subscribers.add(user)
+    def form_valid(self, form):
+        experiment = get_object_or_404(NimbusExperiment, slug=self.kwargs["slug"])
+        form.instance = experiment
+        form.user = self.request.user
+        form.save()
+        return render(self.request, self.template_name, {"experiment": experiment})
 
-        context = {
-            "experiment": experiment,
-        }
-        html = render_to_string(
-            "nimbus_experiments/subscribers_list.html",
-            context,
-            request=request,
-        )
-        return HttpResponse(html)
+
+class UnsubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = UnsubscribeForm
+    template_name = "nimbus_experiments/subscribers_list.html"
+
+    def form_valid(self, form):
+        experiment = get_object_or_404(NimbusExperiment, slug=self.kwargs["slug"])
+        form.instance = experiment
+        form.user = self.request.user
+        form.save()
+        return render(self.request, self.template_name, {"experiment": experiment})

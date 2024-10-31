@@ -1,27 +1,35 @@
 <tr class="subscribers-section">
   <th>Subscribers</th>
-  <td id="subscribers-list" colspan="2">
+  <td id="subscribers-list"
+      colspan="2"
+      style="max-height: 150px;
+             overflow-y: auto;
+             overflow-x: hidden">
     {% for subscriber in experiment.subscribers.all %}
       <p>{{ subscriber.email }}</p>
     {% empty %}
-      <span class="text-danger">Not set</span>
+      <span class="text-danger">Not Set</span>
     {% endfor %}
   </td>
   <td style="text-align: right;">
-    <form method="POST"
-          hx-post="{% url 'toggle-subscription' slug=experiment.slug %}"
-          hx-trigger="submit"
-          hx-target=".subscribers-section"
-          hx-swap="outerHTML">
-      <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-      <button type="submit"
-              class="btn {% if request.user in experiment.subscribers.all %}btn-danger{% else %}btn-success{% endif %}">
-        {% if request.user in experiment.subscribers.all %}
-          Unsubscribe
-        {% else %}
-          Subscribe
-        {% endif %}
-      </button>
-    </form>
+    {% if request.user in experiment.subscribers.all %}
+      <form method="post"
+            action="{% url 'unsubscribe' slug=experiment.slug %}"
+            hx-post="{% url 'unsubscribe' slug=experiment.slug %}"
+            hx-target=".subscribers-section"
+            hx-swap="outerHTML">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Unsubscribe</button>
+      </form>
+    {% else %}
+      <form method="post"
+            action="{% url 'subscribe' slug=experiment.slug %}"
+            hx-post="{% url 'subscribe' slug=experiment.slug %}"
+            hx-target=".subscribers-section"
+            hx-swap="outerHTML">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Subscribe</button>
+      </form>
+    {% endif %}
   </td>
 </tr>
