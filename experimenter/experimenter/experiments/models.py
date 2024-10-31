@@ -815,6 +815,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "is_active": self.is_live,
             },
             {
+            "label":NimbusConstants.ENROLLMENT_END,
+            "date":self.computed_enrollment_end_date,
+            "is_active": self.computed_enrollment_end_date is not None,
+            "is_grayed_out": self.is_rollout,
+        },
+            {
                 "label": self.Status.COMPLETE,
                 "date": self.computed_end_date,
                 "is_active": self.is_complete,
