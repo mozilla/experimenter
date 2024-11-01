@@ -17,7 +17,7 @@ ENV PATH=$PATH:/root/.cargo/bin
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.6.0
 
 # Add poetry to PATH environment variable
-ENV PATH "/root/.local/bin:$PATH"
+ENV PATH="/root/.local/bin:$PATH"
 
 # Copy only the pyproject.toml file and poetry.lock file to install dependencies ignoring dev dependencies
 COPY pyproject.toml /cirrus/

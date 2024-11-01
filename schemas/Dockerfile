@@ -8,20 +8,20 @@ RUN apt-get update
 RUN apt-get --no-install-recommends install -y apt-utils ca-certificates yarn parallel
 
 # Install nvm with node and npm
-ENV NODE_VERSION 16.19.0
-ENV NVM_DIR /root/.nvm
-ENV PATH "/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+ENV NODE_VERSION=16.19.0
+ENV NVM_DIR=/root/.nvm
+ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.35.3/install.sh | bash
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
 RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
 RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 
 # Disable python pyc files
-ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # Python packages
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
-ENV PATH "/root/.local/bin:$PATH"
+ENV PATH="/root/.local/bin:$PATH"
 RUN poetry config virtualenvs.create false
 
 

@@ -17,16 +17,16 @@ RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
 RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 
 # Disable python pyc files
-ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # Python packages
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
-ENV PATH "/root/.local/bin:$PATH"
+ENV PATH="/root/.local/bin:$PATH"
 RUN poetry config virtualenvs.create false
 
 # Rust cargo
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y --profile minimal
-ENV PATH "/root/.cargo/bin:$PATH"
+ENV PATH="/root/.cargo/bin:$PATH"
 
 # Python image
 #-------------------------
@@ -123,7 +123,7 @@ WORKDIR /experimenter
 EXPOSE 7001
 
 # Disable python pyc files
-ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # System packages
 RUN apt-get update
