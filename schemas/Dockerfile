@@ -1,17 +1,4 @@
 #-------------------------
-FROM alpine:3.12.0 AS file-loader
-
-# To preserve layer caching across machines which may have different local file properties
-# such as permissions, timestamps, etc, all files are copied into a container and their
-# permissions and timestamps are reset to consistent values
-# Credit: https://gist.github.com/kekru/8ac61cd87536a4355220b56ae2f4b0a9
-COPY . /schemas/
-RUN chmod -R 555 /schemas \
-    && chown -R root:root /schemas \
-    && find /schemas -exec touch -a -m -t 201512180130.09 {} \;
-
-
-#-------------------------
 # System packages
 FROM python:3.10.14 AS system-builder
 
@@ -43,10 +30,10 @@ RUN poetry config virtualenvs.create false
 FROM system-builder AS python-builder
 WORKDIR /schemas
 
-COPY --from=file-loader /schemas/pyproject.toml /schemas/pyproject.toml
-COPY --from=file-loader /schemas/poetry.lock /schemas/poetry.lock
-COPY --from=file-loader /schemas/mozilla_nimbus_schemas /schemas/mozilla_nimbus_schemas
-COPY --from=file-loader /schemas/README.md /schemas/README.md
+COPY ./pyproject.toml /schemas/pyproject.toml
+COPY ./poetry.lock /schemas/poetry.lock
+COPY ./mozilla_nimbus_schemas /schemas/mozilla_nimbus_schemas
+COPY ./README.md /schemas/README.md
 RUN poetry install
 
 # If any package is installed, that is incompatible by version, this command
@@ -60,8 +47,8 @@ FROM system-builder AS node-builder
 WORKDIR /schemas
 
 # Node packages for legacy and nimbus ui
-COPY --from=file-loader /schemas/package.json /schemas/package.json
-COPY --from=file-loader /schemas/yarn.lock /schemas/yarn.lock
+COPY ./package.json /schemas/package.json
+COPY ./yarn.lock /schemas/yarn.lock
 RUN yarn install --frozen-lockfile
 
 
