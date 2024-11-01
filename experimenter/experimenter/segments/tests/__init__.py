@@ -36,3 +36,7 @@ def mock_get_segments():
             ),
         ],
     }
+
+
+def mock_get_invalid_segments():
+    return {"fenix": [{"test": "test_segment"}]}

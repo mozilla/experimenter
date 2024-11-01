@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
+from django.core.checks import Error, register
 from metric_config_parser.config import ConfigCollection
+from metric_config_parser.segment import SegmentDefinition
 
 from experimenter.experiments.constants import NimbusConstants
 
@@ -44,15 +46,20 @@ class Segments:
                 app_segments = segment_data.get(app_name, [])
 
             for segment in app_segments:
-                segments.append(
-                    Segment(
-                        slug=segment.name,
-                        friendly_name=segment.friendly_name,
-                        application=app_config.slug,
-                        description=segment.description,
-                        select_expression=segment.select_expression,
+                if isinstance(segment, SegmentDefinition):
+                    segments.append(
+                        Segment(
+                            slug=segment.name,
+                            friendly_name=segment.friendly_name,
+                            application=app_config.slug,
+                            description=segment.description,
+                            select_expression=segment.select_expression,
+                        )
                     )
-                )
+                else:
+                    raise TypeError(
+                        f"Expected SegmentDefinition, got {type(segment).__name__}"
+                    )
 
         return segments
 
@@ -69,3 +76,14 @@ class Segments:
     @classmethod
     def by_application(cls, application, segment_data=None):
         return [o for o in cls.all(segment_data) if o.application == application]
+
+
+@register()
+def check_segments(app_configs, segments_data=None, **kwargs):
+    errors = []
+
+    try:
+        Segments.all(segment_data=segments_data)
+    except Exception as e:
+        errors.append(Error(f"Error loading Segments: {e}"))
+    return errors

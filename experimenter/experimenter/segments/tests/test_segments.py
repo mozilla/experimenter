@@ -1,8 +1,9 @@
+from django.core.checks import Error
 from django.test import TestCase
 
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.segments import Segment, Segments
-from experimenter.segments.tests import mock_get_segments
+from experimenter.segments import Segment, Segments, check_segments
+from experimenter.segments.tests import mock_get_invalid_segments, mock_get_segments
 
 
 class TestSegments(TestCase):
@@ -108,4 +109,22 @@ class TestSegments(TestCase):
                 select_expression="",
             ),
             desktop_segments,
+        )
+
+
+class TestCheckSegments(TestCase):
+    def setUp(self):
+        Segments.clear_cache()
+
+    def test_valid_segments_do_not_trigger_check_error(self):
+        errors = check_segments(app_configs=None, segments_data=mock_get_segments())
+        self.assertEqual(errors, [])
+
+    def test_invalid_segments_trigger_check_error(self):
+        errors = check_segments(
+            app_configs=None, segments_data=mock_get_invalid_segments()
+        )
+        self.assertEqual(
+            errors,
+            [Error(msg="Error loading Segments: Expected SegmentDefinition, got dict")],
         )
