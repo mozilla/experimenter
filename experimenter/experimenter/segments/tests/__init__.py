@@ -1,21 +1,38 @@
-from pathlib import Path
+from metric_config_parser.segment import SegmentDefinition
 
-from django.test import override_settings
 
-mock_valid_segments = override_settings(
-    METRIC_HUB_SEGMENTS_PATH_JETSTREAM=(
-        Path(__file__).parent.absolute() / "fixtures" / "valid_segments_jetstream"
-    ),
-    METRIC_HUB_SEGMENTS_PATH_DEFAULT=(
-        Path(__file__).parent.absolute() / "fixtures" / "valid_segments_default"
-    ),
-)
-
-mock_invalid_segments = override_settings(
-    METRIC_HUB_SEGMENTS_PATH_JETSTREAM=(
-        Path(__file__).parent.absolute() / "fixtures" / "invalid_segments_jetstream"
-    ),
-    METRIC_HUB_SEGMENTS_PATH_DEFAULT=(
-        Path(__file__).parent.absolute() / "fixtures" / "invalid_segments_default"
-    ),
-)
+def mock_get_segments():
+    return {
+        "fenix": [
+            SegmentDefinition(
+                name="fenix_segment",
+                data_source=None,
+                select_expression="{{agg_sum('ad_click')}}",
+                friendly_name="Fenix Segment",
+                description="Fenix segment for testing",
+            )
+        ],
+        "firefox_desktop": [
+            SegmentDefinition(
+                name="desktop_segment_1",
+                data_source=None,
+                select_expression="country_code in ('IN', 'US')",
+                friendly_name="Desktop Segment 1",
+                description="Firefox desktop segment used for testing",
+            ),
+            SegmentDefinition(
+                name="desktop_segment_2",
+                data_source=None,
+                select_expression="country_code in ('IN', 'US')",
+                friendly_name="Desktop Segment 2",
+                description="",
+            ),
+            SegmentDefinition(
+                name="desktop_segment_3",
+                data_source=None,
+                select_expression="",
+                friendly_name="Desktop Segment 3",
+                description="Firefox desktop segment used for testing",
+            ),
+        ],
+    }

@@ -21,11 +21,10 @@ from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
-from experimenter.segments.tests import mock_valid_segments
+from experimenter.segments.tests import mock_get_segments
 
 
 @mock_valid_outcomes
-@mock_valid_segments
 class TestNimbusExperimentChangeLogSerializer(TestCase):
     maxDiff = None
 
@@ -121,7 +120,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         project = ProjectFactory.create()
         primary_outcome = Outcomes.by_application(application)[0].slug
         secondary_outcome = Outcomes.by_application(application)[1].slug
-        segment = Segments.by_application(application)[0].slug
+        segment = Segments.by_application(application, mock_get_segments())[0].slug
         parent_experiment = NimbusExperimentFactory.create()
         subscriber = UserFactory.create()
 
