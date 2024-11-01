@@ -2,7 +2,7 @@ import datetime
 from enum import Enum
 from typing import Any, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, RootModel, model_validator
 from pydantic.json_schema import SkipJsonSchema
 from typing_extensions import Self
 
@@ -106,6 +106,16 @@ class ExperimentMultiFeatureMobileBranch(BaseExperimentMultiFeatureBranch):
     """The branch definition for mobile browsers.
 
     Supported on Firefox for Android 96+ and Firefox for iOS 39+.
+    """
+
+
+class ExperimentLocalizations(RootModel[dict[str, dict[str, str]]]):
+    """Per-locale localization substitutions.
+
+    The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
+    string IDs to their localized equivalents.
+
+    Only supported on desktop.
     """
 
 
@@ -266,17 +276,7 @@ class NimbusExperiment(BaseModel):
         description="Opt out of feature schema validation. Only supported on desktop.",
         default=None,
     )
-    localizations: dict[str, dict[str, str]] | None = Field(
-        description=(
-            "Per-locale localization substitutions.\n"
-            "\n"
-            'The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a '
-            "mapping of string IDs to their localized equivalents.\n"
-            "\n"
-            "Only supported on desktop."
-        ),
-        default=None,
-    )
+    localizations: ExperimentLocalizations | None = Field(default=None)
     locales: list[str] | None = Field(
         description=(
             'The list of locale codes (e.g., "en-US" or "fr") that this experiment is '
