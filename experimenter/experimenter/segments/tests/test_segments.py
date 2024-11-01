@@ -3,7 +3,10 @@ from django.test import TestCase
 
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.segments import Segment, Segments, check_segments
-from experimenter.segments.tests import mock_get_invalid_segments, mock_get_segments
+from experimenter.segments.tests.mock_segments import (
+    mock_get_invalid_segments,
+    mock_get_segments,
+)
 
 
 class TestSegments(TestCase):

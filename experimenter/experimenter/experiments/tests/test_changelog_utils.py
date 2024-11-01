@@ -21,7 +21,7 @@ from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
-from experimenter.segments.tests import mock_get_segments
+from experimenter.segments.tests.mock_segments import mock_get_segments
 
 
 @mock_valid_outcomes
