@@ -262,18 +262,7 @@ export interface NimbusExperiment {
    * Opt out of feature schema validation. Only supported on desktop.
    */
   featureValidationOptOut?: boolean;
-  /**
-   * Per-locale localization substitutions.
-   *
-   * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of string IDs to their localized equivalents.
-   *
-   * Only supported on desktop.
-   */
-  localizations?: {
-    [k: string]: {
-      [k: string]: string;
-    };
-  } | null;
+  localizations?: ExperimentLocalizations | null;
   /**
    * The list of locale codes (e.g., "en-US" or "fr") that this experiment is targeting.
    *
@@ -402,6 +391,19 @@ export interface ExperimentMultiFeatureMobileBranch {
    * An array of feature configurations.
    */
   features: ExperimentFeatureConfig[];
+}
+/**
+ * Per-locale localization substitutions.
+ *
+ * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
+ * string IDs to their localized equivalents.
+ *
+ * Only supported on desktop.
+ */
+export interface ExperimentLocalizations {
+  [k: string]: {
+    [k: string]: string;
+  };
 }
 /**
  * The SDK-specific feature manifest.

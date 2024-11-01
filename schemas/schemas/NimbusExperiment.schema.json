@@ -170,19 +170,12 @@
     "localizations": {
       "anyOf": [
         {
-          "additionalProperties": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "type": "object"
-          },
-          "type": "object"
+          "$ref": "#/$defs/ExperimentLocalizations"
         },
         {
           "type": "null"
         }
-      ],
-      "description": "Per-locale localization substitutions. The top level key is the locale (e.g., \"en-US\" or \"fr\"). Each entry is a mapping of string IDs to their localized equivalents. Only supported on desktop."
+      ]
     },
     "locales": {
       "anyOf": [
@@ -342,6 +335,16 @@
         "featureId",
         "value"
       ],
+      "type": "object"
+    },
+    "ExperimentLocalizations": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "description": "Per-locale localization substitutions. The top level key is the locale (e.g., \"en-US\" or \"fr\"). Each entry is a mapping of string IDs to their localized equivalents. Only supported on desktop.",
       "type": "object"
     },
     "ExperimentMultiFeatureDesktopBranch": {
