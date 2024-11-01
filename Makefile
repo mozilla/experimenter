@@ -5,10 +5,13 @@ WAIT_FOR_RUNSERVER = /experimenter/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
 COMPOSE_CIRRUS = [[ -n $$CIRRUS ]] && echo "-f docker-compose-cirrus.yml"
 COMPOSE = docker compose -f docker-compose.yml $$(${COMPOSE_CIRRUS})
+COMPOSE_RUN = ${COMPOSE} run --rm
 COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker compose -f docker-compose-test.yml
+COMPOSE_TEST_RUN = ${COMPOSE_TEST} run --rm
 COMPOSE_PROD = docker compose -f docker-compose-prod.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml $$(${COMPOSE_CIRRUS})
+COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --rm
 DOCKER_BUILD = docker buildx build
 
 JOBS = 4
@@ -85,7 +88,7 @@ jetstream_config:
 	rm -Rf experimenter/experimenter/segments/metric-hub-main/.script/
 
 feature_manifests: build_dev
-	$(COMPOSE) run -e GITHUB_BEARER_TOKEN=$(GITHUB_BEARER_TOKEN) experimenter /experimenter/bin/manifest-tool.py fetch $(FETCH_ARGS)
+	$(COMPOSE_RUN) -e GITHUB_BEARER_TOKEN=$(GITHUB_BEARER_TOKEN) experimenter /experimenter/bin/manifest-tool.py fetch $(FETCH_ARGS)
 
 install_nimbus_cli:  ## Install Nimbus client
 	mkdir -p $(CLI_DIR)
@@ -152,11 +155,11 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 	echo "All containers removed!"
 
 lint: build_test  ## Running linting on source code
-	$(COMPOSE_TEST) run experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
 check: lint
 
 test: build_test  ## Run tests
-	$(COMPOSE_TEST) run experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
 pytest: test
 
 start: build_dev  ## Start containers
@@ -183,28 +186,28 @@ up_detached: build_dev
 	$(COMPOSE) up -d
 
 generate_docs: build_dev
-	$(COMPOSE) run experimenter sh -c "$(GENERATE_DOCS)"
+	$(COMPOSE_RUN) experimenter sh -c "$(GENERATE_DOCS)"
 
 generate_types: build_dev
-	$(COMPOSE) run experimenter sh -c "$(NIMBUS_TYPES_GENERATE)"
+	$(COMPOSE_RUN) experimenter sh -c "$(NIMBUS_TYPES_GENERATE)"
 
 format: build_dev  ## Format source tree
-	$(COMPOSE) run experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)" "$(ESLINT_FIX_NIMBUS_UI_NEW)"'
+	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)" "$(ESLINT_FIX_NIMBUS_UI_NEW)"'
 code_format: format
 
 makemigrations: build_dev
-	$(COMPOSE) run experimenter python manage.py makemigrations
+	$(COMPOSE_RUN) experimenter python manage.py makemigrations
 
 migrate: build_dev  ## Run database migrations
-	$(COMPOSE) run experimenter sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
+	$(COMPOSE_RUN) experimenter sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
 
 bash: build_dev
-	$(COMPOSE) run experimenter bash
+	$(COMPOSE_RUN) experimenter bash
 
 refresh: kill build_dev compose_build refresh_db  ## Rebuild all containers and the database
 
 refresh_db:  # Rebuild the database
-	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
+	$(COMPOSE_RUN) -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 dependabot_approve:
 	echo "Install and configure the Github CLI https://github.com/cli/cli"
@@ -213,10 +216,10 @@ dependabot_approve:
 
 # integration tests
 integration_shell:
-	$(COMPOSE_INTEGRATION) run firefox bash
+	$(COMPOSE_INTEGRATION_RUN) firefox bash
 
 integration_sdk_shell: build_prod build_integration_test
-	$(COMPOSE_INTEGRATION) run rust-sdk bash
+	$(COMPOSE_INTEGRATION_RUN) rust-sdk bash
 
 integration_vnc_up: build_prod
 	$(COMPOSE_INTEGRATION) up firefox
@@ -225,13 +228,13 @@ integration_vnc_up_detached: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
 
 integration_test_legacy: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "./experimenter/tests/experimenter_legacy_tests.sh"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "./experimenter/tests/experimenter_legacy_tests.sh"
 
 integration_test_nimbus: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "UPDATE_FIREFOX_VERSION=$(UPDATE_FIREFOX_VERSION) FIREFOX_BETA=$(FIREFOX_BETA) FIREFOX_RELEASE=$(FIREFOX_RELEASE) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "UPDATE_FIREFOX_VERSION=$(UPDATE_FIREFOX_VERSION) FIREFOX_BETA=$(FIREFOX_BETA) FIREFOX_RELEASE=$(FIREFOX_RELEASE) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
 
 integration_test_nimbus_rust: build_integration_test build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
 
 integration_test_nimbus_fenix:
 	poetry -C experimenter/tests/integration/ -vvv install --no-root
@@ -255,7 +258,7 @@ cirrus_build_test: build_megazords
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
 
 cirrus_bash: cirrus_build
-	$(CIRRUS_ENABLE) $(COMPOSE) run cirrus bash
+	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus bash
 
 cirrus_up: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE) up cirrus
@@ -264,19 +267,19 @@ cirrus_down: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE) down cirrus
 
 cirrus_test: cirrus_build_test
-	$(CIRRUS_ENABLE) $(COMPOSE_TEST) run cirrus sh -c '$(CIRRUS_PYTEST)'
+	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c '$(CIRRUS_PYTEST)'
 
 cirrus_check: cirrus_build_test
-	$(CIRRUS_ENABLE) $(COMPOSE_TEST) run cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
+	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format: cirrus_build
-	$(CIRRUS_ENABLE) $(COMPOSE) run cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
+	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
 
 cirrus_typecheck_createstub: cirrus_build
-	$(CIRRUS_ENABLE) $(COMPOSE) run cirrus sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
+	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
 
 cirrus_generate_docs: cirrus_build
-	$(CIRRUS_ENABLE) $(COMPOSE) run cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
+	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
 build_demo_app:
 	$(CIRRUS_ENABLE) $(COMPOSE_INTEGRATION) build demo-app-frontend demo-app-server
@@ -285,7 +288,7 @@ build_demo_app:
 # nimbus schemas package
 SCHEMAS_ENV ?=  # This is empty by default
 SCHEMAS_VERSION = \$$(cat VERSION)
-SCHEMAS_RUN = docker run -ti $(SCHEMAS_ENV) -v ./schemas:/schemas -v /schemas/node_modules schemas:dev sh -c
+SCHEMAS_RUN = docker run --rm -ti $(SCHEMAS_ENV) -v ./schemas:/schemas -v /schemas/node_modules schemas:dev sh -c
 SCHEMAS_BLACK = black --check --diff .
 SCHEMAS_RUFF = ruff check .
 SCHEMAS_DIFF_PYDANTIC = \
