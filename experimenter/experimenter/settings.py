@@ -10,8 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
-import json
-from importlib import resources
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -555,16 +553,6 @@ SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
 # Required to save large experiments in the admin
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20mb
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
-
-
-EXPERIMENT_SCHEMA_PATH = (
-    resources.files("mozilla_nimbus_shared")
-    / "schemas"
-    / "experiments"
-    / "NimbusExperiment.json"
-)
-
-EXPERIMENT_SCHEMA = json.loads(EXPERIMENT_SCHEMA_PATH.read_text())
 
 # Only allow JSON for the experiment import/export admin tool
 IMPORT_EXPORT_FORMATS = [JSON]
