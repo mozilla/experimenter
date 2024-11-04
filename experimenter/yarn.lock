@@ -107,10 +107,19 @@
   dependencies:
     "@babel/highlight" "^7.10.4"
 
-"@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.25.9", "@babel/code-frame@^7.26.0", "@babel/code-frame@^7.5.5", "@babel/code-frame@^7.8.3":
+"@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.25.9", "@babel/code-frame@^7.26.0", "@babel/code-frame@^7.8.3":
   version "7.26.0"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.26.0.tgz#9374b5cd068d128dac0b94ff482594273b1c2815"
   integrity sha512-INCKxTtbXtcNbUZ3YXutwMpEleqttcswhAdee7dhuoVrD2cnuc3PqtERBtxkX5nziX9vnBL8WXmSGwv8CuPV6g==
+  dependencies:
+    "@babel/helper-validator-identifier" "^7.25.9"
+    js-tokens "^4.0.0"
+    picocolors "^1.0.0"
+
+"@babel/code-frame@^7.5.5":
+  version "7.26.2"
+  resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.26.2.tgz#4b5fab97d33338eff916235055f0ebc21e573a85"
+  integrity sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==
   dependencies:
     "@babel/helper-validator-identifier" "^7.25.9"
     js-tokens "^4.0.0"
@@ -2420,10 +2429,10 @@
   dependencies:
     "@lezer/common" "^1.0.0"
 
-"@mozilla/nimbus-schemas@^2024.10.1":
-  version "2024.10.1"
-  resolved "https://registry.yarnpkg.com/@mozilla/nimbus-schemas/-/nimbus-schemas-2024.10.1.tgz#ef7f4782b7ca1c933dac419d4793a4aaf102a3af"
-  integrity sha512-GBzXzcZfF/CrUrDbWoBYKrjLMNF3KjGethApCFba1dudN5IN5K9yreKP6GCfVkzE9DEYUstypZYMirEps1+9dw==
+"@mozilla/nimbus-schemas@^2024.11.1":
+  version "2024.11.1"
+  resolved "https://registry.yarnpkg.com/@mozilla/nimbus-schemas/-/nimbus-schemas-2024.11.1.tgz#517b29243c1f95fe37acaff38719b491ff5f38a1"
+  integrity sha512-wqK6BAI338Zg0QG5/qiwVrqNToI7KaoWEPzxqm2GPjXcLozSMmI6OEKxJ5uMIwCuzbV5jlklM2e2lYrHGsLjMw==
 
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
