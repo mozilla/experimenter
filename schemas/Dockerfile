@@ -30,16 +30,21 @@ RUN poetry config virtualenvs.create false
 FROM system-builder AS python-builder
 WORKDIR /schemas
 
+# Poetry needs a package to install in package-mode.
+RUN mkdir mozilla_nimbus_schemas && \
+    touch mozilla_nimbus_schemas/__init__.py
+
 COPY ./pyproject.toml /schemas/pyproject.toml
 COPY ./poetry.lock /schemas/poetry.lock
-COPY ./mozilla_nimbus_schemas /schemas/mozilla_nimbus_schemas
 COPY ./README.md /schemas/README.md
+
 RUN poetry install
 
 # If any package is installed, that is incompatible by version, this command
 # will exit non-zero and print what is usually just a warning in `poetry install`
 RUN poetry check
 
+COPY ./mozilla_nimbus_schemas /schemas/mozilla_nimbus_schemas
 
 # Node image
 #-------------------------
