@@ -707,7 +707,7 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
         lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
     )
     description = factory.LazyAttribute(lambda o: faker.text())
-    firefox_labs_title = factory.LazyAttribute(lambda o: faker.faker.catch_phrase())
+    firefox_labs_title = factory.LazyAttribute(lambda o: faker.catch_phrase())
 
     class Meta:
         model = NimbusBranch
