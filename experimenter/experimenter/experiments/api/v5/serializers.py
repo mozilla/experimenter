@@ -11,10 +11,10 @@ from typing import Any, NotRequired, Optional, Self, TypedDict
 
 import jsonschema
 import packaging
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.utils.text import slugify
+from mozilla_nimbus_schemas.experiments.experiments import ExperimentLocalizations
 from rest_framework import serializers
 
 from experimenter.base.models import (
@@ -2052,12 +2052,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 {"localizations": [f"Invalid JSON: {e}"]}
             ) from e
 
-        schema = settings.EXPERIMENT_SCHEMA["definitions"]["NimbusExperiment"][
-            "properties"
-        ]["localizations"]
-
         try:
-            jsonschema.validate(localizations, schema)
+            ExperimentLocalizations.model_validate(localizations)
         except Exception as e:
             raise serializers.ValidationError(
                 {"localizations": [f"Localization schema validation error: {e}"]}
