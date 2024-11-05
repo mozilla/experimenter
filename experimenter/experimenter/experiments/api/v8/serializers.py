@@ -55,10 +55,11 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
 class NimbusBranchSerializerDesktop(NimbusBranchSerializer):
     feature = serializers.SerializerMethodField()
+    firefoxLabsTitle = serializers.ReadOnlyField(source="firefox_labs_title")
 
     class Meta:
         model = NimbusBranch
-        fields = ("slug", "ratio", "feature", "features")
+        fields = ("slug", "ratio", "feature", "features", "firefoxLabsTitle")
 
     def get_feature(self, obj):
         return {
@@ -112,10 +113,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     localizations = serializers.SerializerMethodField()
     locales = serializers.SerializerMethodField()
     publishedDate = serializers.DateTimeField(source="published_date")
-    # TODO add fx labs fields here
-    is_firefox_labs_opt_in = serializers.ReadOnlyField(source="is_firefox_labs_opt_in")
-    firefox_labs_title = serializers.SerializerMethodField()
-    firefox_labs_description = serializers.SerializerMethodField()
+    isFirefoxLabsOptIn = serializers.ReadOnlyField(source="is_firefox_labs_opt_in")
+    firefoxLabsTitle = serializers.ReadOnlyField(source="firefox_labs_title")
+    firefoxLabsDescription = serializers.ReadOnlyField(source="firefox_labs_description")
 
     class Meta:
         model = NimbusExperiment
@@ -149,6 +149,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "localizations",
             "locales",
             "publishedDate",
+            "isFirefoxLabsOptIn",
+            "firefoxLabsTitle",
+            "firefoxLabsDescription",
         )
 
     def get_application(self, obj):

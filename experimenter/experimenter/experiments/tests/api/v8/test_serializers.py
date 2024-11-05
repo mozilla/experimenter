@@ -37,6 +37,9 @@ class TestNimbusExperimentSerializer(TestCase):
             segments=["segment1", "segment2"],
             locales=[locale_en_us],
             _enrollment_end_date=datetime.date(2022, 1, 5),
+            is_firefox_labs_opt_in=False,
+            firefox_labs_title=None,
+            firefox_labs_description=None,
         )
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
@@ -94,6 +97,9 @@ class TestNimbusExperimentSerializer(TestCase):
                 "localizations": None,
                 "locales": ["en-US"],
                 "publishedDate": experiment.published_date,
+                "isFirefoxLabsOptIn": False,
+                "firefoxLabsTitle": None,
+                "firefoxLabsDescription": None,
             },
         )
 
@@ -131,6 +137,7 @@ class TestNimbusExperimentSerializer(TestCase):
                         }
                         for fv in branch.feature_values.all()
                     ],
+                    "firefoxLabsTitle": branch.firefox_labs_title
                 },
                 branches_data,
             )

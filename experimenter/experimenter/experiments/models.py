@@ -1348,7 +1348,6 @@ class NimbusBranch(models.Model):
     slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(blank=True, default="")
     ratio = models.PositiveIntegerField(default=1)
-    #TODO add firefoxLabsTitle here?
     firefox_labs_title = models.TextField("Firefox Labs experiment title", blank=True, null=True)
 
     class Meta:
