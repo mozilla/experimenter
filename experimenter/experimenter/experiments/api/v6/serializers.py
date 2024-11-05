@@ -149,7 +149,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "publishedDate",
             "isFirefoxLabsOptIn",
             "firefoxLabsTitle",
-            "firefoxLabsDescription"
+            "firefoxLabsDescription",
         )
 
     def get_application(self, obj):

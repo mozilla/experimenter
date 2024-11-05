@@ -371,8 +371,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     use_group_id = models.BooleanField(default=False)
     objects = NimbusExperimentManager()
     is_firefox_labs_opt_in = models.BooleanField("Is Firefox Labs Opt In", default=False)
-    firefox_labs_title = models.TextField("Firefox Labs experiment title", blank=True, null=True)
-    firefox_labs_description = models.TextField("Firefox Labs experiment description", blank=True, null=True)
+    firefox_labs_title = models.TextField(
+        "Firefox Labs experiment title", blank=True, null=True
+    )
+    firefox_labs_description = models.TextField(
+        "Firefox Labs experiment description", blank=True, null=True
+    )
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -1348,7 +1352,9 @@ class NimbusBranch(models.Model):
     slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(blank=True, default="")
     ratio = models.PositiveIntegerField(default=1)
-    firefox_labs_title = models.TextField("Firefox Labs experiment title", blank=True, null=True)
+    firefox_labs_title = models.TextField(
+        "Firefox Labs experiment title", blank=True, null=True
+    )
 
     class Meta:
         verbose_name = "Nimbus Branch"

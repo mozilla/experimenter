@@ -137,7 +137,7 @@ class TestNimbusExperimentSerializer(TestCase):
                         }
                         for fv in branch.feature_values.all()
                     ],
-                    "firefoxLabsTitle": branch.firefox_labs_title
+                    "firefoxLabsTitle": branch.firefox_labs_title,
                 },
                 branches_data,
             )
