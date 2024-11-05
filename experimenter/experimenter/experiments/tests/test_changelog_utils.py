@@ -59,9 +59,12 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "feature_configs": [],
                 "firefox_max_version": NimbusExperiment.Version.NO_VERSION,
                 "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
+                "firefox_labs_title": experiment.firefox_labs_title,
+                "firefox_labs_description": experiment.firefox_labs_description,
                 "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
                 "is_archived": experiment.is_archived,
                 "is_client_schema_disabled": experiment.is_client_schema_disabled,
+                "is_firefox_labs_opt_in": experiment.is_firefox_labs_opt_in,
                 "is_first_run": experiment.is_first_run,
                 "is_localized": experiment.is_localized,
                 "is_paused": False,
@@ -167,9 +170,12 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "excluded_experiments": [],
                 "firefox_max_version": experiment.firefox_max_version,
                 "firefox_min_version": experiment.firefox_min_version,
+                "firefox_labs_title": experiment.firefox_labs_title,
+                "firefox_labs_description": experiment.firefox_labs_description,
                 "hypothesis": experiment.hypothesis,
                 "is_archived": experiment.is_archived,
                 "is_client_schema_disabled": experiment.is_client_schema_disabled,
+                "is_firefox_labs_opt_in": experiment.is_firefox_labs_opt_in,
                 "is_first_run": experiment.is_first_run,
                 "is_localized": experiment.is_localized,
                 "is_paused": experiment.is_paused,
@@ -269,6 +275,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                         "feature_config": experiment.feature_configs.get().id,
                     }
                 ],
+                "firefox_labs_title": experiment.reference_branch.firefox_labs_title,
             },
         )
 
@@ -286,6 +293,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                             "feature_config": experiment.feature_configs.get().id,
                         }
                     ],
+                    "firefox_labs_title": branch.firefox_labs_title,
                 },
                 branches_data,
             )
