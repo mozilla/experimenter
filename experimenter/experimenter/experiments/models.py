@@ -1360,7 +1360,7 @@ class NimbusBranch(models.Model):
     description = models.TextField(blank=True, default="")
     ratio = models.PositiveIntegerField(default=1)
     firefox_labs_title = models.TextField(
-        "An optional string containing the Fluent ID " "for the title of the opt-in",
+        "An optional string containing the Fluent ID for the title of the opt-in",
         blank=True,
         null=True,
     )
