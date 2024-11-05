@@ -1715,6 +1715,20 @@ pydantic = ">=2,<3"
 typing-extensions = ">=4.0.1"
 
 [[package]]
+name = "mozilla-nimbus-shared"
+version = "2.5.2"
+description = "Shared data and schemas for Project Nimbus"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "mozilla_nimbus_shared-2.5.2-py3-none-any.whl", hash = "sha256:d7257945c13cffb2b2aa79f7d3b4c955ea4c93d511f6cccb08e9cd0fb7c5f412"},
+    {file = "mozilla_nimbus_shared-2.5.2.tar.gz", hash = "sha256:a10e84a9b860dc5cd5ef78babe9396674da815c853f43ba6ba4950b38f163119"},
+]
+
+[package.dependencies]
+jsonschema = ">=4.17.3,<5.0.0"
+
+[[package]]
 name = "mypy-extensions"
 version = "0.4.3"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
@@ -3286,4 +3300,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "cfd3a3d047c8e9b3247a59e1af8ef51371921ec418a1fcbcbcdc838dc8b39306"
+content-hash = "f3bcae0d532f690cc2c345335e7ccdcdb1a43667c85d28c1ed672e9eb5e463da"
