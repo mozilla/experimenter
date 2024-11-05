@@ -45,7 +45,6 @@ from experimenter.kinto.tasks import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
-from experimenter.segments import Segments
 
 logger = logging.getLogger()
 
@@ -647,7 +646,6 @@ class NimbusExperimentSerializer(
     secondary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
     )
-    segments = serializers.ListField(child=serializers.CharField(), required=False)
     population_percent = serializers.DecimalField(
         7, 4, min_value=0.0, max_value=100.0, required=False
     )
@@ -773,7 +771,6 @@ class NimbusExperimentSerializer(
             "risk_partner_related",
             "risk_revenue",
             "secondary_outcomes",
-            "segments",
             "slug",
             "status_next",
             "status",
@@ -875,20 +872,6 @@ class NimbusExperimentSerializer(
             invalid_outcomes = value_set - valid_outcomes
             raise serializers.ValidationError(
                 f"Invalid choices for secondary outcomes: {invalid_outcomes}"
-            )
-
-        return value
-
-    def validate_segments(self, value):
-        value_set = set(value)
-        valid_segments = {
-            s.slug for s in Segments.by_application(self.instance.application)
-        }
-
-        if valid_segments.intersection(value_set) != value_set:
-            invalid_segments = value_set - valid_segments
-            raise serializers.ValidationError(
-                f"Invalid choices for segments: {invalid_segments}"
             )
 
         return value
