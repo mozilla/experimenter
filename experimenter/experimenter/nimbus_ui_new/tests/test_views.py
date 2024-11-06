@@ -24,7 +24,7 @@ from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
-from experimenter.segments.tests import mock_valid_segments
+from experimenter.segments.tests.mock_segments import mock_get_segments
 from experimenter.targeting.constants import TargetingConstants
 
 
@@ -1109,7 +1109,6 @@ class TestNimbusExperimentsCreateView(AuthTestCase):
 
 
 @mock_valid_outcomes
-@mock_valid_segments
 class TestMetricsUpdateView(AuthTestCase):
     @classmethod
     def setUpClass(cls):
@@ -1136,7 +1135,7 @@ class TestMetricsUpdateView(AuthTestCase):
             segments=[],
         )
         outcomes = Outcomes.by_application(application)
-        segments = Segments.by_application(application)
+        segments = Segments.by_application(application, mock_get_segments())
 
         outcome1 = outcomes[0]
         outcome2 = outcomes[1]

@@ -127,7 +127,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # System packages
 RUN apt-get update
-RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client
+RUN apt-get --no-install-recommends install -y apt-utils ca-certificates git postgresql-client 
 
 # Copy source from previously built containers
 COPY --from=dev /usr/local/bin/ /usr/local/bin/
