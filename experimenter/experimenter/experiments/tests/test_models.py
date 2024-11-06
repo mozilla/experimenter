@@ -1729,6 +1729,11 @@ class TestNimbusExperiment(TestCase):
             },
             {"label": "Live", "date": experiment.start_date, "is_active": True},
             {
+                "label": NimbusConstants.ENROLLMENT_END,
+                "date": experiment._enrollment_end_date,
+                "is_active": False,
+            },
+            {
                 "label": "Complete",
                 "date": experiment.computed_end_date,
                 "is_active": False,
