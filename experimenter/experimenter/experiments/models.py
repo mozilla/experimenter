@@ -829,12 +829,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             timeline_entries.insert(
                 4,
                 {
-                    "label": "Enrollment End",
+                    "label": NimbusConstants.ENROLLMENT_END,
                     "date": self._enrollment_end_date,
                     "is_active": self._enrollment_end_date is not None,
-                    "days": self.computed_enrollment_days
-                    if self._enrollment_end_date
-                    else None,
+                    "days": (
+                        self.computed_enrollment_days
+                        if self._enrollment_end_date
+                        else None
+                    ),
                 },
             )
 

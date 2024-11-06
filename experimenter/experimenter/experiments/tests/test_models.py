@@ -1738,7 +1738,7 @@ class TestNimbusExperiment(TestCase):
                 "days": None,
             },
             {
-                "label": "Enrollment End",
+                "label": NimbusConstants.ENROLLMENT_END,
                 "date": experiment._enrollment_end_date,
                 "is_active": False,
                 "days": enrollment_days,
