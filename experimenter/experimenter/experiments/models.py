@@ -793,7 +793,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.proposed_duration
 
     def timeline(self):
-        return [
+        timeline_entries = [
             {
                 "label": self.Status.DRAFT,
                 "date": self.draft_date,
@@ -815,17 +815,22 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "is_active": self.is_live,
             },
             {
-            "label":NimbusConstants.ENROLLMENT_END,
-            "date":self.computed_enrollment_end_date,
-            "is_active": self.computed_enrollment_end_date is not None,
-            "is_grayed_out": self.is_rollout,
-        },
-            {
                 "label": self.Status.COMPLETE,
                 "date": self.computed_end_date,
                 "is_active": self.is_complete,
             },
         ]
+        if not self.is_rollout:
+            timeline_entries.insert(
+                4,
+                {
+                    "label": "Enrollment End",
+                    "date": self._enrollment_end_date,
+                    "is_active": self._enrollment_end_date is not None,
+                },
+            )
+
+        return timeline_entries
 
     @property
     def should_end(self):
