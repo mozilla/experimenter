@@ -1,10 +1,13 @@
 import json
+import logging
 
 import graphene
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
+from mozilla_nimbus_schemas.jetstream import SampleSizes
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v5.serializers import (
@@ -26,7 +29,8 @@ from experimenter.experiments.models import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
-from experimenter.settings import SIZING_DATA_KEY
+
+logger = logging.getLogger(__name__)
 
 
 class NimbusExperimentStatusEnum(graphene.Enum):
@@ -396,8 +400,21 @@ class NimbusConfigurationType(graphene.ObjectType):
         )
 
     def resolve_population_sizing_data(self, info):
-        sizing_data = cache.get(SIZING_DATA_KEY)
-        return sizing_data.json() if sizing_data else "{}"
+        try:
+            sizing_data = cache.get(settings.SIZING_DATA_KEY)
+            if sizing_data is not None:
+                if not isinstance(sizing_data, str):
+                    raise TypeError(f"expected str, got {type(sizing_data).__name__}")
+
+                return SampleSizes.parse_raw(sizing_data).json()
+        except Exception as e:
+            logger.error(
+                f"Could not parse sizing data in cache key '{settings.SIZING_DATA_KEY}': "
+                f"{e}; evicting cache entry"
+            )
+            cache.delete(settings.SIZING_DATA_KEY)
+
+        return "{}"
 
     @staticmethod
     def sort_version_choices(choices):

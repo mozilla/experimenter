@@ -37,7 +37,7 @@ if [[ -n "${FIREFOX_RELEASE}" ]]; then
     install_firefox "https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX_DESKTOP_RELEASE_VERSION_ID}/linux-x86_64/en-US/firefox-${FIREFOX_DESKTOP_RELEASE_VERSION_ID}.tar.bz2"
 fi
 
-curl -sSL https://install.python-poetry.org | python3 - --version 1.8.3
+curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
 sudo chmod -R a+rwx /code/experimenter/tests/integration/
 mkdir -m a+rwx -p /code/experimenter/tests/integration/test-reports
 

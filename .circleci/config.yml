@@ -373,7 +373,7 @@ jobs:
 
   integration_test_ios_fennec:
     macos:
-      xcode: 15.3.0
+      xcode: 15.4.0
     parameters:
       file_path:
         type: string
@@ -382,32 +382,32 @@ jobs:
       - check_file_paths:
           paths: << parameters.file_path >>
       - macos/preboot-simulator:
-          version: "17.4"
+          version: "17.5"
           platform: "iOS"
           device: "iPhone 15"
       - attach_workspace:
           at: /tmp/experimenter
       - run:
           name: Clone Firefox iOS Repo
-          command: |
-            source << parameters.file_path >>
-            git clone https://github.com/mozilla-mobile/firefox-ios.git
-            git checkout "$BRANCH"
+          command: git clone https://github.com/mozilla-mobile/firefox-ios.git
       - run:
           name: Install nimbus-cli
           command: curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
       - run:
           name: Setup and build Firefox app
           command: |
+            source << parameters.file_path >>
             cd firefox-ios
+            git checkout "$BRANCH"
             sh ./bootstrap.sh
             cd firefox-ios
             pip3 install virtualenv poetry
-            xcodebuild build-for-testing -project Client.xcodeproj -scheme Fennec -configuration Fennec -sdk iphonesimulator -quiet -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4'
+            xcodebuild build-for-testing -scheme Fennec -target Client -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ARCHS="arm64"
       - run:
           name: Run Tests
           command: |
             cd firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests
+            git cherry-pick dfd0b8a556f5990d0b5d9351df8acf571895e6dc -X theirs || true
             export SIMULATOR_UDID=$(python get_specific_device_udid.py)
             cp -f ~/project/experimenter/tests/integration/nimbus/ios/test_ios_integration.py ./
             poetry install
@@ -441,33 +441,6 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - docker_login:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-      - run:
-          name: Deploy to Dockerhub
-          command: |
-            ./scripts/store_git_info.sh
-            make build_prod
-            docker tag experimenter:deploy ${DOCKERHUB_REPO}:latest
-            docker push ${DOCKERHUB_REPO}:latest
-            GIT_SHA=$(git rev-parse --short HEAD)
-            docker tag experimenter:deploy ${DOCKERHUB_REPO}:${GIT_SHA}
-            docker push ${DOCKERHUB_REPO}:${GIT_SHA}
-      - gcp-cli/setup
-      - run:
-          name: Deploy to Google Container Registry
-          command: |
-            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
-            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-            gcloud auth configure-docker
-            DOCKER_IMAGE="gcr.io/${GOOGLE_PROJECT_ID}/experimenter"
-            docker tag experimenter:deploy ${DOCKER_IMAGE}:latest
-            docker push "${DOCKER_IMAGE}:latest"
-            GIT_SHA=$(git rev-parse --short HEAD)
-            docker tag experimenter:deploy ${DOCKERHUB_REPO}:${GIT_SHA}
-            docker push ${DOCKERHUB_REPO}:${GIT_SHA}
       - run:
           name: Prepare environment variables for OIDC authentication
           command: |
@@ -481,6 +454,8 @@ jobs:
       - run:
           name: Deploy to Google Artifact Registry
           command: |
+            ./scripts/store_git_info.sh
+            make build_prod
             gcloud auth configure-docker us-docker.pkg.dev --quiet
             DOCKER_IMAGE="us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/experimenter"
             docker tag experimenter:deploy ${DOCKER_IMAGE}:latest

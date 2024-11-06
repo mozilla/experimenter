@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
+from mozilla_nimbus_schemas.jetstream import SampleSizesFactory
 from parameterized import parameterized
 
 from experimenter.base.models import Country, Language, Locale
@@ -2438,9 +2439,13 @@ class TestNimbusExperimentsByApplicationMetaQuery(GraphQLTestCase):
 class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user_email = "user@example.com"
+
     def test_nimbus_config(self):
         self.setup_cached_sizing_data()
-        user_email = "user@example.com"
         feature_configs = NimbusFeatureConfigFactory.create_batch(10)
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
@@ -2568,7 +2573,7 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
                 }
             }
             """,
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+            headers={settings.OPENIDC_EMAIL_HEADER: self.user_email},
         )
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
@@ -2593,7 +2598,8 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
 
         pop_sizing_data = self.get_cached_sizing_data()
         self.assertEqual(
-            config["populationSizingData"], pop_sizing_data.json(exclude_unset=True)
+            config["populationSizingData"],
+            pop_sizing_data,
         )
 
         self.assertEqual(
@@ -2722,4 +2728,36 @@ class TestNimbusConfigQuery(MockSizingDataMixin, GraphQLTestCase):
             self.assertIn(
                 {"id": str(project.id), "name": project.name}, config["projects"]
             )
-        self.assertEqual(config["user"], user_email)
+        self.assertEqual(config["user"], self.user_email)
+
+    @parameterized.expand(
+        [
+            object(),
+            SampleSizesFactory(),
+            123,
+            json.dumps(
+                {
+                    "bogus": "data",
+                }
+            ),
+        ]
+    )
+    def test_nimbus_config_invalid_population_sizing_cache_invalid(self, cached_data):
+        self.setup_cached_sizing_data(cached_data)
+
+        rsp = self.query(
+            """
+            query {
+                nimbusConfig {
+                    populationSizingData
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+        self.assertEqual(rsp.status_code, 200, rsp.content)
+
+        content = json.loads(rsp.content)
+        config = content["data"]["nimbusConfig"]
+
+        self.assertEqual(config["populationSizingData"], "{}")
