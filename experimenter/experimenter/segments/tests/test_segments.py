@@ -120,12 +120,12 @@ class TestCheckSegments(TestCase):
         Segments.clear_cache()
 
     def test_valid_segments_do_not_trigger_check_error(self):
-        errors = check_segments(app_configs=None, segments_data=mock_get_segments())
+        errors = check_segments(app_configs=None, segment_data=mock_get_segments())
         self.assertEqual(errors, [])
 
     def test_invalid_segments_trigger_check_error(self):
         errors = check_segments(
-            app_configs=None, segments_data=mock_get_invalid_segments()
+            app_configs=None, segment_data=mock_get_invalid_segments()
         )
         self.assertEqual(
             errors,
