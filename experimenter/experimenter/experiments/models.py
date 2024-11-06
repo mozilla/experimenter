@@ -798,26 +798,31 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "label": self.Status.DRAFT,
                 "date": self.draft_date,
                 "is_active": self.is_draft,
+                "days": None,
             },
             {
                 "label": self.Status.PREVIEW,
                 "date": self.preview_date,
                 "is_active": self.is_preview,
+                "days": None,
             },
             {
                 "label": self.PublishStatus.REVIEW,
                 "date": self.review_date,
                 "is_active": self.is_review,
+                "days": None,
             },
             {
                 "label": self.Status.LIVE,
                 "date": self.start_date,
                 "is_active": self.is_live,
+                "days": None,
             },
             {
                 "label": self.Status.COMPLETE,
                 "date": self.computed_end_date,
                 "is_active": self.is_complete,
+                "days": self.computed_duration_days if self.computed_end_date else None,
             },
         ]
         if not self.is_rollout:
@@ -827,6 +832,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "label": "Enrollment End",
                     "date": self._enrollment_end_date,
                     "is_active": self._enrollment_end_date is not None,
+                    "days": self.computed_enrollment_days
+                    if self._enrollment_end_date
+                    else None,
                 },
             )
 
