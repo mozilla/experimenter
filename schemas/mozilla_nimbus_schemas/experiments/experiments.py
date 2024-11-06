@@ -98,8 +98,7 @@ class ExperimentMultiFeatureDesktopBranch(BaseExperimentMultiFeatureBranch):
         )
     )
     firefoxLabsTitle: str | SkipJsonSchema[None] = Field(
-        description="An optional string containing the title of the branch",
-        default=None
+        description="An optional string containing the title of the branch", default=None
     )
 
 
