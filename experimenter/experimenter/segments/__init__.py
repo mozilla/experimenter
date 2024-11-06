@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 from django.core.checks import Error, register
 from metric_config_parser.config import ConfigCollection
@@ -22,7 +21,7 @@ class Segments:
 
     @classmethod
     def _load_segments(
-        cls, segment_data: Optional[Dict[str, List[SegmentDefinition]]] = None
+        cls, segment_data: dict[str, list[SegmentDefinition]] | None = None
     ):
         segments: list[Segment] = []
 
@@ -71,7 +70,7 @@ class Segments:
         cls._segments = None
 
     @classmethod
-    def all(cls, segment_data: Optional[Dict[str, List[SegmentDefinition]]] = None):
+    def all(cls, segment_data: dict[str, list[SegmentDefinition]] | None = None):
         if cls._segments is None:
             cls._segments = cls._load_segments(segment_data)
         return cls._segments
@@ -80,7 +79,7 @@ class Segments:
     def by_application(
         cls,
         application,
-        segment_data: Optional[Dict[str, List[SegmentDefinition]]] = None,
+        segment_data: dict[str, list[SegmentDefinition]] | None = None,
     ):
         return [o for o in cls.all(segment_data) if o.application == application]
 
@@ -88,7 +87,7 @@ class Segments:
 @register()
 def check_segments(
     app_configs,
-    segment_data: Optional[Dict[str, List[SegmentDefinition]]] = None,
+    segment_data: dict[str, list[SegmentDefinition]] | None = None,
     **kwargs,
 ):
     errors = []
