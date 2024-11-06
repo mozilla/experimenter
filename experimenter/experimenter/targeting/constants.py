@@ -2220,6 +2220,23 @@ DEFAULT_WINDOWS_CONTENT_PROCESS_SANDBOX_LEVEL = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+DEFAULT_AUTOFILL_CREDIT_CARDS_SUPPORTED = NimbusTargetingConfig(
+    name="Users with Default or Non-'On' Setting for Credit Card Autofill",
+    slug="default_autofill_credit_cards_supported",
+    description=(
+        "Targets users who have left the 'extensions.formautofill.creditCards.supported' "
+        "preference at its default value or set it to something other than 'on'."
+    ),
+    targeting=(
+        "!('extensions.formautofill.creditCards.supported'|preferenceIsUserSet) || "
+        "'extensions.formautofill.creditCards.supported'|preferenceValue != 'on'"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
