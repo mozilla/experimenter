@@ -362,7 +362,7 @@ export interface ExperimentMultiFeatureDesktopBranch {
   /**
    * An optional string containing the title of the branch
    */
-  firefoxLabsTitle: string;
+  firefoxLabsTitle?: string;
 }
 export interface DesktopTombstoneFeatureConfig {
   featureId: "unused-feature-id-for-legacy-support";
