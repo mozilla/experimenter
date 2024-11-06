@@ -2,11 +2,13 @@ from django.core.checks import Error
 from django.test import TestCase
 
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.segments import Segment, Segments, check_segment_tomls
-from experimenter.segments.tests import mock_invalid_segments, mock_valid_segments
+from experimenter.segments import Segment, Segments, check_segments
+from experimenter.segments.tests.mock_segments import (
+    mock_get_invalid_segments,
+    mock_get_segments,
+)
 
 
-@mock_valid_segments
 class TestSegments(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -14,7 +16,7 @@ class TestSegments(TestCase):
         Segments.clear_cache()
 
     def test_load_all_segments(self):
-        segments = Segments.all()
+        segments = Segments.all(mock_get_segments())
         self.assertEqual(len(segments), 4)
 
         self.assertIn(
@@ -62,7 +64,9 @@ class TestSegments(TestCase):
         )
 
     def test_load_segments_by_application(self):
-        fenix_segments = Segments.by_application(NimbusExperiment.Application.FENIX)
+        fenix_segments = Segments.by_application(
+            NimbusExperiment.Application.FENIX, mock_get_segments()
+        )
         self.assertEqual(len(fenix_segments), 1)
         self.assertIn(
             Segment(
@@ -75,7 +79,9 @@ class TestSegments(TestCase):
             fenix_segments,
         )
 
-        desktop_segments = Segments.by_application(NimbusExperiment.Application.DESKTOP)
+        desktop_segments = Segments.by_application(
+            NimbusExperiment.Application.DESKTOP, mock_get_segments()
+        )
         self.assertEqual(len(desktop_segments), 3)
         self.assertIn(
             Segment(
@@ -109,19 +115,19 @@ class TestSegments(TestCase):
         )
 
 
-class TestCheckSegmentTOMLs(TestCase):
+class TestCheckSegments(TestCase):
     def setUp(self):
         Segments.clear_cache()
 
-    @mock_invalid_segments
-    def test_invalid_segments_do_trigger_check_error(self):
-        errors = check_segment_tomls(None)
+    def test_valid_segments_do_not_trigger_check_error(self):
+        errors = check_segments(app_configs=None, segment_data=mock_get_segments())
+        self.assertEqual(errors, [])
+
+    def test_invalid_segments_trigger_check_error(self):
+        errors = check_segments(
+            app_configs=None, segment_data=mock_get_invalid_segments()
+        )
         self.assertEqual(
             errors,
-            [Error(msg="Error loading Segment TOMLS: 'invalid_app_name'")],
+            [Error(msg="Error loading Segments: Expected SegmentDefinition, got dict")],
         )
-
-    @mock_valid_segments
-    def test_valid_segments_do_not_trigger_check_error(self):
-        errors = check_segment_tomls(None)
-        self.assertEqual(errors, [])
