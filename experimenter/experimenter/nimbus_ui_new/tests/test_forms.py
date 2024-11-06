@@ -15,7 +15,7 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.segments import Segments
-from experimenter.segments.tests import mock_valid_segments
+from experimenter.segments.tests.mock_segments import mock_get_segments
 
 
 class RequestFormTestCase(TestCase):
@@ -202,7 +202,6 @@ class TestSignoffForm(RequestFormTestCase):
 
 
 @mock_valid_outcomes
-@mock_valid_segments
 class TestMetricsForm(RequestFormTestCase):
     @classmethod
     def setUpClass(cls):
@@ -222,7 +221,7 @@ class TestMetricsForm(RequestFormTestCase):
         existing_changes = list(experiment.changes.values_list("id", flat=True))
 
         outcomes = Outcomes.by_application(application)
-        segments = Segments.by_application(application)
+        segments = Segments.by_application(application, mock_get_segments())
 
         outcome1 = outcomes[0]
         outcome2 = outcomes[1]
@@ -258,7 +257,9 @@ class TestMetricsForm(RequestFormTestCase):
         )
 
         outcomes = Outcomes.by_application(NimbusExperiment.Application.FENIX)
-        segments = Segments.by_application(NimbusExperiment.Application.FENIX)
+        segments = Segments.by_application(
+            NimbusExperiment.Application.FENIX, mock_get_segments()
+        )
 
         outcome1 = outcomes[0]
         outcome2 = outcomes[1]

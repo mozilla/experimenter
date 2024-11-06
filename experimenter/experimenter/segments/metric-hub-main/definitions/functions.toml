@@ -25,7 +25,7 @@ description = "Computes the mean of the histogram"
 definition = """
     SAFE_DIVIDE(
         SUM(mozfun.map.get_key(mozfun.hist.extract({select_expr}).values,0)),
-        SUM(mozfun.hist.threshold_count({select_expr},1))
+        SUM(mozfun.hist.threshold_count({select_expr},0))
     )
 """
 friendly_name = "Histogram Zero Fraction"

@@ -192,6 +192,18 @@ export interface NimbusExperiment {
    * See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
    */
   isRollout?: boolean;
+  /**
+   * When this property is set to true, treat this experiment as aFirefox Labs experiment
+   */
+  isFirefoxLabsOptIn?: boolean;
+  /**
+   * An optional string containing the Fluent ID for the title of the opt-in
+   */
+  firefoxLabsTitle?: string;
+  /**
+   * An optional string containing the Fluent ID for the description of the opt-in
+   */
+  firefoxLabsDescription?: string;
   bucketConfig: ExperimentBucketConfig;
   /**
    * A list of outcomes relevant to the experiment analysis.
@@ -250,18 +262,7 @@ export interface NimbusExperiment {
    * Opt out of feature schema validation. Only supported on desktop.
    */
   featureValidationOptOut?: boolean;
-  /**
-   * Per-locale localization substitutions.
-   *
-   * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of string IDs to their localized equivalents.
-   *
-   * Only supported on desktop.
-   */
-  localizations?: {
-    [k: string]: {
-      [k: string]: string;
-    };
-  } | null;
+  localizations?: ExperimentLocalizations | null;
   /**
    * The list of locale codes (e.g., "en-US" or "fr") that this experiment is targeting.
    *
@@ -358,6 +359,10 @@ export interface ExperimentMultiFeatureDesktopBranch {
    */
   features: ExperimentFeatureConfig[];
   feature: DesktopTombstoneFeatureConfig;
+  /**
+   * An optional string containing the title of the branch
+   */
+  firefoxLabsTitle?: string;
 }
 export interface DesktopTombstoneFeatureConfig {
   featureId: "unused-feature-id-for-legacy-support";
@@ -386,6 +391,19 @@ export interface ExperimentMultiFeatureMobileBranch {
    * An array of feature configurations.
    */
   features: ExperimentFeatureConfig[];
+}
+/**
+ * Per-locale localization substitutions.
+ *
+ * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
+ * string IDs to their localized equivalents.
+ *
+ * Only supported on desktop.
+ */
+export interface ExperimentLocalizations {
+  [k: string]: {
+    [k: string]: string;
+  };
 }
 /**
  * The SDK-specific feature manifest.

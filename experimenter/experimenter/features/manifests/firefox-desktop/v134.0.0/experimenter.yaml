@@ -1027,6 +1027,40 @@ newtabContextualContent:
       description: >-
         currently selected feed to display in the Contextual Content component
 
+newTabSectionsExperiment:
+  description: about:newtab section UI update
+  owner: nbarrett@mozilla.com, mcrawford@mozilla.com
+  hasExposure: false
+  variables:
+    sectionsEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref:  browser.newtabpage.activity-stream.discoverystream.sections.enabled
+      description: >-
+        Enable the Section UI for recommended stories on newtab
+    cardRefreshEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref:  browser.newtabpage.activity-stream.discoverystream.sections.cards.enabled
+      description: >-
+        Enable the revised pocket story card UI in recommended stories on newtab
+    localeSectionstConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.locale-content-config
+      description: >-
+        A comma-separated list of locales that get contextual content by default.
+    regionSectionsConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.region-content-config
+      description: >-
+        A comma-separated list of regions that get contextual content by default.
+
 pocketNewtab:
   description: The Pocket section in newtab
   owner: sdowne@mozilla.com
@@ -2692,6 +2726,16 @@ fxaButtonVisibility:
         branch: user
         pref: identity.fxaccounts.toolbar.pxiToolbarEnabled.vpnEnabled
 
+syncDecouplingUpdates:
+  description: Prefs to control the updated Mozilla account panel flow for users without sync enabled.
+  owner: skhamis@mozilla.com
+  hasExposure: false
+  variables:
+    syncSetup:
+      description: True if we should show the user the updated sync set-up UI
+      type: boolean
+      fallbackPref: identity.fxaccounts.toolbar.syncSetup.enabled
+
 fxaClientAssociation:
   description: Prefs to control the client association ping.
   owner: mconley@mozilla.com
@@ -3787,6 +3831,14 @@ pqcrypto:
         pref: security.tls.client_hello.send_p256_keyshare
       description: >-
         Whether to send a P256 share in the client hello in QUIC and TLS.
+    dtlsWebRTCEnableMlkem:
+      type: boolean
+      setPref:
+        branch: default
+        pref: media.webrtc.enable_pq_dtls
+      description: >-
+        Whether to enable mlkem768x25519 for DTLS in WebRTC.
+
 
 dtlsWebRTC:
   description: Pref that controls the use of DTLS.
