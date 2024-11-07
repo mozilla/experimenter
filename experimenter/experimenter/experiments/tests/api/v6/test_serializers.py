@@ -1,5 +1,6 @@
 import datetime
 import json
+from typing import Any
 
 from django.conf import settings
 from django.test import TestCase
@@ -36,6 +37,9 @@ class TestNimbusExperimentSerializer(TestCase):
             secondary_outcomes=["quux", "xyzzy"],
             locales=[locale_en_us],
             _enrollment_end_date=datetime.date(2022, 1, 5),
+            is_firefox_labs_opt_in=False,
+            firefox_labs_title=None,
+            firefox_labs_description=None,
         )
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
@@ -48,6 +52,10 @@ class TestNimbusExperimentSerializer(TestCase):
         assert experiment.end_date
 
         min_required_version = NimbusExperiment.MIN_REQUIRED_VERSION
+        expected_experiment_data = self._experiment_data_without_branches_and_featureIds(
+            experiment, min_required_version
+        )
+        self.assertDictEqual(experiment_data, expected_experiment_data)
 
         self.assertDictEqual(
             experiment_data,
@@ -92,6 +100,9 @@ class TestNimbusExperimentSerializer(TestCase):
                 "localizations": None,
                 "locales": ["en-US"],
                 "publishedDate": experiment.published_date,
+                "isFirefoxLabsOptIn": False,
+                "firefoxLabsTitle": None,
+                "firefoxLabsDescription": None,
             },
         )
 
@@ -129,11 +140,55 @@ class TestNimbusExperimentSerializer(TestCase):
                         }
                         for fv in branch.feature_values.all()
                     ],
+                    "firefoxLabsTitle": branch.firefox_labs_title,
                 },
                 branches_data,
             )
 
         NimbusExperimentSchema.model_validate(serializer.data)
+
+    def test_expected_schema_with_desktop_with_non_default_fxlabs_fields(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        application = NimbusExperiment.Application.DESKTOP
+        feature1 = NimbusFeatureConfigFactory.create(application=application)
+        feature2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=application,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+            feature_configs=[feature1, feature2],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+            primary_outcomes=["foo", "bar", "baz"],
+            secondary_outcomes=["quux", "xyzzy"],
+            segments=["segment1", "segment2"],
+            locales=[locale_en_us],
+            _enrollment_end_date=datetime.date(2022, 1, 5),
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        experiment_data = serializer.data.copy()
+        min_required_version = NimbusExperiment.MIN_REQUIRED_VERSION
+
+        expected_experiment_data = self._experiment_data_without_branches_and_featureIds(
+            experiment, min_required_version
+        )
+        expected_experiment_data.update(
+            {
+                "isFirefoxLabsOptIn": True,
+                "firefoxLabsTitle": "test-fx-labs-title",
+                "firefoxLabsDescription": "test-fx-labs-description",
+            }
+        )
+
+        # popping these since this test is not asserting on these
+        experiment_data.pop("bucketConfig")
+        experiment_data.pop("branches")
+        experiment_data.pop("featureIds")
+
+        self.assertDictEqual(experiment_data, expected_experiment_data)
 
     def test_enrollment_end_date_none_while_live_enrolling(self):
         locale_en_us = LocaleFactory.create(code="en-US")
@@ -370,3 +425,52 @@ class TestNimbusExperimentSerializer(TestCase):
             self.assertIsNone(serializer.data["localizations"])
         else:
             self.assertEqual(serializer.data["localizations"], expected)
+
+    def _experiment_data_without_branches_and_featureIds(
+        self, experiment_data, min_required_version
+    ) -> dict[str, Any]:
+        return {
+            "arguments": {},
+            "application": "firefox-desktop",
+            "appName": "firefox_desktop",
+            "appId": "firefox-desktop",
+            "channel": "nightly",
+            # DRF manually replaces the isoformat suffix so we have to do the same
+            "startDate": experiment_data.start_date.isoformat().replace("+00:00", "Z"),
+            "enrollmentEndDate": (
+                experiment_data.actual_enrollment_end_date.isoformat().replace(
+                    "+00:00", "Z"
+                )
+            ),
+            "endDate": experiment_data.end_date.isoformat().replace("+00:00", "Z"),
+            "id": experiment_data.slug,
+            "isEnrollmentPaused": True,
+            "isRollout": False,
+            "proposedDuration": experiment_data.proposed_duration,
+            "proposedEnrollment": experiment_data.proposed_enrollment,
+            "referenceBranch": experiment_data.reference_branch.slug,
+            "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
+            "slug": experiment_data.slug,
+            "targeting": (
+                f'(browserSettings.update.channel == "nightly") '
+                f"&& (version|versionCompare('{min_required_version}') >= 0) "
+                f"&& (locale in ['en-US'])"
+            ),
+            "userFacingDescription": experiment_data.public_description,
+            "userFacingName": experiment_data.name,
+            "probeSets": [],
+            "outcomes": [
+                {"priority": "primary", "slug": "foo"},
+                {"priority": "primary", "slug": "bar"},
+                {"priority": "primary", "slug": "baz"},
+                {"priority": "secondary", "slug": "quux"},
+                {"priority": "secondary", "slug": "xyzzy"},
+            ],
+            "featureValidationOptOut": experiment_data.is_client_schema_disabled,
+            "localizations": None,
+            "locales": ["en-US"],
+            "publishedDate": experiment_data.published_date,
+            "isFirefoxLabsOptIn": False,
+            "firefoxLabsTitle": None,
+            "firefoxLabsDescription": None,
+        }
