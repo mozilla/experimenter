@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-from typing import Any, Literal, Union
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel, model_validator
 from pydantic.json_schema import SkipJsonSchema
@@ -62,21 +62,6 @@ class BaseExperimentBranch(BaseModel):
             "population."
         )
     )
-
-
-class ExperimentSingleFeatureBranch(BaseExperimentBranch):
-    """A single-feature branch definition.
-
-    Supported by Firefox Desktop for versions before 95, Firefox for Android for versions
-    before 96, and Firefox for iOS for versions before 39.
-    """
-
-    feature: ExperimentFeatureConfig = Field(
-        description="A single feature configuration.",
-    )
-
-
-class BaseExperimentMultiFeatureBranch(BaseExperimentBranch):
     features: list[ExperimentFeatureConfig] = Field(
         description="An array of feature configurations."
     )
@@ -88,7 +73,7 @@ class DesktopTombstoneFeatureConfig(ExperimentFeatureConfig):
     value: dict[str, Any]
 
 
-class ExperimentMultiFeatureDesktopBranch(BaseExperimentMultiFeatureBranch):
+class DesktopExperimentBranch(BaseExperimentBranch):
     """The branch definition supported on Firefox Desktop 95+."""
 
     feature: DesktopTombstoneFeatureConfig = Field(
@@ -102,10 +87,11 @@ class ExperimentMultiFeatureDesktopBranch(BaseExperimentMultiFeatureBranch):
     )
 
 
-class ExperimentMultiFeatureMobileBranch(BaseExperimentMultiFeatureBranch):
-    """The branch definition for mobile browsers.
+class SdkExperimentBranch(BaseExperimentBranch):
+    """The branch definition for SDK-based applications
 
-    Supported on Firefox for Android 96+ and Firefox for iOS 39+.
+    Supported on Firefox for Android 96+ and Firefox for iOS 39+ and all versions of
+    Cirrus.
     """
 
 
@@ -114,12 +100,10 @@ class ExperimentLocalizations(RootModel[dict[str, dict[str, str]]]):
 
     The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
     string IDs to their localized equivalents.
-
-    Only supported on desktop.
     """
 
 
-class NimbusExperiment(BaseModel):
+class BaseExperiment(BaseModel):
     """The experiment definition accessible to:
 
     1. The Nimbus SDK via Remote Settings
@@ -193,23 +177,6 @@ class NimbusExperiment(BaseModel):
         ),
         default=None,
     )
-    isFirefoxLabsOptIn: bool = Field(
-        description=(
-            "When this property is set to true, treat this experiment as a"
-            "Firefox Labs experiment"
-        ),
-        default=None,
-    )
-    firefoxLabsTitle: str | SkipJsonSchema[None] = Field(
-        description="An optional string containing the Fluent ID "
-        "for the title of the opt-in",
-        default=None,
-    )
-    firefoxLabsDescription: str | SkipJsonSchema[None] = Field(
-        description="An optional string containing the Fluent ID "
-        "for the description of the opt-in",
-        default=None,
-    )
     bucketConfig: ExperimentBucketConfig = Field(description="Bucketing configuration.")
     outcomes: list[ExperimentOutcome] | SkipJsonSchema[None] = Field(
         description="A list of outcomes relevant to the experiment analysis.",
@@ -219,11 +186,6 @@ class NimbusExperiment(BaseModel):
         description="A list of featureIds the experiment contains configurations for.",
         default=None,
     )
-    branches: Union[
-        list[ExperimentSingleFeatureBranch],
-        list[ExperimentMultiFeatureDesktopBranch],
-        list[ExperimentMultiFeatureMobileBranch],
-    ] = Field(description="Branch configuration for the experiment.")
     targeting: str | None = Field(
         description="A JEXL targeting expression used to filter out experiments.",
         default=None,
@@ -272,11 +234,6 @@ class NimbusExperiment(BaseModel):
             'The slug of the reference branch (i.e., the branch we consider "control").'
         )
     )
-    featureValidationOptOut: bool | SkipJsonSchema[None] = Field(
-        description="Opt out of feature schema validation. Only supported on desktop.",
-        default=None,
-    )
-    localizations: ExperimentLocalizations | None = Field(default=None)
     locales: list[str] | None = Field(
         description=(
             'The list of locale codes (e.g., "en-US" or "fr") that this experiment is '
@@ -294,6 +251,37 @@ class NimbusExperiment(BaseModel):
         ),
         default=None,
     )
+
+
+class DesktopNimbusExperiment(BaseExperiment):
+    """A Nimbus experiment for Firefox Desktop."""
+
+    branches: list[DesktopExperimentBranch] = Field(
+        description="Branch configuration for the experiment."
+    )
+
+    isFirefoxLabsOptIn: bool = Field(
+        description=(
+            "When this property is set to true, treat this experiment as a"
+            "Firefox Labs experiment"
+        ),
+        default=None,
+    )
+    firefoxLabsTitle: str | SkipJsonSchema[None] = Field(
+        description="An optional string containing the Fluent ID "
+        "for the title of the opt-in",
+        default=None,
+    )
+    firefoxLabsDescription: str | SkipJsonSchema[None] = Field(
+        description="An optional string containing the Fluent ID "
+        "for the description of the opt-in",
+        default=None,
+    )
+    featureValidationOptOut: bool | SkipJsonSchema[None] = Field(
+        description="Opt out of feature schema validation.",
+        default=None,
+    )
+    localizations: ExperimentLocalizations | None = Field(default=None)
 
     @model_validator(mode="after")
     @classmethod
@@ -314,8 +302,8 @@ class NimbusExperiment(BaseModel):
                     if branch.firefoxLabsTitle is None:
                         raise ValueError(
                             f"branch with slug {branch.slug} is missing "
-                            f"firefoxLabsTitle field "
-                            f"(required because firefoxLabsTitle is True)"
+                            "firefoxLabsTitle field "
+                            "(required because firefoxLabsTitle is True)"
                         )
 
         return data
@@ -354,4 +342,12 @@ class NimbusExperiment(BaseModel):
                 }
             }
         }
+    )
+
+
+class SdkNimbusExperiment(BaseModel):
+    """A Nimbus experiment for Nimbus SDK-based applications."""
+
+    branches: list[SdkExperimentBranch] = Field(
+        description="Branch configuration for the experiment."
     )

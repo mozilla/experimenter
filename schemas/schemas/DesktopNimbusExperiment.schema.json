@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "NimbusExperiment",
-  "description": "The experiment definition accessible to: 1. The Nimbus SDK via Remote Settings 2. Jetstream via the Experimenter API",
+  "title": "DesktopNimbusExperiment",
+  "description": "A Nimbus experiment for Firefox Desktop.",
   "type": "object",
   "properties": {
     "schemaVersion": {
@@ -44,18 +44,6 @@
       "description": "When this property is set to true, treat this experiment as a rollout. Rollouts are currently handled as single-branch experiments separated from the bucketing namespace for normal experiments. See-also: https://mozilla-hub.atlassian.net/browse/SDK-405",
       "type": "boolean"
     },
-    "isFirefoxLabsOptIn": {
-      "description": "When this property is set to true, treat this experiment as aFirefox Labs experiment",
-      "type": "boolean"
-    },
-    "firefoxLabsTitle": {
-      "description": "An optional string containing the Fluent ID for the title of the opt-in",
-      "type": "string"
-    },
-    "firefoxLabsDescription": {
-      "description": "An optional string containing the Fluent ID for the description of the opt-in",
-      "type": "string"
-    },
     "bucketConfig": {
       "$ref": "#/$defs/ExperimentBucketConfig",
       "description": "Bucketing configuration."
@@ -73,29 +61,6 @@
         "type": "string"
       },
       "type": "array"
-    },
-    "branches": {
-      "anyOf": [
-        {
-          "items": {
-            "$ref": "#/$defs/ExperimentSingleFeatureBranch"
-          },
-          "type": "array"
-        },
-        {
-          "items": {
-            "$ref": "#/$defs/ExperimentMultiFeatureDesktopBranch"
-          },
-          "type": "array"
-        },
-        {
-          "items": {
-            "$ref": "#/$defs/ExperimentMultiFeatureMobileBranch"
-          },
-          "type": "array"
-        }
-      ],
-      "description": "Branch configuration for the experiment."
     },
     "targeting": {
       "anyOf": [
@@ -163,20 +128,6 @@
       ],
       "description": "The slug of the reference branch (i.e., the branch we consider \"control\")."
     },
-    "featureValidationOptOut": {
-      "description": "Opt out of feature schema validation. Only supported on desktop.",
-      "type": "boolean"
-    },
-    "localizations": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/ExperimentLocalizations"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
     "locales": {
       "anyOf": [
         {
@@ -202,6 +153,39 @@
         }
       ],
       "description": "The date that this experiment was first published to Remote Settings. If null, it has not yet been published."
+    },
+    "branches": {
+      "description": "Branch configuration for the experiment.",
+      "items": {
+        "$ref": "#/$defs/DesktopExperimentBranch"
+      },
+      "type": "array"
+    },
+    "isFirefoxLabsOptIn": {
+      "description": "When this property is set to true, treat this experiment as aFirefox Labs experiment",
+      "type": "boolean"
+    },
+    "firefoxLabsTitle": {
+      "description": "An optional string containing the Fluent ID for the title of the opt-in",
+      "type": "string"
+    },
+    "firefoxLabsDescription": {
+      "description": "An optional string containing the Fluent ID for the description of the opt-in",
+      "type": "string"
+    },
+    "featureValidationOptOut": {
+      "description": "Opt out of feature schema validation.",
+      "type": "boolean"
+    },
+    "localizations": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExperimentLocalizations"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "required": [
@@ -215,11 +199,11 @@
     "userFacingDescription",
     "isEnrollmentPaused",
     "bucketConfig",
-    "branches",
     "startDate",
     "endDate",
     "proposedEnrollment",
-    "referenceBranch"
+    "referenceBranch",
+    "branches"
   ],
   "dependentSchemas": {
     "isFirefoxLabsOptIn": {
@@ -268,6 +252,41 @@
     }
   },
   "$defs": {
+    "DesktopExperimentBranch": {
+      "description": "The branch definition supported on Firefox Desktop 95+.",
+      "properties": {
+        "slug": {
+          "description": "Identifier for the branch.",
+          "type": "string"
+        },
+        "ratio": {
+          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.",
+          "type": "integer"
+        },
+        "features": {
+          "description": "An array of feature configurations.",
+          "items": {
+            "$ref": "#/$defs/ExperimentFeatureConfig"
+          },
+          "type": "array"
+        },
+        "feature": {
+          "$ref": "#/$defs/DesktopTombstoneFeatureConfig",
+          "description": "The feature key must be provided with values to prevent crashes if the is encountered by Desktop clients earlier than version 95."
+        },
+        "firefoxLabsTitle": {
+          "description": "An optional string containing the title of the branch",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "ratio",
+        "features",
+        "feature"
+      ],
+      "type": "object"
+    },
     "DesktopTombstoneFeatureConfig": {
       "properties": {
         "featureId": {
@@ -344,68 +363,7 @@
         },
         "type": "object"
       },
-      "description": "Per-locale localization substitutions. The top level key is the locale (e.g., \"en-US\" or \"fr\"). Each entry is a mapping of string IDs to their localized equivalents. Only supported on desktop.",
-      "type": "object"
-    },
-    "ExperimentMultiFeatureDesktopBranch": {
-      "description": "The branch definition supported on Firefox Desktop 95+.",
-      "properties": {
-        "slug": {
-          "description": "Identifier for the branch.",
-          "type": "string"
-        },
-        "ratio": {
-          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.",
-          "type": "integer"
-        },
-        "features": {
-          "description": "An array of feature configurations.",
-          "items": {
-            "$ref": "#/$defs/ExperimentFeatureConfig"
-          },
-          "type": "array"
-        },
-        "feature": {
-          "$ref": "#/$defs/DesktopTombstoneFeatureConfig",
-          "description": "The feature key must be provided with values to prevent crashes if the is encountered by Desktop clients earlier than version 95."
-        },
-        "firefoxLabsTitle": {
-          "description": "An optional string containing the title of the branch",
-          "type": "string"
-        }
-      },
-      "required": [
-        "slug",
-        "ratio",
-        "features",
-        "feature"
-      ],
-      "type": "object"
-    },
-    "ExperimentMultiFeatureMobileBranch": {
-      "description": "The branch definition for mobile browsers. Supported on Firefox for Android 96+ and Firefox for iOS 39+.",
-      "properties": {
-        "slug": {
-          "description": "Identifier for the branch.",
-          "type": "string"
-        },
-        "ratio": {
-          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.",
-          "type": "integer"
-        },
-        "features": {
-          "description": "An array of feature configurations.",
-          "items": {
-            "$ref": "#/$defs/ExperimentFeatureConfig"
-          },
-          "type": "array"
-        }
-      },
-      "required": [
-        "slug",
-        "ratio",
-        "features"
-      ],
+      "description": "Per-locale localization substitutions. The top level key is the locale (e.g., \"en-US\" or \"fr\"). Each entry is a mapping of string IDs to their localized equivalents.",
       "type": "object"
     },
     "ExperimentOutcome": {
@@ -422,29 +380,6 @@
       "required": [
         "slug",
         "priority"
-      ],
-      "type": "object"
-    },
-    "ExperimentSingleFeatureBranch": {
-      "description": "A single-feature branch definition. Supported by Firefox Desktop for versions before 95, Firefox for Android for versions before 96, and Firefox for iOS for versions before 39.",
-      "properties": {
-        "slug": {
-          "description": "Identifier for the branch.",
-          "type": "string"
-        },
-        "ratio": {
-          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.",
-          "type": "integer"
-        },
-        "feature": {
-          "$ref": "#/$defs/ExperimentFeatureConfig",
-          "description": "A single feature configuration."
-        }
-      },
-      "required": [
-        "slug",
-        "ratio",
-        "feature"
       ],
       "type": "object"
     },
