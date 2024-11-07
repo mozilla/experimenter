@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "DesktopNimbusExperiment",
-  "description": "A Nimbus experiment for Firefox Desktop. This schema is less strict than DesktopAllVersionsNimbusExperiment and is intended for use in Firefox Desktop.",
+  "title": "DesktopAllVersionsNimbusExperiment",
+  "description": "A Nimbus experiment for Firefox Desktop. This schema is more strict than DesktopNimbusExperiment and is backwards comaptible with Firefox Desktop versions less than 95. It is intended for use inside Experimenter itself.",
   "type": "object",
   "properties": {
     "schemaVersion": {
@@ -157,7 +157,7 @@
     "branches": {
       "description": "Branch configuration for the experiment.",
       "items": {
-        "$ref": "#/$defs/DesktopExperimentBranch"
+        "$ref": "#/$defs/DesktopAllVersionsExperimentBranch"
       },
       "type": "array"
     },
@@ -252,8 +252,8 @@
     }
   },
   "$defs": {
-    "DesktopExperimentBranch": {
-      "description": "The branch definition supported on Firefox Desktop 95+.",
+    "DesktopAllVersionsExperimentBranch": {
+      "description": "The branch definition supported on all Firefox Desktop versions. This version requires the feature field to be present to support older Firefox Desktop clients.",
       "properties": {
         "slug": {
           "description": "Identifier for the branch.",
@@ -273,12 +273,38 @@
         "firefoxLabsTitle": {
           "description": "An optional string containing the title of the branch",
           "type": "string"
+        },
+        "feature": {
+          "$ref": "#/$defs/DesktopPre95FeatureConfig",
+          "description": "The feature key must be provided with values to prevent crashes if the is encountered by Desktop clients earlier than version 95."
         }
       },
       "required": [
         "slug",
         "ratio",
-        "features"
+        "features",
+        "feature"
+      ],
+      "type": "object"
+    },
+    "DesktopPre95FeatureConfig": {
+      "properties": {
+        "featureId": {
+          "const": "this-is-included-for-desktop-pre-95-support",
+          "type": "string"
+        },
+        "value": {
+          "type": "object"
+        },
+        "enabled": {
+          "const": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "featureId",
+        "value",
+        "enabled"
       ],
       "type": "object"
     },

@@ -67,8 +67,8 @@ class BaseExperimentBranch(BaseModel):
     )
 
 
-class DesktopTombstoneFeatureConfig(ExperimentFeatureConfig):
-    featureId: Literal["unused-feature-id-for-legacy-support"]
+class DesktopPre95FeatureConfig(ExperimentFeatureConfig):
+    featureId: Literal["this-is-included-for-desktop-pre-95-support"]
     enabled: Literal[False]
     value: dict[str, Any]
 
@@ -76,14 +76,29 @@ class DesktopTombstoneFeatureConfig(ExperimentFeatureConfig):
 class DesktopExperimentBranch(BaseExperimentBranch):
     """The branch definition supported on Firefox Desktop 95+."""
 
-    feature: DesktopTombstoneFeatureConfig = Field(
+    # Firefox Desktop-specific fields should be added to *this* schema. They will be
+    # inherited by the stricter DesktopAllVersionsExperimentBranch schema.
+
+    firefoxLabsTitle: str | SkipJsonSchema[None] = Field(
+        description="An optional string containing the title of the branch", default=None
+    )
+
+
+class DesktopAllVersionsExperimentBranch(DesktopExperimentBranch):
+    """The branch definition supported on all Firefox Desktop versions.
+
+    This version requires the feature field to be present to support older Firefox Desktop
+    clients.
+    """
+
+    # Firefox Desktop-specific fields should be added to DesktopExperimentBranch. They
+    # will be inherited by this schema.
+
+    feature: DesktopPre95FeatureConfig = Field(
         description=(
             "The feature key must be provided with values to prevent crashes if the "
             "is encountered by Desktop clients earlier than version 95."
         )
-    )
-    firefoxLabsTitle: str | SkipJsonSchema[None] = Field(
-        description="An optional string containing the title of the branch", default=None
     )
 
 
@@ -254,7 +269,14 @@ class BaseExperiment(BaseModel):
 
 
 class DesktopNimbusExperiment(BaseExperiment):
-    """A Nimbus experiment for Firefox Desktop."""
+    """A Nimbus experiment for Firefox Desktop.
+
+    This schema is less strict than DesktopAllVersionsNimbusExperiment and is intended for
+    use in Firefox Desktop.
+    """
+
+    # Firefox Desktop-specific fields should be added to *this* schema. They will be
+    # inherited by the stricter DesktopAllVersionsNimbusExperiment schema.
 
     branches: list[DesktopExperimentBranch] = Field(
         description="Branch configuration for the experiment."
@@ -342,6 +364,22 @@ class DesktopNimbusExperiment(BaseExperiment):
                 }
             }
         }
+    )
+
+
+class DesktopAllVersionsNimbusExperiment(DesktopNimbusExperiment):
+    """A Nimbus experiment for Firefox Desktop.
+
+    This schema is more strict than DesktopNimbusExperiment and is backwards
+    comaptible with Firefox Desktop versions less than 95. It is intended for use inside
+    Experimenter itself.
+    """
+
+    # Firefox Desktop-specific fields should be added to DesktopNimbusExperiment. They
+    # will be inherited by this schema.
+
+    branches: list[DesktopAllVersionsExperimentBranch] = Field(
+        description="Branch configuration for the experiment."
     )
 
 
