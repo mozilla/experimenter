@@ -4237,6 +4237,18 @@
           "publishedDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "isFirefoxLabsOptIn": {
+            "type": "string",
+            "readOnly": true
+          },
+          "firefoxLabsTitle": {
+            "type": "string",
+            "readOnly": true
+          },
+          "firefoxLabsDescription": {
+            "type": "string",
+            "readOnly": true
           }
         },
         "required": [

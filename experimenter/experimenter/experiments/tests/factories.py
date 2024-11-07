@@ -471,6 +471,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     qa_status = factory.LazyAttribute(
         lambda o: random.choice(list(NimbusExperiment.QAStatus)).value
     )
+    is_firefox_labs_opt_in = factory.LazyAttribute(lambda o: False)
+    firefox_labs_title = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    firefox_labs_description = factory.LazyAttribute(lambda o: faker.catch_phrase())
 
     class Meta:
         model = NimbusExperiment
@@ -707,6 +710,7 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
         lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
     )
     description = factory.LazyAttribute(lambda o: faker.text())
+    firefox_labs_title = factory.LazyAttribute(lambda o: faker.catch_phrase())
 
     class Meta:
         model = NimbusBranch
