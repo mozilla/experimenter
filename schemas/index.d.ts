@@ -134,12 +134,9 @@ export interface DesktopFeatureManifest {
   [k: string]: DesktopFeature;
 }
 /**
- * The experiment definition accessible to:
- *
- * 1. The Nimbus SDK via Remote Settings
- * 2. Jetstream via the Experimenter API
+ * A Nimbus experiment for Firefox Desktop.
  */
-export interface NimbusExperiment {
+export interface DesktopNimbusExperiment {
   /**
    * Version of the NimbusExperiment schema this experiment refers to
    */
@@ -192,18 +189,6 @@ export interface NimbusExperiment {
    * See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
    */
   isRollout?: boolean;
-  /**
-   * When this property is set to true, treat this experiment as aFirefox Labs experiment
-   */
-  isFirefoxLabsOptIn?: boolean;
-  /**
-   * An optional string containing the Fluent ID for the title of the opt-in
-   */
-  firefoxLabsTitle?: string;
-  /**
-   * An optional string containing the Fluent ID for the description of the opt-in
-   */
-  firefoxLabsDescription?: string;
   bucketConfig: ExperimentBucketConfig;
   /**
    * A list of outcomes relevant to the experiment analysis.
@@ -213,13 +198,6 @@ export interface NimbusExperiment {
    * A list of featureIds the experiment contains configurations for.
    */
   featureIds?: string[];
-  /**
-   * Branch configuration for the experiment.
-   */
-  branches:
-    | ExperimentSingleFeatureBranch[]
-    | ExperimentMultiFeatureDesktopBranch[]
-    | ExperimentMultiFeatureMobileBranch[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
@@ -259,11 +237,6 @@ export interface NimbusExperiment {
    */
   referenceBranch: string | null;
   /**
-   * Opt out of feature schema validation. Only supported on desktop.
-   */
-  featureValidationOptOut?: boolean;
-  localizations?: ExperimentLocalizations | null;
-  /**
    * The list of locale codes (e.g., "en-US" or "fr") that this experiment is targeting.
    *
    * If null, all locales are targeted.
@@ -275,6 +248,27 @@ export interface NimbusExperiment {
    * If null, it has not yet been published.
    */
   publishedDate?: string | null;
+  /**
+   * Branch configuration for the experiment.
+   */
+  branches: DesktopExperimentBranch[];
+  /**
+   * When this property is set to true, treat this experiment as aFirefox Labs experiment
+   */
+  isFirefoxLabsOptIn?: boolean;
+  /**
+   * An optional string containing the Fluent ID for the title of the opt-in
+   */
+  firefoxLabsTitle?: string;
+  /**
+   * An optional string containing the Fluent ID for the description of the opt-in
+   */
+  firefoxLabsDescription?: string;
+  /**
+   * Opt out of feature schema validation.
+   */
+  featureValidationOptOut?: boolean;
+  localizations?: ExperimentLocalizations | null;
 }
 export interface ExperimentBucketConfig {
   randomizationUnit: RandomizationUnit;
@@ -308,42 +302,9 @@ export interface ExperimentOutcome {
   priority: string;
 }
 /**
- * A single-feature branch definition.
- *
- * Supported by Firefox Desktop for versions before 95, Firefox for Android for versions
- * before 96, and Firefox for iOS for versions before 39.
- */
-export interface ExperimentSingleFeatureBranch {
-  /**
-   * Identifier for the branch.
-   */
-  slug: string;
-  /**
-   * Relative ratio of population for the branch.
-   *
-   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
-   */
-  ratio: number;
-  feature: ExperimentFeatureConfig;
-}
-export interface ExperimentFeatureConfig {
-  /**
-   * The identifier for the feature flag.
-   */
-  featureId: string;
-  /**
-   * The values that define the feature configuration.
-   *
-   * This should be validated against a schema.
-   */
-  value: {
-    [k: string]: unknown;
-  };
-}
-/**
  * The branch definition supported on Firefox Desktop 95+.
  */
-export interface ExperimentMultiFeatureDesktopBranch {
+export interface DesktopExperimentBranch {
   /**
    * Identifier for the branch.
    */
@@ -364,6 +325,20 @@ export interface ExperimentMultiFeatureDesktopBranch {
    */
   firefoxLabsTitle?: string;
 }
+export interface ExperimentFeatureConfig {
+  /**
+   * The identifier for the feature flag.
+   */
+  featureId: string;
+  /**
+   * The values that define the feature configuration.
+   *
+   * This should be validated against a schema.
+   */
+  value: {
+    [k: string]: unknown;
+  };
+}
 export interface DesktopTombstoneFeatureConfig {
   featureId: "unused-feature-id-for-legacy-support";
   value: {
@@ -372,11 +347,32 @@ export interface DesktopTombstoneFeatureConfig {
   enabled: false;
 }
 /**
- * The branch definition for mobile browsers.
+ * Per-locale localization substitutions.
  *
- * Supported on Firefox for Android 96+ and Firefox for iOS 39+.
+ * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
+ * string IDs to their localized equivalents.
  */
-export interface ExperimentMultiFeatureMobileBranch {
+export interface ExperimentLocalizations {
+  [k: string]: {
+    [k: string]: string;
+  };
+}
+/**
+ * A Nimbus experiment for Nimbus SDK-based applications.
+ */
+export interface SdkNimbusExperiment {
+  /**
+   * Branch configuration for the experiment.
+   */
+  branches: SdkExperimentBranch[];
+}
+/**
+ * The branch definition for SDK-based applications
+ *
+ * Supported on Firefox for Android 96+ and Firefox for iOS 39+ and all versions of
+ * Cirrus.
+ */
+export interface SdkExperimentBranch {
   /**
    * Identifier for the branch.
    */
@@ -391,19 +387,6 @@ export interface ExperimentMultiFeatureMobileBranch {
    * An array of feature configurations.
    */
   features: ExperimentFeatureConfig[];
-}
-/**
- * Per-locale localization substitutions.
- *
- * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
- * string IDs to their localized equivalents.
- *
- * Only supported on desktop.
- */
-export interface ExperimentLocalizations {
-  [k: string]: {
-    [k: string]: string;
-  };
 }
 /**
  * The SDK-specific feature manifest.
