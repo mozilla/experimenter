@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "SdkNimbusExperiment",
+  "description": "A Nimbus experiment for Nimbus SDK-based applications.",
+  "type": "object",
+  "properties": {
+    "branches": {
+      "description": "Branch configuration for the experiment.",
+      "items": {
+        "$ref": "#/$defs/SdkExperimentBranch"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "branches"
+  ],
+  "$defs": {
+    "ExperimentFeatureConfig": {
+      "properties": {
+        "featureId": {
+          "description": "The identifier for the feature flag.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The values that define the feature configuration. This should be validated against a schema.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "featureId",
+        "value"
+      ],
+      "type": "object"
+    },
+    "SdkExperimentBranch": {
+      "description": "The branch definition for SDK-based applications Supported on Firefox for Android 96+ and Firefox for iOS 39+ and all versions of Cirrus.",
+      "properties": {
+        "slug": {
+          "description": "Identifier for the branch.",
+          "type": "string"
+        },
+        "ratio": {
+          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.",
+          "type": "integer"
+        },
+        "features": {
+          "description": "An array of feature configurations.",
+          "items": {
+            "$ref": "#/$defs/ExperimentFeatureConfig"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "slug",
+        "ratio",
+        "features"
+      ],
+      "type": "object"
+    }
+  }
+}
