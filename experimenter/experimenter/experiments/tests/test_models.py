@@ -1689,7 +1689,11 @@ class TestNimbusExperiment(TestCase):
 
     def test_timeline_dates_includes_correct_status_dates_and_flags(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle=NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+            lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            proposed_enrollment=2,
+            start_date=datetime.date(2023, 1, 4),
+            _enrollment_end_date=datetime.date(2023, 1, 6),
+            end_date=datetime.date(2023, 1, 8),
         )
         NimbusChangeLogFactory.create(
             experiment=experiment,
@@ -1701,26 +1705,15 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.PREVIEW,
-            changed_on=datetime.datetime(2023, 3, 1),
+            changed_on=datetime.datetime(2023, 1, 2),
         )
 
         NimbusChangeLogFactory.create(
             experiment=experiment,
             old_publish_status=NimbusExperiment.Status.PREVIEW,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            changed_on=datetime.datetime(2023, 4, 1),
+            changed_on=datetime.datetime(2023, 1, 3),
         )
-
-        # Calculate expected days
-        enrollment_days = (
-            experiment.computed_enrollment_days
-            if experiment._enrollment_end_date
-            else None
-        )
-        duration_days = (
-            experiment.computed_duration_days if experiment.computed_end_date else None
-        )
-
         timeline = experiment.timeline()
         expected_timeline = [
             {
@@ -1742,22 +1735,22 @@ class TestNimbusExperiment(TestCase):
                 "days": None,
             },
             {
-                "label": "Live",
+                "label": NimbusConstants.ENROLLING,
                 "date": experiment.start_date,
-                "is_active": True,
+                "is_active": False,
                 "days": None,
             },
             {
-                "label": NimbusConstants.ENROLLMENT_END,
+                "label": NimbusConstants.OBSERVING,
                 "date": experiment._enrollment_end_date,
                 "is_active": False,
-                "days": enrollment_days,
+                "days": 2,
             },
             {
                 "label": "Complete",
                 "date": experiment.computed_end_date,
-                "is_active": False,
-                "days": duration_days,
+                "is_active": True,
+                "days": 4,
             },
         ]
 
