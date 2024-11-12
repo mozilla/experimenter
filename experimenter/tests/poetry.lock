@@ -438,13 +438,13 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "kinto-http"
-version = "11.2.0"
+version = "11.3.0"
 description = "Kinto client"
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto_http-11.2.0-py3-none-any.whl", hash = "sha256:7b6c1051eac76b72dce50b9933e45885edf25fde609c1bb43e77417b816e8537"},
-    {file = "kinto_http-11.2.0.tar.gz", hash = "sha256:cfb7b206aa9ba7b4b299caac58416648d26512cb9b96f504b7441cc290ff1da2"},
+    {file = "kinto_http-11.3.0-py3-none-any.whl", hash = "sha256:01adc506173791906b5cfe89cf15791ec8423cf63491afd98fc0ba2a8dbfd512"},
+    {file = "kinto_http-11.3.0.tar.gz", hash = "sha256:6823a58cb33b69348382ea4b537d0b6557081dad3a06ddd242fa115120d1622a"},
 ]
 
 [package.dependencies]
@@ -453,7 +453,7 @@ requests = "*"
 Unidecode = "*"
 
 [package.extras]
-dev = ["kinto", "pytest", "pytest-asyncio", "pytest-cache", "pytest-cov", "pytest-mock", "pytest-xdist", "ruff"]
+dev = ["kinto", "kinto-attachment", "pytest", "pytest-asyncio", "pytest-cache", "pytest-cov", "pytest-mock", "pytest-xdist", "ruff"]
 
 [[package]]
 name = "markupsafe"
@@ -1734,4 +1734,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "4142b3b6292ddde30c8bd610e6d12257cf9d138b2a19843a15536d7bd28ee775"
+content-hash = "0e881ab29e9654e8a9db7541163517234ceeaee7845b8dd26868cf10cfa05e85"
