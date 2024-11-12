@@ -629,6 +629,17 @@ NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_ENTERPRISE_MAC_WINDOWS_ONLY = NimbusTargetingConfig(
+    name="No enterprise users (Mac, Windows only)",
+    slug="no_enterprise_users_mac_windows_only",
+    description="Exclude users with active enterpries policies on Mac and Windows only",
+    targeting=f"({NO_ENTERPRISE.targeting}) && ({MAC_WINDOWS_ONLY.targeting})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_AUTOFILL_ADDRESSES = NimbusTargetingConfig(
     name="No autofill addresses saved",
     slug="no_autofill_addresses",
