@@ -128,6 +128,9 @@ menu-redesign:
     enabled:
       type: boolean
       description: "If true, the new menu redesign is available."
+    report-site-issue:
+      type: boolean
+      description: "If true, report site issue menu item and preview is available."
 messaging:
   description: "The in-app messaging system.\n"
   hasExposure: true
