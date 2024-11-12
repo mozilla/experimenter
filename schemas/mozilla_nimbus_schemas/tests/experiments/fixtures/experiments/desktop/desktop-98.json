@@ -5,9 +5,8 @@
   "arguments": {},
   "branches": [
     {
-      "firefoxLabsTitle": "branch-one-fx-labs_title",
       "feature": {
-        "featureId": "unused-feature-id-for-legacy-support",
+        "featureId": "this-is-included-for-desktop-pre-95-support",
         "enabled": false,
         "value": {}
       },
@@ -27,9 +26,8 @@
       "slug": "control"
     },
     {
-      "firefoxLabsTitle": "branch-one-fx-labs_title",
       "feature": {
-        "featureId": "unused-feature-id-for-legacy-support",
+        "featureId": "this-is-included-for-desktop-pre-95-support",
         "enabled": false,
         "value": {}
       },
@@ -77,9 +75,5 @@
   "startDate": "2021-10-26",
   "targeting": "true",
   "userFacingDescription": "Experimenting on onboarding content when you upgrade Firefox.",
-  "userFacingName": "MR2 Upgrade Spotlight Holdback",
-  "isFirefoxLabsOptIn": true,
-  "firefoxLabsTitle": "test-title",
-  "firefoxLabsDescription": "test-desc",
-  "isRollout": false
+  "userFacingName": "MR2 Upgrade Spotlight Holdback"
 }

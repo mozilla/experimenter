@@ -209,6 +209,10 @@ features:
         description: "If true, the new menu redesign is available."
         type: Boolean
         default: false
+      report-site-issue:
+        description: "If true, report site issue menu item and preview is available."
+        type: Boolean
+        default: true
   messaging:
     description: "The in-app messaging system.\n"
     variables:
@@ -755,6 +759,10 @@ objects:
         description: The resource id of the icon of the add-on to be displayed.
         type: Image
         default: ic_onboarding_welcome
+      id:
+        description: The identifier for this add-on.
+        type: Text
+        default: ""
       install-url:
         description: The url from where the add-on can be installed.
         type: Text

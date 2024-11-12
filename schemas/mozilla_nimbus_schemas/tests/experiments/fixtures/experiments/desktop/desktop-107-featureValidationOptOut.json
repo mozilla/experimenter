@@ -6,15 +6,14 @@
   "branches": [
     {
       "feature": {
-        "featureId": "unused-feature-id-for-legacy-support",
+        "featureId": "this-is-included-for-desktop-pre-95-support",
         "enabled": false,
         "value": {}
       },
       "features": [
         {
-          "enabled": true,
           "featureId": "pocketNewtab",
-          "value": {}
+          "value": { "enabled": "true" }
         },
         {
           "featureId": "upgradeDialog",
@@ -28,15 +27,15 @@
     },
     {
       "feature": {
-        "featureId": "unused-feature-id-for-legacy-support",
+        "featureId": "this-is-included-for-desktop-pre-95-support",
         "enabled": false,
         "value": {}
       },
       "features": [
         {
-          "enabled": true,
           "featureId": "pocketNewtab",
           "value": {
+            "enabled": true,
             "compactLayout": true,
             "lastCardMessageEnabled": true,
             "loadMore": true,
@@ -71,10 +70,11 @@
   "proposedDuration": 63,
   "proposedEnrollment": 7,
   "referenceBranch": "control",
-  "schemaVersion": "1.6.2",
+  "schemaVersion": "1.7.1",
   "slug": "firefox-desktop-multifeature-test",
   "startDate": "2021-10-26",
   "targeting": "true",
   "userFacingDescription": "Experimenting on onboarding content when you upgrade Firefox.",
-  "userFacingName": "MR2 Upgrade Spotlight Holdback"
+  "userFacingName": "MR2 Upgrade Spotlight Holdback",
+  "featureValidationOptOut": true
 }

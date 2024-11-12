@@ -66,12 +66,12 @@
     "react-tooltip": "^4.5.0",
     "typescript": "4.3.4",
     "vega": "5.22.0",
-    "vega-embed": "^6.21.0",
+    "vega-embed": "^6.28.0",
     "vega-lite": "^4.17.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
-    "@mozilla/nimbus-schemas": "^2024.10.1",
+    "@mozilla/nimbus-schemas": "^2024.11.3",
     "@rescripts/cli": "^0.0.16",
     "@testing-library/dom": "^8.20.0",
     "@testing-library/jest-dom": "^5.17.0",
