@@ -1478,13 +1478,13 @@ referencing = ">=0.28.0"
 
 [[package]]
 name = "kinto-http"
-version = "11.2.0"
+version = "11.3.0"
 description = "Kinto client"
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto_http-11.2.0-py3-none-any.whl", hash = "sha256:7b6c1051eac76b72dce50b9933e45885edf25fde609c1bb43e77417b816e8537"},
-    {file = "kinto_http-11.2.0.tar.gz", hash = "sha256:cfb7b206aa9ba7b4b299caac58416648d26512cb9b96f504b7441cc290ff1da2"},
+    {file = "kinto_http-11.3.0-py3-none-any.whl", hash = "sha256:01adc506173791906b5cfe89cf15791ec8423cf63491afd98fc0ba2a8dbfd512"},
+    {file = "kinto_http-11.3.0.tar.gz", hash = "sha256:6823a58cb33b69348382ea4b537d0b6557081dad3a06ddd242fa115120d1622a"},
 ]
 
 [package.dependencies]
@@ -1493,7 +1493,7 @@ requests = "*"
 Unidecode = "*"
 
 [package.extras]
-dev = ["kinto", "pytest", "pytest-asyncio", "pytest-cache", "pytest-cov", "pytest-mock", "pytest-xdist", "ruff"]
+dev = ["kinto", "kinto-attachment", "pytest", "pytest-asyncio", "pytest-cache", "pytest-cov", "pytest-mock", "pytest-xdist", "ruff"]
 
 [[package]]
 name = "kombu"
@@ -3282,4 +3282,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "a78d83a5bff6b6e7fb14c42fb5f4c1cf02cd3d9e42e12fd441ebe5803eca33ca"
+content-hash = "9960b8299f3ba3c0d959b4421bed8df7a09f1170f791a58c9709048bd9f7b7e3"
