@@ -71,7 +71,7 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
-    "@mozilla/nimbus-schemas": "^2024.10.1",
+    "@mozilla/nimbus-schemas": "^2024.11.3",
     "@rescripts/cli": "^0.0.16",
     "@testing-library/dom": "^8.20.0",
     "@testing-library/jest-dom": "^5.17.0",
