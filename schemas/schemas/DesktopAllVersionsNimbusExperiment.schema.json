@@ -166,12 +166,26 @@
       "type": "boolean"
     },
     "firefoxLabsTitle": {
-      "description": "An optional string containing the Fluent ID for the title of the opt-in",
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "An optional string containing the Fluent ID for the title of the opt-in"
     },
     "firefoxLabsDescription": {
-      "description": "An optional string containing the Fluent ID for the description of the opt-in",
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "An optional string containing the Fluent ID for the description of the opt-in"
     },
     "featureValidationOptOut": {
       "description": "Opt out of feature schema validation.",
@@ -271,8 +285,15 @@
           "type": "array"
         },
         "firefoxLabsTitle": {
-          "description": "An optional string containing the title of the branch",
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "An optional string containing the title of the branch"
         },
         "feature": {
           "$ref": "#/$defs/DesktopPre95FeatureConfig",

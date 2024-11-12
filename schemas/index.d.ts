@@ -162,11 +162,11 @@ export interface DesktopAllVersionsNimbusExperiment {
   /**
    * An optional string containing the Fluent ID for the title of the opt-in
    */
-  firefoxLabsTitle?: string;
+  firefoxLabsTitle?: string | null;
   /**
    * An optional string containing the Fluent ID for the description of the opt-in
    */
-  firefoxLabsDescription?: string;
+  firefoxLabsDescription?: string | null;
   /**
    * Opt out of feature schema validation.
    */
@@ -228,7 +228,7 @@ export interface DesktopAllVersionsExperimentBranch {
   /**
    * An optional string containing the title of the branch
    */
-  firefoxLabsTitle?: string;
+  firefoxLabsTitle?: string | null;
   feature: DesktopPre95FeatureConfig;
 }
 export interface ExperimentFeatureConfig {
@@ -493,11 +493,11 @@ export interface DesktopNimbusExperiment {
   /**
    * An optional string containing the Fluent ID for the title of the opt-in
    */
-  firefoxLabsTitle?: string;
+  firefoxLabsTitle?: string | null;
   /**
    * An optional string containing the Fluent ID for the description of the opt-in
    */
-  firefoxLabsDescription?: string;
+  firefoxLabsDescription?: string | null;
   /**
    * Opt out of feature schema validation.
    */
@@ -525,7 +525,7 @@ export interface DesktopExperimentBranch {
   /**
    * An optional string containing the title of the branch
    */
-  firefoxLabsTitle?: string;
+  firefoxLabsTitle?: string | null;
 }
 /**
  * The SDK-specific feature manifest.
