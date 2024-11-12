@@ -5,7 +5,6 @@
   "arguments": {},
   "branches": [
     {
-      "firefoxLabsTitle": "branch-one-fx-labs_title",
       "feature": {
         "featureId": "this-is-included-for-desktop-pre-95-support",
         "enabled": false,
@@ -24,7 +23,36 @@
         }
       ],
       "ratio": 1,
-      "slug": "control"
+      "slug": "control",
+      "firefoxLabsTitle": null
+    },
+    {
+      "feature": {
+        "featureId": "this-is-included-for-desktop-pre-95-support",
+        "enabled": false,
+        "value": {}
+      },
+      "features": [
+        {
+          "featureId": "pocketNewtab",
+          "value": {
+            "enabled": true,
+            "compactLayout": true,
+            "lastCardMessageEnabled": true,
+            "loadMore": true,
+            "newFooterSection": true
+          }
+        },
+        {
+          "featureId": "upgradeDialog",
+          "value": {
+            "enabled": true
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "treatment",
+      "firefoxLabsTitle": null
     }
   ],
   "bucketConfig": {
@@ -50,8 +78,8 @@
   "targeting": "true",
   "userFacingDescription": "Experimenting on onboarding content when you upgrade Firefox.",
   "userFacingName": "MR2 Upgrade Spotlight Holdback",
-  "isFirefoxLabsOptIn": true,
-  "firefoxLabsTitle": "test-title",
-  "firefoxLabsDescription": "test-desc",
+  "isFirefoxLabsOptIn": false,
+  "firefoxLabsTitle": null,
+  "firefoxLabsDescription": null,
   "isRollout": false
 }

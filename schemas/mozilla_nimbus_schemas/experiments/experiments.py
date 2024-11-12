@@ -79,7 +79,7 @@ class DesktopExperimentBranch(BaseExperimentBranch):
     # Firefox Desktop-specific fields should be added to *this* schema. They will be
     # inherited by the stricter DesktopAllVersionsExperimentBranch schema.
 
-    firefoxLabsTitle: str | SkipJsonSchema[None] = Field(
+    firefoxLabsTitle: str | None = Field(
         description="An optional string containing the title of the branch", default=None
     )
 
@@ -289,12 +289,12 @@ class DesktopNimbusExperiment(BaseExperiment):
         ),
         default=None,
     )
-    firefoxLabsTitle: str | SkipJsonSchema[None] = Field(
+    firefoxLabsTitle: str | None = Field(
         description="An optional string containing the Fluent ID "
         "for the title of the opt-in",
         default=None,
     )
-    firefoxLabsDescription: str | SkipJsonSchema[None] = Field(
+    firefoxLabsDescription: str | None = Field(
         description="An optional string containing the Fluent ID "
         "for the description of the opt-in",
         default=None,
