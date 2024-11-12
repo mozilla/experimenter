@@ -209,6 +209,10 @@ features:
         description: "If true, the new menu redesign is available."
         type: Boolean
         default: false
+      report-site-issue:
+        description: "If true, report site issue menu item and preview is available."
+        type: Boolean
+        default: false
   messaging:
     description: "The in-app messaging system.\n"
     variables:
