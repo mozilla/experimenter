@@ -2,13 +2,16 @@ import importlib.resources
 import json
 from functools import cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
+import jsonschema
+import pydantic
 import pytest
 from jsonschema.protocols import Validator
 from jsonschema.validators import validator_for
 
 from mozilla_nimbus_schemas.experiments import (
+    DesktopAllVersionsNimbusExperiment,
     DesktopNimbusExperiment,
     SdkNimbusExperiment,
 )
@@ -16,6 +19,12 @@ from mozilla_nimbus_schemas.experiments import (
 FIXTURE_DIR = Path(__file__).parent / "fixtures" / "experiments"
 PACKAGE_DIR = importlib.resources.files("mozilla_nimbus_schemas")
 SCHEMAS_DIR = PACKAGE_DIR / "schemas"
+
+
+@pytest.fixture
+@cache
+def desktop_all_versions_nimbus_experiment_schema_validator() -> Validator:
+    return load_schema("DesktopAllVersionsNimbusExperiment.schema.json")
 
 
 @pytest.fixture
@@ -30,6 +39,56 @@ def sdk_nimbus_experiment_schema_validator() -> Validator:
     return load_schema("SdkNimbusExperiment.schema.json")
 
 
+class DesktopExperimentValidator(Protocol):
+    def __call__(
+        self,
+        experiment_json: dict[str, Any],
+        *,
+        valid: bool = True,
+        valid_all_versions: bool = True,
+    ): ...
+
+
+@pytest.fixture
+def validate_desktop_experiment(
+    desktop_nimbus_experiment_schema_validator,
+    desktop_all_versions_nimbus_experiment_schema_validator,
+) -> DesktopExperimentValidator:
+    def _validate(
+        experiment_json: dict[str, Any],
+        *,
+        valid: bool = True,
+        valid_all_versions: bool = True,
+    ):
+        assert not (not valid and valid_all_versions), "valid_all_versions implies valid"
+
+        if valid:
+            DesktopNimbusExperiment.model_validate(experiment_json)
+            desktop_nimbus_experiment_schema_validator.validate(experiment_json)
+        else:
+            with pytest.raises(pydantic.ValidationError):
+                DesktopNimbusExperiment.model_validate(experiment_json)
+
+            with pytest.raises(jsonschema.ValidationError):
+                desktop_nimbus_experiment_schema_validator.validate(experiment_json)
+
+        if valid_all_versions:
+            DesktopAllVersionsNimbusExperiment.model_validate(experiment_json)
+            desktop_all_versions_nimbus_experiment_schema_validator.validate(
+                experiment_json
+            )
+        else:
+            with pytest.raises(pydantic.ValidationError):
+                DesktopAllVersionsNimbusExperiment.model_validate(experiment_json)
+
+            with pytest.raises(jsonschema.ValidationError):
+                desktop_all_versions_nimbus_experiment_schema_validator.validate(
+                    experiment_json
+                )
+
+    return _validate
+
+
 def load_schema(name: str) -> Validator:
     with SCHEMAS_DIR.joinpath(name).open() as f:
         schema = json.load(f)
@@ -42,14 +101,20 @@ def load_schema(name: str) -> Validator:
 
 @pytest.mark.parametrize("experiment_file", FIXTURE_DIR.joinpath("desktop").iterdir())
 def test_desktop_experiment_fixtures_are_valid(
-    experiment_file, desktop_nimbus_experiment_schema_validator
+    experiment_file,
+    validate_desktop_experiment,
 ):
     with open(experiment_file, "r") as f:
         experiment_json = json.load(f)
-        print(experiment_json)
-        DesktopNimbusExperiment.model_validate(experiment_json)
 
-    desktop_nimbus_experiment_schema_validator.validate(experiment_json)
+    validate_desktop_experiment(experiment_json)
+
+    for branch in experiment_json["branches"]:
+        del branch["feature"]
+
+    # Assert that this no longer passes with the strict schema, but passes with the
+    # regular schema.
+    validate_desktop_experiment(experiment_json, valid_all_versions=False)
 
 
 @pytest.mark.parametrize("experiment_file", FIXTURE_DIR.joinpath("sdk").iterdir())
@@ -58,44 +123,48 @@ def test_sdk_experiment_fixtures_are_valid(
 ):
     with open(experiment_file, "r") as f:
         experiment_json = json.load(f)
-        print(experiment_json)
-        SdkNimbusExperiment.model_validate(experiment_json)
 
+    SdkNimbusExperiment.model_validate(experiment_json)
     sdk_nimbus_experiment_schema_validator.validate(experiment_json)
 
 
 def test_desktop_nimbus_expirement_with_fxlabs_opt_in_is_not_rollout(
-    desktop_nimbus_experiment_schema_validator,
+    validate_desktop_experiment,
 ):
-    experiment = _desktop_nimbus_experiment_with_fxlabs_opt_in(isRollout=False)
-
-    assert desktop_nimbus_experiment_schema_validator.is_valid(experiment)
+    experiment_json = _desktop_nimbus_experiment_with_fxlabs_opt_in(isRollout=False)
+    validate_desktop_experiment(experiment_json)
 
 
 def test_desktop_nimbus_experiment_with_fxlabs_opt_in_is_rollout(
-    desktop_nimbus_experiment_schema_validator,
+    validate_desktop_experiment,
 ):
-    experiment = _desktop_nimbus_experiment_with_fxlabs_opt_in(isRollout=True)
+    experiment_json = _desktop_nimbus_experiment_with_fxlabs_opt_in(isRollout=True)
+    validate_desktop_experiment(experiment_json)
 
-    assert desktop_nimbus_experiment_schema_validator.is_valid(experiment)
 
-
-def test_desktop_nimbus_experiment_without_fxlabs_opt_in(
-    desktop_nimbus_experiment_schema_validator,
-):
-    experiment = _desktop_nimbus_experiment_without_fxlabs_opt_in()
-
-    assert desktop_nimbus_experiment_schema_validator.is_valid(experiment)
+def test_desktop_nimbus_experiment_without_fxlabs_opt_in(validate_desktop_experiment):
+    experiment_json = _desktop_nimbus_experiment_without_fxlabs_opt_in()
+    validate_desktop_experiment(experiment_json)
 
 
 def test_desktop_nimbus_experiment_with_fxlabs_opt_in_but_missing_required_fields(
-    desktop_nimbus_experiment_schema_validator,
+    validate_desktop_experiment,
+    desktop_all_versions_nimbus_experiment_schema_validator,
 ):
-    experiment = _desktop_nimbus_experiment_with_fxlabs_opt_in_missing_required_fields()
+    experiment_json = (
+        _desktop_nimbus_experiment_with_fxlabs_opt_in_missing_required_fields()
+    )
+    validate_desktop_experiment(experiment_json, valid=False, valid_all_versions=False)
 
-    assert not desktop_nimbus_experiment_schema_validator.is_valid(experiment)
+    assert not desktop_all_versions_nimbus_experiment_schema_validator.is_valid(
+        experiment_json
+    )
 
-    errors = list(desktop_nimbus_experiment_schema_validator.iter_errors(experiment))
+    errors = list(
+        desktop_all_versions_nimbus_experiment_schema_validator.iter_errors(
+            experiment_json
+        )
+    )
     error_messages = [e.message for e in errors]
 
     assert len(error_messages) == 4
@@ -112,7 +181,7 @@ def _desktop_nimbus_experiment(isRollout: bool) -> dict[str, Any]:
         "branches": [
             {
                 "feature": {
-                    "featureId": "unused-feature-id-for-legacy-support",
+                    "featureId": "this-is-included-for-desktop-pre-95-support",
                     "enabled": False,
                     "value": {},
                 },
@@ -125,7 +194,7 @@ def _desktop_nimbus_experiment(isRollout: bool) -> dict[str, Any]:
             },
             {
                 "feature": {
-                    "featureId": "unused-feature-id-for-legacy-support",
+                    "featureId": "this-is-included-for-desktop-pre-95-support",
                     "enabled": False,
                     "value": {},
                 },
