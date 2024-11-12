@@ -6,7 +6,7 @@
   "branches": [
     {
       "feature": {
-        "featureId": "unused-feature-id-for-legacy-support",
+        "featureId": "this-is-included-for-desktop-pre-95-support",
         "enabled": false,
         "value": {}
       },
@@ -29,7 +29,7 @@
     },
     {
       "feature": {
-        "featureId": "unused-feature-id-for-legacy-support",
+        "featureId": "this-is-included-for-desktop-pre-95-support",
         "enabled": false,
         "value": {}
       },
