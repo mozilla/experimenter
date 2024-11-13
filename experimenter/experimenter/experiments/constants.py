@@ -315,6 +315,10 @@ class Application(models.TextChoices):
     DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
+    def is_sdk(application):
+        return application != Application.DESKTOP
+
+    @staticmethod
     def is_mobile(application):
         return application in (
             Application.FENIX,
