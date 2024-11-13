@@ -645,7 +645,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.status == self.Status.PREVIEW
 
     @property
-    def is_enrolling(self):
+    def is_enrollment(self):
         return self.status == self.Status.LIVE and not self.is_paused_published
 
     @property
@@ -653,7 +653,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.status == self.Status.COMPLETE
 
     @property
-    def is_observing(self):
+    def is_observation(self):
         return self._enrollment_end_date is not None and not self.is_complete
 
     @property
@@ -847,9 +847,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "days": None,
             },
             {
-                "label": NimbusConstants.ENROLLING,
+                "label": NimbusConstants.ENROLLMENT,
                 "date": self.start_date,
-                "is_active": self.is_enrolling,
+                "is_active": self.is_enrollment,
                 "days": self.computed_enrollment_days,
             },
             {
@@ -863,9 +863,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             timeline_entries.insert(
                 4,
                 {
-                    "label": NimbusConstants.OBSERVING,
+                    "label": NimbusConstants.OBSERVATION,
                     "date": self._enrollment_end_date,
-                    "is_active": self.is_observing,
+                    "is_active": self.is_observation,
                     "days": self.computed_observations_days,
                 },
             )

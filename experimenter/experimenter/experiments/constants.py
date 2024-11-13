@@ -813,8 +813,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     WARNING_PREF_FLIPS_PREF_CONTROLLED_BY_FEATURE = (
         "Pref '{pref}' is controlled by a variable in feature {feature_config_slug}'"
     )
-    OBSERVING = "Observing"
-    ENROLLING = "Enrolling"
+    OBSERVATION = "Observation"
+    ENROLLMENT = "Enrollment"
 
 
 RISK_QUESTIONS = {
