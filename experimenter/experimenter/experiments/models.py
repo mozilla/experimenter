@@ -816,6 +816,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self.computed_end_date - self.enrollment_start_date).days
         return self.proposed_duration
 
+    @property
+    def computed_observations_days(self):
+        if (
+            enrollment_end_date := (
+                self.actual_enrollment_end_date or self.computed_enrollment_end_date
+            )
+        ) and self.computed_end_date:
+            return (self.computed_end_date - enrollment_end_date).days
+        return None
+
     def timeline(self):
         timeline_entries = [
             {
@@ -840,7 +850,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "label": NimbusConstants.ENROLLING,
                 "date": self.start_date,
                 "is_active": self.is_enrolling,
-                "days": None,
+                "days": self.computed_enrollment_days,
             },
             {
                 "label": self.Status.COMPLETE,
@@ -856,7 +866,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "label": NimbusConstants.OBSERVING,
                     "date": self._enrollment_end_date,
                     "is_active": self.is_observing,
-                    "days": self.computed_enrollment_days,
+                    "days": self.computed_observations_days,
                 },
             )
 
