@@ -55,12 +55,27 @@ describe("ChangeApprovalOperations", () => {
           canReview: true,
           invalidPages: ["overview", "thingy", "frobnitz"],
           InvalidPagesList: () => <span>{expectedInvalidPages}</span>,
+          ready: false,
         }}
       />,
     );
-    const invalidPagesAlert = screen.queryByTestId("invalid-pages");
-    expect(invalidPagesAlert).toBeInTheDocument();
+    const invalidPagesAlert = screen.getByTestId("invalid-pages");
     expect(invalidPagesAlert!.textContent).toContain(expectedInvalidPages);
+  });
+
+  it("displays an error when ready is false but no pages contain errors", async () => {
+    render(
+      <Subject
+        {...{
+          ...reviewRequestedBaseProps,
+          canReview: true,
+          invalidPages: [],
+          InvalidPagesList: undefined,
+          ready: false,
+        }}
+      />,
+    );
+    screen.getByTestId("invalid-internal-error");
   });
 
   it("does not display an invalid pages warning when details are missing from an archived experiment", async () => {
