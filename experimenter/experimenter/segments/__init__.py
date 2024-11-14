@@ -1,10 +1,28 @@
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
 
 from django.core.checks import Error, register
 from metric_config_parser.config import ConfigCollection
 from metric_config_parser.segment import SegmentDefinition
 
 from experimenter.experiments.constants import NimbusConstants
+
+
+@dataclass
+class MockCommit:
+    committed_date: int
+
+
+@dataclass
+class MockRepository:
+    git_dir: Path
+
+    def iter_commits(self, *args, **kwargs):
+        mock_commit = MockCommit(
+            committed_date=int(datetime.now().timestamp()),
+        )
+        yield mock_commit
 
 
 @dataclass
@@ -31,10 +49,13 @@ class Segments:
 
         config_collection = None
         if segment_data is None:
-            config_collection = ConfigCollection.from_github_repos(
-                [
-                    "https://github.com/mozilla/metric-hub",
-                ]
+            repo_git_dir = Path("/experimenter/experimenter/segments/metric-hub-main")
+            path = "metric-hub-main"
+
+            mock_repo = MockRepository(git_dir=repo_git_dir)
+
+            config_collection = ConfigCollection.from_local_repo(
+                repo=mock_repo, path=path, is_private=False, main_branch="main"
             )
 
         for app_name, app_config in app_name_application_config.items():
