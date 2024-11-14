@@ -40,6 +40,7 @@ export const BaseSubject = ({
   rejectChange = () => {},
   approveChange = () => {},
   invalidPages = [],
+  ready = true,
   InvalidPagesList = () => <span />,
   children = (
     <Button data-testid="action-button" className="mr-2 btn btn-success">
@@ -64,6 +65,7 @@ export const BaseSubject = ({
       reviewUrl: REVIEW_URL,
       invalidPages,
       InvalidPagesList,
+      ready,
       ...props,
     }}
   >

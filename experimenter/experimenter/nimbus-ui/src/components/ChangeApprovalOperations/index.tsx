@@ -39,6 +39,7 @@ export type ChangeApprovalOperationsProps = {
   reviewUrl: string;
   invalidPages: string[];
   InvalidPagesList: React.FC<unknown>;
+  ready: boolean;
 };
 
 export const ChangeApprovalOperations: React.FC<
@@ -59,6 +60,7 @@ export const ChangeApprovalOperations: React.FC<
   invalidPages,
   InvalidPagesList,
   children,
+  ready,
 }) => {
   const defaultUIState = useMemo(() => {
     if (status.archived) {
@@ -66,7 +68,7 @@ export const ChangeApprovalOperations: React.FC<
       return ChangeApprovalOperationsState.None;
     }
 
-    if (invalidPages.length > 0 && status.draft) {
+    if (!ready && status.draft) {
       return ChangeApprovalOperationsState.InvalidPages;
     }
 
@@ -83,7 +85,7 @@ export const ChangeApprovalOperations: React.FC<
       default:
         return ChangeApprovalOperationsState.None;
     }
-  }, [status, publishStatus, canReview, invalidPages.length]);
+  }, [status, publishStatus, canReview, ready]);
 
   const [uiState, setUIState] =
     useState<ChangeApprovalOperationsState>(defaultUIState);
@@ -99,13 +101,22 @@ export const ChangeApprovalOperations: React.FC<
 
   switch (uiState) {
     case ChangeApprovalOperationsState.InvalidPages:
-      return (
-        <Alert variant="danger" data-testid="invalid-pages">
-          Before this experiment can be reviewed or launched, all required
-          fields must be completed. Fields on the <InvalidPagesList />{" "}
-          {invalidPages.length === 1 ? "page" : "pages"} are missing details.
-        </Alert>
-      );
+      if (invalidPages.length) {
+        return (
+          <Alert variant="danger" data-testid="invalid-pages">
+            Before this experiment can be reviewed or launched, all required
+            fields must be completed. Fields on the <InvalidPagesList />{" "}
+            {invalidPages.length === 1 ? "page" : "pages"} are missing details.
+          </Alert>
+        );
+      } else {
+        return (
+          <Alert variant="danger" data-testid="invalid-internal-error">
+            This experiment cannot be launched due to an internal Experimenter
+            error. Please ask in #ask-experimenter.
+          </Alert>
+        );
+      }
     case ChangeApprovalOperationsState.ApprovalPending:
       return (
         <Alert
