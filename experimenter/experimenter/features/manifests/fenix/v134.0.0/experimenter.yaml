@@ -109,6 +109,14 @@ homescreen:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
+javascript:
+  description: Enables Javascript Engine (Spidermonkey) features
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    parallelMarkingEnabled:
+      type: boolean
+      description: "Enables or disables javascript.options.mem.gc_parallel_marking preference.\n"
 juno-onboarding:
   description: A feature that shows the onboarding flow.
   hasExposure: true
