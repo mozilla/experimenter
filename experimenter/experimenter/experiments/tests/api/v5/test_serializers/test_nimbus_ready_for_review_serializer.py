@@ -4490,6 +4490,31 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
         self.assertNotIn("reference_branch", serializer.warnings)
         self.assertNotIn("treatment_branch", serializer.warnings)
 
+    def test_empty_segments_is_valid(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+            segments=[],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
     def test_localized_valid(self):
         locale_en_us = LocaleFactory.create(code="en-US")
         locale_en_ca = LocaleFactory.create(code="en-CA")

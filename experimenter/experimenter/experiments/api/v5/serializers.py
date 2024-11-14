@@ -1186,6 +1186,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     secondary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
     )
+    segments = serializers.ListField(child=serializers.CharField(), required=False)
     risk_partner_related = serializers.BooleanField(
         required=True,
         allow_null=False,
