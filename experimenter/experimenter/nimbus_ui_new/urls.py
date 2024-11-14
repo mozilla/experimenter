@@ -54,10 +54,14 @@ urlpatterns = [
         NimbusExperimentsCreateView.as_view(),
         name="nimbus-new-create",
     ),
-    re_path(r"^(?P<slug>[\w-]+)/subscribe/", SubscribeView.as_view(), name="subscribe"),
+    re_path(
+        r"^(?P<slug>[\w-]+)/subscribe/",
+        SubscribeView.as_view(),
+        name="nimbus-new-subscribe",
+    ),
     re_path(
         r"^(?P<slug>[\w-]+)/unsubscribe/",
         UnsubscribeView.as_view(),
-        name="unsubscribe",
+        name="nimbus-new-unsubscribe",
     ),
 ]

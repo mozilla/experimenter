@@ -14,8 +14,8 @@
   <td style="text-align: right;">
     {% if request.user in experiment.subscribers.all %}
       <form method="post"
-            action="{% url 'unsubscribe' slug=experiment.slug %}"
-            hx-post="{% url 'unsubscribe' slug=experiment.slug %}"
+            action="{% url 'nimbus-new-unsubscribe' slug=experiment.slug %}"
+            hx-post="{% url 'nimbus-new-unsubscribe' slug=experiment.slug %}"
             hx-target=".subscribers-section"
             hx-swap="outerHTML">
         {% csrf_token %}
@@ -23,8 +23,8 @@
       </form>
     {% else %}
       <form method="post"
-            action="{% url 'subscribe' slug=experiment.slug %}"
-            hx-post="{% url 'subscribe' slug=experiment.slug %}"
+            action="{% url 'nimbus-new-subscribe' slug=experiment.slug %}"
+            hx-post="{% url 'nimbus-new-subscribe' slug=experiment.slug %}"
             hx-target=".subscribers-section"
             hx-swap="outerHTML">
         {% csrf_token %}
