@@ -375,14 +375,6 @@ SIZING_DATA_KEY = "population_sizing"
 # Celery
 CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
 CELERY_BEAT_SCHEDULE = {
-    "experiment_status_ready_to_ship_task": {
-        "task": "experimenter.legacy.normandy.tasks.update_recipe_ids_to_experiments",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
-    "experiment_status_launched_task": {
-        "task": "experimenter.legacy.normandy.tasks.update_launched_experiments",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
     "nimbus_check_kinto_push_queue_task": {
         "task": "experimenter.kinto.tasks.nimbus_check_kinto_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
