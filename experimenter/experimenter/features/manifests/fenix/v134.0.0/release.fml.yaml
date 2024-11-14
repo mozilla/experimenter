@@ -131,6 +131,13 @@ features:
           recent-explorations: true
           pocket: true
           pocket-sponsored-stories: true
+  javascript:
+    description: Enables Javascript Engine (Spidermonkey) features
+    variables:
+      parallelMarkingEnabled:
+        description: "Enables or disables javascript.options.mem.gc_parallel_marking preference.\n"
+        type: Boolean
+        default: false
   juno-onboarding:
     description: A feature that shows the onboarding flow.
     variables:
