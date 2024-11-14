@@ -419,6 +419,11 @@ class Lifecycles(Enum):
     )
 
 
+def random_slice(lst, *, min_items=0, max_items=2):
+    count = random.randint(min_items, min(max_items, len(lst)))
+    return lst[:count]
+
+
 class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     publish_status = NimbusExperiment.PublishStatus.IDLE
     owner = factory.SubFactory(UserFactory)
@@ -454,13 +459,13 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.TargetingConfig)).value
     )
     primary_outcomes = factory.LazyAttribute(
-        lambda o: [oc.slug for oc in Outcomes.all()[:2]]
+        lambda o: random_slice([oc.slug for oc in Outcomes.all()[:2]])
     )
     secondary_outcomes = factory.LazyAttribute(
-        lambda o: [oc.slug for oc in Outcomes.all()[2:]]
+        lambda o: random_slice([oc.slug for oc in Outcomes.all()[2:]])
     )
     segments = factory.LazyAttribute(
-        lambda o: [s.slug for s in Segments.all(mock_get_segments())]
+        lambda o: random_slice([s.slug for s in Segments.all(mock_get_segments())])
     )
     risk_partner_related = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_revenue = factory.LazyAttribute(lambda o: random.choice([True, False]))
