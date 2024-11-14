@@ -131,7 +131,10 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
 
     def get_localizations(self, obj):
         if obj.is_localized:
-            return json.loads(obj.localizations)
+            try:
+                return json.loads(obj.localizations)
+            except json.decoder.JSONDecodeError:
+                return None
 
     def get_locales(self, obj):
         locale_codes = [locale.code for locale in obj.locales.all()]

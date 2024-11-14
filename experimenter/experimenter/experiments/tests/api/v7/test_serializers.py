@@ -39,9 +39,9 @@ class TestNimbusExperimentSerializer(TestCase):
             secondary_outcomes=["quux", "xyzzy"],
             locales=[locale_en_us],
             is_localized=localizations is not None,
-            localizations=json.dumps(localizations)
-            if localizations is not None
-            else None,
+            localizations=(
+                json.dumps(localizations) if localizations is not None else None
+            ),
             _enrollment_end_date=datetime.date(2022, 1, 5),
         )
         serializer = NimbusExperimentSerializer(experiment)
@@ -135,3 +135,13 @@ class TestNimbusExperimentSerializer(TestCase):
                 },
                 branches_data,
             )
+
+    def test_serializer_invalid_localizations_field(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            is_localized=True,
+            localizations="",
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(serializer.data["localizations"], None)
