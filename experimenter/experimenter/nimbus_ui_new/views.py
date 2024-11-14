@@ -224,7 +224,6 @@ class SubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     template_name = "nimbus_experiments/subscribers_list.html"
 
     def form_valid(self, form):
-        form.user = self.request.user
         super().form_valid(form)
         return self.render_to_response(self.get_context_data(form=form))
 
@@ -234,6 +233,5 @@ class UnsubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     template_name = "nimbus_experiments/subscribers_list.html"
 
     def form_valid(self, form):
-        form.user = self.request.user
         super().form_valid(form)
         return self.render_to_response(self.get_context_data(form=form))

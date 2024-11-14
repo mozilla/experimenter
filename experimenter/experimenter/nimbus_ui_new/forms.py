@@ -198,17 +198,13 @@ class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         model = NimbusExperiment
         fields = []
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop("user", None)
-        super().__init__(*args, **kwargs)
-
     def save(self, commit=True):
         experiment = super().save(commit=commit)
-        experiment.subscribers.add(self.user)
+        experiment.subscribers.add(self.request.user)
         return experiment
 
     def get_changelog_message(self):
-        return f"{self.user} added subscriber"
+        return f"{self.request.user} added subscriber"
 
 
 class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -216,14 +212,10 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         model = NimbusExperiment
         fields = []
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop("user", None)
-        super().__init__(*args, **kwargs)
-
     def save(self, commit=True):
         experiment = super().save(commit=commit)
-        experiment.subscribers.remove(self.user)
+        experiment.subscribers.remove(self.request.user)
         return experiment
 
     def get_changelog_message(self):
-        return f"{self.user} removed subscriber"
+        return f"{self.request.user} removed subscriber"

@@ -290,16 +290,20 @@ class SubscriptionFormTests(RequestFormTestCase):
         )
 
     def test_subscribe_form_adds_subscriber(self):
-        form = SubscribeForm(instance=self.experiment, data={}, user=self.user)
-        form.request = self.request
+        form = SubscribeForm(instance=self.experiment, data={}, request=self.request)
         self.assertTrue(form.is_valid())
         form.save()
-        self.assertIn(self.user, self.experiment.subscribers.all())
+        self.assertIn(self.request.user, self.experiment.subscribers.all())
+        changelog = self.experiment.changes.get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("dev@example.com added subscriber", changelog.message)
 
     def test_unsubscribe_form_removes_subscriber(self):
-        self.experiment.subscribers.add(self.user)
-        form = UnsubscribeForm(instance=self.experiment, data={}, user=self.user)
-        form.request = self.request
+        self.experiment.subscribers.add(self.request.user)
+        form = UnsubscribeForm(instance=self.experiment, data={}, request=self.request)
         self.assertTrue(form.is_valid())
         form.save()
-        self.assertNotIn(self.user, self.experiment.subscribers.all())
+        self.assertNotIn(self.request.user, self.experiment.subscribers.all())
+        changelog = self.experiment.changes.get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("dev@example.com removed subscriber", changelog.message)
