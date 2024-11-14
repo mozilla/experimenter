@@ -203,10 +203,12 @@ class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        self.instance.subscribers.add(self.user)
-        if commit:
-            self.instance.save()
-        return self.instance
+        experiment = super().save(commit=commit)
+        experiment.subscribers.add(self.user)
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.user} added subscriber"
 
 
 class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -219,7 +221,9 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        self.instance.subscribers.remove(self.user)
-        if commit:
-            self.instance.save()
-        return self.instance
+        experiment = super().save(commit=commit)
+        experiment.subscribers.remove(self.user)
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.user} removed subscriber"

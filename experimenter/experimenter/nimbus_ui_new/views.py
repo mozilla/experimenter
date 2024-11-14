@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
@@ -225,11 +224,9 @@ class SubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     template_name = "nimbus_experiments/subscribers_list.html"
 
     def form_valid(self, form):
-        experiment = get_object_or_404(NimbusExperiment, slug=self.kwargs["slug"])
-        form.instance = experiment
         form.user = self.request.user
-        form.save()
-        return render(self.request, self.template_name, {"experiment": experiment})
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class UnsubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
@@ -237,8 +234,6 @@ class UnsubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     template_name = "nimbus_experiments/subscribers_list.html"
 
     def form_valid(self, form):
-        experiment = get_object_or_404(NimbusExperiment, slug=self.kwargs["slug"])
-        form.instance = experiment
         form.user = self.request.user
-        form.save()
-        return render(self.request, self.template_name, {"experiment": experiment})
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))

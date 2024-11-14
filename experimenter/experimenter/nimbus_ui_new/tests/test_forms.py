@@ -291,6 +291,7 @@ class SubscriptionFormTests(RequestFormTestCase):
 
     def test_subscribe_form_adds_subscriber(self):
         form = SubscribeForm(instance=self.experiment, data={}, user=self.user)
+        form.request = self.request
         self.assertTrue(form.is_valid())
         form.save()
         self.assertIn(self.user, self.experiment.subscribers.all())
@@ -298,6 +299,7 @@ class SubscriptionFormTests(RequestFormTestCase):
     def test_unsubscribe_form_removes_subscriber(self):
         self.experiment.subscribers.add(self.user)
         form = UnsubscribeForm(instance=self.experiment, data={}, user=self.user)
+        form.request = self.request
         self.assertTrue(form.is_valid())
         form.save()
         self.assertNotIn(self.user, self.experiment.subscribers.all())
