@@ -8,7 +8,9 @@ from experimenter.nimbus_ui_new.views import (
     NimbusExperimentsListTableView,
     QAStatusUpdateView,
     SignoffUpdateView,
+    SubscribeView,
     TakeawaysUpdateView,
+    UnsubscribeView,
 )
 
 urlpatterns = [
@@ -51,5 +53,15 @@ urlpatterns = [
         r"^create/",
         NimbusExperimentsCreateView.as_view(),
         name="nimbus-new-create",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/subscribe/",
+        SubscribeView.as_view(),
+        name="nimbus-new-subscribe",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/unsubscribe/",
+        UnsubscribeView.as_view(),
+        name="nimbus-new-unsubscribe",
     ),
 ]
