@@ -159,6 +159,7 @@ features:
           OPEN_NEW_TAB: "://deep-link?url=homepanel/new-tab"
           MAKE_DEFAULT_BROWSER: "://deep-link?url=default-browser/system-settings"
           MAKE_DEFAULT_BROWSER_WITH_TUTORIAL: "://deep-link?url=default-browser/tutorial"
+          OPEN_SHARE_SHEET: "://share-sheet"
         string-alias: ActionName
       message-under-experiment:
         description: "Deprecated. Please use \"experiment\": \"{experiment}\" instead."
