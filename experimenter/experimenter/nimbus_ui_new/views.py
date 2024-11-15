@@ -18,7 +18,9 @@ from experimenter.nimbus_ui_new.forms import (
     NimbusExperimentCreateForm,
     QAStatusForm,
     SignoffForm,
+    SubscribeForm,
     TakeawaysForm,
+    UnsubscribeForm,
 )
 
 
@@ -211,6 +213,24 @@ class NimbusExperimentsCreateView(
 class MetricsUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     form_class = MetricsForm
     template_name = "nimbus_experiments/edit_metrics.html"
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class SubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = SubscribeForm
+    template_name = "nimbus_experiments/subscribers_list.html"
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class UnsubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = UnsubscribeForm
+    template_name = "nimbus_experiments/subscribers_list.html"
 
     def form_valid(self, form):
         super().form_valid(form)

@@ -9,7 +9,9 @@ from experimenter.nimbus_ui_new.forms import (
     NimbusExperimentCreateForm,
     QAStatusForm,
     SignoffForm,
+    SubscribeForm,
     TakeawaysForm,
+    UnsubscribeForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -275,3 +277,34 @@ class TestMetricsForm(RequestFormTestCase):
         self.assertIn("primary_outcomes", form.errors)
         self.assertIn("secondary_outcomes", form.errors)
         self.assertIn("segments", form.errors)
+
+
+class SubscriptionFormTests(RequestFormTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperimentFactory.create(
+            name="Test Experiment",
+            owner=self.user,
+            qa_signoff=False,
+            vp_signoff=False,
+            legal_signoff=False,
+        )
+
+    def test_subscribe_form_adds_subscriber(self):
+        form = SubscribeForm(instance=self.experiment, data={}, request=self.request)
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertIn(self.request.user, self.experiment.subscribers.all())
+        changelog = self.experiment.changes.get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("dev@example.com added subscriber", changelog.message)
+
+    def test_unsubscribe_form_removes_subscriber(self):
+        self.experiment.subscribers.add(self.request.user)
+        form = UnsubscribeForm(instance=self.experiment, data={}, request=self.request)
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertNotIn(self.request.user, self.experiment.subscribers.all())
+        changelog = self.experiment.changes.get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("dev@example.com removed subscriber", changelog.message)

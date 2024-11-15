@@ -93,22 +93,16 @@
             </tr>
             <tr>
               <th>Team projects</th>
-              <td>
+              <td colspan="2">
                 {% for project in experiment.projects.all %}
                   <p>{{ project }}</p>
                 {% empty %}
                   <span class="text-danger">Not set</span>
                 {% endfor %}
               </td>
-              <th>Subscribers</th>
-              <td>
-                {% for subscriber in experiment.subscribers.all %}
-                  <p>{{ subscriber }}</p>
-                {% empty %}
-                  <span class="text-danger">Not set</span>
-                {% endfor %}
-              </td>
             </tr>
+            {% include 'nimbus_experiments/subscribers_list.html' %}
+
           </tbody>
         </table>
       </div>
