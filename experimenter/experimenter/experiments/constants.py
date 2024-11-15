@@ -315,6 +315,10 @@ class Application(models.TextChoices):
     DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
 
     @staticmethod
+    def is_sdk(application):
+        return application != Application.DESKTOP
+
+    @staticmethod
     def is_mobile(application):
         return application in (
             Application.FENIX,
@@ -577,6 +581,7 @@ class NimbusConstants:
         FIREFOX_132 = "132.!"
         FIREFOX_132_B6 = "132.0b6"
         FIREFOX_133 = "133.!"
+        FIREFOX_133_B8 = "133.0b8"
         FIREFOX_134 = "134.!"
         FIREFOX_135 = "135.!"
         FIREFOX_136 = "136.!"

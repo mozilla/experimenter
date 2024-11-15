@@ -6,13 +6,13 @@
  * make schemas_build
  */
 
-export type DesktopApplication = "firefox-desktop" | "firefox-desktop-background-task";
-export type FeatureVariableType = "int" | "string" | "boolean" | "json";
-export type PrefBranch = "default" | "user";
 /**
  * A unique, stable indentifier for the user used as an input to bucket hashing.
  */
 export type RandomizationUnit = "normandy_id" | "nimbus_id" | "user_id" | "group_id";
+export type DesktopApplication = "firefox-desktop" | "firefox-desktop-background-task";
+export type FeatureVariableType = "int" | "string" | "boolean" | "json";
+export type PrefBranch = "default" | "user";
 export type AnalysisBasis = "enrollments" | "exposures";
 export type LogSource = "jetstream" | "sizing" | "jetstream-preview";
 export type AnalysisErrors = AnalysisError[];
@@ -32,6 +32,237 @@ export type SizingMetricName = "active_hours" | "search_count" | "days_of_use" |
 export type StatisticIngestEnum = "percentage" | "binomial" | "mean" | "count";
 export type Statistics = Statistic[];
 
+/**
+ * A Nimbus experiment for Firefox Desktop.
+ *
+ * This schema is more strict than DesktopNimbusExperiment and is backwards
+ * comaptible with Firefox Desktop versions less than 95. It is intended for use inside
+ * Experimenter itself.
+ */
+export interface DesktopAllVersionsNimbusExperiment {
+  /**
+   * Version of the NimbusExperiment schema this experiment refers to
+   */
+  schemaVersion: string;
+  /**
+   * Unique identifier for the experiment
+   */
+  slug: string;
+  /**
+   * Unique identifier for the experiiment.
+   *
+   * This is a duplicate of slug, but is required field for all Remote Settings records.
+   */
+  id: string;
+  /**
+   * A slug identifying the targeted product of this experiment.
+   *
+   * It should be a lowercased_with_underscores name that is short and unambiguous and it should match the app_name found in https://probeinfo.telemetry.mozilla.org/glean/repositories. Examples are "fenix" and "firefox_desktop".
+   */
+  appName: string;
+  /**
+   * The platform identifier for the targeted app.
+   *
+   * This should match app's identifier exactly as it appears in the relevant app store listing (for relevant platforms) or the app's Glean initialization (for other platforms).
+   *
+   * Examples are "org.mozilla.firefox_beta" and "firefox-desktop".
+   */
+  appId: string;
+  /**
+   * A specific channel of an application such as "nightly", "beta", or "release".
+   */
+  channel: string;
+  /**
+   * Public name of the experiment that will be displayed on "about:studies".
+   */
+  userFacingName: string;
+  /**
+   * Short public description of the experiment that will be displayed on "about:studies".
+   */
+  userFacingDescription: string;
+  /**
+   * When this property is set to true, the SDK should not enroll new users into the experiment that have not already been enrolled.
+   */
+  isEnrollmentPaused: boolean;
+  /**
+   * When this property is set to true, treat this experiment as a rollout.
+   *
+   * Rollouts are currently handled as single-branch experiments separated from the bucketing namespace for normal experiments.
+   *
+   * See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
+   */
+  isRollout?: boolean;
+  bucketConfig: ExperimentBucketConfig;
+  /**
+   * A list of outcomes relevant to the experiment analysis.
+   */
+  outcomes?: ExperimentOutcome[];
+  /**
+   * A list of featureIds the experiment contains configurations for.
+   */
+  featureIds?: string[];
+  /**
+   * A JEXL targeting expression used to filter out experiments.
+   */
+  targeting?: string | null;
+  /**
+   * Actual publish date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
+   */
+  startDate: string | null;
+  /**
+   * Actual enrollment end date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
+   */
+  enrollmentEndDate?: string | null;
+  /**
+   * Actual end date of this experiment.
+   *
+   * Note that this field is expected to be null in Remote Settings.
+   */
+  endDate: string | null;
+  /**
+   * Duration of the experiment from the start date in days.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
+   */
+  proposedDuration?: number;
+  /**
+   * This represents the number of days that we expect to enroll new users.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
+   */
+  proposedEnrollment: number;
+  /**
+   * The slug of the reference branch (i.e., the branch we consider "control").
+   */
+  referenceBranch: string | null;
+  /**
+   * The list of locale codes (e.g., "en-US" or "fr") that this experiment is targeting.
+   *
+   * If null, all locales are targeted.
+   */
+  locales?: string[] | null;
+  /**
+   * The date that this experiment was first published to Remote Settings.
+   *
+   * If null, it has not yet been published.
+   */
+  publishedDate?: string | null;
+  /**
+   * Branch configuration for the experiment.
+   */
+  branches: DesktopAllVersionsExperimentBranch[];
+  /**
+   * When this property is set to true, treat this experiment as aFirefox Labs experiment
+   */
+  isFirefoxLabsOptIn?: boolean;
+  /**
+   * An optional string containing the Fluent ID for the title of the opt-in
+   */
+  firefoxLabsTitle?: string | null;
+  /**
+   * An optional string containing the Fluent ID for the description of the opt-in
+   */
+  firefoxLabsDescription?: string | null;
+  /**
+   * Opt out of feature schema validation.
+   */
+  featureValidationOptOut?: boolean;
+  localizations?: ExperimentLocalizations | null;
+}
+export interface ExperimentBucketConfig {
+  randomizationUnit: RandomizationUnit;
+  /**
+   * Additional inputs to the hashing function.
+   */
+  namespace: string;
+  /**
+   * Index of the starting bucket of the range.
+   */
+  start: number;
+  /**
+   * Number of buckets in the range.
+   */
+  count: number;
+  /**
+   * The total number of buckets.
+   *
+   * You can assume this will always be 10000
+   */
+  total: number;
+}
+export interface ExperimentOutcome {
+  /**
+   * Identifier for the outcome.
+   */
+  slug: string;
+  /**
+   * e.g., "primary" or "secondary".
+   */
+  priority: string;
+}
+/**
+ * The branch definition supported on all Firefox Desktop versions.
+ *
+ * This version requires the feature field to be present to support older Firefox Desktop
+ * clients.
+ */
+export interface DesktopAllVersionsExperimentBranch {
+  /**
+   * Identifier for the branch.
+   */
+  slug: string;
+  /**
+   * Relative ratio of population for the branch.
+   *
+   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
+   */
+  ratio: number;
+  /**
+   * An array of feature configurations.
+   */
+  features: ExperimentFeatureConfig[];
+  /**
+   * An optional string containing the title of the branch
+   */
+  firefoxLabsTitle?: string | null;
+  feature: DesktopPre95FeatureConfig;
+}
+export interface ExperimentFeatureConfig {
+  /**
+   * The identifier for the feature flag.
+   */
+  featureId: string;
+  /**
+   * The values that define the feature configuration.
+   *
+   * This should be validated against a schema.
+   */
+  value: {
+    [k: string]: unknown;
+  };
+}
+export interface DesktopPre95FeatureConfig {
+  featureId: "this-is-included-for-desktop-pre-95-support";
+  value: {
+    [k: string]: unknown;
+  };
+  enabled: false;
+}
+/**
+ * Per-locale localization substitutions.
+ *
+ * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
+ * string IDs to their localized equivalents.
+ */
+export interface ExperimentLocalizations {
+  [k: string]: {
+    [k: string]: string;
+  };
+}
 /**
  * A feature.
  */
@@ -135,6 +366,9 @@ export interface DesktopFeatureManifest {
 }
 /**
  * A Nimbus experiment for Firefox Desktop.
+ *
+ * This schema is less strict than DesktopAllVersionsNimbusExperiment and is intended for
+ * use in Firefox Desktop.
  */
 export interface DesktopNimbusExperiment {
   /**
@@ -259,47 +493,16 @@ export interface DesktopNimbusExperiment {
   /**
    * An optional string containing the Fluent ID for the title of the opt-in
    */
-  firefoxLabsTitle?: string;
+  firefoxLabsTitle?: string | null;
   /**
    * An optional string containing the Fluent ID for the description of the opt-in
    */
-  firefoxLabsDescription?: string;
+  firefoxLabsDescription?: string | null;
   /**
    * Opt out of feature schema validation.
    */
   featureValidationOptOut?: boolean;
   localizations?: ExperimentLocalizations | null;
-}
-export interface ExperimentBucketConfig {
-  randomizationUnit: RandomizationUnit;
-  /**
-   * Additional inputs to the hashing function.
-   */
-  namespace: string;
-  /**
-   * Index of the starting bucket of the range.
-   */
-  start: number;
-  /**
-   * Number of buckets in the range.
-   */
-  count: number;
-  /**
-   * The total number of buckets.
-   *
-   * You can assume this will always be 10000
-   */
-  total: number;
-}
-export interface ExperimentOutcome {
-  /**
-   * Identifier for the outcome.
-   */
-  slug: string;
-  /**
-   * e.g., "primary" or "secondary".
-   */
-  priority: string;
 }
 /**
  * The branch definition supported on Firefox Desktop 95+.
@@ -319,74 +522,10 @@ export interface DesktopExperimentBranch {
    * An array of feature configurations.
    */
   features: ExperimentFeatureConfig[];
-  feature: DesktopTombstoneFeatureConfig;
   /**
    * An optional string containing the title of the branch
    */
-  firefoxLabsTitle?: string;
-}
-export interface ExperimentFeatureConfig {
-  /**
-   * The identifier for the feature flag.
-   */
-  featureId: string;
-  /**
-   * The values that define the feature configuration.
-   *
-   * This should be validated against a schema.
-   */
-  value: {
-    [k: string]: unknown;
-  };
-}
-export interface DesktopTombstoneFeatureConfig {
-  featureId: "unused-feature-id-for-legacy-support";
-  value: {
-    [k: string]: unknown;
-  };
-  enabled: false;
-}
-/**
- * Per-locale localization substitutions.
- *
- * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
- * string IDs to their localized equivalents.
- */
-export interface ExperimentLocalizations {
-  [k: string]: {
-    [k: string]: string;
-  };
-}
-/**
- * A Nimbus experiment for Nimbus SDK-based applications.
- */
-export interface SdkNimbusExperiment {
-  /**
-   * Branch configuration for the experiment.
-   */
-  branches: SdkExperimentBranch[];
-}
-/**
- * The branch definition for SDK-based applications
- *
- * Supported on Firefox for Android 96+ and Firefox for iOS 39+ and all versions of
- * Cirrus.
- */
-export interface SdkExperimentBranch {
-  /**
-   * Identifier for the branch.
-   */
-  slug: string;
-  /**
-   * Relative ratio of population for the branch.
-   *
-   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
-   */
-  ratio: number;
-  /**
-   * An array of feature configurations.
-   */
-  features: ExperimentFeatureConfig[];
+  firefoxLabsTitle?: string | null;
 }
 /**
  * The SDK-specific feature manifest.
@@ -434,6 +573,37 @@ export interface SdkFeatureVariable {
    * Only allowed when type is string.
    */
   enum?: string[];
+}
+/**
+ * A Nimbus experiment for Nimbus SDK-based applications.
+ */
+export interface SdkNimbusExperiment {
+  /**
+   * Branch configuration for the experiment.
+   */
+  branches: SdkExperimentBranch[];
+}
+/**
+ * The branch definition for SDK-based applications
+ *
+ * Supported on Firefox for Android 96+ and Firefox for iOS 39+ and all versions of
+ * Cirrus.
+ */
+export interface SdkExperimentBranch {
+  /**
+   * Identifier for the branch.
+   */
+  slug: string;
+  /**
+   * Relative ratio of population for the branch.
+   *
+   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
+   */
+  ratio: number;
+  /**
+   * An array of feature configurations.
+   */
+  features: ExperimentFeatureConfig[];
 }
 export interface AnalysisError {
   analysis_basis?: AnalysisBasis | null;

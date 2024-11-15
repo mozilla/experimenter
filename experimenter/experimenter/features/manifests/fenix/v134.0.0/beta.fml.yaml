@@ -131,6 +131,13 @@ features:
           recent-explorations: true
           pocket: true
           pocket-sponsored-stories: true
+  javascript:
+    description: Enables Javascript Engine (Spidermonkey) features
+    variables:
+      parallelMarkingEnabled:
+        description: "Enables or disables javascript.options.mem.gc_parallel_marking preference.\n"
+        type: Boolean
+        default: false
   juno-onboarding:
     description: A feature that shows the onboarding flow.
     variables:
@@ -209,6 +216,10 @@ features:
         description: "If true, the new menu redesign is available."
         type: Boolean
         default: false
+      report-site-issue:
+        description: "If true, report site issue menu item and preview is available."
+        type: Boolean
+        default: true
   messaging:
     description: "The in-app messaging system.\n"
     variables:
@@ -248,6 +259,7 @@ features:
           OPEN_SETTINGS_TRACKING_PROTECTION: "://settings_tracking_protection"
           OPEN_SETTINGS_WALLPAPERS: "://settings_wallpapers"
           OPEN_SETTINGS: "://settings"
+          OPEN_SHARE_SHEET: "://share_sheet"
           TURN_ON_SYNC: "://turn_on_sync"
         string-alias: ActionName
       message-under-experiment:

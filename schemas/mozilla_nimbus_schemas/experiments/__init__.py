@@ -1,11 +1,17 @@
-from .experiments import DesktopNimbusExperiment, RandomizationUnit, SdkNimbusExperiment
+from .experiments import (
+    DesktopAllVersionsNimbusExperiment,
+    DesktopNimbusExperiment,
+    RandomizationUnit,
+    SdkNimbusExperiment,
+)
 from .feature_manifests import DesktopFeature, DesktopFeatureManifest, SdkFeatureManifest
 
 __all__ = (
+    "DesktopAllVersionsNimbusExperiment",
     "DesktopFeature",
     "DesktopFeatureManifest",
     "DesktopNimbusExperiment",
-    "SdkNimbusExperiment",
     "RandomizationUnit",
     "SdkFeatureManifest",
+    "SdkNimbusExperiment",
 )

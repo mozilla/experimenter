@@ -7,7 +7,7 @@
     {
       "firefoxLabsTitle": "branch-one-fx-labs_title",
       "feature": {
-        "featureId": "unused-feature-id-for-legacy-support",
+        "featureId": "this-is-included-for-desktop-pre-95-support",
         "enabled": false,
         "value": {}
       },
@@ -25,34 +25,6 @@
       ],
       "ratio": 1,
       "slug": "control"
-    },
-    {
-      "firefoxLabsTitle": "branch-one-fx-labs_title",
-      "feature": {
-        "featureId": "unused-feature-id-for-legacy-support",
-        "enabled": false,
-        "value": {}
-      },
-      "features": [
-        {
-          "featureId": "pocketNewtab",
-          "value": {
-            "enabled": true,
-            "compactLayout": true,
-            "lastCardMessageEnabled": true,
-            "loadMore": true,
-            "newFooterSection": true
-          }
-        },
-        {
-          "featureId": "upgradeDialog",
-          "value": {
-            "enabled": true
-          }
-        }
-      ],
-      "ratio": 1,
-      "slug": "treatment"
     }
   ],
   "bucketConfig": {

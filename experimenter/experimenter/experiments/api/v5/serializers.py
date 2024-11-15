@@ -1206,6 +1206,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         allow_null=False,
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
     )
+    segments = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+    )
     is_localized = serializers.BooleanField(required=False)
     localizations = serializers.CharField(
         required=False, allow_blank=True, allow_null=True

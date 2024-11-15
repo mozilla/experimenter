@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "title": "DesktopNimbusExperiment",
-  "description": "A Nimbus experiment for Firefox Desktop.",
+  "description": "A Nimbus experiment for Firefox Desktop. This schema is less strict than DesktopAllVersionsNimbusExperiment and is intended for use in Firefox Desktop.",
   "type": "object",
   "properties": {
     "schemaVersion": {
@@ -166,12 +166,26 @@
       "type": "boolean"
     },
     "firefoxLabsTitle": {
-      "description": "An optional string containing the Fluent ID for the title of the opt-in",
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "An optional string containing the Fluent ID for the title of the opt-in"
     },
     "firefoxLabsDescription": {
-      "description": "An optional string containing the Fluent ID for the description of the opt-in",
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "An optional string containing the Fluent ID for the description of the opt-in"
     },
     "featureValidationOptOut": {
       "description": "Opt out of feature schema validation.",
@@ -270,41 +284,22 @@
           },
           "type": "array"
         },
-        "feature": {
-          "$ref": "#/$defs/DesktopTombstoneFeatureConfig",
-          "description": "The feature key must be provided with values to prevent crashes if the is encountered by Desktop clients earlier than version 95."
-        },
         "firefoxLabsTitle": {
-          "description": "An optional string containing the title of the branch",
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "An optional string containing the title of the branch"
         }
       },
       "required": [
         "slug",
         "ratio",
-        "features",
-        "feature"
-      ],
-      "type": "object"
-    },
-    "DesktopTombstoneFeatureConfig": {
-      "properties": {
-        "featureId": {
-          "const": "unused-feature-id-for-legacy-support",
-          "type": "string"
-        },
-        "value": {
-          "type": "object"
-        },
-        "enabled": {
-          "const": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "featureId",
-        "value",
-        "enabled"
+        "features"
       ],
       "type": "object"
     },

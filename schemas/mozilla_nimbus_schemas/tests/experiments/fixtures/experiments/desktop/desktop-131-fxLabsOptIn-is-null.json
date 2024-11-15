@@ -1,0 +1,85 @@
+{
+  "appId": "firefox-desktop",
+  "appName": "firefox_desktop",
+  "application": "firefox-desktop",
+  "arguments": {},
+  "branches": [
+    {
+      "feature": {
+        "featureId": "this-is-included-for-desktop-pre-95-support",
+        "enabled": false,
+        "value": {}
+      },
+      "features": [
+        {
+          "featureId": "pocketNewtab",
+          "value": { "enabled": "true" }
+        },
+        {
+          "featureId": "upgradeDialog",
+          "value": {
+            "enabled": false
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "control",
+      "firefoxLabsTitle": null
+    },
+    {
+      "feature": {
+        "featureId": "this-is-included-for-desktop-pre-95-support",
+        "enabled": false,
+        "value": {}
+      },
+      "features": [
+        {
+          "featureId": "pocketNewtab",
+          "value": {
+            "enabled": true,
+            "compactLayout": true,
+            "lastCardMessageEnabled": true,
+            "loadMore": true,
+            "newFooterSection": true
+          }
+        },
+        {
+          "featureId": "upgradeDialog",
+          "value": {
+            "enabled": true
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "treatment",
+      "firefoxLabsTitle": null
+    }
+  ],
+  "bucketConfig": {
+    "count": 10000,
+    "namespace": "firefox-desktop-multifeature-test",
+    "randomizationUnit": "normandy_id",
+    "start": 0,
+    "total": 10000
+  },
+  "channel": "nightly",
+  "endDate": null,
+  "featureIds": ["upgradeDialog", "pocketNewtab"],
+  "id": "mr2-upgrade-spotlight-holdback",
+  "isEnrollmentPaused": false,
+  "outcomes": [],
+  "probeSets": [],
+  "proposedDuration": 63,
+  "proposedEnrollment": 7,
+  "referenceBranch": "control",
+  "schemaVersion": "1.7.1",
+  "slug": "firefox-desktop-multifeature-test",
+  "startDate": "2021-10-26",
+  "targeting": "true",
+  "userFacingDescription": "Experimenting on onboarding content when you upgrade Firefox.",
+  "userFacingName": "MR2 Upgrade Spotlight Holdback",
+  "isFirefoxLabsOptIn": false,
+  "firefoxLabsTitle": null,
+  "firefoxLabsDescription": null,
+  "isRollout": false
+}

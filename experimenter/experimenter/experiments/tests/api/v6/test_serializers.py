@@ -4,7 +4,10 @@ from typing import Any
 
 from django.conf import settings
 from django.test import TestCase
-from mozilla_nimbus_schemas.experiments import NimbusExperiment as NimbusExperimentSchema
+from mozilla_nimbus_schemas.experiments import (
+    DesktopAllVersionsNimbusExperiment,
+    SdkNimbusExperiment,
+)
 from parameterized import parameterized
 
 from experimenter.base.tests.factories import LocaleFactory
@@ -20,6 +23,19 @@ from experimenter.experiments.tests.factories import (
 
 class TestNimbusExperimentSerializer(TestCase):
     maxDiff = None
+
+    @classmethod
+    def _validate_experiment_schema(
+        cls,
+        application: NimbusExperiment.Application,
+        experiment_data: dict[str, Any],
+    ):
+        if NimbusExperiment.Application.is_sdk(application):
+            schema = SdkNimbusExperiment
+        else:
+            schema = DesktopAllVersionsNimbusExperiment
+
+        schema.model_validate(experiment_data)
 
     def test_expected_schema_with_desktop(self):
         locale_en_us = LocaleFactory.create(code="en-US")
@@ -145,7 +161,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 branches_data,
             )
 
-        NimbusExperimentSchema.model_validate(serializer.data)
+        DesktopAllVersionsNimbusExperiment.model_validate(serializer.data)
 
     def test_expected_schema_with_desktop_with_non_default_fxlabs_fields(self):
         locale_en_us = LocaleFactory.create(code="en-US")
@@ -261,7 +277,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment.save()
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["branches"][0]["features"], [])
-        NimbusExperimentSchema.model_validate(serializer.data)
+        self._validate_experiment_schema(application, serializer.data)
 
     def test_serializers_with_empty_feature_value(self):
         application = NimbusExperiment.Application.DESKTOP
@@ -281,7 +297,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["branches"][0]["features"][0]["value"], {})
-        NimbusExperimentSchema.model_validate(serializer.data)
+        DesktopAllVersionsNimbusExperiment.model_validate(serializer.data)
 
     def test_serializer_with_branch_invalid_feature_value(self):
         application = NimbusExperiment.Application.DESKTOP
@@ -328,7 +344,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperiment.APPLICATION_CONFIGS[application].app_name,
         )
         self.assertEqual(serializer.data["appId"], channel_app_id)
-        NimbusExperimentSchema.model_validate(serializer.data)
+        self._validate_experiment_schema(application, serializer.data)
 
     def test_serializer_outputs_targeting(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -339,7 +355,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["targeting"], experiment.targeting)
-        NimbusExperimentSchema.model_validate(serializer.data)
+        DesktopAllVersionsNimbusExperiment.model_validate(serializer.data)
 
     def test_serializer_outputs_empty_targeting(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -352,7 +368,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["targeting"], "true")
-        NimbusExperimentSchema.model_validate(serializer.data)
+        SdkNimbusExperiment.model_validate(serializer.data)
 
     def test_localized_desktop(self):
         locale_en_us = LocaleFactory.create(code="en-US")
@@ -374,7 +390,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
         self.assertIn("localizations", serializer.data)
         self.assertEqual(serializer.data["localizations"], json.loads(TEST_LOCALIZATIONS))
-        NimbusExperimentSchema.model_validate(serializer.data)
+        DesktopAllVersionsNimbusExperiment.model_validate(serializer.data)
 
     def test_multiple_locales(self):
         locale_en_us = LocaleFactory.create(code="en-US")

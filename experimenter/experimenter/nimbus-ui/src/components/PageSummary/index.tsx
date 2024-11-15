@@ -41,8 +41,8 @@ const PageSummary = (props: RouteComponentProps) => {
   useExperimentPolling();
 
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
-  const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
-  const { fieldWarnings } = useReviewCheck(experiment);
+  const { invalidPages, InvalidPagesList, fieldWarnings, ready } =
+    useReviewCheck(experiment);
 
   const status = getStatus(experiment);
 
@@ -257,6 +257,7 @@ const PageSummary = (props: RouteComponentProps) => {
           reviewUrl: experiment.reviewUrl!,
           invalidPages,
           InvalidPagesList,
+          ready,
         }}
       >
         {status.draft &&
