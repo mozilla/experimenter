@@ -1671,12 +1671,12 @@ test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
 name = "mozilla-metric-config-parser"
-version = "2024.10.2"
+version = "2024.11.1"
 description = "Parses metric configuration files"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "mozilla_metric_config_parser-2024.10.2.tar.gz", hash = "sha256:f66540ce807718a0fa329207982eeb00d1b10e2937789d88872849b4271ff043"},
+    {file = "mozilla_metric_config_parser-2024.11.1.tar.gz", hash = "sha256:4f972b669cdaefc1ff5e7372a93bbd23151d7bbdf8f3dbe2b4c3ff4ab61b33bb"},
 ]
 
 [package.dependencies]
@@ -3282,4 +3282,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "f9d0c7851c4de4588e02329be2b7670f34a459bc2c2277de3da8dd84c2ce9231"
+content-hash = "7cee91e1d066fa60285bc86a02e56f28ed7d8010c339ae27185da2414ba6452c"
