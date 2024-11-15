@@ -573,6 +573,7 @@ class NimbusExperimentType(DjangoObjectType):
     qa_signoff = graphene.NonNull(graphene.Boolean)
     qa_status = NimbusExperimentQAStatusEnum()
     ready_for_review = graphene.Field(NimbusReviewType)
+    ready_for_review_debug = graphene.Field(NimbusReviewType)
     recipe_json = graphene.String()
     reference_branch = graphene.Field(NimbusBranchType)
     rejection = graphene.Field(NimbusChangeLogType)
@@ -658,6 +659,7 @@ class NimbusExperimentType(DjangoObjectType):
             "qa_comment",
             "qa_status",
             "ready_for_review",
+            "ready_for_review_debug",
             "recipe_json",
             "reference_branch",
             "rejection",
@@ -708,6 +710,25 @@ class NimbusExperimentType(DjangoObjectType):
         return [NimbusBranch(name=NimbusConstants.DEFAULT_TREATMENT_BRANCH_NAME)]
 
     def resolve_ready_for_review(self, info):
+        if self.status == self.Status.DRAFT:
+            serializer = NimbusReviewSerializer(
+                self,
+                data=NimbusReviewSerializer(self).data,
+            )
+            ready = serializer.is_valid()
+            return NimbusReviewType(
+                message=serializer.errors,
+                warnings=serializer.warnings,
+                ready=ready,
+            )
+        else:
+            return NimbusReviewType(
+                message={},
+                warnings={},
+                ready=True,
+            )
+
+    def resolve_ready_for_review_debug(self, info):
         serializer = NimbusReviewSerializer(
             self,
             data=NimbusReviewSerializer(self).data,

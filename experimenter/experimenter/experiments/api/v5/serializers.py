@@ -2217,28 +2217,27 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return data
 
     def validate(self, data):
-        if self.instance.status == self.instance.Status.DRAFT:
-            application = data.get("application")
-            channel = data.get("channel")
-            if application != NimbusExperiment.Application.DESKTOP and not channel:
-                raise serializers.ValidationError(
-                    {"channel": "Channel is required for this application."}
-                )
-            data = super().validate(data)
-            data = self._validate_versions(data)
-            data = self._validate_localizations(data)
-            data = self._validate_feature_configs(data)
-            data = self._validate_enrollment_targeting(data)
-            data = self._validate_sticky_enrollment(data)
-            data = self._validate_rollout_version_support(data)
-            data = self._validate_bucket_duplicates(data)
-            data = self._validate_proposed_release_date(data)
-            if application == NimbusExperiment.Application.DESKTOP:
-                data = self._validate_desktop_pref_rollouts(data)
-                data = self._validate_desktop_pref_flips(data)
-            else:
-                data = self._validate_languages_versions(data)
-                data = self._validate_countries_versions(data)
+        application = data.get("application")
+        channel = data.get("channel")
+        if application != NimbusExperiment.Application.DESKTOP and not channel:
+            raise serializers.ValidationError(
+                {"channel": "Channel is required for this application."}
+            )
+        data = super().validate(data)
+        data = self._validate_versions(data)
+        data = self._validate_localizations(data)
+        data = self._validate_feature_configs(data)
+        data = self._validate_enrollment_targeting(data)
+        data = self._validate_sticky_enrollment(data)
+        data = self._validate_rollout_version_support(data)
+        data = self._validate_bucket_duplicates(data)
+        data = self._validate_proposed_release_date(data)
+        if application == NimbusExperiment.Application.DESKTOP:
+            data = self._validate_desktop_pref_rollouts(data)
+            data = self._validate_desktop_pref_flips(data)
+        else:
+            data = self._validate_languages_versions(data)
+            data = self._validate_countries_versions(data)
         return data
 
 
