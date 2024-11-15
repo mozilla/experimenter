@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
 from django.core.checks import Error, register
-from metric_config_parser.config import ConfigCollection
+from metric_config_parser.config import LocalConfigCollection
 from metric_config_parser.segment import SegmentDefinition
 
 from experimenter.experiments.constants import NimbusConstants
+from experimenter.settings import METRIC_HUB_SEGMENTS_PATH_DEFAULT
 
 
 @dataclass
@@ -31,10 +32,9 @@ class Segments:
 
         config_collection = None
         if segment_data is None:
-            config_collection = ConfigCollection.from_github_repos(
-                [
-                    "https://github.com/mozilla/metric-hub",
-                ]
+
+            config_collection = LocalConfigCollection.from_local_path(
+                path=METRIC_HUB_SEGMENTS_PATH_DEFAULT, is_private=False
             )
 
         for app_name, app_config in app_name_application_config.items():
