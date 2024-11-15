@@ -87,6 +87,7 @@ type NimbusExperimentType {
   monitoringDashboardUrl: String
   qaSignoff: Boolean!
   readyForReview: NimbusReviewType
+  readyForReviewDebug: NimbusReviewType
   recipeJson: String
   rejection: NimbusChangeLogType
   requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredType!]!
