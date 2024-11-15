@@ -600,6 +600,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             data=NimbusReviewSerializer(experiment).data,
         )
         review_ready = review_serializer.is_valid()
+        review_errors = review_serializer.errors
+        review_warnings = review_serializer.warnings
+        if experiment.status != NimbusExperiment.Status.DRAFT:
+            review_ready = True
+            review_errors = {}
+            review_warnings = {}
 
         response = self.query(
             """
@@ -717,6 +723,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     proposedReleaseDate
 
                     readyForReview {
+                        ready
+                        message
+                        warnings
+                    }
+
+                    readyForReviewDebug {
                         ready
                         message
                         warnings
@@ -933,8 +945,13 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 ).name,
                 "qaStatus": NimbusExperiment.QAStatus(experiment.qa_status).name,
                 "readyForReview": {
-                    "message": review_serializer.errors,
+                    "message": review_errors,
                     "ready": review_ready,
+                    "warnings": review_warnings,
+                },
+                "readyForReviewDebug": {
+                    "message": review_serializer.errors,
+                    "ready": review_serializer.is_valid(),
                     "warnings": review_serializer.warnings,
                 },
                 "recipeJson": json.dumps(

@@ -4736,62 +4736,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.CREATED, False),
-            (NimbusExperimentFactory.Lifecycles.PREVIEW, True),
-            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE, True),
-            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE, True),
-        ]
-    )
-    def test_review_failures_are_skipped_for_non_draft(self, lifecycle, expected_valid):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle,
-            application=NimbusExperiment.Application.FENIX,
-            channel=NimbusExperiment.Channel.RELEASE,
-            feature_configs=[
-                NimbusFeatureConfigFactory.create(
-                    application=NimbusExperiment.Application.FENIX,
-                    schemas=[
-                        NimbusVersionedSchemaFactory.build(
-                            version=None,
-                            schema=None,
-                        )
-                    ],
-                ),
-                NimbusFeatureConfigFactory.create(
-                    application=NimbusExperiment.Application.IOS,
-                    schemas=[
-                        NimbusVersionedSchemaFactory.build(
-                            version=None,
-                            schema=None,
-                        )
-                    ],
-                ),
-            ],
-            is_sticky=True,
-            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
-        )
-
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-
-        self.assertEqual(serializer.is_valid(), expected_valid)
-        if not expected_valid:
-            self.assertEqual(
-                serializer.errors["feature_configs"],
-                [
-                    "Feature Config application ios does not "
-                    "match experiment application fenix."
-                ],
-            )
-
-    @parameterized.expand(
-        [
             ({"feature-1": "bogus-collection"},),
             (
                 {
