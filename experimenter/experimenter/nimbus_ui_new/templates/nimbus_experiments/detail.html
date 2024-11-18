@@ -275,7 +275,9 @@
                 {% for feature_value in branch.feature_values.all %}
                   <tr>
                     <th>{{ feature_value.feature_config.name|format_not_set }} Value</th>
-                    <td colspan="3">{{ feature_value.value|format_not_set }}</td>
+                    <td colspan="3">
+                      <code>{{ feature_value.value|format_json }}</code>
+                    </td>
                   </tr>
                 {% endfor %}
               {% else %}
