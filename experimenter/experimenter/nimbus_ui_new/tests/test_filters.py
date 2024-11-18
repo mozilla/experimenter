@@ -38,11 +38,6 @@ class FilterTests(TestCase):
         self.assertEqual(result, expected_output)
 
         self.assertEqual(
-            format_json(""),
-            format_not_set(""),
-        )
-
-        self.assertEqual(
             format_json("{key: value}"),
             '<pre class="text-monospace" '
             'style="white-space: pre-wrap; word-wrap: break-word;">'

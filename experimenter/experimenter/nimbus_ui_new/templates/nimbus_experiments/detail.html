@@ -276,7 +276,7 @@
                   <tr>
                     <th>{{ feature_value.feature_config.name|format_not_set }} Value</th>
                     <td colspan="3">
-                      <code>{{ feature_value.value|format_json }}</code>
+                      <code>{{ feature_value.value|format_not_set|format_json }}</code>
                     </td>
                   </tr>
                 {% endfor %}
