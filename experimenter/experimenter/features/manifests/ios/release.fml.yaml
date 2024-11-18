@@ -459,6 +459,13 @@ features:
             is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
+  sent-from-firefox-feature:
+    description: "Adds additional promo text to links shared to WhatsApp.\n"
+    variables:
+      enabled:
+        description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
+        type: Boolean
+        default: false
   shopping2023:
     description: "The configuration setting for the status of the Fakespot feature\n"
     variables:
