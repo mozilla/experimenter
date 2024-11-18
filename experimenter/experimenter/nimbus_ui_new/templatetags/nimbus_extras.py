@@ -1,3 +1,5 @@
+import json
+
 from django import template
 from django.utils.safestring import mark_safe
 
@@ -65,3 +67,17 @@ def format_not_set(value):
     if value in [None, "", "NOT SET"]:
         return mark_safe('<span class="text-danger">Not set</span>')
     return value
+
+
+@register.filter(name="format_json")
+def format_json(value):
+    """Formats the JSON value for display by pretty-printing it."""
+    try:
+        parsed_json = json.dumps(json.loads(value), indent=2)
+    except (json.JSONDecodeError, TypeError):
+        parsed_json = value
+
+    return mark_safe(
+        f'<pre class="text-monospace" style="white-space: pre-wrap; '
+        f'word-wrap: break-word;">{parsed_json}</pre>'
+    )
