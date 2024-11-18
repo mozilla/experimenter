@@ -214,6 +214,14 @@ search:
     awesome-bar:
       type: json
       description: Configuring the awesome bar.
+sent-from-firefox-feature:
+  description: "Adds additional promo text to links shared to WhatsApp.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
 shopping2023:
   description: "The configuration setting for the status of the Fakespot feature\n"
   hasExposure: true
