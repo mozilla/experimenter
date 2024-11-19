@@ -1,0 +1,39 @@
+friendly_name = "Pin Email and Calendar Tabs Existing User"
+description = "Usage metrics for tab pinning."
+
+[metrics]
+
+[metrics.any_pinned_tab_rate]
+select_expression = """
+    CAST(COALESCE(SUM(payload.processes.parent.scalars.browser_engagement_tab_pinned_event_count), 0) > 0 AS INT64)
+"""
+friendly_name = "Any pinned tab rate"
+description = "Proportion of sessions where at least one tab was pinned."
+data_source = "main"
+type = "scalar"
+
+[metrics.any_pinned_tab_rate.statistics.binomial]
+
+[metrics.more_than_one_pinned_tab_rate]
+select_expression = """
+    CAST(COALESCE(SUM(payload.processes.parent.scalars.browser_engagement_tab_pinned_event_count), 0) > 1 AS INT64)
+"""
+friendly_name = "More than one pinned tab rate"
+description = "Proportion of sessions where more than one tab was pinned."
+data_source = "main"
+type = "scalar"
+
+[metrics.more_than_one_pinned_tab_rate.statistics.binomial]
+
+# The number of tab pin events within a subsession
+[metrics.tab_pinned_event_count.statistics.bootstrap_mean]
+[metrics.tab_pinned_event_count.statistics.deciles]
+
+# The maximum number of pinned tabs open during a subsession.
+[metrics.concurrent_pinned_tab_count.statistics.bootstrap_mean]
+[metrics.concurrent_pinned_tab_count.statistics.deciles]
+
+# The count of tab reload events by the user after unloaded -- a proxy for returning to pinned tabs.
+[metrics.tab_reload_count.statistics.bootstrap_mean]
+[metrics.tab_reload_count.statistics.deciles]
+
