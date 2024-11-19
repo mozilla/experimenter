@@ -628,23 +628,33 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_draft(self):
-        return self.status == self.Status.DRAFT
+        return (
+            self.status == self.Status.DRAFT
+            and self.publish_status == self.PublishStatus.IDLE
+        )
 
     @property
     def is_review(self):
-        return self.is_draft and self.publish_status == self.PublishStatus.REVIEW
+        return self.status == self.Status.DRAFT and self.publish_status in [
+            self.PublishStatus.REVIEW,
+            self.PublishStatus.WAITING,
+        ]
 
     @property
     def is_preview(self):
         return self.status == self.Status.PREVIEW
 
     @property
-    def is_live(self):
-        return self.status == self.Status.LIVE
+    def is_enrollment(self):
+        return self.status == self.Status.LIVE and not self.is_paused_published
 
     @property
     def is_complete(self):
         return self.status == self.Status.COMPLETE
+
+    @property
+    def is_observation(self):
+        return self._enrollment_end_date is not None and not self.is_complete
 
     @property
     def is_started(self):
@@ -806,41 +816,57 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self.computed_end_date - self.enrollment_start_date).days
         return self.proposed_duration
 
+    @property
+    def computed_observations_days(self):
+        if (
+            enrollment_end_date := (
+                self.actual_enrollment_end_date or self.computed_enrollment_end_date
+            )
+        ) and self.computed_end_date:
+            return (self.computed_end_date - enrollment_end_date).days
+        return None
+
     def timeline(self):
         timeline_entries = [
             {
                 "label": self.Status.DRAFT,
                 "date": self.draft_date,
                 "is_active": self.is_draft,
+                "days": None,
             },
             {
                 "label": self.Status.PREVIEW,
                 "date": self.preview_date,
                 "is_active": self.is_preview,
+                "days": None,
             },
             {
                 "label": self.PublishStatus.REVIEW,
                 "date": self.review_date,
                 "is_active": self.is_review,
+                "days": None,
             },
             {
-                "label": self.Status.LIVE,
+                "label": NimbusConstants.ENROLLMENT,
                 "date": self.start_date,
-                "is_active": self.is_live,
+                "is_active": self.is_enrollment,
+                "days": self.computed_enrollment_days,
             },
             {
                 "label": self.Status.COMPLETE,
                 "date": self.computed_end_date,
                 "is_active": self.is_complete,
+                "days": self.computed_duration_days,
             },
         ]
         if not self.is_rollout:
             timeline_entries.insert(
                 4,
                 {
-                    "label": NimbusConstants.ENROLLMENT_END,
+                    "label": NimbusConstants.OBSERVATION,
                     "date": self._enrollment_end_date,
-                    "is_active": self._enrollment_end_date is not None,
+                    "is_active": self.is_observation,
+                    "days": self.computed_observations_days,
                 },
             )
 
