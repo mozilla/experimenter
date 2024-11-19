@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 from pathlib import Path
 from urllib.parse import urljoin
 
-from celery.schedules import crontab
 from decouple import config
 from django.contrib.admin import ModelAdmin, StackedInline, TabularInline
 from django.db.models import DecimalField, ForeignKey, JSONField, ManyToManyField
@@ -391,11 +390,11 @@ CELERY_BEAT_SCHEDULE = {
     },
     "fetch_jetstream_data": {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
-        "schedule": crontab(minute=0, hour="*/6"),
+        "schedule": 14400,  # 4 hours
     },
     "fetch_population_sizing_data": {
         "task": "experimenter.jetstream.tasks.fetch_population_sizing_data",
-        "schedule": 86400,
+        "schedule": 86400,  # 24 hours
     },
 }
 
