@@ -560,6 +560,13 @@ features:
         description: "Enables the unified search feature\n"
         type: Boolean
         default: false
+  tos-feature:
+    description: "This feature is for managing the roll out of the ToS (Term of Service) implementation\n"
+    variables:
+      status:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   tracking-protection-refactor:
     description: "The Enhanced Tracking Protection refactor\n"
     variables:
