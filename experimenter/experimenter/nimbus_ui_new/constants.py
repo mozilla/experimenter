@@ -11,3 +11,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_NAME_INVALID = "This is not a valid name."
     ERROR_SLUG_DUPLICATE = "An experiment with this slug already exists."
     ERROR_HYPOTHESIS_PLACEHOLDER = "Please enter a hypothesis."
+
+    RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"

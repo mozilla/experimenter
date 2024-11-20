@@ -6,7 +6,12 @@ from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import (
+    NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
+)
+from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.filtersets import (
     STATUS_FILTERS,
     NimbusExperimentFilter,
@@ -143,6 +148,17 @@ class NimbusExperimentDetailView(NimbusExperimentViewMixin, DetailView):
             context["form"] = QAStatusForm(instance=self.object)
         if context["takeaways_edit_mode"]:
             context["takeaways_form"] = TakeawaysForm(instance=self.object)
+        context["risk_message_url"] = NimbusUIConstants.RISK_MESSAGE_URL
+        context[
+            "required_experiments_branches"
+        ] = NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=self.object
+        )
+        context[
+            "excluded_experiments_branches"
+        ] = NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=self.object
+        )
         return context
 
 

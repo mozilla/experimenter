@@ -128,9 +128,9 @@
             <tr>
               <th colspan="3">
                 {{ RISK_QUESTIONS.MESSAGE }}
-                <a href="https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation">
-                  Message Consult
-                </a>
+                <a href="{{ risk_message_url }}"
+                   target="_blank"
+                   rel="noopener noreferrer">Message Consult</a>
               </th>
               <td class="{% if experiment.risk_message %}text-danger font-weight-bold{% endif %}">
                 {% if experiment.risk_message != None %}
@@ -207,9 +207,18 @@
             <tr>
               <th>Required experiments</th>
               <td>
-                {% if experiment.required_experiments.all %}
-                  {% for exp in experiment.required_experiments.all %}
-                    <a href="/nimbus/{{ exp.slug }}/summary">{{ exp.name }}</a>
+                {% if required_experiments_branches %}
+                  {% for branch in required_experiments_branches %}
+                    <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                      {{ branch.child_experiment.name }}
+                      {% if branch.branch_slug %}
+                        ({{ branch.branch_slug }} branch)
+                      {% else %}
+                        (All branches)
+                      {% endif %}
+                    </a>
                     <br>
                   {% endfor %}
                 {% else %}
@@ -218,9 +227,18 @@
               </td>
               <th>Excluded experiments</th>
               <td>
-                {% if experiment.excluded_experiments.all %}
-                  {% for exp in experiment.excluded_experiments.all %}
-                    <a href="/nimbus/{{ exp.slug }}/summary">{{ exp.name }}</a>
+                {% if excluded_experiments_branches %}
+                  {% for branch in excluded_experiments_branches %}
+                    <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                      {{ branch.child_experiment.name }}
+                      {% if branch.branch_slug %}
+                        ({{ branch.branch_slug }} branch)
+                      {% else %}
+                        (All branches)
+                      {% endif %}
+                    </a>
                     <br>
                   {% endfor %}
                 {% else %}
