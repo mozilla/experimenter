@@ -295,6 +295,14 @@ toolbar-refactor-feature:
     unified_search:
       type: boolean
       description: "Enables the unified search feature\n"
+tos-feature:
+  description: "This feature is for managing the roll out of the ToS (Term of Service) implementation\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "Enables the feature\n"
 tracking-protection-refactor:
   description: "The Enhanced Tracking Protection refactor\n"
   hasExposure: true
