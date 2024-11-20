@@ -126,7 +126,12 @@
               </td>
             </tr>
             <tr>
-              <th colspan="3">{{ RISK_QUESTIONS.MESSAGE }}</th>
+              <th colspan="3">
+                {{ RISK_QUESTIONS.MESSAGE }}
+                <a href="https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation">
+                  Message Consult
+                </a>
+              </th>
               <td class="{% if experiment.risk_message %}text-danger font-weight-bold{% endif %}">
                 {% if experiment.risk_message != None %}
                   {{ experiment.risk_message|yesno:"Yes,No" }}
@@ -202,11 +207,25 @@
             <tr>
               <th>Required experiments</th>
               <td>
-                {{ experiment.required_experiments.all|join:"<br>"|default:"None" }}
+                {% if experiment.required_experiments.all %}
+                  {% for exp in experiment.required_experiments.all %}
+                    <a href="/nimbus/{{ exp.slug }}/summary">{{ exp.name }}</a>
+                    <br>
+                  {% endfor %}
+                {% else %}
+                  None
+                {% endif %}
               </td>
               <th>Excluded experiments</th>
               <td>
-                {{ experiment.excluded_experiments.all|join:"<br>"|default:"None" }}
+                {% if experiment.excluded_experiments.all %}
+                  {% for exp in experiment.excluded_experiments.all %}
+                    <a href="/nimbus/{{ exp.slug }}/summary">{{ exp.name }}</a>
+                    <br>
+                  {% endfor %}
+                {% else %}
+                  None
+                {% endif %}
               </td>
             </tr>
             <tr>
