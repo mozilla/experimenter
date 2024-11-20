@@ -2147,6 +2147,18 @@ friendly_name = "Glean Events Stream"
 experiments_column_type = "none"
 client_id_column = "legacy_telemetry_client_id"
 
+[data_sources.firefox_desktop_active_users_view]
+friendly_name = "Firefox Desktop Active Users"
+description = "Client-level table that indicates whether a client meets 'active user' criteria on a given submission_date."
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.telemetry.desktop_active_users`
+    WHERE is_desktop
+)"""
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+experiments_column_type = "none"
+deprecated = false
 
 
 [segments]
@@ -2296,15 +2308,3 @@ from_expression = """(
 )"""
 window_start = 0
 window_end = 0
-
-[data_sources.firefox_desktop_active_users_view]
-friendly_name = "Firefox Desktop Active Users"
-description = "Client-level table that indicates whether a client meets 'active user' criteria on a given submission_date."
-from_expression = """(
-    SELECT *
-     FROM `moz-fx-data-shared-prod.telemetry.desktop_active_users`
-    WHERE is_desktop
-)"""
-submission_date_column = "submission_date"
-client_id_column = "client_id"
-deprecated = false
