@@ -61,7 +61,7 @@ def test_get_features_with_required_field(client):
     response = client.post("/v1/features/", json=request_data)
     assert response.status_code == 200
     assert response.json() == {
-        "example-feature": {"enabled": False, "something": "wicked"}
+        "Features": {"example-feature": {"enabled": False, "something": "wicked"}}
     }
 
 
@@ -337,7 +337,7 @@ def test_get_features_with_nimbus_preview(client):
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
     assert response.json() == {
-        "example-feature": {"enabled": False, "something": "wicked"}
+        "Features": {"example-feature": {"enabled": False, "something": "wicked"}}
     }
 
 
@@ -512,14 +512,14 @@ def test_get_features_with_and_without_nimbus_preview(
         response = client.post("/v1/features/", json=request_data)
         assert response.status_code == 200
         assert response.json() == {
-            "example-feature": {"enabled": False, "something": "wicked"}
+            "Features": {"example-feature": {"enabled": False, "something": "wicked"}}
         }
 
         # With nimbus_preview
         response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
         assert response.status_code == 200
         assert response.json() == {
-            "example-feature": {"enabled": True, "something": "preview"}
+            "Features": {"example-feature": {"enabled": True, "something": "preview"}}
         }
 
 
