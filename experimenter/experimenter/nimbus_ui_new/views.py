@@ -129,6 +129,7 @@ def build_experiment_context(experiment):
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
+        "risk_message_url": NimbusUIConstants.RISK_MESSAGE_URL,
     }
     return context
 
@@ -146,7 +147,6 @@ class NimbusExperimentDetailView(NimbusExperimentViewMixin, DetailView):
             context["form"] = QAStatusForm(instance=self.object)
         if context["takeaways_edit_mode"]:
             context["takeaways_form"] = TakeawaysForm(instance=self.object)
-        context["risk_message_url"] = NimbusUIConstants.RISK_MESSAGE_URL
         return context
 
 

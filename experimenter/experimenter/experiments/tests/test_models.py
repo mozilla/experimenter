@@ -2144,6 +2144,41 @@ class TestNimbusExperiment(TestCase):
             "firefox-desktop-feature-release-mac_only-rollout",
         )
 
+    def test_required_experiments_branches(self):
+        parent_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        child_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        NimbusExperimentBranchThroughRequired.objects.create(
+            parent_experiment=parent_experiment,
+            child_experiment=child_experiment,
+            branch_slug="branch-test",
+        )
+
+        required_branches = parent_experiment.required_experiments_branches.all()
+        self.assertEqual(len(required_branches), 1)
+        self.assertEqual(required_branches[0].branch_slug, "branch-test")
+
+    def test_excluded_experiments_branches(self):
+        parent_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        child_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        NimbusExperimentBranchThroughExcluded.objects.create(
+            parent_experiment=parent_experiment,
+            child_experiment=child_experiment,
+        )
+
+        excluded_branches = parent_experiment.excluded_experiments_branches.all()
+        self.assertEqual(len(excluded_branches), 1)
+        self.assertIsNone(excluded_branches[0].branch_slug)
+
     def test_bucket_namespace_with_group_id(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
         experiment = NimbusExperimentFactory.create_with_lifecycle(

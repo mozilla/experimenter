@@ -207,43 +207,39 @@
             <tr>
               <th>Required experiments</th>
               <td>
-                {% if experiment.required_experiments_branches.all %}
-                  {% for branch in experiment.required_experiments_branches.all %}
-                    <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                      {{ branch.child_experiment.name }}
-                      {% if branch.branch_slug %}
-                        ({{ branch.branch_slug }} branch)
-                      {% else %}
-                        (All branches)
-                      {% endif %}
-                    </a>
-                    <br>
-                  {% endfor %}
-                {% else %}
-                  None
-                {% endif %}
+                {% with experiment.required_experiments_branches.all as required_branches %}
+                  {% if required_branches %}
+                    {% for branch in required_branches %}
+                      <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
+                         target="_blank"
+                         rel="noopener noreferrer">
+                        {{ branch.child_experiment.name }}
+                        ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                      </a>
+                      <br>
+                    {% endfor %}
+                  {% else %}
+                    None
+                  {% endif %}
+                {% endwith %}
               </td>
               <th>Excluded experiments</th>
               <td>
-                {% if experiment.excluded_experiments_branches.all %}
-                  {% for branch in experiment.excluded_experiments_branches.all %}
-                    <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                      {{ branch.child_experiment.name }}
-                      {% if branch.branch_slug %}
-                        ({{ branch.branch_slug }} branch)
-                      {% else %}
-                        (All branches)
-                      {% endif %}
-                    </a>
-                    <br>
-                  {% endfor %}
-                {% else %}
-                  None
-                {% endif %}
+                {% with experiment.excluded_experiments_branches.all as excluded_branches %}
+                  {% if excluded_branches %}
+                    {% for branch in excluded_branches %}
+                      <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
+                         target="_blank"
+                         rel="noopener noreferrer">
+                        {{ branch.child_experiment.name }}
+                        ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                      </a>
+                      <br>
+                    {% endfor %}
+                  {% else %}
+                    None
+                  {% endif %}
+                {% endwith %}
               </td>
             </tr>
             <tr>
