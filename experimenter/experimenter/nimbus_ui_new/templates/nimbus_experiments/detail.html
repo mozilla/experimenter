@@ -207,8 +207,8 @@
             <tr>
               <th>Required experiments</th>
               <td>
-                {% if required_experiments_branches %}
-                  {% for branch in required_experiments_branches %}
+                {% if experiment.required_experiments_branches.all %}
+                  {% for branch in experiment.required_experiments_branches.all %}
                     <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
                        target="_blank"
                        rel="noopener noreferrer">
@@ -227,8 +227,8 @@
               </td>
               <th>Excluded experiments</th>
               <td>
-                {% if excluded_experiments_branches %}
-                  {% for branch in excluded_experiments_branches %}
+                {% if experiment.excluded_experiments_branches.all %}
+                  {% for branch in experiment.excluded_experiments_branches.all %}
                     <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
                        target="_blank"
                        rel="noopener noreferrer">
