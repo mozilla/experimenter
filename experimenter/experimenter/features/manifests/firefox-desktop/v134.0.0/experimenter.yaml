@@ -2697,6 +2697,18 @@ thirdPartyCookieBlocking:
         branch: default
         pref: "network.cookie.cookieBehavior.optInPartitioning.pbmode"
 
+thirdPartyTrackerCookieBlocking:
+  description: Prefs to control third-party tracker cookie blocking
+  owner: tihuang@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: Whether to enable third-party tracker cookie blocking.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.cookieBehavior.trackerCookieBlocking"
+
 fxaButtonVisibility:
   description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.
   owner: mconley@mozilla.com
@@ -4020,4 +4032,19 @@ certificateTransparency:
         branch: default
         pref: security.pki.certificate_transparency.mode
       description: >-
-        What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
+        What mode Certificate Transparency is in (0=disable, 1=telemetry only,
+        2=enforce).
+
+setToDefaultPrompt:
+  description: "Experimental set to default spotlight"
+  owner: omc@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
+  variables:
+    showSpotlightPrompt:
+      description: Show experimental set to default spotlight message instead of default prompt
+      type: boolean
+    message:
+      description: Message to show instead of the default prompt
+      type: json
