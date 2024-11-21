@@ -16,9 +16,20 @@
         </span>
         <p class="text-secondary">{{ experiment.slug }}</p>
       </div>
-      {% include "nimbus_experiments/timeline.html" %}
-
-    </div>
+<div id="experiment-container">
+      <div id="experiment-timeline"
+   >
+  {% include "nimbus_experiments/timeline.html" %}
+</div>
+    <div id="launch-controls">
+     {% if experiment.is_draft %}
+    {% include "nimbus_experiments/launch_controls.html" %}
+     {% elif experiment.is_preview %}
+     {% include "nimbus_experiments/preview_controls.html" %}
+    {% endif %}
+</div>
+</div>
+</div>
     <!-- Takeaways Card -->
     {% include "nimbus_experiments/takeaways_card.html" %}
 

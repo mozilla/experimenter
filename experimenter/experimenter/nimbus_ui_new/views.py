@@ -1,9 +1,13 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
+from django.shortcuts import render
+
 from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
+from django.template.loader import render_to_string
+from django.http import JsonResponse
 
 from experimenter.experiments.constants import RISK_QUESTIONS
 from experimenter.experiments.models import NimbusExperiment
@@ -14,6 +18,10 @@ from experimenter.nimbus_ui_new.filtersets import (
     StatusChoices,
 )
 from experimenter.nimbus_ui_new.forms import (
+    LaunchPreviewToDraftForm,
+    LaunchPreviewToReviewForm,
+    LaunchToPreviewForm,
+    LaunchWithoutPreviewForm,
     MetricsForm,
     NimbusExperimentCreateForm,
     QAStatusForm,
@@ -235,3 +243,158 @@ class UnsubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     def form_valid(self, form):
         super().form_valid(form)
         return self.render_to_response(self.get_context_data(form=form))
+
+
+# class LaunchToPreviewView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+#     form_class = LaunchToPreviewForm
+#     template_name = "nimbus_experiments/launch_controls.html"
+
+#     def render_combined_response(self, experiment):
+#         # Render the timeline
+#         timeline_html = render_to_string(
+#             "nimbus_experiments/timeline.html",
+#             {"experiment": experiment},
+#             request=self.request,
+#         )
+#         # Render appropriate controls based on state
+#         controls_template = (
+#             "nimbus_experiments/preview_controls.html"
+#             if experiment.is_preview
+#             else "nimbus_experiments/launch_controls.html"
+#         )
+#         controls_html = render_to_string(
+#             controls_template,
+#             {"experiment": experiment},
+#             request=self.request,
+#         )
+#         return HttpResponse(
+#             f"""
+#             <div id="experiment-timeline">{timeline_html}</div>
+#             <div id="launch-controls">{controls_html}</div>
+#             """
+#         )
+
+#     def form_valid(self, form):
+#         super().form_valid(form)
+#         return self.render_combined_response(self.object)
+
+
+# class LaunchWithoutPreviewView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+#     form_class = LaunchWithoutPreviewForm
+#     template_name = "nimbus_experiments/launch_controls.html"
+
+#     def form_valid(self, form):
+#         super().form_valid(form)
+#         return self.render_to_response(self.get_context_data(form=form))
+
+
+# class LaunchPreviewToReviewView(
+#     NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+# ):
+#     form_class = LaunchPreviewToReviewForm
+#     template_name = "nimbus_experiments/preview_controls.html"
+
+#     def form_valid(self, form):
+#         form.save()
+#         return self.render_to_response(self.get_context_data(form=form))
+
+
+# class LaunchPreviewToDraftView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+#     form_class = LaunchPreviewToDraftForm
+#     template_name = "nimbus_experiments/preview_controls.html"
+
+#     def form_valid(self, form):
+#         super().form_valid(form)
+#         return render(
+#             self.request,
+#             "nimbus_experiments/launch_controls.html",
+#             self.get_context_data(form=form),
+#         )
+
+
+class TimelineAndControlsMixin:
+    """
+    Mixin to handle rendering of the timeline and controls for a given experiment.
+    """
+
+    def render_response_with_timeline_and_controls(self, experiment, controls_template):
+        """
+        Renders the timeline and controls together as a combined response.
+        """
+        # Render timeline
+        timeline_html = render_to_string(
+            "nimbus_experiments/timeline.html",
+            {"experiment": experiment},
+            request=self.request,
+        )
+
+        # Render controls
+        controls_html = render_to_string(
+            controls_template,
+            {"experiment": experiment},
+            request=self.request,
+        )
+
+        return HttpResponse(
+            f"""
+            <div id="experiment-timeline">{timeline_html}</div>
+            <div id="launch-controls">{controls_html}</div>
+            """
+        )
+
+    def form_valid(self, form):
+        """
+        Override form_valid to include timeline and controls rendering.
+        """
+        super().form_valid(form)
+        experiment = self.object
+        controls_template = self.get_controls_template(experiment)
+        return self.render_response_with_timeline_and_controls(
+            experiment, controls_template
+        )
+
+    def get_controls_template(self, experiment):
+        """
+        Override in the view if the controls template depends on the experiment state.
+        """
+        raise NotImplementedError("You must define get_controls_template in the view.")
+
+
+class LaunchToPreviewView(
+    NimbusExperimentViewMixin, RequestFormMixin, TimelineAndControlsMixin, UpdateView
+):
+    form_class = LaunchToPreviewForm
+
+    def get_controls_template(self, experiment):
+        return (
+            "nimbus_experiments/preview_controls.html"
+            if experiment.is_preview
+            else "nimbus_experiments/launch_controls.html"
+        )
+
+
+class LaunchWithoutPreviewView(
+    NimbusExperimentViewMixin, RequestFormMixin, TimelineAndControlsMixin, UpdateView
+):
+    form_class = LaunchWithoutPreviewForm
+
+    def get_controls_template(self, experiment):
+        return "nimbus_experiments/launch_controls.html"
+
+
+class LaunchPreviewToReviewView(
+    NimbusExperimentViewMixin, RequestFormMixin, TimelineAndControlsMixin, UpdateView
+):
+    form_class = LaunchPreviewToReviewForm
+
+    def get_controls_template(self, experiment):
+        return "nimbus_experiments/preview_controls.html"
+
+
+class LaunchPreviewToDraftView(
+    NimbusExperimentViewMixin, RequestFormMixin, TimelineAndControlsMixin, UpdateView
+):
+    form_class = LaunchPreviewToDraftForm
+
+    def get_controls_template(self, experiment):
+        return "nimbus_experiments/launch_controls.html"

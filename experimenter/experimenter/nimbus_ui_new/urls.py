@@ -1,6 +1,10 @@
 from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
+    LaunchPreviewToDraftView,
+    LaunchPreviewToReviewView,
+    LaunchToPreviewView,
+    LaunchWithoutPreviewView,
     MetricsUpdateView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
@@ -64,4 +68,25 @@ urlpatterns = [
         UnsubscribeView.as_view(),
         name="nimbus-new-unsubscribe",
     ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/launch-to-preview/$",
+        LaunchToPreviewView.as_view(),
+        name="launch-to-preview",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/launch-without-preview/$",
+        LaunchWithoutPreviewView.as_view(),
+        name="launch-without-preview",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/launch-preview-to-review/$",
+        LaunchPreviewToReviewView.as_view(),
+        name="launch-preview-to-review",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/launch-preview-to-draft/$",
+        LaunchPreviewToDraftView.as_view(),
+        name="launch-preview-to-draft",
+    ),
+
 ]
