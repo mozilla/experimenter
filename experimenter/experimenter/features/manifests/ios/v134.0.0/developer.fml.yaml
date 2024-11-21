@@ -575,15 +575,15 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
-        default: false
+        default: true
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
-        default: false
+        default: true
       unified_search:
         description: "Enables the unified search feature\n"
         type: Boolean
