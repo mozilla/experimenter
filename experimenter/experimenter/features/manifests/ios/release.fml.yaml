@@ -267,6 +267,10 @@ features:
         description: "If true, the feature is active.\n"
         type: Boolean
         default: false
+      no_internet_connection_error:
+        description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
+        type: Boolean
+        default: false
   night-mode-feature:
     description: "Describes the night mode feature's configuration\n"
     variables:
