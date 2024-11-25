@@ -126,7 +126,12 @@
               </td>
             </tr>
             <tr>
-              <th colspan="3">{{ RISK_QUESTIONS.MESSAGE }}</th>
+              <th colspan="3">
+                {{ RISK_QUESTIONS.MESSAGE }}
+                <a href="{{ risk_message_url }}"
+                   target="_blank"
+                   rel="noopener noreferrer">Message Consult</a>
+              </th>
               <td class="{% if experiment.risk_message %}text-danger font-weight-bold{% endif %}">
                 {% if experiment.risk_message != None %}
                   {{ experiment.risk_message|yesno:"Yes,No" }}
@@ -202,11 +207,39 @@
             <tr>
               <th>Required experiments</th>
               <td>
-                {{ experiment.required_experiments.all|join:"<br>"|default:"None" }}
+                {% with experiment.required_experiments_branches.all as required_branches %}
+                  {% if required_branches %}
+                    {% for branch in required_branches %}
+                      <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
+                         target="_blank"
+                         rel="noopener noreferrer">
+                        {{ branch.child_experiment.name }}
+                        ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                      </a>
+                      <br>
+                    {% endfor %}
+                  {% else %}
+                    None
+                  {% endif %}
+                {% endwith %}
               </td>
               <th>Excluded experiments</th>
               <td>
-                {{ experiment.excluded_experiments.all|join:"<br>"|default:"None" }}
+                {% with experiment.excluded_experiments_branches.all as excluded_branches %}
+                  {% if excluded_branches %}
+                    {% for branch in excluded_branches %}
+                      <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
+                         target="_blank"
+                         rel="noopener noreferrer">
+                        {{ branch.child_experiment.name }}
+                        ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                      </a>
+                      <br>
+                    {% endfor %}
+                  {% else %}
+                    None
+                  {% endif %}
+                {% endwith %}
               </td>
             </tr>
             <tr>
