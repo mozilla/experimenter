@@ -162,7 +162,17 @@
     <!-- Audience Card -->
     <div class="card mb-3">
       <div class="card-header">
-        <h4>Audience</h4>
+        <div class="row">
+          <div class="col">
+            <h4>Audience</h4>
+          </div>
+          <div class="col pt-1 text-end">
+            <a href="{{ experiment.audience_url }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="text-decoration-none">Explore matching audiences</a>
+          </div>
+        </div>
       </div>
       <div class="card-body">
         <table class="table table-striped">
