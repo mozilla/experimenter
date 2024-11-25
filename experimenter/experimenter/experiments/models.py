@@ -926,6 +926,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
 
     @property
+    def required_experiments_branches(self):
+        return NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=self
+        )
+
+    @property
+    def excluded_experiments_branches(self):
+        return NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=self
+        )
+
+    @property
     def review_url(self):
         try:
             collection = self.kinto_collection
