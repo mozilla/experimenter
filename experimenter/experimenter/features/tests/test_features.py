@@ -207,7 +207,7 @@ class TestCheckFeatures(TestCase):
                         "input_value=[{'fallbackPref': "
                         "'reader...pty string is no CTA)'}], input_type=list]\n"
                         "    For further information visit "
-                        "https://errors.pydantic.dev/2.9/v/dict_type"
+                        "https://errors.pydantic.dev/2.10/v/dict_type"
                     )
                 )
             ],
