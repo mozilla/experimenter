@@ -395,26 +395,6 @@ jobs:
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
-  integration_legacy:
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/"
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.sample .env
-            make refresh up_prod_detached integration_test_legacy
-      - store_artifacts:
-          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-
   create_mobile_recipes:
     working_directory: ~/experimenter
     machine:
@@ -811,12 +791,6 @@ workflows:
                 - main
       - integration_nimbus_cirrus:
           name: Test Demo app with Cirrus
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_legacy:
-          name: Test Legacy Desktop (Release Firefox)
           filters:
             branches:
               ignore:
