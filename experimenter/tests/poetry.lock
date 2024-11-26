@@ -438,13 +438,13 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "kinto-http"
-version = "11.4.0"
+version = "11.6.0"
 description = "Kinto client"
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto_http-11.4.0-py3-none-any.whl", hash = "sha256:75264374a15980676e7628874f291f75223151ebc8182437031f0f98459e3085"},
-    {file = "kinto_http-11.4.0.tar.gz", hash = "sha256:cda7e350b57ff2c838de8f687653f0acc8b4df3c87d41da1c835d1d978d11959"},
+    {file = "kinto_http-11.6.0-py3-none-any.whl", hash = "sha256:30722690f672f549f908bc9c45eb49010463930eeccfc439d4d318c6e5d5ae27"},
+    {file = "kinto_http-11.6.0.tar.gz", hash = "sha256:701b489cc25d304a4e1cf74da1d01168895b39baa709f04b0482ac8eda6431cb"},
 ]
 
 [package.dependencies]
@@ -1733,4 +1733,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1d425ee07611eb825e1a05a46a7d286912fb9ad19158f9c71956bf4c56f08bc0"
+content-hash = "7009265577596642876be817c0c0d8a696d29d64cffb3e68fd268ca252b7b638"
