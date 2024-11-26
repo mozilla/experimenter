@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 from django.conf import settings
 from django.db import models
@@ -65,7 +65,7 @@ class ApplicationConfig:
     name: str
     slug: str
     app_name: str
-    channel_app_id: Dict[str, str]
+    channel_app_id: dict[str, str]
     default_kinto_collection: str
     randomization_unit: str
     is_web: bool
