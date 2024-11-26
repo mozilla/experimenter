@@ -208,9 +208,10 @@ curl -X POST "http://localhost:8001/v1/features/?nimbus_preview=true" -H 'Conten
 
 The output will be a JSON object with the following properties:
 
-- `features` (object): An object that contains the set of features. Each feature is represented as a sub-object with its own set of variables.
+- `Features` (object): An object that contains the set of features. Each feature is represented as a sub-object with its own set of variables.
+- `Enrollments` (array): An array of objects representing the client's enrollment into experiments. Each enrollment object contains details about the experiment, such as the experiment ID, branch, and type.
 
-Example output:
+### Example Output
 
 ```json
 {
@@ -227,10 +228,18 @@ Example output:
       "VariableN.1": "valueX",
       "VariableN.2": "valueY"
     }
-  }
+  },
+  "Enrollments": [
+    {
+      "nimbus_user_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+      "app_id": "test_app_id",
+      "experiment": "experiment-slug",
+      "branch": "control",
+      "experiment_type": "rollout",
+      "is_preview": false
+    }
+  ]
 }
-
-```
 
 ## Notes
 
