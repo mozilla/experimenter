@@ -395,7 +395,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "fetch_population_sizing_data": {
         "task": "experimenter.jetstream.tasks.fetch_population_sizing_data",
-        "schedule": 86400,
+        "schedule": crontab(minute=0, hour=6, day_of_week=1),
     },
 }
 
