@@ -453,6 +453,13 @@ features:
         description: "If true, the password generator feature is enabled"
         type: Boolean
         default: false
+  pull-to-refresh-refactor-feature:
+    description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   redux-search-settings-feature:
     description: "This feature is for managing the roll out of redux on the search settings screen\n"
     variables:
