@@ -8,7 +8,7 @@ CURLFLAGS=("--proto" "=https" "--tlsv1.2" "-sS")
 git checkout main
 git checkout main
 git pull origin main
-git checkout -B check_external_firefox_integrations
+git checkout -B update_firefox_versions
 firefox_types=("fenix_beta" "fenix_nightly" "fennec_release" "fennec_beta" "desktop_beta" "desktop_release")
 
 fetch_task_info() {
@@ -110,9 +110,9 @@ done
 
 if (($(git status --porcelain | wc -c) > 0)); then
     git add .
-    git commit -m "chore(nimbus): Check external firefox integrations and task ids and versions"
-    git push origin -f check_external_firefox_integrations
-    gh pr create -t "chore(nimbus):  Check external firefox integrations and task ids and versions" -b "" --base main --head check_external_firefox_integrations --repo mozilla/experimenter || echo "PR already exists, skipping"
+    git commit -m "chore(nimbus): Update Firefox Versions"
+    git push origin -f update_firefox_versions
+    gh pr create -t "chore(nimbus):  Update Firefox Versions" -b "" --base main --head update_firefox_versions --repo mozilla/experimenter || echo "PR already exists, skipping"
 else
     echo "No config changes, skipping"
 fi
