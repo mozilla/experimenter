@@ -5,7 +5,9 @@ from glean.testing import ErrorType
 
 from cirrus.experiment_recipes import RecipeType
 from cirrus.main import (
+    EnrollmentMetricData,
     app,
+    collate_enrollment_metric_data,
     initialize_glean,
     record_metrics,
     send_instance_name_metric,
@@ -44,40 +46,80 @@ def before_enrollment_ping(data):
 async def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
     app.state.remote_setting_live.update_recipes(recipes)
     ping_spy = mocker.spy(app.state.pings.enrollment, "submit")
+
+    # Create the enrollment data
+    enrollment_data = [
+        EnrollmentMetricData(
+            nimbus_user_id="test_client_id",
+            app_id="test_app_id",
+            experiment_slug="cirrus-test-1",
+            branch_slug="control",
+            experiment_type=RecipeType.ROLLOUT.value,
+            is_preview=False,
+        ),
+        EnrollmentMetricData(
+            nimbus_user_id="test_client_id",
+            app_id="test_app_id",
+            experiment_slug="cirrus-test-2",
+            branch_slug="control",
+            experiment_type=RecipeType.EXPERIMENT.value,
+            is_preview=False,
+        ),
+    ]
+    app.state.pings.enrollment.test_before_next_submit(before_enrollment_ping)
+
+    await record_metrics(enrollment_data)
+
+    assert ping_spy.call_count == 1
+    assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
+
+
+def test_collate_enrollment_metric_data(mocker):
+    mock_remote_settings = mocker.patch("cirrus.main.app.state.remote_setting_live")
+    mock_remote_settings.get_recipe_type.return_value = "rollout"
+
     enrolled_partial_configuration = {
+        "enrolledFeatureConfigMap": {
+            "example-feature": {
+                "branch": None,
+                "feature": {
+                    "featureId": "example-feature",
+                    "value": {"enabled": False, "something": "You are enrolled"},
+                },
+                "featureId": "example-feature",
+                "slug": "experiment-slug",
+            }
+        },
+        "enrollments": [
+            {
+                "slug": "experiment-slug",
+                "status": {"Enrolled": {"branch": "control", "reason": "Qualified"}},
+            }
+        ],
         "events": [
             {
                 "branch_slug": "control",
                 "change": "Enrollment",
-                "enrollment_id": "enrollment_id",
-                "experiment_slug": "cirrus-test-1",
+                "experiment_slug": "experiment-slug",
                 "reason": None,
-            },
-            {
-                "branch_slug": "control",
-                "change": "Enrollment",
-                "enrollment_id": "enrollment_id",
-                "experiment_slug": "cirrus-test-2",
-                "reason": None,
-            },
-            {
-                "branch_slug": "",
-                "change": "EnrollFailed",
-                "enrollment_id": "blah",
-                "experiment_slug": "fake-experiment",
-                "reason": "not_selected",
-            },
+            }
         ],
     }
-
-    app.state.pings.enrollment.test_before_next_submit(before_enrollment_ping)
-
-    await record_metrics(
-        enrolled_partial_configuration, "test_client_id", nimbus_preview_flag=False
+    result = collate_enrollment_metric_data(
+        enrolled_partial_configuration, "test-client-id", nimbus_preview_flag=False
     )
+    expected_result = [
+        EnrollmentMetricData(
+            nimbus_user_id="test-client-id",
+            app_id="test_app_id",
+            experiment_slug="experiment-slug",
+            branch_slug="control",
+            experiment_type="rollout",
+            is_preview=False,
+        )
+    ]
 
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
+    assert result == expected_result
 
 
 @pytest.mark.asyncio

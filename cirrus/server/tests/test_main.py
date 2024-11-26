@@ -9,6 +9,7 @@ from fastapi import status
 from fml_sdk import FmlError
 
 from cirrus.main import (
+    EnrollmentMetricData,
     create_fml,
     create_scheduler,
     create_sdk,
@@ -61,7 +62,11 @@ def test_get_features_with_required_field(client):
     response = client.post("/v1/features/", json=request_data)
     assert response.status_code == 200
     assert response.json() == {
-        "Features": {"example-feature": {"enabled": False, "something": "wicked"}}
+        "Features": {
+            "example-feature": {"enabled": False, "something": "wicked"},
+            # return default features
+        },
+        "Enrollments": [],
     }
 
 
@@ -337,7 +342,11 @@ def test_get_features_with_nimbus_preview(client):
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
     assert response.json() == {
-        "Features": {"example-feature": {"enabled": False, "something": "wicked"}}
+        "Features": {
+            "example-feature": {"enabled": False, "something": "wicked"},
+        },
+        # return default features
+        "Enrollments": [],
     }
 
 
@@ -422,9 +431,7 @@ def test_get_features_missing_required_field_nimbus_preview(
     assert response.json()["detail"] == expected_message
 
 
-def test_get_features_with_and_without_nimbus_preview(
-    client,
-):
+def test_get_features_with_and_without_nimbus_preview(client):
     request_data = {
         "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
         "context": {
@@ -437,8 +444,13 @@ def test_get_features_with_and_without_nimbus_preview(
         "cirrus.main.app.state.sdk_live.compute_enrollments"
     ) as mock_sdk_live_compute_enrollments, patch(
         "cirrus.main.app.state.sdk_preview.compute_enrollments"
-    ) as mock_sdk_preview_compute_enrollments:
+    ) as mock_sdk_preview_compute_enrollments, patch(
+        "cirrus.main.collate_enrollment_metric_data"
+    ) as mock_collate_enrollment_metric_data, patch(
+        "cirrus.main.app.state.fml.compute_feature_configurations"
+    ) as mock_compute_feature_configurations:
 
+        # Mock live compute_enrollments response
         mock_sdk_live_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
                 "example-feature": {
@@ -473,6 +485,8 @@ def test_get_features_with_and_without_nimbus_preview(
                 }
             ],
         }
+
+        # Mock preview compute_enrollments response
         mock_sdk_preview_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
                 "example-feature": {
@@ -508,18 +522,67 @@ def test_get_features_with_and_without_nimbus_preview(
             ],
         }
 
-        # Without nimbus_preview
+        # Mock collate_enrollment_metric_data to process events correctly
+        mock_collate_enrollment_metric_data.side_effect = (
+            lambda enrolled_partial_configuration, client_id, nimbus_preview_flag: [
+                EnrollmentMetricData(
+                    nimbus_user_id=client_id,
+                    app_id="test_app_id",
+                    experiment_slug=event["experiment_slug"],
+                    branch_slug=event["branch_slug"],
+                    experiment_type="experiment" if nimbus_preview_flag else "rollout",
+                    is_preview=nimbus_preview_flag,
+                )
+                for event in enrolled_partial_configuration["events"]
+            ]
+        )
+
+        # Mock feature configurations to return a simplified structure
+        mock_compute_feature_configurations.side_effect = (
+            lambda enrolled_partial_configuration: {
+                feature_id: feature_data["feature"]["value"]
+                for feature_id, feature_data in enrolled_partial_configuration[
+                    "enrolledFeatureConfigMap"
+                ].items()
+            }
+        )
+
+        # Test for live SDK (no nimbus_preview)
         response = client.post("/v1/features/", json=request_data)
         assert response.status_code == 200
         assert response.json() == {
-            "Features": {"example-feature": {"enabled": False, "something": "wicked"}}
+            "Features": {
+                "example-feature": {"enabled": False, "something": "wicked"},
+            },
+            "Enrollments": [
+                {
+                    "nimbus_user_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+                    "app_id": "test_app_id",
+                    "experiment": "experiment_slug_1",
+                    "branch": "treatment",
+                    "experiment_type": "rollout",
+                    "is_preview": False,
+                }
+            ],
         }
 
-        # With nimbus_preview
+        # Test for preview (with nimbus_preview=true)
         response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
         assert response.status_code == 200
         assert response.json() == {
-            "Features": {"example-feature": {"enabled": True, "something": "preview"}}
+            "Features": {
+                "example-feature": {"enabled": True, "something": "preview"},
+            },
+            "Enrollments": [
+                {
+                    "nimbus_user_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+                    "app_id": "test_app_id",
+                    "experiment": "experiment_slug_2",
+                    "branch": "treatment",
+                    "experiment_type": "experiment",
+                    "is_preview": True,
+                }
+            ],
         }
 
 
