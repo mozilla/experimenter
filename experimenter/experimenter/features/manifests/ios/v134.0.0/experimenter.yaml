@@ -193,6 +193,14 @@ password-generator-feature:
     enabled:
       type: boolean
       description: "If true, the password generator feature is enabled"
+pull-to-refresh-refactor-feature:
+  description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 redux-search-settings-feature:
   description: "This feature is for managing the roll out of redux on the search settings screen\n"
   hasExposure: true
