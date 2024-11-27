@@ -744,6 +744,8 @@ enums:
         description: Allows user to enable notification permission.
       sync-sign-in:
         description: Allows user to sync with a Firefox account.
+      toolbar-placement:
+        description: Allows user to choose the toolbar position.
   OnboardingPanel:
     description: The types of onboarding panels in the onboarding page
     variants:
@@ -777,6 +779,13 @@ enums:
         description: A firefox Suggestion from adMarketplace specifically for mobile.
       wikipedia:
         description: A Firefox Suggestion for a Wikipedia page.
+  ToolbarType:
+    description: An enum to describe a toolbar placement option.
+    variants:
+      toolbar-bottom:
+        description: Sets the toolbar placement on the bottom.
+      toolbar-top:
+        description: Sets the toolbar placement on the top.
 objects:
   AddOnData:
     description: An object to describe an add-on to be installed from the onboarding card.
@@ -809,12 +818,31 @@ objects:
         description: The amount of reviews the add-on has.
         type: String
         default: "0.0"
+  CustomizationToolbarData:
+    description: An object to describe the placement of the toolbar.
+    fields:
+      image-res:
+        description: The resource id of toolbar placement image.
+        type: Image
+        default: ic_onboarding_customize_toolbar
+      label:
+        description: "Display text for the toolbar placement option (e.g. \"Top placement\")."
+        type: Text
+        default: ""
+      toolbar-type:
+        description: The type of toolbar placement.
+        type: ToolbarType
+        default: toolbar-top
   ExtraCardData:
     description: "Holds data for cards that require additional data, e.g. add-ons, toolbar placement cards."
     fields:
       add-ons-data:
         description: "An optional list of add-ons which will be shown in add-on onboarding card.\n"
         type: List<AddOnData>
+        default: []
+      customization-toolbar-data:
+        description: "An optional list of toolbar placements for the toolbar placement card.\n"
+        type: List<CustomizationToolbarData>
         default: []
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
