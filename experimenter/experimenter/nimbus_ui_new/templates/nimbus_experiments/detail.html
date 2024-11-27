@@ -14,7 +14,15 @@
         <span class="{{ experiment.qa_status_badge_class }}">
           QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
         </span>
-        <p class="text-secondary">{{ experiment.slug }}</p>
+        <p class="text-secondary mb-0">{{ experiment.slug }}</p>
+        {% if experiment.parent %}
+          <p class="text-secondary small">
+            Cloned from
+            <a href="{% url 'nimbus-new-detail' experiment.parent.slug %}"
+               target="_blank"
+               rel="noopener noreferrer">{{ experiment.parent.name }}</a>
+          </p>
+        {% endif %}
       </div>
       {% include "nimbus_experiments/timeline.html" %}
 
