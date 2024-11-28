@@ -718,6 +718,8 @@ enums:
         description: Allows user to enable notification permission.
       sync-sign-in:
         description: Allows user to sync with a Firefox account.
+      terms-of-service:
+        description: Page to display the terms of services.
       toolbar-placement:
         description: Allows user to choose the toolbar position.
   OnboardingPanel:
@@ -818,6 +820,10 @@ objects:
         description: "An optional list of toolbar placements for the toolbar placement card.\n"
         type: List<CustomizationToolbarData>
         default: []
+      term-of-service-data:
+        description: "An optional terms of service data for the onboarding card.\n"
+        type: Option<TermsOfServiceData>
+        default: ~
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
     fields:
@@ -962,3 +968,38 @@ objects:
         description: "The importance of this message. 0 is not very important, 100 is very important.\n"
         type: Int
         default: 50
+  TermsOfServiceData:
+    description: An object to describe the terms of service onboarding card.
+    fields:
+      lineOneLinkText:
+        description: The text for the link of line one.
+        type: Text
+        default: ""
+      lineOneLinkURL:
+        description: The url for the link of line one.
+        type: Text
+        default: ""
+      lineOneText:
+        description: The text for line one.
+        type: Text
+        default: ""
+      lineThreeLinkText:
+        description: The text for the link of line three.
+        type: Text
+        default: ""
+      lineThreeText:
+        description: The text for line three.
+        type: Text
+        default: ""
+      lineTwoLinkText:
+        description: The text for the link of line two.
+        type: Text
+        default: ""
+      lineTwoLinkURL:
+        description: The url for the link of line two.
+        type: Text
+        default: ""
+      lineTwoText:
+        description: The text for line two.
+        type: Text
+        default: ""
