@@ -613,6 +613,13 @@ features:
         description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
         type: Boolean
         default: true
+  unified-ads:
+    description: "This property is for managing the roll out of the unified ads API\n"
+    variables:
+      enabled:
+        description: "If true, we will enable user to use the unified ads API\n"
+        type: Boolean
+        default: false
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:
