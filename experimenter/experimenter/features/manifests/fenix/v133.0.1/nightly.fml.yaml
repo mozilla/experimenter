@@ -135,12 +135,12 @@ features:
         type: "Map<OnboardingCardKey, OnboardingCardData>"
         default:
           default-browser:
-            add-ons-data: []
             body: juno_onboarding_default_browser_description_nimbus_3
             card-type: default-browser
             disqualifiers:
               - NEVER
             enabled: true
+            extra-data: ~
             image-res: ic_onboarding_welcome
             ordering: 10
             prerequisites:
@@ -149,12 +149,12 @@ features:
             secondary-button-label: juno_onboarding_default_browser_negative_button
             title: juno_onboarding_default_browser_title_nimbus_2
           add-search-widget:
-            add-ons-data: []
             body: juno_onboarding_add_search_widget_description
             card-type: add-search-widget
             disqualifiers:
               - NEVER
             enabled: true
+            extra-data: ~
             image-res: ic_onboarding_search_widget
             ordering: 15
             prerequisites:
@@ -163,12 +163,12 @@ features:
             secondary-button-label: juno_onboarding_add_search_widget_negative_button
             title: juno_onboarding_add_search_widget_title
           sync-sign-in:
-            add-ons-data: []
             body: juno_onboarding_sign_in_description_3
             card-type: sync-sign-in
             disqualifiers:
               - NEVER
             enabled: true
+            extra-data: ~
             image-res: ic_onboarding_sync
             ordering: 20
             prerequisites:
@@ -177,12 +177,12 @@ features:
             secondary-button-label: juno_onboarding_sign_in_negative_button
             title: juno_onboarding_sign_in_title_2
           notification-permission:
-            add-ons-data: []
             body: juno_onboarding_enable_notifications_description_nimbus_2
             card-type: notification-permission
             disqualifiers:
               - NEVER
             enabled: true
+            extra-data: ~
             image-res: ic_notification_permission
             ordering: 30
             prerequisites:
@@ -752,6 +752,10 @@ objects:
         description: The resource id of the icon of the add-on to be displayed.
         type: Image
         default: ic_onboarding_welcome
+      id:
+        description: The identifier for this add-on.
+        type: Text
+        default: ""
       install-url:
         description: The url from where the add-on can be installed.
         type: Text
@@ -764,6 +768,13 @@ objects:
         description: The amount of reviews the add-on has.
         type: String
         default: "0.0"
+  ExtraCardData:
+    description: "Holds data for cards that require additional data, e.g. add-ons, toolbar placement cards."
+    fields:
+      add-ons-data:
+        description: "An optional list of add-ons which will be shown in add-on onboarding card.\n"
+        type: List<AddOnData>
+        default: []
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
     fields:
@@ -851,10 +862,6 @@ objects:
   OnboardingCardData:
     description: An object to describe a user facing onboarding card.
     fields:
-      add-ons-data:
-        description: "An optional list of add-ons which will be shown in add-on onboarding card.\n"
-        type: List<AddOnData>
-        default: []
       body:
         description: The message text displayed to the user. May contain linkable text.
         type: Text
@@ -872,6 +879,10 @@ objects:
         description: "If true, this card is shown to the user."
         type: Boolean
         default: true
+      extra-data:
+        description: Optional extra data for cards that require additional data.
+        type: Option<ExtraCardData>
+        default: ~
       image-res:
         description: The resource id of the image to be displayed.
         type: Image
