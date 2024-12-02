@@ -29,7 +29,7 @@ class CirrusMetricsHandler(MetricsHandler):
                     reason=enrollment_status_extra.reason or "",
                     slug=enrollment_status_extra.slug or "",
                     status=enrollment_status_extra.status or "",
-                    user_id=enrollment_status_extra.user_id or "",
+                    nimbus_user_id=enrollment_status_extra.user_id or "",
                 )
             )
         self.pings.enrollment_status.submit()

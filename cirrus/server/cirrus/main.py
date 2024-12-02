@@ -204,7 +204,7 @@ async def record_metrics(enrollment_data: list[EnrollmentMetricData]):
     for enrollment in enrollment_data:
         app.state.metrics.cirrus_events.enrollment.record(
             app.state.metrics.cirrus_events.EnrollmentExtra(
-                user_id=enrollment.nimbus_user_id,
+                nimbus_user_id=enrollment.nimbus_user_id,
                 app_id=enrollment.app_id,
                 experiment=enrollment.experiment_slug,
                 branch=enrollment.branch_slug,
