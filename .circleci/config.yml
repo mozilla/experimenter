@@ -3,7 +3,7 @@ orbs:
   gh: circleci/github-cli@2.2
   gcp-cli: circleci/gcp-cli@3.1.1
   android: circleci/android@2.5.0
-  macos: circleci/macos@2.5.1
+  macos: circleci/macos@2.5.2
 commands:
   check_file_paths:
     description: "Check file paths"
@@ -313,7 +313,7 @@ jobs:
 
   integration_nimbus_ios_enrollment:
     macos:
-      xcode: 15.4.0
+      xcode: 16.1
     parameters:
       file_path:
         type: string
@@ -322,9 +322,9 @@ jobs:
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|<< parameters.file_path >>"
       - macos/preboot-simulator:
-          version: "17.5"
+          version: "18.1"
           platform: "iOS"
-          device: "iPhone 15"
+          device: "iPhone 16"
       - attach_workspace:
           at: /tmp/experimenter
       - run:
@@ -334,6 +334,9 @@ jobs:
           name: Install nimbus-cli
           command: curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
       - run:
+          name: Install Cargo
+          command: brew install rustup-init
+      - run:
           name: Setup and build Firefox app
           command: |
             source << parameters.file_path >>
@@ -341,11 +344,13 @@ jobs:
             git checkout "$BRANCH"
             sh ./bootstrap.sh
             cd firefox-ios
-            pip3 install virtualenv poetry
             xcodebuild build-for-testing -scheme Fennec -target Client -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ARCHS="arm64"
       - run:
           name: Run Tests
           command: |
+            curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
+            echo 'export PATH=/Users/distiller/.local/bin:$PATH' >> "$BASH_ENV"
+            source $BASH_ENV
             cd firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests
             git cherry-pick dfd0b8a556f5990d0b5d9351df8acf571895e6dc -X theirs || true
             export SIMULATOR_UDID=$(python get_specific_device_udid.py)
@@ -708,6 +713,7 @@ workflows:
             branches:
               only:
                 - update_firefox_versions
+                - fix_11884
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:
@@ -774,6 +780,7 @@ workflows:
             branches:
               only:
                 - update_firefox_versions
+                - fix_11884
       - integration_nimbus_ios_enrollment:
           name: Test Firefox for iOS Release
           requires:
