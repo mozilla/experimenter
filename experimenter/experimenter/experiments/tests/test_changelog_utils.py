@@ -47,6 +47,9 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             {
                 "_end_date": None,
                 "_enrollment_end_date": None,
+                "_excluded_live_deliveries": [],
+                "_feature_has_live_multifeature_experiments": [],
+                "_live_experiments_in_namespace": [],
                 "_start_date": None,
                 "_updated_date_time": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "application": "",
@@ -161,6 +164,9 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             {
                 "_end_date": "2020-02-01",
                 "_enrollment_end_date": None,
+                "_excluded_live_deliveries": [],
+                "_feature_has_live_multifeature_experiments": [],
+                "_live_experiments_in_namespace": [],
                 "_start_date": "2020-01-01",
                 "_updated_date_time": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "application": experiment.application,

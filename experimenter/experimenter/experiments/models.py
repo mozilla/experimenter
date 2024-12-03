@@ -31,6 +31,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
+from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
@@ -383,6 +384,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         "for the description of the opt-in",
         blank=True,
         null=True,
+    )
+    _excluded_live_deliveries = models.JSONField(
+        verbose_name="Excluded Live Deliveries", blank=True, null=True, default=list
+    )
+    _feature_has_live_multifeature_experiments = models.JSONField(
+        verbose_name="Feature Has Live Multifeature Experiments",
+        blank=True,
+        null=True,
+        default=list,
+    )
+    _live_experiments_in_namespace = models.JSONField(
+        verbose_name="Live Experiments In Namespace", blank=True, null=True, default=list
     )
 
     class Meta:
@@ -1050,7 +1063,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .distinct()
                 .order_by("slug")
             )
-        return matching
+        return matching or self._feature_has_live_multifeature_experiments
 
     @property
     def excluded_live_deliveries(self):
@@ -1066,7 +1079,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .distinct()
                 .order_by("slug")
             )
-        return matching
+        return matching or self._excluded_live_deliveries
 
     @property
     def live_experiments_in_namespace(self):
@@ -1083,7 +1096,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             .values_list("slug", flat=True)
             .distinct()
             .order_by("slug")
-        )
+        ) or self._live_experiments_in_namespace
 
     @property
     def can_edit(self):
@@ -1187,6 +1200,62 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             timezone.now() - self.changes.latest_change().changed_on
         ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
         return self.publish_status == self.PublishStatus.WAITING and review_expired
+
+    @property
+    def audience_overlap_warnings(self):
+        warnings = []
+        excluded_live_deliveries = ""
+        if self.excluded_live_deliveries:
+            excluded_live_deliveries = ", ".join(self.excluded_live_deliveries)
+
+        feature_has_live_multifeature_experiments = ""
+        if self.feature_has_live_multifeature_experiments:
+            feature_has_live_multifeature_experiments = ", ".join(
+                self.feature_has_live_multifeature_experiments
+            )
+
+        live_experiments_in_namespace = ""
+        if self.live_experiments_in_namespace:
+            live_experiments_in_namespace = ", ".join(self.live_experiments_in_namespace)
+
+        overlapping_warnings = (
+            feature_has_live_multifeature_experiments
+            and live_experiments_in_namespace
+            and feature_has_live_multifeature_experiments in live_experiments_in_namespace
+        )
+
+        if self.status in [NimbusConstants.Status.DRAFT, NimbusConstants.Status.PREVIEW]:
+            if excluded_live_deliveries:
+                warnings.append(
+                    {
+                        "text": NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING,
+                        "slugs": self.excluded_live_deliveries,
+                        "variant": "warning",
+                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                    }
+                )
+
+            if live_experiments_in_namespace and not overlapping_warnings:
+                warnings.append(
+                    {
+                        "text": NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING,
+                        "slugs": self.live_experiments_in_namespace,
+                        "variant": "warning",
+                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                    }
+                )
+
+            if feature_has_live_multifeature_experiments:
+                warnings.append(
+                    {
+                        "text": NimbusUIConstants.LIVE_MULTIFEATURE_WARNING,
+                        "slugs": self.feature_has_live_multifeature_experiments,
+                        "variant": "warning",
+                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                    }
+                )
+
+        return warnings
 
     def clone(self, name, user, rollout_branch_slug=None, changed_on=None):
         # Inline import to prevent circular import
