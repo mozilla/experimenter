@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 from django.conf import settings
 from django.db import models
@@ -65,7 +65,7 @@ class ApplicationConfig:
     name: str
     slug: str
     app_name: str
-    channel_app_id: Dict[str, str]
+    channel_app_id: dict[str, str]
     default_kinto_collection: str
     randomization_unit: str
     is_web: bool
@@ -582,6 +582,7 @@ class NimbusConstants:
         FIREFOX_132_B6 = "132.0b6"
         FIREFOX_133 = "133.!"
         FIREFOX_133_B8 = "133.0b8"
+        FIREFOX_133_0_1 = "133.0.1"
         FIREFOX_134 = "134.!"
         FIREFOX_135 = "135.!"
         FIREFOX_136 = "136.!"
@@ -828,10 +829,7 @@ RISK_QUESTIONS = {
         "description, do you think it could negatively impact their perception "
         "of the brand?"
     ),
-    "MESSAGE": (
-        "Does your experiment include ANY messages? If yes, this requires "
-        "the Message Consult"
-    ),
+    "MESSAGE": ("Does your experiment include ANY messages? If yes, this requires the "),
     "PARTNER": (
         "Does this experiment rely on AI (e.g. ML, chatbot), impact or rely on a partner "
         "or outside company (e.g. Google, Amazon), or deliver any encryption or VPN?"
