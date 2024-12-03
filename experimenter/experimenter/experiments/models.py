@@ -5,7 +5,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from urllib.parse import urlencode, urljoin
 from uuid import uuid4
 
@@ -285,10 +285,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         on_delete=models.SET_NULL,
         verbose_name="Reference Branch",
     )
-    published_dto = models.JSONField[Dict[str, Any]](
+    published_dto = models.JSONField[dict[str, Any]](
         "Published DTO", encoder=DjangoJSONEncoder, blank=True, null=True
     )
-    results_data = models.JSONField[Dict[str, Any]](
+    results_data = models.JSONField[dict[str, Any]](
         "Results Data", encoder=DjangoJSONEncoder, blank=True, null=True
     )
     risk_partner_related = models.BooleanField(
@@ -926,6 +926,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
 
     @property
+    def required_experiments_branches(self):
+        return NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=self
+        )
+
+    @property
+    def excluded_experiments_branches(self):
+        return NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=self
+        )
+
+    @property
     def review_url(self):
         try:
             collection = self.kinto_collection
@@ -1076,11 +1088,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def can_edit(self):
         return (
+            self.status == self.Status.DRAFT
+            and self.publish_status == self.PublishStatus.IDLE
+        ) or (
             (
-                self.status == self.Status.DRAFT
-                and self.publish_status == self.PublishStatus.IDLE
-            )
-            or (
                 self.is_rollout
                 and self.status == self.Status.LIVE
                 and self.publish_status == self.PublishStatus.IDLE
@@ -1859,7 +1870,7 @@ class NimbusVersionedSchema(models.Model):
     schema = models.TextField(blank=True, null=True)
 
     # Desktop-only
-    set_pref_vars = models.JSONField[Dict[str, str]](null=False, default=dict)
+    set_pref_vars = models.JSONField[dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
 
     class Meta:
@@ -1943,7 +1954,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         max_length=255, choices=NimbusExperiment.PublishStatus.choices
     )
     message = models.TextField(blank=True, null=True)
-    experiment_data = models.JSONField[Dict[str, Any]](
+    experiment_data = models.JSONField[dict[str, Any]](
         encoder=DjangoJSONEncoder, blank=True, null=True
     )
     published_dto_changed = models.BooleanField(default=False)

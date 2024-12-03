@@ -160,6 +160,9 @@ native-error-page-feature:
     enabled:
       type: boolean
       description: "If true, the feature is active.\n"
+    no_internet_connection_error:
+      type: boolean
+      description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
 night-mode-feature:
   description: "Describes the night mode feature's configuration\n"
   hasExposure: true
@@ -190,6 +193,14 @@ password-generator-feature:
     enabled:
       type: boolean
       description: "If true, the password generator feature is enabled"
+pull-to-refresh-refactor-feature:
+  description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 redux-search-settings-feature:
   description: "This feature is for managing the roll out of redux on the search settings screen\n"
   hasExposure: true

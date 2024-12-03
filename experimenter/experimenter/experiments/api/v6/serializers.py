@@ -40,7 +40,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         features = []
         for fv in obj.feature_values.all():
             feature_value = {
-                "featureId": fv.feature_config and fv.feature_config.slug or "",
+                "featureId": (fv.feature_config and fv.feature_config.slug) or "",
                 "enabled": True,  # TODO: Remove after Desktop 104 is no longer supported
                 "value": {},
             }

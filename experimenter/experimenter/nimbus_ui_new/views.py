@@ -6,7 +6,10 @@ from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import (
+    NimbusExperiment,
+)
+from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.filtersets import (
     STATUS_FILTERS,
     NimbusExperimentFilter,
@@ -126,6 +129,7 @@ def build_experiment_context(experiment):
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
+        "risk_message_url": NimbusUIConstants.RISK_MESSAGE_URL,
     }
     return context
 

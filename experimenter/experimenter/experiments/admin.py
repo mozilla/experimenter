@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from django import forms
 from django.contrib import admin
@@ -129,7 +129,7 @@ class NimbusExperimentResource(resources.ModelResource):
             return None
         return experiment.status_next
 
-    def before_import_row(self, row: Dict[str, Any], row_number=None, **kwargs):
+    def before_import_row(self, row: dict[str, Any], row_number=None, **kwargs):
         owner_id = row.get("owner")
 
         try:
