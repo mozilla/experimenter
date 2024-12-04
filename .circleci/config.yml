@@ -329,9 +329,9 @@ jobs:
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|<< parameters.file_path >>"
       - macos/preboot-simulator:
-          version: "18.1"
+          version: << parameters.ios_version >>
           platform: "iOS"
-          device: "iPhone 16"
+          device: << parameters.simulator_device >>
       - attach_workspace:
           at: /tmp/experimenter
       - run:
@@ -799,8 +799,8 @@ workflows:
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_release_build.env
-          ios_version: "17.5"
-          simulator_device: iPhone 15
+          ios_version: "18.1"
+          simulator_device: iPhone 16
           filters:
             branches:
               only:
