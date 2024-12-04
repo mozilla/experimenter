@@ -30,7 +30,8 @@
     <!-- Audience Overlap Warnings Card -->
     {% if experiment.audience_overlap_warnings %}
       {% for warning in experiment.audience_overlap_warnings %}
-      <div class="alert alert-{{ warning.variant|default:'warning' }}" role="alert">
+        <div class="alert alert-{{ warning.variant|default:'warning' }}"
+             role="alert">
           <p class="mb-1">{{ warning.text }}</p>
           <ul class="mb-1">
             {% for slug in warning.slugs %}<li>{{ slug }}</li>{% endfor %}
