@@ -799,12 +799,13 @@ workflows:
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_release_build.env
-          ios_version: "18.1"
-          simulator_device: iPhone 16
+          ios_version: "17.5"
+          simulator_device: iPhone 15
           filters:
             branches:
               only:
                 - update_firefox_versions
+                - fix_11884
       - integration_nimbus_sdk_targeting:
           name: Test SDK Targeting (Release Firefox)
           filters:

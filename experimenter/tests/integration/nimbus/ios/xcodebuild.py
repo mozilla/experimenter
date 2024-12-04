@@ -9,7 +9,7 @@ here = Path(__file__).resolve()
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
-class XCodeBuild(object):
+class XCodeBuild:
     device = os.getenv("IOS_DEVICE", "iPhone 16")
     ios_version = os.getenv("IOS_VERSION", "18.1")
     binary = "xcodebuild"
@@ -25,7 +25,7 @@ class XCodeBuild(object):
         self.log = log
         self.firefox_app_path = next(
             Path("/Users").glob(
-                "**/Library/Developer/Xcode/DerivedData/Client-*/Build/Products/Fennec_Testing-*/Client.app"  # noqa
+                "**/Library/Developer/Xcode/DerivedData/Client-*/Build/Products/Fennec_Testing-*/Client.app"
             )
         )
 
@@ -44,7 +44,7 @@ class XCodeBuild(object):
             out = e.output
             raise
         finally:
-            with open(self.log, "w") as f:
+            with Path.open(self.log, "w") as f:
                 f.write(out)
 
     def test(self, identifier, build=True, erase=True):
@@ -60,18 +60,21 @@ class XCodeBuild(object):
             self.scheme,
             "-destination",
             self.destination,
-            "-only-testing:{}".format(identifier),
+            f"-only-testing:{identifier}",
             "-testPlan",
             self.testPlan,
         ]
         self.logger.info("Running: {}".format(" ".join(args)))
         try:
             out = subprocess.check_output(
-                args, cwd=f"{here.parents[3]}", stderr=subprocess.STDOUT, universal_newlines=True
+                args,
+                cwd=f"{here.parents[3]}",
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
             )
         except subprocess.CalledProcessError as e:
             out = e.output
             raise
         finally:
-            with open(self.log, "w") as f:
+            with Path.open(self.log, "w") as f:
                 f.write(out)
