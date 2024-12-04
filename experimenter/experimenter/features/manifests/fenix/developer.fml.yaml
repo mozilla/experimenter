@@ -744,6 +744,12 @@ enums:
         description: Allows user to enable notification permission.
       sync-sign-in:
         description: Allows user to sync with a Firefox account.
+      terms-of-service:
+        description: Page to display the terms of services.
+      theme-selection:
+        description: Allows user to choose between dark and light themes.
+      toolbar-placement:
+        description: Allows user to choose the toolbar position.
   OnboardingPanel:
     description: The types of onboarding panels in the onboarding page
     variants:
@@ -777,6 +783,22 @@ enums:
         description: A firefox Suggestion from adMarketplace specifically for mobile.
       wikipedia:
         description: A Firefox Suggestion for a Wikipedia page.
+  ThemeType:
+    description: An enum to describe a theme selection option.
+    variants:
+      theme-dark:
+        description: Sets the theme to dark mode.
+      theme-light:
+        description: Sets the theme to light mode.
+      theme-system:
+        description: "Adapts the theme to match the device's system setting."
+  ToolbarType:
+    description: An enum to describe a toolbar placement option.
+    variants:
+      toolbar-bottom:
+        description: Sets the toolbar placement on the bottom.
+      toolbar-top:
+        description: Sets the toolbar placement on the top.
 objects:
   AddOnData:
     description: An object to describe an add-on to be installed from the onboarding card.
@@ -809,6 +831,36 @@ objects:
         description: The amount of reviews the add-on has.
         type: String
         default: "0.0"
+  CustomizationThemeData:
+    description: Defines an option for theme selection.
+    fields:
+      image-res:
+        description: The resource id of the image to be displayed.
+        type: Image
+        default: ic_pick_a_theme_system_auto
+      label:
+        description: "Display text for the theme option (e.g., \"Light Theme\")."
+        type: Text
+        default: ""
+      theme-type:
+        description: The type of the theming option.
+        type: ThemeType
+        default: theme-system
+  CustomizationToolbarData:
+    description: An object to describe the placement of the toolbar.
+    fields:
+      image-res:
+        description: The resource id of toolbar placement image.
+        type: Image
+        default: ic_onboarding_customize_toolbar
+      label:
+        description: "Display text for the toolbar placement option (e.g. \"Top placement\")."
+        type: Text
+        default: ""
+      toolbar-type:
+        description: The type of toolbar placement.
+        type: ToolbarType
+        default: toolbar-top
   ExtraCardData:
     description: "Holds data for cards that require additional data, e.g. add-ons, toolbar placement cards."
     fields:
@@ -816,6 +868,18 @@ objects:
         description: "An optional list of add-ons which will be shown in add-on onboarding card.\n"
         type: List<AddOnData>
         default: []
+      customization-theme-data:
+        description: An optional list of theme choices for the theme selection card.
+        type: List<CustomizationThemeData>
+        default: []
+      customization-toolbar-data:
+        description: "An optional list of toolbar placements for the toolbar placement card.\n"
+        type: List<CustomizationToolbarData>
+        default: []
+      term-of-service-data:
+        description: "An optional terms of service data for the onboarding card.\n"
+        type: Option<TermsOfServiceData>
+        default: ~
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
     fields:
@@ -960,3 +1024,38 @@ objects:
         description: "The importance of this message. 0 is not very important, 100 is very important.\n"
         type: Int
         default: 50
+  TermsOfServiceData:
+    description: An object to describe the terms of service onboarding card.
+    fields:
+      lineOneLinkText:
+        description: The text for the link of line one.
+        type: Text
+        default: ""
+      lineOneLinkURL:
+        description: The url for the link of line one.
+        type: Text
+        default: ""
+      lineOneText:
+        description: The text for line one.
+        type: Text
+        default: ""
+      lineThreeLinkText:
+        description: The text for the link of line three.
+        type: Text
+        default: ""
+      lineThreeText:
+        description: The text for line three.
+        type: Text
+        default: ""
+      lineTwoLinkText:
+        description: The text for the link of line two.
+        type: Text
+        default: ""
+      lineTwoLinkURL:
+        description: The url for the link of line two.
+        type: Text
+        default: ""
+      lineTwoText:
+        description: The text for line two.
+        type: Text
+        default: ""
