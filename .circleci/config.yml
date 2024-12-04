@@ -317,6 +317,13 @@ jobs:
     parameters:
       file_path:
         type: string
+      ios_version:
+        type: string
+      simulator_device:
+        type: string
+    environment:
+      SIMULATOR_DEVICE: << parameters.simulator_device >>
+      IOS_VERSION: << parameters.ios_version >>
     steps:
       - checkout
       - check_file_paths:
@@ -335,7 +342,9 @@ jobs:
           command: curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
       - run:
           name: Install Cargo
-          command: brew install rustup-init
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            echo 'export PATH=$HOME/.cargo/bin:$PATH' >> "$BASH_ENV"
       - run:
           name: Setup and build Firefox app
           command: |
@@ -344,7 +353,7 @@ jobs:
             git checkout "$BRANCH"
             sh ./bootstrap.sh
             cd firefox-ios
-            xcodebuild build-for-testing -scheme Fennec -target Client -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ARCHS="arm64"
+            xcodebuild build-for-testing -scheme Fennec -target Client -destination 'platform=iOS Simulator,name=<< parameters.simulator_device >>,OS=<< parameters.ios_version >>' COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ARCHS="arm64"
       - run:
           name: Run Tests
           command: |
@@ -355,6 +364,8 @@ jobs:
             git cherry-pick dfd0b8a556f5990d0b5d9351df8acf571895e6dc -X theirs || true
             export SIMULATOR_UDID=$(python get_specific_device_udid.py)
             cp -f ~/project/experimenter/tests/integration/nimbus/ios/test_ios_integration.py ./
+            cp -f ~/project/experimenter/tests/integration/nimbus/ios/xcodebuild.py ./
+            poetry add pydantic==2.10.3
             poetry install
             poetry run pytest -k test_ios_integration.py --feature ios_enrollment
       - store_artifacts:
@@ -776,6 +787,8 @@ workflows:
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_beta_build.env
+          ios_version: "18.1"
+          simulator_device: iPhone 16
           filters:
             branches:
               only:
@@ -786,6 +799,8 @@ workflows:
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_release_build.env
+          ios_version: "18.1"
+          simulator_device: iPhone 16
           filters:
             branches:
               only:
