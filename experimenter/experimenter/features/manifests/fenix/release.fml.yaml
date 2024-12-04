@@ -820,6 +820,30 @@ objects:
         description: The type of the theming option.
         type: ThemeType
         default: theme-system
+  CustomizationThemesData:
+    description: Defines the options for theme selection.
+    fields:
+      dark:
+        description: The dark theme option.
+        type: CustomizationThemeData
+        default:
+          theme-type: theme-dark
+          label: ""
+          image-res: ic_pick_a_theme_dark
+      light:
+        description: the light theme option.
+        type: CustomizationThemeData
+        default:
+          theme-type: theme-light
+          label: ""
+          image-res: ic_pick_a_theme_light
+      system:
+        description: the system theme option.
+        type: CustomizationThemeData
+        default:
+          theme-type: theme-system
+          label: ""
+          image-res: ic_pick_a_theme_system_auto
   CustomizationToolbarData:
     description: An object to describe the placement of the toolbar.
     fields:
@@ -843,9 +867,9 @@ objects:
         type: List<AddOnData>
         default: []
       customization-theme-data:
-        description: An optional list of theme choices for the theme selection card.
-        type: List<CustomizationThemeData>
-        default: []
+        description: Optional themes data for the theme selection card.
+        type: Option<CustomizationThemesData>
+        default: ~
       customization-toolbar-data:
         description: "An optional list of toolbar placements for the toolbar placement card.\n"
         type: List<CustomizationToolbarData>
