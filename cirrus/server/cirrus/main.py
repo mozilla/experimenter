@@ -263,7 +263,7 @@ async def compute_features(
         nimbus_preview_flag=nimbus_preview or False,
     )
 
-    return {"Features": client_feature_configuration}
+    return client_feature_configuration
 
 
 async def fetch_schedule_recipes() -> None:
