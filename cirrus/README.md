@@ -240,6 +240,10 @@ The output will be a JSON object with the following properties:
     }
   ]
 }
+  }
+}
+
+```
 
 ## Notes
 
