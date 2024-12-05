@@ -385,18 +385,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
     )
-    _excluded_live_deliveries = models.JSONField(
-        verbose_name="Excluded Live Deliveries", blank=True, null=True, default=list
-    )
-    _feature_has_live_multifeature_experiments = models.JSONField(
-        verbose_name="Feature Has Live Multifeature Experiments",
-        blank=True,
-        null=True,
-        default=list,
-    )
-    _live_experiments_in_namespace = models.JSONField(
-        verbose_name="Live Experiments In Namespace", blank=True, null=True, default=list
-    )
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -1063,7 +1051,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .distinct()
                 .order_by("slug")
             )
-        return matching or self._feature_has_live_multifeature_experiments
+        return matching
 
     @property
     def excluded_live_deliveries(self):
@@ -1079,7 +1067,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .distinct()
                 .order_by("slug")
             )
-        return matching or self._excluded_live_deliveries
+        return matching
 
     @property
     def live_experiments_in_namespace(self):
@@ -1096,7 +1084,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             .values_list("slug", flat=True)
             .distinct()
             .order_by("slug")
-        ) or self._live_experiments_in_namespace
+        )
 
     @property
     def can_edit(self):
