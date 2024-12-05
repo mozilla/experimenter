@@ -793,7 +793,6 @@ workflows:
             branches:
               only:
                 - update_firefox_versions
-                - fix_11884
       - integration_nimbus_ios_enrollment:
           name: Test Firefox for iOS Release
           requires:
@@ -805,7 +804,6 @@ workflows:
             branches:
               only:
                 - update_firefox_versions
-                - fix_11884
       - integration_nimbus_sdk_targeting:
           name: Test SDK Targeting (Release Firefox)
           filters:
