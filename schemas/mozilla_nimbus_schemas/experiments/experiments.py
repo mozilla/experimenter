@@ -80,7 +80,8 @@ class DesktopExperimentBranch(BaseExperimentBranch):
     # inherited by the stricter DesktopAllVersionsExperimentBranch schema.
 
     firefoxLabsTitle: str | None = Field(
-        description="An optional string containing the title of the branch", default=None
+        description="The branch title shown in Firefox Labs (Fluent ID)",
+        default=None,
     )
 
 
@@ -289,14 +290,16 @@ class DesktopNimbusExperiment(BaseExperiment):
         ),
         default=None,
     )
+    firefoxLabsGroup: str | None = Field(
+        description="The group this should appear under in Firefox Labs",
+        default=None,
+    )
     firefoxLabsTitle: str | None = Field(
-        description="An optional string containing the Fluent ID "
-        "for the title of the opt-in",
+        description="The title shown in Firefox Labs (Fluent ID)",
         default=None,
     )
     firefoxLabsDescription: str | None = Field(
-        description="An optional string containing the Fluent ID "
-        "for the description of the opt-in",
+        description="The description shown in Firefox Labs (Fluent ID)",
         default=None,
     )
     featureValidationOptOut: bool | SkipJsonSchema[None] = Field(
@@ -317,6 +320,11 @@ class DesktopNimbusExperiment(BaseExperiment):
             if data.firefoxLabsDescription is None:
                 raise ValueError(
                     "missing field firefoxLabsDescription "
+                    "(required because isFirefoxLabsOptIn is True)"
+                )
+            if data.firefoxLabsGroup is None:
+                raise ValueError(
+                    "missing field firefoxLabsGroup "
                     "(required because isFirefoxLabsOptIn is True)"
                 )
             if not data.isRollout:
@@ -340,11 +348,11 @@ class DesktopNimbusExperiment(BaseExperiment):
                         },
                     },
                     "then": {
-                        "properties": {
-                            "firefoxLabsTitle": {"type": "string"},
-                            "firefoxLabsDescription": {"type": "string"},
-                        },
-                        "required": ["firefoxLabsTitle", "firefoxLabsDescription"],
+                        "required": [
+                            "firefoxLabsDescription",
+                            "firefoxLabsGroup",
+                            "firefoxLabsTitle",
+                        ],
                         "if": {
                             "properties": {
                                 "isRollout": {"const": False},
