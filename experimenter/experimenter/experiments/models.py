@@ -371,18 +371,24 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     use_group_id = models.BooleanField(default=False)
     objects = NimbusExperimentManager()
     is_firefox_labs_opt_in = models.BooleanField(
-        "Is Experiment a Firefox Labs opt-n", default=False
+        "Is Experiment a Firefox Labs Opt-In?", default=False
     )
     firefox_labs_title = models.TextField(
-        "An optional string containing the Fluent ID for the title of the opt-in",
+        "The title to display in Firefox Labs (Fluent ID)",
         blank=True,
         null=True,
     )
     firefox_labs_description = models.TextField(
-        "An optional string containing the Fluent ID "
-        "for the description of the opt-in",
+        "The description to display in Firefox Labs (Fluent ID)",
         blank=True,
         null=True,
+    )
+    firefox_labs_group = models.CharField(
+        "The group this should appear under in Firefox Labs",
+        blank=True,
+        null=True,
+        max_length=255,
+        choices=NimbusConstants.FirefoxLabsGroups.choices,
     )
 
     class Meta:
