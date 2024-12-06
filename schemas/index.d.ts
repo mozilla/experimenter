@@ -175,6 +175,12 @@ export interface DesktopAllVersionsNimbusExperiment {
    * Opt out of feature schema validation.
    */
   featureValidationOptOut?: boolean;
+  /**
+   * Does the experiment require a restart to take effect?
+   *
+   * Only used by Firefox Labs Opt-Ins.
+   */
+  requiresRestart?: boolean;
   localizations?: ExperimentLocalizations | null;
 }
 export interface ExperimentBucketConfig {
@@ -510,6 +516,12 @@ export interface DesktopNimbusExperiment {
    * Opt out of feature schema validation.
    */
   featureValidationOptOut?: boolean;
+  /**
+   * Does the experiment require a restart to take effect?
+   *
+   * Only used by Firefox Labs Opt-Ins.
+   */
+  requiresRestart?: boolean;
   localizations?: ExperimentLocalizations | null;
 }
 /**
