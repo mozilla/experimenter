@@ -5,23 +5,22 @@ from pathlib import Path
 
 from .xcrun import XCRun
 
-here = Path(__file__).resolve()
-logging.getLogger(__name__).addHandler(logging.NullHandler())
+HERE = Path(__file__).resolve()
+LOGGER = logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class XCodeBuild:
-    device = os.getenv("IOS_DEVICE", "iPhone 16")
-    ios_version = os.getenv("IOS_VERSION", "18.1")
-    binary = "xcodebuild"
-    destination = f"platform=iOS Simulator,name={device},OS={ios_version}"
-    logger = logging.getLogger()
-    scheme = "Fennec"
-    testPlan = "SyncIntegrationTestPlan"
-    xcrun = XCRun()
 
     def __init__(self, log, **kwargs):
+        self.device = os.getenv("IOS_DEVICE", "iPhone 16")
+        self.ios_version = os.getenv("IOS_VERSION", "18.1")
+        self.binary = "xcodebuild"
+        self.destination = f"platform=iOS Simulator,name={self.device},OS={self.ios_version}"
+        self.scheme = "Fennec"
+        self.testPlan = "SyncIntegrationTestPlan"
+        self.xcrun = XCRun()
         self.scheme = kwargs.get("scheme", self.scheme)
-        self.testPlan = kwargs.get("test_plan", self.testPlan)
+        self.test_plan = kwargs.get("test_plan", self.testPlan)
         self.log = log
         self.firefox_app_path = next(
             Path("/Users").glob(
@@ -34,28 +33,23 @@ class XCodeBuild:
             self.xcrun.boot()
         try:
             out = subprocess.check_output(
-                f"xcrun simctl install booted {self.firefox_app_path}",
-                cwd=f"{here.parent}",
+                ["xcrun", "simctl", "install", "booted", self.firefox_app_path],
+                cwd=f"{HERE.parent}",
                 stderr=subprocess.STDOUT,
                 universal_newlines=True,
-                shell=True,
             )
         except subprocess.CalledProcessError as e:
             out = e.output
             raise
         finally:
-            with Path.open(self.log, "w") as f:
+            with self.log.open() as f:
                 f.write(out)
 
     def test(self, identifier, build=True, erase=True):
-        run_args = "test"
-        if erase:
-            self.xcrun.erase()
-        if not build:
-            run_args = "test-without-building"
+        run_args = "test" if build else "test-without-building"
         args = [
             self.binary,
-            f"{run_args}",
+            run_args,
             "-scheme",
             self.scheme,
             "-destination",
@@ -64,11 +58,11 @@ class XCodeBuild:
             "-testPlan",
             self.testPlan,
         ]
-        self.logger.info("Running: {}".format(" ".join(args)))
+        LOGGER.info("Running: {}".format(" ".join(args)))
         try:
             out = subprocess.check_output(
                 args,
-                cwd=f"{here.parents[3]}",
+                cwd=f"{HERE.parents[3]}",
                 stderr=subprocess.STDOUT,
                 universal_newlines=True,
             )
@@ -76,5 +70,5 @@ class XCodeBuild:
             out = e.output
             raise
         finally:
-            with Path.open(self.log, "w") as f:
+            with self.log.open() as f:
                 f.write(out)
