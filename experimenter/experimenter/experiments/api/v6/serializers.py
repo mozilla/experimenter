@@ -116,6 +116,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     firefoxLabsTitle = serializers.ReadOnlyField(source="firefox_labs_title")
     firefoxLabsDescription = serializers.ReadOnlyField(source="firefox_labs_description")
     firefoxLabsGroup = serializers.ReadOnlyField(source="firefox_labs_group")
+    requiresRestart = serializers.ReadOnlyField(source="requires_restart")
 
     class Meta:
         model = NimbusExperiment
@@ -152,6 +153,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "firefoxLabsTitle",
             "firefoxLabsDescription",
             "firefoxLabsGroup",
+            "requiresRestart",
         )
 
     def get_application(self, obj):
