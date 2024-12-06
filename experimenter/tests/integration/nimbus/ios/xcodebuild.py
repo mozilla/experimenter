@@ -10,12 +10,13 @@ LOGGER = logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class XCodeBuild:
-
     def __init__(self, log, **kwargs):
         self.device = os.getenv("IOS_DEVICE", "iPhone 16")
         self.ios_version = os.getenv("IOS_VERSION", "18.1")
         self.binary = "xcodebuild"
-        self.destination = f"platform=iOS Simulator,name={self.device},OS={self.ios_version}"
+        self.destination = (
+            f"platform=iOS Simulator,name={self.device},OS={self.ios_version}"
+        )
         self.scheme = "Fennec"
         self.testPlan = "SyncIntegrationTestPlan"
         self.xcrun = XCRun()
@@ -42,7 +43,7 @@ class XCodeBuild:
             out = e.output
             raise
         finally:
-            with self.log.open() as f:
+            with self.log.open("w") as f:
                 f.write(out)
 
     def test(self, identifier, build=True, erase=True):
@@ -58,7 +59,7 @@ class XCodeBuild:
             "-testPlan",
             self.testPlan,
         ]
-        LOGGER.info("Running: {}".format(" ".join(args)))
+        self.log.info("Running: {}".format(" ".join(args)))
         try:
             out = subprocess.check_output(
                 args,
@@ -70,5 +71,5 @@ class XCodeBuild:
             out = e.output
             raise
         finally:
-            with self.log.open() as f:
+            with self.log.open("w") as f:
                 f.write(out)
