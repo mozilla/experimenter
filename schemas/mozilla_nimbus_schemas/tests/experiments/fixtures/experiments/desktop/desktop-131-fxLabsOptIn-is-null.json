@@ -81,5 +81,6 @@
   "isFirefoxLabsOptIn": false,
   "firefoxLabsTitle": null,
   "firefoxLabsDescription": null,
-  "isRollout": false
+  "isRollout": false,
+  "requiresRestart": false
 }
