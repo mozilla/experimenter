@@ -4249,6 +4249,10 @@
           "firefoxLabsDescription": {
             "type": "string",
             "readOnly": true
+          },
+          "firefoxLabsGroup": {
+            "type": "string",
+            "readOnly": true
           }
         },
         "required": [
