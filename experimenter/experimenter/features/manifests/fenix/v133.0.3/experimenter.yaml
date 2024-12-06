@@ -67,9 +67,6 @@ fx-suggest:
   hasExposure: true
   exposureDescription: ""
   variables:
-    boost-amp-wiki:
-      type: boolean
-      description: "The feature boost wiki and AMP suggestions to the top of its group.\n"
     enabled:
       type: boolean
       description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
@@ -109,14 +106,6 @@ homescreen:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
-javascript:
-  description: Enables Javascript Engine (Spidermonkey) features
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    parallelMarkingEnabled:
-      type: boolean
-      description: "Enables or disables javascript.options.mem.gc_parallel_marking preference.\n"
 juno-onboarding:
   description: A feature that shows the onboarding flow.
   hasExposure: true
@@ -136,9 +125,6 @@ menu-redesign:
     enabled:
       type: boolean
       description: "If true, the new menu redesign is available."
-    report-site-issue:
-      type: boolean
-      description: "If true, report site issue menu item and preview is available."
 messaging:
   description: "The in-app messaging system.\n"
   hasExposure: true
@@ -384,9 +370,6 @@ splash-screen:
     maximum_duration_ms:
       type: int
       description: The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
-    off-train-onboarding:
-      type: boolean
-      description: "If true, the fetched data will be applied and used during the session."
 suggest-shipped-domains:
   description: Feature that suggests domains from the shipped domain list.
   hasExposure: true
