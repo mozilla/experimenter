@@ -384,6 +384,9 @@ splash-screen:
     maximum_duration_ms:
       type: int
       description: The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
+    off-train-onboarding:
+      type: boolean
+      description: "If true, the fetched data will be applied and used during the session."
 suggest-shipped-domains:
   description: Feature that suggests domains from the shipped domain list.
   hasExposure: true
