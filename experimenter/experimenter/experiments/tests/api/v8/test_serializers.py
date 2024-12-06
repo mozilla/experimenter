@@ -116,6 +116,7 @@ class TestNimbusExperimentSerializer(TestCase):
             is_firefox_labs_opt_in=True,
             firefox_labs_title="test-fx-labs-title",
             firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
         )
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
@@ -129,6 +130,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "isFirefoxLabsOptIn": True,
                 "firefoxLabsTitle": "test-fx-labs-title",
                 "firefoxLabsDescription": "test-fx-labs-description",
+                "firefoxLabsGroup": "group",
             }
         )
 
@@ -419,4 +421,5 @@ class TestNimbusExperimentSerializer(TestCase):
             "isFirefoxLabsOptIn": False,
             "firefoxLabsTitle": None,
             "firefoxLabsDescription": None,
+            "firefoxLabsGroup": None,
         }

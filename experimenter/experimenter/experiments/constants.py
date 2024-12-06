@@ -595,6 +595,11 @@ class NimbusConstants:
         EXPERIMENT_END = "experiment end"
         ENROLLMENT_END = "enrollment end"
 
+    class FirefoxLabsGroups(models.TextChoices):
+        CUSTOMIZE_BROWSING = "experimental-features-group-customize-browsing"
+        WEBPAGE_DISPLAY = "experimental-features-group-webpage-display"
+        DEVELOPER_TOOLS = "experimental-features-group-developer-tools"
+
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
     EMAIL_ENROLLMENT_END_SUBJECT = "Action required: Please end experiment enrollment"
 
