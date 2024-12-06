@@ -117,6 +117,7 @@ class TestNimbusExperimentSerializer(TestCase):
             firefox_labs_title="test-fx-labs-title",
             firefox_labs_description="test-fx-labs-description",
             firefox_labs_group="group",
+            requires_restart=True,
         )
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
@@ -131,6 +132,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "firefoxLabsTitle": "test-fx-labs-title",
                 "firefoxLabsDescription": "test-fx-labs-description",
                 "firefoxLabsGroup": "group",
+                "requiresRestart": True,
             }
         )
 
@@ -422,4 +424,5 @@ class TestNimbusExperimentSerializer(TestCase):
             "firefoxLabsTitle": None,
             "firefoxLabsDescription": None,
             "firefoxLabsGroup": None,
+            "requiresRestart": False,
         }

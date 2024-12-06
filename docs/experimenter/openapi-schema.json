@@ -4253,6 +4253,10 @@
           "firefoxLabsGroup": {
             "type": "string",
             "readOnly": true
+          },
+          "requiresRestart": {
+            "type": "string",
+            "readOnly": true
           }
         },
         "required": [
