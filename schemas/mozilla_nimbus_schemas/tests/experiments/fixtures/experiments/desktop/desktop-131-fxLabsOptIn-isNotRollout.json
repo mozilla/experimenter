@@ -54,5 +54,6 @@
   "firefoxLabsTitle": "test-title",
   "firefoxLabsDescription": "test-desc",
   "firefoxLabsGroup": "test",
-  "isRollout": false
+  "isRollout": false,
+  "requiresRestart": false
 }

@@ -202,6 +202,10 @@
       "description": "Opt out of feature schema validation.",
       "type": "boolean"
     },
+    "requiresRestart": {
+      "description": "Does the experiment require a restart to take effect? Only used by Firefox Labs Opt-Ins.",
+      "type": "boolean"
+    },
     "localizations": {
       "anyOf": [
         {
