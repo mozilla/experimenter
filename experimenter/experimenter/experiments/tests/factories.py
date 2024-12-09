@@ -490,6 +490,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             else None
         )
     )
+    requires_restart = factory.LazyAttribute(
+        lambda o: (random.choice([True, False]) if o.is_firefox_labs_opt_in else False)
+    )
 
     class Meta:
         model = NimbusExperiment
