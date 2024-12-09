@@ -1687,32 +1687,87 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertIsNone(experiment.review_date)
 
-    def test_timeline_dates_includes_correct_status_dates_and_flags(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            proposed_enrollment=2,
-            start_date=datetime.date(2023, 1, 4),
-            _enrollment_end_date=datetime.date(2023, 1, 6),
-            end_date=datetime.date(2023, 1, 8),
-        )
+    def test_computed_draft_and_preview_days_returns_correct_difference(self):
+        experiment = NimbusExperimentFactory.create()
         NimbusChangeLogFactory.create(
             experiment=experiment,
             new_status=NimbusExperiment.Status.DRAFT,
             changed_on=datetime.datetime(2023, 1, 1),
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.PREVIEW,
+            changed_on=datetime.datetime(2023, 1, 5),
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_publish_status=NimbusExperiment.Status.PREVIEW,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            changed_on=datetime.datetime(2023, 1, 12),
+        )
+
+        self.assertEqual(experiment.computed_draft_days, 4)
+        self.assertEqual(experiment.computed_preview_days, 7)
+
+    def test_computed_draft_days_returns_correct_difference_if_preview_is_none(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            new_status=NimbusExperiment.Status.DRAFT,
+            changed_on=datetime.datetime(2023, 1, 1),
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_publish_status=NimbusExperiment.Status.DRAFT,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            changed_on=datetime.datetime(2023, 1, 8),
+        )
+        self.assertEqual(experiment.computed_draft_days, 7)
+
+    def test_computed_preview_and_review_days_returns_none_if_none(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            new_status=NimbusExperiment.Status.DRAFT,
+            changed_on=datetime.datetime(2023, 1, 1),
+        )
+        self.assertIsNone(experiment.computed_preview_days)
+        self.assertIsNone(experiment.computed_review_days)
+
+    def test_computed_review_days_returns_correct_difference(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            start_date=datetime.date(2021, 1, 5),
+        )
+        self.assertEqual(experiment.computed_review_days, 3)
+
+    def test_timeline_dates_includes_correct_status_dates_and_flags(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            proposed_enrollment=2,
+            start_date=datetime.date(2021, 1, 4),
+            _enrollment_end_date=datetime.date(2021, 1, 6),
+            end_date=datetime.date(2021, 1, 8),
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            new_status=NimbusExperiment.Status.DRAFT,
+            changed_on=datetime.datetime(2021, 1, 1),
         )
 
         NimbusChangeLogFactory.create(
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.PREVIEW,
-            changed_on=datetime.datetime(2023, 1, 2),
+            changed_on=datetime.datetime(2021, 1, 2),
         )
 
         NimbusChangeLogFactory.create(
             experiment=experiment,
             old_publish_status=NimbusExperiment.Status.PREVIEW,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            changed_on=datetime.datetime(2023, 1, 3),
+            changed_on=datetime.datetime(2021, 1, 2),
         )
         timeline = experiment.timeline()
         expected_timeline = [
@@ -1720,19 +1775,19 @@ class TestNimbusExperiment(TestCase):
                 "label": "Draft",
                 "date": experiment.draft_date,
                 "is_active": False,
-                "days": None,
+                "days": 1,
             },
             {
                 "label": "Preview",
                 "date": experiment.preview_date,
                 "is_active": False,
-                "days": None,
+                "days": 0,
             },
             {
                 "label": "Review",
                 "date": experiment.review_date,
                 "is_active": False,
-                "days": None,
+                "days": 2,
             },
             {
                 "label": NimbusConstants.ENROLLMENT,

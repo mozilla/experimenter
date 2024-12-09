@@ -801,6 +801,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.end_date or self.proposed_end_date
 
     @property
+    def computed_draft_days(self):
+        if self.draft_date and self.preview_date is not None:
+            return (self.preview_date - self.draft_date).days
+        elif self.draft_date and self.review_date is not None:
+            return (self.review_date - self.draft_date).days
+        return None
+
+    @property
+    def computed_preview_days(self):
+        if self.preview_date and self.review_date is not None:
+            return (self.review_date - self.preview_date).days
+        return None
+
+    @property
+    def computed_review_days(self):
+        if self.review_date and self.enrollment_start_date is not None:
+            return (self.enrollment_start_date - self.review_date).days
+        return None
+
+    @property
     def enrollment_duration(self):
         if self.computed_end_date and self.enrollment_start_date is not None:
             return (
@@ -832,19 +852,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "label": self.Status.DRAFT,
                 "date": self.draft_date,
                 "is_active": self.is_draft,
-                "days": None,
+                "days": self.computed_draft_days,
             },
             {
                 "label": self.Status.PREVIEW,
                 "date": self.preview_date,
                 "is_active": self.is_preview,
-                "days": None,
+                "days": self.computed_preview_days,
             },
             {
                 "label": self.PublishStatus.REVIEW,
                 "date": self.review_date,
                 "is_active": self.is_review,
-                "days": None,
+                "days": self.computed_review_days,
             },
             {
                 "label": NimbusConstants.ENROLLMENT,
