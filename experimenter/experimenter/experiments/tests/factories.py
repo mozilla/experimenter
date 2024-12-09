@@ -477,8 +477,22 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.QAStatus)).value
     )
     is_firefox_labs_opt_in = factory.LazyAttribute(lambda o: False)
-    firefox_labs_title = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    firefox_labs_description = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    firefox_labs_title = factory.LazyAttribute(
+        lambda o: faker.catch_phrase() if o.is_firefox_labs_opt_in else None
+    )
+    firefox_labs_description = factory.LazyAttribute(
+        lambda o: faker.catch_phrase() if o.is_firefox_labs_opt_in else None
+    )
+    firefox_labs_group = factory.LazyAttribute(
+        lambda o: (
+            random.choice(NimbusExperiment.FirefoxLabsGroups.choices)[0]
+            if o.is_firefox_labs_opt_in
+            else None
+        )
+    )
+    requires_restart = factory.LazyAttribute(
+        lambda o: (random.choice([True, False]) if o.is_firefox_labs_opt_in else False)
+    )
 
     class Meta:
         model = NimbusExperiment

@@ -306,6 +306,14 @@ class DesktopNimbusExperiment(BaseExperiment):
         description="Opt out of feature schema validation.",
         default=None,
     )
+    requiresRestart: bool | SkipJsonSchema[None] = Field(
+        description=(
+            "Does the experiment require a restart to take effect?\n"
+            "\n"
+            "Only used by Firefox Labs Opt-Ins."
+        ),
+        default=False,
+    )
     localizations: ExperimentLocalizations | None = Field(default=None)
 
     @model_validator(mode="after")

@@ -525,13 +525,13 @@ six = ">=1.10"
 
 [[package]]
 name = "django"
-version = "5.1.1"
+version = "5.1.4"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "Django-5.1.1-py3-none-any.whl", hash = "sha256:71603f27dac22a6533fb38d83072eea9ddb4017fead6f67f2562a40402d61c3f"},
-    {file = "Django-5.1.1.tar.gz", hash = "sha256:021ffb7fdab3d2d388bc8c7c2434eb9c1f6f4d09e6119010bbb1694dda286bc2"},
+    {file = "Django-5.1.4-py3-none-any.whl", hash = "sha256:236e023f021f5ce7dee5779de7b286565fdea5f4ab86bae5338e3f7b69896cf0"},
+    {file = "Django-5.1.4.tar.gz", hash = "sha256:de450c09e91879fa5a307f696e57c851955c910a438a35e6b4c895e86bedc82a"},
 ]
 
 [package.dependencies]
@@ -1478,13 +1478,13 @@ referencing = ">=0.28.0"
 
 [[package]]
 name = "kinto-http"
-version = "11.6.0"
+version = "11.7.0"
 description = "Kinto client"
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto_http-11.6.0-py3-none-any.whl", hash = "sha256:30722690f672f549f908bc9c45eb49010463930eeccfc439d4d318c6e5d5ae27"},
-    {file = "kinto_http-11.6.0.tar.gz", hash = "sha256:701b489cc25d304a4e1cf74da1d01168895b39baa709f04b0482ac8eda6431cb"},
+    {file = "kinto_http-11.7.0-py3-none-any.whl", hash = "sha256:1eb658d68dfc94779db3c1683b72865f8d669db37364e51b1f3d23460577e029"},
+    {file = "kinto_http-11.7.0.tar.gz", hash = "sha256:10613c60eb3ad609e00cb3b598eceecf57c7e0a7a889441c6e8c181fc85eca13"},
 ]
 
 [package.dependencies]
@@ -1695,13 +1695,13 @@ testing = ["coverage", "isort", "jsonschema", "mypy", "pytest", "pytest-black", 
 
 [[package]]
 name = "mozilla-nimbus-schemas"
-version = "2024.11.5"
+version = "2024.12.2"
 description = "Schemas used by Mozilla Nimbus and related projects."
 optional = false
 python-versions = "<4.0,>=3.10"
 files = [
-    {file = "mozilla_nimbus_schemas-2024.11.5-py3-none-any.whl", hash = "sha256:4b4e6835b1e8e142f79a7543238a7f8b9a5c5abd7178cb86d9f266f9eee5deb5"},
-    {file = "mozilla_nimbus_schemas-2024.11.5.tar.gz", hash = "sha256:83de58bea9d56be679ad0bb174c5769ba5f076ef25e566868b4582ddb3867b01"},
+    {file = "mozilla_nimbus_schemas-2024.12.2-py3-none-any.whl", hash = "sha256:e78e062beae774d55fd064893e7131baecbc809e28c5e2baeb5de0f500038988"},
+    {file = "mozilla_nimbus_schemas-2024.12.2.tar.gz", hash = "sha256:611d98c19b0f5e9b38ee335886e20c83823b045e5de72712474cbe8a6232ba38"},
 ]
 
 [package.dependencies]
@@ -3290,4 +3290,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "8335a22ca8f1b814a060d2c2016cb116d8ecb02aa36100f855b9d2a217c6d02a"
+content-hash = "7dd2bc78b24bf5908daf5f04db63828c5ddc6f55a8d145da28ccff0995884a7e"

@@ -55,6 +55,7 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
+from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
@@ -2053,6 +2054,100 @@ class TestNimbusExperiment(TestCase):
                 "&targeting_config_slug=targeting"
             ),
         )
+
+    @mock.patch.object(
+        NimbusExperiment, "excluded_live_deliveries", new_callable=mock.PropertyMock
+    )
+    def test_excluding_experiments_warning(self, mock_excluded_live_deliveries):
+        mock_excluded_live_deliveries.return_value = ["experiment1", "experiment2"]
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING
+        )
+        self.assertEqual(warnings[0]["slugs"], ["experiment1", "experiment2"])
+
+    @mock.patch.object(
+        NimbusExperiment, "live_experiments_in_namespace", new_callable=mock.PropertyMock
+    )
+    def test_live_experiments_bucket_warning(self, mock_live_experiments_in_namespace):
+        mock_live_experiments_in_namespace.return_value = ["experiment3"]
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING
+        )
+        self.assertEqual(warnings[0]["slugs"], ["experiment3"])
+
+    @mock.patch.object(
+        NimbusExperiment,
+        "feature_has_live_multifeature_experiments",
+        new_callable=mock.PropertyMock,
+    )
+    def test_live_multifeature_warning(
+        self, mock_feature_has_live_multifeature_experiments
+    ):
+        mock_feature_has_live_multifeature_experiments.return_value = [
+            "experiment5",
+            "experiment6",
+        ]
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0]["text"], NimbusUIConstants.LIVE_MULTIFEATURE_WARNING)
+        self.assertEqual(warnings[0]["slugs"], ["experiment5", "experiment6"])
+
+    @mock.patch.object(
+        NimbusExperiment, "excluded_live_deliveries", new_callable=mock.PropertyMock
+    )
+    @mock.patch.object(
+        NimbusExperiment, "live_experiments_in_namespace", new_callable=mock.PropertyMock
+    )
+    @mock.patch.object(
+        NimbusExperiment,
+        "feature_has_live_multifeature_experiments",
+        new_callable=mock.PropertyMock,
+    )
+    def test_multiple_warnings(
+        self,
+        mock_feature_has_live_multifeature_experiments,
+        mock_live_experiments_in_namespace,
+        mock_excluded_live_deliveries,
+    ):
+        mock_excluded_live_deliveries.return_value = ["experiment1", "experiment2"]
+        mock_live_experiments_in_namespace.return_value = ["experiment3"]
+        mock_feature_has_live_multifeature_experiments.return_value = ["experiment4"]
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 3)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING
+        )
+        self.assertEqual(warnings[0]["slugs"], ["experiment1", "experiment2"])
+        self.assertEqual(
+            warnings[1]["text"], NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING
+        )
+        self.assertEqual(warnings[1]["slugs"], ["experiment3"])
+        self.assertEqual(warnings[2]["text"], NimbusUIConstants.LIVE_MULTIFEATURE_WARNING)
+        self.assertEqual(warnings[2]["slugs"], ["experiment4"])
 
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
