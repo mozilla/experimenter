@@ -9,6 +9,7 @@ from experimenter.base.tests.factories import LocaleFactory
 from experimenter.experiments.api.v7.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
+    NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
@@ -28,6 +29,7 @@ class TestNimbusExperimentSerializer(TestCase):
         application = NimbusExperiment.Application.DESKTOP
         feature1 = NimbusFeatureConfigFactory.create(application=application)
         feature2 = NimbusFeatureConfigFactory.create(application=application)
+        documentation_link = NimbusDocumentationLinkFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=application,
@@ -43,6 +45,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 json.dumps(localizations) if localizations is not None else None
             ),
             _enrollment_end_date=datetime.date(2022, 1, 5),
+            documentation_links=[documentation_link],
         )
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
@@ -99,6 +102,9 @@ class TestNimbusExperimentSerializer(TestCase):
                 "locales": ["en-US"],
                 "localizations": localizations,
                 "publishedDate": experiment.published_date,
+                "documentationLinks": [
+                    {"title": documentation_link.title, "link": documentation_link.link}
+                ],
             },
         )
 
