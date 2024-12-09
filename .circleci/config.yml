@@ -313,7 +313,7 @@ jobs:
 
   integration_nimbus_ios_enrollment:
     macos:
-      xcode: 16.1
+      xcode: 16.2
     parameters:
       file_path:
         type: string
@@ -787,19 +787,20 @@ workflows:
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_beta_build.env
-          ios_version: "18.1"
+          ios_version: "18.2"
           simulator_device: iPhone 16
           filters:
             branches:
               only:
                 - update_firefox_versions
+                - fix_11884
       - integration_nimbus_ios_enrollment:
           name: Test Firefox for iOS Release
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_release_build.env
-          ios_version: "17.5"
-          simulator_device: iPhone 15
+          ios_version: "18.2"
+          simulator_device: iPhone 16
           filters:
             branches:
               only:
