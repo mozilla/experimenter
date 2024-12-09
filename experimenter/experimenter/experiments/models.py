@@ -391,6 +391,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         max_length=255,
         choices=NimbusConstants.FirefoxLabsGroups.choices,
     )
+    requires_restart = models.BooleanField(
+        (
+            "Does this experiment require a restart to take effect? "
+            "Only used by Firefox Labs."
+        ),
+        default=False,
+    )
 
     class Meta:
         verbose_name = "Nimbus Experiment"
