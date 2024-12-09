@@ -23,6 +23,7 @@ class XCodeBuild:
         self.scheme = kwargs.get("scheme", self.scheme)
         self.test_plan = kwargs.get("test_plan", self.testPlan)
         self.log = log
+        self.logger = logging.getLogger()
         self.firefox_app_path = next(
             Path("/Users").glob(
                 "**/Library/Developer/Xcode/DerivedData/Client-*/Build/Products/Fennec_Testing-*/Client.app"
@@ -59,7 +60,7 @@ class XCodeBuild:
             "-testPlan",
             self.testPlan,
         ]
-        self.log.info("Running: {}".format(" ".join(args)))
+        self.logger.info("Running: {}".format(" ".join(args)))
         try:
             out = subprocess.check_output(
                 args,
