@@ -553,13 +553,20 @@ urlbar:
         absent or zero, Firefox will fall back to the minimum length defined in
         remote settings. If neither Nimbus nor remote settings defines a minimum
         length, only full keywords will trigger the suggestion.
-    weatherShowLessFrequentlyCap:
+    weatherKeywordsMinimumLengthCap:
       type: int
       description: >-
-        If defined and non-zero, this is the maximum number of times the user
-        will be able to click the "Show less frequently" command for weather
-        suggestions. If undefined or zero, the user will be able to click the
-        command without any limit.
+        If defined and non-zero, the user will not be able to increment the
+        minimum keyword length beyond this value. e.g., if this value is 6, the
+        current minimum length is 5, and the user clicks "Show less frequently",
+        then the minimum length will be incremented to 6, the "Show less
+        frequently" command will be hidden, and the user can continue to trigger
+        the weather suggestion by typing 6 characters, but they will not be able
+        to increment the minimum length any further. If this variable is absent
+        or zero, Firefox will fall back to the cap defined in remote settings.
+        If neither Nimbus nor remote settings defines a cap, no cap will be
+        used, and the user will be able to increment the minimum length without
+        any limit.
     weatherSimpleUI:
       type: boolean
       description: >-
@@ -869,20 +876,7 @@ newtabAdSizingExperiment:
         pref: browser.newtabpage.activity-stream.newtabAdSize.variant-b
       description: >-
         Variant B ad size and UI.
-    leaderboard:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabAdSize.leaderboard
-      description: >-
-        Leaderboard ad size and UI.
-    billboard:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabAdSize.billboard
-      description: >-
-        Billboard ad size and UI.
+
 newtabLayoutExperiment:
   description: >-
     Change the default layout of new tab by adjusting sizes and spacing of elements.
@@ -1032,55 +1026,6 @@ newtabContextualContent:
         pref: browser.newtabpage.activity-stream.discoverystream.contextualContent.selectedFeed
       description: >-
         currently selected feed to display in the Contextual Content component
-
-newTabSectionsExperiment:
-  description: about:newtab section UI update
-  owner: nbarrett@mozilla.com, mcrawford@mozilla.com
-  hasExposure: false
-  variables:
-    sectionsEnabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.sections.enabled
-      description: >-
-        Enable the Section UI for recommended stories on newtab
-    cardRefreshThumbsUpDownEnabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.sections.cards.thumbsUpDown.enabled
-      description: >-
-        Enable the thumbs up/down buttons in the revised pocket story
-        card UI in recommended stories on newtab
-    cardRefreshEnabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.sections.cards.enabled
-      description: >-
-        Enable the revised pocket story card UI in recommended stories on newtab
-    localeSectionstConfig:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.sections.locale-content-config
-      description: >-
-        A comma-separated list of locales that get contextual content by default.
-    regionSectionsConfig:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.sections.region-content-config
-      description: >-
-        A comma-separated list of regions that get contextual content by default.
-    sectionsPersonalization:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.sections.personalization.enabled
-      description: >-
-        Enable personalized sections layout. Allow users to follow/unfollow topic sections.
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -1484,19 +1429,6 @@ password-autocomplete:
     directMigrateSingleProfile:
       type: boolean
       description: Enable direct migration?
-
-# Experiment for different Relay UI treatments. Variations at:
-# https://www.figma.com/design/gnyElr1Wtce3RdQT54y8kS/Relay-%26-Firefox-Integration?node-id=316-2024&node-type=canvas&t=A3iAuevSTtwXeFxb-0
-email-autocomplete-relay:
-  description: Relay UI for email fields.
-  exposureDescription: Exposure is sent each time a user sees the Relay autocomplete dropdown item
-  hasExposure: true
-  owner: lcrouch@mozilla.com
-  variables:
-    firstOfferVersion:
-      type: string
-      description: Which Relay UI treatment to show
-      fallbackPref: signon.firefoxRelay.firstOfferVersionFallback
 
 # This feature flag mirrors the one used for ios
 # https://github.com/mozilla-mobile/firefox-ios/blob/main/nimbus-features/addressAutofillFeature.yaml
@@ -2242,12 +2174,6 @@ networking:
       setPref:
         branch: default
         pref: "network.cookie.CHIPS.enabled"
-    chipsMigrationTarget:
-      description: What CHIPS migration count target the browser should reach.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.cookie.CHIPS.migrateDatabaseTarget"
     chipsPartitionLimitEnabled:
       description: Whether we enforce CHIPS partition limit
       type: boolean
@@ -2725,18 +2651,6 @@ thirdPartyCookieBlocking:
         branch: default
         pref: "network.cookie.cookieBehavior.optInPartitioning.pbmode"
 
-thirdPartyTrackerCookieBlocking:
-  description: Prefs to control third-party tracker cookie blocking
-  owner: tihuang@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      description: Whether to enable third-party tracker cookie blocking.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.cookieBehavior.trackerCookieBlocking"
-
 fxaButtonVisibility:
   description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.
   owner: mconley@mozilla.com
@@ -2777,16 +2691,6 @@ fxaButtonVisibility:
       setPref:
         branch: user
         pref: identity.fxaccounts.toolbar.pxiToolbarEnabled.vpnEnabled
-
-syncDecouplingUpdates:
-  description: Prefs to control the updated Mozilla account panel flow for users without sync enabled.
-  owner: skhamis@mozilla.com
-  hasExposure: false
-  variables:
-    syncSetup:
-      description: True if we should show the user the updated sync set-up UI
-      type: boolean
-      fallbackPref: identity.fxaccounts.toolbar.syncSetup.enabled
 
 fxaClientAssociation:
   description: Prefs to control the client association ping.
@@ -3883,14 +3787,6 @@ pqcrypto:
         pref: security.tls.client_hello.send_p256_keyshare
       description: >-
         Whether to send a P256 share in the client hello in QUIC and TLS.
-    dtlsWebRTCEnableMlkem:
-      type: boolean
-      setPref:
-        branch: default
-        pref: media.webrtc.enable_pq_dtls
-      description: >-
-        Whether to enable mlkem768x25519 for DTLS in WebRTC.
-
 
 dtlsWebRTC:
   description: Pref that controls the use of DTLS.
@@ -4017,16 +3913,13 @@ sidebar:
       description: Minimum Firefox version to apply prefs
     main.tools:
       type: string
-      description: sidebar.main.tools pref value to set on user branch; which tools for sidebar panels show in the launcher
+      description: sidebar.main.tools pref value to set on user branch
     revamp:
       type: boolean
-      description: sidebar.revamp pref value to set on user branch; true for new experience
+      description: sidebar.revamp pref value to set on user branch
     verticalTabs:
       type: boolean
-      description: sidebar.verticalTabs pref value to set on user branch; true to enable vertical tabs
-    visibility:
-      type: string
-      description: sidebar.visibility pref value ("hide" or "always-show") to set on user branch
+      description: sidebar.verticalTabs pref value to set on user branch
 
 fxms_bmb_button:
   description: A feature for the Firefox Messaging System Bookmarks Bar button surface
@@ -4063,29 +3956,4 @@ certificateTransparency:
         branch: default
         pref: security.pki.certificate_transparency.mode
       description: >-
-        What mode Certificate Transparency is in (0=disable, 1=telemetry only,
-        2=enforce).
-
-setToDefaultPrompt:
-  description: "Experimental set to default spotlight"
-  owner: omc@mozilla.com
-  hasExposure: true
-  exposureDescription: >-
-    "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
-  variables:
-    showSpotlightPrompt:
-      description: Show experimental set to default spotlight message instead of default prompt
-      type: boolean
-    message:
-      description: Message to show instead of the default prompt
-      type: json
-
-tabGroups:
-  description: Prefs to control Tab Groups
-  owner: dao@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      fallbackPref: browser.tabs.groups.enabled
-      description: Controls whether users can create new tab groups via drag and drop or the tab context menu
+        What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
