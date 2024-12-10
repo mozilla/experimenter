@@ -1,7 +1,6 @@
-<li class="nav-item fw-semibold">
-  <a href="{{ link }}"
-     class="nav-link {% if disabled %}disabled{% endif %}">
-    <i class="{{ icon }}"></i>
-    <span>{{ title }}</span>
-  </a>
-</li>
+<a {% if external %}target="_blank"{% endif %}
+   class="nav-link mb-2 {% if request.path == link %}active{% endif %} nav-link-hover {% if disabled %}disabled{% endif %}"
+   href="{{ link }}">
+  <i class="{{ icon }} pe-2"></i>
+  <span>{{ title }}</span>
+</a>
