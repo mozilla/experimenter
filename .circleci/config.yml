@@ -3,7 +3,7 @@ orbs:
   gh: circleci/github-cli@2.2
   gcp-cli: circleci/gcp-cli@3.1.1
   android: circleci/android@2.5.0
-  macos: circleci/macos@2.5.1
+  macos: circleci/macos@2.5.2
 commands:
   check_file_paths:
     description: "Check file paths"
@@ -313,18 +313,25 @@ jobs:
 
   integration_nimbus_ios_enrollment:
     macos:
-      xcode: 15.4.0
+      xcode: 16.2
     parameters:
       file_path:
         type: string
+      ios_version:
+        type: string
+      simulator_device:
+        type: string
+    environment:
+      SIMULATOR_DEVICE: << parameters.simulator_device >>
+      IOS_VERSION: << parameters.ios_version >>
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|<< parameters.file_path >>"
       - macos/preboot-simulator:
-          version: "17.5"
+          version: << parameters.ios_version >>
           platform: "iOS"
-          device: "iPhone 15"
+          device: << parameters.simulator_device >>
       - attach_workspace:
           at: /tmp/experimenter
       - run:
@@ -334,6 +341,11 @@ jobs:
           name: Install nimbus-cli
           command: curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
       - run:
+          name: Install Cargo
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            echo 'export PATH=$HOME/.cargo/bin:$PATH' >> "$BASH_ENV"
+      - run:
           name: Setup and build Firefox app
           command: |
             source << parameters.file_path >>
@@ -341,15 +353,19 @@ jobs:
             git checkout "$BRANCH"
             sh ./bootstrap.sh
             cd firefox-ios
-            pip3 install virtualenv poetry
-            xcodebuild build-for-testing -scheme Fennec -target Client -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ARCHS="arm64"
+            xcodebuild build-for-testing -scheme Fennec -target Client -destination 'platform=iOS Simulator,name=<< parameters.simulator_device >>,OS=<< parameters.ios_version >>' COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ARCHS="arm64"
       - run:
           name: Run Tests
           command: |
+            curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
+            echo 'export PATH=/Users/distiller/.local/bin:$PATH' >> "$BASH_ENV"
+            source $BASH_ENV
             cd firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests
             git cherry-pick dfd0b8a556f5990d0b5d9351df8acf571895e6dc -X theirs || true
             export SIMULATOR_UDID=$(python get_specific_device_udid.py)
             cp -f ~/project/experimenter/tests/integration/nimbus/ios/test_ios_integration.py ./
+            cp -f ~/project/experimenter/tests/integration/nimbus/ios/xcodebuild.py ./
+            poetry add pydantic==2.10.3
             poetry install
             poetry run pytest -k test_ios_integration.py --feature ios_enrollment
       - store_artifacts:
@@ -770,6 +786,8 @@ workflows:
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_beta_build.env
+          ios_version: "18.2"
+          simulator_device: iPhone 16
           filters:
             branches:
               only:
@@ -779,6 +797,8 @@ workflows:
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_release_build.env
+          ios_version: "18.2"
+          simulator_device: iPhone 16
           filters:
             branches:
               only:
