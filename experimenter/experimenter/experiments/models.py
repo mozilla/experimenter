@@ -464,6 +464,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_history_url(self):
         return reverse("nimbus-new-history", kwargs={"slug": self.slug})
 
+    def get_update_overview_url(self):
+        return reverse("nimbus-new-update-overview", kwargs={"slug": self.slug})
+
     def get_update_metrics_url(self):
         return reverse("nimbus-new-update-metrics", kwargs={"slug": self.slug})
 
