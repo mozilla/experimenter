@@ -13,6 +13,7 @@ from experimenter.base.tests.factories import (
 )
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
+    NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
@@ -1133,6 +1134,104 @@ class TestNimbusExperimentsCreateView(AuthTestCase):
         self.assertEqual(experiment.hypothesis, "test")
         self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
         self.assertEqual(experiment.owner, self.user)
+
+
+class TestOverviewUpdateView(AuthTestCase):
+    def test_get_renders_page(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-update-overview", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_updates_overview(self):
+        project = ProjectFactory.create()
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+
+        response = self.client.post(
+            reverse("nimbus-new-update-overview", kwargs={"slug": experiment.slug}),
+            {
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "risk_brand": True,
+                "risk_message": True,
+                "projects": [project.id],
+                "public_description": "new description",
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                # Management form data for the inline formset
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "https://www.example.com",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment = NimbusExperiment.objects.get(slug=experiment.slug)
+
+        self.assertEqual(experiment.name, "new name")
+        self.assertEqual(experiment.hypothesis, "new hypothesis")
+        self.assertTrue(experiment.risk_brand)
+        self.assertTrue(experiment.risk_message)
+        self.assertEqual(list(experiment.projects.all()), [project])
+        self.assertEqual(experiment.public_description, "new description")
+        self.assertTrue(experiment.risk_revenue)
+        self.assertTrue(experiment.risk_partner_related)
+
+        documentation_link = experiment.documentation_links.all().get()
+        self.assertEqual(
+            documentation_link.title, NimbusExperiment.DocumentationLink.DESIGN_DOC
+        )
+        self.assertEqual(documentation_link.link, "https://www.example.com")
+
+
+class TestDocumentationLinkCreateView(AuthTestCase):
+    def test_post_creates_documentation_link(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[],
+        )
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-create-documentation-link", kwargs={"slug": experiment.slug}
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(experiment.documentation_links.all().count(), 1)
+
+
+class TestDocumentationLinkDeleteView(AuthTestCase):
+    def test_post_deletes_documentation_link(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-delete-documentation-link", kwargs={"slug": experiment.slug}
+            ),
+            {
+                "link_id": documentation_link.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(experiment.documentation_links.all().count(), 0)
 
 
 @mock_valid_outcomes
