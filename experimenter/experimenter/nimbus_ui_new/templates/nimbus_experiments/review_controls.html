@@ -1,3 +1,4 @@
+{# templates/nimbus_experiments/review_controls.html #}
 <form method="post"
       action="{% url 'cancel-review' slug=experiment.slug %}"
       hx-post="{% url 'cancel-review' slug=experiment.slug %}"

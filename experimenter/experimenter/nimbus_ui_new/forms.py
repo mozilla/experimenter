@@ -201,7 +201,6 @@ class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         experiment.subscribers.add(self.request.user)
-        # Generate the changelog after all updates
         generate_nimbus_changelog(
             experiment, self.request.user, self.get_changelog_message()
         )
@@ -219,7 +218,6 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         experiment.subscribers.remove(self.request.user)
-        # Generate the changelog after all updates
         generate_nimbus_changelog(
             experiment, self.request.user, self.get_changelog_message()
         )
@@ -236,10 +234,8 @@ class LaunchToPreviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def save(self, commit=True):
         experiment = super().save(commit=commit)
-        # Update experiment status or other relevant fields
         experiment.status = NimbusExperiment.Status.PREVIEW
         experiment.save()
-        # Generate the changelog after all updates
         generate_nimbus_changelog(
             experiment, self.request.user, self.get_changelog_message()
         )
@@ -253,19 +249,6 @@ class LaunchWithoutPreviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     class Meta:
         model = NimbusExperiment
         fields = []
-
-    # def save(self, commit=True):
-    #     experiment = super().save(commit=commit)
-    #     # Update experiment status or other relevant fields
-    #     experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-    #     experiment.status = NimbusExperiment.Status.DRAFT
-    #     experiment.status_next = NimbusExperiment.Status.LIVE
-    #     experiment.save()
-    #     # Generate the changelog after all updates
-    #     generate_nimbus_changelog(
-    #         experiment, self.request.user, self.get_changelog_message()
-    #     )
-    #     return experiment
 
     def get_changelog_message(self):
         return f"{self.request.user} requested launch without Preview"
@@ -282,7 +265,6 @@ class LaunchPreviewToReviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         experiment.status = NimbusExperiment.Status.DRAFT
         experiment.status_next = NimbusExperiment.Status.LIVE
         experiment.save()
-        # Generate the changelog after all updates
         generate_nimbus_changelog(
             experiment, self.request.user, self.get_changelog_message()
         )
@@ -302,7 +284,6 @@ class LaunchPreviewToDraftForm(NimbusChangeLogFormMixin, forms.ModelForm):
         experiment.status = NimbusExperiment.Status.DRAFT
         experiment.status_next = None
         experiment.save()
-        # Generate the changelog after all updates
         generate_nimbus_changelog(
             experiment, self.request.user, self.get_changelog_message()
         )
