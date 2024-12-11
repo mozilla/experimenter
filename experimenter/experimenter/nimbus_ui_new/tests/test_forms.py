@@ -2,11 +2,17 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.experiments.tests.factories import (
+    NimbusDocumentationLinkFactory,
+    NimbusExperimentFactory,
+)
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.forms import (
+    DocumentationLinkCreateForm,
+    DocumentationLinkDeleteForm,
     MetricsForm,
     NimbusExperimentCreateForm,
+    OverviewForm,
     QAStatusForm,
     SignoffForm,
     SubscribeForm,
@@ -16,6 +22,7 @@ from experimenter.nimbus_ui_new.forms import (
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
+from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
 from experimenter.segments.tests.mock_segments import mock_get_segments
 
@@ -308,3 +315,94 @@ class SubscriptionFormTests(RequestFormTestCase):
         changelog = self.experiment.changes.get()
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("dev@example.com removed subscriber", changelog.message)
+
+
+class TestOverviewForm(RequestFormTestCase):
+    def test_valid_form_saves(self):
+        project = ProjectFactory.create()
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+
+        form = OverviewForm(
+            instance=experiment,
+            data={
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "risk_brand": True,
+                "risk_message": True,
+                "projects": [project.id],
+                "public_description": "new description",
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                # Management form data for the inline formset
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "https://www.example.com",
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.name, "new name")
+        self.assertEqual(experiment.hypothesis, "new hypothesis")
+        self.assertTrue(experiment.risk_brand)
+        self.assertTrue(experiment.risk_message)
+        self.assertEqual(list(experiment.projects.all()), [project])
+        self.assertEqual(experiment.public_description, "new description")
+        self.assertTrue(experiment.risk_revenue)
+        self.assertTrue(experiment.risk_partner_related)
+
+        documentation_link = experiment.documentation_links.all().get()
+        self.assertEqual(
+            documentation_link.title, NimbusExperiment.DocumentationLink.DESIGN_DOC
+        )
+        self.assertEqual(documentation_link.link, "https://www.example.com")
+
+
+class TestDocumentationLinkCreateForm(RequestFormTestCase):
+    def test_valid_form_adds_documentation_link(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[],
+        )
+
+        form = DocumentationLinkCreateForm(
+            instance=experiment, data={}, request=self.request
+        )
+
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.documentation_links.all().count(), 1)
+
+
+class TestDocumentationLinkDeleteForm(RequestFormTestCase):
+    def test_valid_form_deletes_documentation_link(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+
+        form = DocumentationLinkDeleteForm(
+            instance=experiment,
+            data={"link_id": documentation_link.id},
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.documentation_links.all().count(), 0)
