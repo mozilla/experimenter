@@ -1,6 +1,7 @@
 from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
+    CancelReviewView,
     LaunchPreviewToDraftView,
     LaunchPreviewToReviewView,
     LaunchToPreviewView,
@@ -88,5 +89,9 @@ urlpatterns = [
         LaunchPreviewToDraftView.as_view(),
         name="launch-preview-to-draft",
     ),
-
+    re_path(
+        r"^(?P<slug>[\w-]+)/cancel-review/$",
+        CancelReviewView.as_view(),
+        name="cancel-review",
+    ),
 ]

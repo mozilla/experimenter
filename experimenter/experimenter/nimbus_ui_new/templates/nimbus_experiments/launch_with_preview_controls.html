@@ -12,24 +12,23 @@
     <form method="post" action="{% url 'launch-preview-to-review' slug=experiment.slug %}" hx-post="{% url 'launch-preview-to-review' slug=experiment.slug %}" hx-target="#launch-controls" hx-swap="outerHTML" id="preview-controls-form">
         {% csrf_token %}
         <p class="my-1">
-            This experiment is currently <strong>live for testing</strong>, but you will need to let QA know in your 
-            <a href="https://example.com/qa-pi-doc" target="_blank">PI request</a>. When you have received a sign-off, click “Request Launch” to launch the experiment.
+            This experiment is currently <strong>live for testing</strong>, but you will need to let QA know in your
+            <a href="{{ EXTERNAL_URLS.SIGNOFF_QA }}" target="_blank">PI request</a>. When you have received a sign-off, click “Request Launch” to launch the experiment.
             <strong>Note: It can take up to an hour before clients receive a preview experiment.</strong>
         </p>
 
         <!-- Confirmation Checkboxes -->
         <div class="form-check">
             <input type="checkbox" class="form-check-input" id="checkbox-1" onchange="toggleSubmitButton()">
-            <label class="form-check-label" for="checkbox-1">Checkbox 1</label>
+            <label class="form-check-label" for="checkbox-1">I understand the risks associated with launching an experiment</label>
         </div>
         <div class="form-check">
             <input type="checkbox" class="form-check-input" id="checkbox-2" onchange="toggleSubmitButton()">
-            <label class="form-check-label" for="checkbox-2">Checkbox 2</label>
+            <label class="form-check-label" for="checkbox-2">I have gone through the <a href="{{ EXTERNAL_URLS.TRAINING_AND_PLANNING_DOC }}" target="_blank">experiment onboarding program </a></label>
         </div>
-
         <!-- Action Buttons -->
         <div class="d-flex bd-highlight py-2">
-            <button type="submit" class="btn btn-primary mr-3" id="request-launch-button" hx-post="{% url 'launch-preview-to-review' slug=experiment.slug %}"
+            <button type="submit" class="btn btn-primary mx-3" id="request-launch-button" hx-post="{% url 'launch-preview-to-review' slug=experiment.slug %}"
                 hx-target="#experiment-container"
                 hx-swap="innerHTML"disabled>
                 Request Launch

@@ -25,7 +25,9 @@
      {% if experiment.is_draft %}
     {% include "nimbus_experiments/launch_controls.html" %}
      {% elif experiment.is_preview %}
-     {% include "nimbus_experiments/preview_controls.html" %}
+     {% include "nimbus_experiments/launch_with_preview_controls.html" %}
+      {% elif experiment.is_review %}
+     {% include "nimbus_experiments/review_controls.html" %}
     {% endif %}
 </div>
 </div>

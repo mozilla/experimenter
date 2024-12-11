@@ -1,7 +1,7 @@
 {# templates/nimbus_experiments/launch_controls.html #}
 <div class="alert alert-secondary">
     <p>Do you want to test this experiment before launching to production?
-        <a href="https://experimenter.info/previewing-experiments/" target="_blank" class="mr-1">Learn more</a>
+        <a href="{{ EXTERNAL_URLS.PREVIEW_LAUNCH_DOC }}" target="_blank" class="mr-1">Learn more</a>
 
     </p>
 
@@ -12,7 +12,7 @@
               hx-target="#experiment-container"
               hx-swap="innerHTML">
             {% csrf_token %}
-            <button type="submit" class="btn btn-primary mr-2" {% if is_loading %}disabled{% endif %}>Preview for Testing</button>
+            <button type="submit" class="btn btn-primary mx-2" {% if is_loading %}disabled{% endif %}>Preview for Testing</button>
         </form>
 
         <form method="post"
