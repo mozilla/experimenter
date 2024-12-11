@@ -6,7 +6,6 @@ from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
-
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
 from experimenter.experiments.models import (
     NimbusExperiment,

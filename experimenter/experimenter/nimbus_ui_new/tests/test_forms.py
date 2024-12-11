@@ -394,6 +394,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("cancelled the review", changelog.message)
 
+
 class TestOverviewForm(RequestFormTestCase):
     def test_valid_form_saves(self):
         project = ProjectFactory.create()
