@@ -628,7 +628,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_draft(self):
-        return self.status == self.Status.DRAFT and self.publish_status == self.PublishStatus.IDLE
+        return (
+            self.status == self.Status.DRAFT
+            and self.publish_status == self.PublishStatus.IDLE
+        )
 
     @property
     def is_review(self):

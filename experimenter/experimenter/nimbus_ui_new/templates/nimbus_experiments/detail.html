@@ -16,22 +16,25 @@
         </span>
         <p class="text-secondary">{{ experiment.slug }}</p>
       </div>
-<div id="experiment-container">
-      <div id="experiment-timeline"
-   >
-  {% include "nimbus_experiments/timeline.html" %}
-</div>
-    <div id="launch-controls">
-     {% if experiment.is_draft %}
-    {% include "nimbus_experiments/launch_controls.html" %}
-     {% elif experiment.is_preview %}
-     {% include "nimbus_experiments/launch_with_preview_controls.html" %}
-      {% elif experiment.is_review %}
-     {% include "nimbus_experiments/review_controls.html" %}
-    {% endif %}
-</div>
-</div>
-</div>
+      <div id="experiment-container">
+        <div id="experiment-timeline">
+          {% include "nimbus_experiments/timeline.html" %}
+
+        </div>
+        <div id="launch-controls">
+          {% if experiment.is_draft %}
+            {% include "nimbus_experiments/launch_controls.html" %}
+
+          {% elif experiment.is_preview %}
+            {% include "nimbus_experiments/launch_with_preview_controls.html" %}
+
+          {% elif experiment.is_review %}
+            {% include "nimbus_experiments/review_controls.html" %}
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
     <!-- Takeaways Card -->
     {% include "nimbus_experiments/takeaways_card.html" %}
 
@@ -331,4 +334,5 @@
 {% block extrascripts %}
   {{ block.super }}
   <script src="{% static 'nimbus_ui_new/setup_selectpicker.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui_new/control.bundle.js' %}"></script>
 {% endblock %}

@@ -1,28 +1,31 @@
 {# templates/nimbus_experiments/launch_controls.html #}
 <div class="alert alert-secondary">
-    <p>Do you want to test this experiment before launching to production?
-        <a href="{{ EXTERNAL_URLS.PREVIEW_LAUNCH_DOC }}" target="_blank" class="mr-1">Learn more</a>
-
-    </p>
-
-    <div class="d-flex">
-        <form method="post"
-              action="{% url 'launch-to-preview' slug=experiment.slug %}"
-              hx-post="{% url 'launch-to-preview' slug=experiment.slug %}"
-              hx-target="#experiment-container"
-              hx-swap="innerHTML">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary mx-2" {% if is_loading %}disabled{% endif %}>Preview for Testing</button>
-        </form>
-
-        <form method="post"
-              action="{% url 'launch-without-preview' slug=experiment.slug %}"
-              hx-post="{% url 'launch-without-preview' slug=experiment.slug %}"
-              hx-target="#experiment-container"
-              hx-swap="outerHTML">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-secondary" {% if is_loading %}disabled{% endif %}>Request Launch without Preview</button>
-        </form>
-    </div>
+  <p>
+    Do you want to test this experiment before launching to production?
+    <a href="{{ EXTERNAL_URLS.PREVIEW_LAUNCH_DOC }}"
+       target="_blank"
+       class="mr-1">Learn more</a>
+  </p>
+  <div class="d-flex">
+    <form method="post"
+          action="{% url 'launch-to-preview' slug=experiment.slug %}"
+          hx-post="{% url 'launch-to-preview' slug=experiment.slug %}"
+          hx-target="#experiment-container"
+          hx-swap="innerHTML">
+      {% csrf_token %}
+      <button type="submit"
+              class="btn btn-primary mx-2"
+              {% if is_loading %}disabled{% endif %}>Preview for Testing</button>
+    </form>
+    <form method="post"
+          action="{% url 'launch-without-preview' slug=experiment.slug %}"
+          hx-post="{% url 'launch-without-preview' slug=experiment.slug %}"
+          hx-target="#experiment-container"
+          hx-swap="outerHTML">
+      {% csrf_token %}
+      <button type="submit"
+              class="btn btn-secondary"
+              {% if is_loading %}disabled{% endif %}>Request Launch without Preview</button>
+    </form>
+  </div>
 </div>
-
