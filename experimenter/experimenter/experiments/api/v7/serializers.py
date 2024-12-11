@@ -7,8 +7,15 @@ from rest_framework import serializers
 from experimenter.experiments.api.v6.serializers import NimbusBucketRangeSerializer
 from experimenter.experiments.models import (
     NimbusBranch,
+    NimbusDocumentationLink,
     NimbusExperiment,
 )
+
+
+class NimbusDocumentationLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NimbusDocumentationLink
+        fields = ("title", "link")
 
 
 class NimbusBranchSerializer(serializers.ModelSerializer):
@@ -23,7 +30,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         features = []
         for fv in obj.feature_values.all():
             feature_value = {
-                "featureId": fv.feature_config and fv.feature_config.slug or "",
+                "featureId": (fv.feature_config and fv.feature_config.slug) or "",
                 "value": {},
             }
 
@@ -66,6 +73,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     locales = serializers.SerializerMethodField()
     localizations = serializers.SerializerMethodField()
     publishedDate = serializers.DateTimeField(source="published_date")
+    documentationLinks = NimbusDocumentationLinkSerializer(
+        source="documentation_links", many=True
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -98,6 +108,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "locales",
             "localizations",
             "publishedDate",
+            "documentationLinks",
         )
 
     def get_application(self, obj):

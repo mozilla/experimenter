@@ -1,6 +1,36 @@
 {% extends "common/with_sidebar.html" %}
 
 {% block sidebar %}
-  {% include "common/experiment_sidebar.html" with experiment=experiment %}
+  {% include "nimbus_experiments/sidebar.html" with experiment=experiment %}
 
+{% endblock %}
+
+{% block main_content_header %}
+  <div class="row">
+    <div class="col-6">
+      <h4 class="mb-0">{{ experiment.name }}</h4>
+      <span class="{{ experiment.qa_status_badge_class }}">
+        QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
+      </span>
+      <p class="text-secondary mb-0">{{ experiment.slug }}</p>
+      {% if experiment.parent %}
+        <p class="text-secondary small">
+          Cloned from
+          <a href="{% url 'nimbus-new-detail' experiment.parent.slug %}"
+             target="_blank"
+             rel="noopener noreferrer">{{ experiment.parent.name }}</a>
+        </p>
+      {% endif %}
+    </div>
+    <div class="col-6">
+      <ul class="list-group list-group-horizontal justify-content-between mb-3">
+        {% for status in experiment.timeline %}
+          <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if status.is_active %}bg-primary text-white{% endif %}">
+            <strong>{{ status.label }}</strong>
+            <small>{{ status.date|default:'---' }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 {% endblock %}

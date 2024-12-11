@@ -1,19 +1,26 @@
-<ul class="nav nav-pills flex-column ps-4">
+<div class="nav flex-column nav-pills fw-medium w-100">
   {% include "common/sidebar_link.html" with title="Summary" link=experiment.get_detail_url icon="fa-regular fa-paper-plane" %}
   {% include "common/sidebar_link.html" with title="History" link=experiment.get_history_url icon="fa-solid fa-network-wired" active=True %}
+  {% include "common/sidebar_link.html" with title="Results" link="" icon="fa-solid fa-chart-column" disabled=True %}
 
-  <li class="border-bottom my-2 ms-3">
-    <span class="small text-muted">Edit</span>
-  </li>
-  {% include "common/sidebar_link.html" with title="Overview" link="" icon="fa-regular fa-solid fa-gear" disabled=True %}
+  <strong class="ms-3">Edit</strong>
+  <hr class="my-0 mb-2">
+  {% include "common/sidebar_link.html" with title="Overview" link=experiment.get_update_overview_url icon="fa-regular fa-solid fa-gear" %}
   {% include "common/sidebar_link.html" with title="Branches" link="" icon="fa-solid fa-layer-group" disabled=True %}
   {% include "common/sidebar_link.html" with title="Metrics" link=experiment.get_update_metrics_url icon="fa-solid fa-arrow-trend-up" %}
   {% include "common/sidebar_link.html" with title="Audience" link="" icon="fa-solid fa-user-group" disabled=True %}
 
-  <li class="border-bottom my-2 ms-3">
-    <span class="small text-muted">Actions</span>
-  </li>
+  <strong class="ms-3">Actions</strong>
+  <hr class="my-0 mb-2">
   {% include "common/sidebar_link.html" with title="Clone" link="" icon="fa-regular fa-copy" disabled=True %}
   {% include "common/sidebar_link.html" with title="Archive" link="" icon="fa-regular fa-trash-can" disabled=True %}
 
-</ul>
+  <strong class="ms-3">Links</strong>
+  <hr class="my-0 mb-2">
+  {% for documentation_link in experiment.documentation_links.all %}
+    {% if documentation_link.link %}
+      {% include "common/sidebar_link.html" with title=documentation_link.title link=documentation_link.link icon="fa-solid fa-arrow-up-right-from-square" external=True %}
+
+    {% endif %}
+  {% endfor %}
+</div>

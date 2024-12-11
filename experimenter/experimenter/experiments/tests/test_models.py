@@ -55,6 +55,7 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
+from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
@@ -1687,28 +1688,87 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertIsNone(experiment.review_date)
 
-    def test_timeline_dates_includes_correct_status_dates_and_flags(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle=NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
-        )
+    def test_computed_draft_and_preview_days_returns_correct_difference(self):
+        experiment = NimbusExperimentFactory.create()
         NimbusChangeLogFactory.create(
             experiment=experiment,
             new_status=NimbusExperiment.Status.DRAFT,
             changed_on=datetime.datetime(2023, 1, 1),
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.PREVIEW,
+            changed_on=datetime.datetime(2023, 1, 5),
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_publish_status=NimbusExperiment.Status.PREVIEW,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            changed_on=datetime.datetime(2023, 1, 12),
+        )
+
+        self.assertEqual(experiment.computed_draft_days, 4)
+        self.assertEqual(experiment.computed_preview_days, 7)
+
+    def test_computed_draft_days_returns_correct_difference_if_preview_is_none(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            new_status=NimbusExperiment.Status.DRAFT,
+            changed_on=datetime.datetime(2023, 1, 1),
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_publish_status=NimbusExperiment.Status.DRAFT,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            changed_on=datetime.datetime(2023, 1, 8),
+        )
+        self.assertEqual(experiment.computed_draft_days, 7)
+
+    def test_computed_preview_and_review_days_returns_none_if_none(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            new_status=NimbusExperiment.Status.DRAFT,
+            changed_on=datetime.datetime(2023, 1, 1),
+        )
+        self.assertIsNone(experiment.computed_preview_days)
+        self.assertIsNone(experiment.computed_review_days)
+
+    def test_computed_review_days_returns_correct_difference(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            start_date=datetime.date(2021, 1, 5),
+        )
+        self.assertEqual(experiment.computed_review_days, 3)
+
+    def test_timeline_dates_includes_correct_status_dates_and_flags(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            proposed_enrollment=2,
+            start_date=datetime.date(2021, 1, 4),
+            _enrollment_end_date=datetime.date(2021, 1, 6),
+            end_date=datetime.date(2021, 1, 8),
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            new_status=NimbusExperiment.Status.DRAFT,
+            changed_on=datetime.datetime(2021, 1, 1),
         )
 
         NimbusChangeLogFactory.create(
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.PREVIEW,
-            changed_on=datetime.datetime(2023, 3, 1),
+            changed_on=datetime.datetime(2021, 1, 2),
         )
 
         NimbusChangeLogFactory.create(
             experiment=experiment,
             old_publish_status=NimbusExperiment.Status.PREVIEW,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            changed_on=datetime.datetime(2023, 4, 1),
+            changed_on=datetime.datetime(2021, 1, 2),
         )
         timeline = experiment.timeline()
         expected_timeline = [
@@ -1716,33 +1776,45 @@ class TestNimbusExperiment(TestCase):
                 "label": "Draft",
                 "date": experiment.draft_date,
                 "is_active": False,
+                "days": 1,
             },
             {
                 "label": "Preview",
                 "date": experiment.preview_date,
                 "is_active": False,
+                "days": 0,
             },
             {
                 "label": "Review",
                 "date": experiment.review_date,
                 "is_active": False,
+                "days": 2,
             },
-            {"label": "Live", "date": experiment.start_date, "is_active": True},
             {
-                "label": NimbusConstants.ENROLLMENT_END,
+                "label": NimbusConstants.ENROLLMENT,
+                "date": experiment.start_date,
+                "is_active": False,
+                "days": 2,
+            },
+            {
+                "label": NimbusConstants.OBSERVATION,
                 "date": experiment._enrollment_end_date,
                 "is_active": False,
+                "days": 2,
             },
             {
                 "label": "Complete",
                 "date": experiment.computed_end_date,
-                "is_active": False,
+                "is_active": True,
+                "days": 4,
             },
         ]
+
         for i, expected in enumerate(expected_timeline):
             self.assertEqual(timeline[i]["label"], expected["label"])
             self.assertEqual(timeline[i]["date"], expected["date"])
             self.assertEqual(timeline[i]["is_active"], expected["is_active"])
+            self.assertEqual(timeline[i].get("days"), expected["days"])
 
     def test_timeline_dates_complete_is_active_when_status_is_complete(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1983,6 +2055,100 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
+    @mock.patch.object(
+        NimbusExperiment, "excluded_live_deliveries", new_callable=mock.PropertyMock
+    )
+    def test_excluding_experiments_warning(self, mock_excluded_live_deliveries):
+        mock_excluded_live_deliveries.return_value = ["experiment1", "experiment2"]
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING
+        )
+        self.assertEqual(warnings[0]["slugs"], ["experiment1", "experiment2"])
+
+    @mock.patch.object(
+        NimbusExperiment, "live_experiments_in_namespace", new_callable=mock.PropertyMock
+    )
+    def test_live_experiments_bucket_warning(self, mock_live_experiments_in_namespace):
+        mock_live_experiments_in_namespace.return_value = ["experiment3"]
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING
+        )
+        self.assertEqual(warnings[0]["slugs"], ["experiment3"])
+
+    @mock.patch.object(
+        NimbusExperiment,
+        "feature_has_live_multifeature_experiments",
+        new_callable=mock.PropertyMock,
+    )
+    def test_live_multifeature_warning(
+        self, mock_feature_has_live_multifeature_experiments
+    ):
+        mock_feature_has_live_multifeature_experiments.return_value = [
+            "experiment5",
+            "experiment6",
+        ]
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0]["text"], NimbusUIConstants.LIVE_MULTIFEATURE_WARNING)
+        self.assertEqual(warnings[0]["slugs"], ["experiment5", "experiment6"])
+
+    @mock.patch.object(
+        NimbusExperiment, "excluded_live_deliveries", new_callable=mock.PropertyMock
+    )
+    @mock.patch.object(
+        NimbusExperiment, "live_experiments_in_namespace", new_callable=mock.PropertyMock
+    )
+    @mock.patch.object(
+        NimbusExperiment,
+        "feature_has_live_multifeature_experiments",
+        new_callable=mock.PropertyMock,
+    )
+    def test_multiple_warnings(
+        self,
+        mock_feature_has_live_multifeature_experiments,
+        mock_live_experiments_in_namespace,
+        mock_excluded_live_deliveries,
+    ):
+        mock_excluded_live_deliveries.return_value = ["experiment1", "experiment2"]
+        mock_live_experiments_in_namespace.return_value = ["experiment3"]
+        mock_feature_has_live_multifeature_experiments.return_value = ["experiment4"]
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 3)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING
+        )
+        self.assertEqual(warnings[0]["slugs"], ["experiment1", "experiment2"])
+        self.assertEqual(
+            warnings[1]["text"], NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING
+        )
+        self.assertEqual(warnings[1]["slugs"], ["experiment3"])
+        self.assertEqual(warnings[2]["text"], NimbusUIConstants.LIVE_MULTIFEATURE_WARNING)
+        self.assertEqual(warnings[2]["slugs"], ["experiment4"])
+
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2127,6 +2293,41 @@ class TestNimbusExperiment(TestCase):
             experiment.bucket_namespace,
             "firefox-desktop-feature-release-mac_only-rollout",
         )
+
+    def test_required_experiments_branches(self):
+        parent_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        child_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        NimbusExperimentBranchThroughRequired.objects.create(
+            parent_experiment=parent_experiment,
+            child_experiment=child_experiment,
+            branch_slug="branch-test",
+        )
+
+        required_branches = parent_experiment.required_experiments_branches.all()
+        self.assertEqual(len(required_branches), 1)
+        self.assertEqual(required_branches[0].branch_slug, "branch-test")
+
+    def test_excluded_experiments_branches(self):
+        parent_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        child_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        NimbusExperimentBranchThroughExcluded.objects.create(
+            parent_experiment=parent_experiment,
+            child_experiment=child_experiment,
+        )
+
+        excluded_branches = parent_experiment.excluded_experiments_branches.all()
+        self.assertEqual(len(excluded_branches), 1)
+        self.assertIsNone(excluded_branches[0].branch_slug)
 
     def test_bucket_namespace_with_group_id(self):
         feature = NimbusFeatureConfigFactory(slug="feature")

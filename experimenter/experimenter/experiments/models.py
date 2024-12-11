@@ -5,7 +5,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from urllib.parse import urlencode, urljoin
 from uuid import uuid4
 
@@ -31,6 +31,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
+from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
@@ -285,10 +286,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         on_delete=models.SET_NULL,
         verbose_name="Reference Branch",
     )
-    published_dto = models.JSONField[Dict[str, Any]](
+    published_dto = models.JSONField[dict[str, Any]](
         "Published DTO", encoder=DjangoJSONEncoder, blank=True, null=True
     )
-    results_data = models.JSONField[Dict[str, Any]](
+    results_data = models.JSONField[dict[str, Any]](
         "Results Data", encoder=DjangoJSONEncoder, blank=True, null=True
     )
     risk_partner_related = models.BooleanField(
@@ -371,18 +372,31 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     use_group_id = models.BooleanField(default=False)
     objects = NimbusExperimentManager()
     is_firefox_labs_opt_in = models.BooleanField(
-        "Is Experiment a Firefox Labs opt-n", default=False
+        "Is Experiment a Firefox Labs Opt-In?", default=False
     )
     firefox_labs_title = models.TextField(
-        "An optional string containing the Fluent ID for the title of the opt-in",
+        "The title to display in Firefox Labs (Fluent ID)",
         blank=True,
         null=True,
     )
     firefox_labs_description = models.TextField(
-        "An optional string containing the Fluent ID "
-        "for the description of the opt-in",
+        "The description to display in Firefox Labs (Fluent ID)",
         blank=True,
         null=True,
+    )
+    firefox_labs_group = models.CharField(
+        "The group this should appear under in Firefox Labs",
+        blank=True,
+        null=True,
+        max_length=255,
+        choices=NimbusConstants.FirefoxLabsGroups.choices,
+    )
+    requires_restart = models.BooleanField(
+        (
+            "Does this experiment require a restart to take effect? "
+            "Only used by Firefox Labs."
+        ),
+        default=False,
     )
 
     class Meta:
@@ -449,6 +463,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def get_history_url(self):
         return reverse("nimbus-new-history", kwargs={"slug": self.slug})
+
+    def get_update_overview_url(self):
+        return reverse("nimbus-new-update-overview", kwargs={"slug": self.slug})
 
     def get_update_metrics_url(self):
         return reverse("nimbus-new-update-metrics", kwargs={"slug": self.slug})
@@ -645,12 +662,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.status == self.Status.PREVIEW
 
     @property
-    def is_live(self):
-        return self.status == self.Status.LIVE
+    def is_enrollment(self):
+        return self.status == self.Status.LIVE and not self.is_paused_published
 
     @property
     def is_complete(self):
         return self.status == self.Status.COMPLETE
+
+    @property
+    def is_observation(self):
+        return self._enrollment_end_date is not None and not self.is_complete
 
     @property
     def is_started(self):
@@ -797,6 +818,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.end_date or self.proposed_end_date
 
     @property
+    def computed_draft_days(self):
+        if self.draft_date and self.preview_date is not None:
+            return (self.preview_date - self.draft_date).days
+        elif self.draft_date and self.review_date is not None:
+            return (self.review_date - self.draft_date).days
+        return None
+
+    @property
+    def computed_preview_days(self):
+        if self.preview_date and self.review_date is not None:
+            return (self.review_date - self.preview_date).days
+        return None
+
+    @property
+    def computed_review_days(self):
+        if self.review_date and self.enrollment_start_date is not None:
+            return (self.enrollment_start_date - self.review_date).days
+        return None
+
+    @property
     def enrollment_duration(self):
         if self.computed_end_date and self.enrollment_start_date is not None:
             return (
@@ -812,41 +853,57 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self.computed_end_date - self.enrollment_start_date).days
         return self.proposed_duration
 
+    @property
+    def computed_observations_days(self):
+        if (
+            enrollment_end_date := (
+                self.actual_enrollment_end_date or self.computed_enrollment_end_date
+            )
+        ) and self.computed_end_date:
+            return (self.computed_end_date - enrollment_end_date).days
+        return None
+
     def timeline(self):
         timeline_entries = [
             {
                 "label": self.Status.DRAFT,
                 "date": self.draft_date,
                 "is_active": self.is_draft,
+                "days": self.computed_draft_days,
             },
             {
                 "label": self.Status.PREVIEW,
                 "date": self.preview_date,
                 "is_active": self.is_preview,
+                "days": self.computed_preview_days,
             },
             {
                 "label": self.PublishStatus.REVIEW,
                 "date": self.review_date,
                 "is_active": self.is_review,
+                "days": self.computed_review_days,
             },
             {
-                "label": self.Status.LIVE,
+                "label": NimbusConstants.ENROLLMENT,
                 "date": self.start_date,
-                "is_active": self.is_live,
+                "is_active": self.is_enrollment,
+                "days": self.computed_enrollment_days,
             },
             {
                 "label": self.Status.COMPLETE,
                 "date": self.computed_end_date,
                 "is_active": self.is_complete,
+                "days": self.computed_duration_days,
             },
         ]
         if not self.is_rollout:
             timeline_entries.insert(
                 4,
                 {
-                    "label": NimbusConstants.ENROLLMENT_END,
+                    "label": NimbusConstants.OBSERVATION,
                     "date": self._enrollment_end_date,
-                    "is_active": self._enrollment_end_date is not None,
+                    "is_active": self.is_observation,
+                    "days": self.computed_observations_days,
                 },
             )
 
@@ -904,6 +961,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return settings.ROLLOUT_MONITORING_URL.format(
                 slug=self.slug.replace("-", "_")
             )
+
+    @property
+    def required_experiments_branches(self):
+        return NimbusExperimentBranchThroughRequired.objects.filter(
+            parent_experiment=self
+        )
+
+    @property
+    def excluded_experiments_branches(self):
+        return NimbusExperimentBranchThroughExcluded.objects.filter(
+            parent_experiment=self
+        )
 
     @property
     def review_url(self):
@@ -1056,11 +1125,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def can_edit(self):
         return (
+            self.status == self.Status.DRAFT
+            and self.publish_status == self.PublishStatus.IDLE
+        ) or (
             (
-                self.status == self.Status.DRAFT
-                and self.publish_status == self.PublishStatus.IDLE
-            )
-            or (
                 self.is_rollout
                 and self.status == self.Status.LIVE
                 and self.publish_status == self.PublishStatus.IDLE
@@ -1155,6 +1223,62 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             timezone.now() - self.changes.latest_change().changed_on
         ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
         return self.publish_status == self.PublishStatus.WAITING and review_expired
+
+    @property
+    def audience_overlap_warnings(self):
+        warnings = []
+        excluded_live_deliveries = ""
+        if self.excluded_live_deliveries:
+            excluded_live_deliveries = ", ".join(self.excluded_live_deliveries)
+
+        feature_has_live_multifeature_experiments = ""
+        if self.feature_has_live_multifeature_experiments:
+            feature_has_live_multifeature_experiments = ", ".join(
+                self.feature_has_live_multifeature_experiments
+            )
+
+        live_experiments_in_namespace = ""
+        if self.live_experiments_in_namespace:
+            live_experiments_in_namespace = ", ".join(self.live_experiments_in_namespace)
+
+        overlapping_warnings = (
+            feature_has_live_multifeature_experiments
+            and live_experiments_in_namespace
+            and feature_has_live_multifeature_experiments in live_experiments_in_namespace
+        )
+
+        if self.status in [NimbusConstants.Status.DRAFT, NimbusConstants.Status.PREVIEW]:
+            if excluded_live_deliveries:
+                warnings.append(
+                    {
+                        "text": NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING,
+                        "slugs": self.excluded_live_deliveries,
+                        "variant": "warning",
+                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                    }
+                )
+
+            if live_experiments_in_namespace and not overlapping_warnings:
+                warnings.append(
+                    {
+                        "text": NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING,
+                        "slugs": self.live_experiments_in_namespace,
+                        "variant": "warning",
+                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                    }
+                )
+
+            if feature_has_live_multifeature_experiments:
+                warnings.append(
+                    {
+                        "text": NimbusUIConstants.LIVE_MULTIFEATURE_WARNING,
+                        "slugs": self.feature_has_live_multifeature_experiments,
+                        "variant": "warning",
+                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                    }
+                )
+
+        return warnings
 
     def clone(self, name, user, rollout_branch_slug=None, changed_on=None):
         # Inline import to prevent circular import
@@ -1839,7 +1963,7 @@ class NimbusVersionedSchema(models.Model):
     schema = models.TextField(blank=True, null=True)
 
     # Desktop-only
-    set_pref_vars = models.JSONField[Dict[str, str]](null=False, default=dict)
+    set_pref_vars = models.JSONField[dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
 
     class Meta:
@@ -1923,7 +2047,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         max_length=255, choices=NimbusExperiment.PublishStatus.choices
     )
     message = models.TextField(blank=True, null=True)
-    experiment_data = models.JSONField[Dict[str, Any]](
+    experiment_data = models.JSONField[dict[str, Any]](
         encoder=DjangoJSONEncoder, blank=True, null=True
     )
     published_dto_changed = models.BooleanField(default=False)

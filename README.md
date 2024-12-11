@@ -434,13 +434,13 @@ For a full reference of all the common commands that can be run inside the conta
 
 Run the integration test suite for experimenter inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
-#### make FIREFOX_VERSION integration_test_nimbus
+#### make FIREFOX_VERSION integration_test_nimbus_desktop
 
 Run the integration test suite for nimbus inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
 FIREFOX_VERSION should either be `nimbus-firefox-release` or `nimbus-firefox-beta`. If you want to run your tests against nightly, please set the variable `UPDATE_FIREFOX_VERSION` to `true` and include it in the make command.
 
-#### make FIREFOX_VERSION integration_test_nimbus_rust
+#### make FIREFOX_VERSION integration_test_nimbus_sdk
 
 Run the Nimbus SDK integration tests, which tests the advanced targeting configurations against the Nimbus SDK.
 
@@ -529,7 +529,7 @@ FIREFOX_VERSION=nimbus-firefox-release
 An example for above:
 
 ```sh
-make FIREFOX_VERSION=nimbus-firefox-release integration_test_nimbus PYTEST_ARGS=ktest_rollout_create_and_update
+make FIREFOX_VERSION=nimbus-firefox-release integration_test_nimbus_desktop PYTEST_ARGS=ktest_rollout_create_and_update
 ```
 
 #### make integration_sdk_shell

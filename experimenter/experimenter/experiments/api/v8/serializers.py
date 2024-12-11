@@ -40,7 +40,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         features = []
         for fv in obj.feature_values.all():
             feature_value = {
-                "featureId": fv.feature_config and fv.feature_config.slug or "",
+                "featureId": (fv.feature_config and fv.feature_config.slug) or "",
                 "enabled": True,  # TODO: Remove after Desktop 104 is no longer supported
                 "value": {},
             }
@@ -116,6 +116,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     isFirefoxLabsOptIn = serializers.ReadOnlyField(source="is_firefox_labs_opt_in")
     firefoxLabsTitle = serializers.ReadOnlyField(source="firefox_labs_title")
     firefoxLabsDescription = serializers.ReadOnlyField(source="firefox_labs_description")
+    firefoxLabsGroup = serializers.ReadOnlyField(source="firefox_labs_group")
+    requiresRestart = serializers.ReadOnlyField(source="requires_restart")
 
     class Meta:
         model = NimbusExperiment
@@ -152,6 +154,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "isFirefoxLabsOptIn",
             "firefoxLabsTitle",
             "firefoxLabsDescription",
+            "firefoxLabsGroup",
+            "requiresRestart",
         )
 
     def get_application(self, obj):

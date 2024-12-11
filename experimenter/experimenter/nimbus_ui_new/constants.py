@@ -11,3 +11,20 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_NAME_INVALID = "This is not a valid name."
     ERROR_SLUG_DUPLICATE = "An experiment with this slug already exists."
     ERROR_HYPOTHESIS_PLACEHOLDER = "Please enter a hypothesis."
+
+    RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
+
+    EXCLUDING_EXPERIMENTS_WARNING = """The following experiments are being excluded by
+    your experiment and may reduce the eligible population for your experiment which
+    may result in reduced statistical power and precision. Please check that the
+    configured population proportion has accounted for this:"""
+    LIVE_EXPERIMENTS_BUCKET_WARNING = """The following experiments are LIVE on a
+    previous namespace and may reduce the eligible population for your experiment
+    which may result in reduced statistical power and precision. Please check that
+    the configured population proportion has accounted for this:"""
+    LIVE_MULTIFEATURE_WARNING = """The following multi-feature experiments are LIVE
+    and may reduce the eligible population for your experiment which may result in
+    reduced statistical power and precision. Please check that the configured population
+    proportion has accounted for this:"""
+
+    AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"

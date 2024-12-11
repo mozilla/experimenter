@@ -267,6 +267,10 @@ features:
         description: "If true, the feature is active.\n"
         type: Boolean
         default: false
+      no_internet_connection_error:
+        description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
+        type: Boolean
+        default: false
   night-mode-feature:
     description: "Describes the night mode feature's configuration\n"
     variables:
@@ -431,6 +435,13 @@ features:
         description: "If true, the password generator feature is enabled"
         type: Boolean
         default: false
+  pull-to-refresh-refactor-feature:
+    description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   redux-search-settings-feature:
     description: "This feature is for managing the roll out of redux on the search settings screen\n"
     variables:
@@ -558,6 +569,13 @@ features:
         default: false
       unified_search:
         description: "Enables the unified search feature\n"
+        type: Boolean
+        default: false
+  tos-feature:
+    description: "This feature is for managing the roll out of the ToS (Term of Service) implementation\n"
+    variables:
+      status:
+        description: "Enables the feature\n"
         type: Boolean
         default: false
   tracking-protection-refactor:

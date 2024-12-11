@@ -1,12 +1,14 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.forms import inlineformset_factory
 from django.http import HttpRequest
 from django.utils.text import slugify
 
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusDocumentationLink, NimbusExperiment
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
+from experimenter.projects.models import Project
 from experimenter.segments import Segments
 
 
@@ -151,6 +153,138 @@ class MultiSelectWidget(forms.SelectMultiple):
             }
         )
         super().__init__(*args, attrs=attrs, **kwargs)
+
+
+class InlineRadioSelect(forms.RadioSelect):
+    template_name = "common/widgets/inline_radio.html"
+    option_template_name = "common/widgets/inline_radio_option.html"
+
+
+class NimbusDocumentationLinkForm(forms.ModelForm):
+    title = forms.ChoiceField(
+        choices=NimbusExperiment.DocumentationLink.choices,
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    link = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+
+    class Meta:
+        model = NimbusDocumentationLink
+        fields = ("title", "link")
+
+
+class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    YES_NO_CHOICES = (
+        (True, "Yes"),
+        (False, "No"),
+    )
+
+    name = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    hypothesis = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"class": "form-control"})
+    )
+    risk_brand = forms.TypedChoiceField(
+        required=False,
+        choices=YES_NO_CHOICES,
+        widget=InlineRadioSelect,
+        coerce=lambda x: x == "True",
+    )
+    risk_message = forms.TypedChoiceField(
+        required=False,
+        choices=YES_NO_CHOICES,
+        widget=InlineRadioSelect,
+        coerce=lambda x: x == "True",
+    )
+    projects = forms.ModelMultipleChoiceField(
+        required=False, queryset=Project.objects.all(), widget=MultiSelectWidget()
+    )
+    public_description = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3})
+    )
+    risk_revenue = forms.TypedChoiceField(
+        required=False,
+        choices=YES_NO_CHOICES,
+        widget=InlineRadioSelect,
+        coerce=lambda x: x == "True",
+    )
+    risk_partner_related = forms.TypedChoiceField(
+        required=False,
+        choices=YES_NO_CHOICES,
+        widget=InlineRadioSelect,
+        coerce=lambda x: x == "True",
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "name",
+            "hypothesis",
+            "projects",
+            "public_description",
+            "risk_partner_related",
+            "risk_revenue",
+            "risk_brand",
+            "risk_message",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.NimbusDocumentationLinkFormSet = inlineformset_factory(
+            NimbusExperiment,
+            NimbusDocumentationLink,
+            form=NimbusDocumentationLinkForm,
+            extra=0,  # Number of empty forms to display initially
+        )
+        self.documentation_links = self.NimbusDocumentationLinkFormSet(
+            data=self.data or None,
+            instance=self.instance,
+        )
+
+    def is_valid(self):
+        return super().is_valid() and self.documentation_links.is_valid()
+
+    def save(self):
+        experiment = super().save()
+        self.documentation_links.save()
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated overview"
+
+
+class DocumentationLinkCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def save(self):
+        super().save(commit=False)
+        self.instance.documentation_links.create()
+        return self.instance
+
+    def get_changelog_message(self):
+        return f"{self.request.user} added a documentation link"
+
+
+class DocumentationLinkDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    link_id = forms.ModelChoiceField(queryset=NimbusDocumentationLink.objects.all())
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["link_id"]
+
+    def save(self):
+        super().save(commit=False)
+        documentation_link = self.cleaned_data["link_id"]
+        documentation_link.delete()
+        return self.instance
+
+    def get_changelog_message(self):
+        return f"{self.request.user} removed a documentation link"
 
 
 class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):

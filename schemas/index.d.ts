@@ -160,17 +160,27 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   isFirefoxLabsOptIn?: boolean;
   /**
-   * An optional string containing the Fluent ID for the title of the opt-in
+   * The group this should appear under in Firefox Labs
+   */
+  firefoxLabsGroup?: string | null;
+  /**
+   * The title shown in Firefox Labs (Fluent ID)
    */
   firefoxLabsTitle?: string | null;
   /**
-   * An optional string containing the Fluent ID for the description of the opt-in
+   * The description shown in Firefox Labs (Fluent ID)
    */
   firefoxLabsDescription?: string | null;
   /**
    * Opt out of feature schema validation.
    */
   featureValidationOptOut?: boolean;
+  /**
+   * Does the experiment require a restart to take effect?
+   *
+   * Only used by Firefox Labs Opt-Ins.
+   */
+  requiresRestart?: boolean;
   localizations?: ExperimentLocalizations | null;
 }
 export interface ExperimentBucketConfig {
@@ -226,7 +236,7 @@ export interface DesktopAllVersionsExperimentBranch {
    */
   features: ExperimentFeatureConfig[];
   /**
-   * An optional string containing the title of the branch
+   * The branch title shown in Firefox Labs (Fluent ID)
    */
   firefoxLabsTitle?: string | null;
   feature: DesktopPre95FeatureConfig;
@@ -491,17 +501,27 @@ export interface DesktopNimbusExperiment {
    */
   isFirefoxLabsOptIn?: boolean;
   /**
-   * An optional string containing the Fluent ID for the title of the opt-in
+   * The group this should appear under in Firefox Labs
+   */
+  firefoxLabsGroup?: string | null;
+  /**
+   * The title shown in Firefox Labs (Fluent ID)
    */
   firefoxLabsTitle?: string | null;
   /**
-   * An optional string containing the Fluent ID for the description of the opt-in
+   * The description shown in Firefox Labs (Fluent ID)
    */
   firefoxLabsDescription?: string | null;
   /**
    * Opt out of feature schema validation.
    */
   featureValidationOptOut?: boolean;
+  /**
+   * Does the experiment require a restart to take effect?
+   *
+   * Only used by Firefox Labs Opt-Ins.
+   */
+  requiresRestart?: boolean;
   localizations?: ExperimentLocalizations | null;
 }
 /**
@@ -523,7 +543,7 @@ export interface DesktopExperimentBranch {
    */
   features: ExperimentFeatureConfig[];
   /**
-   * An optional string containing the title of the branch
+   * The branch title shown in Firefox Labs (Fluent ID)
    */
   firefoxLabsTitle?: string | null;
 }

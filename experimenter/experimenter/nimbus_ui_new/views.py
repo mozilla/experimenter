@@ -6,8 +6,12 @@ from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
+
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import (
+    NimbusExperiment,
+)
+from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.filtersets import (
     STATUS_FILTERS,
     NimbusExperimentFilter,
@@ -16,12 +20,15 @@ from experimenter.nimbus_ui_new.filtersets import (
 )
 from experimenter.nimbus_ui_new.forms import (
     CancelReviewForm,
+    DocumentationLinkCreateForm,
+    DocumentationLinkDeleteForm,
     LaunchPreviewToDraftForm,
     LaunchPreviewToReviewForm,
     LaunchToPreviewForm,
     LaunchWithoutPreviewForm,
     MetricsForm,
     NimbusExperimentCreateForm,
+    OverviewForm,
     QAStatusForm,
     SignoffForm,
     SubscribeForm,
@@ -35,6 +42,19 @@ class RequestFormMixin:
         kwargs = super().get_form_kwargs()
         kwargs["request"] = self.request
         return kwargs
+
+
+class RenderResponseMixin:
+    def form_valid(self, form):
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class RenderParentResponseMixin:
+    def form_valid(self, form):
+        super().form_valid(form)
+        form = super().form_class(instance=self.object)
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class NimbusExperimentViewMixin:
@@ -133,6 +153,7 @@ def build_experiment_context(experiment):
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
+        "risk_message_url": NimbusUIConstants.RISK_MESSAGE_URL,
     }
     return context
 
@@ -217,25 +238,38 @@ class NimbusExperimentsCreateView(
         return response
 
 
-class MetricsUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class OverviewUpdateView(
+    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+):
+    form_class = OverviewForm
+    template_name = "nimbus_experiments/edit_overview.html"
+
+
+class DocumentationLinkCreateView(RenderParentResponseMixin, OverviewUpdateView):
+    form_class = DocumentationLinkCreateForm
+
+
+class DocumentationLinkDeleteView(RenderParentResponseMixin, OverviewUpdateView):
+    form_class = DocumentationLinkDeleteForm
+
+
+class MetricsUpdateView(
+    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+):
     form_class = MetricsForm
     template_name = "nimbus_experiments/edit_metrics.html"
 
-    def form_valid(self, form):
-        super().form_valid(form)
-        return self.render_to_response(self.get_context_data(form=form))
 
-
-class SubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class SubscribeView(
+    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+):
     form_class = SubscribeForm
     template_name = "nimbus_experiments/subscribers_list.html"
 
-    def form_valid(self, form):
-        super().form_valid(form)
-        return self.render_to_response(self.get_context_data(form=form))
 
-
-class UnsubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class UnsubscribeView(
+    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+):
     form_class = UnsubscribeForm
     template_name = "nimbus_experiments/subscribers_list.html"
 

@@ -1465,6 +1465,17 @@ IOS_CORE_ACTIVE_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
 )
 
+IOS_EXISTING_USERS = NimbusTargetingConfig(
+    name="ios existing users",
+    slug="ios existing users",
+    description="Targeting users equal to or greater than 28 since install",
+    targeting="days_since_install >= 28",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 ANDROID_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
     name="Recently Logged In Users",
     slug="android_recently_logged_in_users",

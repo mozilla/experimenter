@@ -1,7 +1,7 @@
 import json
 import os
 import time
-from functools import lru_cache
+from functools import cache
 
 import requests
 
@@ -9,7 +9,7 @@ from nimbus.models.base_dataclass import (
     BaseExperimentApplications,
 )
 
-LOAD_DATA_RETRIES = 10
+LOAD_DATA_RETRIES = 30
 LOAD_DATA_RETRY_DELAY = 1.0
 
 
@@ -29,7 +29,7 @@ def load_graphql_data(query):
             time.sleep(LOAD_DATA_RETRY_DELAY)
 
 
-@lru_cache(maxsize=None)
+@cache
 def load_config_data():
     return load_graphql_data(
         {
@@ -146,11 +146,16 @@ def load_targeting_configs(app=BaseExperimentApplications.FIREFOX_DESKTOP.value)
     return [
         item["value"]
         for item in config_data["targetingConfigs"]
-        if BaseExperimentApplications.FIREFOX_DESKTOP.value in app
-        and BaseExperimentApplications.FIREFOX_DESKTOP.value in item["applicationValues"]
-        or BaseExperimentApplications.FIREFOX_DESKTOP.value not in app
-        and BaseExperimentApplications.FIREFOX_DESKTOP.value
-        not in item["applicationValues"]
+        if (
+            BaseExperimentApplications.FIREFOX_DESKTOP.value in app
+            and BaseExperimentApplications.FIREFOX_DESKTOP.value
+            in item["applicationValues"]
+        )
+        or (
+            BaseExperimentApplications.FIREFOX_DESKTOP.value not in app
+            and BaseExperimentApplications.FIREFOX_DESKTOP.value
+            not in item["applicationValues"]
+        )
     ]
 
 

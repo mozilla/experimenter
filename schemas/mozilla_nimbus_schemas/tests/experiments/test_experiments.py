@@ -131,19 +131,38 @@ def test_sdk_experiment_fixtures_are_valid(
 def test_desktop_nimbus_expirement_with_fxlabs_opt_in_is_not_rollout(
     validate_desktop_experiment,
 ):
-    experiment_json = _desktop_nimbus_experiment_with_fxlabs_opt_in(isRollout=False)
+    experiment_json = _desktop_nimbus_experiment(isRollout=False)
+    experiment_json.update(
+        {
+            "isFirefoxLabsOptIn": True,
+            "firefoxLabsTitle": "test-title",
+            "firefoxLabsDescription": "test-desc",
+            "firefoxLabsGroup": "test-group",
+        }
+    )
+    experiment_json["branches"][0]["firefoxLabsTitle"] = "branch-one-fx-labs-title"
+    experiment_json["branches"][1]["firefoxLabsTitle"] = "branch-two-fx-labs-title"
     validate_desktop_experiment(experiment_json)
 
 
 def test_desktop_nimbus_experiment_with_fxlabs_opt_in_is_rollout(
     validate_desktop_experiment,
 ):
-    experiment_json = _desktop_nimbus_experiment_with_fxlabs_opt_in(isRollout=True)
+    experiment_json = _desktop_nimbus_experiment(isRollout=True)
+    experiment_json.update(
+        {
+            "isFirefoxLabsOptIn": True,
+            "firefoxLabsTitle": "test-title",
+            "firefoxLabsDescription": "test-desc",
+            "firefoxLabsGroup": "test-group",
+        }
+    )
     validate_desktop_experiment(experiment_json)
 
 
 def test_desktop_nimbus_experiment_without_fxlabs_opt_in(validate_desktop_experiment):
-    experiment_json = _desktop_nimbus_experiment_without_fxlabs_opt_in()
+    experiment_json = _desktop_nimbus_experiment(isRollout=False)
+    experiment_json["isFirefoxLabsOptIn"] = False
     validate_desktop_experiment(experiment_json)
 
 
@@ -151,14 +170,9 @@ def test_desktop_nimbus_experiment_with_fxlabs_opt_in_but_missing_required_field
     validate_desktop_experiment,
     desktop_all_versions_nimbus_experiment_schema_validator,
 ):
-    experiment_json = (
-        _desktop_nimbus_experiment_with_fxlabs_opt_in_missing_required_fields()
-    )
+    experiment_json = _desktop_nimbus_experiment(isRollout=False)
+    experiment_json["isFirefoxLabsOptIn"] = True
     validate_desktop_experiment(experiment_json, valid=False, valid_all_versions=False)
-
-    assert not desktop_all_versions_nimbus_experiment_schema_validator.is_valid(
-        experiment_json
-    )
 
     errors = list(
         desktop_all_versions_nimbus_experiment_schema_validator.iter_errors(
@@ -167,9 +181,10 @@ def test_desktop_nimbus_experiment_with_fxlabs_opt_in_but_missing_required_field
     )
     error_messages = [e.message for e in errors]
 
-    assert len(error_messages) == 4
+    assert len(error_messages) == 5
     assert error_messages.count("'firefoxLabsTitle' is a required property") == 3
     assert error_messages.count("'firefoxLabsDescription' is a required property") == 1
+    assert error_messages.count("'firefoxLabsGroup' is a required property") == 1
 
 
 def _desktop_nimbus_experiment(isRollout: bool) -> dict[str, Any]:
@@ -240,41 +255,3 @@ def _desktop_nimbus_experiment(isRollout: bool) -> dict[str, Any]:
         "userFacingName": "MR2 Upgrade Spotlight Holdback",
         "isRollout": bool(isRollout),
     }
-
-
-def _desktop_nimbus_experiment_with_fxlabs_opt_in(*, isRollout: bool) -> dict[str, Any]:
-    experiment = _desktop_nimbus_experiment(isRollout=isRollout)
-    experiment.update(
-        {
-            "isFirefoxLabsOptIn": True,
-            "firefoxLabsTitle": "test-title",
-            "firefoxLabsDescription": "test-desc",
-        }
-    )
-    experiment["branches"][0]["firefoxLabsTitle"] = "branch-one-fx-labs-title"
-    experiment["branches"][1]["firefoxLabsTitle"] = "branch-two-fx-labs-title"
-    return experiment
-
-
-def _desktop_nimbus_experiment_with_fxlabs_opt_in_missing_required_fields() -> (
-    dict[str, Any]
-):
-    experiment = _desktop_nimbus_experiment(isRollout=False)
-    experiment.update(
-        {
-            "isFirefoxLabsOptIn": True,
-        }
-    )
-
-    return experiment
-
-
-def _desktop_nimbus_experiment_without_fxlabs_opt_in() -> dict[str, Any]:
-    experiment = _desktop_nimbus_experiment(isRollout=False)
-    experiment.update(
-        {
-            "isFirefoxLabsOptIn": False,
-        }
-    )
-
-    return experiment
