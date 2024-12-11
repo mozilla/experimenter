@@ -1,8 +1,8 @@
 {# templates/nimbus_experiments/launch_without_preview_controls.html #}
 <div class="alert alert-warning">
   <form method="post"
-        action="{% url 'launch-to-preview' slug=experiment.slug %}"
-        hx-post="{% url 'launch-to-preview' slug=experiment.slug %}"
+        action="{% url 'nimbus-new-launch-to-preview' slug=experiment.slug %}"
+        hx-post="{% url 'nimbus-new-launch-to-preview' slug=experiment.slug %}"
         hx-target="#experiment-container"
         hx-swap="innerHTML">
     {% csrf_token %}
@@ -13,8 +13,8 @@
   </form>
 </div>
 <form method="post"
-      action="{% url 'launch-preview-to-review' slug=experiment.slug %}"
-      hx-post="{% url 'launch-preview-to-review' slug=experiment.slug %}"
+      action="{% url 'nimbus-new-launch-preview-to-review' slug=experiment.slug %}"
+      hx-post="{% url 'nimbus-new-launch-preview-to-review' slug=experiment.slug %}"
       hx-target="#experiment-container"
       hx-swap="innerHTML">
   {% csrf_token %}
@@ -40,7 +40,7 @@
           disabled>Request Launch</button>
   <button type="button"
           class="btn btn-secondary"
-          hx-post="{% url 'launch-preview-to-draft' slug=experiment.slug %}"
+          hx-post="{% url 'nimbus-new-launch-preview-to-draft' slug=experiment.slug %}"
           hx-target="#experiment-container"
           hx-swap="innerHTML">Cancel</button>
 </form>

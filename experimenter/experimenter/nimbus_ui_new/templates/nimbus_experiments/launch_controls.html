@@ -8,8 +8,8 @@
   </p>
   <div class="d-flex">
     <form method="post"
-          action="{% url 'launch-to-preview' slug=experiment.slug %}"
-          hx-post="{% url 'launch-to-preview' slug=experiment.slug %}"
+          action="{% url 'nimbus-new-launch-to-preview' slug=experiment.slug %}"
+          hx-post="{% url 'nimbus-new-launch-to-preview' slug=experiment.slug %}"
           hx-target="#experiment-container"
           hx-swap="innerHTML">
       {% csrf_token %}
@@ -18,8 +18,8 @@
               {% if is_loading %}disabled{% endif %}>Preview for Testing</button>
     </form>
     <form method="post"
-          action="{% url 'launch-without-preview' slug=experiment.slug %}"
-          hx-post="{% url 'launch-without-preview' slug=experiment.slug %}"
+          action="{% url 'nimbus-new-launch-without-preview' slug=experiment.slug %}"
+          hx-post="{% url 'nimbus-new-launch-without-preview' slug=experiment.slug %}"
           hx-target="#experiment-container"
           hx-swap="outerHTML">
       {% csrf_token %}

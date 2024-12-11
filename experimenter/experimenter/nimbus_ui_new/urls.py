@@ -72,26 +72,26 @@ urlpatterns = [
     re_path(
         r"^(?P<slug>[\w-]+)/launch-to-preview/$",
         LaunchToPreviewView.as_view(),
-        name="launch-to-preview",
+        name="nimbus-new-launch-to-preview",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/launch-without-preview/$",
         LaunchWithoutPreviewView.as_view(),
-        name="launch-without-preview",
+        name="nimbus-new-launch-without-preview",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/launch-preview-to-review/$",
         LaunchPreviewToReviewView.as_view(),
-        name="launch-preview-to-review",
+        name="nimbus-new-launch-preview-to-review",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/launch-preview-to-draft/$",
         LaunchPreviewToDraftView.as_view(),
-        name="launch-preview-to-draft",
+        name="nimbus-new-launch-preview-to-draft",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/cancel-review/$",
         CancelReviewView.as_view(),
-        name="cancel-review",
+        name="nimbus-new-cancel-review",
     ),
 ]
