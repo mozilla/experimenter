@@ -353,9 +353,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
-        self.assertEqual(
-            experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
-        )
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
 
