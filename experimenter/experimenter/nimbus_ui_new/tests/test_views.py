@@ -1183,3 +1183,70 @@ class TestMetricsUpdateView(AuthTestCase):
         self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
         self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
         self.assertEqual(experiment.segments, [segment1.slug, segment2.slug])
+
+
+class TestLaunchViews(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperimentFactory.create()
+
+    def test_launch_to_preview_view(self):
+        response = self.client.post(
+            reverse(
+                "nimbus-new-launch-to-preview", kwargs={"slug": self.experiment.slug}
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.PREVIEW)
+
+    def test_launch_without_preview_view(self):
+        response = self.client.post(
+            reverse(
+                "nimbus-new-launch-without-preview",
+                kwargs={"slug": self.experiment.slug},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.experiment.status, self.experiment.status)
+
+    def test_launch_preview_to_review_view(self):
+        response = self.client.post(
+            reverse(
+                "nimbus-new-launch-preview-to-review",
+                kwargs={"slug": self.experiment.slug},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.LIVE)
+
+    def test_launch_preview_to_draft_view(self):
+        response = self.client.post(
+            reverse(
+                "nimbus-new-launch-preview-to-draft",
+                kwargs={"slug": self.experiment.slug},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertIsNone(self.experiment.status_next)
+
+    def test_cancel_review_view(self):
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-cancel-review", kwargs={"slug": self.experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertIsNone(self.experiment.status_next)

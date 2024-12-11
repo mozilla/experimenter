@@ -5,6 +5,11 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.forms import (
+    CancelReviewForm,
+    LaunchPreviewToDraftForm,
+    LaunchPreviewToReviewForm,
+    LaunchToPreviewForm,
+    LaunchWithoutPreviewForm,
     MetricsForm,
     NimbusExperimentCreateForm,
     QAStatusForm,
@@ -295,7 +300,7 @@ class SubscriptionFormTests(RequestFormTestCase):
         self.assertTrue(form.is_valid())
         form.save()
         self.assertIn(self.request.user, self.experiment.subscribers.all())
-        changelog = self.experiment.changes.get()
+        changelog = self.experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("dev@example.com added subscriber", changelog.message)
 
@@ -305,6 +310,81 @@ class SubscriptionFormTests(RequestFormTestCase):
         self.assertTrue(form.is_valid())
         form.save()
         self.assertNotIn(self.request.user, self.experiment.subscribers.all())
-        changelog = self.experiment.changes.get()
+        changelog = self.experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("dev@example.com removed subscriber", changelog.message)
+
+
+class TestLaunchForms(RequestFormTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperimentFactory.create()
+
+    def test_launch_to_preview_form(self):
+        form = LaunchToPreviewForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("launched experiment to Preview", changelog.message)
+
+    def test_launch_without_preview_form(self):
+        form = LaunchWithoutPreviewForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, self.experiment.status)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("requested launch without Preview", changelog.message)
+
+    def test_launch_preview_to_review_form(self):
+        form = LaunchPreviewToReviewForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("requested launch from Preview", changelog.message)
+
+    def test_launch_preview_to_draft_form(self):
+        form = LaunchPreviewToDraftForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertIsNone(experiment.status_next)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("moved the experiment back to Draft", changelog.message)
+
+    def test_cancel_review_form(self):
+        form = CancelReviewForm(data={}, instance=self.experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertIsNone(experiment.status_next)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("cancelled the review", changelog.message)
