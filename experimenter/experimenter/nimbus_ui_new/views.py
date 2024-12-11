@@ -272,11 +272,6 @@ class UnsubscribeView(
     form_class = UnsubscribeForm
     template_name = "nimbus_experiments/subscribers_list.html"
 
-    def form_valid(self, form):
-        super().form_valid(form)
-        return self.render_to_response(self.get_context_data(form=form))
-
-
 class TimelineAndControlsMixin:
     """
     Mixin to handle rendering of timeline and controls for a given experiment.
