@@ -233,6 +233,9 @@ sent-from-firefox-feature:
     enabled:
       type: boolean
       description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
+    isTreatmentA:
+      type: boolean
+      description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
 shopping2023:
   description: "The configuration setting for the status of the Fakespot feature\n"
   hasExposure: true
