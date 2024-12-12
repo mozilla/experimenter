@@ -423,7 +423,11 @@ jobs:
           command: |
             cp .env.integration-tests .env
             export CIRRUS=1
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="-k test_create_mobile_experiment_for_integration_test"
+            make refresh SKP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="-k test_create_mobile_experiment_for_integration_test"
+      - store_artifacts:
+          path: experimenter/tests/integration/ios_recipe.json
+      - store_artifacts:
+          path: experimenter/tests/integration/fenix_recipe.json
       - persist_to_workspace:
           root: experimenter
           paths:
@@ -724,6 +728,7 @@ workflows:
             branches:
               only:
                 - update_firefox_versions
+                - fix-11936
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:

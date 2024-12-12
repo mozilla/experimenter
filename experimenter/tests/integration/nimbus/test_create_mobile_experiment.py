@@ -36,6 +36,7 @@ def test_create_mobile_experiment_for_integration_test(
                     "value": "{}",
                 },
             ],
+        "userFacingName": experiment_slug,
         },
     }
     default_data_api.update(test_data)
