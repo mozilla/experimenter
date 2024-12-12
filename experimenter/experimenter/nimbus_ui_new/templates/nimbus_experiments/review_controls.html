@@ -1,7 +1,7 @@
 {# templates/nimbus_experiments/review_controls.html #}
 <form method="post"
-      action="{% url 'nimbus-new-cancel-review' slug=experiment.slug %}"
-      hx-post="{% url 'nimbus-new-cancel-review' slug=experiment.slug %}"
+      action="{% url 'nimbus-new-review-to-draft' slug=experiment.slug %}"
+      hx-post="{% url 'nimbus-new-review-to-draft' slug=experiment.slug %}"
       hx-target="#launch-controls, #experiment-timeline"
       hx-swap="outerHTML">
   {% csrf_token %}

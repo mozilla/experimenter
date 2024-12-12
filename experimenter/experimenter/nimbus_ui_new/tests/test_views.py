@@ -1291,9 +1291,7 @@ class TestLaunchViews(AuthTestCase):
 
     def test_launch_to_preview_view(self):
         response = self.client.post(
-            reverse(
-                "nimbus-new-launch-to-preview", kwargs={"slug": self.experiment.slug}
-            ),
+            reverse("nimbus-new-draft-to-preview", kwargs={"slug": self.experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         self.experiment.refresh_from_db()
@@ -1302,7 +1300,7 @@ class TestLaunchViews(AuthTestCase):
     def test_launch_without_preview_view(self):
         response = self.client.post(
             reverse(
-                "nimbus-new-launch-without-preview",
+                "nimbus-new-draft-to-review",
                 kwargs={"slug": self.experiment.slug},
             ),
         )
@@ -1312,7 +1310,7 @@ class TestLaunchViews(AuthTestCase):
     def test_launch_preview_to_review_view(self):
         response = self.client.post(
             reverse(
-                "nimbus-new-launch-preview-to-review",
+                "nimbus-new-preview-to-review",
                 kwargs={"slug": self.experiment.slug},
             ),
         )
@@ -1327,7 +1325,7 @@ class TestLaunchViews(AuthTestCase):
     def test_launch_preview_to_draft_view(self):
         response = self.client.post(
             reverse(
-                "nimbus-new-launch-preview-to-draft",
+                "nimbus-new-preview-to-draft",
                 kwargs={"slug": self.experiment.slug},
             ),
         )
@@ -1341,7 +1339,7 @@ class TestLaunchViews(AuthTestCase):
         self.experiment.save()
 
         response = self.client.post(
-            reverse("nimbus-new-cancel-review", kwargs={"slug": self.experiment.slug}),
+            reverse("nimbus-new-review-to-draft", kwargs={"slug": self.experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         self.experiment.refresh_from_db()

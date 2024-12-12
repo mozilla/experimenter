@@ -8,13 +8,13 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.forms import (
-    CancelReviewForm,
+    ReviewToDraftForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
-    LaunchPreviewToDraftForm,
-    LaunchPreviewToReviewForm,
-    LaunchToPreviewForm,
-    LaunchWithoutPreviewForm,
+    PreviewToDraftForm,
+    PreviewToReviewForm,
+    DraftToPreviewForm,
+    DraftToReviewForm,
     MetricsForm,
     NimbusExperimentCreateForm,
     OverviewForm,
@@ -328,9 +328,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment = NimbusExperimentFactory.create()
 
     def test_launch_to_preview_form(self):
-        form = LaunchToPreviewForm(
-            data={}, instance=self.experiment, request=self.request
-        )
+        form = DraftToPreviewForm(data={}, instance=self.experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -341,9 +339,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("launched experiment to Preview", changelog.message)
 
     def test_launch_without_preview_form(self):
-        form = LaunchWithoutPreviewForm(
-            data={}, instance=self.experiment, request=self.request
-        )
+        form = DraftToReviewForm(data={}, instance=self.experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -354,7 +350,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("requested launch without Preview", changelog.message)
 
     def test_launch_preview_to_review_form(self):
-        form = LaunchPreviewToReviewForm(
+        form = PreviewToReviewForm(
             data={}, instance=self.experiment, request=self.request
         )
         self.assertTrue(form.is_valid(), form.errors)
@@ -369,9 +365,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("requested launch from Preview", changelog.message)
 
     def test_launch_preview_to_draft_form(self):
-        form = LaunchPreviewToDraftForm(
-            data={}, instance=self.experiment, request=self.request
-        )
+        form = PreviewToDraftForm(data={}, instance=self.experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -383,7 +377,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("moved the experiment back to Draft", changelog.message)
 
     def test_cancel_review_form(self):
-        form = CancelReviewForm(data={}, instance=self.experiment, request=self.request)
+        form = ReviewToDraftForm(data={}, instance=self.experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()

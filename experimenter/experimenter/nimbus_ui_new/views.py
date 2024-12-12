@@ -18,13 +18,13 @@ from experimenter.nimbus_ui_new.filtersets import (
     StatusChoices,
 )
 from experimenter.nimbus_ui_new.forms import (
-    CancelReviewForm,
+    ReviewToDraftForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
-    LaunchPreviewToDraftForm,
-    LaunchPreviewToReviewForm,
-    LaunchToPreviewForm,
-    LaunchWithoutPreviewForm,
+    PreviewToDraftForm,
+    PreviewToReviewForm,
+    DraftToPreviewForm,
+    DraftToReviewForm,
     MetricsForm,
     NimbusExperimentCreateForm,
     OverviewForm,
@@ -157,8 +157,9 @@ def build_experiment_context(experiment):
     return context
 
 
-class NimbusExperimentDetailView(NimbusExperimentViewMixin, DetailView):
+class NimbusExperimentDetailView(NimbusExperimentViewMixin, UpdateView):
     template_name = "nimbus_experiments/detail.html"
+    fields = []
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -273,87 +274,25 @@ class UnsubscribeView(
     template_name = "nimbus_experiments/subscribers_list.html"
 
 
-class TimelineAndControlsMixin:
-    """
-    Mixin to handle rendering of timeline and controls for a given experiment.
-    """
-
-    def render_response_with_timeline_and_controls(self, experiment, controls_template):
-        """
-        Renders both the timeline and controls together as a response.
-        """
-        timeline_html = render_to_string(
-            "nimbus_experiments/timeline.html",
-            {"experiment": experiment},
-            request=self.request,
-        )
-
-        controls_html = render_to_string(
-            controls_template,
-            {"experiment": experiment},
-            request=self.request,
-        )
-
-        return HttpResponse(
-            f"""
-                <div id="experiment-timeline">{timeline_html}</div>
-                <div id="launch-controls">{controls_html}</div>
-            """
-        )
-
-    def form_valid(self, form):
-        """
-        Override form_valid to include timeline and controls in the response.
-        """
-        super().form_valid(form)
-        experiment = self.object
-        controls_template = self.get_controls_template(experiment)
-        return self.render_response_with_timeline_and_controls(
-            experiment, controls_template
-        )
+class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
+    fields = None
 
 
-class LaunchToPreviewView(
-    NimbusExperimentViewMixin, RequestFormMixin, TimelineAndControlsMixin, UpdateView
-):
-    form_class = LaunchToPreviewForm
-
-    def get_controls_template(self, experiment):
-        return "nimbus_experiments/launch_with_preview_controls.html"
+class DraftToPreviewView(StatusUpdateView):
+    form_class = DraftToPreviewForm
 
 
-
-class LaunchWithoutPreviewView(
-    NimbusExperimentViewMixin, RequestFormMixin, TimelineAndControlsMixin, UpdateView
-):
-    form_class = LaunchWithoutPreviewForm
-
-    def get_controls_template(self, experiment):
-        return "nimbus_experiments/launch_without_preview_controls.html"
+class PreviewToDraftView(StatusUpdateView):
+    form_class = PreviewToDraftForm
 
 
-class LaunchPreviewToReviewView(
-    NimbusExperimentViewMixin, RequestFormMixin, TimelineAndControlsMixin, UpdateView
-):
-    form_class = LaunchPreviewToReviewForm
-
-    def get_controls_template(self, experiment):
-        return "nimbus_experiments/review_controls.html"
+class DraftToReviewView(StatusUpdateView):
+    form_class = DraftToReviewForm
 
 
-class LaunchPreviewToDraftView(
-    NimbusExperimentViewMixin, RequestFormMixin, TimelineAndControlsMixin, UpdateView
-):
-    form_class = LaunchPreviewToDraftForm
-
-    def get_controls_template(self, experiment):
-        return "nimbus_experiments/launch_controls.html"
+class PreviewToReviewView(StatusUpdateView):
+    form_class = PreviewToReviewForm
 
 
-class CancelReviewView(
-    NimbusExperimentViewMixin, RequestFormMixin, TimelineAndControlsMixin, UpdateView
-):
-    form_class = CancelReviewForm
-
-    def get_controls_template(self, experiment):
-        return "nimbus_experiments/launch_controls.html"
+class ReviewToDraftView(StatusUpdateView):
+    form_class = ReviewToDraftForm

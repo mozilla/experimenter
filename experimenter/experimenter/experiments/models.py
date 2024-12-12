@@ -678,6 +678,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.status in (self.Status.LIVE, self.Status.COMPLETE)
 
     @property
+    def can_draft_to_preview(self):
+        return self.is_draft and not self.is_review
+
+    @property
+    def can_preview_to_draft(self):
+        return self.is_preview
+
+    @property
     def draft_date(self):
         if change := self.changes.all().order_by("changed_on").first():
             return change.changed_on.date()

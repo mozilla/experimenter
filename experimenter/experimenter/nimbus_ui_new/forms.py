@@ -335,9 +335,6 @@ class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         experiment.subscribers.add(self.request.user)
-        generate_nimbus_changelog(
-            experiment, self.request.user, self.get_changelog_message()
-        )
         return experiment
 
     def get_changelog_message(self):
@@ -352,95 +349,70 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         experiment.subscribers.remove(self.request.user)
-        generate_nimbus_changelog(
-            experiment, self.request.user, self.get_changelog_message()
-        )
         return experiment
 
     def get_changelog_message(self):
         return f"{self.request.user} removed subscriber"
 
 
-class LaunchToPreviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
+class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    status = None
+    status_next = None
+    publish_status = None
+
     class Meta:
         model = NimbusExperiment
         fields = []
 
     def save(self, commit=True):
         experiment = super().save(commit=commit)
-        experiment.status = NimbusExperiment.Status.PREVIEW
+        experiment.status = self.status
+        experiment.status_next = self.status_next
+        experiment.publish_status = self.publish_status
         experiment.save()
-        generate_nimbus_changelog(
-            experiment, self.request.user, self.get_changelog_message()
-        )
         return experiment
+
+
+class DraftToPreviewForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.PREVIEW
+    status_next = NimbusExperiment.Status.PREVIEW
+    publish_status = NimbusExperiment.PublishStatus.IDLE
 
     def get_changelog_message(self):
         return f"{self.request.user} launched experiment to Preview"
 
 
-class LaunchWithoutPreviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    class Meta:
-        model = NimbusExperiment
-        fields = []
+class DraftToReviewForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
 
     def get_changelog_message(self):
         return f"{self.request.user} requested launch without Preview"
 
 
-class LaunchPreviewToReviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    class Meta:
-        model = NimbusExperiment
-        fields = []
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.status = NimbusExperiment.Status.DRAFT
-        experiment.status_next = NimbusExperiment.Status.LIVE
-        experiment.save()
-        generate_nimbus_changelog(
-            experiment, self.request.user, self.get_changelog_message()
-        )
-        return experiment
+class PreviewToReviewForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
 
     def get_changelog_message(self):
         return f"{self.request.user} requested launch from Preview"
 
 
-class LaunchPreviewToDraftForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    class Meta:
-        model = NimbusExperiment
-        fields = []
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.status = NimbusExperiment.Status.DRAFT
-        experiment.status_next = None
-        experiment.save()
-        generate_nimbus_changelog(
-            experiment, self.request.user, self.get_changelog_message()
-        )
-        return experiment
+class PreviewToDraftForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.DRAFT
+    publish_status = NimbusExperiment.PublishStatus.IDLE
 
     def get_changelog_message(self):
         return f"{self.request.user} moved the experiment back to Draft"
 
 
-class CancelReviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    class Meta:
-        model = NimbusExperiment
-        fields = []
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        experiment.status_next = None
-        experiment.save()
-        generate_nimbus_changelog(
-            experiment, self.request.user, self.get_changelog_message()
-        )
-        return experiment
+class ReviewToDraftForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.DRAFT
+    publish_status = NimbusExperiment.PublishStatus.IDLE
 
     def get_changelog_message(self):
         return f"{self.request.user} cancelled the review"
