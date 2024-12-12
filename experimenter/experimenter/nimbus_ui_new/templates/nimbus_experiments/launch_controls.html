@@ -10,7 +10,7 @@
     <form method="post"
           action="{% url 'nimbus-new-launch-to-preview' slug=experiment.slug %}"
           hx-post="{% url 'nimbus-new-launch-to-preview' slug=experiment.slug %}"
-          hx-target="#experiment-container"
+          hx-target="#launch-controls, #experiment-timeline"
           hx-swap="innerHTML">
       {% csrf_token %}
       <button type="submit"
@@ -20,7 +20,7 @@
     <form method="post"
           action="{% url 'nimbus-new-launch-without-preview' slug=experiment.slug %}"
           hx-post="{% url 'nimbus-new-launch-without-preview' slug=experiment.slug %}"
-          hx-target="#experiment-container"
+          hx-target="#launch-controls, #experiment-timeline"
           hx-swap="outerHTML">
       {% csrf_token %}
       <button type="submit"

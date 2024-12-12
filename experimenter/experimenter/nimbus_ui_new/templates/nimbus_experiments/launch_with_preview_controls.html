@@ -16,7 +16,7 @@
   <form method="post"
         action="{% url 'nimbus-new-launch-preview-to-review' slug=experiment.slug %}"
         hx-post="{% url 'nimbus-new-launch-preview-to-review' slug=experiment.slug %}"
-        hx-target="#launch-controls"
+        hx-target="#launch-controls, #experiment-timeline"
         hx-swap="outerHTML"
         id="preview-controls-form">
     {% csrf_token %}
@@ -46,13 +46,13 @@
               class="btn btn-primary mx-3"
               id="request-launch-button"
               hx-post="{% url 'nimbus-new-launch-preview-to-review' slug=experiment.slug %}"
-              hx-target="#experiment-container"
+              hx-target="#launch-controls, #experiment-timeline"
               hx-swap="innerHTML"
               disabled>Request Launch</button>
       <button type="button"
               class="btn btn-secondary"
               hx-post="{% url 'nimbus-new-launch-preview-to-draft' slug=experiment.slug %}"
-              hx-target="#experiment-container"
+              hx-target="#launch-controls, #experiment-timeline"
               hx-swap="innerHTML">Go Back to Draft</button>
     </div>
   </form>

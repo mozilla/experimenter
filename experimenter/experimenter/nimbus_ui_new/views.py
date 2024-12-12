@@ -272,6 +272,7 @@ class UnsubscribeView(
     form_class = UnsubscribeForm
     template_name = "nimbus_experiments/subscribers_list.html"
 
+
 class TimelineAndControlsMixin:
     """
     Mixin to handle rendering of timeline and controls for a given experiment.
@@ -295,10 +296,8 @@ class TimelineAndControlsMixin:
 
         return HttpResponse(
             f"""
-            <div id="experiment-container">
                 <div id="experiment-timeline">{timeline_html}</div>
                 <div id="launch-controls">{controls_html}</div>
-            </div>
             """
         )
 

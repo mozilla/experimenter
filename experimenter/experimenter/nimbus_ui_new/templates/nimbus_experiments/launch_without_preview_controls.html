@@ -3,8 +3,8 @@
   <form method="post"
         action="{% url 'nimbus-new-launch-to-preview' slug=experiment.slug %}"
         hx-post="{% url 'nimbus-new-launch-to-preview' slug=experiment.slug %}"
-        hx-target="#experiment-container"
-        hx-swap="innerHTML">
+        hx-target="#launch-controls, #experiment-timeline"
+        hx-swap="outerHTML">
     {% csrf_token %}
     <span class="text-danger">We recommend previewing before launch</span>
     <button type="submit"
@@ -15,8 +15,8 @@
 <form method="post"
       action="{% url 'nimbus-new-launch-preview-to-review' slug=experiment.slug %}"
       hx-post="{% url 'nimbus-new-launch-preview-to-review' slug=experiment.slug %}"
-      hx-target="#experiment-container"
-      hx-swap="innerHTML">
+      hx-target="#launch-controls, #experiment-timeline"
+      hx-swap="outerHTML">
   {% csrf_token %}
   <div class="form-check">
     <input type="checkbox"
@@ -41,6 +41,6 @@
   <button type="button"
           class="btn btn-secondary"
           hx-post="{% url 'nimbus-new-launch-preview-to-draft' slug=experiment.slug %}"
-          hx-target="#experiment-container"
+          hx-target="#launch-controls, #experiment-timeline"
           hx-swap="innerHTML">Cancel</button>
 </form>

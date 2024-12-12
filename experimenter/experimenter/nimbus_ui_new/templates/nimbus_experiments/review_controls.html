@@ -2,8 +2,8 @@
 <form method="post"
       action="{% url 'nimbus-new-cancel-review' slug=experiment.slug %}"
       hx-post="{% url 'nimbus-new-cancel-review' slug=experiment.slug %}"
-      hx-target="#experiment-container"
-      hx-swap="innerHTML">
+      hx-target="#launch-controls, #experiment-timeline"
+      hx-swap="outerHTML">
   {% csrf_token %}
   <div class="alert alert-warning">
     <p>The experiment is currently under review. If you wish to cancel the review, click the button below:</p>
