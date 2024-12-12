@@ -319,11 +319,8 @@ class LaunchToPreviewView(
     form_class = LaunchToPreviewForm
 
     def get_controls_template(self, experiment):
-        return (
-            "nimbus_experiments/launch_with_preview_controls.html"
-            if experiment.is_preview
-            else "nimbus_experiments/launch_controls.html"
-        )
+        return "nimbus_experiments/launch_with_preview_controls.html"
+
 
 
 class LaunchWithoutPreviewView(

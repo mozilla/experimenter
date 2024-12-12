@@ -23,6 +23,8 @@
     {% endfor %}
   {% endif %}
   <div id="launch-controls">
+    {{experiment.is_draft}}
+    {{experiment.is_preview}}
     {% if experiment.is_draft %}
       {% include "nimbus_experiments/launch_controls.html" %}
 
