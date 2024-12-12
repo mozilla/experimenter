@@ -504,7 +504,11 @@ features:
       enabled:
         description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
         type: Boolean
-        default: false
+        default: true
+      isTreatmentA:
+        description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
+        type: Boolean
+        default: true
   shopping2023:
     description: "The configuration setting for the status of the Fakespot feature\n"
     variables:
