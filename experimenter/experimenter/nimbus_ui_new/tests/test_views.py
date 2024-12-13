@@ -11,7 +11,11 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import (
+    NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
+)
 from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
@@ -1282,3 +1286,99 @@ class TestMetricsUpdateView(AuthTestCase):
         self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
         self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
         self.assertEqual(experiment.segments, [segment1.slug, segment2.slug])
+
+
+class TestAudienceUpdateView(AuthTestCase):
+    def test_get_renders_page(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_updates_overview(self):
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
+        language = LanguageFactory.create()
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            proposed_release_date=None,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            total_enrolled_clients=0,
+            is_sticky=False,
+            countries=[],
+            locales=[],
+            languages=[],
+        )
+
+        response = self.client.post(
+            reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug}),
+            {
+                "channel": NimbusExperiment.Channel.BETA,
+                "countries": [country.id],
+                "excluded_experiments_branches": [excluded.branch_choices()[0][0]],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "is_sticky": True,
+                "languages": [language.id],
+                "locales": [locale.id],
+                "population_percent": 10,
+                "proposed_duration": 120,
+                "proposed_enrollment": 42,
+                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "targeting_config_slug": (NimbusExperiment.TargetingConfig.FIRST_RUN),
+                "total_enrolled_clients": 100,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment = NimbusExperiment.objects.get(slug=experiment.slug)
+
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.channel, NimbusExperiment.Channel.BETA)
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
+        )
+        self.assertEqual(
+            experiment.firefox_max_version, NimbusExperiment.Version.FIREFOX_84
+        )
+        self.assertEqual(experiment.population_percent, 10)
+        self.assertEqual(experiment.proposed_duration, 120)
+        self.assertEqual(experiment.proposed_enrollment, 42)
+        self.assertEqual(
+            experiment.targeting_config_slug,
+            NimbusExperiment.TargetingConfig.FIRST_RUN,
+        )
+        self.assertEqual(experiment.total_enrolled_clients, 100)
+        self.assertEqual(list(experiment.countries.all()), [country])
+        self.assertEqual(list(experiment.locales.all()), [locale])
+        self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertTrue(experiment.is_sticky)
+        self.assertEqual(experiment.excluded_experiments.get(), excluded)
+        self.assertTrue(
+            NimbusExperimentBranchThroughExcluded.objects.filter(
+                parent_experiment=experiment, child_experiment=excluded, branch_slug=None
+            ).exists()
+        )
+        self.assertEqual(experiment.required_experiments.get(), required)
+        self.assertTrue(
+            NimbusExperimentBranchThroughRequired.objects.filter(
+                parent_experiment=experiment, child_experiment=required, branch_slug=None
+            ).exists()
+        )
