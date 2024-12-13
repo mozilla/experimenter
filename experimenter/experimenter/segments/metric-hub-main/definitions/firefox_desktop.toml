@@ -1811,6 +1811,14 @@ owner = ["vsabino@mozilla.com", "firefox-kpi@mozilla.com"]
 deprecated = false
 level = "bronze"
 
+[metrics.sync_to_mobile]
+friendly_name = "Desktop Sync to Mobile"
+data_source = "clients_daily"
+select_expression = "LOGICAL_OR(COALESCE(sync_count_mobile_mean > 0, FALSE))"
+type = "scalar"
+description = "Did a desktop user sync to mobile"
+
+
 [dimensions]
 
 [dimensions.os]
