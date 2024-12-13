@@ -9,7 +9,7 @@ git checkout main
 git checkout main
 git pull origin main
 git checkout -B update_firefox_versions
-firefox_types=("fenix_beta" "fenix_nightly" "fennec_release" "fennec_beta" "desktop_beta" "desktop_release")
+firefox_types=("fenix_beta" "fennec_release" "fennec_beta" "desktop_beta" "desktop_release")
 
 fetch_task_info() {
     local release_version=$(curl "${CURLFLAGS[@]}" "${WHAT_TRAIN_IS_IT_NOW_API}" | jq 'to_entries | last | .key')
@@ -43,11 +43,6 @@ fetch_task_info() {
             index_base="gecko.v2.mozilla-beta.latest.mobile"
             namespace="gecko.v2.mozilla-beta.latest.mobile.fenix-beta"
             env_file="firefox_fenix_beta_build.env"
-            ;;
-        fenix_nightly)
-            index_base="gecko.v2.mozilla-central.latest.mobile"
-            namespace="gecko.v2.mozilla-central.latest.mobile.fenix-nightly"
-            env_file="firefox_fenix_nightly_build.env"
             ;;
         fennec_release)
             version=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '.[0].name')
