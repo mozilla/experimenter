@@ -18,7 +18,7 @@ class XCodeBuild:
             f"platform=iOS Simulator,name={self.device},OS={self.ios_version}"
         )
         self.scheme = "Fennec"
-        self.testPlan = "SyncIntegrationTestPlan"
+        self.testPlan = "ExperimentIntegrationTests"
         self.xcrun = XCRun()
         self.scheme = kwargs.get("scheme", self.scheme)
         self.test_plan = kwargs.get("test_plan", self.testPlan)
