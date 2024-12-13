@@ -368,8 +368,22 @@ jobs:
             poetry add pydantic==2.10.3
             poetry install
             poetry run pytest -k test_ios_integration.py --feature ios_enrollment
+      - run:
+          name: Collect XCTest Results
+          command: |
+            zip -r results.zip /Users/distiller/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
+          when: always
+      - run:
+          name: Collect xcodebuild log
+          command: |
+            cp /private/var/folders/ln/**/T/pytest-of-distiller/pytest-*/**/xcodebuild.log ./
+          when: always
       - store_artifacts:
           path: ~/project/firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests/results/index.html
+      - store_artifacts:
+          path: ~/project/xcodebuild.log
+      - store_artifacts:
+          path: ~/project/results.zip
 
   integration_nimbus_sdk_targeting:
     machine:
@@ -728,7 +742,6 @@ workflows:
             branches:
               only:
                 - update_firefox_versions
-                - fix-11936
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:
