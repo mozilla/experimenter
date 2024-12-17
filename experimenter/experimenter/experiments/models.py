@@ -470,6 +470,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_update_metrics_url(self):
         return reverse("nimbus-new-update-metrics", kwargs={"slug": self.slug})
 
+    def get_update_audience_url(self):
+        return reverse("nimbus-new-update-audience", kwargs={"slug": self.slug})
+
     @property
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
@@ -541,8 +544,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.targeting_config and self.targeting_config.targeting:
             sticky_expressions.append(self.targeting_config.targeting)
 
-        is_desktop = self.application == self.Application.DESKTOP
-        if is_desktop and self.channel:
+        if self.is_desktop and self.channel:
             expressions.append(f'browserSettings.update.channel == "{self.channel}"')
 
         sticky_expressions.extend(self._get_targeting_min_version())
@@ -567,7 +569,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             sticky_expressions.append(f"region in {countries}")
 
         enrollments_map_key = "enrollments_map"
-        if is_desktop:
+        if self.is_desktop:
             enrollments_map_key = "enrollmentsMap"
 
         if excluded_experiments := NimbusExperimentBranchThroughExcluded.objects.filter(
@@ -601,7 +603,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.is_sticky and sticky_expressions:
             expressions.append(
                 make_sticky_targeting_expression(
-                    is_desktop, self.is_rollout, sticky_expressions
+                    self.is_desktop, self.is_rollout, sticky_expressions
                 )
             )
         else:
@@ -610,7 +612,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if prefs := self._get_targeting_pref_conflicts():
             expressions.append(
                 make_sticky_targeting_expression(
-                    is_desktop,
+                    self.is_desktop,
                     self.is_rollout,
                     (f"!('{pref}'|preferenceIsUserSet)" for pref in sorted(prefs)),
                 )
@@ -642,6 +644,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.reference_branch:
             branches = branches.exclude(id=self.reference_branch.id)
         return list(branches)
+
+    @property
+    def is_desktop(self):
+        return self.application == self.Application.DESKTOP
 
     @property
     def is_draft(self):
@@ -961,6 +967,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return settings.ROLLOUT_MONITORING_URL.format(
                 slug=self.slug.replace("-", "_")
             )
+
+    def format_branch_choice(self, branch_slug):
+        branch_name = "All branches"
+        if branch_slug is not None:
+            branch_name = branch_slug.capitalize()
+        return (
+            f"{self.slug}:{branch_slug}",
+            f"{self.name} ({branch_name})",
+        )
+
+    def branch_choices(self):
+        choices = [self.format_branch_choice(None)]
+        for branch in self.branches.all():
+            choices.append(self.format_branch_choice(branch.slug))
+        return choices
 
     @property
     def required_experiments_branches(self):
@@ -1358,7 +1379,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         cloned.feature_configs.add(*self.feature_configs.all())
         cloned.countries.add(*self.countries.all())
-        if self.application == self.Application.DESKTOP:
+        if self.is_desktop:
             cloned.locales.add(*self.locales.all())
         cloned.languages.add(*self.languages.all())
         cloned.projects.add(*self.projects.all())

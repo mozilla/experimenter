@@ -4,12 +4,19 @@ from django.forms import inlineformset_factory
 from django.http import HttpRequest
 from django.utils.text import slugify
 
+from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.models import NimbusDocumentationLink, NimbusExperiment
+from experimenter.experiments.models import (
+    NimbusDocumentationLink,
+    NimbusExperiment,
+    NimbusExperimentBranchThroughExcluded,
+    NimbusExperimentBranchThroughRequired,
+)
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 from experimenter.segments import Segments
+from experimenter.targeting.constants import NimbusTargetingConfig
 
 
 class NimbusChangeLogFormMixin:
@@ -143,15 +150,18 @@ class SignoffForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class MultiSelectWidget(forms.SelectMultiple):
+    class_attrs = "selectpicker form-control"
+
     def __init__(self, *args, attrs=None, **kwargs):
         attrs = attrs or {}
         attrs.update(
             {
-                "class": "selectpicker form-control bg-body-tertiary",
+                "class": self.class_attrs,
                 "data-live-search": "true",
                 "data-live-search-placeholder": "Search",
             }
         )
+
         super().__init__(*args, attrs=attrs, **kwargs)
 
 
@@ -325,6 +335,161 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated metrics"
+
+
+class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    def get_experiment_branch_choices():
+        return sorted(
+            [
+                branch_choice
+                for experiment in NimbusExperiment.objects.all()
+                for branch_choice in experiment.branch_choices()
+            ]
+        )
+
+    def get_targeting_config_choices():
+        return sorted(
+            [
+                (targeting.slug, f"{targeting.name} - {targeting.description}")
+                for targeting in NimbusTargetingConfig.targeting_configs
+            ],
+        )
+
+    channel = forms.ChoiceField(
+        required=False,
+        label="",
+        choices=NimbusExperiment.Channel.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
+    firefox_min_version = forms.ChoiceField(
+        required=False,
+        label="",
+        choices=NimbusExperiment.Version.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
+    firefox_max_version = forms.ChoiceField(
+        required=False,
+        label="",
+        choices=NimbusExperiment.Version.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
+    locales = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=Locale.objects.all().order_by("code"),
+        widget=MultiSelectWidget(),
+    )
+    languages = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=Language.objects.all().order_by("code"),
+        widget=MultiSelectWidget(),
+    )
+    countries = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=Country.objects.all().order_by("code"),
+        widget=MultiSelectWidget(),
+    )
+    targeting_config_slug = forms.ChoiceField(
+        required=False,
+        label="",
+        choices=get_targeting_config_choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
+    excluded_experiments_branches = forms.MultipleChoiceField(
+        required=False,
+        choices=get_experiment_branch_choices,
+        widget=MultiSelectWidget(),
+    )
+    required_experiments_branches = forms.MultipleChoiceField(
+        required=False,
+        choices=get_experiment_branch_choices,
+        widget=MultiSelectWidget(),
+    )
+    is_sticky = forms.BooleanField(required=False)
+    population_percent = forms.DecimalField(
+        required=False, widget=forms.NumberInput(attrs={"class": "form-control"})
+    )
+    total_enrolled_clients = forms.IntegerField(
+        required=False, widget=forms.NumberInput(attrs={"class": "form-control"})
+    )
+    proposed_enrollment = forms.IntegerField(
+        required=False, widget=forms.NumberInput(attrs={"class": "form-control"})
+    )
+    proposed_duration = forms.IntegerField(
+        required=False, widget=forms.NumberInput(attrs={"class": "form-control"})
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "channel",
+            "countries",
+            "excluded_experiments_branches",
+            "firefox_max_version",
+            "firefox_min_version",
+            "is_sticky",
+            "languages",
+            "locales",
+            "population_percent",
+            "proposed_duration",
+            "proposed_enrollment",
+            "required_experiments_branches",
+            "targeting_config_slug",
+            "total_enrolled_clients",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setup_initial_experiments_branches("required_experiments_branches")
+        self.setup_initial_experiments_branches("excluded_experiments_branches")
+
+    def setup_initial_experiments_branches(self, field_name):
+        self.initial[field_name] = [
+            branch.child_experiment.format_branch_choice(branch.branch_slug)[0]
+            for branch in getattr(self.instance, field_name)
+        ]
+
+    def save_experiments_branches(self, field_name, model):
+        experiments_branches = self.cleaned_data.pop(field_name)
+
+        if experiments_branches is not None:
+            model.objects.filter(parent_experiment=self.instance).all().delete()
+            for experiment_branch in experiments_branches:
+                experiment_slug, branch_slug = experiment_branch.split(":")
+                if branch_slug.strip() == "None":
+                    branch_slug = None
+                model.objects.create(
+                    parent_experiment=self.instance,
+                    child_experiment=NimbusExperiment.objects.get(slug=experiment_slug),
+                    branch_slug=branch_slug,
+                )
+
+    def save(self, *args, **kwargs):
+        self.save_experiments_branches(
+            "required_experiments_branches", NimbusExperimentBranchThroughRequired
+        )
+        self.save_experiments_branches(
+            "excluded_experiments_branches", NimbusExperimentBranchThroughExcluded
+        )
+        return super().save(*args, **kwargs)
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated audience"
 
 
 class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
