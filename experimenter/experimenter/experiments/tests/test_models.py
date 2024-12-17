@@ -3965,7 +3965,7 @@ class NimbusFeatureConfigTests(TestCase):
                     minor=minor,
                     patch=patch,
                 )
-                for major in range(1, 3)
+                for major in range(1, 4)
                 for minor in range(3)
                 for patch in range(3)
             )
@@ -3978,7 +3978,7 @@ class NimbusFeatureConfigTests(TestCase):
                     feature_config=feature,
                     version=versions[(major, minor, patch)],
                 )
-                for major in range(1, 3)
+                for major in range(1, 4)
                 for minor in range(3)
                 for patch in range(3)
             )
@@ -4001,6 +4001,7 @@ class NimbusFeatureConfigTests(TestCase):
                     (2, 0, 1),
                     (2, 0, 2),
                     (2, 1, 0),
+                    (2, 1, 1),
                 )
             },
         )
@@ -4190,6 +4191,7 @@ class NimbusFeatureConfigTests(TestCase):
                 schemas=[
                     schemas[versions[v]]
                     for v in (
+                        (123, 1, 0),
                         (123, 0, 0),
                         (122, 1, 0),
                         (122, 0, 0),

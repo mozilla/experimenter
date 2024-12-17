@@ -1825,7 +1825,7 @@ class NimbusFeatureConfig(models.Model):
             min_supported_version = NimbusExperiment.Version.parse(min_supported_version)
 
             if min_supported_version > min_version:
-                if max_version is not None and min_supported_version >= max_version:
+                if max_version is not None and min_supported_version > max_version:
                     # We will not have any NimbusVerionedSchemas in this
                     # version range. The best we can do is use the
                     # unversioned schema.
@@ -1910,6 +1910,23 @@ class NimbusFeatureVersionManager(models.Manager["NimbusFeatureVersion"]):
         *,
         prefix: Optional[str] = None,
     ) -> Q:
+        """Return a query object that can be used to select all versions between lower and
+        upper bounds (inclusive).
+
+        Args:
+            min_version:
+                The lower bound (inclusive).
+
+            max_version:
+                The upper bound (inclusive).
+
+            prefix:
+                An optional prefix to prepend to the field names. This allows the Q object
+                to be used by related models.
+
+        Returns:
+            The query object.
+        """
         if prefix is not None:
 
             def prefixed(**kwargs: dict[str, Any]):
@@ -1921,27 +1938,29 @@ class NimbusFeatureVersionManager(models.Manager["NimbusFeatureVersion"]):
                 return kwargs
 
         # (a, b, c) >= (d, e, f)
-        # := (a > b) | (a = b & d > e) | (a = b & d = e & c >= f)
-        # == (a > b) | (a = b & (d > e | (d = e & c >= f)))
+        # := (a > d) | (a == d & b > e) | (a == d & b == e & c >= f)
+        # == (a > d) | (a == d & (b > e | (b == e & c >= f)
 
         # packaging.version.Version uses major.minor.micro, but
         # NimbusFeatureVersion uses major.minor.patch (semver).
-        q = Q(**prefixed(major__gt=min_version.major)) | Q(
-            **prefixed(major=min_version.major)
-        ) & (
-            Q(**prefixed(minor__gt=min_version.minor))
-            | Q(**prefixed(minor=min_version.minor, patch__gte=min_version.micro))
+        q = Q(**prefixed(major__gt=min_version.major)) | (
+            Q(**prefixed(major=min_version.major))
+            & (
+                Q(**prefixed(minor__gt=min_version.minor))
+                | Q(**prefixed(minor=min_version.minor, patch__gte=min_version.micro))
+            )
         )
 
         if max_version is not None:
-            # (a, b, c) < (d, e, f)
-            # := (a < d) | (a == d & b < e) | (a == d & b == e & c < f)
-            # == (a < d) | (a == d & (b < e | (b == e & c < f)))
-            q &= Q(**prefixed(major__lt=max_version.major)) | Q(
-                **prefixed(major=max_version.major)
-            ) & (
-                Q(**prefixed(minor__lt=max_version.minor))
-                | Q(**prefixed(minor=max_version.minor, patch__lt=max_version.micro))
+            # (a, b, c) <= (d, e, f)
+            # := (a < d) | (a == d & b < e) | (a = d & b == e & c <= f)
+            # == (a < d) | (a == d & (b < e | (b == e & c <= f)))
+            q &= Q(**prefixed(major__lt=max_version.major)) | (
+                Q(**prefixed(major=max_version.major))
+                & (
+                    Q(**prefixed(minor__lt=max_version.minor))
+                    | Q(**prefixed(minor=max_version.minor, patch__lte=max_version.micro))
+                )
             )
 
         return q
