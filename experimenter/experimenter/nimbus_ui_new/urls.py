@@ -1,8 +1,13 @@
 from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
+    ReviewToDraftView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
+    PreviewToDraftView,
+    PreviewToReviewView,
+    DraftToPreviewView,
+    DraftToReviewView,
     MetricsUpdateView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
@@ -81,5 +86,30 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/unsubscribe/",
         UnsubscribeView.as_view(),
         name="nimbus-new-unsubscribe",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/draft-to-preview/$",
+        DraftToPreviewView.as_view(),
+        name="nimbus-new-draft-to-preview",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/draft-to-review/$",
+        DraftToReviewView.as_view(),
+        name="nimbus-new-draft-to-review",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/preview-to-review/$",
+        PreviewToReviewView.as_view(),
+        name="nimbus-new-preview-to-review",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/preview-to-draft/$",
+        PreviewToDraftView.as_view(),
+        name="nimbus-new-preview-to-draft",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/review-to-draft/$",
+        ReviewToDraftView.as_view(),
+        name="nimbus-new-review-to-draft",
     ),
 ]
