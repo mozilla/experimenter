@@ -4067,6 +4067,20 @@
           },
           "hypothesis": {
             "type": "string"
+          },
+          "takeaways_metric_gain": {
+            "type": "boolean"
+          },
+          "takeaways_gain_amount": {
+            "type": "string",
+            "nullable": true
+          },
+          "takeaways_qbr_learning": {
+            "type": "boolean"
+          },
+          "takeaways_summary": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [

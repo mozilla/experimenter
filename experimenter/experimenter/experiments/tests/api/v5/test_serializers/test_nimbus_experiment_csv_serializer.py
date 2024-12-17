@@ -35,6 +35,10 @@ class TestNimbusExperimentCsvSerializer(TestCase):
                 "experiment_summary": experiment.experiment_url,
                 "rollout": experiment.is_rollout,
                 "hypothesis": experiment.hypothesis,
+                "takeaways_metric_gain": experiment.takeaways_metric_gain,
+                "takeaways_gain_amount": experiment.takeaways_gain_amount,
+                "takeaways_qbr_learning": experiment.takeaways_qbr_learning,
+                "takeaways_summary": experiment.takeaways_summary,
             },
         )
 
@@ -69,5 +73,9 @@ class TestNimbusExperimentCsvSerializer(TestCase):
                 "experiment_summary": experiment.experiment_url,
                 "rollout": experiment.is_rollout,
                 "hypothesis": experiment.hypothesis,
+                "takeaways_metric_gain": experiment.takeaways_metric_gain,
+                "takeaways_gain_amount": experiment.takeaways_gain_amount,
+                "takeaways_qbr_learning": experiment.takeaways_qbr_learning,
+                "takeaways_summary": experiment.takeaways_summary,
             },
         )
