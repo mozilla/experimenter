@@ -71,6 +71,7 @@ class SortChoices(models.TextChoices):
 
 class IconMultiSelectWidget(MultiSelectWidget):
     template_name = "common/sidebar_select.html"
+    class_attrs = "selectpicker form-control bg-body-tertiary"
 
     def __init__(self, *args, attrs, **kwargs):
         self.icon = kwargs.pop("icon", None)
