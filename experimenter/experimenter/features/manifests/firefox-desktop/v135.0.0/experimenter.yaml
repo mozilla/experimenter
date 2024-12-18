@@ -2852,7 +2852,7 @@ legacyHeartbeat:
 
 queryStripping:
   description: Query parameter stripping anti-tracking feature.
-  owner: pbz@mozilla.com
+  owner: emz@mozilla.com
   hasExposure: false
   variables:
     enabledNormalBrowsing:
@@ -3504,7 +3504,7 @@ bookmarks:
 
 cookieBannerHandling:
   description: Automatically handle cookie banners on the user's behalf.
-  owner: pbz@mozilla.com
+  owner: emz@mozilla.com
   hasExposure: false
   variables:
     modeNormalBrowsing:
@@ -3723,14 +3723,29 @@ nimbusIsReady:
 
 nimbusTelemetry:
   description: A feature that enables or disables Nimbus telemetry.
-  owner: chumphreys@mozilla.com
+  owner: nimbus-team@mozilla.com
   hasExposure: false
   applications:
     - firefox-desktop
   variables:
     gleanMetricConfiguration:
-      description: A Glean metric configuration JSON blob.
+      description: >
+       A Glean metric configuration JSON blob.
+
+       This is limited to configuring the following categories:
+       - nimbus_events
+       - nimbus_targeting_context
+       - nimbus_targeting_environment
       type: json
+
+    nimbusTargetingEnvironment:
+      description: >
+        Configuration for the nimbus_targeting_environment telemetry category.
+      type: json
+
+  schema:
+    uri: resource://nimbus/schemas/NimbusTelemetryFeature.schema.json
+    path: toolkit/components/nimbus/schemas/NimbusTelemetryFeature.schema.json
 
 httpsFirst:
   description: >-
@@ -3931,7 +3946,7 @@ certCompression:
 
 bounceTrackingProtection:
   description: Controls the Bounce Tracking Protection feature.
-  owner: pbz@mozilla.com
+  owner: emz@mozilla.com
   hasExposure: false
   variables:
     enabled:
