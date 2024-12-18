@@ -1085,6 +1085,10 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
             "experiment_summary",
             "rollout",
             "hypothesis",
+            "takeaways_metric_gain",
+            "takeaways_gain_amount",
+            "takeaways_qbr_learning",
+            "takeaways_summary",
         ]
 
     def get_feature_configs(self, obj):
