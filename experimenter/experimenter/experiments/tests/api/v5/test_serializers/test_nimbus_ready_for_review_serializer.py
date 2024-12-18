@@ -2466,7 +2466,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 experiment,
                 context={"user": self.user},
             ).data,
-            context={"user", self.user},
+            context={"user": self.user},
             partial=True,
         )
 
@@ -3074,7 +3074,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -3192,9 +3192,75 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                     (120, 0, 0),
                     (121, 0, 0),
                     (122, 0, 0),
+                    (123, 0, 0),
                 )
             )
         }
+
+    @parameterized.expand(
+        [
+            # min == max
+            (NimbusExperiment.Version.FIREFOX_120, NimbusExperiment.Version.FIREFOX_120),
+            (NimbusExperiment.Version.FIREFOX_121, NimbusExperiment.Version.FIREFOX_121),
+            (NimbusExperiment.Version.FIREFOX_122, NimbusExperiment.Version.FIREFOX_122),
+            # min <= max (bounded)
+            (NimbusExperiment.Version.FIREFOX_120, NimbusExperiment.Version.FIREFOX_121),
+            (NimbusExperiment.Version.FIREFOX_120, NimbusExperiment.Version.FIREFOX_122),
+            (NimbusExperiment.Version.FIREFOX_121, NimbusExperiment.Version.FIREFOX_122),
+            # min <= max (unbounded)
+            (NimbusExperiment.Version.FIREFOX_120, NimbusExperiment.Version.NO_VERSION),
+            (NimbusExperiment.Version.FIREFOX_121, NimbusExperiment.Version.NO_VERSION),
+            (NimbusExperiment.Version.FIREFOX_122, NimbusExperiment.Version.NO_VERSION),
+        ]
+    )
+    def test_validate_feature_range_valid(self, min_version, max_version):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="FEATURE",
+            name="FEATURE",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(120, 0, 0)],
+                    schema=BASIC_JSON_SCHEMA,
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(121, 0, 0)],
+                    schema=BASIC_JSON_SCHEMA,
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(122, 0, 0)],
+                    schema=BASIC_JSON_SCHEMA,
+                ),
+            ],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=min_version,
+            firefox_max_version=max_version,
+            feature_configs=[feature],
+            warn_feature_schema=False,
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature,
+        )
+        feature_value.value = json.dumps({"directMigrateSingleProfile": True})
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     @parameterized.expand(
         chain(
@@ -3205,13 +3271,13 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                         NimbusExperiment.Version.NO_VERSION,
                         NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS.format(
                             feature_config="FEATURE",
-                            versions="121.0.0-121.0.0",
+                            versions="121.0.0",
                         ),
                         as_warning,
                     ),
                     (
                         NimbusExperiment.Version.FIREFOX_121,
-                        NimbusExperiment.Version.FIREFOX_122,
+                        NimbusExperiment.Version.FIREFOX_121,
                         NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
                             feature_config="FEATURE",
                         ),
@@ -3225,6 +3291,9 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
     def test_validate_feature_versioned_unsupported_versions(
         self, min_version, max_version, expected_error, as_warning
     ):
+        """Testing feature validation with unsupported versions when using the
+        warn_feature_schema compared to not using it
+        """
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
             slug="FEATURE",
@@ -3272,7 +3341,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         if as_warning:
@@ -3296,6 +3365,79 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             target,
         )
 
+    def test_validate_feature_versioned_unsupported_multiple_versions(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="FEATURE",
+            name="FEATURE",
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(120, 0, 0)], schema=None
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(123, 0, 0)], schema=None
+                ),
+            ],
+        )
+
+        NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(120, 0, 0)], schema=None
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(121, 0, 0)], schema=None
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(122, 0, 0)], schema=None
+                ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(123, 0, 0)], schema=None
+                ),
+            ],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_123,
+            feature_configs=[feature],
+            warn_feature_schema=False,
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        error = NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS.format(
+            feature_config="FEATURE",
+            versions="121.0.0-122.0.0",
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_values": [
+                        {
+                            "value": [error],
+                        }
+                    ]
+                }
+            },
+        )
+
     @parameterized.expand(
         [
             (
@@ -3305,12 +3447,12 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             ),
             (
                 NimbusExperiment.Version.FIREFOX_110,
-                NimbusExperiment.Version.FIREFOX_121,
+                NimbusExperiment.Version.FIREFOX_120,
                 [(120, 0, 0)],
             ),
         ]
     )
-    def test_validate_feature_versioned_truncated_range(
+    def test_validate_feature_versioned_truncated_range_schema_errors(
         self, min_version, max_version, expected_versions
     ):
         schema = json.dumps(
@@ -3366,7 +3508,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         self.assertFalse(serializer.is_valid())
@@ -3387,7 +3529,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             },
         )
 
-    def test_validate_feature_versioned_before_versioned_range(self):
+    def test_validate_feature_versioned_before_versioned_range_valid(self):
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
             slug="FEATURE",
@@ -3442,7 +3584,48 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
-    def test_validate_feature_versioned(self):
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Version.FIREFOX_120,
+                NimbusExperiment.Version.FIREFOX_120,
+                ["120.0.0"],
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_121,
+                NimbusExperiment.Version.FIREFOX_121,
+                ["121.0.0"],
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_122,
+                NimbusExperiment.Version.FIREFOX_122,
+                ["122.0.0"],
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_120,
+                NimbusExperiment.Version.FIREFOX_121,
+                ["121.0.0", "120.0.0"],
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_120,
+                NimbusExperiment.Version.NO_VERSION,
+                ["122.0.0", "121.0.0", "120.0.0"],
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_121,
+                NimbusExperiment.Version.NO_VERSION,
+                ["122.0.0", "121.0.0"],
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_122,
+                NimbusExperiment.Version.NO_VERSION,
+                ["122.0.0"],
+            ),
+        ]
+    )
+    def test_validate_feature_versioned_schema_errors(
+        self, min_version, max_version, error_versions
+    ):
         json_schema = json.dumps(
             {
                 "type": "object",
@@ -3467,6 +3650,9 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                 NimbusVersionedSchemaFactory.build(
                     version=self.versions[(121, 0, 0)], schema=json_schema
                 ),
+                NimbusVersionedSchemaFactory.build(
+                    version=self.versions[(122, 0, 0)], schema=json_schema
+                ),
             ],
         )
 
@@ -3474,8 +3660,8 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_122,
+            firefox_min_version=min_version,
+            firefox_max_version=max_version,
             feature_configs=[feature],
         )
 
@@ -3491,7 +3677,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         self.assertFalse(serializer.is_valid())
@@ -3502,8 +3688,8 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                     "feature_values": [
                         {
                             "value": [
-                                "1 is not of type 'boolean' at version 121.0.0",
-                                "1 is not of type 'boolean' at version 120.0.0",
+                                f"1 is not of type 'boolean' at version {error_version}"
+                                for error_version in error_versions
                             ],
                         }
                     ]
@@ -3511,7 +3697,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             },
         )
 
-    def test_validate_feature_versioned_localized(self):
+    def test_validate_feature_versioned_localized_schema_errors(self):
         json_schema = json.dumps(
             {
                 "type": "object",
@@ -3581,7 +3767,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         self.assertFalse(serializer.is_valid())
@@ -3626,19 +3812,19 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
                 NimbusExperiment.Version.NO_VERSION,
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS.format(
                     feature_config="FEATURE",
-                    versions="121.0.0-121.0.0",
+                    versions="121.0.0",
                 ),
             ),
             (
                 NimbusExperiment.Version.FIREFOX_121,
-                NimbusExperiment.Version.FIREFOX_122,
+                NimbusExperiment.Version.FIREFOX_121,
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_RANGE.format(
                     feature_config="FEATURE",
                 ),
             ),
         ]
     )
-    def test_fml_validate_feature_versioned_unsupported_versions(
+    def test_fml_validate_feature_versioned_unsupported_versions_error(
         self,
         min_version,
         max_version,
@@ -3692,7 +3878,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         self.assertFalse(serializer.is_valid())
@@ -3703,7 +3889,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             serializer.errors,
         )
 
-    def test_fml_validate_feature_versioned_truncated_range(self):
+    def test_fml_validate_feature_versioned_truncated_range_fml_error(self):
         self.setup_get_fml_errors(
             [
                 NimbusFmlErrorDataClass(
@@ -3772,7 +3958,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         self.assertFalse(serializer.is_valid())
@@ -3788,7 +3974,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             serializer.errors,
         )
 
-    def test_fml_validate_feature_versioned_before_versioned_range(self):
+    def test_fml_validate_feature_versioned_before_versioned_range_valid(self):
         feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.FENIX,
             slug="FEATURE",
@@ -3843,7 +4029,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
-    def test_fml_validate_feature_versioned(self):
+    def test_fml_validate_feature_versioned_fml_error(self):
         fml_errors = [
             NimbusFmlErrorDataClass(
                 line=2,
@@ -3910,7 +4096,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         self.assertFalse(serializer.is_valid())
@@ -3923,7 +4109,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             serializer.errors,
         )
 
-    def test_fml_validate_feature_versioned_range_treatment_branch(self):
+    def test_fml_validate_feature_versioned_range_treatment_branch_fml_errors(self):
         fml_errors = [
             NimbusFmlErrorDataClass(
                 line=2,
@@ -3970,8 +4156,8 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_120,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_121,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_121,
             feature_configs=[feature],
         )
 
@@ -3988,7 +4174,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         self.assertFalse(serializer.is_valid())
@@ -3997,7 +4183,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             serializer.errors["treatment_branches"][0]["feature_values"][0]["value"][0],
         )
 
-    def test_fml_validate_feature_versions_no_errors(self):
+    def test_fml_validate_feature_versioned_unbounded_range_valid(self):
         self.setup_fml_no_errors()
 
         feature = NimbusFeatureConfigFactory.create(
@@ -4030,7 +4216,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user", self.user},
+            context={"user": self.user},
         )
 
         self.assertTrue(serializer.is_valid())
