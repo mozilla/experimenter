@@ -376,7 +376,7 @@ jobs:
       - run:
           name: Collect xcodebuild log
           command: |
-            cp /private/var/folders/ln/**/T/pytest-of-distiller/pytest-*/**/xcodebuild.log ./
+            cp /private/var/folders/**/**/T/pytest-of-distiller/pytest-*/**/xcodebuild.log ./
           when: always
       - store_artifacts:
           path: ~/project/firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests/results/index.html
