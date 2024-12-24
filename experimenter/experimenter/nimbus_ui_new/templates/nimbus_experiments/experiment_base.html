@@ -3,11 +3,10 @@
 {% block sidebar %}
   {% include "nimbus_experiments/sidebar.html" with experiment=experiment %}
 
-{% endblock %}
-
-{% block main_content_header %}
-  <div class="row mb-2">
-    <div class="col-md-12 col-xl-6">
+{% endblock %}{% block main_content_header %}
+  <div class="row mb-2 align-items-center">
+    <!-- Experiment Details -->
+    <div class="col-md-6 col-xl-6">
       <h4 class="mb-0">{{ experiment.name }}</h4>
       <span class="{{ experiment.qa_status_badge_class }}">
         QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
@@ -22,7 +21,9 @@
         </p>
       {% endif %}
     </div>
-    <div id="experiment-timeline">
+
+    <!-- Experiment Timeline -->
+    <div class="col-md-6 col-xl-6 text-end" id="experiment-timeline">
       {% include "nimbus_experiments/timeline.html" %}
     </div>
   </div>
