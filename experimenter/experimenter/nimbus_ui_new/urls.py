@@ -1,6 +1,7 @@
 from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
+    AudienceUpdateView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
     DraftToPreviewView,
@@ -71,6 +72,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/update_metrics/$",
         MetricsUpdateView.as_view(),
         name="nimbus-new-update-metrics",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/update_audience/$",
+        AudienceUpdateView.as_view(),
+        name="nimbus-new-update-audience",
     ),
     re_path(
         r"^create/",

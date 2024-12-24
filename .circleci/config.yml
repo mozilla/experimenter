@@ -368,8 +368,22 @@ jobs:
             poetry add pydantic==2.10.3
             poetry install
             poetry run pytest -k test_ios_integration.py --feature ios_enrollment
+      - run:
+          name: Collect XCTest Results
+          command: |
+            zip -r results.zip /Users/distiller/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
+          when: always
+      - run:
+          name: Collect xcodebuild log
+          command: |
+            cp /private/var/folders/**/**/T/pytest-of-distiller/pytest-*/**/xcodebuild.log ./
+          when: always
       - store_artifacts:
           path: ~/project/firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests/results/index.html
+      - store_artifacts:
+          path: ~/project/xcodebuild.log
+      - store_artifacts:
+          path: ~/project/results.zip
 
   integration_nimbus_sdk_targeting:
     machine:
@@ -423,7 +437,11 @@ jobs:
           command: |
             cp .env.integration-tests .env
             export CIRRUS=1
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="-k test_create_mobile_experiment_for_integration_test"
+            make refresh SKP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="-k test_create_mobile_experiment_for_integration_test"
+      - store_artifacts:
+          path: experimenter/tests/integration/ios_recipe.json
+      - store_artifacts:
+          path: experimenter/tests/integration/fenix_recipe.json
       - persist_to_workspace:
           root: experimenter
           paths:
@@ -648,7 +666,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/tests/firefox-fenix-build.env"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env"
       - docker_login:
           username: $DOCKER_USER
           password: $DOCKER_PASS

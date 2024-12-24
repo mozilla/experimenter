@@ -470,6 +470,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_update_metrics_url(self):
         return reverse("nimbus-new-update-metrics", kwargs={"slug": self.slug})
 
+    def get_update_audience_url(self):
+        return reverse("nimbus-new-update-audience", kwargs={"slug": self.slug})
+
     @property
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
@@ -541,8 +544,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.targeting_config and self.targeting_config.targeting:
             sticky_expressions.append(self.targeting_config.targeting)
 
-        is_desktop = self.application == self.Application.DESKTOP
-        if is_desktop and self.channel:
+        if self.is_desktop and self.channel:
             expressions.append(f'browserSettings.update.channel == "{self.channel}"')
 
         sticky_expressions.extend(self._get_targeting_min_version())
@@ -567,7 +569,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             sticky_expressions.append(f"region in {countries}")
 
         enrollments_map_key = "enrollments_map"
-        if is_desktop:
+        if self.is_desktop:
             enrollments_map_key = "enrollmentsMap"
 
         if excluded_experiments := NimbusExperimentBranchThroughExcluded.objects.filter(
@@ -601,7 +603,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.is_sticky and sticky_expressions:
             expressions.append(
                 make_sticky_targeting_expression(
-                    is_desktop, self.is_rollout, sticky_expressions
+                    self.is_desktop, self.is_rollout, sticky_expressions
                 )
             )
         else:
@@ -610,7 +612,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if prefs := self._get_targeting_pref_conflicts():
             expressions.append(
                 make_sticky_targeting_expression(
-                    is_desktop,
+                    self.is_desktop,
                     self.is_rollout,
                     (f"!('{pref}'|preferenceIsUserSet)" for pref in sorted(prefs)),
                 )
@@ -642,6 +644,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.reference_branch:
             branches = branches.exclude(id=self.reference_branch.id)
         return list(branches)
+
+    @property
+    def is_desktop(self):
+        return self.application == self.Application.DESKTOP
 
     @property
     def is_draft(self):
@@ -977,6 +983,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return settings.ROLLOUT_MONITORING_URL.format(
                 slug=self.slug.replace("-", "_")
             )
+
+    def format_branch_choice(self, branch_slug):
+        branch_name = "All branches"
+        if branch_slug is not None:
+            branch_name = branch_slug.capitalize()
+        return (
+            f"{self.slug}:{branch_slug}",
+            f"{self.name} ({branch_name})",
+        )
+
+    def branch_choices(self):
+        choices = [self.format_branch_choice(None)]
+        for branch in self.branches.all():
+            choices.append(self.format_branch_choice(branch.slug))
+        return choices
 
     @property
     def required_experiments_branches(self):
@@ -1374,7 +1395,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         cloned.feature_configs.add(*self.feature_configs.all())
         cloned.countries.add(*self.countries.all())
-        if self.application == self.Application.DESKTOP:
+        if self.is_desktop:
             cloned.locales.add(*self.locales.all())
         cloned.languages.add(*self.languages.all())
         cloned.projects.add(*self.projects.all())
@@ -1820,7 +1841,7 @@ class NimbusFeatureConfig(models.Model):
             min_supported_version = NimbusExperiment.Version.parse(min_supported_version)
 
             if min_supported_version > min_version:
-                if max_version is not None and min_supported_version >= max_version:
+                if max_version is not None and min_supported_version > max_version:
                     # We will not have any NimbusVerionedSchemas in this
                     # version range. The best we can do is use the
                     # unversioned schema.
@@ -1905,6 +1926,23 @@ class NimbusFeatureVersionManager(models.Manager["NimbusFeatureVersion"]):
         *,
         prefix: Optional[str] = None,
     ) -> Q:
+        """Return a query object that can be used to select all versions between lower and
+        upper bounds (inclusive).
+
+        Args:
+            min_version:
+                The lower bound (inclusive).
+
+            max_version:
+                The upper bound (inclusive).
+
+            prefix:
+                An optional prefix to prepend to the field names. This allows the Q object
+                to be used by related models.
+
+        Returns:
+            The query object.
+        """
         if prefix is not None:
 
             def prefixed(**kwargs: dict[str, Any]):
@@ -1916,27 +1954,29 @@ class NimbusFeatureVersionManager(models.Manager["NimbusFeatureVersion"]):
                 return kwargs
 
         # (a, b, c) >= (d, e, f)
-        # := (a > b) | (a = b & d > e) | (a = b & d = e & c >= f)
-        # == (a > b) | (a = b & (d > e | (d = e & c >= f)))
+        # := (a > d) | (a == d & b > e) | (a == d & b == e & c >= f)
+        # == (a > d) | (a == d & (b > e | (b == e & c >= f)
 
         # packaging.version.Version uses major.minor.micro, but
         # NimbusFeatureVersion uses major.minor.patch (semver).
-        q = Q(**prefixed(major__gt=min_version.major)) | Q(
-            **prefixed(major=min_version.major)
-        ) & (
-            Q(**prefixed(minor__gt=min_version.minor))
-            | Q(**prefixed(minor=min_version.minor, patch__gte=min_version.micro))
+        q = Q(**prefixed(major__gt=min_version.major)) | (
+            Q(**prefixed(major=min_version.major))
+            & (
+                Q(**prefixed(minor__gt=min_version.minor))
+                | Q(**prefixed(minor=min_version.minor, patch__gte=min_version.micro))
+            )
         )
 
         if max_version is not None:
-            # (a, b, c) < (d, e, f)
-            # := (a < d) | (a == d & b < e) | (a == d & b == e & c < f)
-            # == (a < d) | (a == d & (b < e | (b == e & c < f)))
-            q &= Q(**prefixed(major__lt=max_version.major)) | Q(
-                **prefixed(major=max_version.major)
-            ) & (
-                Q(**prefixed(minor__lt=max_version.minor))
-                | Q(**prefixed(minor=max_version.minor, patch__lt=max_version.micro))
+            # (a, b, c) <= (d, e, f)
+            # := (a < d) | (a == d & b < e) | (a = d & b == e & c <= f)
+            # == (a < d) | (a == d & (b < e | (b == e & c <= f)))
+            q &= Q(**prefixed(major__lt=max_version.major)) | (
+                Q(**prefixed(major=max_version.major))
+                & (
+                    Q(**prefixed(minor__lt=max_version.minor))
+                    | Q(**prefixed(minor=max_version.minor, patch__lte=max_version.micro))
+                )
             )
 
         return q

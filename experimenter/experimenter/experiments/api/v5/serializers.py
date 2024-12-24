@@ -1085,6 +1085,10 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
             "experiment_summary",
             "rollout",
             "hypothesis",
+            "takeaways_metric_gain",
+            "takeaways_gain_amount",
+            "takeaways_qbr_learning",
+            "takeaways_summary",
         ]
 
     def get_feature_configs(self, obj):
@@ -1464,12 +1468,18 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             unsupported_version_strs = [
                 str(v) for v in schemas_in_range.unsupported_versions
             ]
-            min_unsupported_version = min(unsupported_version_strs)
-            max_unsupported_version = max(unsupported_version_strs)
+            if len(unsupported_version_strs) == 1:
+                unsupported_versions = unsupported_version_strs[0]
+            else:
+                min_unsupported_version = min(unsupported_version_strs)
+                max_unsupported_version = max(unsupported_version_strs)
+                unsupported_versions = (
+                    f"{min_unsupported_version}-{max_unsupported_version}"
+                )
             result.append(
                 NimbusConstants.ERROR_FEATURE_CONFIG_UNSUPPORTED_IN_VERSIONS.format(
                     feature_config=feature_config.name,
-                    versions=f"{min_unsupported_version}-{max_unsupported_version}",
+                    versions=unsupported_versions,
                 ),
                 suppress_errors,
             )

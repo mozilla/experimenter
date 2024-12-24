@@ -17,6 +17,7 @@ from experimenter.nimbus_ui_new.filtersets import (
     StatusChoices,
 )
 from experimenter.nimbus_ui_new.forms import (
+    AudienceForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
@@ -257,6 +258,13 @@ class MetricsUpdateView(
 ):
     form_class = MetricsForm
     template_name = "nimbus_experiments/edit_metrics.html"
+
+
+class AudienceUpdateView(
+    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+):
+    form_class = AudienceForm
+    template_name = "nimbus_experiments/edit_audience.html"
 
 
 class SubscribeView(

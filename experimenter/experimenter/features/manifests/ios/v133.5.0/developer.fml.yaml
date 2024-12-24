@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - beta
+  - developer
 features:
   account-settings-redux-feature:
     description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
@@ -18,7 +18,7 @@ features:
       status:
         description: "If true, we will allow user to edit the address"
         type: Boolean
-        default: false
+        default: true
   bookmark-refactor-feature:
     description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
     variables:
@@ -47,11 +47,11 @@ features:
       felt-deletion-enabled:
         description: "If true, enable Felt Deletion part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -65,7 +65,7 @@ features:
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: false
+        default: true
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -94,7 +94,7 @@ features:
       prefer-switch-to-open-tab:
         description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
         type: Boolean
-        default: false
+        default: true
       sections-enabled:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
         type: "Map<HomeScreenSection, Boolean>"
@@ -118,7 +118,7 @@ features:
       menu-hint:
         description: "If true, enables the menu contextual hint.\n"
         type: Boolean
-        default: false
+        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -159,7 +159,6 @@ features:
           OPEN_NEW_TAB: "://deep-link?url=homepanel/new-tab"
           MAKE_DEFAULT_BROWSER: "://deep-link?url=default-browser/system-settings"
           MAKE_DEFAULT_BROWSER_WITH_TUTORIAL: "://deep-link?url=default-browser/tutorial"
-          OPEN_SHARE_SHEET: "://share-sheet"
         string-alias: ActionName
       message-under-experiment:
         description: "Deprecated. Please use \"experiment\": \"{experiment}\" instead."
@@ -199,6 +198,16 @@ features:
                 - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
                 - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
                 - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+              - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            action: OPEN_URL
+            action-params:
+              url: "https://www.macrumors.com"
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -277,16 +286,12 @@ features:
       enabled:
         description: "If true, the feature is active.\n"
         type: Boolean
-        default: false
+        default: true
   native-error-page-feature:
     description: "This feature is for managing the roll out of the native error page feature\n"
     variables:
       enabled:
         description: "If true, the feature is active.\n"
-        type: Boolean
-        default: false
-      no_internet_connection_error:
-        description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
         type: Boolean
         default: false
   night-mode-feature:
@@ -452,13 +457,6 @@ features:
       enabled:
         description: "If true, the password generator feature is enabled"
         type: Boolean
-        default: false
-  pull-to-refresh-refactor-feature:
-    description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
-    variables:
-      enabled:
-        description: "Enables the feature\n"
-        type: Boolean
         default: true
   redux-search-settings-feature:
     description: "This feature is for managing the roll out of redux on the search settings screen\n"
@@ -473,7 +471,7 @@ features:
       close-tabs-enabled:
         description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
         type: Boolean
-        default: false
+        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -488,17 +486,6 @@ features:
             is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
-  sent-from-firefox-feature:
-    description: "Adds additional promo text to links shared to WhatsApp.\n"
-    variables:
-      enabled:
-        description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
-        type: Boolean
-        default: false
-      isTreatmentA:
-        description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
-        type: Boolean
-        default: true
   shopping2023:
     description: "The configuration setting for the status of the Fakespot feature\n"
     variables:
@@ -542,22 +529,22 @@ features:
       enabled:
         description: "If true, the feature is active.\n"
         type: Boolean
-        default: false
+        default: true
       maximum_duration_ms:
         description: "The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.\n"
         type: Int
-        default: 0
+        default: 6000
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: "If this is true, then on each page load adds a new item to Spotlight."
         type: Boolean
-        default: false
+        default: true
       icon-type:
         description: "The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.\n"
         type: Option<IconType>
-        default: letter
+        default: screenshot
       keep-for-days:
         description: "Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.\n"
         type: Option<Int>
@@ -566,6 +553,13 @@ features:
         description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
         type: Option<PageContent>
         default: text-excerpt
+  tab-tray-refactor-feature:
+    description: "This feature is for managing the roll out of the Tab Tray refactor feature\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: true
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -593,34 +587,13 @@ features:
         description: "Enables the unified search feature\n"
         type: Boolean
         default: false
-  tos-feature:
-    description: "This feature is for managing the roll out of the ToS (Term of Service) implementation\n"
-    variables:
-      status:
-        description: "Enables the feature\n"
-        type: Boolean
-        default: false
   tracking-protection-refactor:
     description: "The Enhanced Tracking Protection refactor\n"
     variables:
       enabled:
         description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
         type: Boolean
-        default: false
-  unified-ads:
-    description: "This property is for managing the roll out of the unified ads API\n"
-    variables:
-      enabled:
-        description: "If true, we will enable user to use the unified ads API\n"
-        type: Boolean
         default: true
-  universal-links:
-    description: "This feature is for managing the roll out of universal link support in the iOS App\n"
-    variables:
-      enabled:
-        description: "If true, enables the feature\n"
-        type: Boolean
-        default: false
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:

@@ -1,0 +1,175 @@
+{% extends "nimbus_experiments/experiment_base.html" %}
+
+{% load static %}
+{% load nimbus_extras %}
+{% load django_bootstrap5 %}
+{% load widget_tweaks %}
+
+{% block title %}{{ experiment.name }} - Audience{% endblock %}
+
+{% block main_content %}
+  <form id="audience-form"
+        {% if form.is_valid %}class="was-validated"{% endif %}
+        hx-post="{% url 'nimbus-new-update-audience' experiment.slug %}"
+        hx-select="#audience-form"
+        hx-target="#audience-form">
+    {% csrf_token %}
+    <div class="card mb-3">
+      <div class="card-header">
+        <h4>Audience</h4>
+        <a target="_blank" href="{{ experiment.audience_url }}">Explore matching audiences</a>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-4">
+            <label for="id_channel" class="form-label">Channel</label>
+            {{ form.channel }}
+          </div>
+          <div class="col-4">
+            <label for="id_firefox_min_version" class="form-label">Min Version</label>
+            {{ form.firefox_min_version }}
+          </div>
+          <div class="col-4">
+            <label for="id_firefox_max_version" class="form-label">Max Version</label>
+            {{ form.firefox_max_version }}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-6">
+            {% if experiment.is_desktop %}
+              <label for="id_locales" class="form-label">Locales</label>
+              {{ form.locales }}
+            {% else %}
+              <label for="id_languages" class="form-label">Languages</label>
+              {{ form.languages }}
+            {% endif %}
+          </div>
+          <div class="col-6">
+            <label for="id_countries" class="form-label">Countries</label>
+            {{ form.countries }}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <label for="id_targeting_config_slug" class="form-label">Advanced Targeting</label>
+            {{ form.targeting_config_slug }}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <label for="id_excluded_experiments" class="form-label">
+              Exclude users enrolled in these experiments/rollouts (past or present)
+            </label>
+            {{ form.excluded_experiments_branches|add_error_class:"is-invalid" }}
+            {% for error in form.excluded_experiments_branches.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <label for="id_required_experiments" class="form-label">
+              Require users to be enrolled in these experiments/rollouts (past or present)
+            </label>
+            {{ form.required_experiments_branches|add_error_class:"is-invalid" }}
+            {% for error in form.required_experiments_branches.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="row mb-4">
+          <div class="col">
+            {{ form.is_sticky }}
+            <label for="id_is_sticky">Sticky Enrollment (Clients remain enrolled until the experiment ends)</label>
+            <a target="_blank"
+               href="https://experimenter.info/workflow/implementing/custom-audiences">Learn more</a>
+          </div>
+        </div>
+        <div class="card bg-body-tertiary border-0 p-4">
+          <p class="text-secondary mb-4">
+            Please ask a data scientist to help you determine these values.
+            <a target="_blank"
+               href="https://experimenter.info/data-scientists/#sample-size-recommendations">Learn more</a>
+          </p>
+          <div class="row">
+            <div class="col-6 d-flex flex-column">
+              <label for="id_population_percent">Percent of clients</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col d-flex flex-column">
+              <input id="id_population_percent_slider"
+                     min="0"
+                     max="100"
+                     step="5"
+                     type="range"
+                     id="populationPercent"
+                     class="pb-4 form-control-range"
+                     value="{{ experiment.population_percent }}">
+            </div>
+            <div class="col">
+              <label for="id_total_enrolled_clients">Expected number of clients</label>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col d-flex flex-column">
+              <div class="input-group mb-3">
+                {{ form.population_percent|add_error_class:"is-invalid" }}
+                <span class="input-group-text">%</span>
+                {% for error in form.population_percent.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col">{{ form.total_enrolled_clients }}</div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label class="mb-2" for="id_proposed_enrollment">Enrollment period</label>
+              <div class="input-group mb-3">
+                {{ form.proposed_enrollment }}
+                <span class="input-group-text">days</span>
+              </div>
+            </div>
+            <div class="col">
+              <label class="mb-2" for="id_proposed_duration">Experiment duration</label>
+              <div class="input-group mb-3">
+                {{ form.proposed_duration }}
+                <span class="input-group-text">days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="submit" class="btn btn-secondary ms-2">Save and Continue</button>
+    </div>
+    {% if form.is_bound %}
+      {% if form.is_valid %}
+        <div class="toast text-bg-success position-fixed top-0 end-0 m-3 w-auto"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
+          <div class="toast-body">
+            <i class="fa-regular fa-circle-check"></i>
+            Audience saved!
+          </div>
+        {% else %}
+          <div class="toast text-bg-danger position-fixed top-0 end-0 m-3 w-auto"
+               role="alert"
+               aria-live="assertive"
+               aria-atomic="true">
+            <div class="toast-body">
+              <i class="fa-regular fa-circle-check"></i>
+              Please fix the errors
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </form>
+  {% endblock main_content %}
+
+  {% block extrascripts %}
+    {{ block.super }}
+    <script src="{% static 'nimbus_ui_new/edit_audience.bundle.js' %}"></script>
+  {% endblock extrascripts %}
