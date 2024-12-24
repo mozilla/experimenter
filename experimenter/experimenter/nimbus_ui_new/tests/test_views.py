@@ -1359,6 +1359,8 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.DRAFT)
         self.assertEqual(
             self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
 
 class TestAudienceUpdateView(AuthTestCase):
     def test_get_renders_page(self):
