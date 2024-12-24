@@ -3,7 +3,9 @@
 {% block sidebar %}
   {% include "nimbus_experiments/sidebar.html" with experiment=experiment %}
 
-{% endblock %}{% block main_content_header %}
+{% endblock %}
+
+{% block main_content_header %}
   <div class="row mb-2 align-items-center">
     <!-- Experiment Details -->
     <div class="col-md-6 col-xl-6">
@@ -21,10 +23,10 @@
         </p>
       {% endif %}
     </div>
-
     <!-- Experiment Timeline -->
     <div class="col-md-6 col-xl-6 text-end" id="experiment-timeline">
       {% include "nimbus_experiments/timeline.html" %}
+
     </div>
   </div>
 {% endblock %}
