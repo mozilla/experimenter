@@ -22,47 +22,8 @@
       </div>
     {% endfor %}
   {% endif %}
-
-
-
-
-  <div id="launch-controls">
-    <form>
-      {% csrf_token %}
-
-      {% if experiment.is_draft %}
-        {% if experiment.can_draft_to_preview %}
-          <button type="button"
-              class="btn btn-primary"
-              hx-post="{% url 'nimbus-new-draft-to-preview' slug=experiment.slug %}"
-              hx-select="#content"
-              hx-target="#content"
-              hx-swap="outerHTML">
-                Preview
-          </button>
-        {% endif %}
-        {% if experiment.can_draft_to_review %}
-          <button type="button"
-              class="btn btn-primary"
-              hx-post="{% url 'nimbus-new-draft-to-preview' slug=experiment.slug %}"
-              hx-select="#content"
-              hx-target="#content"
-              hx-swap="outerHTML">
-                Request Launch without Preview
-          </button>
-        {% endif %}
-      {% elif experiment.is_preview %}
-          {% if experiment.can_preview_to_draft %}
-          {% endif %}
-          {% if eperiment.can_preview_to_review %}
-          {% endif %}
-      {% elif experiment.is_review %}
-      {% endif %}
-    </form>
-  </div>
-
-
-
+  <!-- Launch Controls Card-->
+  {% include "nimbus_experiments/launch_controls.html" %}
 
   <!-- Takeaways Card -->
   {% include "nimbus_experiments/takeaways_card.html" %}

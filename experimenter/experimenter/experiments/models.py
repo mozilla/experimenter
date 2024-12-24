@@ -682,7 +682,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.is_draft and not self.is_review
 
     @property
+    def can_draft_to_review(self):
+        return self.can_draft_to_preview
+
+    @property
     def can_preview_to_draft(self):
+        return self.is_preview
+
+    @property
+    def can_preview_to_review(self):
         return self.is_preview
 
     @property

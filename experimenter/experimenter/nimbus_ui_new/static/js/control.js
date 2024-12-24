@@ -1,13 +1,14 @@
-export default function toggleSubmitButton() {
-  const checkboxes = document.querySelectorAll(".form-check-input");
-  const submitButton = document.getElementById("request-launch-button");
-  const allChecked = Array.from(checkboxes).every(
-    (checkbox) => checkbox.checked,
+window.showRecommendation = function () {
+  const defaultControls = document.getElementById("default-controls");
+  const recommendationMessage = document.getElementById(
+    "recommendation-message",
   );
-  submitButton.disabled = !allChecked;
-}
-document.body.addEventListener("htmx:afterSwap", () => {
-  document.querySelectorAll(".form-check-input").forEach((checkbox) => {
-    checkbox.addEventListener("change", toggleSubmitButton);
-  });
-});
+  defaultControls.classList.add("d-none");
+  recommendationMessage.classList.remove("d-none");
+};
+window.toggleSubmitButton = function () {
+  const checkbox1 = document.getElementById("checkbox-1");
+  const checkbox2 = document.getElementById("checkbox-2");
+  const submitButton = document.getElementById("request-launch-button");
+  submitButton.disabled = !(checkbox1.checked && checkbox2.checked);
+};

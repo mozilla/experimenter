@@ -1,11 +1,8 @@
 from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
-    ReviewToDraftView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
-    PreviewToDraftView,
-    PreviewToReviewView,
     DraftToPreviewView,
     DraftToReviewView,
     MetricsUpdateView,
@@ -14,7 +11,10 @@ from experimenter.nimbus_ui_new.views import (
     NimbusExperimentsCreateView,
     NimbusExperimentsListTableView,
     OverviewUpdateView,
+    PreviewToDraftView,
+    PreviewToReviewView,
     QAStatusUpdateView,
+    ReviewToDraftView,
     SignoffUpdateView,
     SubscribeView,
     TakeawaysUpdateView,
