@@ -299,7 +299,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertEqual(experiment.changes.count(), 1)
 
-        data = {
+        invalid_data = {
             "application": NimbusExperiment.Application.DESKTOP,
             "hypothesis": "New Hypothesis",
             "name": "New Name",
@@ -310,7 +310,27 @@ class TestNimbusExperimentSerializer(TestCase):
         }
 
         serializer = NimbusExperimentSerializer(
-            experiment, data=data, context={"user": self.user}
+            experiment, data=invalid_data, context={"user": self.user}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("application", serializer.errors)
+        self.assertEqual(
+            serializer.errors["application"],
+            ["Application cannot be updated after creation."],
+        )
+
+        valid_data = {
+            "hypothesis": "New Hypothesis",
+            "name": "New Name",
+            "public_description": "New public description",
+            "changelog_message": "test changelog message",
+            "feature_configs": [feature_config.id],
+            "prevent_pref_conflicts": True,
+        }
+
+        serializer = NimbusExperimentSerializer(
+            experiment, data=valid_data, context={"user": self.user}, partial=True
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
