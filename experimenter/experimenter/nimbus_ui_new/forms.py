@@ -518,3 +518,66 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} removed subscriber"
+
+
+class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    status = None
+    status_next = None
+    publish_status = None
+
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.status = self.status
+        experiment.status_next = self.status_next
+        experiment.publish_status = self.publish_status
+        experiment.save()
+        return experiment
+
+
+class DraftToPreviewForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.PREVIEW
+    status_next = NimbusExperiment.Status.PREVIEW
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    def get_changelog_message(self):
+        return f"{self.request.user} launched experiment to Preview"
+
+
+class DraftToReviewForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested launch without Preview"
+
+
+class PreviewToReviewForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested launch from Preview"
+
+
+class PreviewToDraftForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.DRAFT
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    def get_changelog_message(self):
+        return f"{self.request.user} moved the experiment back to Draft"
+
+
+class ReviewToDraftForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.DRAFT
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    def get_changelog_message(self):
+        return f"{self.request.user} cancelled the review"
