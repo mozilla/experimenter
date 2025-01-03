@@ -57,6 +57,7 @@
   <table id="experiment-table" class="table table-striped mb-0">
     <thead>
       <tr>
+        <th></th>
         {% include "nimbus_experiments/table_header.html" with field="Name" up=sort_choices.NAME_UP down=sort_choices.NAME_DOWN %}
         {% include "nimbus_experiments/table_header.html" with field="QA" up=sort_choices.QA_UP down=sort_choices.QA_DOWN %}
         {% include "nimbus_experiments/table_header.html" with field="Application" up=sort_choices.APPLICATION_UP down=sort_choices.APPLICATION_DOWN %}
@@ -71,6 +72,15 @@
     <tbody>
       {% for experiment in experiments %}
         <tr>
+          {% if experiment.is_paused == False and experiment.enrollment_start_date %}
+            <td title="Enrolling" class="bg-success" style="width: 0.5em;"></td>
+          {% elif experiment.actual_enrollment_end_date and not experiment.end_date %}
+            <td title="Observing" class="bg-info" style="width: 0.5em;"></td>
+          {% elif experiment.end_date %}
+            <td title="Complete" class="bg-secondary" style="width: 0.5em;"></td>  
+          {% else %}
+            <td style="width: 1em;"></td>
+          {% endif %}
           <th scope="row">
             <a href="{% url "nimbus-detail" slug=experiment.slug %}">{{ experiment.name }}</a>
           </th>
