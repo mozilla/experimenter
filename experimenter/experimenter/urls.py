@@ -31,6 +31,9 @@ urlpatterns = [
     re_path(r"^nimbus/new/", NimbusUIView.as_view(), name="nimbus-create"),
     re_path(r"^nimbus/$", NimbusExperimentsListView.as_view(), name="nimbus-list"),
     re_path(r"^nimbus/(?P<slug>[\w-]+)/", NimbusUIView.as_view(), name="nimbus-detail"),
+    re_path(
+        r"^nimbus/(?P<slug>[\w-]+)/results", NimbusUIView.as_view(), name="nimbus-results"
+    ),
     re_path(r"^legacy/$", ExperimentListView.as_view(), name="home"),
     re_path(
         r"^$",
