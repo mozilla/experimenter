@@ -28,3 +28,30 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     proportion has accounted for this:"""
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
+
+    TIMELINE_TOOLTIPS = {
+        "Draft": (
+            "The number of days between when the experiment was first drafted "
+            "and when it moved to either the preview stage or the review stage."
+        ),
+        "Preview": (
+            "The number of days the experiment remained in the preview phase "
+            "before it was reviewed."
+        ),
+        "Review": (
+            "The number of days from when the experiment was reviewed to when "
+            "participant enrollment began."
+        ),
+        "Enrollment": (
+            "The number of days from when the experiment began enrolling participants "
+            "to when the enrollment period ended."
+        ),
+        "Complete": (
+            "The total number of days from the start of participant enrollment "
+            "to the end of the experiment."
+        ),
+        "Observation": (
+            "The number of days the experiment was observed after the enrollment "
+            "period ended."
+        ),
+    }
