@@ -542,11 +542,14 @@ urlbar:
         will be able to click the "Show less frequently" command for weather
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
-    weatherSimpleUI:
-      type: boolean
+    weatherUiTreatment:
+      type: int
+      fallbackPref: browser.urlbar.weather.uiTreatment
       description: >-
-        If true, show the weather suggestion by simple UI edition as follows.
-        * Remove the forcast text from the summary text.
+        The UI treatment to use for weather suggestions. Possible values:
+        0: (default) Simplest UI with current temperature and location
+        1: Simpler UI, adds current conditions, high/low, and URL
+        2: Full UI, adds forecast
     yelpMinKeywordLength:
       type: int
       description: >-
@@ -2839,6 +2842,16 @@ fxaButtonVisibility:
       setPref:
         branch: user
         pref: identity.fxaccounts.toolbar.pxiToolbarEnabled.vpnEnabled
+    avatarIconVariant:
+      description: >-
+        Controls the icon that appears in the toolbar button when in the
+        signed-out state.
+
+        One of the following values:
+          - control
+          - human-circle
+          - fox-circle
+      type: string
 
 syncSetupFlow:
   description: Prefs to control the updated Mozilla account panel flow for users without sync enabled.
@@ -3011,6 +3024,13 @@ fingerprintingProtection:
         pref: javascript.options.use_fdlibm_for_sin_cos_tan
       description: >-
         Uses a different math backend for Math.sin/cos/tan in JavaScript that exposes less entropy
+    canvas_random_use_siphash:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.resistFingerprinting.randomization.canvas.use_siphash
+      description: >-
+        Uses the SipHash function for canvas randomization.
 
 userCharacteristics:
   description: Control user characteristic data collection
