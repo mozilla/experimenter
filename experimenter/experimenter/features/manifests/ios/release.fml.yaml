@@ -101,6 +101,13 @@ features:
         default:
           jump-back-in: true
           recent-explorations: false
+  js-alert-refactor:
+    description: "This feature is for the JavaScript Webview refactor\n"
+    variables:
+      enabled:
+        description: "When true this enables the new JS alerts system to be used\n"
+        type: Boolean
+        default: false
   login-autofill:
     description: This property defines the login autofill feature for automatically filling in usernames and passwords.
     variables:
