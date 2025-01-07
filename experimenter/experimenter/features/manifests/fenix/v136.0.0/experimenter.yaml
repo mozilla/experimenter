@@ -34,6 +34,17 @@ cookie-banners:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
+encourage-search-cfr:
+  description: A feature that shows a CFR on first launch to encourage users to make a search
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    cfrText:
+      type: string
+      description: The text to show in the CFR
+    enabled:
+      type: boolean
+      description: "When true, the CFR will show"
 fingerprinting-protection:
   description: Control Fingerprinting Protection
   hasExposure: true
