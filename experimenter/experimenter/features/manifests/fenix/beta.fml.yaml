@@ -46,6 +46,17 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
+  encourage-search-cfr:
+    description: A feature that shows a CFR on first launch to encourage users to make a search
+    variables:
+      cfrText:
+        description: The text to show in the CFR
+        type: Text
+        default: ""
+      enabled:
+        description: "When true, the CFR will show"
+        type: Boolean
+        default: false
   fingerprinting-protection:
     description: Control Fingerprinting Protection
     variables:
