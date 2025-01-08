@@ -34,10 +34,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "The duration from the initial draft of the experiment to its entry "
             "into either the preview or review stage."
         ),
-        "Preview": (
-            "The number of days the experiment remained in the preview phase "
-            "before it was reviewed."
-        ),
+        "Preview": ("The number of days the experiment has spent in the preview stage."),
         "Review": ("The number of days the experiment has spent in the review stage."),
         "Enrollment": (
             "The duration from the start to the end of the participant enrollment "
