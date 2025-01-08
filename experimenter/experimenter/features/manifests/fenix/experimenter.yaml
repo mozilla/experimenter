@@ -274,6 +274,14 @@ pdfjs:
     open-in-app-button:
       type: boolean
       description: Open in app button
+pki:
+  description: Certificate verification configuration
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    certificateTransparencyMode:
+      type: int
+      description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
 print:
   description: A feature for printing from the share or browser menu.
   hasExposure: true
