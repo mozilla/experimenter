@@ -31,20 +31,17 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     TIMELINE_TOOLTIPS = {
         "Draft": (
-            "The number of days between when the experiment was first drafted "
-            "and when it moved to either the preview stage or the review stage."
+            "The duration from the initial draft of the experiment to its entry "
+            "into either the preview or review stage."
         ),
         "Preview": (
             "The number of days the experiment remained in the preview phase "
             "before it was reviewed."
         ),
-        "Review": (
-            "The number of days from when the experiment was reviewed to when "
-            "participant enrollment began."
-        ),
+        "Review": ("The number of days the experiment has spent in the review stage."),
         "Enrollment": (
-            "The number of days from when the experiment began enrolling participants "
-            "to when the enrollment period ended."
+            "The duration from the start to the end of the participant enrollment "
+            "period."
         ),
         "Complete": (
             "The total number of days from the start of participant enrollment "
