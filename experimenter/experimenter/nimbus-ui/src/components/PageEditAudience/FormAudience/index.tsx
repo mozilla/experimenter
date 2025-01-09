@@ -159,9 +159,9 @@ function selectExperimentOptions(
   allExperiments: getAllExperimentsByApplication_experimentsByApplication[],
   selectedExperimentBranchValues?: string[],
 ): SelectExperimentBranchOption[] {
-  let selectableExperimentBranchOptions = allExperiments.flatMap(
-    toSelectExperimentBranchOptions,
-  );
+  let selectableExperimentBranchOptions = allExperiments
+    .filter((experiment) => !experiment.isArchived)
+    .flatMap(toSelectExperimentBranchOptions);
 
   if (selectedExperimentBranchValues) {
     const selectedExperimentBranchValuesSet = new Set(

@@ -505,3 +505,61 @@ class TestAudienceForm(RequestFormTestCase):
                 parent_experiment=experiment, child_experiment=required, branch_slug=None
             ).exists()
         )
+
+    def test_archived_required_or_excluded_is_invalid(self):
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
+        language = LanguageFactory.create()
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            name="archived-excluded",
+            application=NimbusExperiment.Application.DESKTOP,
+            is_archived=True,
+        )
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            name="archived-required",
+            application=NimbusExperiment.Application.DESKTOP,
+            is_archived=True,
+        )
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            proposed_release_date=None,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            total_enrolled_clients=0,
+            is_sticky=False,
+            countries=[],
+            locales=[],
+            languages=[],
+        )
+
+        form = AudienceForm(
+            instance=experiment,
+            data={
+                "changelog_message": "test changelog message",
+                "channel": NimbusExperiment.Channel.BETA,
+                "countries": [country.id],
+                "excluded_experiments_branches": [excluded.branch_choices()[0][0]],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "is_sticky": True,
+                "languages": [language.id],
+                "locales": [locale.id],
+                "population_percent": 10,
+                "proposed_duration": 120,
+                "proposed_enrollment": 42,
+                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "targeting_config_slug": (NimbusExperiment.TargetingConfig.FIRST_RUN),
+                "total_enrolled_clients": 100,
+            },
+            request=self.request,
+        )
+
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertIn("excluded_experiments_branches", form.errors)
+        self.assertIn("required_experiments_branches", form.errors)
