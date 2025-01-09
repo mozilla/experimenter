@@ -150,6 +150,61 @@ describe("FormAudience", () => {
       ).toBeUndefined();
     });
 
+    it("only hides archived experiments from required and excluded drop downs", async () => {
+      const experiment = {
+        ...MOCK_EXPERIMENT,
+        name: MOCK_EXPERIMENTS_BY_APPLICATION[0].name,
+        slug: MOCK_EXPERIMENTS_BY_APPLICATION[0].slug,
+        id: MOCK_EXPERIMENTS_BY_APPLICATION[0].id,
+      };
+
+      const experimentsByApplication = [
+        {
+          ...MOCK_EXPERIMENTS_BY_APPLICATION[1],
+          name: "available",
+          treatmentBranches: [],
+          isArchived: false,
+        },
+        {
+          ...MOCK_EXPERIMENTS_BY_APPLICATION[2],
+          name: "archived",
+          treatmentBranches: [],
+          isArchived: true,
+        },
+      ];
+
+      const { container } = render(
+        <Subject
+          experiment={experiment}
+          experimentsByApplication={{
+            allExperiments: experimentsByApplication,
+          }}
+        />,
+      );
+
+      const excluded = screen.getByLabelText(/Exclude users enrolled/);
+      await selectEvent.openMenu(excluded);
+      let options = container.querySelectorAll(query("excludedExperiments"));
+
+      expect(options.length).toEqual(2);
+      expect(
+        Array.from(options, (e) => e.textContent).filter((text) =>
+          text?.includes("archived"),
+        ).length,
+      ).toEqual(0);
+
+      const required = screen.getByLabelText(/Require users to be enrolled/);
+      await selectEvent.openMenu(required);
+      options = container.querySelectorAll(query("requiredExperiments"));
+
+      expect(options.length).toEqual(2);
+      expect(
+        Array.from(options, (e) => e.textContent).filter((text) =>
+          text?.includes("archived"),
+        ).length,
+      ).toEqual(0);
+    });
+
     it("saves required and excluded experiments with all branches for experiments", async () => {
       const onSubmit = jest.fn();
       const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_experimentsByApplication[] =
@@ -163,6 +218,7 @@ describe("FormAudience", () => {
             publicDescription: "mock description",
             referenceBranch: { slug: "control" },
             treatmentBranches: [{ slug: "treatment" }],
+            isArchived: false,
           }),
         );
       const experiment: getExperiment_experimentBySlug = mockExperimentQuery(
@@ -241,6 +297,7 @@ describe("FormAudience", () => {
             publicDescription: "mock description",
             referenceBranch: { slug: "control" },
             treatmentBranches: [{ slug: "treatment" }],
+            isArchived: false,
           }),
         );
       const experiment: getExperiment_experimentBySlug = mockExperimentQuery(
@@ -320,6 +377,7 @@ describe("FormAudience", () => {
             publicDescription: "mock description",
             referenceBranch: { slug: "control" },
             treatmentBranches: [{ slug: "treatment" }],
+            isArchived: false,
           }),
         );
       const experiment: getExperiment_experimentBySlug = mockExperimentQuery(
@@ -398,6 +456,7 @@ describe("FormAudience", () => {
             publicDescription: "mock description",
             referenceBranch: { slug: "control" },
             treatmentBranches: [{ slug: "treatment" }],
+            isArchived: false,
           }),
         );
       const experiment: getExperiment_experimentBySlug = mockExperimentQuery(
