@@ -342,7 +342,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return sorted(
             [
                 branch_choice
-                for experiment in NimbusExperiment.objects.all()
+                for experiment in NimbusExperiment.objects.exclude(is_archived=True)
                 for branch_choice in experiment.branch_choices()
             ]
         )
