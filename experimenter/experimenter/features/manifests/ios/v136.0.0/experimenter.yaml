@@ -23,6 +23,14 @@ bookmark-refactor-feature:
     enabled:
       type: boolean
       description: "Enables the bookmark refactor feature\n"
+cleanup-history-reenabled:
+  description: "This feature flag will help us slowly re-enable the cleanupHistoryIfNeeded functionnality at startup of the app\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "When true the cleanupHistoryIfNeeded will be run\n"
 contextual-hint-feature:
   description: This set holds all features pertaining to contextual hints.
   hasExposure: true
