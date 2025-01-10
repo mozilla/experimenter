@@ -383,6 +383,7 @@ class TestOverviewForm(RequestFormTestCase):
         documentation_link = NimbusDocumentationLinkFactory.create()
 
         form_data = {
+            "name": "",
             "hypothesis": "new hypothesis",
             "risk_brand": True,
             "risk_message": True,
@@ -402,6 +403,7 @@ class TestOverviewForm(RequestFormTestCase):
         form = OverviewForm(data=form_data)
 
         self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
 
 
 class TestDocumentationLinkCreateForm(RequestFormTestCase):
