@@ -234,6 +234,11 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         data = super().validate(data)
+        
+        if self.instance and "application" in data:
+            raise serializers.ValidationError(
+                {"application": "Application cannot be updated after creation."}
+            )
 
         feature_values = data.get("feature_values")
 
@@ -894,6 +899,12 @@ class NimbusExperimentSerializer(
         return value
 
     def validate(self, data):
+
+        if self.instance and "application" in data and self.instance.application != data["application"]:
+            raise serializers.ValidationError(
+                {"application": "Application cannot be updated after creation."}
+            )
+
         data = super().validate(data)
 
         non_is_archived_fields = set(data.keys()) - set(
@@ -955,6 +966,11 @@ class NimbusExperimentSerializer(
         return data
 
     def update(self, experiment, validated_data):
+        if "application" in validated_data and experiment.application != validated_data["application"]:
+            raise serializers.ValidationError(
+                {"application": "Application cannot be updated after creation."}
+            )
+            
         if (
             experiment.is_rollout
             and validated_data.get("population_percent") != experiment.population_percent
