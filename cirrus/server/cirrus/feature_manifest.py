@@ -22,9 +22,7 @@ class FeatureManifestLanguage:
                 "enrolledFeatureConfigMap"  # slug, featureid, value,
             ].items()
         }
-        merged_res: MergedJsonWithErrors = self.fml_client.merge(  # type: ignore
-            feature_configs
-        )
+        merged_res: MergedJsonWithErrors = self.fml_client.merge(feature_configs)
         self.merge_errors = merged_res.errors
 
         if self.merge_errors:
