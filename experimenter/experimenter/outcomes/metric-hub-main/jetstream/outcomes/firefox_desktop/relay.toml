@@ -1,0 +1,149 @@
+friendly_name = "Relay"
+description = "Metrics for the Relay integration"
+
+
+# Metric for tracking how many times the offer was shown
+[metrics.relay_integration_shown_relay_offer]
+friendly_name = "Relay Optin: Relay offer shown to client"
+description = "Number of times Relay offer is shown"
+select_expression = """
+      COALESCE(COUNTIF(
+         event_method= 'shown'
+         AND event_object = 'offer_relay'
+         AND event_category = 'relay_integration'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+[metrics.relay_integration_clicked_relay_offer]
+friendly_name = "Relay Optin: Relay offer clicked by client"
+description = "Number of times user clicked on Relay offer"
+select_expression = """
+      COALESCE(COUNTIF(
+         event_method = 'clicked'
+         AND event_object = 'offer_relay'
+         AND event_category = 'relay_integration'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+[metrics.relay_integration_shown_opt_in_panel]
+friendly_name = "Relay Optin: Relay optin panel shown to client"
+description = "Number of times Relay optin panel is shown"
+select_expression = """
+      COALESCE(COUNTIF(
+         event_method = 'shown'
+         AND event_object = 'opt_in_panel'
+         AND event_category = 'relay_integration'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+[metrics.relay_integration_enabled_opt_in_panel]
+friendly_name = "Relay Optin: Relay optin panel enabled by client"
+description = "Number of times Relay optin panel is enabled"
+select_expression = """
+      COALESCE(COUNTIF(
+         event_method = 'enabled'
+         AND event_object = 'opt_in_panel'
+         AND event_category = 'relay_integration'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+[metrics.relay_integration_postponed_opt_in_panel]
+friendly_name = "Relay Optin: Relay optin panel postponed by client"
+description = "Number of times Relay optin panel is postponed"
+select_expression = """
+      COALESCE(COUNTIF(
+         event_method = 'postponed'
+         AND event_object = 'opt_in_panel'
+         AND event_category = 'relay_integration'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+[metrics.relay_integration_disabled_opt_in_panel]
+friendly_name = "Relay Optin: Relay optin panel disabled by client"
+description = "Number of times Relay optin panel is disabled"
+select_expression = """
+      COALESCE(COUNTIF(
+         event_method = 'disabled'
+         AND event_object = 'opt_in_panel'
+         AND event_category = 'relay_integration'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+[metrics.relay_integration_shown_fill_username]
+friendly_name = "Relay Engagement: Relay integration autocomplete popup shown"
+description = "Number of times the Relay UI is shown to fill in a new Relay mask"
+select_expression = """
+      COALESCE(COUNTIF(
+         event_method = 'shown'
+         AND event_object = 'fill_username'
+         AND event_category = 'relay_integration'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+[metrics.relay_integration_clicked_fill_username]
+friendly_name = "Relay Engagement: Relay integration autocomplete popup clicked"
+description = "Number of times the Relay UI is clicked to fill in a new Relay mask"
+select_expression = """
+      COALESCE(COUNTIF(
+         event_method = 'clicked'
+         AND event_object = 'fill_username'
+         AND event_category = 'relay_integration'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+[metrics.relay_optin_rate]
+description = "Relay optin panel enabled by client / Relay optin panel shown to client "
+friendly_name = "Relay Optin: Relay Optin Rate"
+depends_on = ["relay_integration_enabled_opt_in_panel", "relay_integration_shown_opt_in_panel"]
+
+[metrics.relay_optin_rate.statistics.population_ratio]
+numerator = "relay_integration_enabled_opt_in_panel"
+denominator = "relay_integration_shown_optin_panel"
+
+[metrics.relay_optin_disabled_rate]
+description = "Relay optin panel disabled by client / Relay optin panel shown to client "
+friendly_name = "Relay Optin: Relay Optin disabled Rate"
+depends_on = ["relay_integration_disabled_opt_in_panel", "relay_integration_shown_opt_in_panel"]
+
+[metrics.relay_optin_disabled_rate.statistics.population_ratio]
+numerator = "relay_integration_disabled_opt_in_panel"
+denominator = "relay_integration_shown_optin_panel"
+
+[metrics.relay_offer_ctr]
+description = "Relay offer clicked by client / Relay offer shown to client"
+friendly_name = "Relay Optin: CTR on the Relay mask offer"
+depends_on = ["relay_integration_clicked_relay_offer", "relay_integration_shown_relay_offer"]
+
+[metrics.relay_offer_ctr.statistics.population_ratio]
+numerator = "relay_integration_clicked_relay_offer"
+denominator = "relay_integration_shown_relay_offer"
+
+[metrics.fill_username_ctr]
+description = "relay_integration_clicked_fill_username / relay_integration_shown_fill_username"
+friendly_name = "Relay Engagement: CTR on the Relay fill_username"
+depends_on = ["relay_integration_clicked_fill_username", "relay_integration_shown_fill_username"]
+
+[metrics.fill_username_ctr.statistics.population_ratio]
+numerator = "relay_integration_clicked_fill_username"
+denominator = "relay_integration_shown_fill_username"
+
+
+
+
+
