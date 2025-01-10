@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.db.models import DateField, ExpressionWrapper, F
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView
@@ -62,7 +64,17 @@ class NimbusChangeLogsView(NimbusExperimentViewMixin, DetailView):
 
 class NimbusExperimentsListView(NimbusExperimentViewMixin, FilterView):
     queryset = (
-        NimbusExperiment.objects.all()
+        NimbusExperiment.objects.annotate(
+            sort_end_date=Coalesce(
+                F("_end_date"),
+                ExpressionWrapper(
+                    Coalesce(F("proposed_release_date"), F("_start_date"))
+                    + F("proposed_duration"),
+                    output_field=DateField(),
+                ),
+            )
+        )
+        .all()
         .order_by("-_updated_date_time")
         .prefetch_related("feature_configs")
     )
