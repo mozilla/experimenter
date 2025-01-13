@@ -378,6 +378,33 @@ class TestOverviewForm(RequestFormTestCase):
         )
         self.assertEqual(documentation_link.link, "https://www.example.com")
 
+    def test_name_field_is_required(self):
+        project = ProjectFactory.create()
+        documentation_link = NimbusDocumentationLinkFactory.create()
+
+        form_data = {
+            "name": "",
+            "hypothesis": "new hypothesis",
+            "risk_brand": True,
+            "risk_message": True,
+            "projects": [project.id],
+            "public_description": "new description",
+            "risk_revenue": True,
+            "risk_partner_related": True,
+            "documentation_links-TOTAL_FORMS": "1",
+            "documentation_links-INITIAL_FORMS": "1",
+            "documentation_links-0-id": documentation_link.id,
+            "documentation_links-0-title": (
+                NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+            ),
+            "documentation_links-0-link": "https://www.example.com",
+        }
+
+        form = OverviewForm(data=form_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+
 
 class TestDocumentationLinkCreateForm(RequestFormTestCase):
     def test_valid_form_adds_documentation_link(self):

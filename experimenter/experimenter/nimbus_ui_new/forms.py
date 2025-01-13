@@ -192,7 +192,7 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     )
 
     name = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
     )
     hypothesis = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"class": "form-control"})
