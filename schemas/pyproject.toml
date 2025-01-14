@@ -6,7 +6,12 @@ authors = ["mikewilli"]
 license = "MPL 2.0"
 readme = "README.md"
 packages = [{ include = "mozilla_nimbus_schemas" }]
-include = [{ path = "mozilla_nimbus_schemas/schemas", format = ["sdist", "wheel"] }]
+include = [
+    { path = "mozilla_nimbus_schemas/schemas", format = [
+        "sdist",
+        "wheel",
+    ] },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -35,6 +40,7 @@ addopts = ["--import-mode=importlib"]
 lint.select = ["F", "E", "W", "I", "N", "YTT", "A", "C4", "RET", "SIM"]
 lint.ignore = [
     "A003",
+    "A005",
     "E402",
     "E741",
     "F403",
