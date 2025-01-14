@@ -14,6 +14,10 @@ const RequestLiveUpdate = ({
   onSubmit: () => void;
   disable: boolean;
 }) => {
+  const hoverText = disable
+    ? "In order to request an update, update your population percent on the Audience page."
+    : "";
+
   return (
     <div className="mb-4" data-testid="update-live-to-review">
       <DisabledButton
@@ -21,6 +25,7 @@ const RequestLiveUpdate = ({
         testId="request-update-button"
         disabled={isLoading || disable}
         onClick={onSubmit}
+        title={hoverText}
       >
         Request Update
       </DisabledButton>
