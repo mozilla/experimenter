@@ -6,9 +6,9 @@
 {% endblock %}
 
 {% block main_content_header %}
-  <div class="row mb-2 align-items-center">
+  <div class="row mb-2">
     <!-- Experiment Details -->
-    <div class="col-md-6 col-xl-6">
+    <div class="col-md-12 col-xl-6">
       <h4 class="mb-0">{{ experiment.name }}</h4>
       <span class="{{ experiment.qa_status_badge_class }}">
         QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
@@ -24,7 +24,7 @@
       {% endif %}
     </div>
     <!-- Experiment Timeline -->
-    <div class="col-md-6 col-xl-6 text-end" id="experiment-timeline">
+    <div class="col-md-12 col-xl-6" id="experiment-timeline">
       {% include "nimbus_experiments/timeline.html" %}
 
     </div>

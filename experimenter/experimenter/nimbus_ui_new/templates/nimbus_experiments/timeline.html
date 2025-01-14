@@ -1,11 +1,17 @@
-<div class="col-6">
-  <ul class="list-group list-group-horizontal justify-content-between mb-3">
-    {% for status in experiment.timeline %}
-      <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if status.is_active %}bg-primary text-white{% endif %}">
-        <strong>{{ status.label }}</strong>
-        <small>{{ status.date|default:'---' }}</small>
-        {% if status.days is not None %}<small>{{ status.days }} day{{ status.days|pluralize }}</small>{% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-</div>
+<ul class="list-group list-group-horizontal justify-content-between mb-3">
+  {% for status in experiment.timeline %}
+    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if status.is_active %}bg-primary text-white{% endif %}">
+      <strong>{{ status.label }}</strong>
+      <small>{{ status.date|default:'---' }}</small>
+      {% if status.days is not None %}
+        <div class="d-flex justify-content-center align-items-center">
+          <small class="mr-2">{{ status.days }} day{{ status.days|pluralize }}</small>
+          <i class="fa-regular fa-circle-question fa-sm ps-1"
+             data-bs-toggle="tooltip"
+             data-bs-placement="bottom"
+             title="{{ status.tooltip }}"></i>
+        </div>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>

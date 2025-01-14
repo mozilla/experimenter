@@ -1294,6 +1294,11 @@ class TestLaunchViews(AuthTestCase):
         self.experiment = NimbusExperimentFactory.create()
 
     def test_draft_to_preview(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+
         response = self.client.post(
             reverse("nimbus-new-draft-to-preview", kwargs={"slug": self.experiment.slug}),
         )
@@ -1306,6 +1311,11 @@ class TestLaunchViews(AuthTestCase):
         )
 
     def test_draft_to_review(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+
         response = self.client.post(
             reverse("nimbus-new-draft-to-review", kwargs={"slug": self.experiment.slug}),
         )
@@ -1319,7 +1329,10 @@ class TestLaunchViews(AuthTestCase):
 
     def test_preview_to_review(self):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
+        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         self.experiment.save()
+
         response = self.client.post(
             reverse(
                 "nimbus-new-preview-to-review", kwargs={"slug": self.experiment.slug}
@@ -1335,7 +1348,10 @@ class TestLaunchViews(AuthTestCase):
 
     def test_preview_to_draft(self):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
+        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         self.experiment.save()
+
         response = self.client.post(
             reverse("nimbus-new-preview-to-draft", kwargs={"slug": self.experiment.slug}),
         )
@@ -1348,8 +1364,11 @@ class TestLaunchViews(AuthTestCase):
         )
 
     def test_cancel_review(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.DRAFT
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.save()
+
         response = self.client.post(
             reverse("nimbus-new-review-to-draft", kwargs={"slug": self.experiment.slug}),
         )

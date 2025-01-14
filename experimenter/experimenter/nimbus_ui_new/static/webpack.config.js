@@ -5,7 +5,7 @@ module.exports = {
   entry: {
     app: "./js/index.js",
     experiment_list: "./js/experiment_list.js",
-    control: "./js/control.js",
+    review_controls: "./js/review_controls.js",
     edit_audience: "./js/edit_audience.js",
   },
   output: {
