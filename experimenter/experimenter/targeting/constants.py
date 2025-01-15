@@ -2287,6 +2287,7 @@ DEFAULT_AUTOFILL_ADDRESSES_SUPPORTED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
     TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'
