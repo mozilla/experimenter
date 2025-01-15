@@ -259,6 +259,7 @@ submission_date_column = "submission_date"
 description = "Aggregated DAU, WAU, and MAU by different attributes for engagement ratio calculation."
 friendly_name = "Klar iOS Engagement"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.klar_ios_retention_view]
 from_expression = """(
