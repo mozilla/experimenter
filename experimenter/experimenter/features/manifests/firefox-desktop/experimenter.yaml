@@ -214,6 +214,11 @@ urlbar:
     the event is recorded once per app session when the user first encounters
     the UI of the experiment in which they're enrolled.
   variables:
+    actionsOnboardingTimesToShow:
+      type: int
+      fallbackPref: browser.urlbar.quickactions.timesToShowOnboardingLabel
+      description: >-
+        The number of times a user should be shown the actions onboarding label.
     addonsFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.addons.featureGate
@@ -822,6 +827,21 @@ newtabUnifiedAds:
       setPref:
         branch: user
         pref: browser.newtabpage.activity-stream.unifiedAds.tiles.enabled
+    unifiedAdsFeedEnabled:
+      type: boolean
+      description: >-
+          Enable AdsFeed to manage all ads request/serving logic
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.adsFeed.enabled
+    unifiedAdsFeedTilesEnabled:
+      type: boolean
+      description: >-
+          Enable AdsFeed to query MARS server to fetch/serve top sites tiles
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.adsFeed.tiles.enabled
+
 
 newtabSpocsCache:
   description: The about:newtab sponsored content cache.
@@ -1292,6 +1312,13 @@ pocketNewtab:
         pref: browser.newtabpage.activity-stream.newtabWallpapers.highlightCtaText
       description: >-
         Changes the wallpaper feature highlight cta
+    currentWallpaper:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.wallpaper
+      description:  >-
+        Changes the currently selected wallpaper
     weatherLocationSearch:
       type: boolean
       setPref:
@@ -1506,6 +1533,12 @@ email-autocomplete-relay:
       type: string
       description: Which Relay UI treatment to show
       fallbackPref: signon.firefoxRelay.firstOfferVersionFallback
+    showToAllBrowsers:
+      type: boolean
+      setPref:
+        branch: user
+        pref: signon.firefoxRelay.showToAllBrowsers
+      description: Whether to show Relay to Firefox users who are NOT signed into FXA.
 
 # This feature flag mirrors the one used for ios
 # https://github.com/mozilla-mobile/firefox-ios/blob/main/nimbus-features/addressAutofillFeature.yaml
