@@ -51,7 +51,7 @@ const server = http.createServer(async (req, res) => {
       });
 
       responseFromAPI.on('end', () => {
-      res.end(responseData);
+        res.end(responseData);
       });
     });
 
