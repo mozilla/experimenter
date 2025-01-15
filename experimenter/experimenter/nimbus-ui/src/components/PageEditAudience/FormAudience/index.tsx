@@ -708,8 +708,8 @@ export const FormAudience = ({
         <Form.Row>
           <Form.Group as={Col} controlId="excludedExperiments">
             <Form.Label className="d-flex align-items-center">
-              Exclude users enrolled in these experiments/rollouts (past or
-              present)
+              Exclude users enrolled in all of these experiments/rollouts (past
+              or present)
             </Form.Label>
             <SelectExperimentField
               name="excludedExperiments"
@@ -726,8 +726,8 @@ export const FormAudience = ({
         <Form.Row>
           <Form.Group as={Col} controlId="requiredExperiments">
             <Form.Label className="d-flex align-items-center">
-              Require users to be enrolled in these experiments/rollouts (past
-              or present)
+              Require users to be enrolled in all of these experiments/rollouts
+              (past or present)
             </Form.Label>
             <SelectExperimentField
               name="requiredExperiments"
