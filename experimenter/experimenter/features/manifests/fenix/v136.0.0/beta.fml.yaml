@@ -478,6 +478,13 @@ features:
         description: Open in app button
         type: Boolean
         default: true
+  pki:
+    description: Certificate verification configuration
+    variables:
+      certificateTransparencyMode:
+        description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
+        type: Int
+        default: 0
   print:
     description: A feature for printing from the share or browser menu.
     variables:
