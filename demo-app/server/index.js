@@ -29,7 +29,7 @@ const server = http.createServer(async (req, res) => {
       nimbus_preview: nimbusPreview,
     };
 
-    let pathName = '/v2/features/'
+    let pathName = '/v1/features/'
     if(nimbusPreview) {
       pathName= pathName+"?nimbus_preview=" + nimbusPreview;
     }
@@ -51,18 +51,7 @@ const server = http.createServer(async (req, res) => {
       });
 
       responseFromAPI.on('end', () => {
-         try {
-            const parsedResponse = JSON.parse(responseData);
-            // Get the features
-            const clientFeatureConfig = parsedResponse['Features'] || parsedResponse;
-            // Send back the raw clientFeatureConfig to the frontend
-            res.end(JSON.stringify(clientFeatureConfig));
-        } catch (error) {
-            console.error('Error parsing API response:', error);
-            res.statusCode = 500;
-            res.end('Internal Server Error');
-        }
-
+      res.end(responseData);
       });
     });
 
