@@ -406,7 +406,7 @@ RECIPE_SLUG_MAX_LEN = 80
 MONITORING_URL = (
     # from_date and to_date format is YYYY-mm-dd
     "https://mozilla.cloud.looker.com/dashboards-next/216?"
-    "Experiment={slug}&Time+Range={from_date}+to+{to_date}"
+    "Experiment={slug}&Time+Range+[UTC]={from_date}+to+{to_date}"
 )
 ROLLOUT_MONITORING_URL = (
     "https://mozilla.cloud.looker.com/dashboards/operational_monitoring::{slug}"
