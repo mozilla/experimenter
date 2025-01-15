@@ -66,6 +66,7 @@
         {% include "nimbus_experiments/table_header.html" with field="Versions" up=sort_choices.VERSIONS_UP down=sort_choices.VERSIONS_DOWN %}
         {% include "nimbus_experiments/table_header.html" with field="Dates" up=sort_choices.DATES_UP down=sort_choices.DATES_DOWN %}
 
+        <th scope="col">Results</th>
       </tr>
     </thead>
     <tbody>
@@ -116,6 +117,13 @@
               ({{ experiment.computed_duration_days }} days)
             {% else %}
               N/A
+            {% endif %}
+          </td>
+          <td>
+            {% if experiment.show_results_url %}
+              <a href="{% url "nimbus-results" slug=experiment.slug %}">View Results</a>
+            {% else %}
+              <a>N/A</a>
             {% endif %}
           </td>
         </tr>
