@@ -106,19 +106,12 @@ The following are the available commands for working with Cirrus:
 
 [Cirrus Api Doc](/cirrus/server/cirrus/docs/apidoc.html) for the Cirrus API
 
-## Endpoint: `POST /v1/features/`
+## Endpoint
+
+`POST /v1/features/`
 
 - When making a POST request, please make sure to set headers content type as JSON
   ```javascript
-    headers: {
-            "Content-Type": "application/json",
-      }
-  ```
-# Endpoint: `POST /v2/features/`
-
-The v2 endpoint extends the functionality of v1 by also returning enrollments data alongside features.
-
-```javascript
     headers: {
             "Content-Type": "application/json",
       }
@@ -211,7 +204,7 @@ curl -X POST "http://localhost:8001/v1/features/?nimbus_preview=true" -H 'Conten
   }
 }'
 ```
-### Output
+## Output
 
 The output will be a JSON object with the following properties:
 
@@ -236,48 +229,7 @@ Example output:
 }
 ```
 
-```shell
-curl -X POST "http://localhost:8001/v2/features/?nimbus_preview=true" -H 'Content-Type: application/json' -d '{
-  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-  "context": {
-    "language": "en",
-    "region": "US"
-  }
-}'
-```
-### Output
-
-The output will be a JSON object with the following properties:
-
-- `features` (object): An object that contains the set of features. Each feature is represented as a sub-object with its own set of variables.
-- `Enrollments` (array): An array of objects representing the client's enrollment into experiments. Each enrollment object contains details about the experiment, such as the experiment ID, branch, and type.
-
-Example output:
-
-```json
-{
-  "Features": {
-    "Feature1": {"Variable1.1": "valueA", "Variable1.2": "valueB"},
-    "Feature2": {"Variable2.1": "valueC", "Variable2.2": "valueD"}
-  },
-  "Enrollments": [
-    {
-      "nimbus_user_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-      "app_id": "test_app_id",
-      "experiment": "experiment-slug",
-      "branch": "control",
-      "experiment_type": "rollout",
-      "is_preview": false
-    }
-  ]
-}
-
-```
-
-
 ## Notes
 
 - This API only accepts POST requests.
 - All parameters should be supplied in the body as JSON.
-- `v2 Endpoint`: Returns both features and enrollments. Use this if you need detailed enrollment data.
-- Query Parameter: Use nimbus_preview=true to compute enrollments based on preview experiments.
