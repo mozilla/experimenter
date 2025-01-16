@@ -10,6 +10,6 @@ RUN apt-get update -qqy && \
         python3-venv \
         python3-pip
 
-RUN pip install poetry
+RUN pip install poetry==1.8.4
 
 WORKDIR /code
