@@ -571,6 +571,7 @@ friendly_name = "Appstore Funnel Metrics"
 description = "Top of the funnel metrics pulled from appstore api"
 submission_date_column = "submission_date"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.funnel_retention]
 from_expression = """(
@@ -581,6 +582,7 @@ friendly_name = "iOS Funnel Retention Metrics"
 description = "Bottom of the funnel metrics pulled from clients telemetry table"
 submission_date_column = "submission_date"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.firefox_ios_engagement_view]
 from_expression = """(
@@ -592,6 +594,7 @@ submission_date_column = "submission_date"
 description = "Aggregated DAU, WAU, and MAU by different attributes for engagement ratio calculation."
 friendly_name = "Firefox iOS Engagement"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.firefox_ios_retention_view]
 from_expression = """(
@@ -603,6 +606,7 @@ submission_date_column = "metric_date"
 description = "Aggregated 4th Week Retention Outcomes of Firefox iOS New and Existing Users."
 friendly_name = "Firefox iOS Retention"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.firefox_ios_active_users_view]
 friendly_name = "Firefox iOS Active Users"
