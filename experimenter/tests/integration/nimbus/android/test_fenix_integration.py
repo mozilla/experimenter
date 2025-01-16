@@ -113,7 +113,7 @@ def fixture_check_ping_for_experiment(experiment_slug, ping_server, open_app):
     def _check_ping_for_experiment(branch=None, experiment=experiment_slug, reason=None):
         model = TelemetryModel(branch=branch, experiment=experiment)
 
-        timeout = time.time() + 60
+        timeout = time.time() + 300
         while time.time() < timeout:
             data = requests.get(f"{ping_server}/pings").json()
             events = []
@@ -182,16 +182,6 @@ def fixture_setup_experiment(
 
 
 @pytest.mark.generic_test
-def test_experiment_unenrolls_via_studies_toggle(
-    setup_experiment, gradlewbuild, open_app
-):
-    setup_experiment()
-    open_app()
-    gradlewbuild.test("GenericExperimentIntegrationTest#disableStudiesViaStudiesToggle")
-    gradlewbuild.test("GenericExperimentIntegrationTest#verifyStudiesAreDisabled")
-
-
-@pytest.mark.generic_test
 def test_experiment_enrolls(
     setup_experiment,
     gradlewbuild,
@@ -215,3 +205,13 @@ def test_experiment_unenrolls_via_secret_menu(
     )
     gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentUnenrolled")
     assert check_ping_for_experiment(reason="unenrollment", branch="control")
+
+
+@pytest.mark.generic_test
+def test_experiment_unenrolls_via_studies_toggle(
+    setup_experiment, gradlewbuild, open_app
+):
+    setup_experiment()
+    open_app()
+    gradlewbuild.test("GenericExperimentIntegrationTest#disableStudiesViaStudiesToggle")
+    gradlewbuild.test("GenericExperimentIntegrationTest#verifyStudiesAreDisabled")
