@@ -375,6 +375,7 @@ submission_date_column = "submission_date"
 description = "Aggregated DAU, WAU, and MAU by different attributes for engagement ratio calculation."
 friendly_name = "Focus Android Engagement"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.focus_android_retention_view]
 from_expression = """(
@@ -386,6 +387,7 @@ submission_date_column = "metric_date"
 description = "Aggregated 4th Week Retention Outcomes of Focus Android New and Existing Users."
 friendly_name = "Focus Android Retention"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.focus_android_active_users_view]
 friendly_name = "Focus Android Active Users"
