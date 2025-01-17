@@ -106,6 +106,7 @@ def get_results_metrics_map(
         Metric.SEARCH: {Statistic.MEAN},
         Metric.DAYS_OF_USE: {Statistic.MEAN},
         Metric.USER_COUNT: {Statistic.COUNT, Statistic.PERCENT},
+        Metric.DAILY_ACTIVE_USERS: {Statistic.PER_CLIENT_DAU_IMPACT},
     }
     primary_metrics_set: set[str] = set()
     primary_outcome_metrics: list[OutcomeMetric] = list(
@@ -159,7 +160,7 @@ def get_other_metrics_names_and_map(
     other_metrics_map = {}
 
     # This is an ordered list of priorities of stats to graph
-    priority_stats = [Statistic.MEAN, Statistic.BINOMIAL]
+    priority_stats = [Statistic.MEAN, Statistic.BINOMIAL, Statistic.PER_CLIENT_DAU_IMPACT]
     other_data = [
         data_point for data_point in data if data_point.metric not in results_metrics_map
     ]

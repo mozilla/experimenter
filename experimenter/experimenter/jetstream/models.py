@@ -31,6 +31,7 @@ class Metric(StrEnum):
     SEARCH = "search_count"
     DAYS_OF_USE = "days_of_use"
     USER_COUNT = "identity"
+    DAILY_ACTIVE_USERS = "client_level_daily_active_users_v2"
 
 
 class Statistic(StrEnum):
@@ -44,6 +45,8 @@ class Statistic(StrEnum):
     MEAN = "mean"
     COUNT = "count"
     POPULATION_RATIO = "population_ratio"
+    PER_CLIENT_DAU_IMPACT = "per_client_dau_impact"
+    LINEAR_MODEL_MEAN = "mean_lm"
 
 
 class Segment(StrEnum):
@@ -269,9 +272,9 @@ class ResultsObjectModelBase(BaseModel):
                         significance_to_branch = getattr(
                             metric_data.significance, comparison_to_branch
                         )
-                        getattr(significance_to_branch, window)[
-                            window_index
-                        ] = significance
+                        getattr(significance_to_branch, window)[window_index] = (
+                            significance
+                        )
 
                 if window == AnalysisWindow.WEEKLY:
                     data_point.window_index = window_index
@@ -294,7 +297,7 @@ class ResultsObjectModelBase(BaseModel):
                     pairwise_comparison_data.all.append(data_point)
 
     def append_conversion_count(self, primary_metrics_set):
-        for branch_name in self.__fields__:
+        for branch_name in self.model_fields:
             branch = getattr(self, branch_name)
             branch_data = branch.branch_data
             for primary_metric in primary_metrics_set:
