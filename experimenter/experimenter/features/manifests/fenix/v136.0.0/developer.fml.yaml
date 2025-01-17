@@ -747,6 +747,8 @@ enums:
         description: Allows user to add search widget to homescreen.
       default-browser:
         description: Allows user to set Firefox as the default browser.
+      marketing-data:
+        description: Allows user to opt out of marketing data collection.
       notification-permission:
         description: Allows user to enable notification permission.
       sync-sign-in:
@@ -883,10 +885,37 @@ objects:
         description: "An optional list of toolbar placements for the toolbar placement card.\n"
         type: List<CustomizationToolbarData>
         default: []
+      marketing-data:
+        description: "An optional marketing data for the onboarding card.\n"
+        type: Option<MarketingData>
+        default: ~
       term-of-service-data:
         description: "An optional terms of service data for the onboarding card.\n"
         type: Option<TermsOfServiceData>
         default: ~
+  MarketingData:
+    description: An object to describe the marketing data onboarding card.
+    fields:
+      bodyLineOneLinkText:
+        description: The link text from line one of the body.
+        type: Text
+        default: ""
+      bodyLineOneText:
+        description: The text for line one of the body.
+        type: Text
+        default: ""
+      bodyLineThreeText:
+        description: The text for line three of the body.
+        type: Text
+        default: ""
+      bodyLineTwoText:
+        description: The text for line two of the body.
+        type: Text
+        default: ""
+      linkUrl:
+        description: The url for the link text
+        type: String
+        default: ""
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
     fields:
