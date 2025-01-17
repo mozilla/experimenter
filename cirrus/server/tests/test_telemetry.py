@@ -27,7 +27,7 @@ def before_enrollment_ping(data):
 
     extra_1 = snapshot[0].extra
     assert extra_1["app_id"] == "test_app_id"
-    assert extra_1["user_id"] == "test_client_id"
+    assert extra_1["nimbus_user_id"] == "test_client_id"
     assert extra_1["experiment"] == "cirrus-test-1"
     assert extra_1["branch"] == "control"
     assert extra_1["experiment_type"] == RecipeType.ROLLOUT.value
@@ -35,7 +35,7 @@ def before_enrollment_ping(data):
 
     extra_2 = snapshot[1].extra
     assert extra_2["app_id"] == "test_app_id"
-    assert extra_2["user_id"] == "test_client_id"
+    assert extra_2["nimbus_user_id"] == "test_client_id"
     assert extra_2["experiment"] == "cirrus-test-2"
     assert extra_2["branch"] == "control"
     assert extra_2["experiment_type"] == RecipeType.EXPERIMENT.value
