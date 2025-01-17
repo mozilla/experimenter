@@ -11,9 +11,7 @@ import { OutcomesList } from "src/lib/types";
 import {
   BRANCH_COMPARISON,
   GROUP,
-  METRIC,
   METRICS_TIPS,
-  METRIC_TO_GROUP,
   METRIC_TYPE,
   RESULTS_METRICS_LIST,
   TABLE_LABEL,
@@ -24,7 +22,6 @@ import {
 } from "src/lib/visualization/types";
 import { getTableDisplayType } from "src/lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export type TableResultsProps = {
   experiment: getExperiment_experimentBySlug;
@@ -37,18 +34,7 @@ export type TableResultsProps = {
 
 const getResultMetrics = (outcomes: OutcomesList, isDesktop = false) => {
   // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
-  const resultsMetricsList = RESULTS_METRICS_LIST.map((resultMetric) => {
-    if (isDesktop && resultMetric.value === METRIC.DAYS_OF_USE) {
-      return {
-        value: METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-        name: "Qualified Cumulative Days of Use",
-        tooltip: METRICS_TIPS.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-        type: METRIC_TYPE.GUARDRAIL,
-        group: METRIC_TO_GROUP[METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE],
-      };
-    }
-    return resultMetric;
-  });
+  const resultsMetricsList = [...RESULTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {
     if (!outcome?.isDefault) {
       return;
@@ -70,15 +56,10 @@ const TableResults = ({
   branchComparison = BRANCH_COMPARISON.UPLIFT,
   analysisBasis = "enrollments",
   segment = "all",
-  isDesktop = false,
   referenceBranch,
 }: TableResultsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
-  const resultsMetricsList = getResultMetrics(
-    primaryOutcomes,
-    isDesktop ||
-      experiment.application === NimbusExperimentApplicationEnum.DESKTOP,
-  );
+  const resultsMetricsList = getResultMetrics(primaryOutcomes);
   const {
     analysis: { metadata, overall },
     sortedBranchNames,

@@ -13,7 +13,6 @@ import {
   HIGHLIGHTS_METRICS_LIST,
   METRIC,
   METRICS_TIPS,
-  METRIC_TO_GROUP,
   TABLE_LABEL,
 } from "src/lib/visualization/constants";
 import {
@@ -26,7 +25,6 @@ import {
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "src/types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export type TableHighlightsProps = {
   experiment: getExperiment_experimentBySlug;
@@ -40,21 +38,9 @@ type Branch =
   | getExperiment_experimentBySlug_referenceBranch
   | getExperiment_experimentBySlug_treatmentBranches;
 
-const getHighlightMetrics = (outcomes: OutcomesList, isDesktop = false) => {
+const getHighlightMetrics = (outcomes: OutcomesList) => {
   // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
-  const highlightMetricsList = HIGHLIGHTS_METRICS_LIST.map(
-    (highlightMetric) => {
-      if (isDesktop && highlightMetric.value === METRIC.DAYS_OF_USE) {
-        return {
-          value: METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-          name: "Qualified Cumulative Days of Use",
-          tooltip: METRICS_TIPS.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-          group: METRIC_TO_GROUP[METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE],
-        };
-      }
-      return highlightMetric;
-    },
-  );
+  const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {
     if (!outcome?.isDefault) {
       return;
@@ -95,10 +81,7 @@ const TableHighlights = ({
   referenceBranch,
 }: TableHighlightsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
-  const highlightMetricsList = getHighlightMetrics(
-    primaryOutcomes,
-    experiment.application === NimbusExperimentApplicationEnum.DESKTOP,
-  );
+  const highlightMetricsList = getHighlightMetrics(primaryOutcomes);
   const branchDescriptions = getBranchDescriptions(
     experiment.referenceBranch,
     experiment.treatmentBranches,

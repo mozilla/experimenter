@@ -11,6 +11,7 @@ export const METRICS_TIPS = {
   DAYS_OF_USE: "Average number of days each client sent a main ping",
   QUALIFIED_CUMULATIVE_DAYS_OF_USE:
     "Average number of days each client sent a main ping",
+  DAILY_ACTIVE_USERS: "Average number of client that sent a main ping per day",
 };
 
 export const SEGMENT_TIPS = {
@@ -63,9 +64,8 @@ export const SIGNIFICANCE = {
 export const METRIC = {
   RETENTION: "retained",
   SEARCH: "search_count",
-  DAYS_OF_USE: "days_of_use",
+  DAILY_ACTIVE_USERS: "client_level_daily_active_users_v2",
   USER_COUNT: "identity",
-  QUALIFIED_CUMULATIVE_DAYS_OF_USE: "qualified_cumulative_days_of_use",
 };
 
 export const METRIC_TYPE = {
@@ -138,11 +138,12 @@ const GROUPED_METRICS = [
       "identity",
       "days_of_use",
       "qualified_cumulative_days_of_use",
+      "client_level_daily_active_users_v2",
     ],
   },
 ];
 
-export const METRIC_TO_GROUP = GROUPED_METRICS.reduce((res, group) => {
+const METRIC_TO_GROUP = GROUPED_METRICS.reduce((res, group) => {
   group.metrics.forEach((metric) => {
     res[metric] = group.name;
   });
@@ -165,10 +166,10 @@ export const HIGHLIGHTS_METRICS_LIST = [
     group: METRIC_TO_GROUP[METRIC.SEARCH],
   },
   {
-    value: METRIC.DAYS_OF_USE,
-    name: "Days of Use",
-    tooltip: METRICS_TIPS.DAYS_OF_USE,
-    group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
+    value: METRIC.DAILY_ACTIVE_USERS,
+    name: "Daily Active Users",
+    tooltip: METRICS_TIPS.DAILY_ACTIVE_USERS,
+    group: METRIC_TO_GROUP[METRIC.DAILY_ACTIVE_USERS],
   },
 ];
 
@@ -190,11 +191,11 @@ export const RESULTS_METRICS_LIST = [
     group: METRIC_TO_GROUP[METRIC.SEARCH],
   },
   {
-    value: METRIC.DAYS_OF_USE,
-    name: "Overall Mean Days of Use Per User",
-    tooltip: METRICS_TIPS.DAYS_OF_USE,
+    value: METRIC.DAILY_ACTIVE_USERS,
+    name: "Daily Active users",
+    tooltip: METRICS_TIPS.DAILY_ACTIVE_USERS,
     type: METRIC_TYPE.GUARDRAIL,
-    group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
+    group: METRIC_TO_GROUP[METRIC.DAILY_ACTIVE_USERS],
   },
   {
     value: METRIC.USER_COUNT,

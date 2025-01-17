@@ -28,7 +28,7 @@ describe("TableResults", () => {
     const EXPECTED_HEADINGS = [
       "2-Week Browser Retention",
       "Mean Searches Per User",
-      "Qualified Cumulative Days of Use",
+      "Daily Active Users",
       "Total Users",
     ];
 
