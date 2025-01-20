@@ -1102,13 +1102,13 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "selenium"
-version = "4.27.0"
+version = "4.28.0"
 description = "Official Python bindings for Selenium WebDriver"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "selenium-4.27.0-py3-none-any.whl", hash = "sha256:70ff70cc8d08f19bda0e89d6a521c0f1c3ae648088c34dcf9fa177f1374c3b5f"},
-    {file = "selenium-4.27.0.tar.gz", hash = "sha256:e8850834c482dc93d92060586139cf8ff8be6c6f0e93db640fa65358548f426b"},
+    {file = "selenium-4.28.0-py3-none-any.whl", hash = "sha256:3d6a2e8e1b850a1078884ea19f4e011ecdc12263434d87a0b78769836fb82dd8"},
+    {file = "selenium-4.28.0.tar.gz", hash = "sha256:a9fae6eef48d470a1b0c6e45185d96f0dafb025e8da4b346cc41e4da3ac54fa0"},
 ]
 
 [package.dependencies]
@@ -1733,4 +1733,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "7e4816bc4119dbf0474562f19ecc5f26424f4a3cca8098d82f248792bf7725d3"
+content-hash = "ecfab73e58245a1e7abd4dfab4cb94b4f92f0d6f1a21340326e398d97e44f74e"
