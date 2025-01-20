@@ -94,6 +94,8 @@ class NimbusExperimentsListView(NimbusExperimentViewMixin, FilterView):
         return filterset_class(**kwargs)
 
     def get_context_data(self, **kwargs):
+        selected_tab = self.request.GET.get("status", "Live")
+
         queryset = self.filterset_no_status.qs
 
         status_counts = {
@@ -106,6 +108,7 @@ class NimbusExperimentsListView(NimbusExperimentViewMixin, FilterView):
             status_counts=status_counts,
             sort_choices=SortChoices,
             create_form=NimbusExperimentCreateForm(),
+            selected_tab=selected_tab,
             **kwargs,
         )
 
