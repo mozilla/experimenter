@@ -876,30 +876,35 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "date": self.draft_date,
                 "is_active": self.is_draft,
                 "days": self.computed_draft_days,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Draft"],
             },
             {
                 "label": self.Status.PREVIEW,
                 "date": self.preview_date,
                 "is_active": self.is_preview,
                 "days": self.computed_preview_days,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Preview"],
             },
             {
                 "label": self.PublishStatus.REVIEW,
                 "date": self.review_date,
                 "is_active": self.is_review,
                 "days": self.computed_review_days,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Review"],
             },
             {
                 "label": NimbusConstants.ENROLLMENT,
                 "date": self.start_date,
                 "is_active": self.is_enrollment,
                 "days": self.computed_enrollment_days,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Enrollment"],
             },
             {
                 "label": self.Status.COMPLETE,
                 "date": self.computed_end_date,
                 "is_active": self.is_complete,
                 "days": self.computed_duration_days,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Complete"],
             },
         ]
         if not self.is_rollout:
@@ -910,6 +915,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "date": self._enrollment_end_date,
                     "is_active": self.is_observation,
                     "days": self.computed_observations_days,
+                    "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Observation"],
                 },
             )
 

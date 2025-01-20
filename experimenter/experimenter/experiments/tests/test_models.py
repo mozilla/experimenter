@@ -1777,36 +1777,42 @@ class TestNimbusExperiment(TestCase):
                 "date": experiment.draft_date,
                 "is_active": False,
                 "days": 1,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Draft"],
             },
             {
                 "label": "Preview",
                 "date": experiment.preview_date,
                 "is_active": False,
                 "days": 0,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Preview"],
             },
             {
                 "label": "Review",
                 "date": experiment.review_date,
                 "is_active": False,
                 "days": 2,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Review"],
             },
             {
                 "label": NimbusConstants.ENROLLMENT,
                 "date": experiment.start_date,
                 "is_active": False,
                 "days": 2,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Enrollment"],
             },
             {
                 "label": NimbusConstants.OBSERVATION,
                 "date": experiment._enrollment_end_date,
                 "is_active": False,
                 "days": 2,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Observation"],
             },
             {
                 "label": "Complete",
                 "date": experiment.computed_end_date,
                 "is_active": True,
                 "days": 4,
+                "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Complete"],
             },
         ]
 
@@ -1815,6 +1821,7 @@ class TestNimbusExperiment(TestCase):
             self.assertEqual(timeline[i]["date"], expected["date"])
             self.assertEqual(timeline[i]["is_active"], expected["is_active"])
             self.assertEqual(timeline[i].get("days"), expected["days"])
+            self.assertEqual(timeline[i].get("tooltip"), expected["tooltip"])
 
     def test_timeline_dates_complete_is_active_when_status_is_complete(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

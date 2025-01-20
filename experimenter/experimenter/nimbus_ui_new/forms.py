@@ -192,7 +192,7 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     )
 
     name = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
     )
     hypothesis = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"class": "form-control"})
@@ -342,7 +342,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return sorted(
             [
                 branch_choice
-                for experiment in NimbusExperiment.objects.all()
+                for experiment in NimbusExperiment.objects.exclude(is_archived=True)
                 for branch_choice in experiment.branch_choices()
             ]
         )

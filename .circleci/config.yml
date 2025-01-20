@@ -304,7 +304,7 @@ jobs:
           name: Download test files and run
           command: |
             curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh | bash
-            pip install poetry
+            pip install poetry==1.8.4
             make integration_test_nimbus_fenix PYTEST_ARGS="$PYTEST_ARGS"
       - android/save-gradle-cache:
           cache-prefix: v1a
@@ -494,6 +494,10 @@ jobs:
             make cirrus_build
             docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
             docker push ${DOCKERHUB_CIRRUS_REPO}:latest
+
+            GIT_SHA=$(git rev-parse --short HEAD)
+            docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:sha-${GIT_SHA}
+            docker push ${DOCKERHUB_CIRRUS_REPO}:sha-${GIT_SHA}
 
   deploy_schemas:
     machine:

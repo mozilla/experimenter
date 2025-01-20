@@ -1150,6 +1150,7 @@ export const MOCK_EXPERIMENTS_BY_APPLICATION: getAllExperimentsByApplication_exp
     publicDescription: "mock description",
     referenceBranch: { slug: "control" },
     treatmentBranches: [{ slug: "treatment" }],
+    isArchived: false,
   }));
 
 // Basically the same as useOutcomes, but uses the mocked config values
