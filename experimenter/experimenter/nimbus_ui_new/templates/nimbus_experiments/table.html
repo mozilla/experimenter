@@ -57,7 +57,6 @@
   <table id="experiment-table" class="table table-striped mb-0">
     <thead>
       <tr>
-        <th></th>
         {% include "nimbus_experiments/table_header.html" with field="Name" up=sort_choices.NAME_UP down=sort_choices.NAME_DOWN %}
         {% include "nimbus_experiments/table_header.html" with field="QA" up=sort_choices.QA_UP down=sort_choices.QA_DOWN %}
         {% include "nimbus_experiments/table_header.html" with field="Application" up=sort_choices.APPLICATION_UP down=sort_choices.APPLICATION_DOWN %}
@@ -72,17 +71,46 @@
     <tbody>
       {% for experiment in experiments %}
         <tr>
-          {% if experiment.is_paused == False and experiment.enrollment_start_date %}
-            <td title="Enrolling" class="bg-success" style="width: 0.5em;"></td>
-          {% elif experiment.actual_enrollment_end_date and not experiment.end_date %}
-            <td title="Observing" class="bg-info" style="width: 0.5em;"></td>
-          {% elif experiment.end_date %}
-            <td title="Complete" class="bg-secondary" style="width: 0.5em;"></td>  
-          {% else %}
-            <td style="width: 1em;"></td>
-          {% endif %}
           <th scope="row">
             <a href="{% url "nimbus-detail" slug=experiment.slug %}">{{ experiment.name }}</a>
+            {% if selected_tab == "MyExperiments" %}
+              {% if experiment.is_archived %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-box-archive text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Archived</span>
+                </p>
+              {% elif experiment.is_draft %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-pen-to-square text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Draft</span>
+                </p>
+              {% elif experiment.is_preview %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-person-circle-check text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Preview</span>
+                </p>
+              {% elif experiment.is_review %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-eye text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Review</span>
+                </p>
+              {% elif experiment.is_enrollment %}
+                <p class="pt-1">
+                  <i class="fa-regular fa-circle-play text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Live (Enrolling)</span>
+                </p>
+              {% elif experiment.is_observation %}
+                <p class="pt-1">
+                  <i class="fa-regular fa-circle-play text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Live (Observing)</span>
+                </p>
+              {% elif experiment.is_complete %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-vial-circle-check text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Complete</span>
+                </p>
+              {% endif %}
+            {% endif %}
           </th>
           <td>
             {% if experiment.qa_status == 'NOT SET' %}<i class="fa-regular fa-circle-question"></i>{% endif %}
