@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - beta
+  - nightly
 features:
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
@@ -46,17 +46,6 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
-  encourage-search-cfr:
-    description: A feature that shows a CFR on first launch to encourage users to make a search
-    variables:
-      cfrText:
-        description: The text to show in the CFR
-        type: Text
-        default: ""
-      enabled:
-        description: "When true, the CFR will show"
-        type: Boolean
-        default: false
   fingerprinting-protection:
     description: Control Fingerprinting Protection
     variables:
@@ -97,7 +86,7 @@ features:
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: false
+        default: true
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -220,13 +209,6 @@ features:
           ALWAYS: "true"
           NEVER: "false"
         string-alias: ConditionName
-  mars:
-    description: Mozilla Ad Routing Service (MARS) unified ads service.
-    variables:
-      enabled:
-        description: "Whether or not to enable MARS endpoint to serve sponsored top sites and stories.\n"
-        type: Boolean
-        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
@@ -418,7 +400,7 @@ features:
       enabled:
         description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
         type: Boolean
-        default: false
+        default: true
   networking:
     description: Enables networking features
     variables:
@@ -485,13 +467,6 @@ features:
         description: Open in app button
         type: Boolean
         default: true
-  pki:
-    description: Certificate verification configuration
-    variables:
-      certificateTransparencyMode:
-        description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
-        type: Int
-        default: 0
   print:
     description: A feature for printing from the share or browser menu.
     variables:
@@ -564,7 +539,7 @@ features:
       enabled:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
-        default: false
+        default: true
   set-as-default-prompt:
     description: "Displays native default browser prompt to existing users.\n"
     variables:
@@ -591,6 +566,21 @@ features:
         description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
         type: Boolean
         default: true
+  shopping-experience:
+    description: A feature that shows product review quality information.
+    variables:
+      enabled:
+        description: "if true, the shopping experience feature is shown to the user."
+        type: Boolean
+        default: false
+      product-recommendations:
+        description: "if true, recommended products feature is enabled to be shown to the user based on their preference."
+        type: Boolean
+        default: false
+      product-recommendations-exposure:
+        description: "if true, we want to record recommended products inventory for opted-in users, even if product recommendations are disabled."
+        type: Boolean
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
@@ -602,17 +592,13 @@ features:
         description: The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
         type: Int
         default: 0
-      off-train-onboarding:
-        description: "If true, the fetched data will be applied and used during the session."
-        type: Boolean
-        default: false
   suggest-shipped-domains:
     description: Feature that suggests domains from the shipped domain list.
     variables:
       enabled:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
-        default: true
+        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -728,18 +714,10 @@ enums:
         description: Allows user to add search widget to homescreen.
       default-browser:
         description: Allows user to set Firefox as the default browser.
-      marketing-data:
-        description: Allows user to opt out of marketing data collection.
       notification-permission:
         description: Allows user to enable notification permission.
       sync-sign-in:
         description: Allows user to sync with a Firefox account.
-      terms-of-service:
-        description: Page to display the terms of services.
-      theme-selection:
-        description: Allows user to choose between dark and light themes.
-      toolbar-placement:
-        description: Allows user to choose the toolbar position.
   OnboardingPanel:
     description: The types of onboarding panels in the onboarding page
     variants:
@@ -773,22 +751,6 @@ enums:
         description: A firefox Suggestion from adMarketplace specifically for mobile.
       wikipedia:
         description: A Firefox Suggestion for a Wikipedia page.
-  ThemeType:
-    description: An enum to describe a theme selection option.
-    variants:
-      theme-dark:
-        description: Sets the theme to dark mode.
-      theme-light:
-        description: Sets the theme to light mode.
-      theme-system:
-        description: "Adapts the theme to match the device's system setting."
-  ToolbarType:
-    description: An enum to describe a toolbar placement option.
-    variants:
-      toolbar-bottom:
-        description: Sets the toolbar placement on the bottom.
-      toolbar-top:
-        description: Sets the toolbar placement on the top.
 objects:
   AddOnData:
     description: An object to describe an add-on to be installed from the onboarding card.
@@ -821,36 +783,6 @@ objects:
         description: The amount of reviews the add-on has.
         type: String
         default: "0.0"
-  CustomizationThemeData:
-    description: Defines an option for theme selection.
-    fields:
-      image-res:
-        description: The resource id of the image to be displayed.
-        type: Image
-        default: ic_pick_a_theme_system_auto
-      label:
-        description: "Display text for the theme option (e.g., \"Light Theme\")."
-        type: Text
-        default: ""
-      theme-type:
-        description: The type of the theming option.
-        type: ThemeType
-        default: theme-system
-  CustomizationToolbarData:
-    description: An object to describe the placement of the toolbar.
-    fields:
-      image-res:
-        description: The resource id of toolbar placement image.
-        type: Image
-        default: ic_onboarding_customize_toolbar
-      label:
-        description: "Display text for the toolbar placement option (e.g. \"Top placement\")."
-        type: Text
-        default: ""
-      toolbar-type:
-        description: The type of toolbar placement.
-        type: ToolbarType
-        default: toolbar-top
   ExtraCardData:
     description: "Holds data for cards that require additional data, e.g. add-ons, toolbar placement cards."
     fields:
@@ -858,45 +790,6 @@ objects:
         description: "An optional list of add-ons which will be shown in add-on onboarding card.\n"
         type: List<AddOnData>
         default: []
-      customization-theme-data:
-        description: An optional list of theme choices for the theme selection card.
-        type: List<CustomizationThemeData>
-        default: []
-      customization-toolbar-data:
-        description: "An optional list of toolbar placements for the toolbar placement card.\n"
-        type: List<CustomizationToolbarData>
-        default: []
-      marketing-data:
-        description: "An optional marketing data for the onboarding card.\n"
-        type: Option<MarketingData>
-        default: ~
-      term-of-service-data:
-        description: "An optional terms of service data for the onboarding card.\n"
-        type: Option<TermsOfServiceData>
-        default: ~
-  MarketingData:
-    description: An object to describe the marketing data onboarding card.
-    fields:
-      bodyLineOneLinkText:
-        description: The link text from line one of the body.
-        type: Text
-        default: ""
-      bodyLineOneText:
-        description: The text for line one of the body.
-        type: Text
-        default: ""
-      bodyLineThreeText:
-        description: The text for line three of the body.
-        type: Text
-        default: ""
-      bodyLineTwoText:
-        description: The text for line two of the body.
-        type: Text
-        default: ""
-      linkUrl:
-        description: The url for the link text
-        type: String
-        default: ""
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
     fields:
@@ -1041,38 +934,3 @@ objects:
         description: "The importance of this message. 0 is not very important, 100 is very important.\n"
         type: Int
         default: 50
-  TermsOfServiceData:
-    description: An object to describe the terms of service onboarding card.
-    fields:
-      lineOneLinkText:
-        description: The text for the link of line one.
-        type: Text
-        default: ""
-      lineOneLinkURL:
-        description: The url for the link of line one.
-        type: Text
-        default: ""
-      lineOneText:
-        description: The text for line one.
-        type: Text
-        default: ""
-      lineThreeLinkText:
-        description: The text for the link of line three.
-        type: Text
-        default: ""
-      lineThreeText:
-        description: The text for line three.
-        type: Text
-        default: ""
-      lineTwoLinkText:
-        description: The text for the link of line two.
-        type: Text
-        default: ""
-      lineTwoLinkURL:
-        description: The url for the link of line two.
-        type: Text
-        default: ""
-      lineTwoText:
-        description: The text for line two.
-        type: Text
-        default: ""
