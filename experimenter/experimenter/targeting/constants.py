@@ -1985,6 +1985,17 @@ ANDROID_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+ANDROID_DMA_USERS_ONLY = NimbusTargetingConfig(
+    name="DMA users only",
+    slug="android_dma_users_only",
+    description="Targeting users who installed Firefox Android through DMA choice screen",
+    targeting="install_referrer_response_utm_source == 'eea-browser-choice'",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
     name="Default PDF handler is a different browser",
     slug="default_pdf_is_different_browser",
