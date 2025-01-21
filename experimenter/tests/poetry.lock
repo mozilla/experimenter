@@ -1538,13 +1538,13 @@ test = ["zope.testrunner"]
 
 [[package]]
 name = "zope-deprecation"
-version = "5.0"
+version = "5.1"
 description = "Zope Deprecation Infrastructure"
 optional = false
-python-versions = ">= 3.7"
+python-versions = ">=3.9"
 files = [
-    {file = "zope.deprecation-5.0-py3-none-any.whl", hash = "sha256:28c2ee983812efb4676d33c7a8c6ade0df191c1c6d652bbbfe6e2eeee067b2d4"},
-    {file = "zope.deprecation-5.0.tar.gz", hash = "sha256:b7c32d3392036b2145c40b3103e7322db68662ab09b7267afe1532a9d93f640f"},
+    {file = "zope.deprecation-5.1-py3-none-any.whl", hash = "sha256:60f957b964d8f947a4a592c647d51ce0f4f844d1f041657956ddde0d9fa9a76a"},
+    {file = "zope_deprecation-5.1.tar.gz", hash = "sha256:46bed4611fb53edc731aadeb64b28308bcb848f4cc150c60c948d078f7108721"},
 ]
 
 [package.dependencies]
@@ -1734,4 +1734,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "6a4c7b197fd767ba9f1b8390a0ccafcdd8c757a22cf0bb2721f5c165fd9bc8e2"
+content-hash = "126d8c0e09f69b1d9f15786983809f40f6f800bb73b3ffdc2a37b90999ed2c88"
