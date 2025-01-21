@@ -2875,13 +2875,13 @@ files = [
 
 [[package]]
 name = "sentry-sdk"
-version = "2.19.0"
+version = "2.20.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "sentry_sdk-2.19.0-py2.py3-none-any.whl", hash = "sha256:7b0b3b709dee051337244a09a30dbf6e95afe0d34a1f8b430d45e0982a7c125b"},
-    {file = "sentry_sdk-2.19.0.tar.gz", hash = "sha256:ee4a4d2ae8bfe3cac012dcf3e4607975904c137e1738116549fc3dbbb6ff0e36"},
+    {file = "sentry_sdk-2.20.0-py2.py3-none-any.whl", hash = "sha256:c359a1edf950eb5e80cffd7d9111f3dbeef57994cb4415df37d39fda2cf22364"},
+    {file = "sentry_sdk-2.20.0.tar.gz", hash = "sha256:afa82713a92facf847df3c6f63cec71eb488d826a50965def3d7722aa6f0fdab"},
 ]
 
 [package.dependencies]
@@ -2926,6 +2926,7 @@ sqlalchemy = ["sqlalchemy (>=1.2)"]
 starlette = ["starlette (>=0.19.1)"]
 starlite = ["starlite (>=1.48)"]
 tornado = ["tornado (>=6)"]
+unleash = ["UnleashClient (>=6.0.1)"]
 
 [[package]]
 name = "setuptools"
@@ -3290,4 +3291,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "be12e2aa7868d7c03799a8e35af39fa916987326bf5338c8a541aa94ce3f7c0d"
+content-hash = "ad3d029b9c7ed6b2875e2f5c9a2135d7b9fdb482f4c00a634e184e3ad79e9402"
