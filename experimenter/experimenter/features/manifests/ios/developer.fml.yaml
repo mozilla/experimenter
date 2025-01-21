@@ -638,13 +638,6 @@ features:
         description: "If true, we will enable user to use the unified ads API\n"
         type: Boolean
         default: true
-  universal-links:
-    description: "This feature is for managing the roll out of universal link support in the iOS App\n"
-    variables:
-      enabled:
-        description: "If true, enables the feature\n"
-        type: Boolean
-        default: true
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:

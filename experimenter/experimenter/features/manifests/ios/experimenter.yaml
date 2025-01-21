@@ -349,14 +349,6 @@ unified-ads:
     enabled:
       type: boolean
       description: "If true, we will enable user to use the unified ads API\n"
-universal-links:
-  description: "This feature is for managing the roll out of universal link support in the iOS App\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If true, enables the feature\n"
 zoom-feature:
   description: "The configuration for the status of the zoom feature\n"
   hasExposure: true

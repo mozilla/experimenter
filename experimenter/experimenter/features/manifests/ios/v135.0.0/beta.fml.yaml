@@ -620,7 +620,7 @@ features:
       enabled:
         description: "If true, we will enable user to use the unified ads API\n"
         type: Boolean
-        default: true
+        default: false
   universal-links:
     description: "This feature is for managing the roll out of universal link support in the iOS App\n"
     variables:
