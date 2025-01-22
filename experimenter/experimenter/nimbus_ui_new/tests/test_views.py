@@ -1380,6 +1380,53 @@ class TestLaunchViews(AuthTestCase):
             self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
 
+    def test_review_to_approve_view(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-review-to-approve", kwargs={"slug": self.experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(f"{self.user.email} approved the review.", changelog.message)
+
+    def test_review_to_reject_view_with_reason(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-review-to-reject", kwargs={"slug": self.experiment.slug}),
+            data={"changelog_message": "Not ready for launch."},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(
+            f"{self.user.email} rejected the review with reason: Not ready for launch.",
+            changelog.message,
+        )
+
 
 class TestAudienceUpdateView(AuthTestCase):
     def test_get_renders_page(self):

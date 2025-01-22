@@ -28,7 +28,9 @@ from experimenter.nimbus_ui_new.forms import (
     PreviewToDraftForm,
     PreviewToReviewForm,
     QAStatusForm,
+    ReviewToApproveForm,
     ReviewToDraftForm,
+    ReviewToRejectForm,
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
@@ -412,6 +414,50 @@ class TestLaunchForms(RequestFormTestCase):
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("cancelled the review", changelog.message)
+
+    def test_review_to_approve_form(self):
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.save()
+
+        form = ReviewToApproveForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(f"{self.user.email} approved the review.", changelog.message)
+
+    def test_review_to_reject_form_with_reason(self):
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        form = ReviewToRejectForm(
+            data={"changelog_message": "Needs more work."},
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(
+            f"{self.user.email} rejected the review with reason: Needs more work.",
+            changelog.message,
+        )
 
 
 class TestOverviewForm(RequestFormTestCase):

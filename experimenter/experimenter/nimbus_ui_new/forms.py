@@ -594,8 +594,12 @@ class ReviewToApproveForm(UpdateStatusForm):
 
 class ReviewToRejectForm(UpdateStatusForm):
     status = NimbusExperiment.Status.DRAFT
-    status_next = NimbusExperiment.Status.DRAFT
+    status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    changelog_message = forms.CharField(
+        required=True, label="Reason for Rejection", max_length=1000
+    )
 
     def get_changelog_message(self):
-        return f"{self.request.user} rejected the review."
+        changelog_message = self.cleaned_data.get("changelog_message", "")
+        return f"{self.request.user} rejected the review with reason: {changelog_message}"
