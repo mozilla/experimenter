@@ -96,6 +96,14 @@ homescreenFeature:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
+js-alert-refactor:
+  description: "This feature is for the JavaScript Webview refactor\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "When true this enables the new JS alerts system to be used\n"
 login-autofill:
   description: This property defines the login autofill feature for automatically filling in usernames and passwords.
   hasExposure: true

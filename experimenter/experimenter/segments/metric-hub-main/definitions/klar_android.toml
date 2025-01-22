@@ -255,6 +255,7 @@ submission_date_column = "submission_date"
 description = "Aggregated DAU, WAU, and MAU by different attributes for engagement ratio calculation."
 friendly_name = "Klar Android Engagement"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.klar_android_retention_view]
 from_expression = """(
@@ -266,6 +267,7 @@ submission_date_column = "metric_date"
 description = "Aggregated 4th Week Retention Outcomes of Klar Android New and Existing Users."
 friendly_name = "Klar Android Retention"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.klar_android_active_users_view]
 friendly_name = "Klar Android Active Users"

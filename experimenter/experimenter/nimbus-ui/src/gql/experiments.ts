@@ -149,6 +149,7 @@ export const GET_EXPERIMENT_QUERY = gql`
           treatmentBranches {
             slug
           }
+          isArchived
         }
         branchSlug
       }
@@ -164,6 +165,7 @@ export const GET_EXPERIMENT_QUERY = gql`
           treatmentBranches {
             slug
           }
+          isArchived
         }
         branchSlug
       }
@@ -343,6 +345,7 @@ export const GET_ALL_EXPERIMENTS_BY_APPLICATION_QUERY = gql`
       treatmentBranches {
         slug
       }
+      isArchived
     }
   }
 `;

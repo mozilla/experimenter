@@ -706,6 +706,7 @@ submission_date_column = "submission_date"
 description = "Aggregated DAU, WAU, and MAU by different attributes for engagement ratio calculation."
 friendly_name = "Fenix Engagement"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.fenix_retention_view]
 from_expression = """(
@@ -717,6 +718,7 @@ submission_date_column = "metric_date"
 description = "Aggregated 4th Week Retention Outcomes of Fenix New and Existing Users."
 friendly_name = "Fenix Retention"
 client_id_column = "NULL"
+columns_as_dimensions = true
 
 [data_sources.fenix_active_users_view]
 friendly_name = "Fenix Active Users"
