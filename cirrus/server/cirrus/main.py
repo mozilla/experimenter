@@ -2,7 +2,7 @@ import logging
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, List, NamedTuple
+from typing import Any, List, NamedTuple, TypedDict
 
 import sentry_sdk
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
@@ -161,53 +161,59 @@ def initialize_glean():
 
 
 class EnrollmentMetricData(NamedTuple):
+    nimbus_user_id: str
+    app_id: str
     experiment_slug: str
     branch_slug: str
     experiment_type: str
+    is_preview: bool
+
+
+class ComputeFeaturesEnrollmentResult(TypedDict):
+    features: dict[str, dict[str, Any]]
+    enrollments: list[EnrollmentMetricData]
 
 
 def collate_enrollment_metric_data(
-    enrolled_partial_configuration: dict[str, Any], nimbus_preview_flag: bool
+    enrolled_partial_configuration: dict[str, Any],
+    client_id: str,
+    nimbus_preview_flag: bool,
 ) -> list[EnrollmentMetricData]:
     events: list[dict[str, Any]] = enrolled_partial_configuration.get("events", [])
+    remote_settings = (
+        app.state.remote_setting_preview
+        if nimbus_preview_flag
+        else app.state.remote_setting_live
+    )
     data: list[EnrollmentMetricData] = []
     for event in events:
         if event.get("change") == "Enrollment":
             experiment_slug = event.get("experiment_slug", "")
             branch_slug = event.get("branch_slug", "")
-            experiment_type = None
-            remote_settings = app.state.remote_setting_live
-            if nimbus_preview_flag:
-                remote_settings = app.state.remote_setting_preview
             experiment_type = remote_settings.get_recipe_type(experiment_slug)
             data.append(
                 EnrollmentMetricData(
+                    nimbus_user_id=client_id,
+                    app_id=app_id,
                     experiment_slug=experiment_slug,
                     branch_slug=branch_slug,
                     experiment_type=experiment_type,
+                    is_preview=nimbus_preview_flag,
                 )
             )
     return data
 
 
-async def record_metrics(
-    enrolled_partial_configuration: dict[str, Any],
-    client_id: str,
-    nimbus_preview_flag: bool,
-):
-    metrics = collate_enrollment_metric_data(
-        enrolled_partial_configuration=enrolled_partial_configuration,
-        nimbus_preview_flag=nimbus_preview_flag,
-    )
-    for experiment_slug, branch_slug, experiment_type in metrics:
+async def record_metrics(enrollment_data: list[EnrollmentMetricData]):
+    for enrollment in enrollment_data:
         app.state.metrics.cirrus_events.enrollment.record(
             app.state.metrics.cirrus_events.EnrollmentExtra(
-                user_id=client_id,
-                app_id=app_id,
-                experiment=experiment_slug,
-                branch=branch_slug,
-                experiment_type=experiment_type,
-                is_preview=nimbus_preview_flag,
+                nimbus_user_id=enrollment.nimbus_user_id,
+                app_id=enrollment.app_id,
+                experiment=enrollment.experiment_slug,
+                branch=enrollment.branch_slug,
+                experiment_type=enrollment.experiment_type,
+                is_preview=enrollment.is_preview,
             )
         )
     app.state.pings.enrollment.submit()
@@ -221,11 +227,10 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.post("/v1/features/", status_code=status.HTTP_200_OK)
-async def compute_features(
+async def compute_features_enrollments(
     request_data: FeatureRequest,
     nimbus_preview: bool = Query(default=False, alias="nimbus_preview"),
-):
+) -> ComputeFeaturesEnrollmentResult:
     if not request_data.client_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -246,9 +251,8 @@ async def compute_features(
         "clientId": request_data.client_id,
         "requestContext": request_data.context,
     }
-    sdk = app.state.sdk_live
-    if nimbus_preview:
-        sdk = app.state.sdk_preview
+
+    sdk = app.state.sdk_preview if nimbus_preview else app.state.sdk_live
     enrolled_partial_configuration: dict[str, Any] = sdk.compute_enrollments(
         targeting_context
     )
@@ -257,13 +261,51 @@ async def compute_features(
         app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
     )
 
-    await record_metrics(
-        enrolled_partial_configuration=enrolled_partial_configuration,
+    # Enrollments data
+    enrollment_data = collate_enrollment_metric_data(
+        enrolled_partial_configuration,
         client_id=request_data.client_id,
-        nimbus_preview_flag=nimbus_preview or False,
+        nimbus_preview_flag=nimbus_preview,
     )
 
-    return client_feature_configuration
+    # Record metrics
+    await record_metrics(enrollment_data)
+
+    return {
+        "features": client_feature_configuration,
+        "enrollments": enrollment_data,
+    }
+
+
+@app.post("/v1/features/", status_code=status.HTTP_200_OK)
+async def compute_features_v1(
+    request_data: FeatureRequest,
+    nimbus_preview: bool = Query(default=False, alias="nimbus_preview"),
+):
+    result = await compute_features_enrollments(request_data, nimbus_preview)
+    return result["features"]
+
+
+@app.post("/v2/features/", status_code=status.HTTP_200_OK)
+async def compute_features_enrollments_v2(
+    request_data: FeatureRequest,
+    nimbus_preview: bool = Query(default=False, alias="nimbus_preview"),
+):
+    result = await compute_features_enrollments(request_data, nimbus_preview)
+    return {
+        "Features": result["features"],
+        "Enrollments": [
+            {
+                "nimbus_user_id": enrollment.nimbus_user_id,
+                "app_id": enrollment.app_id,
+                "experiment": enrollment.experiment_slug,
+                "branch": enrollment.branch_slug,
+                "experiment_type": enrollment.experiment_type,
+                "is_preview": enrollment.is_preview,
+            }
+            for enrollment in result["enrollments"]
+        ],
+    }
 
 
 async def fetch_schedule_recipes() -> None:

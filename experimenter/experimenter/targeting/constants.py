@@ -2270,6 +2270,23 @@ DEFAULT_AUTOFILL_CREDIT_CARDS_SUPPORTED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
+    name="Users who are not in HTTPS-Only Mode",
+    slug="no_https_only_desktop",
+    description=(
+        "Targets users who do not have HTTPS-Only Mode enabled. Neither with "
+        "'dom.security.https_only_mode' nor 'dom.security.https_only_mode_pbm'."
+    ),
+    targeting=(
+        "!('dom.security.https_only_mode'|preferenceValue || "
+        "'dom.security.https_only_mode_pbm'|preferenceValue)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
