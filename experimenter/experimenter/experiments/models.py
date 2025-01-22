@@ -699,6 +699,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def can_preview_to_review(self):
         return self.is_preview
 
+    def can_show_remote_settings_pending(self, reviewer):
+
+        return (
+            self.publish_status in (
+                self.PublishStatus.APPROVED,
+                self.PublishStatus.WAITING,
+            )
+            and self.can_review(reviewer)
+        )
+    @property
+    def can_show_timeout_message(self):
+        return self.changes.latest_timeout()
+
     @property
     def draft_date(self):
         if change := self.changes.all().order_by("changed_on").first():

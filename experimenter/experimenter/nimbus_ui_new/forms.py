@@ -581,3 +581,21 @@ class ReviewToDraftForm(UpdateStatusForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} cancelled the review"
+
+
+class ReviewToApproveForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the review."
+
+
+class ReviewToRejectForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.DRAFT
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    def get_changelog_message(self):
+        return f"{self.request.user} rejected the review."

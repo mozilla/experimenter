@@ -28,7 +28,9 @@ from experimenter.nimbus_ui_new.forms import (
     PreviewToDraftForm,
     PreviewToReviewForm,
     QAStatusForm,
+    ReviewToApproveForm,
     ReviewToDraftForm,
+    ReviewToRejectForm,
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
@@ -303,3 +305,11 @@ class PreviewToReviewView(StatusUpdateView):
 
 class ReviewToDraftView(StatusUpdateView):
     form_class = ReviewToDraftForm
+
+
+class ReviewToApproveView(StatusUpdateView):
+    form_class = ReviewToApproveForm
+
+
+class ReviewToRejectView(StatusUpdateView):
+    form_class = ReviewToRejectForm
