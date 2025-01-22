@@ -107,6 +107,7 @@ export interface getExperiment_experimentBySlug_excludedExperimentsBranches_excl
   publicDescription: string | null;
   referenceBranch: getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_excludedExperimentsBranches_excludedExperiment_treatmentBranches | null)[] | null;
+  isArchived: boolean | null;
 }
 
 export interface getExperiment_experimentBySlug_excludedExperimentsBranches {
@@ -129,6 +130,7 @@ export interface getExperiment_experimentBySlug_requiredExperimentsBranches_requ
   publicDescription: string | null;
   referenceBranch: getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_requiredExperimentsBranches_requiredExperiment_treatmentBranches | null)[] | null;
+  isArchived: boolean | null;
 }
 
 export interface getExperiment_experimentBySlug_requiredExperimentsBranches {
