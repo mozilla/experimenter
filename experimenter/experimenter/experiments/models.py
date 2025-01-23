@@ -1212,7 +1212,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.results_data and "v3" in self.results_data:
             results_data = self.results_data["v3"]
             for window in ["overall", "weekly"]:
-                if window in results_data:
+                if results_data.get(window):
                     enrollments = results_data[window].get("enrollments", {}).get("all")
                     if enrollments is not None:
                         return True
