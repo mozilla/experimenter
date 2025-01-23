@@ -1886,11 +1886,11 @@ WINDOWS_10_MSIX_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-IOS_DEFAULT_BROWSER_USER = NimbusTargetingConfig(
-    name="Default Browser FXiOS Users",
+IOS_DEFAULT_BROWSER_FIRST_RUN_USER = NimbusTargetingConfig(
+    name="Default Browser & First Run FXiOS Users",
     slug="ios_default_browser_user",
     description="Users that already have FXiOS set as the default browser",
-    targeting="is_default_browser == 'true'",
+    targeting="is_default_browser == true && is_first_run",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=True,
