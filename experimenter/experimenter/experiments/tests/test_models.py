@@ -2458,6 +2458,7 @@ class TestNimbusExperiment(TestCase):
             ({"v3": {"weekly": {"enrollments": {}}}},),
             ({"v3": {"overall": {"enrollments": {"all": None}}}},),
             ({"v3": {"weekly": {"enrollments": {"all": None}}}},),
+            ({"v3": {"overall": None}},),
         ]
     )
     def test_has_displayable_results_false(self, results_data):
