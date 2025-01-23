@@ -1890,7 +1890,7 @@ IOS_DEFAULT_BROWSER_USER = NimbusTargetingConfig(
     name="Default Browser FXiOS Users",
     slug="ios_default_browser_user",
     description="Users that already have FXiOS set as the default browser",
-    targeting="is_default_browser == 'true'",
+    targeting="is_default_browser == true && is_first_run",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=True,
