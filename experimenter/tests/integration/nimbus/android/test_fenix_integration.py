@@ -80,6 +80,40 @@ def fixture_open_app(run_nimbus_cli_command):
     return open_app
 
 
+@pytest.fixture(name="unenroll_experiment")
+def fixture_unenroll_experiment(run_nimbus_cli_command):
+    def unenroll_experiment():
+        command = "nimbus-cli --app fenix --channel developer unenroll"
+        run_nimbus_cli_command(command)
+        time.sleep(10)
+
+    return unenroll_experiment
+
+
+@pytest.fixture(name="trigger_telemetry_update")
+def fixture_trigger_telemetry_update():
+    def trigger_telemetry():
+        command = [
+            "adb",
+            "shell",
+            "am",
+            "start",
+            "-n org.mozilla.fenix.debug/mozilla.telemetry.glean.debug.GleanDebugActivity"
+            "--es sendPing",
+            "events",
+        ]
+        try:
+            out = subprocess.check_output(
+                " ".join(command), encoding="utf8", shell=True, stderr=subprocess.STDOUT
+            )
+            logging.debug(out)
+        except subprocess.CalledProcessError as e:
+            out = e.output
+            raise
+
+    return trigger_telemetry
+
+
 @pytest.fixture
 def gradlewbuild_log(pytestconfig, tmpdir):
     gradlewbuild_log = f"{tmpdir.join('gradlewbuild.log')}"
@@ -109,7 +143,9 @@ def fixture_delete_telemetry_pings(ping_server):
 
 
 @pytest.fixture(name="check_ping_for_experiment")
-def fixture_check_ping_for_experiment(experiment_slug, ping_server, open_app):
+def fixture_check_ping_for_experiment(
+    experiment_slug, ping_server, trigger_telemetry_update
+):
     def _check_ping_for_experiment(branch=None, experiment=experiment_slug, reason=None):
         model = TelemetryModel(branch=branch, experiment=experiment)
 
@@ -141,7 +177,8 @@ def fixture_check_ping_for_experiment(experiment_slug, ping_server, open_app):
                     if model == telemetry_model:
                         return True
             time.sleep(5)
-            open_app()  # Open app in cycles to trigger telemetry
+            # Open app in cycles to trigger telemetry
+            trigger_telemetry_update()
         return False
 
     return _check_ping_for_experiment
@@ -183,10 +220,7 @@ def fixture_setup_experiment(
 
 @pytest.mark.generic_test
 def test_experiment_enrolls(
-    setup_experiment,
-    gradlewbuild,
-    open_app,
-    check_ping_for_experiment,
+    setup_experiment, gradlewbuild, open_app, check_ping_for_experiment
 ):
     setup_experiment()
     open_app()
@@ -196,7 +230,11 @@ def test_experiment_enrolls(
 
 @pytest.mark.generic_test
 def test_experiment_unenrolls_via_secret_menu(
-    setup_experiment, gradlewbuild, open_app, check_ping_for_experiment
+    setup_experiment,
+    gradlewbuild,
+    open_app,
+    check_ping_for_experiment,
+    unenroll_experiment,
 ):
     setup_experiment()
     open_app()
@@ -204,6 +242,7 @@ def test_experiment_unenrolls_via_secret_menu(
         "GenericExperimentIntegrationTest#testExperimentUnenrolledViaSecretMenu"
     )
     gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentUnenrolled")
+    unenroll_experiment()
     assert check_ping_for_experiment(reason="unenrollment", branch="control")
 
 
