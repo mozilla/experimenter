@@ -1365,7 +1365,7 @@ class TestLaunchViews(AuthTestCase):
 
     def test_cancel_review(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
-        self.experiment.status_next = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.save()
 
