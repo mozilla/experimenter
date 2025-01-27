@@ -11,14 +11,14 @@ async function remoteSettings(arguments) {
     // browser/components/asrouter and its import path changed.
     const { TelemetryEnvironment } = ChromeUtils.importESModule("resource://gre/modules/TelemetryEnvironment.sys.mjs");
     await TelemetryEnvironment.onInitialized();
-    
+
     let ASRouterTargeting;
 
     try {
-        ASRouterTargeting = ChromeUtils.import("resource:///modules/asrouter/ASRouterTargeting.jsm");
+        ASRouterTargeting = ChromeUtils.importESModule("resource:///modules/asrouter/ASRouterTargeting.sys.mjs");
     } catch (ex) {
         if (ex.result === Cr.NS_ERROR_FILE_NOT_FOUND) {
-            ASRouterTargeting = ChromeUtils.import("resource://activity-stream/lib/ASRouterTargeting.jsm");
+            ASRouterTargeting = ChromeUtils.importESModule("resource://activity-stream/lib/ASRouterTargeting.sys.mjs");
         } else {
             throw ex;
         }
