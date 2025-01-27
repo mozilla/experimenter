@@ -232,6 +232,15 @@ urlbar:
         will be able to click the "Show less frequently" command for addon
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
+    ampMatchingStrategy:
+      type: int
+      fallbackPref: browser.urlbar.quicksuggest.ampMatchingStrategy
+      description: >-
+        The matching strategy for AMP suggestions. Leave undefined or set to
+        zero to use the usual default exact-keyword strategy. Otherwise set to
+        an integer value defined on `AmpMatchingStrategy` in
+        `RustSuggest.sys.mjs` (corresponding to the `AmpMatchingStrategy` enum
+        in the Rust component coerced to a 1-based integer value).
     autoFillAdaptiveHistoryEnabled:
       type: boolean
       fallbackPref: browser.urlbar.autoFill.adaptiveHistory.enabled
@@ -521,10 +530,6 @@ urlbar:
         branch: default
         pref: browser.urlbar.recentsearches.maxResults
       description: The maximum number of recent searches to show.
-    showSearchTermsFeatureGate:
-      type: boolean
-      fallbackPref: browser.urlbar.showSearchTerms.featureGate
-      description: Gate for the show search terms feature. If false, the preference#search will not show the search terms feature checkbox, and search terms will never persist in the urlbar. If true, the preference checkbox will be shown on preferences#search, and the user can choose to persist search terms on or off in the urlbar.
     weatherFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.weather.featureGate
@@ -681,10 +686,6 @@ aboutwelcome:
       type: json
       fallbackPref: browser.aboutwelcome.screens
       description: Content to show in the onboarding flow
-    modalScreens:
-      type: json
-      fallbackPref: browser.aboutwelcome.modalScreens
-      description: Content to show in the onboarding modal, if different from that in the onboarding flow
     languageMismatchEnabled:
       type: boolean
       fallbackPref: intl.multilingual.aboutWelcome.languageMismatchEnabled
@@ -694,16 +695,6 @@ aboutwelcome:
     transitions:
       type: boolean
       description: Enable transition effect between screens
-    showModal:
-      type: boolean
-      fallbackPref: browser.aboutwelcome.showModal
-      description: >-
-        Should users see window modal onboarding
-    requireAction:
-      type: boolean
-      fallbackPref: browser.aboutwelcome.requireAction
-      description: >-
-        When showModal is enabled, should action be required to proceed (show as a window modal with dismiss using the ESC key disabled)
     backdrop:
       type: string
       fallbackPref: browser.aboutwelcome.backdrop
@@ -716,6 +707,36 @@ aboutwelcome:
         pref: browser.aboutwelcome.toolbarButtonEnabled
       description: >-
         Should the return to about:welcome toolbar button be shown
+
+preonboarding:
+  description: "A modal that shows on first startup, typically on top of about:welcome"
+  owner: omc@mozilla.com
+  # Exposure is recorded by the spotlight feature used to show the modal
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      fallbackPref: browser.preonboarding.enabled
+      description: >-
+        Should users see the preonboarding modal?
+    screens:
+      type: json
+      fallbackPref: browser.preonboarding.screens
+      description: Content to show in the onboarding flow
+    disableFirstRunPolicyTab:
+      type: boolean
+      fallbackPref: browser.preonboarding.disableFirstRunPolicyTab
+      description: Should a background tab load the first run policy URL?
+    requireAction:
+      type: boolean
+      fallbackPref: browser.preonboarding.requireAction
+      description: >-
+        When showModal is enabled, should action be required to proceed (show as a window modal with dismiss using the ESC key disabled)?
+    interactionPref:
+      type: string
+      fallbackPref: browser.preonboarding.interactionPref
+      description: >-
+        Name of a boolean pref that indicates whether the preonboarding modal has been interacted with. If a value is provided, the modal will appear on every startup until the pref is set to true (typically via interaction with the modal's primary CTA).
 
 moreFromMozilla:
   description: "New page on about:preferences to suggest more Mozilla products"
