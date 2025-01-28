@@ -1,8 +1,10 @@
+from datetime import datetime
+
 import django_filters
 from django import forms
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
 from django.db.models.functions import Concat
 
 from experimenter.base.models import Country, Language, Locale
@@ -65,8 +67,10 @@ class SortChoices(models.TextChoices):
     FEATURES_DOWN = "-feature_configs__slug"
     VERSIONS_UP = "firefox_min_version"
     VERSIONS_DOWN = "-firefox_min_version"
-    DATES_UP = "_start_date"
-    DATES_DOWN = "-_start_date"
+    START_DATE_UP = "_start_date"
+    START_DATE_DOWN = "-_start_date"
+    END_DATE_UP = "computed_end_date"
+    END_DATE_DOWN = "-computed_end_date"
 
 
 class IconMultiSelectWidget(MultiSelectWidget):
@@ -258,6 +262,33 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ]
 
     def filter_sort(self, queryset, name, value):
+        if value in [SortChoices.END_DATE_UP, SortChoices.END_DATE_DOWN]:
+            reverse = value == SortChoices.END_DATE_DOWN
+            if value == SortChoices.END_DATE_UP:
+                default_date = datetime.max.date()
+            else:
+                default_date = datetime.min.date()
+
+            queryset_sorted = sorted(
+                queryset,
+                key=lambda exp: exp.computed_end_date
+                if exp.computed_end_date
+                else default_date,
+                reverse=reverse,
+            )
+
+            preserved_order = Case(
+                *[
+                    When(pk=exp.id, then=Value(pos))
+                    for pos, exp in enumerate(queryset_sorted)
+                ],
+                output_field=IntegerField()
+            )
+
+            return queryset.filter(pk__in=[exp.id for exp in queryset_sorted]).order_by(
+                preserved_order
+            )
+
         return queryset.order_by(value)
 
     def filter_status(self, queryset, name, value):
