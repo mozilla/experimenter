@@ -829,6 +829,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ENROLLMENT = "Enrollment"
 
 
+EXTERNAL_URLS = {
+    "SIGNOFF_QA": "https://experimenter.info/qa-sign-off",
+    "TRAINING_AND_PLANNING_DOC": "https://experimenter.info/for-product",
+    "PREVIEW_LAUNCH_DOC": "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
+}
+
+
 RISK_QUESTIONS = {
     "BRAND": (
         "If the public, users or press, were to discover this experiment and "
