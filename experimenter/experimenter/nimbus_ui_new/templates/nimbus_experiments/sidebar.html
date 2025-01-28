@@ -19,7 +19,7 @@
   <hr class="my-0 mb-2">
   {% for documentation_link in experiment.documentation_links.all %}
     {% if documentation_link.link %}
-      {% include "common/sidebar_link.html" with title=documentation_link.title link=documentation_link.link icon="fa-solid fa-arrow-up-right-from-square" external=True %}
+      {% include "common/sidebar_link.html" with title=documentation_link.get_title_display link=documentation_link.link icon="fa-solid fa-arrow-up-right-from-square" external=True %}
 
     {% endif %}
   {% endfor %}
