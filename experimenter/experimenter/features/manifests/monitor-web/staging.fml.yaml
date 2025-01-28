@@ -36,11 +36,11 @@ features:
       enabled:
         description: If the feature is enabled
         type: Boolean
-        default: false
+        default: true
       variant:
         description: The landing page variant to show
         type: LandingPageVariant
-        default: default
+        default: redesign
   last-scan-date:
     description: "Show the date of the user's last scan in the top right-hand corner"
     variables:
