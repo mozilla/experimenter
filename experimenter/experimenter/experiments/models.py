@@ -658,10 +658,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_review(self):
-        return self.status == self.Status.DRAFT and self.publish_status in [
-            self.PublishStatus.REVIEW,
-            self.PublishStatus.WAITING,
-        ]
+        return (
+            self.status == self.Status.DRAFT
+            and self.publish_status == self.PublishStatus.REVIEW
+        )
 
     @property
     def is_preview(self):
@@ -682,6 +682,22 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def is_started(self):
         return self.status in (self.Status.LIVE, self.Status.COMPLETE)
+
+    @property
+    def can_draft_to_preview(self):
+        return self.is_draft and not self.is_review
+
+    @property
+    def can_draft_to_review(self):
+        return self.can_draft_to_preview
+
+    @property
+    def can_preview_to_draft(self):
+        return self.is_preview
+
+    @property
+    def can_preview_to_review(self):
+        return self.is_preview
 
     @property
     def draft_date(self):
