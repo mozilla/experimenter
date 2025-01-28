@@ -74,6 +74,44 @@
         <tr>
           <th scope="row">
             <a href="{% url "nimbus-detail" slug=experiment.slug %}">{{ experiment.name }}</a>
+            {% if active_status == "MyExperiments" %}
+              {% if experiment.is_archived %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-box-archive text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Archived</span>
+                </p>
+              {% elif experiment.is_draft %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-pen-to-square text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Draft</span>
+                </p>
+              {% elif experiment.is_preview %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-person-circle-check text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Preview</span>
+                </p>
+              {% elif experiment.is_review %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-eye text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Review</span>
+                </p>
+              {% elif experiment.is_enrollment %}
+                <p class="pt-1">
+                  <i class="fa-regular fa-circle-play text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Live (Enrolling)</span>
+                </p>
+              {% elif experiment.is_observation %}
+                <p class="pt-1">
+                  <i class="fa-regular fa-circle-play text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Live (Observing)</span>
+                </p>
+              {% elif experiment.is_complete %}
+                <p class="pt-1">
+                  <i class="fa-solid fa-vial-circle-check text-muted fa-sm"></i>
+                  <span class="text-muted fw-lighter">Complete</span>
+                </p>
+              {% endif %}
+            {% endif %}
           </th>
           <td>
             {% if experiment.qa_status == 'NOT SET' %}<i class="fa-regular fa-circle-question"></i>{% endif %}
