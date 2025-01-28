@@ -582,7 +582,7 @@ class ReviewToDraftForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} cancelled the review"
 
-
+      
 class ReviewToApproveForm(UpdateStatusForm):
     status = NimbusExperiment.Status.DRAFT
     status_next = NimbusExperiment.Status.LIVE

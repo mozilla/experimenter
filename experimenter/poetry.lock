@@ -463,13 +463,13 @@ six = ">=1.13.0"
 
 [[package]]
 name = "datadog"
-version = "0.50.0"
+version = "0.51.0"
 description = "The Datadog Python library"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 files = [
-    {file = "datadog-0.50.0-py2.py3-none-any.whl", hash = "sha256:bac96fa0ef555cb10e828c05a7810a13db2bf3bfed34813fac45d3c9a2227b43"},
-    {file = "datadog-0.50.0.tar.gz", hash = "sha256:3a58e85f8da47c4a47893b42c759570ba0280cd212413d9b7246cb8fcb86f586"},
+    {file = "datadog-0.51.0-py2.py3-none-any.whl", hash = "sha256:a9764f091c96af4e0996d4400b168fc5fba380f911d6d672c9dcd4773e29ea3f"},
+    {file = "datadog-0.51.0.tar.gz", hash = "sha256:3279534f831ae0b4ae2d8ce42ef038b4ab38e667d7ed6ff7437982d7a0cf5250"},
 ]
 
 [package.dependencies]
@@ -525,13 +525,13 @@ six = ">=1.10"
 
 [[package]]
 name = "django"
-version = "5.1.4"
+version = "5.1.5"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "Django-5.1.4-py3-none-any.whl", hash = "sha256:236e023f021f5ce7dee5779de7b286565fdea5f4ab86bae5338e3f7b69896cf0"},
-    {file = "Django-5.1.4.tar.gz", hash = "sha256:de450c09e91879fa5a307f696e57c851955c910a438a35e6b4c895e86bedc82a"},
+    {file = "Django-5.1.5-py3-none-any.whl", hash = "sha256:c46eb936111fffe6ec4bc9930035524a8be98ec2f74d8a0ff351226a3e52f459"},
+    {file = "Django-5.1.5.tar.gz", hash = "sha256:19bbca786df50b9eca23cee79d495facf55c8f5c54c529d9bf1fe7b5ea086af3"},
 ]
 
 [package.dependencies]
@@ -2875,13 +2875,13 @@ files = [
 
 [[package]]
 name = "sentry-sdk"
-version = "2.19.0"
+version = "2.20.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "sentry_sdk-2.19.0-py2.py3-none-any.whl", hash = "sha256:7b0b3b709dee051337244a09a30dbf6e95afe0d34a1f8b430d45e0982a7c125b"},
-    {file = "sentry_sdk-2.19.0.tar.gz", hash = "sha256:ee4a4d2ae8bfe3cac012dcf3e4607975904c137e1738116549fc3dbbb6ff0e36"},
+    {file = "sentry_sdk-2.20.0-py2.py3-none-any.whl", hash = "sha256:c359a1edf950eb5e80cffd7d9111f3dbeef57994cb4415df37d39fda2cf22364"},
+    {file = "sentry_sdk-2.20.0.tar.gz", hash = "sha256:afa82713a92facf847df3c6f63cec71eb488d826a50965def3d7722aa6f0fdab"},
 ]
 
 [package.dependencies]
@@ -2926,6 +2926,7 @@ sqlalchemy = ["sqlalchemy (>=1.2)"]
 starlette = ["starlette (>=0.19.1)"]
 starlite = ["starlite (>=1.48)"]
 tornado = ["tornado (>=6)"]
+unleash = ["UnleashClient (>=6.0.1)"]
 
 [[package]]
 name = "setuptools"
@@ -3290,4 +3291,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "be12e2aa7868d7c03799a8e35af39fa916987326bf5338c8a541aa94ce3f7c0d"
+content-hash = "4a327cfbef72453be06d9fe95455982492499594911c56a9e6dd3b03d5440909"

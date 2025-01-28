@@ -1886,11 +1886,11 @@ WINDOWS_10_MSIX_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-IOS_DEFAULT_BROWSER_USER = NimbusTargetingConfig(
-    name="Default Browser FXiOS Users",
+IOS_DEFAULT_BROWSER_FIRST_RUN_USER = NimbusTargetingConfig(
+    name="Default Browser & First Run FXiOS Users",
     slug="ios_default_browser_user",
     description="Users that already have FXiOS set as the default browser",
-    targeting="is_default_browser == 'true'",
+    targeting="is_default_browser == true && is_first_run",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=True,
@@ -1979,6 +1979,17 @@ ANDROID_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
     slug="android_review_checker_enabled_users_only",
     description="Targeting users who have opted in review checker",
     targeting="is_review_checker_enabled",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_DMA_USERS_ONLY = NimbusTargetingConfig(
+    name="DMA users only",
+    slug="android_dma_users_only",
+    description="Targeting users who installed Firefox Android through DMA choice screen",
+    targeting="install_referrer_response_utm_source == 'eea-browser-choice'",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -2280,6 +2291,20 @@ NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
     targeting=(
         "!('dom.security.https_only_mode'|preferenceValue || "
         "'dom.security.https_only_mode_pbm'|preferenceValue)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NON_SIDEBAR_USERS = NimbusTargetingConfig(
+    name="Users that have never used the sidebar",
+    slug="non_sidebar_users",
+    description="Target users who have never used the new or old sidebar",
+    targeting=(
+        "!('sidebar.revamp'|preferenceValue) && "
+        "'sidebar.backupState'|preferenceValue == '{}'"
     ),
     desktop_telemetry="",
     sticky_required=False,

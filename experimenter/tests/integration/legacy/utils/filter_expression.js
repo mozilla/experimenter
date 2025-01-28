@@ -1,12 +1,9 @@
-Components.utils.import("resource://gre/modules/components-utils/FilterExpressions.jsm");
-Components.utils.import("resource://gre/modules/components-utils/ClientEnvironment.jsm");
-
 // Targeting
 
 async function remoteSettings(arguments) {
 
-    const { TargetingContext } = ChromeUtils.import(
-        "resource://messaging-system/targeting/Targeting.jsm"
+    const { TargetingContext } = ChromeUtils.importESModule(
+        "resource://messaging-system/targeting/Targeting.sys.mjs"
     );
     const ENVIRONMENT = {version: arguments[0], localeLanguageCode: "en-US"};
     let targeting = new TargetingContext(ENVIRONMENT);

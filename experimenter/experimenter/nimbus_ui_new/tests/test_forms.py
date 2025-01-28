@@ -340,6 +340,10 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment = NimbusExperimentFactory.create()
 
     def test_draft_to_preview_form(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
         form = DraftToPreviewForm(data={}, instance=self.experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -353,6 +357,10 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("launched experiment to Preview", changelog.message)
 
     def test_draft_to_review_form(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
         form = DraftToReviewForm(data={}, instance=self.experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -367,6 +375,8 @@ class TestLaunchForms(RequestFormTestCase):
 
     def test_preview_to_review_form(self):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
+        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         self.experiment.save()
 
         form = PreviewToReviewForm(
@@ -385,6 +395,8 @@ class TestLaunchForms(RequestFormTestCase):
 
     def test_preview_to_draft_form(self):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
+        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         self.experiment.save()
 
         form = PreviewToDraftForm(data={}, instance=self.experiment, request=self.request)
@@ -400,6 +412,8 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("moved the experiment back to Draft", changelog.message)
 
     def test_review_to_draft_form(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.save()
 
