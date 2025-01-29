@@ -2315,6 +2315,20 @@ NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NON_SIDEBAR_USERS = NimbusTargetingConfig(
+    name="Users that have never used the sidebar",
+    slug="non_sidebar_users",
+    description="Target users who have never used the new or old sidebar",
+    targeting=(
+        "!('sidebar.revamp'|preferenceValue) && "
+        "'sidebar.backupState'|preferenceValue == '{}'"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
