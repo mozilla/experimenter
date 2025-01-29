@@ -742,10 +742,10 @@ workflows:
                 - main
       - create_mobile_recipes:
           name: Create Fenix and iOS recipes
-          # filters:
-          #   branches:
-          #     only:
-          #       - update_firefox_versions
+          filters:
+            branches:
+              only:
+                - update_firefox_versions
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:
@@ -790,19 +790,19 @@ workflows:
                 - main
       - build_firefox_fenix:
           name: Build Fenix APKs
-          # filters:
-          #   branches:
-          #     only:
-          #       - update_firefox_versions
+          filters:
+            branches:
+              only:
+                - update_firefox_versions
       - integration_nimbus_fenix_enrollment:
           name: Test Firefox for Android (Fenix)
           requires:
             - Create Fenix and iOS recipes
             - Build Fenix APKs
-          # filters:
-          #   branches:
-          #     only:
-          #       - update_firefox_versions
+          filters:
+            branches:
+              only:
+                - update_firefox_versions
       - integration_nimbus_ios_enrollment:
           name: Test Firefox for iOS Beta
           requires:

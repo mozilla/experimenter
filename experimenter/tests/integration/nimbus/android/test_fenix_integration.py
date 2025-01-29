@@ -12,7 +12,6 @@ import pytest
 import requests
 
 from .gradlewbuild import GradlewBuild
-from .models.models import TelemetryModel
 
 here = Path(__file__).cwd()
 
@@ -80,16 +79,6 @@ def fixture_open_app(run_nimbus_cli_command):
     return open_app
 
 
-@pytest.fixture(name="unenroll_experiment")
-def fixture_unenroll_experiment(run_nimbus_cli_command):
-    def unenroll_experiment():
-        command = "nimbus-cli --app fenix --channel developer unenroll"
-        run_nimbus_cli_command(command)
-        time.sleep(10)
-
-    return unenroll_experiment
-
-
 @pytest.fixture
 def gradlewbuild_log(pytestconfig, tmpdir):
     gradlewbuild_log = f"{tmpdir.join('gradlewbuild.log')}"
@@ -153,27 +142,20 @@ def fixture_setup_experiment(
 
 
 @pytest.mark.generic_test
-def test_experiment_enrolls(
-    setup_experiment, gradlewbuild, open_app):
+def test_experiment_enrolls(setup_experiment, gradlewbuild, open_app):
     setup_experiment()
     open_app()
     gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentEnrolled")
 
 
 @pytest.mark.generic_test
-def test_experiment_unenrolls_via_secret_menu(
-    setup_experiment,
-    gradlewbuild,
-    open_app,
-    unenroll_experiment,
-):
+def test_experiment_unenrolls_via_secret_menu(setup_experiment, gradlewbuild, open_app):
     setup_experiment()
     open_app()
     gradlewbuild.test(
         "GenericExperimentIntegrationTest#testExperimentUnenrolledViaSecretMenu"
     )
     gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentUnenrolled")
-    unenroll_experiment()
 
 
 @pytest.mark.generic_test
