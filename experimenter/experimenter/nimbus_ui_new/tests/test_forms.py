@@ -430,8 +430,9 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("cancelled the review", changelog.message)
 
     def test_review_to_approve_form(self):
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.save()
 
         form = ReviewToApproveForm(
@@ -451,6 +452,8 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn(f"{self.user.email} approved the review.", changelog.message)
 
     def test_review_to_reject_form_with_reason(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.save()
 
