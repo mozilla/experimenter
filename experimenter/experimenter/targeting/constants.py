@@ -2281,6 +2281,23 @@ DEFAULT_AUTOFILL_CREDIT_CARDS_SUPPORTED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+DEFAULT_AUTOFILL_ADDRESSES_SUPPORTED = NimbusTargetingConfig(
+    name="Users with Default or Non-'On' Setting for Address Autofill",
+    slug="default_autofill_addresses_supported",
+    description=(
+        "Targets users who have left the 'extensions.formautofill.addresses.supported' "
+        "preference at its default value or set it to something other than 'on'."
+    ),
+    targeting=(
+        "!('extensions.formautofill.addresses.supported'|preferenceIsUserSet) || "
+        "'extensions.formautofill.addresses.supported'|preferenceValue != 'on'"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
     name="Users who are not in HTTPS-Only Mode",
     slug="no_https_only_desktop",
