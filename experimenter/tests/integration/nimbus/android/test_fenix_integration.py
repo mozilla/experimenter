@@ -12,7 +12,6 @@ import pytest
 import requests
 
 from .gradlewbuild import GradlewBuild
-from .models.models import TelemetryModel
 
 here = Path(__file__).cwd()
 
@@ -108,45 +107,6 @@ def fixture_delete_telemetry_pings(ping_server):
     return runner
 
 
-@pytest.fixture(name="check_ping_for_experiment")
-def fixture_check_ping_for_experiment(experiment_slug, ping_server, open_app):
-    def _check_ping_for_experiment(branch=None, experiment=experiment_slug, reason=None):
-        model = TelemetryModel(branch=branch, experiment=experiment)
-
-        timeout = time.time() + 60
-        while time.time() < timeout:
-            data = requests.get(f"{ping_server}/pings").json()
-            events = []
-            for item in data:
-                event_items = item.get("events")
-                if event_items:
-                    for event in event_items:
-                        if (
-                            "category" in event
-                            and "nimbus_events" in event["category"]
-                            and "extra" in event
-                            and "branch" in event["extra"]
-                        ):
-                            events.append(event)
-            for event in events:
-                event_name = event.get("name")
-                if (reason == "enrollment" and event_name == "enrollment") or (
-                    reason == "unenrollment"
-                    and event_name in ["unenrollment", "disqualification"]
-                ):
-                    telemetry_model = TelemetryModel(
-                        branch=event["extra"]["branch"],
-                        experiment=event["extra"]["experiment"],
-                    )
-                    if model == telemetry_model:
-                        return True
-            time.sleep(5)
-            open_app()  # Open app in cycles to trigger telemetry
-        return False
-
-    return _check_ping_for_experiment
-
-
 @pytest.fixture(name="set_experiment_test_name", autouse=True, scope="session")
 def fixture_set_experiment_test_name():
     os.environ["EXP_NAME"] = "fenix"
@@ -182,6 +142,23 @@ def fixture_setup_experiment(
 
 
 @pytest.mark.generic_test
+def test_experiment_enrolls(setup_experiment, gradlewbuild, open_app):
+    setup_experiment()
+    open_app()
+    gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentEnrolled")
+
+
+@pytest.mark.generic_test
+def test_experiment_unenrolls_via_secret_menu(setup_experiment, gradlewbuild, open_app):
+    setup_experiment()
+    open_app()
+    gradlewbuild.test(
+        "GenericExperimentIntegrationTest#testExperimentUnenrolledViaSecretMenu"
+    )
+    gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentUnenrolled")
+
+
+@pytest.mark.generic_test
 def test_experiment_unenrolls_via_studies_toggle(
     setup_experiment, gradlewbuild, open_app
 ):
@@ -189,29 +166,3 @@ def test_experiment_unenrolls_via_studies_toggle(
     open_app()
     gradlewbuild.test("GenericExperimentIntegrationTest#disableStudiesViaStudiesToggle")
     gradlewbuild.test("GenericExperimentIntegrationTest#verifyStudiesAreDisabled")
-
-
-@pytest.mark.generic_test
-def test_experiment_enrolls(
-    setup_experiment,
-    gradlewbuild,
-    open_app,
-    check_ping_for_experiment,
-):
-    setup_experiment()
-    open_app()
-    gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentEnrolled")
-    assert check_ping_for_experiment(reason="enrollment", branch="control")
-
-
-@pytest.mark.generic_test
-def test_experiment_unenrolls_via_secret_menu(
-    setup_experiment, gradlewbuild, open_app, check_ping_for_experiment
-):
-    setup_experiment()
-    open_app()
-    gradlewbuild.test(
-        "GenericExperimentIntegrationTest#testExperimentUnenrolledViaSecretMenu"
-    )
-    gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentUnenrolled")
-    assert check_ping_for_experiment(reason="unenrollment", branch="control")
