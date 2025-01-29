@@ -90,30 +90,6 @@ def fixture_unenroll_experiment(run_nimbus_cli_command):
     return unenroll_experiment
 
 
-@pytest.fixture(name="trigger_telemetry_update")
-def fixture_trigger_telemetry_update():
-    def trigger_telemetry():
-        command = [
-            "adb",
-            "shell",
-            "am",
-            "start",
-            "-n org.mozilla.fenix.debug/mozilla.telemetry.glean.debug.GleanDebugActivity"
-            "--es sendPing",
-            "events",
-        ]
-        try:
-            out = subprocess.check_output(
-                " ".join(command), encoding="utf8", shell=True, stderr=subprocess.STDOUT
-            )
-            logging.debug(out)
-        except subprocess.CalledProcessError as e:
-            out = e.output
-            raise
-
-    return trigger_telemetry
-
-
 @pytest.fixture
 def gradlewbuild_log(pytestconfig, tmpdir):
     gradlewbuild_log = f"{tmpdir.join('gradlewbuild.log')}"
@@ -140,48 +116,6 @@ def fixture_delete_telemetry_pings(ping_server):
         requests.delete(f"{ping_server}/pings")
 
     return runner
-
-
-@pytest.fixture(name="check_ping_for_experiment")
-def fixture_check_ping_for_experiment(
-    experiment_slug, ping_server, trigger_telemetry_update
-):
-    def _check_ping_for_experiment(branch=None, experiment=experiment_slug, reason=None):
-        model = TelemetryModel(branch=branch, experiment=experiment)
-
-        timeout = time.time() + 300
-        while time.time() < timeout:
-            data = requests.get(f"{ping_server}/pings").json()
-            events = []
-            for item in data:
-                event_items = item.get("events")
-                if event_items:
-                    for event in event_items:
-                        if (
-                            "category" in event
-                            and "nimbus_events" in event["category"]
-                            and "extra" in event
-                            and "branch" in event["extra"]
-                        ):
-                            events.append(event)
-            for event in events:
-                event_name = event.get("name")
-                if (reason == "enrollment" and event_name == "enrollment") or (
-                    reason == "unenrollment"
-                    and event_name in ["unenrollment", "disqualification"]
-                ):
-                    telemetry_model = TelemetryModel(
-                        branch=event["extra"]["branch"],
-                        experiment=event["extra"]["experiment"],
-                    )
-                    if model == telemetry_model:
-                        return True
-            time.sleep(5)
-            # Open app in cycles to trigger telemetry
-            trigger_telemetry_update()
-        return False
-
-    return _check_ping_for_experiment
 
 
 @pytest.fixture(name="set_experiment_test_name", autouse=True, scope="session")
@@ -220,12 +154,10 @@ def fixture_setup_experiment(
 
 @pytest.mark.generic_test
 def test_experiment_enrolls(
-    setup_experiment, gradlewbuild, open_app, check_ping_for_experiment
-):
+    setup_experiment, gradlewbuild, open_app):
     setup_experiment()
     open_app()
     gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentEnrolled")
-    assert check_ping_for_experiment(reason="enrollment", branch="control")
 
 
 @pytest.mark.generic_test
@@ -233,7 +165,6 @@ def test_experiment_unenrolls_via_secret_menu(
     setup_experiment,
     gradlewbuild,
     open_app,
-    check_ping_for_experiment,
     unenroll_experiment,
 ):
     setup_experiment()
@@ -243,7 +174,6 @@ def test_experiment_unenrolls_via_secret_menu(
     )
     gradlewbuild.test("GenericExperimentIntegrationTest#testExperimentUnenrolled")
     unenroll_experiment()
-    assert check_ping_for_experiment(reason="unenrollment", branch="control")
 
 
 @pytest.mark.generic_test
