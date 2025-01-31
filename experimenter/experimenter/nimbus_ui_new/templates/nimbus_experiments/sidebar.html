@@ -23,7 +23,8 @@
 
     {% endif %}
   {% endfor %}
-  <a class="nav-link d-flex align-items-center" href="#recipe-json">
+  <a class="nav-link d-flex align-items-center"
+     href="{{ experiment.get_detail_preview_recipe_json_url }}">
     <i class="fa-solid fa-file-code me-2"></i>
     Preview Recipe JSON
   </a>
