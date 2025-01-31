@@ -1,3 +1,4 @@
+
 {
   "appId": "firefox-desktop",
   "appName": "firefox_desktop",
@@ -5,7 +6,6 @@
   "arguments": {},
   "branches": [
     {
-      "firefoxLabsTitle": "branch-one-fx-labs_title",
       "feature": {
         "featureId": "this-is-included-for-desktop-pre-95-support",
         "enabled": false,
@@ -25,6 +25,33 @@
       ],
       "ratio": 1,
       "slug": "control"
+    },
+    {
+      "feature": {
+        "featureId": "this-is-included-for-desktop-pre-95-support",
+        "enabled": false,
+        "value": {}
+      },
+      "features": [
+        {
+          "featureId": "pocketNewtab",
+          "value": {
+            "enabled": true,
+            "compactLayout": true,
+            "lastCardMessageEnabled": true,
+            "loadMore": true,
+            "newFooterSection": true
+          }
+        },
+        {
+          "featureId": "upgradeDialog",
+          "value": {
+            "enabled": true
+          }
+        }
+      ],
+      "ratio": 1,
+      "slug": "treatment"
     }
   ],
   "bucketConfig": {
@@ -53,8 +80,11 @@
   "isFirefoxLabsOptIn": true,
   "firefoxLabsTitle": "test-title",
   "firefoxLabsDescription": "test-desc",
-  "firefoxLabsDescriptionLinks": null,
+  "firefoxLabsDescriptionLinks": {
+    "foo": "https://example.com/foo",
+    "bar": "https://example.com/bar"
+  },
   "firefoxLabsGroup": "test",
-  "isRollout": false,
+  "isRollout": true,
   "requiresRestart": false
 }
