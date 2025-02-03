@@ -21,6 +21,10 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
+from experimenter.kinto.tasks import (
+    nimbus_check_kinto_push_queue_by_collection,
+    nimbus_synchronize_preview_experiments_in_kinto,
+)
 from experimenter.nimbus_ui_new.filtersets import SortChoices, TypeChoices
 from experimenter.nimbus_ui_new.forms import QAStatusForm, TakeawaysForm
 from experimenter.nimbus_ui_new.views import StatusChoices
@@ -1293,6 +1297,15 @@ class TestLaunchViews(AuthTestCase):
         super().setUp()
         self.experiment = NimbusExperimentFactory.create()
 
+        self.mock_preview_task = patch.object(
+            nimbus_synchronize_preview_experiments_in_kinto, "apply_async"
+        ).start()
+        self.mock_push_task = patch.object(
+            nimbus_check_kinto_push_queue_by_collection, "apply_async"
+        ).start()
+
+        self.addCleanup(patch.stopall)
+
     def test_draft_to_preview(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = None
@@ -1309,6 +1322,8 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(
             self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
+
+        self.mock_preview_task.assert_called_once_with(countdown=5)
 
     def test_draft_to_review(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -1346,6 +1361,8 @@ class TestLaunchViews(AuthTestCase):
             self.experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
         )
 
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+
     def test_preview_to_draft(self):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
         self.experiment.status_next = NimbusExperiment.Status.PREVIEW
@@ -1362,6 +1379,8 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(
             self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
+
+        self.mock_preview_task.assert_called_once_with(countdown=5)
 
     def test_cancel_review(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -1400,6 +1419,9 @@ class TestLaunchViews(AuthTestCase):
         changelog = self.experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn(f"{self.user.email} approved the review.", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[self.experiment.kinto_collection]
+        )
 
     def test_review_to_reject_view_with_reason(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT

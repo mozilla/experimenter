@@ -12,6 +12,10 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
 )
+from experimenter.kinto.tasks import (
+    nimbus_check_kinto_push_queue_by_collection,
+    nimbus_synchronize_preview_experiments_in_kinto,
+)
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
@@ -535,6 +539,19 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         experiment.status_next = self.status_next
         experiment.publish_status = self.publish_status
         experiment.save()
+        # Allocate bucket range if needed
+        if experiment.has_filter(NimbusExperiment.Filters.SHOULD_ALLOCATE_BUCKETS):
+            experiment.allocate_bucket_range()
+
+        if experiment.should_call_preview_task:
+            nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+
+        if experiment.should_call_push_task:
+            collection = experiment.kinto_collection
+            nimbus_check_kinto_push_queue_by_collection.apply_async(
+                countdown=5, args=[collection]
+            )
+
         return experiment
 
 
