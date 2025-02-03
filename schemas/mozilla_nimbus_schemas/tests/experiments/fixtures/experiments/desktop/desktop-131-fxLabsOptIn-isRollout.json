@@ -79,6 +79,7 @@
   "isFirefoxLabsOptIn": true,
   "firefoxLabsTitle": "test-title",
   "firefoxLabsDescription": "test-desc",
+  "firefoxLabsDescriptionLinks": null,
   "firefoxLabsGroup": "test",
   "isRollout": true,
   "requiresRestart": false
