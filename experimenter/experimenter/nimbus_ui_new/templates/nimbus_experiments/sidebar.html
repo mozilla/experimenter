@@ -23,6 +23,20 @@
 
     {% endif %}
   {% endfor %}
+  {% if experiment.is_started %}
+    <a class="nav-link d-flex align-items-center"
+       href="{{ experiment.monitoring_dashboard_url }}">
+      <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
+      Live Monitoring Dashboard
+    </a>
+    {% if experiment.rollout_monitoring_dashboard_url %}
+      <a class="nav-link d-flex align-items-center"
+         href="{{ experiment.rollout_monitoring_dashboard_url }}">
+        <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
+        Rollouts OpMon Dashboard
+      </a>
+    {% endif %}
+  {% endif %}
   <a class="nav-link d-flex align-items-center"
      href="{{ experiment.get_detail_preview_recipe_json_url }}">
     <i class="fa-solid fa-file-code me-2"></i>
