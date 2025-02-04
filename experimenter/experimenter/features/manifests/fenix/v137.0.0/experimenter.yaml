@@ -158,6 +158,14 @@ menu-redesign:
     report-site-issue:
       type: boolean
       description: "If true, report site issue menu item and preview is available."
+merino-recommendations:
+  description: Sets the recommendations provider service to Merino.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to enable Merino endpoint to serve recommendations.\n"
 messaging:
   description: "The in-app messaging system.\n"
   hasExposure: true

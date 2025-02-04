@@ -330,10 +330,6 @@ urlbar:
       description: >-
         The group-relative suggestedIndex of Pocket suggestions within the Firefox
         Suggest section.
-    quickSuggestAllowPositionInSuggestions:
-      type: boolean
-      fallbackPref: browser.urlbar.quicksuggest.allowPositionInSuggestions
-      description: Whether quick suggest results can be shown in position specified in the suggestions.
     quickSuggestAmpTopPickCharThreshold:
       type: int
       fallbackPref: browser.urlbar.quicksuggest.ampTopPickCharThreshold
@@ -684,6 +680,8 @@ preonboarding:
   owner: omc@mozilla.com
   # Exposure is recorded by the spotlight feature used to show the modal
   hasExposure: false
+  # Needed at `sessionstore-windows-restored`.
+  isEarlyStartup: true
   variables:
     enabled:
       type: boolean
