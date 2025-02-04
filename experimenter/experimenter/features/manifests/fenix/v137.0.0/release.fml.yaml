@@ -238,6 +238,13 @@ features:
         description: "If true, report site issue menu item and preview is available."
         type: Boolean
         default: false
+  merino-recommendations:
+    description: Sets the recommendations provider service to Merino.
+    variables:
+      enabled:
+        description: "Whether or not to enable Merino endpoint to serve recommendations.\n"
+        type: Boolean
+        default: false
   messaging:
     description: "The in-app messaging system.\n"
     variables:
