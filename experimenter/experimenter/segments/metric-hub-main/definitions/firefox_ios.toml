@@ -416,6 +416,32 @@ description = """
 owner = ["vsabino@mozilla.com", "firefox-kpi@mozilla.com"]
 deprecated = false
 
+[metrics.firefox_ios_share_button_tapped]
+friendly_name = "Firefox iOS toolbar share button tapped"
+data_source = "events"
+select_expression = """
+  COALESCE(SUM(CASE WHEN
+          event.category = 'toolbar'
+          AND event.name = 'share_button_tapped'
+	THEN 1 ELSE 0 END
+  ),0)
+"""
+description = "Number of times the toolbar share button is tapped."
+owner = "loines@mozilla.com"
+type = "scalar"
+deprecated = false
+
+[metrics.firefox_ios_page_action_menu_share_page_with]
+friendly_name = "Share page button in page action menu tapped"
+data_source = "metrics"
+select_expression = """
+    COALESCE(SUM(metrics.counter.page_action_menu_share_page_with), 0) 
+"""
+description = "Number of times Share page button in page action menu is tapped."
+owner = "loines@mozilla.com"
+type = "scalar"
+deprecated = false
+
 [data_sources]
 
 [data_sources.firefox_ios_active_users_aggregates_view]
