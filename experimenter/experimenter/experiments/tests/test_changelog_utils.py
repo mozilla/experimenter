@@ -60,6 +60,9 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
                 "firefox_labs_title": experiment.firefox_labs_title,
                 "firefox_labs_description": experiment.firefox_labs_description,
+                "firefox_labs_description_links": (
+                    experiment.firefox_labs_description_links
+                ),
                 "firefox_labs_group": experiment.firefox_labs_group,
                 "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
                 "is_archived": experiment.is_archived,
@@ -173,6 +176,9 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "firefox_min_version": experiment.firefox_min_version,
                 "firefox_labs_title": experiment.firefox_labs_title,
                 "firefox_labs_description": experiment.firefox_labs_description,
+                "firefox_labs_description_links": (
+                    experiment.firefox_labs_description_links
+                ),
                 "firefox_labs_group": experiment.firefox_labs_group,
                 "hypothesis": experiment.hypothesis,
                 "is_archived": experiment.is_archived,
