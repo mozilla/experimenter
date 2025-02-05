@@ -384,6 +384,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
     )
+    firefox_labs_description_links = models.JSONField[dict[str, str]](
+        "Firefox Labs Description Links",
+        blank=True,
+        null=True,
+        default=None,
+    )
     firefox_labs_group = models.CharField(
         "The group this should appear under in Firefox Labs",
         blank=True,
