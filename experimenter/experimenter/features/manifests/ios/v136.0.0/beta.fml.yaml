@@ -481,6 +481,13 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: true
+  rating-prompt-feature:
+    description: "This feature enables the rating prompt so we ask in-app rating to users\n"
+    variables:
+      enabled:
+        description: "Enables the rating prompt\n"
+        type: Boolean
+        default: true
   redux-search-settings-feature:
     description: "This feature is for managing the roll out of redux on the search settings screen\n"
     variables:

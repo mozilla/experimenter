@@ -225,6 +225,14 @@ pull-to-refresh-refactor-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
+rating-prompt-feature:
+  description: "This feature enables the rating prompt so we ask in-app rating to users\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the rating prompt\n"
 redux-search-settings-feature:
   description: "This feature is for managing the roll out of redux on the search settings screen\n"
   hasExposure: true
