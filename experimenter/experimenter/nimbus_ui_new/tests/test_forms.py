@@ -55,7 +55,9 @@ class RequestFormTestCase(TestCase):
         super().setUp()
         self.user = UserFactory.create(email="dev@example.com")
         request_factory = RequestFactory()
-        self.request = request_factory.get(reverse("nimbus-new-create"))
+        self.request = request_factory.get(
+            reverse("nimbus-new-create"), {"show_errors": "true"}
+        )
         self.request.user = self.user
 
 
@@ -656,8 +658,8 @@ class TestAudienceForm(RequestFormTestCase):
                 "channel": NimbusExperiment.Channel.BETA,
                 "countries": [country.id],
                 "excluded_experiments_branches": [excluded.branch_choices()[0][0]],
-                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
-                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
                 "is_sticky": True,
                 "languages": [language.id],
                 "locales": [locale.id],
@@ -678,10 +680,10 @@ class TestAudienceForm(RequestFormTestCase):
         self.assertEqual(experiment.changes.count(), 1)
         self.assertEqual(experiment.channel, NimbusExperiment.Channel.BETA)
         self.assertEqual(
-            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_96
         )
         self.assertEqual(
-            experiment.firefox_max_version, NimbusExperiment.Version.FIREFOX_84
+            experiment.firefox_max_version, NimbusExperiment.Version.FIREFOX_97
         )
         self.assertEqual(experiment.population_percent, 10)
         self.assertEqual(experiment.proposed_duration, 120)

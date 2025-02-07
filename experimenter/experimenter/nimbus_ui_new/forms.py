@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.db import models
 from django.forms import inlineformset_factory
 from django.http import HttpRequest
 from django.utils.text import slugify
@@ -37,6 +38,45 @@ class NimbusChangeLogFormMixin:
             experiment, self.request.user, self.get_changelog_message()
         )
         return experiment
+
+
+class NimbusSerializerErrorMixin:
+    def clean(self):
+        if self.show_validation_errors:
+            cleaned_data = super().clean()
+
+            for key, value in cleaned_data.items():
+                if isinstance(value, models.QuerySet):
+                    cleaned_data[key] = [item.pk for item in value]
+
+            for field_name in [
+                "excluded_experiments_branches",
+                "required_experiments_branches",
+            ]:
+                if field_name in cleaned_data:
+                    slugs = cleaned_data[field_name]
+                    pks = []
+                    for slug in slugs:
+                        experiment_slug = slug.split(":")[0]
+                        try:
+                            experiment = NimbusExperiment.objects.get(
+                                slug=experiment_slug
+                            )
+                            pks.append(experiment.pk)
+                        except NimbusExperiment.DoesNotExist:
+                            pass
+                    cleaned_data[field_name.replace("branches", "")] = pks
+
+            errors = self.instance.get_invalid_fields_errors(data=cleaned_data)
+
+            if errors:
+                for field, error in errors:
+                    if field in self.fields:
+                        self.add_error(field, error)
+
+            return cleaned_data
+        else:
+            return super().clean()
 
 
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -189,7 +229,7 @@ class NimbusDocumentationLinkForm(forms.ModelForm):
         fields = ("title", "link")
 
 
-class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
+class OverviewForm(NimbusChangeLogFormMixin, NimbusSerializerErrorMixin, forms.ModelForm):
     YES_NO_CHOICES = (
         (True, "Yes"),
         (False, "No"),
@@ -246,6 +286,11 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.get("request")
+        if request:
+            self.show_validation_errors = request.GET.get("show_errors", "") == "true"
+        else:
+            self.show_validation_errors = False
         super().__init__(*args, **kwargs)
         self.NimbusDocumentationLinkFormSet = inlineformset_factory(
             NimbusExperiment,
@@ -341,7 +386,7 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated metrics"
 
 
-class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
+class AudienceForm(NimbusChangeLogFormMixin, NimbusSerializerErrorMixin, forms.ModelForm):
     def get_experiment_branch_choices():
         return sorted(
             [
@@ -458,6 +503,11 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.get("request")
+        if request:
+            self.show_validation_errors = request.GET.get("show_errors", "") == "true"
+        else:
+            self.show_validation_errors = False
         super().__init__(*args, **kwargs)
         self.setup_initial_experiments_branches("required_experiments_branches")
         self.setup_initial_experiments_branches("excluded_experiments_branches")

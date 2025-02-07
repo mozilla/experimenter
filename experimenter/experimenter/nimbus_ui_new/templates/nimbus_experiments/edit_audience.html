@@ -9,8 +9,8 @@
 
 {% block main_content %}
   <form id="audience-form"
-        {% if form.is_valid %}class="was-validated"{% endif %}
-        hx-post="{% url 'nimbus-new-update-audience' experiment.slug %}"
+        {% if form.is_bound and form.is_valid %}class="was-validated"{% endif %}
+        hx-post="{% url 'nimbus-new-update-audience' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
         hx-select="#audience-form"
         hx-target="#audience-form">
     {% csrf_token %}
@@ -23,36 +23,43 @@
         <div class="row mb-3">
           <div class="col-4">
             <label for="id_channel" class="form-label">Channel</label>
-            {{ form.channel }}
+            {{ form.channel|add_class:"form-control"|add_error_class:"is-invalid" }}
+            {% for error in form.channel.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           </div>
           <div class="col-4">
             <label for="id_firefox_min_version" class="form-label">Min Version</label>
-            {{ form.firefox_min_version }}
+            {{ form.firefox_min_version|add_class:"form-control"|add_error_class:"is-invalid" }}
+            {% for error in form.firefox_min_version.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           </div>
           <div class="col-4">
             <label for="id_firefox_max_version" class="form-label">Max Version</label>
-            {{ form.firefox_max_version }}
+            {{ form.firefox_max_version|add_class:"form-control"|add_error_class:"is-invalid" }}
+            {% for error in form.firefox_max_version.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           </div>
         </div>
         <div class="row mb-3">
           <div class="col-6">
             {% if experiment.is_desktop %}
               <label for="id_locales" class="form-label">Locales</label>
-              {{ form.locales }}
+              {{ form.locales|add_class:"form-control"|add_error_class:"is-invalid" }}
+              {% for error in form.locales.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
             {% else %}
               <label for="id_languages" class="form-label">Languages</label>
-              {{ form.languages }}
+              {{ form.languages|add_class:"form-control"|add_error_class:"is-invalid" }}
+              {% for error in form.languages.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
             {% endif %}
           </div>
           <div class="col-6">
             <label for="id_countries" class="form-label">Countries</label>
-            {{ form.countries }}
+            {{ form.countries|add_class:"form-control"|add_error_class:"is-invalid" }}
+            {% for error in form.countries.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           </div>
         </div>
         <div class="row mb-3">
           <div class="col">
             <label for="id_targeting_config_slug" class="form-label">Advanced Targeting</label>
-            {{ form.targeting_config_slug }}
+            {{ form.targeting_config_slug|add_class:"form-control"|add_error_class:"is-invalid" }}
+            {% for error in form.targeting_config_slug.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           </div>
         </div>
         <div class="row mb-3">
@@ -60,7 +67,7 @@
             <label for="id_excluded_experiments" class="form-label">
               Exclude users enrolled in all of these experiments/rollouts (past or present)
             </label>
-            {{ form.excluded_experiments_branches|add_error_class:"is-invalid" }}
+            {{ form.excluded_experiments_branches|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.excluded_experiments_branches.errors %}
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
@@ -71,7 +78,7 @@
             <label for="id_required_experiments" class="form-label">
               Require users to be enrolled in all of these experiments/rollouts (past or present)
             </label>
-            {{ form.required_experiments_branches|add_error_class:"is-invalid" }}
+            {{ form.required_experiments_branches|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.required_experiments_branches.errors %}
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
@@ -79,10 +86,11 @@
         </div>
         <div class="row mb-4">
           <div class="col">
-            {{ form.is_sticky }}
+            {{ form.is_sticky|add_error_class:"is-invalid" }}
             <label for="id_is_sticky">Sticky Enrollment (Clients remain enrolled until the experiment ends)</label>
             <a target="_blank"
                href="https://experimenter.info/workflow/implementing/custom-audiences">Learn more</a>
+            {% for error in form.is_sticky.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           </div>
         </div>
         <div class="card bg-body-tertiary border-0 p-4">
@@ -119,20 +127,25 @@
                 {% for error in form.population_percent.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               </div>
             </div>
-            <div class="col">{{ form.total_enrolled_clients }}</div>
+            <div class="col">
+              {{ form.total_enrolled_clients|add_class:"form-control"|add_error_class:"is-invalid" }}
+              {% for error in form.total_enrolled_clients.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            </div>
           </div>
           <div class="row">
             <div class="col">
               <label class="mb-2" for="id_proposed_enrollment">Enrollment period</label>
               <div class="input-group mb-3">
-                {{ form.proposed_enrollment }}
+                {{ form.proposed_enrollment|add_class:"form-control"|add_error_class:"is-invalid" }}
+                {% for error in form.proposed_enrollment.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
                 <span class="input-group-text">days</span>
               </div>
             </div>
             <div class="col">
               <label class="mb-2" for="id_proposed_duration">Experiment duration</label>
               <div class="input-group mb-3">
-                {{ form.proposed_duration }}
+                {{ form.proposed_duration|add_class:"form-control"|add_error_class:"is-invalid" }}
+                {% for error in form.proposed_duration.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
                 <span class="input-group-text">days</span>
               </div>
             </div>
@@ -172,4 +185,5 @@
   {% block extrascripts %}
     {{ block.super }}
     <script src="{% static 'nimbus_ui_new/edit_audience.bundle.js' %}"></script>
+    <script src="{% static 'nimbus_ui_new/show_errors.bundle.js' %}"></script>
   {% endblock extrascripts %}
