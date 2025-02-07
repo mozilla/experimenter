@@ -39,6 +39,14 @@ credit-card-autofill:
     credit-card-autofill-status:
       type: boolean
       description: "If true, we will allow user to use the credit autofill feature"
+dark-reader-feature:
+  description: "This property defines if we legacy dark theme code or darkreader should be used to toggle dark mode on/off\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "If true, we will allow use dark reader on webpages to toggle dark mode"
 felt-privacy-feature:
   description: The feature that enhances private browsing mode
   hasExposure: true
