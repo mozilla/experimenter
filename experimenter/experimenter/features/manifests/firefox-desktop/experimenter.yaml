@@ -608,6 +608,53 @@ urlbar:
       setPref:
         branch: user
         pref: "places.frecency.pages.alternative.halfLifeDays"
+    pagesMaxVisitGap:
+      description: >-
+        The maximum allowed time (in seconds) between when a visit was recorded
+        and when an interaction occurs for them to be paired. This accounts
+        for slight discrepancies in their timestamps.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.maxVisitGapSeconds"
+    pagesNumInteractions:
+      description: >-
+        The number of recent interactions that should be examined.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.numInteractions"
+    pagesViewTimeSeconds:
+      description: >-
+        The minimum allowed time (in seconds) a page was viewed before upgrading
+        the score of a visit.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.viewTimeSeconds"
+    pageViewTimeIfManyKeypressesSeconds:
+      description: >-
+        The minimum allowed time (in seconds) a page was viewed before checking
+        the manyKeypresses threshold.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.viewTimeIfManyKeypressesSeconds"
+    manyKeypresses:
+      description: >-
+        The minimum number of keypresses typed before upgrading the score
+        of a visit.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.manyKeypresses"
+    pagesVeryHighWeight:
+      description: >-
+        The weight to use for the very high importance bucket.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.veryHighWeight"
     pagesHighWeight:
       description: >-
         The weight to use for the high importance bucket.
@@ -692,20 +739,26 @@ preonboarding:
       type: json
       fallbackPref: browser.preonboarding.screens
       description: Content to show in the onboarding flow
-    disableFirstRunPolicyTab:
-      type: boolean
-      fallbackPref: browser.preonboarding.disableFirstRunPolicyTab
-      description: Should a background tab load the first run policy URL?
     requireAction:
       type: boolean
       fallbackPref: browser.preonboarding.requireAction
       description: >-
         When showModal is enabled, should action be required to proceed (show as a window modal with dismiss using the ESC key disabled)?
-    interactionPref:
-      type: string
-      fallbackPref: browser.preonboarding.interactionPref
+    currentPolicyVersion:
+      type: int
+      fallbackPref: datareporting.policy.currentPolicyVersion
       description: >-
-        Name of a boolean pref that indicates whether the preonboarding modal has been interacted with. If a value is provided, the modal will appear on every startup until the pref is set to true (typically via interaction with the modal's primary CTA).
+        The current policy version displayed by this preonboarding modal.
+    minimumPolicyVersion:
+      type: int
+      fallbackPref: datareporting.policy.minimumPolicyVersion
+      description: >-
+        The minimum policy version which the user must have accepted to not see the preonboarding modal.
+    firstRunURL:
+      type: string
+      fallbackPref: datareporting.policy.firstRunURL
+      description: >-
+        URL of browser tab to be opened on first run instead of infobar.
 
 moreFromMozilla:
   description: "New page on about:preferences to suggest more Mozilla products"
@@ -938,6 +991,27 @@ newtabLayoutExperiment:
       description: >-
         Variant B in layouts experiment.
 
+newtabCustomWallpaper:
+  description: >-
+    Modify the wallpaper selection feature to support user-uploaded custom wallpaper images
+  owner: mcrawford@mozilla.com
+  hasExposure: false
+  variables:
+    uploadWallpaper:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.enabled
+      description: >-
+        Turns on and off ability to upload a custom wallpaper.
+    colorPicker:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customColor.enabled
+      description: >-
+        Turns on and off background color picker.
+
 newtabShortcutsExperiment:
   description: >-
     Adjusting sizes and spacing of new tab shortcuts.
@@ -951,20 +1025,6 @@ newtabShortcutsExperiment:
         pref: browser.newtabpage.activity-stream.newtabShortcuts.refresh
       description: >-
         Adjusting sizes and spacing of new tab shortcuts.
-
-newtabAprilFools:
-  description: >-
-    Replaces logo and wordmark for April Fools Day.
-  owner: achurchwell@mozilla.com
-  hasExposure: false
-  variables:
-    isAprilFools:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabLogo.aprilfools
-      description: >-
-        Replaces logo and wordmark for April Fools Day.
 
 newtabSponsoredContent:
   description: >-
