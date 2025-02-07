@@ -42,7 +42,9 @@ class RequestFormTestCase(TestCase):
         super().setUp()
         self.user = UserFactory.create(email="dev@example.com")
         request_factory = RequestFactory()
-        self.request = request_factory.get(reverse("nimbus-new-create"))
+        self.request = request_factory.get(
+            reverse("nimbus-new-create"), {"show_errors": "true"}
+        )
         self.request.user = self.user
 
 
@@ -378,6 +380,38 @@ class TestOverviewForm(RequestFormTestCase):
         )
         self.assertEqual(documentation_link.link, "https://www.example.com")
 
+    def test_missing_required_fields(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[],
+        )
+
+        form_data = {
+            "name": "test-experiment",
+            "hypothesis": "",
+            "public_description": "",
+            "risk_partner_related": None,
+            "risk_revenue": None,
+            "risk_brand": None,
+            "risk_message": None,
+            "projects": [],
+            "documentation_links-TOTAL_FORMS": "0",
+        }
+
+        form = OverviewForm(
+            instance=experiment,
+            data=form_data,
+            request=self.request,
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("This field may not be blank.", form.errors["hypothesis"])
+        self.assertIn("This field may not be blank.", form.errors["public_description"])
+        self.assertIn("Must be a valid boolean.", form.errors["risk_partner_related"])
+        self.assertIn("Must be a valid boolean.", form.errors["risk_revenue"])
+        self.assertIn("Must be a valid boolean.", form.errors["risk_brand"])
+        self.assertIn("Must be a valid boolean.", form.errors["risk_message"])
+
 
 class TestDocumentationLinkCreateForm(RequestFormTestCase):
     def test_valid_form_adds_documentation_link(self):
@@ -454,8 +488,8 @@ class TestAudienceForm(RequestFormTestCase):
                 "channel": NimbusExperiment.Channel.BETA,
                 "countries": [country.id],
                 "excluded_experiments_branches": [excluded.branch_choices()[0][0]],
-                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
-                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
                 "is_sticky": True,
                 "languages": [language.id],
                 "locales": [locale.id],
@@ -476,10 +510,10 @@ class TestAudienceForm(RequestFormTestCase):
         self.assertEqual(experiment.changes.count(), 1)
         self.assertEqual(experiment.channel, NimbusExperiment.Channel.BETA)
         self.assertEqual(
-            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_96
         )
         self.assertEqual(
-            experiment.firefox_max_version, NimbusExperiment.Version.FIREFOX_84
+            experiment.firefox_max_version, NimbusExperiment.Version.FIREFOX_97
         )
         self.assertEqual(experiment.population_percent, 10)
         self.assertEqual(experiment.proposed_duration, 120)
@@ -504,4 +538,61 @@ class TestAudienceForm(RequestFormTestCase):
             NimbusExperimentBranchThroughRequired.objects.filter(
                 parent_experiment=experiment, child_experiment=required, branch_slug=None
             ).exists()
+        )
+
+    def test_invalid_form_fields(self):
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=10,
+            proposed_enrollment=42,
+            proposed_duration=120,
+            proposed_release_date=None,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            total_enrolled_clients=100,
+            is_sticky=False,
+            countries=[],
+            locales=[],
+            languages=[],
+        )
+
+        form = AudienceForm(
+            instance=experiment,
+            data={
+                "excluded_experiments_branches": ["invalid_branch"],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_93,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
+                "is_sticky": True,
+                "population_percent": 0,
+                "proposed_duration": 0,
+                "proposed_enrollment": 0,
+                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "total_enrolled_clients": 0,
+            },
+            request=self.request,
+        )
+
+        self.assertFalse(form.is_valid())
+
+        self.assertIn(
+            "Ensure this value is greater than or equal to 1.",
+            form.errors["proposed_duration"],
+        )
+        self.assertIn(
+            "Ensure this value is greater than or equal to 0.0001.",
+            form.errors["population_percent"],
+        )
+        self.assertIn(
+            "Ensure this value is greater than or equal to 1.",
+            form.errors["proposed_enrollment"],
+        )
+        self.assertIn(
+            "Select a valid choice. invalid_branch is not one of the available choices.",
+            form.errors["excluded_experiments_branches"],
         )

@@ -6,6 +6,7 @@ module.exports = {
     app: "./js/index.js",
     experiment_list: "./js/experiment_list.js",
     edit_audience: "./js/edit_audience.js",
+    show_errors: "./js/show_errors.js",
   },
   output: {
     filename: "[name].bundle.js",
