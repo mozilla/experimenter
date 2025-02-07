@@ -24,6 +24,7 @@ export interface getAllExperimentsByApplication_experimentsByApplication {
   publicDescription: string | null;
   referenceBranch: getAllExperimentsByApplication_experimentsByApplication_referenceBranch | null;
   treatmentBranches: (getAllExperimentsByApplication_experimentsByApplication_treatmentBranches | null)[] | null;
+  isArchived: boolean | null;
 }
 
 export interface getAllExperimentsByApplication {

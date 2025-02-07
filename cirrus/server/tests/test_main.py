@@ -9,6 +9,7 @@ from fastapi import status
 from fml_sdk import FmlError
 
 from cirrus.main import (
+    EnrollmentMetricData,
     create_fml,
     create_scheduler,
     create_sdk,
@@ -49,7 +50,7 @@ def test_read_root(client):
     assert response.json() == {"Hello": "World"}
 
 
-def test_get_features_with_required_field(client):
+def test_get_features_v1_with_required_field(client):
     request_data = {
         "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
         "context": {
@@ -62,6 +63,26 @@ def test_get_features_with_required_field(client):
     assert response.status_code == 200
     assert response.json() == {
         "example-feature": {"enabled": False, "something": "wicked"}
+    }
+
+
+def test_get_features_v2_with_required_field(client):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
+        },
+    }
+
+    response = client.post("/v2/features/", json=request_data)
+    assert response.status_code == 200
+    assert response.json() == {
+        "Features": {
+            "example-feature": {"enabled": False, "something": "wicked"},
+            # return default features
+        },
+        "Enrollments": [],
     }
 
 
@@ -138,10 +159,91 @@ def test_get_features_with_required_field(client):
         ),
     ],
 )
-def test_get_features_missing_required_field(
+def test_get_features_v1_missing_required_field(
     client, request_data, expected_status, expected_message
 ):
     response = client.post("/v1/features/", json=request_data)
+    assert response.status_code == expected_status
+    assert response.json()["detail"] == expected_message
+
+
+@pytest.mark.parametrize(
+    "request_data, expected_status, expected_message",
+    [
+        (
+            {
+                "client_id": "",
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                },
+            },
+            status.HTTP_400_BAD_REQUEST,
+            "Client ID value is missing or empty",
+        ),
+        (
+            {
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                }
+            },
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "type": "missing",
+                    "loc": ["body", "client_id"],
+                    "msg": "Field required",
+                    "input": {
+                        "context": {
+                            "key1": "value1",
+                            "key2": {"key2.1": "value2", "key2.2": "value3"},
+                        }
+                    },
+                }
+            ],
+        ),
+        (
+            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449", "context": {}},
+            status.HTTP_400_BAD_REQUEST,
+            "Context value is missing or empty",
+        ),
+        (
+            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "type": "missing",
+                    "loc": ["body", "context"],
+                    "msg": "Field required",
+                    "input": {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
+                }
+            ],
+        ),
+        (
+            {},
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "type": "missing",
+                    "loc": ["body", "client_id"],
+                    "msg": "Field required",
+                    "input": {},
+                },
+                {
+                    "type": "missing",
+                    "loc": ["body", "context"],
+                    "msg": "Field required",
+                    "input": {},
+                },
+            ],
+        ),
+    ],
+)
+def test_get_features_v2_missing_required_field(
+    client, request_data, expected_status, expected_message
+):
+    response = client.post("/v2/features/", json=request_data)
     assert response.status_code == expected_status
     assert response.json()["detail"] == expected_message
 
@@ -325,7 +427,7 @@ def test_heartbeat_endpoint(client):
     assert response.json() == {"status": "ok"}
 
 
-def test_get_features_with_nimbus_preview(client):
+def test_get_features_v1_with_nimbus_preview_flag(client):
     request_data = {
         "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
         "context": {
@@ -338,6 +440,26 @@ def test_get_features_with_nimbus_preview(client):
     assert response.status_code == 200
     assert response.json() == {
         "example-feature": {"enabled": False, "something": "wicked"}
+    }
+
+
+def test_get_features_v2_with_nimbus_preview(client):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
+        },
+    }
+
+    response = client.post("/v2/features/?nimbus_preview=true", json=request_data)
+    assert response.status_code == 200
+    assert response.json() == {
+        "Features": {
+            "example-feature": {"enabled": False, "something": "wicked"},
+            # return default features
+        },
+        "Enrollments": [],
     }
 
 
@@ -414,7 +536,7 @@ def test_get_features_with_nimbus_preview(client):
         ),
     ],
 )
-def test_get_features_missing_required_field_nimbus_preview(
+def test_get_features_v1_missing_required_field_nimbus_preview(
     client, request_data, expected_status, expected_message
 ):
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
@@ -422,9 +544,88 @@ def test_get_features_missing_required_field_nimbus_preview(
     assert response.json()["detail"] == expected_message
 
 
-def test_get_features_with_and_without_nimbus_preview(
-    client,
+@pytest.mark.parametrize(
+    "request_data, expected_status, expected_message",
+    [
+        (
+            {
+                "client_id": "",
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                },
+            },
+            status.HTTP_400_BAD_REQUEST,
+            "Client ID value is missing or empty",
+        ),
+        (
+            {
+                "context": {
+                    "key1": "value1",
+                    "key2": {"key2.1": "value2", "key2.2": "value3"},
+                }
+            },
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "type": "missing",
+                    "loc": ["body", "client_id"],
+                    "msg": "Field required",
+                    "input": {
+                        "context": {
+                            "key1": "value1",
+                            "key2": {"key2.1": "value2", "key2.2": "value3"},
+                        }
+                    },
+                }
+            ],
+        ),
+        (
+            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449", "context": {}},
+            status.HTTP_400_BAD_REQUEST,
+            "Context value is missing or empty",
+        ),
+        (
+            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "type": "missing",
+                    "loc": ["body", "context"],
+                    "msg": "Field required",
+                    "input": {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
+                }
+            ],
+        ),
+        (
+            {},
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            [
+                {
+                    "type": "missing",
+                    "loc": ["body", "client_id"],
+                    "msg": "Field required",
+                    "input": {},
+                },
+                {
+                    "type": "missing",
+                    "loc": ["body", "context"],
+                    "msg": "Field required",
+                    "input": {},
+                },
+            ],
+        ),
+    ],
+)
+def test_get_features_v2_missing_required_field_nimbus_preview(
+    client, request_data, expected_status, expected_message
 ):
+    response = client.post("/v2/features/?nimbus_preview=true", json=request_data)
+    assert response.status_code == expected_status
+    assert response.json()["detail"] == expected_message
+
+
+def test_get_features_v1_without_nimbus_preview(client):
     request_data = {
         "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
         "context": {
@@ -435,9 +636,7 @@ def test_get_features_with_and_without_nimbus_preview(
 
     with patch(
         "cirrus.main.app.state.sdk_live.compute_enrollments"
-    ) as mock_sdk_live_compute_enrollments, patch(
-        "cirrus.main.app.state.sdk_preview.compute_enrollments"
-    ) as mock_sdk_preview_compute_enrollments:
+    ) as mock_sdk_live_compute_enrollments:
 
         mock_sdk_live_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
@@ -473,6 +672,28 @@ def test_get_features_with_and_without_nimbus_preview(
                 }
             ],
         }
+
+        # Without nimbus_preview
+        response = client.post("/v1/features/", json=request_data)
+        assert response.status_code == 200
+        assert response.json() == {
+            "example-feature": {"enabled": False, "something": "wicked"}
+        }
+
+
+def test_get_features_v1_with_nimbus_preview(client):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
+        },
+    }
+
+    with patch(
+        "cirrus.main.app.state.sdk_preview.compute_enrollments"
+    ) as mock_sdk_preview_compute_enrollments:
+
         mock_sdk_preview_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
                 "example-feature": {
@@ -508,13 +729,6 @@ def test_get_features_with_and_without_nimbus_preview(
             ],
         }
 
-        # Without nimbus_preview
-        response = client.post("/v1/features/", json=request_data)
-        assert response.status_code == 200
-        assert response.json() == {
-            "example-feature": {"enabled": False, "something": "wicked"}
-        }
-
         # With nimbus_preview
         response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
         assert response.status_code == 200
@@ -523,7 +737,199 @@ def test_get_features_with_and_without_nimbus_preview(
         }
 
 
-def test_get_features_preview_url_not_provided(client):
+def test_get_features_v2_enrollments_without_nimbus_preview(client):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
+        },
+    }
+
+    with patch(
+        "cirrus.main.app.state.sdk_live.compute_enrollments"
+    ) as mock_sdk_live_compute_enrollments, patch(
+        "cirrus.main.collate_enrollment_metric_data"
+    ) as mock_collate_enrollment_metric_data, patch(
+        "cirrus.main.app.state.fml.compute_feature_configurations"
+    ) as mock_compute_feature_configurations:
+
+        # Mock live compute_enrollments response
+        mock_sdk_live_compute_enrollments.return_value = {
+            "enrolledFeatureConfigMap": {
+                "example-feature": {
+                    "feature": {
+                        "featureId": "example-feature",
+                        "value": {"enabled": False, "something": "wicked"},
+                    },
+                    "branch": "treatment",
+                    "featureId": "example-feature",
+                    "slug": "experiment_slug_1",
+                }
+            },
+            "enrollments": [
+                {
+                    "slug": "experiment_slug_1",
+                    "status": {
+                        "Enrolled": {
+                            "branch": "treatment",
+                            "enrollment_id": "enrollment_id_1",
+                            "reason": "Qualified",
+                        }
+                    },
+                }
+            ],
+            "events": [
+                {
+                    "branch_slug": "treatment",
+                    "change": "Enrollment",
+                    "enrollment_id": "enrollment_id_1",
+                    "experiment_slug": "experiment_slug_1",
+                    "reason": None,
+                }
+            ],
+        }
+
+        # Mock collate_enrollment_metric_data and compute_feature_configurations
+        mock_collate_enrollment_metric_data.side_effect = (
+            lambda enrolled_partial_configuration, client_id, nimbus_preview_flag: [
+                EnrollmentMetricData(
+                    nimbus_user_id=client_id,
+                    app_id="test_app_id",
+                    experiment_slug=event["experiment_slug"],
+                    branch_slug=event["branch_slug"],
+                    experiment_type="rollout",
+                    is_preview=nimbus_preview_flag,
+                )
+                for event in enrolled_partial_configuration["events"]
+            ]
+        )
+        mock_compute_feature_configurations.side_effect = (
+            lambda enrolled_partial_configuration: {
+                feature_id: feature_data["feature"]["value"]
+                for feature_id, feature_data in enrolled_partial_configuration[
+                    "enrolledFeatureConfigMap"
+                ].items()
+            }
+        )
+
+        # Test for live SDK (no nimbus_preview)
+        response = client.post("/v2/features/", json=request_data)
+        assert response.status_code == 200
+        assert response.json() == {
+            "Features": {
+                "example-feature": {"enabled": False, "something": "wicked"},
+            },
+            "Enrollments": [
+                {
+                    "nimbus_user_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+                    "app_id": "test_app_id",
+                    "experiment": "experiment_slug_1",
+                    "branch": "treatment",
+                    "experiment_type": "rollout",
+                    "is_preview": False,
+                }
+            ],
+        }
+
+
+def test_get_features_v2_enrollments_with_nimbus_preview(client):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
+        },
+    }
+
+    with patch(
+        "cirrus.main.app.state.sdk_preview.compute_enrollments"
+    ) as mock_sdk_preview_compute_enrollments, patch(
+        "cirrus.main.collate_enrollment_metric_data"
+    ) as mock_collate_enrollment_metric_data, patch(
+        "cirrus.main.app.state.fml.compute_feature_configurations"
+    ) as mock_compute_feature_configurations:
+
+        # Mock preview compute_enrollments response
+        mock_sdk_preview_compute_enrollments.return_value = {
+            "enrolledFeatureConfigMap": {
+                "example-feature": {
+                    "feature": {
+                        "featureId": "example-feature",
+                        "value": {"enabled": True, "something": "preview"},
+                    },
+                    "branch": "treatment",
+                    "featureId": "example-feature",
+                    "slug": "experiment_slug_2",
+                }
+            },
+            "enrollments": [
+                {
+                    "slug": "experiment_slug_2",
+                    "status": {
+                        "Enrolled": {
+                            "branch": "treatment",
+                            "enrollment_id": "enrollment_id_2",
+                            "reason": "Qualified",
+                        }
+                    },
+                }
+            ],
+            "events": [
+                {
+                    "branch_slug": "treatment",
+                    "change": "Enrollment",
+                    "enrollment_id": "enrollment_id_2",
+                    "experiment_slug": "experiment_slug_2",
+                    "reason": None,
+                }
+            ],
+        }
+
+        # Mock collate_enrollment_metric_data and compute_feature_configurations
+        mock_collate_enrollment_metric_data.side_effect = (
+            lambda enrolled_partial_configuration, client_id, nimbus_preview_flag: [
+                EnrollmentMetricData(
+                    nimbus_user_id=client_id,
+                    app_id="test_app_id",
+                    experiment_slug=event["experiment_slug"],
+                    branch_slug=event["branch_slug"],
+                    experiment_type="experiment",
+                    is_preview=nimbus_preview_flag,
+                )
+                for event in enrolled_partial_configuration["events"]
+            ]
+        )
+        mock_compute_feature_configurations.side_effect = (
+            lambda enrolled_partial_configuration: {
+                feature_id: feature_data["feature"]["value"]
+                for feature_id, feature_data in enrolled_partial_configuration[
+                    "enrolledFeatureConfigMap"
+                ].items()
+            }
+        )
+
+        # Test for preview SDK (nimbus_preview=true)
+        response = client.post("/v2/features/?nimbus_preview=true", json=request_data)
+        assert response.status_code == 200
+        assert response.json() == {
+            "Features": {
+                "example-feature": {"enabled": True, "something": "preview"},
+            },
+            "Enrollments": [
+                {
+                    "nimbus_user_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+                    "app_id": "test_app_id",
+                    "experiment": "experiment_slug_2",
+                    "branch": "treatment",
+                    "experiment_type": "experiment",
+                    "is_preview": True,
+                }
+            ],
+        }
+
+
+def test_get_features_v1_preview_url_not_provided(client):
     request_data = {
         "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
         "context": {
@@ -535,7 +941,23 @@ def test_get_features_preview_url_not_provided(client):
     # Assuming the remote_setting_preview_url is not set in the settings
     with patch("cirrus.main.remote_setting_preview_url", ""):
         response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
-        assert response.status_code == 400
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {"detail": "This Cirrus doesn’t support preview mode"}
+
+
+def test_get_features_v2_preview_url_not_provided(client):
+    request_data = {
+        "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+        "context": {
+            "key1": "value1",
+            "key2": {"key2.1": "value2", "key2.2": "value3"},
+        },
+    }
+
+    # Assuming the remote_setting_preview_url is not set in the settings
+    with patch("cirrus.main.remote_setting_preview_url", ""):
+        response = client.post("/v2/features/?nimbus_preview=true", json=request_data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {"detail": "This Cirrus doesn’t support preview mode"}
 
 

@@ -99,6 +99,7 @@ def test_check_mobile_targeting(
             "is_phone": True,
             "is_review_checker_enabled": True,
             "is_default_browser": True,
+            "install_referrer_response_utm_source": "test",
         }
     )
     client = sdk_client(load_app_context(context))

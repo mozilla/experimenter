@@ -56,6 +56,9 @@
       </div>
     {% endfor %}
   {% endif %}
+  <!-- Launch Controls Card-->
+  {% include "nimbus_experiments/launch_controls.html" %}
+
   <!-- Takeaways Card -->
   {% include "nimbus_experiments/takeaways_card.html" %}
 
@@ -397,4 +400,5 @@
 {% block extrascripts %}
   {{ block.super }}
   <script src="{% static 'nimbus_ui_new/setup_selectpicker.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui_new/review_controls.bundle.js' %}"></script>
 {% endblock %}

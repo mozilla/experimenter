@@ -384,6 +384,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
     )
+    firefox_labs_description_links = models.JSONField[dict[str, str]](
+        "Firefox Labs Description Links",
+        blank=True,
+        null=True,
+        default=None,
+    )
     firefox_labs_group = models.CharField(
         "The group this should appear under in Firefox Labs",
         blank=True,
@@ -658,10 +664,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_review(self):
-        return self.status == self.Status.DRAFT and self.publish_status in [
-            self.PublishStatus.REVIEW,
-            self.PublishStatus.WAITING,
-        ]
+        return (
+            self.status == self.Status.DRAFT
+            and self.publish_status == self.PublishStatus.REVIEW
+        )
 
     @property
     def is_preview(self):
@@ -682,6 +688,22 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def is_started(self):
         return self.status in (self.Status.LIVE, self.Status.COMPLETE)
+
+    @property
+    def can_draft_to_preview(self):
+        return self.is_draft and not self.is_review
+
+    @property
+    def can_draft_to_review(self):
+        return self.can_draft_to_preview
+
+    @property
+    def can_preview_to_draft(self):
+        return self.is_preview
+
+    @property
+    def can_preview_to_review(self):
+        return self.is_preview
 
     @property
     def draft_date(self):
@@ -1212,7 +1234,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.results_data and "v3" in self.results_data:
             results_data = self.results_data["v3"]
             for window in ["overall", "weekly"]:
-                if window in results_data:
+                if results_data.get(window):
                     enrollments = results_data[window].get("enrollments", {}).get("all")
                     if enrollments is not None:
                         return True

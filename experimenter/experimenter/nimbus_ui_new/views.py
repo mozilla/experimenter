@@ -5,7 +5,7 @@ from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
-from experimenter.experiments.constants import RISK_QUESTIONS
+from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
 from experimenter.experiments.models import (
     NimbusExperiment,
 )
@@ -20,10 +20,15 @@ from experimenter.nimbus_ui_new.forms import (
     AudienceForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
+    DraftToPreviewForm,
+    DraftToReviewForm,
     MetricsForm,
     NimbusExperimentCreateForm,
     OverviewForm,
+    PreviewToDraftForm,
+    PreviewToReviewForm,
     QAStatusForm,
+    ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
@@ -143,6 +148,7 @@ def build_experiment_context(experiment):
     ]
     context = {
         "RISK_QUESTIONS": RISK_QUESTIONS,
+        "EXTERNAL_URLS": EXTERNAL_URLS,
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
@@ -151,8 +157,9 @@ def build_experiment_context(experiment):
     return context
 
 
-class NimbusExperimentDetailView(NimbusExperimentViewMixin, DetailView):
+class NimbusExperimentDetailView(NimbusExperimentViewMixin, UpdateView):
     template_name = "nimbus_experiments/detail.html"
+    fields = []
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -272,3 +279,27 @@ class UnsubscribeView(
 ):
     form_class = UnsubscribeForm
     template_name = "nimbus_experiments/subscribers_list.html"
+
+
+class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
+    fields = None
+
+
+class DraftToPreviewView(StatusUpdateView):
+    form_class = DraftToPreviewForm
+
+
+class PreviewToDraftView(StatusUpdateView):
+    form_class = PreviewToDraftForm
+
+
+class DraftToReviewView(StatusUpdateView):
+    form_class = DraftToReviewForm
+
+
+class PreviewToReviewView(StatusUpdateView):
+    form_class = PreviewToReviewForm
+
+
+class ReviewToDraftView(StatusUpdateView):
+    form_class = ReviewToDraftForm

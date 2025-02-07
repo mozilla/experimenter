@@ -5,3 +5,4 @@ description = "Measures if Firefox was launched or invoked to handle a PDF file"
 [metrics.pdf_launched_or_invoked_to_handle.statistics.binomial]
 [metrics.pdf_invoked_to_handle.statistics.binomial]
 [metrics.pdf_launched_to_handle.statistics.binomial]
+[metrics.is_default_pdf_handler.statistics.binomial]

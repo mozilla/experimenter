@@ -483,6 +483,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     firefox_labs_description = factory.LazyAttribute(
         lambda o: faker.catch_phrase() if o.is_firefox_labs_opt_in else None
     )
+    firefox_labs_description_links = factory.LazyAttribute(lambda o: None)
     firefox_labs_group = factory.LazyAttribute(
         lambda o: (
             random.choice(NimbusExperiment.FirefoxLabsGroups.choices)[0]

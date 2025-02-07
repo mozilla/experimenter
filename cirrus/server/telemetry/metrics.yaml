@@ -19,7 +19,7 @@ cirrus_events:
       experiment_type:
         type: string
         description: Indicates whether this is an experiment or rollout
-      user_id:
+      nimbus_user_id:
         type: string
         description: A unique identifier for User/Client sending a request to get feature configuration
       app_id:
@@ -67,7 +67,7 @@ cirrus_events:
       conflict_slug:
         type: string
         description: If the enrollment hit a feature conflict, the slug of the conflicting experiment/rollout
-      user_id:
+      nimbus_user_id:
         type: string
         description: The ID of the user requesting enrollment
     bugs:

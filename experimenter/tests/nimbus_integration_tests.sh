@@ -10,11 +10,12 @@ PYTEST_ARGS=${PYTEST_ARGS:-"-k FIREFOX_DESKTOP"}
 install_firefox() {
     local firefox_version="$1"
     sudo apt-get update -qqy
+    sudo apt-get install xz-utils
     sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-    sudo wget --no-verbose -O /tmp/firefox.tar.bz2 $firefox_version
+    sudo wget --no-verbose -O /tmp/firefox $firefox_version
     sudo rm -rf /opt/firefox-latest
-    sudo tar -C /opt -xjf /tmp/firefox.tar.bz2
-    sudo rm /tmp/firefox.tar.bz2
+    sudo tar -C /opt -xf /tmp/firefox
+    sudo rm /tmp/firefox
     sudo ln -fs /opt/firefox/firefox /usr/bin/firefox
     sudo chown -R seluser /opt/firefox/firefox
 }
@@ -27,7 +28,7 @@ if [[ -n "${FIREFOX_BETA}" ]]; then
     source ./experimenter/tests/firefox_desktop_beta_build.env
     FIREFOX_DESKTOP_BETA_TASK_ID=${FIREFOX_DESKTOP_BETA_TASK_ID//\"/}
     echo "Installing firefox beta from taskcluster"
-    install_firefox "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${FIREFOX_DESKTOP_BETA_TASK_ID}/artifacts/public/build/target.tar.bz2"
+    install_firefox "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${FIREFOX_DESKTOP_BETA_TASK_ID}/artifacts/public/build/target.tar.xz"
 fi
 
 if [[ -n "${FIREFOX_RELEASE}" ]]; then

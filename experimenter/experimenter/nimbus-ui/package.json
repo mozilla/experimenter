@@ -52,7 +52,7 @@
     "fuse.js": "^6.6.2",
     "graphql": "^15.9.0",
     "json-to-ast": "^2.1.0",
-    "postcss": "8.4.31",
+    "postcss": "8.5.0",
     "react": "^17.0.2",
     "react-async-hook": "^3.6.2",
     "react-bootstrap": "^1.6.1",

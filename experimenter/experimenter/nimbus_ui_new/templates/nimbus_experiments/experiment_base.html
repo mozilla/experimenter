@@ -7,7 +7,8 @@
 
 {% block main_content_header %}
   <div class="row mb-2">
-    <div class="col-md-12 col-xl-5">
+    <!-- Experiment Details -->
+    <div class="col-md-12 col-xl-6">
       <h4 class="mb-0">{{ experiment.name }}</h4>
       <span class="{{ experiment.qa_status_badge_class }}">
         QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
@@ -22,24 +23,10 @@
         </p>
       {% endif %}
     </div>
-    <div class="col-md-12 col-xl-7">
-      <ul class="list-group list-group-horizontal justify-content-between mb-3">
-        {% for status in experiment.timeline %}
-          <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if status.is_active %}bg-primary text-white{% endif %}">
-            <strong>{{ status.label }}</strong>
-            <small>{{ status.date|default:'---' }}</small>
-            {% if status.days is not None %}
-              <div class="d-flex justify-content-center align-items-center">
-                <small class="mr-2">{{ status.days }} day{{ status.days|pluralize }}</small>
-                <i class="fa-regular fa-circle-question fa-sm ps-1"
-                   data-bs-toggle="tooltip"
-                   data-bs-placement="bottom"
-                   title="{{ status.tooltip }}"></i>
-              </div>
-            {% endif %}
-          </li>
-        {% endfor %}
-      </ul>
+    <!-- Experiment Timeline -->
+    <div class="col-md-12 col-xl-6" id="experiment-timeline">
+      {% include "nimbus_experiments/timeline.html" %}
+
     </div>
   </div>
 {% endblock %}

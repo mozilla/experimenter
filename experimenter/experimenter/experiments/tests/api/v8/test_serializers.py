@@ -423,6 +423,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "isFirefoxLabsOptIn": False,
             "firefoxLabsTitle": None,
             "firefoxLabsDescription": None,
+            "firefoxLabsDescriptionLinks": None,
             "firefoxLabsGroup": None,
             "requiresRestart": False,
         }
