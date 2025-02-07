@@ -15,6 +15,17 @@ data-privacy-petition-banner:
     enabled:
       type: boolean
       description: If the feature is enabled
+example-feature:
+  description: An example feature
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: If the feature is enabled
+    something:
+      type: string
+      description: Another variable
 landing-page-free-scan-cta:
   description: Landing page free scan CTA
   hasExposure: true
