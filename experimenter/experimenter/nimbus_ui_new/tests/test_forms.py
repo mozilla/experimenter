@@ -582,6 +582,52 @@ class TestOverviewForm(RequestFormTestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("name", form.errors)
 
+    def test_invalid_form_fields(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[],
+        )
+
+        form_data = {
+            "name": "test-experiment",
+            "hypothesis": "",
+            "public_description": "",
+            "risk_partner_related": None,
+            "risk_revenue": None,
+            "risk_brand": None,
+            "risk_message": None,
+            "projects": [],
+            "documentation_links-TOTAL_FORMS": "0",
+        }
+
+        form_show_errors = OverviewForm(
+            instance=experiment,
+            data=form_data,
+            request=self.request,
+        )
+
+        self.assertFalse(form_show_errors.is_valid())
+        self.assertIn(
+            "This field may not be blank.", form_show_errors.errors["hypothesis"]
+        )
+        self.assertIn(
+            "This field may not be blank.", form_show_errors.errors["public_description"]
+        )
+        self.assertIn(
+            "Must be a valid boolean.", form_show_errors.errors["risk_partner_related"]
+        )
+        self.assertIn("Must be a valid boolean.", form_show_errors.errors["risk_revenue"])
+        self.assertIn("Must be a valid boolean.", form_show_errors.errors["risk_brand"])
+        self.assertIn("Must be a valid boolean.", form_show_errors.errors["risk_message"])
+
+        form_hide_errors = OverviewForm(
+            instance=experiment,
+            data=form_data,
+            request=None,
+        )
+
+        self.assertFalse(form_hide_errors.is_valid())
+
 
 class TestDocumentationLinkCreateForm(RequestFormTestCase):
     def test_valid_form_adds_documentation_link(self):
@@ -767,3 +813,77 @@ class TestAudienceForm(RequestFormTestCase):
         self.assertFalse(form.is_valid(), form.errors)
         self.assertIn("excluded_experiments_branches", form.errors)
         self.assertIn("required_experiments_branches", form.errors)
+
+    def test_invalid_form_fields(self):
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=10,
+            proposed_enrollment=42,
+            proposed_duration=120,
+            proposed_release_date=None,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            total_enrolled_clients=100,
+            is_sticky=False,
+            countries=[],
+            locales=[],
+            languages=[],
+        )
+
+        form_show_errors = AudienceForm(
+            instance=experiment,
+            data={
+                "excluded_experiments_branches": ["invalid_branch:invalid_experiment"],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
+                "is_sticky": True,
+                "population_percent": 0,
+                "proposed_duration": 0,
+                "proposed_enrollment": 0,
+                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "total_enrolled_clients": 0,
+            },
+            request=self.request,
+        )
+
+        self.assertFalse(form_show_errors.is_valid())
+
+        self.assertIn(
+            "Ensure this value is greater than or equal to 1.",
+            form_show_errors.errors["proposed_duration"],
+        )
+        self.assertIn(
+            "Ensure this value is greater than or equal to 0.0001.",
+            form_show_errors.errors["population_percent"],
+        )
+        self.assertIn(
+            "Ensure this value is greater than or equal to 1.",
+            form_show_errors.errors["proposed_enrollment"],
+        )
+        self.assertIn(
+            "Select a valid choice. invalid_branch:invalid_experiment is not one of "
+            "the available choices.",
+            form_show_errors.errors["excluded_experiments_branches"],
+        )
+
+        form_hide_errors = AudienceForm(
+            instance=experiment,
+            data={
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
+                "is_sticky": True,
+                "population_percent": 0,
+                "proposed_duration": 0,
+                "proposed_enrollment": 0,
+                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "total_enrolled_clients": 0,
+            },
+            request=None,
+        )
+        self.assertTrue(form_hide_errors.is_valid())

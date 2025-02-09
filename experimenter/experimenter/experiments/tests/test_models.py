@@ -3555,23 +3555,31 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(invalid_pages, ["branches", "audience"])
 
         experiment_3 = NimbusExperimentFactory.create(
-            name="test-experiment-5",
+            name="test-experiment-3",
             public_description="",
             population_percent=0,
         )
         invalid_pages = experiment_3.get_invalid_pages
         self.assertEqual(invalid_pages, ["overview", "audience"])
 
+        experiment_4 = NimbusExperimentFactory.create(
+            name="test-experiment-4",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            is_sticky=True,
+        )
+        invalid_pages = experiment_4.get_invalid_fields_errors()
+        self.assertEqual(invalid_pages, [])
+
     def test_get_invalid_fields_errors(self):
         experiment_1 = NimbusExperimentFactory.create(
-            name="test-experiment-3",
+            name="test-experiment-1",
             public_description="",
         )
         errors = experiment_1.get_invalid_fields_errors()
         self.assertIn(("public_description", "This field may not be blank."), errors)
 
         experiment_2 = NimbusExperimentFactory.create(
-            name="test-experiment-4",
+            name="test-experiment-2",
             feature_configs=[],
             population_percent=0,
         )
@@ -3592,12 +3600,31 @@ class TestNimbusExperiment(TestCase):
         )
 
         experiment_3 = NimbusExperimentFactory.create(
-            name="test-experiment-5",
+            name="test-experiment-3",
             public_description="",
             population_percent=0,
         )
+        experiment_3.excluded_experiments.set([experiment_3])
+        experiment_3.required_experiments.set([experiment_3])
+
         errors = experiment_3.get_invalid_fields_errors()
         self.assertIn(("public_description", "This field may not be blank."), errors)
+        self.assertIn(
+            (
+                "excluded_experiments_branches",
+                "This experiment cannot be included "
+                "in the list of required or excluded experiments",
+            ),
+            errors,
+        )
+        self.assertIn(
+            (
+                "required_experiments_branches",
+                "This experiment cannot be included in the list of required or "
+                "excluded experiments",
+            ),
+            errors,
+        )
 
 
 class TestNimbusBranch(TestCase):
