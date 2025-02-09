@@ -58,13 +58,8 @@ class NimbusSerializerErrorMixin:
                     pks = []
                     for slug in slugs:
                         experiment_slug = slug.split(":")[0]
-                        try:
-                            experiment = NimbusExperiment.objects.get(
-                                slug=experiment_slug
-                            )
-                            pks.append(experiment.pk)
-                        except NimbusExperiment.DoesNotExist:
-                            pass
+                        experiment = NimbusExperiment.objects.get(slug=experiment_slug)
+                        pks.append(experiment.pk)
                     cleaned_data[field_name.replace("branches", "")] = pks
 
             errors = self.instance.get_invalid_fields_errors(data=cleaned_data)

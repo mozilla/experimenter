@@ -839,7 +839,7 @@ class TestAudienceForm(RequestFormTestCase):
         form_show_errors = AudienceForm(
             instance=experiment,
             data={
-                "excluded_experiments_branches": ["invalid_branch:invalid_experiment"],
+                "excluded_experiments_branches": ["invalid_experiment:invalid_branch"],
                 "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
                 "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
                 "is_sticky": True,
@@ -867,7 +867,7 @@ class TestAudienceForm(RequestFormTestCase):
             form_show_errors.errors["proposed_enrollment"],
         )
         self.assertIn(
-            "Select a valid choice. invalid_branch:invalid_experiment is not one of "
+            "Select a valid choice. invalid_experiment:invalid_branch is not one of "
             "the available choices.",
             form_show_errors.errors["excluded_experiments_branches"],
         )
