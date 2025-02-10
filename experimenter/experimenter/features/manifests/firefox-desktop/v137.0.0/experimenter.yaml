@@ -345,18 +345,24 @@ urlbar:
         branch: default
         pref: browser.urlbar.quicksuggest.contextualOptIn
       description: Whether the Firefox Suggest contextual opt-in result is enabled. If true, this implicitly disables shouldShowOnboardingDialog.
-    quickSuggestContextualOptInSayHello:
-      type: boolean
+    quickSuggestContextualOptInFirstReshowAfterPeriodDays:
+      type: int
       setPref:
         branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.sayHello
-      description: Controls which variant of the copy is used for the Firefox Suggest contextual opt-in result.
-    quickSuggestContextualOptInTopPosition:
-      type: boolean
+        pref: browser.urlbar.quicksuggest.contextualOptIn.firstReshowAfterPeriodDays
+      description: Period until reshow the Firefox Suggest contextual opt-in result when first dismissed.
+    quickSuggestContextualOptInSecondReshowAfterPeriodDays:
+      type: int
       setPref:
         branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.topPosition
-      description: Controls whether the Firefox Suggest contextual opt-in result appears at the top of results or at the bottom, after one-off buttons.
+        pref: browser.urlbar.quicksuggest.contextualOptIn.secondReshowAfterPeriodDays
+      description: Period until reshow the Firefox Suggest contextual opt-in result when second dismissed.
+    quickSuggestContextualOptInThirdReshowAfterPeriodDays:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.contextualOptIn.thirdReshowAfterPeriodDays
+      description: Period until reshow the Firefox Suggest contextual opt-in result when third dismissed.
     quickSuggestDataCollectionEnabled:
       type: boolean
       description: Whether data collection should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) data collection, if the user has already toggled that preference.
@@ -2970,7 +2976,7 @@ syncSetupFlow:
   hasExposure: true
   exposureDescription: >-
     Exposure is recorded when the user is enrolled in an experiment using this
-    feature and we show an indicator when we detect their sync is disconnected.
+    feature and the avatar menu or app (hamburger) menu -> account on Firefox Desktop is opened
   variables:
     enabled:
       description: True if we should show the user the updated sync set-up UI
