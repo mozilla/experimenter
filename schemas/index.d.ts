@@ -31,6 +31,10 @@ export type SizingMetricName = "active_hours" | "search_count" | "days_of_use" |
  */
 export type StatisticIngestEnum = "percentage" | "binomial" | "mean" | "count";
 export type Statistics = Statistic[];
+/**
+ * A unique, stable identifier for the user used as an input to bucket hashing.
+ */
+export type V7RandomizationUnit = "normandy_id" | "nimbus_id" | "user_id" | "group_id";
 
 /**
  * A Nimbus experiment for Firefox Desktop.
@@ -744,4 +748,288 @@ export interface Statistic {
   segment?: string;
   analysis_basis?: AnalysisBasis | null;
   window_index?: string | null;
+}
+/**
+ * The base experiment definition accessible to both Desktop and SDK experiments.
+ */
+export interface V7BaseExperiment {
+  /**
+   * Version of the NimbusExperiment schema.
+   */
+  schemaVersion: string;
+  /**
+   * Unique identifier for the experiment.
+   */
+  slug: string;
+  /**
+   * Unique identifier for the experiment. This is a duplicate of slug.
+   */
+  id: string;
+  /**
+   * A slug identifying the targeted product of this experiment.
+   */
+  appName: string;
+  /**
+   * The platform identifier for the targeted app.
+   */
+  appId: string;
+  /**
+   * A specific channel of an application such as 'nightly',             'beta', 'release'.
+   */
+  channel: string;
+  /**
+   * Public name of the experiment displayed in the UI.
+   */
+  userFacingName: string;
+  /**
+   * Short public description of the experiment.
+   */
+  userFacingDescription: string;
+  /**
+   * Whether new users should be enrolled into the experiment.
+   */
+  isEnrollmentPaused: boolean;
+  /**
+   * Whether this experiment is a rollout.
+   */
+  isRollout?: boolean;
+  bucketConfig: V7ExperimentBucketConfig;
+  /**
+   * List of outcomes relevant to analysis.
+   */
+  outcomes?: V7ExperimentOutcome[];
+  /**
+   * List of featureIds the experiment includes.
+   */
+  featureIds?: string[];
+  /**
+   * A JEXL targeting expression.
+   */
+  targeting?: string | null;
+  /**
+   * Actual publish date of the experiment.
+   */
+  startDate: string | null;
+}
+export interface V7ExperimentBucketConfig {
+  randomizationUnit: V7RandomizationUnit;
+  /**
+   * Additional inputs to the hashing function.
+   */
+  namespace: string;
+  /**
+   * Index of the starting bucket of the range.
+   */
+  start: number;
+  /**
+   * Number of buckets in the range.
+   */
+  count: number;
+  /**
+   * The total number of buckets. You can assume this will             always be 10000.
+   */
+  total: number;
+}
+export interface V7ExperimentOutcome {
+  /**
+   * Identifier for the outcome.
+   */
+  slug: string;
+  /**
+   * e.g., "primary" or "secondary".
+   */
+  priority: string;
+}
+/**
+ * A Nimbus experiment for Firefox Desktop.
+ */
+export interface V7DesktopNimbusExperiment {
+  /**
+   * Version of the NimbusExperiment schema.
+   */
+  schemaVersion: string;
+  /**
+   * Unique identifier for the experiment.
+   */
+  slug: string;
+  /**
+   * Unique identifier for the experiment. This is a duplicate of slug.
+   */
+  id: string;
+  /**
+   * A slug identifying the targeted product of this experiment.
+   */
+  appName: string;
+  /**
+   * The platform identifier for the targeted app.
+   */
+  appId: string;
+  /**
+   * A specific channel of an application such as 'nightly',             'beta', 'release'.
+   */
+  channel: string;
+  /**
+   * Public name of the experiment displayed in the UI.
+   */
+  userFacingName: string;
+  /**
+   * Short public description of the experiment.
+   */
+  userFacingDescription: string;
+  /**
+   * Whether new users should be enrolled into the experiment.
+   */
+  isEnrollmentPaused: boolean;
+  /**
+   * Whether this experiment is a rollout.
+   */
+  isRollout?: boolean;
+  bucketConfig: V7ExperimentBucketConfig;
+  /**
+   * List of outcomes relevant to analysis.
+   */
+  outcomes?: V7ExperimentOutcome[];
+  /**
+   * List of featureIds the experiment includes.
+   */
+  featureIds?: string[];
+  /**
+   * A JEXL targeting expression.
+   */
+  targeting?: string | null;
+  /**
+   * Actual publish date of the experiment.
+   */
+  startDate: string | null;
+  /**
+   * Branch configuration for the experiment.
+   */
+  branches: V7DesktopExperimentBranch[];
+}
+export interface V7DesktopExperimentBranch {
+  /**
+   * Identifier for the branch.
+   */
+  slug: string;
+  /**
+   * Relative ratio of population for the branch.
+   */
+  ratio: number;
+  /**
+   * An array of feature configurations.
+   */
+  features: V7ExperimentFeatureConfig[];
+  /**
+   * The branch title shown in Firefox Labs.
+   */
+  firefoxLabsTitle?: string | null;
+}
+export interface V7ExperimentFeatureConfig {
+  /**
+   * The identifier for the feature flag.
+   */
+  featureId: string;
+  /**
+   * The values that define the feature configuration.
+   */
+  value: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * A Nimbus experiment for Nimbus SDK-based applications.
+ */
+export interface V7SdkNimbusExperiment {
+  /**
+   * Version of the NimbusExperiment schema.
+   */
+  schemaVersion: string;
+  /**
+   * Unique identifier for the experiment.
+   */
+  slug: string;
+  /**
+   * Unique identifier for the experiment. This is a duplicate of slug.
+   */
+  id: string;
+  /**
+   * A slug identifying the targeted product of this experiment.
+   */
+  appName: string;
+  /**
+   * The platform identifier for the targeted app.
+   */
+  appId: string;
+  /**
+   * A specific channel of an application such as 'nightly',             'beta', 'release'.
+   */
+  channel: string;
+  /**
+   * Public name of the experiment displayed in the UI.
+   */
+  userFacingName: string;
+  /**
+   * Short public description of the experiment.
+   */
+  userFacingDescription: string;
+  /**
+   * Whether new users should be enrolled into the experiment.
+   */
+  isEnrollmentPaused: boolean;
+  /**
+   * Whether this experiment is a rollout.
+   */
+  isRollout?: boolean;
+  bucketConfig: V7ExperimentBucketConfig;
+  /**
+   * List of outcomes relevant to analysis.
+   */
+  outcomes?: V7ExperimentOutcome[];
+  /**
+   * List of featureIds the experiment includes.
+   */
+  featureIds?: string[];
+  /**
+   * A JEXL targeting expression.
+   */
+  targeting?: string | null;
+  /**
+   * Actual publish date of the experiment.
+   */
+  startDate: string | null;
+  /**
+   * Branch configuration for the SDK experiment.
+   */
+  branches: V7SdkExperimentBranch[];
+}
+/**
+ * The branch definition for SDK-based applications.
+ */
+export interface V7SdkExperimentBranch {
+  /**
+   * Identifier for the branch.
+   */
+  slug: string;
+  /**
+   * Relative ratio of population for the branch.
+   */
+  ratio: number;
+  /**
+   * An array of feature configurations.
+   */
+  features: V7ExperimentFeatureConfig[];
+}
+export interface V7BaseExperimentBranch {
+  /**
+   * Identifier for the branch.
+   */
+  slug: string;
+  /**
+   * Relative ratio of population for the branch.
+   */
+  ratio: number;
+  /**
+   * An array of feature configurations.
+   */
+  features: V7ExperimentFeatureConfig[];
 }
