@@ -1,10 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "V7ExperimentBucketConfig",
+  "title": "ExperimentBucketConfig",
+  "description": "Common Bucketing Configuration used across all versions.",
   "type": "object",
   "properties": {
     "randomizationUnit": {
-      "$ref": "#/$defs/V7RandomizationUnit"
+      "$ref": "#/$defs/RandomizationUnit"
     },
     "namespace": {
       "description": "Additional inputs to the hashing function.",
@@ -19,7 +20,7 @@
       "type": "integer"
     },
     "total": {
-      "description": "The total number of buckets. You can assume this will             always be 10000.",
+      "description": "The total number of buckets. You can assume             this will always be 10000.",
       "type": "integer"
     }
   },
@@ -31,7 +32,7 @@
     "total"
   ],
   "$defs": {
-    "V7RandomizationUnit": {
+    "RandomizationUnit": {
       "description": "A unique, stable identifier for the user used as an input to bucket hashing.",
       "enum": [
         "normandy_id",

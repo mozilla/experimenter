@@ -14,7 +14,7 @@
     "features": {
       "description": "An array of feature configurations.",
       "items": {
-        "$ref": "#/$defs/V7ExperimentFeatureConfig"
+        "$ref": "#/$defs/ExperimentFeatureConfig"
       },
       "type": "array"
     },
@@ -36,7 +36,7 @@
     "features"
   ],
   "$defs": {
-    "V7ExperimentFeatureConfig": {
+    "ExperimentFeatureConfig": {
       "properties": {
         "featureId": {
           "description": "The identifier for the feature flag.",

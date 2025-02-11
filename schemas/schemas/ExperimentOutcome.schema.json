@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "V7ExperimentOutcome",
+  "title": "ExperimentOutcome",
   "type": "object",
   "properties": {
     "slug": {

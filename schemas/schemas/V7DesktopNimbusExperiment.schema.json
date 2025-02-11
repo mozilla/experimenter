@@ -25,7 +25,7 @@
       "type": "string"
     },
     "channel": {
-      "description": "A specific channel of an application such as 'nightly',             'beta', 'release'.",
+      "description": "A specific channel of an application such as             'nightly', 'beta', 'release'.",
       "type": "string"
     },
     "userFacingName": {
@@ -45,13 +45,13 @@
       "type": "boolean"
     },
     "bucketConfig": {
-      "$ref": "#/$defs/V7ExperimentBucketConfig",
+      "$ref": "#/$defs/ExperimentBucketConfig",
       "description": "Bucketing configuration."
     },
     "outcomes": {
       "description": "List of outcomes relevant to analysis.",
       "items": {
-        "$ref": "#/$defs/V7ExperimentOutcome"
+        "$ref": "#/$defs/ExperimentOutcome"
       },
       "type": "array"
     },
@@ -85,6 +85,86 @@
       ],
       "description": "Actual publish date of the experiment."
     },
+    "enrollmentEndDate": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Actual enrollment end date of the experiment."
+    },
+    "endDate": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Actual end date of this experiment."
+    },
+    "proposedDuration": {
+      "description": "Proposed duration of the experiment.",
+      "type": "integer"
+    },
+    "proposedEnrollment": {
+      "description": "Number of days expected for new user enrollment.",
+      "type": "integer"
+    },
+    "referenceBranch": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Slug of the reference branch, if applicable."
+    },
+    "locales": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "List of targeted locale codes."
+    },
+    "publishedDate": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "First published date to Remote Settings."
+    },
+    "localizations": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExperimentLocalizations"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Per-locale localization substitutions."
+    },
     "branches": {
       "description": "Branch configuration for the experiment.",
       "items": {
@@ -105,9 +185,98 @@
     "isEnrollmentPaused",
     "bucketConfig",
     "startDate",
+    "endDate",
+    "proposedEnrollment",
+    "referenceBranch",
     "branches"
   ],
   "$defs": {
+    "ExperimentBucketConfig": {
+      "description": "Common Bucketing Configuration used across all versions.",
+      "properties": {
+        "randomizationUnit": {
+          "$ref": "#/$defs/RandomizationUnit"
+        },
+        "namespace": {
+          "description": "Additional inputs to the hashing function.",
+          "type": "string"
+        },
+        "start": {
+          "description": "Index of the starting bucket of the range.",
+          "type": "integer"
+        },
+        "count": {
+          "description": "Number of buckets in the range.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "The total number of buckets. You can assume             this will always be 10000.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "randomizationUnit",
+        "namespace",
+        "start",
+        "count",
+        "total"
+      ],
+      "type": "object"
+    },
+    "ExperimentFeatureConfig": {
+      "properties": {
+        "featureId": {
+          "description": "The identifier for the feature flag.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The values that define the feature configuration.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "featureId",
+        "value"
+      ],
+      "type": "object"
+    },
+    "ExperimentLocalizations": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "description": "Per-locale localization substitutions. The top level key is the locale (e.g., \"en-US\" or \"fr\"). Each entry is a mapping of string IDs to their localized equivalents.",
+      "type": "object"
+    },
+    "ExperimentOutcome": {
+      "properties": {
+        "slug": {
+          "description": "Identifier for the outcome.",
+          "type": "string"
+        },
+        "priority": {
+          "description": "e.g., \"primary\" or \"secondary\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "priority"
+      ],
+      "type": "object"
+    },
+    "RandomizationUnit": {
+      "description": "A unique, stable identifier for the user used as an input to bucket hashing.",
+      "enum": [
+        "normandy_id",
+        "nimbus_id",
+        "user_id",
+        "group_id"
+      ],
+      "type": "string"
+    },
     "V7DesktopExperimentBranch": {
       "properties": {
         "slug": {
@@ -121,7 +290,7 @@
         "features": {
           "description": "An array of feature configurations.",
           "items": {
-            "$ref": "#/$defs/V7ExperimentFeatureConfig"
+            "$ref": "#/$defs/ExperimentFeatureConfig"
           },
           "type": "array"
         },
@@ -143,81 +312,6 @@
         "features"
       ],
       "type": "object"
-    },
-    "V7ExperimentBucketConfig": {
-      "properties": {
-        "randomizationUnit": {
-          "$ref": "#/$defs/V7RandomizationUnit"
-        },
-        "namespace": {
-          "description": "Additional inputs to the hashing function.",
-          "type": "string"
-        },
-        "start": {
-          "description": "Index of the starting bucket of the range.",
-          "type": "integer"
-        },
-        "count": {
-          "description": "Number of buckets in the range.",
-          "type": "integer"
-        },
-        "total": {
-          "description": "The total number of buckets. You can assume this will             always be 10000.",
-          "type": "integer"
-        }
-      },
-      "required": [
-        "randomizationUnit",
-        "namespace",
-        "start",
-        "count",
-        "total"
-      ],
-      "type": "object"
-    },
-    "V7ExperimentFeatureConfig": {
-      "properties": {
-        "featureId": {
-          "description": "The identifier for the feature flag.",
-          "type": "string"
-        },
-        "value": {
-          "description": "The values that define the feature configuration.",
-          "type": "object"
-        }
-      },
-      "required": [
-        "featureId",
-        "value"
-      ],
-      "type": "object"
-    },
-    "V7ExperimentOutcome": {
-      "properties": {
-        "slug": {
-          "description": "Identifier for the outcome.",
-          "type": "string"
-        },
-        "priority": {
-          "description": "e.g., \"primary\" or \"secondary\".",
-          "type": "string"
-        }
-      },
-      "required": [
-        "slug",
-        "priority"
-      ],
-      "type": "object"
-    },
-    "V7RandomizationUnit": {
-      "description": "A unique, stable identifier for the user used as an input to bucket hashing.",
-      "enum": [
-        "normandy_id",
-        "nimbus_id",
-        "user_id",
-        "group_id"
-      ],
-      "type": "string"
     }
   }
 }

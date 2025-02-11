@@ -25,7 +25,7 @@
       "type": "string"
     },
     "channel": {
-      "description": "A specific channel of an application such as 'nightly',             'beta', 'release'.",
+      "description": "A specific channel of an application such as             'nightly', 'beta', 'release'.",
       "type": "string"
     },
     "userFacingName": {
@@ -45,13 +45,13 @@
       "type": "boolean"
     },
     "bucketConfig": {
-      "$ref": "#/$defs/V7ExperimentBucketConfig",
+      "$ref": "#/$defs/ExperimentBucketConfig",
       "description": "Bucketing configuration."
     },
     "outcomes": {
       "description": "List of outcomes relevant to analysis.",
       "items": {
-        "$ref": "#/$defs/V7ExperimentOutcome"
+        "$ref": "#/$defs/ExperimentOutcome"
       },
       "type": "array"
     },
@@ -84,6 +84,86 @@
         }
       ],
       "description": "Actual publish date of the experiment."
+    },
+    "enrollmentEndDate": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Actual enrollment end date of the experiment."
+    },
+    "endDate": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Actual end date of this experiment."
+    },
+    "proposedDuration": {
+      "description": "Proposed duration of the experiment.",
+      "type": "integer"
+    },
+    "proposedEnrollment": {
+      "description": "Number of days expected for new user enrollment.",
+      "type": "integer"
+    },
+    "referenceBranch": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Slug of the reference branch, if applicable."
+    },
+    "locales": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "List of targeted locale codes."
+    },
+    "publishedDate": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "First published date to Remote Settings."
+    },
+    "localizations": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExperimentLocalizations"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Per-locale localization substitutions."
     }
   },
   "required": [
@@ -97,13 +177,17 @@
     "userFacingDescription",
     "isEnrollmentPaused",
     "bucketConfig",
-    "startDate"
+    "startDate",
+    "endDate",
+    "proposedEnrollment",
+    "referenceBranch"
   ],
   "$defs": {
-    "V7ExperimentBucketConfig": {
+    "ExperimentBucketConfig": {
+      "description": "Common Bucketing Configuration used across all versions.",
       "properties": {
         "randomizationUnit": {
-          "$ref": "#/$defs/V7RandomizationUnit"
+          "$ref": "#/$defs/RandomizationUnit"
         },
         "namespace": {
           "description": "Additional inputs to the hashing function.",
@@ -118,7 +202,7 @@
           "type": "integer"
         },
         "total": {
-          "description": "The total number of buckets. You can assume this will             always be 10000.",
+          "description": "The total number of buckets. You can assume             this will always be 10000.",
           "type": "integer"
         }
       },
@@ -131,7 +215,17 @@
       ],
       "type": "object"
     },
-    "V7ExperimentOutcome": {
+    "ExperimentLocalizations": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "description": "Per-locale localization substitutions. The top level key is the locale (e.g., \"en-US\" or \"fr\"). Each entry is a mapping of string IDs to their localized equivalents.",
+      "type": "object"
+    },
+    "ExperimentOutcome": {
       "properties": {
         "slug": {
           "description": "Identifier for the outcome.",
@@ -148,7 +242,7 @@
       ],
       "type": "object"
     },
-    "V7RandomizationUnit": {
+    "RandomizationUnit": {
       "description": "A unique, stable identifier for the user used as an input to bucket hashing.",
       "enum": [
         "normandy_id",

@@ -1,50 +1,21 @@
 import datetime
-from enum import Enum
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic.json_schema import SkipJsonSchema
 from typing_extensions import Self
 
-
-class V7RandomizationUnit(str, Enum):
-    """A unique, stable identifier for the user used as an input to bucket hashing."""
-
-    NORMANDY = "normandy_id"
-    NIMBUS = "nimbus_id"
-    USER_ID = "user_id"
-    GROUP_ID = "group_id"
-
-
-class V7ExperimentBucketConfig(BaseModel):
-    randomizationUnit: V7RandomizationUnit
-    namespace: str = Field(description="Additional inputs to the hashing function.")
-    start: int = Field(description="Index of the starting bucket of the range.")
-    count: int = Field(description="Number of buckets in the range.")
-    total: int = Field(
-        description="The total number of buckets. You can assume this will \
-            always be 10000."
-    )
-
-    model_config = ConfigDict(use_enum_values=True)
-
-
-class V7ExperimentOutcome(BaseModel):
-    slug: str = Field(description="Identifier for the outcome.")
-    priority: str = Field(description='e.g., "primary" or "secondary".')
-
-
-class V7ExperimentFeatureConfig(BaseModel):
-    featureId: str = Field(description="The identifier for the feature flag.")
-    value: dict[str, Any] = Field(
-        description="The values that define the feature configuration."
-    )
+from mozilla_nimbus_schemas.experimenter_apis.common import (
+    ExperimentBucketConfig,
+    ExperimentFeatureConfig,
+    ExperimentLocalizations,
+    ExperimentOutcome,
+)
 
 
 class V7BaseExperimentBranch(BaseModel):
     slug: str = Field(description="Identifier for the branch.")
     ratio: int = Field(description="Relative ratio of population for the branch.")
-    features: list[V7ExperimentFeatureConfig] = Field(
+    features: list[ExperimentFeatureConfig] = Field(
         description="An array of feature configurations."
     )
 
@@ -62,8 +33,8 @@ class V7BaseExperiment(BaseModel):
     )
     appId: str = Field(description="The platform identifier for the targeted app.")
     channel: str = Field(
-        description="A specific channel of an application such as 'nightly', \
-            'beta', 'release'."
+        description="A specific channel of an application such as \
+            'nightly', 'beta', 'release'."
     )
     userFacingName: str = Field(
         description="Public name of the experiment displayed in the UI."
@@ -77,8 +48,8 @@ class V7BaseExperiment(BaseModel):
     isRollout: bool | SkipJsonSchema[None] = Field(
         description="Whether this experiment is a rollout.", default=None
     )
-    bucketConfig: V7ExperimentBucketConfig = Field(description="Bucketing configuration.")
-    outcomes: list[V7ExperimentOutcome] | SkipJsonSchema[None] = Field(
+    bucketConfig: ExperimentBucketConfig = Field(description="Bucketing configuration.")
+    outcomes: list[ExperimentOutcome] | SkipJsonSchema[None] = Field(
         description="List of outcomes relevant to analysis.", default=None
     )
     featureIds: list[str] | SkipJsonSchema[None] = Field(
@@ -89,6 +60,30 @@ class V7BaseExperiment(BaseModel):
     )
     startDate: datetime.date | None = Field(
         description="Actual publish date of the experiment."
+    )
+    enrollmentEndDate: datetime.date | None = Field(
+        description="Actual enrollment end date of the experiment.", default=None
+    )
+    endDate: datetime.date | None = Field(
+        description="Actual end date of this experiment."
+    )
+    proposedDuration: int | SkipJsonSchema[None] = Field(
+        description="Proposed duration of the experiment.", default=None
+    )
+    proposedEnrollment: int = Field(
+        description="Number of days expected for new user enrollment."
+    )
+    referenceBranch: str | None = Field(
+        description="Slug of the reference branch, if applicable."
+    )
+    locales: list[str] | None = Field(
+        description="List of targeted locale codes.", default=None
+    )
+    publishedDate: datetime.datetime | None = Field(
+        description="First published date to Remote Settings.", default=None
+    )
+    localizations: ExperimentLocalizations | None = Field(
+        description="Per-locale localization substitutions.", default=None
     )
 
     model_config = ConfigDict(use_enum_values=True)
