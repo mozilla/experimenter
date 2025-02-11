@@ -619,7 +619,7 @@ features:
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
-        default: true
+        default: false
       unified_search:
         description: "Enables the unified search feature\n"
         type: Boolean
