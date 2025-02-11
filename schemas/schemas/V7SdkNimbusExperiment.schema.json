@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "V7SdkNimbusExperiment",
+  "description": "A Nimbus experiment for Nimbus SDK-based applications.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "description": "Version of the NimbusExperiment schema.",
+      "type": "string"
+    },
+    "slug": {
+      "description": "Unique identifier for the experiment.",
+      "type": "string"
+    },
+    "id": {
+      "description": "Unique identifier for the experiment. This is a duplicate of slug.",
+      "type": "string"
+    },
+    "appName": {
+      "description": "A slug identifying the targeted product of this experiment.",
+      "type": "string"
+    },
+    "appId": {
+      "description": "The platform identifier for the targeted app.",
+      "type": "string"
+    },
+    "channel": {
+      "description": "A specific channel of an application such as 'nightly',             'beta', 'release'.",
+      "type": "string"
+    },
+    "userFacingName": {
+      "description": "Public name of the experiment displayed in the UI.",
+      "type": "string"
+    },
+    "userFacingDescription": {
+      "description": "Short public description of the experiment.",
+      "type": "string"
+    },
+    "isEnrollmentPaused": {
+      "description": "Whether new users should be enrolled into the experiment.",
+      "type": "boolean"
+    },
+    "isRollout": {
+      "description": "Whether this experiment is a rollout.",
+      "type": "boolean"
+    },
+    "bucketConfig": {
+      "$ref": "#/$defs/V7ExperimentBucketConfig",
+      "description": "Bucketing configuration."
+    },
+    "outcomes": {
+      "description": "List of outcomes relevant to analysis.",
+      "items": {
+        "$ref": "#/$defs/V7ExperimentOutcome"
+      },
+      "type": "array"
+    },
+    "featureIds": {
+      "description": "List of featureIds the experiment includes.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "targeting": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "A JEXL targeting expression."
+    },
+    "startDate": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Actual publish date of the experiment."
+    },
+    "branches": {
+      "description": "Branch configuration for the SDK experiment.",
+      "items": {
+        "$ref": "#/$defs/V7SdkExperimentBranch"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "slug",
+    "id",
+    "appName",
+    "appId",
+    "channel",
+    "userFacingName",
+    "userFacingDescription",
+    "isEnrollmentPaused",
+    "bucketConfig",
+    "startDate",
+    "branches"
+  ],
+  "$defs": {
+    "V7ExperimentBucketConfig": {
+      "properties": {
+        "randomizationUnit": {
+          "$ref": "#/$defs/V7RandomizationUnit"
+        },
+        "namespace": {
+          "description": "Additional inputs to the hashing function.",
+          "type": "string"
+        },
+        "start": {
+          "description": "Index of the starting bucket of the range.",
+          "type": "integer"
+        },
+        "count": {
+          "description": "Number of buckets in the range.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "The total number of buckets. You can assume this will             always be 10000.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "randomizationUnit",
+        "namespace",
+        "start",
+        "count",
+        "total"
+      ],
+      "type": "object"
+    },
+    "V7ExperimentFeatureConfig": {
+      "properties": {
+        "featureId": {
+          "description": "The identifier for the feature flag.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The values that define the feature configuration.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "featureId",
+        "value"
+      ],
+      "type": "object"
+    },
+    "V7ExperimentOutcome": {
+      "properties": {
+        "slug": {
+          "description": "Identifier for the outcome.",
+          "type": "string"
+        },
+        "priority": {
+          "description": "e.g., \"primary\" or \"secondary\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "priority"
+      ],
+      "type": "object"
+    },
+    "V7RandomizationUnit": {
+      "description": "A unique, stable identifier for the user used as an input to bucket hashing.",
+      "enum": [
+        "normandy_id",
+        "nimbus_id",
+        "user_id",
+        "group_id"
+      ],
+      "type": "string"
+    },
+    "V7SdkExperimentBranch": {
+      "description": "The branch definition for SDK-based applications.",
+      "properties": {
+        "slug": {
+          "description": "Identifier for the branch.",
+          "type": "string"
+        },
+        "ratio": {
+          "description": "Relative ratio of population for the branch.",
+          "type": "integer"
+        },
+        "features": {
+          "description": "An array of feature configurations.",
+          "items": {
+            "$ref": "#/$defs/V7ExperimentFeatureConfig"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "slug",
+        "ratio",
+        "features"
+      ],
+      "type": "object"
+    }
+  }
+}

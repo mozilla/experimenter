@@ -19,6 +19,11 @@ from mozilla_nimbus_schemas import experiments, experiments_v7, jetstream
 
 NEWLINES_RE = re.compile("\n+")
 
+# Add new sub-packages to list(s) below if you want them to have
+# JSON Schema and/or Typescript generated.
+JSON_SCHEMA_PACKAGES = [experiments, experiments_v7]
+TS_SCHEMA_PACKAGES = [experiments, jetstream, experiments_v7]
+
 
 def clean_output_file(ts_path: Path) -> None:
     """Clean up the output file typescript definitions were written to by:
@@ -82,18 +87,12 @@ def clean_schema(schema: dict[str, Any]) -> None:
 
 
 def iterate_models() -> dict[str, Any]:
-    model_names = (
-        list(experiments.__all__) + list(jetstream.__all__) + list(experiments_v7.__all__)
-    )
-
+    model_names = list(experiments.__all__) + list(jetstream.__all__)
     models = []
     for model_name_str in model_names:
-        if model_name_str in experiments.__all__:
-            model = getattr(experiments, model_name_str)
-        elif model_name_str in experiments_v7.__all__:
-            model = getattr(experiments_v7, model_name_str)
-        else:
-            model = getattr(jetstream, model_name_str)
+        for package in TS_SCHEMA_PACKAGES:
+            if model_name_str in package.__all__:
+                model = getattr(package, model_name_str)
         if not issubclass(model, ModelFactory):
             models.append(model)
     top_model: BaseModel = create_model(
@@ -194,11 +193,16 @@ def prettify_json_schema(schema: dict[str, Any]) -> dict[str, Any]:
 def write_json_schemas(json_schemas_path: Path, python_package_dir: Path):
     json_schemas_path.mkdir(exist_ok=True)
 
-    models = {
-        model_name: getattr(experiments, model_name)
-        for model_name in experiments.__all__
-        if issubclass(getattr(experiments, model_name), BaseModel)
-    }
+    models = {}
+
+    for package in JSON_SCHEMA_PACKAGES:
+        models.update(
+            {
+                model_name: getattr(package, model_name)
+                for model_name in package.__all__
+                if issubclass(getattr(package, model_name), BaseModel)
+            }
+        )
 
     written_paths = set()
 
