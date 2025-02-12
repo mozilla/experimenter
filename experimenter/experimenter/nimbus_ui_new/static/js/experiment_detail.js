@@ -14,11 +14,12 @@ document.addEventListener("DOMContentLoaded", function () {
     showRecipeJson();
   }
   // Ensure it expands every time "Preview Recipe JSON" is clicked
-  const previewJsonLink = document.querySelector('a[href$="preview-recipe-json"]');
+  const previewJsonLink = document.querySelector(
+    'a[href$="preview-recipe-json"]',
+  );
   if (previewJsonLink) {
     previewJsonLink.addEventListener("click", function () {
       setTimeout(showRecipeJson, 50);
     });
   }
 });
-
