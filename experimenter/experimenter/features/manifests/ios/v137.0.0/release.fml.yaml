@@ -55,6 +55,13 @@ features:
         description: "If true, we will allow use dark reader on webpages to toggle dark mode"
         type: Boolean
         default: false
+  download-live-activities-feature:
+    description: "Download Live Activities Feature\n"
+    variables:
+      enabled:
+        description: "If true, the download live activities feature is enabled\n"
+        type: Boolean
+        default: false
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
@@ -454,6 +461,13 @@ features:
     variables:
       enabled:
         description: "If true, the password generator feature is enabled"
+        type: Boolean
+        default: false
+  pdf-refactor-feature:
+    description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
+    variables:
+      enabled:
+        description: "Enables the feature.\n"
         type: Boolean
         default: false
   pull-to-refresh-refactor-feature:
