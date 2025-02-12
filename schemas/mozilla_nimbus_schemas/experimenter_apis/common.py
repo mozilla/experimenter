@@ -54,3 +54,17 @@ class ExperimentLocalizations(RootModel[dict[str, dict[str, str]]]):
     """
 
     model_config = ConfigDict(title="ExperimentLocalizations")
+
+
+class _CommonBaseExperimentBranch(BaseModel):
+    slug: str = Field(description="Identifier for the branch.")
+    ratio: int = Field(
+        description=(
+            "Relative ratio of population for the branch.\n"
+            "e.g., if branch A=1 and branch B=3, then branch A \
+                would get 25% of the population."
+        )
+    )
+    features: list[ExperimentFeatureConfig] = Field(
+        description="An array of feature configurations."
+    )

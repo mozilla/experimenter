@@ -6,18 +6,24 @@ from typing_extensions import Self
 
 from mozilla_nimbus_schemas.experimenter_apis.common import (
     ExperimentBucketConfig,
-    ExperimentFeatureConfig,
     ExperimentLocalizations,
     ExperimentOutcome,
+    _CommonBaseExperimentBranch,
 )
 
 
-class V7BaseExperimentBranch(BaseModel):
-    slug: str = Field(description="Identifier for the branch.")
-    ratio: int = Field(description="Relative ratio of population for the branch.")
-    features: list[ExperimentFeatureConfig] = Field(
-        description="An array of feature configurations."
+class V7BaseExperimentBranch(_CommonBaseExperimentBranch):
+    pass
+
+
+class V7DesktopExperimentBranch(V7BaseExperimentBranch):
+    firefoxLabsTitle: str | None = Field(
+        description="The branch title shown in Firefox Labs.", default=None
     )
+
+
+class V7SdkExperimentBranch(V7BaseExperimentBranch):
+    """The branch definition for SDK-based applications."""
 
 
 class V7BaseExperiment(BaseModel):
@@ -87,16 +93,6 @@ class V7BaseExperiment(BaseModel):
     )
 
     model_config = ConfigDict(use_enum_values=True)
-
-
-class V7DesktopExperimentBranch(V7BaseExperimentBranch):
-    firefoxLabsTitle: str | None = Field(
-        description="The branch title shown in Firefox Labs.", default=None
-    )
-
-
-class V7SdkExperimentBranch(V7BaseExperimentBranch):
-    """The branch definition for SDK-based applications."""
 
 
 class V7DesktopNimbusExperiment(V7BaseExperiment):

@@ -10,21 +10,12 @@ from mozilla_nimbus_schemas.experimenter_apis.common import (
     ExperimentFeatureConfig,
     ExperimentLocalizations,
     ExperimentOutcome,
+    _CommonBaseExperimentBranch,
 )
 
 
-class BaseExperimentBranch(BaseModel):
-    slug: str = Field(description="Identifier for the branch.")
-    ratio: int = Field(
-        description=(
-            "Relative ratio of population for the branch.\n"
-            "e.g., if branch A=1 and branch B=3, then branch A \
-                would get 25% of the population."
-        )
-    )
-    features: list[ExperimentFeatureConfig] = Field(
-        description="An array of feature configurations."
-    )
+class BaseExperimentBranch(_CommonBaseExperimentBranch):
+    pass
 
 
 class DesktopPre95FeatureConfig(ExperimentFeatureConfig):

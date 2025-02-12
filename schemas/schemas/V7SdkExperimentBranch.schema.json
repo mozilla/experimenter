@@ -9,7 +9,7 @@
       "type": "string"
     },
     "ratio": {
-      "description": "Relative ratio of population for the branch.",
+      "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A                 would get 25% of the population.",
       "type": "integer"
     },
     "features": {
