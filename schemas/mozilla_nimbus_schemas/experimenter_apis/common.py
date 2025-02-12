@@ -68,3 +68,21 @@ class _CommonBaseExperimentBranch(BaseModel):
     features: list[ExperimentFeatureConfig] = Field(
         description="An array of feature configurations."
     )
+
+
+class _CommonDesktopExperimentBranch(_CommonBaseExperimentBranch):
+    """The branch definition supported on Firefox Desktop 95+."""
+
+    # Firefox Desktop-specific fields should be added to *this* schema. They will be
+    # inherited by the stricter DesktopAllVersionsExperimentBranch schema.
+
+    firefoxLabsTitle: str | None = Field(
+        description="The branch title shown in Firefox Labs (Fluent ID)", default=None
+    )
+
+
+class _CommonSdkExperimentBranch(_CommonBaseExperimentBranch):
+    """The branch definition for SDK-based applications.
+
+    Supported on Firefox for Android 96+, Firefox for iOS 39+, and all versions of Cirrus.
+    """

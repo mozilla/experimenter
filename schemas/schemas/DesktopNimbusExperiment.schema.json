@@ -294,7 +294,6 @@
   },
   "$defs": {
     "DesktopExperimentBranch": {
-      "description": "The branch definition supported on Firefox Desktop 95+.",
       "properties": {
         "slug": {
           "description": "Identifier for the branch.",

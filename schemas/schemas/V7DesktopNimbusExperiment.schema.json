@@ -303,7 +303,7 @@
               "type": "null"
             }
           ],
-          "description": "The branch title shown in Firefox Labs."
+          "description": "The branch title shown in Firefox Labs (Fluent ID)"
         }
       },
       "required": [

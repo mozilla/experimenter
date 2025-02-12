@@ -10,12 +10,9 @@ from mozilla_nimbus_schemas.experimenter_apis.common import (
     ExperimentFeatureConfig,
     ExperimentLocalizations,
     ExperimentOutcome,
-    _CommonBaseExperimentBranch,
+    _CommonDesktopExperimentBranch,
+    _CommonSdkExperimentBranch,
 )
-
-
-class BaseExperimentBranch(_CommonBaseExperimentBranch):
-    pass
 
 
 class DesktopPre95FeatureConfig(ExperimentFeatureConfig):
@@ -24,15 +21,8 @@ class DesktopPre95FeatureConfig(ExperimentFeatureConfig):
     value: dict[str, Any]
 
 
-class DesktopExperimentBranch(BaseExperimentBranch):
-    """The branch definition supported on Firefox Desktop 95+."""
-
-    # Firefox Desktop-specific fields should be added to *this* schema. They will be
-    # inherited by the stricter DesktopAllVersionsExperimentBranch schema.
-
-    firefoxLabsTitle: str | None = Field(
-        description="The branch title shown in Firefox Labs (Fluent ID)", default=None
-    )
+class DesktopExperimentBranch(_CommonDesktopExperimentBranch):
+    pass
 
 
 class DesktopAllVersionsExperimentBranch(DesktopExperimentBranch):
@@ -53,7 +43,7 @@ class DesktopAllVersionsExperimentBranch(DesktopExperimentBranch):
     )
 
 
-class SdkExperimentBranch(BaseExperimentBranch):
+class SdkExperimentBranch(_CommonSdkExperimentBranch):
     """The branch definition for SDK-based applications.
 
     Supported on Firefox for Android 96+, Firefox for iOS 39+, and all versions of Cirrus.

@@ -383,9 +383,6 @@ export interface DesktopNimbusExperiment {
    */
   requiresRestart?: boolean;
 }
-/**
- * The branch definition supported on Firefox Desktop 95+.
- */
 export interface DesktopExperimentBranch {
   /**
    * Identifier for the branch.

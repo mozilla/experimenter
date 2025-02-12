@@ -8,21 +8,16 @@ from mozilla_nimbus_schemas.experimenter_apis.common import (
     ExperimentBucketConfig,
     ExperimentLocalizations,
     ExperimentOutcome,
-    _CommonBaseExperimentBranch,
+    _CommonDesktopExperimentBranch,
+    _CommonSdkExperimentBranch,
 )
 
 
-class V7BaseExperimentBranch(_CommonBaseExperimentBranch):
+class V7DesktopExperimentBranch(_CommonDesktopExperimentBranch):
     pass
 
 
-class V7DesktopExperimentBranch(V7BaseExperimentBranch):
-    firefoxLabsTitle: str | None = Field(
-        description="The branch title shown in Firefox Labs.", default=None
-    )
-
-
-class V7SdkExperimentBranch(V7BaseExperimentBranch):
+class V7SdkExperimentBranch(_CommonSdkExperimentBranch):
     """The branch definition for SDK-based applications."""
 
 
