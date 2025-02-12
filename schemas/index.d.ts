@@ -49,7 +49,7 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   slug: string;
   /**
-   * Unique identifier for the experiment. This is a duplicate of slug.
+   * Unique identifier for the experiment. This is a duplicate of slug,             but is required field for all Remote Settings records.
    */
   id: string;
   /**
@@ -268,7 +268,7 @@ export interface DesktopNimbusExperiment {
    */
   slug: string;
   /**
-   * Unique identifier for the experiment. This is a duplicate of slug.
+   * Unique identifier for the experiment. This is a duplicate of slug,             but is required field for all Remote Settings records.
    */
   id: string;
   /**
@@ -418,7 +418,7 @@ export interface SdkNimbusExperiment {
    */
   slug: string;
   /**
-   * Unique identifier for the experiment. This is a duplicate of slug.
+   * Unique identifier for the experiment. This is a duplicate of slug,             but is required field for all Remote Settings records.
    */
   id: string;
   /**

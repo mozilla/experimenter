@@ -15,8 +15,7 @@ import click
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel, create_model
 
-from mozilla_nimbus_schemas import jetstream
-from mozilla_nimbus_schemas.experimenter_apis import experiments, experiments_v7
+from mozilla_nimbus_schemas import experiments, experiments_v7, jetstream
 
 NEWLINES_RE = re.compile("\n+")
 

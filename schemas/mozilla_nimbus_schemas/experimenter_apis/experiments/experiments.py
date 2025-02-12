@@ -81,7 +81,8 @@ class BaseExperiment(BaseModel):
     )
     slug: str = Field(description="Unique identifier for the experiment")
     id: str = Field(
-        description="Unique identifier for the experiment. This is a duplicate of slug."
+        description="Unique identifier for the experiment. This is a duplicate of slug, \
+            but is required field for all Remote Settings records."
     )
     appName: str = Field(
         description="A slug identifying the targeted product of this experiment."

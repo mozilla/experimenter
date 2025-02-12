@@ -13,7 +13,7 @@
       "type": "string"
     },
     "id": {
-      "description": "Unique identifier for the experiment. This is a duplicate of slug.",
+      "description": "Unique identifier for the experiment. This is a duplicate of slug,             but is required field for all Remote Settings records.",
       "type": "string"
     },
     "appName": {
