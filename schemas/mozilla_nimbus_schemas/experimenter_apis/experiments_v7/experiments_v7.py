@@ -13,15 +13,15 @@ from mozilla_nimbus_schemas.experimenter_apis.common import (
 )
 
 
-class V7DesktopExperimentBranch(_CommonDesktopExperimentBranch):
+class DesktopExperimentBranchV7(_CommonDesktopExperimentBranch):
     pass
 
 
-class V7SdkExperimentBranch(_CommonSdkExperimentBranch):
+class SdkExperimentBranchV7(_CommonSdkExperimentBranch):
     """The branch definition for SDK-based applications."""
 
 
-class V7BaseExperiment(BaseModel):
+class BaseExperimentV7(BaseModel):
     """The base experiment definition accessible to both Desktop and SDK experiments."""
 
     schemaVersion: str = Field(description="Version of the NimbusExperiment schema.")
@@ -90,10 +90,10 @@ class V7BaseExperiment(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
 
-class V7DesktopNimbusExperiment(V7BaseExperiment):
+class DesktopNimbusExperimentV7(BaseExperimentV7):
     """A Nimbus experiment for Firefox Desktop."""
 
-    branches: list[V7DesktopExperimentBranch] = Field(
+    branches: list[DesktopExperimentBranchV7] = Field(
         description="Branch configuration for the experiment."
     )
 
@@ -105,9 +105,9 @@ class V7DesktopNimbusExperiment(V7BaseExperiment):
         return data
 
 
-class V7SdkNimbusExperiment(V7BaseExperiment):
+class SdkNimbusExperimentV7(BaseExperimentV7):
     """A Nimbus experiment for Nimbus SDK-based applications."""
 
-    branches: list[V7SdkExperimentBranch] = Field(
+    branches: list[SdkExperimentBranchV7] = Field(
         description="Branch configuration for the SDK experiment."
     )

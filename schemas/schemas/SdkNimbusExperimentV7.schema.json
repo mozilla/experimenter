@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "V7SdkNimbusExperiment",
+  "title": "SdkNimbusExperimentV7",
   "description": "A Nimbus experiment for Nimbus SDK-based applications.",
   "type": "object",
   "properties": {
@@ -168,7 +168,7 @@
     "branches": {
       "description": "Branch configuration for the SDK experiment.",
       "items": {
-        "$ref": "#/$defs/V7SdkExperimentBranch"
+        "$ref": "#/$defs/SdkExperimentBranchV7"
       },
       "type": "array"
     }
@@ -277,7 +277,7 @@
       ],
       "type": "string"
     },
-    "V7SdkExperimentBranch": {
+    "SdkExperimentBranchV7": {
       "description": "The branch definition for SDK-based applications.",
       "properties": {
         "slug": {

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "V7DesktopNimbusExperiment",
+  "title": "DesktopNimbusExperimentV7",
   "description": "A Nimbus experiment for Firefox Desktop.",
   "type": "object",
   "properties": {
@@ -168,7 +168,7 @@
     "branches": {
       "description": "Branch configuration for the experiment.",
       "items": {
-        "$ref": "#/$defs/V7DesktopExperimentBranch"
+        "$ref": "#/$defs/DesktopExperimentBranchV7"
       },
       "type": "array"
     }
@@ -191,6 +191,42 @@
     "branches"
   ],
   "$defs": {
+    "DesktopExperimentBranchV7": {
+      "properties": {
+        "slug": {
+          "description": "Identifier for the branch.",
+          "type": "string"
+        },
+        "ratio": {
+          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A                 would get 25% of the population.",
+          "type": "integer"
+        },
+        "features": {
+          "description": "An array of feature configurations.",
+          "items": {
+            "$ref": "#/$defs/ExperimentFeatureConfig"
+          },
+          "type": "array"
+        },
+        "firefoxLabsTitle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The branch title shown in Firefox Labs (Fluent ID)"
+        }
+      },
+      "required": [
+        "slug",
+        "ratio",
+        "features"
+      ],
+      "type": "object"
+    },
     "ExperimentBucketConfig": {
       "description": "Common Bucketing Configuration used across all versions.",
       "properties": {
@@ -276,42 +312,6 @@
         "group_id"
       ],
       "type": "string"
-    },
-    "V7DesktopExperimentBranch": {
-      "properties": {
-        "slug": {
-          "description": "Identifier for the branch.",
-          "type": "string"
-        },
-        "ratio": {
-          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A                 would get 25% of the population.",
-          "type": "integer"
-        },
-        "features": {
-          "description": "An array of feature configurations.",
-          "items": {
-            "$ref": "#/$defs/ExperimentFeatureConfig"
-          },
-          "type": "array"
-        },
-        "firefoxLabsTitle": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "The branch title shown in Firefox Labs (Fluent ID)"
-        }
-      },
-      "required": [
-        "slug",
-        "ratio",
-        "features"
-      ],
-      "type": "object"
     }
   }
 }

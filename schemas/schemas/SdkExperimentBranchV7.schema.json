@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "V7SdkExperimentBranch",
+  "title": "SdkExperimentBranchV7",
   "description": "The branch definition for SDK-based applications.",
   "type": "object",
   "properties": {

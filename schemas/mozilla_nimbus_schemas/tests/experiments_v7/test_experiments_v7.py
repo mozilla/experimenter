@@ -9,8 +9,8 @@ from jsonschema.protocols import Validator
 from jsonschema.validators import validator_for
 
 from mozilla_nimbus_schemas.experimenter_apis.experiments_v7 import (
-    V7DesktopNimbusExperiment,
-    V7SdkNimbusExperiment,
+    DesktopNimbusExperimentV7,
+    SdkNimbusExperimentV7,
 )
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures" / "experiments_v7"
@@ -21,13 +21,13 @@ SCHEMAS_DIR = PACKAGE_DIR / "schemas"
 @pytest.fixture
 @cache
 def v7_desktop_nimbus_experiment_schema_validator() -> Validator:
-    return load_schema("V7DesktopNimbusExperiment.schema.json")
+    return load_schema("DesktopNimbusExperimentV7.schema.json")
 
 
 @pytest.fixture
 @cache
 def v7_sdk_nimbus_experiment_schema_validator() -> Validator:
-    return load_schema("V7SdkNimbusExperiment.schema.json")
+    return load_schema("SdkNimbusExperimentV7.schema.json")
 
 
 def load_schema(name: str) -> Validator:
@@ -48,7 +48,7 @@ def test_v7_desktop_experiment_fixtures_are_valid(
     with open(experiment_file, "r") as f:
         experiment_json = json.load(f)
 
-    V7DesktopNimbusExperiment.model_validate(experiment_json)
+    DesktopNimbusExperimentV7.model_validate(experiment_json)
     v7_desktop_nimbus_experiment_schema_validator.validate(experiment_json)
 
 
@@ -60,7 +60,7 @@ def test_v7_sdk_experiment_fixtures_are_valid(
     with open(experiment_file, "r") as f:
         experiment_json = json.load(f)
 
-    V7SdkNimbusExperiment.model_validate(experiment_json)
+    SdkNimbusExperimentV7.model_validate(experiment_json)
     v7_sdk_nimbus_experiment_schema_validator.validate(experiment_json)
 
 
@@ -77,7 +77,7 @@ def test_v7_desktop_nimbus_experiment_with_fxlabs_opt_in_is_not_rollout(
             "firefoxLabsGroup": "test-group",
         }
     )
-    V7DesktopNimbusExperiment.model_validate(experiment_json)
+    DesktopNimbusExperimentV7.model_validate(experiment_json)
     v7_desktop_nimbus_experiment_schema_validator.validate(experiment_json)
 
 

@@ -7,19 +7,19 @@ from mozilla_nimbus_schemas.experimenter_apis.common import (
 )
 
 from .experiments_v7 import (
-    V7BaseExperiment,
-    V7DesktopExperimentBranch,
-    V7DesktopNimbusExperiment,
-    V7SdkExperimentBranch,
-    V7SdkNimbusExperiment,
+    BaseExperimentV7,
+    DesktopExperimentBranchV7,
+    DesktopNimbusExperimentV7,
+    SdkExperimentBranchV7,
+    SdkNimbusExperimentV7,
 )
 
 __all__ = (
-    "V7BaseExperiment",
-    "V7DesktopNimbusExperiment",
-    "V7SdkNimbusExperiment",
-    "V7DesktopExperimentBranch",
-    "V7SdkExperimentBranch",
+    "BaseExperimentV7",
+    "DesktopNimbusExperimentV7",
+    "SdkNimbusExperimentV7",
+    "DesktopExperimentBranchV7",
+    "SdkExperimentBranchV7",
     "RandomizationUnit",
     "ExperimentBucketConfig",
     "ExperimentOutcome",

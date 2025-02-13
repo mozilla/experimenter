@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "V7BaseExperiment",
+  "title": "BaseExperimentV7",
   "description": "The base experiment definition accessible to both Desktop and SDK experiments.",
   "type": "object",
   "properties": {
