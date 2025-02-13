@@ -26,13 +26,6 @@ features:
         description: "Enables the bookmark refactor feature\n"
         type: Boolean
         default: false
-  cleanup-history-reenabled:
-    description: "This feature flag will help us slowly re-enable the cleanupHistoryIfNeeded functionnality at startup of the app\n"
-    variables:
-      enabled:
-        description: "When true the cleanupHistoryIfNeeded will be run\n"
-        type: Boolean
-        default: false
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
@@ -53,13 +46,6 @@ features:
     variables:
       status:
         description: "If true, we will allow use dark reader on webpages to toggle dark mode"
-        type: Boolean
-        default: false
-  download-live-activities-feature:
-    description: "Download Live Activities Feature\n"
-    variables:
-      enabled:
-        description: "If true, the download live activities feature is enabled\n"
         type: Boolean
         default: false
   felt-privacy-feature:
@@ -463,13 +449,6 @@ features:
         description: "If true, the password generator feature is enabled"
         type: Boolean
         default: false
-  pdf-refactor-feature:
-    description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
-    variables:
-      enabled:
-        description: "Enables the feature.\n"
-        type: Boolean
-        default: false
   pull-to-refresh-refactor-feature:
     description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
     variables:
@@ -489,6 +468,13 @@ features:
     variables:
       enabled:
         description: "Enables the feature\n"
+        type: Boolean
+        default: false
+  remote-tab-management:
+    description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
+    variables:
+      close-tabs-enabled:
+        description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
         type: Boolean
         default: false
   search:
@@ -629,6 +615,13 @@ features:
     variables:
       enabled:
         description: "If true, we will enable user to use the unified ads API\n"
+        type: Boolean
+        default: false
+  universal-links:
+    description: "This feature is for managing the roll out of universal link support in the iOS App\n"
+    variables:
+      enabled:
+        description: "If true, enables the feature\n"
         type: Boolean
         default: false
   zoom-feature:
