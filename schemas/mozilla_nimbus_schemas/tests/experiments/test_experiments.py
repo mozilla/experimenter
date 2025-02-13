@@ -96,7 +96,7 @@ def load_schema(name: str) -> Validator:
     validator = validator_for(schema)
     validator.check_schema(schema)
 
-    return validator(schema)
+    return validator(schema, format_checker=validator.FORMAT_CHECKER)
 
 
 @pytest.mark.parametrize("experiment_file", FIXTURE_DIR.joinpath("desktop").iterdir())
@@ -137,6 +137,7 @@ def test_desktop_nimbus_expirement_with_fxlabs_opt_in_is_not_rollout(
             "isFirefoxLabsOptIn": True,
             "firefoxLabsTitle": "test-title",
             "firefoxLabsDescription": "test-desc",
+            "firefoxLabsDescriptionLinks": None,
             "firefoxLabsGroup": "test-group",
         }
     )
@@ -154,6 +155,7 @@ def test_desktop_nimbus_experiment_with_fxlabs_opt_in_is_rollout(
             "isFirefoxLabsOptIn": True,
             "firefoxLabsTitle": "test-title",
             "firefoxLabsDescription": "test-desc",
+            "firefoxLabsDescriptionLinks": None,
             "firefoxLabsGroup": "test-group",
         }
     )
@@ -174,17 +176,48 @@ def test_desktop_nimbus_experiment_with_fxlabs_opt_in_but_missing_required_field
     experiment_json["isFirefoxLabsOptIn"] = True
     validate_desktop_experiment(experiment_json, valid=False, valid_all_versions=False)
 
-    errors = list(
-        desktop_all_versions_nimbus_experiment_schema_validator.iter_errors(
+    error_messages = [
+        e.message
+        for e in desktop_all_versions_nimbus_experiment_schema_validator.iter_errors(
             experiment_json
         )
-    )
-    error_messages = [e.message for e in errors]
+    ]
 
-    assert len(error_messages) == 5
+    assert len(error_messages) == 6
     assert error_messages.count("'firefoxLabsTitle' is a required property") == 3
     assert error_messages.count("'firefoxLabsDescription' is a required property") == 1
+    assert (
+        error_messages.count("'firefoxLabsDescriptionLinks' is a required property") == 1
+    )
     assert error_messages.count("'firefoxLabsGroup' is a required property") == 1
+
+
+def test_desktop_nimbus_experiment_with_fxlabs_opt_in_invalid_description_links(
+    validate_desktop_experiment,
+    desktop_all_versions_nimbus_experiment_schema_validator,
+):
+    experiment_json = _desktop_nimbus_experiment(isRollout=True)
+    experiment_json.update(
+        {
+            "isFirefoxLabsOptIn": True,
+            "firefoxLabsTitle": "placeholder-title",
+            "firefoxLabsDescription": "placeholder-desc",
+            "firefoxLabsDescriptionLinks": {"foo": "bar"},
+            "firefoxLabsGroup": "placeholder-group",
+        }
+    )
+
+    validate_desktop_experiment(experiment_json, valid=False, valid_all_versions=False)
+
+    error_messages = [
+        e.message
+        for e in desktop_all_versions_nimbus_experiment_schema_validator.iter_errors(
+            experiment_json
+        )
+    ]
+
+    assert len(error_messages) == 1
+    assert "{'foo': 'bar'} is not valid under any of the given schemas" in error_messages
 
 
 def _desktop_nimbus_experiment(isRollout: bool) -> dict[str, Any]:

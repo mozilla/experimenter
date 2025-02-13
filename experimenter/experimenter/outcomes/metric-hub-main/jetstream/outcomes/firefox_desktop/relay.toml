@@ -13,7 +13,7 @@ select_expression = """
          AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"   
+data_source = "events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_clicked_relay_offer]
@@ -26,7 +26,7 @@ select_expression = """
          AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"   
+data_source = "events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_shown_opt_in_panel]
@@ -39,7 +39,7 @@ select_expression = """
          AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"   
+data_source = "events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_enabled_opt_in_panel]
@@ -52,7 +52,7 @@ select_expression = """
          AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"   
+data_source = "events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_postponed_opt_in_panel]
@@ -65,7 +65,7 @@ select_expression = """
          AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"   
+data_source = "events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_disabled_opt_in_panel]
@@ -78,7 +78,7 @@ select_expression = """
          AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"   
+data_source = "events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_shown_fill_username]
@@ -91,7 +91,7 @@ select_expression = """
          AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"   
+data_source = "events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_clicked_fill_username]
@@ -104,31 +104,40 @@ select_expression = """
          AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"   
+data_source = "events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_optin_rate]
 description = "Relay optin panel enabled by client / Relay optin panel shown to client "
 friendly_name = "Relay Optin: Relay Optin Rate"
-depends_on = ["relay_integration_enabled_opt_in_panel", "relay_integration_shown_opt_in_panel"]
+depends_on = [
+      "relay_integration_enabled_opt_in_panel",
+      "relay_integration_shown_opt_in_panel",
+]
 
 [metrics.relay_optin_rate.statistics.population_ratio]
 numerator = "relay_integration_enabled_opt_in_panel"
-denominator = "relay_integration_shown_optin_panel"
+denominator = "relay_integration_shown_opt_in_panel"
 
 [metrics.relay_optin_disabled_rate]
 description = "Relay optin panel disabled by client / Relay optin panel shown to client "
 friendly_name = "Relay Optin: Relay Optin disabled Rate"
-depends_on = ["relay_integration_disabled_opt_in_panel", "relay_integration_shown_opt_in_panel"]
+depends_on = [
+      "relay_integration_disabled_opt_in_panel",
+      "relay_integration_shown_opt_in_panel",
+]
 
 [metrics.relay_optin_disabled_rate.statistics.population_ratio]
 numerator = "relay_integration_disabled_opt_in_panel"
-denominator = "relay_integration_shown_optin_panel"
+denominator = "relay_integration_shown_opt_in_panel"
 
 [metrics.relay_offer_ctr]
 description = "Relay offer clicked by client / Relay offer shown to client"
 friendly_name = "Relay Optin: CTR on the Relay mask offer"
-depends_on = ["relay_integration_clicked_relay_offer", "relay_integration_shown_relay_offer"]
+depends_on = [
+      "relay_integration_clicked_relay_offer",
+      "relay_integration_shown_relay_offer",
+]
 
 [metrics.relay_offer_ctr.statistics.population_ratio]
 numerator = "relay_integration_clicked_relay_offer"
@@ -137,13 +146,11 @@ denominator = "relay_integration_shown_relay_offer"
 [metrics.fill_username_ctr]
 description = "relay_integration_clicked_fill_username / relay_integration_shown_fill_username"
 friendly_name = "Relay Engagement: CTR on the Relay fill_username"
-depends_on = ["relay_integration_clicked_fill_username", "relay_integration_shown_fill_username"]
+depends_on = [
+      "relay_integration_clicked_fill_username",
+      "relay_integration_shown_fill_username",
+]
 
 [metrics.fill_username_ctr.statistics.population_ratio]
 numerator = "relay_integration_clicked_fill_username"
 denominator = "relay_integration_shown_fill_username"
-
-
-
-
-

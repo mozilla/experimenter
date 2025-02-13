@@ -47,6 +47,14 @@ credit-card-autofill:
     credit-card-autofill-status:
       type: boolean
       description: "If true, we will allow user to use the credit autofill feature"
+dark-reader-feature:
+  description: "This property defines if we legacy dark theme code or darkreader should be used to toggle dark mode on/off\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "If true, we will allow use dark reader on webpages to toggle dark mode"
 felt-privacy-feature:
   description: The feature that enhances private browsing mode
   hasExposure: true
@@ -217,6 +225,14 @@ pull-to-refresh-refactor-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
+rating-prompt-feature:
+  description: "This feature enables the rating prompt so we ask in-app rating to users\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the rating prompt\n"
 redux-search-settings-feature:
   description: "This feature is for managing the roll out of redux on the search settings screen\n"
   hasExposure: true
@@ -225,14 +241,6 @@ redux-search-settings-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
-remote-tab-management:
-  description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    close-tabs-enabled:
-      type: boolean
-      description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
 search:
   description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
   hasExposure: true
