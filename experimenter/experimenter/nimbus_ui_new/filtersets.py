@@ -1,8 +1,10 @@
+from datetime import datetime
+
 import django_filters
 from django import forms
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
 from django.db.models.functions import Concat
 
 from experimenter.base.models import Country, Language, Locale
@@ -65,8 +67,10 @@ class SortChoices(models.TextChoices):
     FEATURES_DOWN = "-feature_configs__slug"
     VERSIONS_UP = "firefox_min_version"
     VERSIONS_DOWN = "-firefox_min_version"
-    DATES_UP = "_start_date"
-    DATES_DOWN = "-_start_date"
+    START_DATE_UP = "_start_date"
+    START_DATE_DOWN = "-_start_date"
+    END_DATE_UP = "computed_end_date"
+    END_DATE_DOWN = "-computed_end_date"
 
 
 class IconMultiSelectWidget(MultiSelectWidget):
@@ -258,6 +262,32 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ]
 
     def filter_sort(self, queryset, name, value):
+        if value in [SortChoices.END_DATE_UP, SortChoices.END_DATE_DOWN]:
+            reverse = value == SortChoices.END_DATE_DOWN
+            if value == SortChoices.END_DATE_UP:
+                default_date = datetime.max.date()
+            else:
+                default_date = datetime.min.date()
+
+            experiments = NimbusExperiment.objects.all()
+            experiments_with_dates = {
+                e.id: e.computed_end_date or default_date for e in experiments
+            }
+
+            experiments_by_end_date = Case(
+                *[
+                    When(
+                        pk=exp.id, then=Value(experiments_with_dates[exp.id].toordinal())
+                    )
+                    for exp in experiments
+                ],
+                output_field=IntegerField(),
+            )
+
+            value = experiments_by_end_date
+            if reverse:
+                value = -experiments_by_end_date
+
         return queryset.order_by(value)
 
     def filter_status(self, queryset, name, value):
