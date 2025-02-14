@@ -30,7 +30,7 @@ def fetch_experiment_data(experiment_id):
         if experiment is not None and hasattr(experiment, "slug"):
             failure_message += f"{experiment.slug} "
         failure_message += f"failed: {e}"
-        logger.info(failure_message)
+        logger.error(failure_message)
         raise e
 
 
@@ -60,15 +60,15 @@ def fetch_jetstream_data():
                 fetch_experiment_data.delay(experiment.id)
                 metrics.incr("fetch_jetstream_data.completed")
             else:
-                metrics.incr("fetch_jetstream_data.skipped")
                 logger.info(
                     f"Skipping cache refresh for old experiment {experiment.name}"
                     f" ({experiment.slug})"
                 )
+                metrics.incr("fetch_jetstream_data.skipped")
 
     except Exception as e:
         metrics.incr("fetch_jetstream_data.failed")
-        logger.info(f"Fetching Jetstream data failed: {e}")
+        logger.error(f"Fetching Jetstream data failed: {e}")
         raise e
 
 

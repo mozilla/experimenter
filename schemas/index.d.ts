@@ -172,6 +172,12 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   firefoxLabsDescription?: string | null;
   /**
+   * Links that will be used with the firefoxLabsDescription Fluent ID. May be null for Firefox Labs Opt-In recipes that do not use links.
+   */
+  firefoxLabsDescriptionLinks?: {
+    [k: string]: string;
+  } | null;
+  /**
    * Opt out of feature schema validation.
    */
   featureValidationOptOut?: boolean;
@@ -512,6 +518,12 @@ export interface DesktopNimbusExperiment {
    * The description shown in Firefox Labs (Fluent ID)
    */
   firefoxLabsDescription?: string | null;
+  /**
+   * Links that will be used with the firefoxLabsDescription Fluent ID. May be null for Firefox Labs Opt-In recipes that do not use links.
+   */
+  firefoxLabsDescriptionLinks?: {
+    [k: string]: string;
+  } | null;
   /**
    * Opt out of feature schema validation.
    */

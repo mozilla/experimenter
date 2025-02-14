@@ -2,7 +2,7 @@ import datetime
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, RootModel, model_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, RootModel, model_validator
 from pydantic.json_schema import SkipJsonSchema
 from typing_extensions import Self
 
@@ -302,6 +302,13 @@ class DesktopNimbusExperiment(BaseExperiment):
         description="The description shown in Firefox Labs (Fluent ID)",
         default=None,
     )
+    firefoxLabsDescriptionLinks: dict[str, HttpUrl] | None = Field(
+        description=(
+            "Links that will be used with the firefoxLabsDescription Fluent ID. May be "
+            "null for Firefox Labs Opt-In recipes that do not use links."
+        ),
+        default=None,
+    )
     featureValidationOptOut: bool | SkipJsonSchema[None] = Field(
         description="Opt out of feature schema validation.",
         default=None,
@@ -358,6 +365,7 @@ class DesktopNimbusExperiment(BaseExperiment):
                     "then": {
                         "required": [
                             "firefoxLabsDescription",
+                            "firefoxLabsDescriptionLinks",
                             "firefoxLabsGroup",
                             "firefoxLabsTitle",
                         ],

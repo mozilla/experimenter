@@ -20,10 +20,15 @@ from experimenter.nimbus_ui_new.forms import (
     AudienceForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
+    DraftToPreviewForm,
+    DraftToReviewForm,
     MetricsForm,
     NimbusExperimentCreateForm,
     OverviewForm,
+    PreviewToDraftForm,
+    PreviewToReviewForm,
     QAStatusForm,
+    ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
@@ -312,7 +317,7 @@ class SubscriptionFormTests(RequestFormTestCase):
         self.assertTrue(form.is_valid())
         form.save()
         self.assertIn(self.request.user, self.experiment.subscribers.all())
-        changelog = self.experiment.changes.get()
+        changelog = self.experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("dev@example.com added subscriber", changelog.message)
 
@@ -322,9 +327,103 @@ class SubscriptionFormTests(RequestFormTestCase):
         self.assertTrue(form.is_valid())
         form.save()
         self.assertNotIn(self.request.user, self.experiment.subscribers.all())
-        changelog = self.experiment.changes.get()
+        changelog = self.experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("dev@example.com removed subscriber", changelog.message)
+
+
+class TestLaunchForms(RequestFormTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperimentFactory.create()
+
+    def test_draft_to_preview_form(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+        form = DraftToPreviewForm(data={}, instance=self.experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("launched experiment to Preview", changelog.message)
+
+    def test_draft_to_review_form(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+        form = DraftToReviewForm(data={}, instance=self.experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("requested launch without Preview", changelog.message)
+
+    def test_preview_to_review_form(self):
+        self.experiment.status = NimbusExperiment.Status.PREVIEW
+        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+        form = PreviewToReviewForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("requested launch from Preview", changelog.message)
+
+    def test_preview_to_draft_form(self):
+        self.experiment.status = NimbusExperiment.Status.PREVIEW
+        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+        form = PreviewToDraftForm(data={}, instance=self.experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("moved the experiment back to Draft", changelog.message)
+
+    def test_review_to_draft_form(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        form = ReviewToDraftForm(data={}, instance=self.experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("cancelled the review", changelog.message)
 
 
 class TestOverviewForm(RequestFormTestCase):

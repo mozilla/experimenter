@@ -48,6 +48,13 @@ features:
         description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
         default: true
+  dark-reader-feature:
+    description: "This property defines if we legacy dark theme code or darkreader should be used to toggle dark mode on/off\n"
+    variables:
+      status:
+        description: "If true, we will allow use dark reader on webpages to toggle dark mode"
+        type: Boolean
+        default: false
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
@@ -474,18 +481,18 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: true
+  rating-prompt-feature:
+    description: "This feature enables the rating prompt so we ask in-app rating to users\n"
+    variables:
+      enabled:
+        description: "Enables the rating prompt\n"
+        type: Boolean
+        default: true
   redux-search-settings-feature:
     description: "This feature is for managing the roll out of redux on the search settings screen\n"
     variables:
       enabled:
         description: "Enables the feature\n"
-        type: Boolean
-        default: false
-  remote-tab-management:
-    description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
-    variables:
-      close-tabs-enabled:
-        description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
         type: Boolean
         default: false
   search:
@@ -628,13 +635,6 @@ features:
         description: "If true, we will enable user to use the unified ads API\n"
         type: Boolean
         default: true
-  universal-links:
-    description: "This feature is for managing the roll out of universal link support in the iOS App\n"
-    variables:
-      enabled:
-        description: "If true, enables the feature\n"
-        type: Boolean
-        default: false
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:
