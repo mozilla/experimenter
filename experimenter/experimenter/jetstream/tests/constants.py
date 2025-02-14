@@ -411,6 +411,13 @@ class JetstreamTestData:
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.statistic = Statistic.POPULATION_RATIO
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.branch = "variant"
 
+        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.metric = "some_dau_impact"
+        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.statistic = (
+            Statistic.PER_CLIENT_DAU_IMPACT
+        )
+        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.branch = "variant"
+
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
@@ -482,6 +489,16 @@ class JetstreamTestData:
             AnalysisBasis.EXPOSURES
         )
 
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.metric = "some_dau_impact"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.statistic = (
+            Statistic.PER_CLIENT_DAU_IMPACT
+        )
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.branch = "variant"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.analysis_basis = (
+            AnalysisBasis.EXPOSURES
+        )
+
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
@@ -514,6 +531,7 @@ class JetstreamTestData:
             VARIANT_DATA_ROW.dict(exclude_none=True),
             VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
             VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.dict(exclude_none=True),
+            VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.dict(exclude_none=True),
             VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
             VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
@@ -526,6 +544,7 @@ class JetstreamTestData:
             EXPOSURES_VARIANT_DATA_ROW.dict(exclude_none=True),
             EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
             EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.dict(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.dict(exclude_none=True),
             EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
             EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
             EXPOSURES_VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
@@ -598,6 +617,7 @@ class JetstreamTestData:
                         "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
                         "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
                         "some_ratio": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "some_dau_impact": EMPTY_METRIC_DATA.dict(exclude_none=True),
                         "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
                         "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT.dict(
                             exclude_none=True
@@ -621,6 +641,7 @@ class JetstreamTestData:
                         "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
                         "some_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
                         "some_ratio": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "some_dau_impact": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
                         "another_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
                         "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL.dict(
                             exclude_none=True
@@ -645,6 +666,7 @@ class JetstreamTestData:
                         ),
                         "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
                         "some_ratio": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "some_dau_impact": EMPTY_METRIC_DATA.dict(exclude_none=True),
                         "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
                         "default_browser_action": EMPTY_METRIC_DATA.dict(
                             exclude_none=True
@@ -673,6 +695,7 @@ class JetstreamTestData:
                         ),
                         "some_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
                         "some_ratio": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "some_dau_impact": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
                         "another_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
                         "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL.dict(
                             exclude_none=True
