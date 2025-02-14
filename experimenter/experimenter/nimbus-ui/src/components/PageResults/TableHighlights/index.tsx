@@ -13,13 +13,14 @@ import {
   HIGHLIGHTS_METRICS_LIST,
   METRIC,
   METRICS_TIPS,
+  METRIC_TO_GROUP,
   TABLE_LABEL,
 } from "src/lib/visualization/constants";
 import {
   AnalysisBases,
   BranchComparisonValues,
 } from "src/lib/visualization/types";
-import { getTableDisplayType } from "src/lib/visualization/utils";
+import { getTableDisplayType, shouldUseDou } from "src/lib/visualization/utils";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
@@ -38,9 +39,22 @@ type Branch =
   | getExperiment_experimentBySlug_referenceBranch
   | getExperiment_experimentBySlug_treatmentBranches;
 
-const getHighlightMetrics = (outcomes: OutcomesList) => {
+const getHighlightMetrics = (outcomes: OutcomesList, useDou: boolean) => {
   // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
-  const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
+  let highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
+  if (useDou) {
+    highlightMetricsList = highlightMetricsList.map((metric) => {
+      if (metric.value === METRIC.DAILY_ACTIVE_USERS) {
+        return {
+          value: METRIC.DAYS_OF_USE,
+          name: "Days of Use",
+          tooltip: METRICS_TIPS.DAYS_OF_USE,
+          group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
+        };
+      }
+      return metric;
+    });
+  }
   outcomes?.forEach((outcome) => {
     if (!outcome?.isDefault) {
       return;
@@ -81,7 +95,6 @@ const TableHighlights = ({
   referenceBranch,
 }: TableHighlightsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
-  const highlightMetricsList = getHighlightMetrics(primaryOutcomes);
   const branchDescriptions = getBranchDescriptions(
     experiment.referenceBranch,
     experiment.treatmentBranches,
@@ -91,6 +104,8 @@ const TableHighlights = ({
     sortedBranchNames,
   } = useContext(ResultsContext);
   const overallResults = overall![analysisBasis]?.[segment]!;
+  const useDou = shouldUseDou(overallResults[referenceBranch]);
+  const highlightMetricsList = getHighlightMetrics(primaryOutcomes, useDou);
 
   return (
     <table data-testid="table-highlights" className="table mb-0 pt-2">

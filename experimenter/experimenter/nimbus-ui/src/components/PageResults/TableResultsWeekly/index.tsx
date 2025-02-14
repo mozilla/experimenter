@@ -13,17 +13,41 @@ import {
   BRANCH_COMPARISON,
   GENERAL_TIPS,
   HIGHLIGHTS_METRICS_LIST,
+  METRIC,
+  METRICS_TIPS,
+  METRIC_TO_GROUP,
 } from "src/lib/visualization/constants";
 import {
   AnalysisBases,
   BranchComparisonValues,
 } from "src/lib/visualization/types";
+import { shouldUseDou } from "src/lib/visualization/utils";
 
 export type TableResultsWeeklyProps = {
   branchComparison?: BranchComparisonValues;
   analysisBasis?: AnalysisBases;
   segment?: string;
   referenceBranch: string;
+};
+
+const getHighlightMetrics = (useDou: boolean) => {
+  // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
+  let highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
+  if (useDou) {
+    highlightMetricsList = highlightMetricsList.map((metric) => {
+      if (metric.value === METRIC.DAILY_ACTIVE_USERS) {
+        return {
+          value: METRIC.DAYS_OF_USE,
+          name: "Days of Use",
+          tooltip: METRICS_TIPS.DAYS_OF_USE,
+          group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
+        };
+      }
+      return metric;
+    });
+  }
+
+  return highlightMetricsList;
 };
 
 const TableResultsWeekly = ({
@@ -36,6 +60,8 @@ const TableResultsWeekly = ({
     analysis: { overall },
   } = useContext(ResultsContext);
   const hasOverallResults = !!overall?.[analysisBasis]?.all;
+  const overallResults = overall![analysisBasis]?.[segment]!;
+  const useDou = shouldUseDou(overallResults[referenceBranch]);
   const [open, setOpen] = useState(!hasOverallResults);
 
   return (
@@ -65,7 +91,7 @@ const TableResultsWeekly = ({
       </span>
       <Collapse in={open}>
         <div className="mt-2">
-          {HIGHLIGHTS_METRICS_LIST.map((metric, index) => {
+          {getHighlightMetrics(useDou).map((metric, index) => {
             return (
               <div key={`${metric.value}_weekly`}>
                 <h3

@@ -11,7 +11,9 @@ import { OutcomesList } from "src/lib/types";
 import {
   BRANCH_COMPARISON,
   GROUP,
+  METRIC,
   METRICS_TIPS,
+  METRIC_TO_GROUP,
   METRIC_TYPE,
   RESULTS_METRICS_LIST,
   TABLE_LABEL,
@@ -20,7 +22,7 @@ import {
   AnalysisBases,
   BranchComparisonValues,
 } from "src/lib/visualization/types";
-import { getTableDisplayType } from "src/lib/visualization/utils";
+import { getTableDisplayType, shouldUseDou } from "src/lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export type TableResultsProps = {
@@ -28,13 +30,26 @@ export type TableResultsProps = {
   branchComparison?: BranchComparisonValues;
   analysisBasis?: AnalysisBases;
   segment?: string;
-  isDesktop?: boolean;
   referenceBranch: string;
 };
 
-const getResultMetrics = (outcomes: OutcomesList, isDesktop = false) => {
+const getResultMetrics = (outcomes: OutcomesList, useDou: boolean) => {
   // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
-  const resultsMetricsList = [...RESULTS_METRICS_LIST];
+  let resultsMetricsList = [...RESULTS_METRICS_LIST];
+  if (useDou) {
+    resultsMetricsList = resultsMetricsList.map((metric) => {
+      if (metric.value === METRIC.DAILY_ACTIVE_USERS) {
+        return {
+          value: METRIC.DAYS_OF_USE,
+          name: "Days of Use",
+          tooltip: METRICS_TIPS.DAYS_OF_USE,
+          type: METRIC_TYPE.GUARDRAIL,
+          group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
+        };
+      }
+      return metric;
+    });
+  }
   outcomes?.forEach((outcome) => {
     if (!outcome?.isDefault) {
       return;
@@ -59,12 +74,13 @@ const TableResults = ({
   referenceBranch,
 }: TableResultsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
-  const resultsMetricsList = getResultMetrics(primaryOutcomes);
   const {
     analysis: { metadata, overall },
     sortedBranchNames,
   } = useContext(ResultsContext);
   const overallResults = overall![analysisBasis]?.[segment]!;
+  const useDou = shouldUseDou(overallResults[referenceBranch]);
+  const resultsMetricsList = getResultMetrics(primaryOutcomes, useDou);
 
   return (
     <table

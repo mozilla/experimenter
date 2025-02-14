@@ -64,6 +64,7 @@ export const SIGNIFICANCE = {
 export const METRIC = {
   RETENTION: "retained",
   SEARCH: "search_count",
+  DAYS_OF_USE: "days_of_use",
   DAILY_ACTIVE_USERS: "client_level_daily_active_users_v2",
   USER_COUNT: "identity",
 };
@@ -143,7 +144,7 @@ const GROUPED_METRICS = [
   },
 ];
 
-const METRIC_TO_GROUP = GROUPED_METRICS.reduce((res, group) => {
+export const METRIC_TO_GROUP = GROUPED_METRICS.reduce((res, group) => {
   group.metrics.forEach((metric) => {
     res[metric] = group.name;
   });
