@@ -22,6 +22,9 @@
       </div>
     {% endfor %}
   {% endif %}
+  <!-- Launch Controls Card-->
+  {% include "nimbus_experiments/launch_controls.html" %}
+
   <!-- Takeaways Card -->
   {% include "nimbus_experiments/takeaways_card.html" %}
 
@@ -260,9 +263,9 @@
             <td colspan="3">{{ experiment.targeting }}</td>
           </tr>
           <tr>
-            <th>Recipe JSON</th>
-            <td colspan="3">
-              <div class="collapse" id="collapseRecipe">
+            <th id="recipe-json">Recipe JSON</th>
+            <td colspan="3" id="preview-recipe-json">
+              <div class="collapse" id="collapse-recipe">
                 <code>
                   <pre class="text-monospace" style="white-space: pre-wrap; word-wrap: break-word;">
                       {{ experiment.recipe_json|linebreaks|linebreaksbr }}
@@ -272,9 +275,9 @@
               <button class="btn btn-outline-primary btn-sm"
                       type="button"
                       data-bs-toggle="collapse"
-                      data-bs-target="#collapseRecipe"
+                      data-bs-target="#collapse-recipe"
                       aria-expanded="false"
-                      aria-controls="collapseRecipe">
+                      aria-controls="collapse-recipe">
                 <i class="fa-solid fa-plus"></i> Show/Hide Recipe
               </button>
             </td>
@@ -363,4 +366,6 @@
 {% block extrascripts %}
   {{ block.super }}
   <script src="{% static 'nimbus_ui_new/setup_selectpicker.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui_new/review_controls.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui_new/experiment_detail.bundle.js' %}"></script>
 {% endblock %}

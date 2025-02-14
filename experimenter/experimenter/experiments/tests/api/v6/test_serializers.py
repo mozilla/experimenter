@@ -71,57 +71,6 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertDictEqual(experiment_data, expected_experiment_data)
 
-        self.assertDictEqual(
-            experiment_data,
-            {
-                "arguments": {},
-                "application": "firefox-desktop",
-                "appName": "firefox_desktop",
-                "appId": "firefox-desktop",
-                "channel": "nightly",
-                # DRF manually replaces the isoformat suffix so we have to do the same
-                "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
-                "enrollmentEndDate": (
-                    experiment.actual_enrollment_end_date.isoformat().replace(
-                        "+00:00", "Z"
-                    )
-                ),
-                "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
-                "id": experiment.slug,
-                "isEnrollmentPaused": True,
-                "isRollout": False,
-                "proposedDuration": experiment.proposed_duration,
-                "proposedEnrollment": experiment.proposed_enrollment,
-                "referenceBranch": experiment.reference_branch.slug,
-                "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
-                "slug": experiment.slug,
-                "targeting": (
-                    f'(browserSettings.update.channel == "nightly") '
-                    f"&& (version|versionCompare('{min_required_version}') >= 0) "
-                    f"&& (locale in ['en-US'])"
-                ),
-                "userFacingDescription": experiment.public_description,
-                "userFacingName": experiment.name,
-                "probeSets": [],
-                "outcomes": [
-                    {"priority": "primary", "slug": "foo"},
-                    {"priority": "primary", "slug": "bar"},
-                    {"priority": "primary", "slug": "baz"},
-                    {"priority": "secondary", "slug": "quux"},
-                    {"priority": "secondary", "slug": "xyzzy"},
-                ],
-                "featureValidationOptOut": experiment.is_client_schema_disabled,
-                "localizations": None,
-                "locales": ["en-US"],
-                "publishedDate": experiment.published_date,
-                "isFirefoxLabsOptIn": False,
-                "firefoxLabsTitle": None,
-                "firefoxLabsDescription": None,
-                "firefoxLabsGroup": None,
-                "requiresRestart": False,
-            },
-        )
-
         self.assertEqual(set(feature_ids_data), {feature1.slug, feature2.slug})
 
         self.assertEqual(
@@ -183,6 +132,9 @@ class TestNimbusExperimentSerializer(TestCase):
             is_firefox_labs_opt_in=True,
             firefox_labs_title="test-fx-labs-title",
             firefox_labs_description="test-fx-labs-description",
+            firefox_labs_description_links={
+                "foo": "https://example.com",
+            },
             firefox_labs_group="group",
             requires_restart=True,
         )
@@ -198,6 +150,9 @@ class TestNimbusExperimentSerializer(TestCase):
                 "isFirefoxLabsOptIn": True,
                 "firefoxLabsTitle": "test-fx-labs-title",
                 "firefoxLabsDescription": "test-fx-labs-description",
+                "firefoxLabsDescriptionLinks": {
+                    "foo": "https://example.com",
+                },
                 "firefoxLabsGroup": "group",
                 "requiresRestart": True,
             }
@@ -493,6 +448,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "isFirefoxLabsOptIn": False,
             "firefoxLabsTitle": None,
             "firefoxLabsDescription": None,
+            "firefoxLabsDescriptionLinks": None,
             "firefoxLabsGroup": None,
             "requiresRestart": False,
         }

@@ -911,17 +911,9 @@ objects:
         description: The text for line one of the body.
         type: Text
         default: ""
-      body-line-three-text:
-        description: The text for line three of the body.
-        type: Text
-        default: ""
       body-line-two-text:
         description: The text for line two of the body.
         type: Text
-        default: ""
-      link-url:
-        description: The url for the link text
-        type: String
         default: ""
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"

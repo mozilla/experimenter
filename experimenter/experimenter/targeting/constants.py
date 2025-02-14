@@ -1886,11 +1886,11 @@ WINDOWS_10_MSIX_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-IOS_DEFAULT_BROWSER_USER = NimbusTargetingConfig(
-    name="Default Browser FXiOS Users",
+IOS_DEFAULT_BROWSER_FIRST_RUN_USER = NimbusTargetingConfig(
+    name="Default Browser & First Run FXiOS Users",
     slug="ios_default_browser_user",
     description="Users that already have FXiOS set as the default browser",
-    targeting="is_default_browser == 'true'",
+    targeting="is_default_browser == true && is_first_run",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=True,
@@ -2212,6 +2212,28 @@ EXISTING_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SIGNED_IN_USER = NimbusTargetingConfig(
+    name="Signed-in User",
+    slug="signed_in_user",
+    description="Users who are signed into FxA",
+    targeting="isFxASignedIn",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_USER = NimbusTargetingConfig(
+    name="Signed-out User",
+    slug="signed_out_user",
+    description="Users who are NOT signed into FxA",
+    targeting="!isFxASignedIn",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 SYNC_USER = NimbusTargetingConfig(
     name="Sync User",
     slug="sync_user",
@@ -2281,6 +2303,23 @@ DEFAULT_AUTOFILL_CREDIT_CARDS_SUPPORTED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+DEFAULT_AUTOFILL_ADDRESSES_SUPPORTED = NimbusTargetingConfig(
+    name="Users with Default or Non-'On' Setting for Address Autofill",
+    slug="default_autofill_addresses_supported",
+    description=(
+        "Targets users who have left the 'extensions.formautofill.addresses.supported' "
+        "preference at its default value or set it to something other than 'on'."
+    ),
+    targeting=(
+        "!('extensions.formautofill.addresses.supported'|preferenceIsUserSet) || "
+        "'extensions.formautofill.addresses.supported'|preferenceValue != 'on'"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
     name="Users who are not in HTTPS-Only Mode",
     slug="no_https_only_desktop",
@@ -2291,6 +2330,20 @@ NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
     targeting=(
         "!('dom.security.https_only_mode'|preferenceValue || "
         "'dom.security.https_only_mode_pbm'|preferenceValue)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NON_SIDEBAR_USERS = NimbusTargetingConfig(
+    name="Users that have never used the sidebar",
+    slug="non_sidebar_users",
+    description="Target users who have never used the new or old sidebar",
+    targeting=(
+        "!('sidebar.revamp'|preferenceValue) && "
+        "'sidebar.backupState'|preferenceValue == '{}'"
     ),
     desktop_telemetry="",
     sticky_required=False,

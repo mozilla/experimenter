@@ -78,13 +78,58 @@ prefFlips:
     path: toolkit/components/nimbus/schemas/PrefFlipsFeature.schema.json
 
 
-# `search` is for search engine experimentation features which do not require
-# isEarlyStartup to be set.
 search:
-  description: Search engine experimentation support and testing features.
+  description: Search service related features.
   owner: search-and-suggest-program@mozilla.com
   hasExposure: false
   variables:
+    scotchBonnetEnableOverride:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.urlbar.scotchBonnet.enableOverride
+      description: >-
+        Whether or not enabling scotch bonnet feature.
+        If this variable is true, the following features are available as default.
+        * Unified search button
+        * Secondary action buttons
+        * Search term persistence
+        * Intuitive search keywords
+        * HTTP swap
+    trendingRequireSearchMode:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.urlbar.trending.requireSearchMode
+      description: Controls whether trending suggestions are only shown in search mode or not.
+    trendingMaxResultsNoSearchMode:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.urlbar.trending.maxResultsNoSearchMode
+      description: The maximum number of trending results mode outside search mode.
+    targetExperiment:
+      type: string
+      description: >-
+        Recorded in SERP telemetry, this is the slug of the experiment someone
+        is requesting enrollment and branch information for. (Note that the
+        featureId needs to be set to "search".)
+
+searchConfiguration:
+  description: >-
+    Search experimentation support for the engine configuration. Some of these
+    options may cause an additional reload to occur during the startup phase.
+  owner: search-and-suggest-program@mozilla.com
+  hasExposure: false
+  variables:
+    experiment:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.search.experiment
+      description: >-
+        Used to activate only matching configurations that contain the value in
+        `experiment`
     extraParams:
       type: json
       description: >-
@@ -102,11 +147,10 @@ search:
 
         This is matched to a section in the search configuration:
 
-        "extraParams": [
+        "params": [
           {
             "name": "channel",
-            "pref": "google_channel_row",
-            "condition": "pref"
+            "experimentConfig": "google_channel_row"
           }
         ],
 
@@ -114,95 +158,22 @@ search:
         `&channel=foo` added to the URL when doing searches.
 
         If the key is not referenced in the search configuration, then no parameter
-        will be added. Only the search team can update the configuration.
-    logEnabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.search.log
-      description: >-
-        Whether or not enable search log in their console.
-    richSuggestionsFeatureGate:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.richSuggestions.featureGate
-      description: >-
-        Feature gate that controls whether Rich Suggestions are enabled.
-    scotchBonnetEnableOverride:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.scotchBonnet.enableOverride
-      description: >-
-        Whether or not enabling scotch bonnet feature.
-        If this variable is true, the following features are available as default.
-        * Unified search button
-        * Secondary action buttons
-        * Search term persistence
-        * Intuitive search keywords
-        * HTTP swap
-    serpEventTelemetryCategorizationEnabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.search.serpEventTelemetryCategorization.enabled
-      description: Whether the Glean SERP event telemetry for SERP categorization is enabled.
-    trendingEnabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.trending.featureGate
-      description: Feature gate that controls whether trending suggestions are enabled.
-    trendingRequireSearchMode:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.trending.requireSearchMode
-      description: Controls whether trending suggestions are only shown in search mode or not.
-    trendingMaxResultsNoSearchMode:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.trending.maxResultsNoSearchMode
-      description: The maximum number of trending results mode outside search mode.
-    newSearchConfigEnabled:
+        will be added. If the parameter is in the search configuration, but there
+        is no experiment, or the experiment does not set a value, then the
+        parameter will not be included in the search url.
+
+        Only the search team can update the configuration.
+    separatePrivateDefaultUIEnabled:
       type: boolean
       setPref:
         branch: user
-        pref: browser.search.newSearchConfig.enabled
-      description: >-
-        Whether search-config-v2 is enabled for the user. This will only take
-        effect when the user restarts.
-        Obsolete. This is kept until all multi-feature roll-outs using it are
-        ended to prevent un-enrollment.
-    targetExperiment:
-      type: string
-      description: >-
-        The slug of the experiment someone is requesting enrollment and branch
-        information for. (Note that the featureId needs to be set to "search".)
-
-# `searchConfiguration` is for search experiment features for items that require
-# isEarlyStartup to be true. These items may require a reload of the search
-# engine configuration, and an additional reload may happen during the startup
-# process.
-searchConfiguration:
-  description: Search experimentation support for the engine configuration
-  owner: search-and-suggest-program@mozilla.com
-  isEarlyStartup: true
-  hasExposure: false
-  variables:
-    experiment:
-      type: string
-      fallbackPref: browser.search.experiment
-      description: >-
-        Used to activate only matching configurations that contain the value in
-        `experiment`
-    seperatePrivateDefaultUIEnabled:
-      type: boolean
+        pref: browser.search.separatePrivateDefault.ui.enabled
       description: Whether the UI for the separate private default feature is enabled.
-    seperatePrivateDefaultUrlbarResultEnabled:
+    separatePrivateDefaultUrlbarResultEnabled:
       type: boolean
+      setPref:
+        branch: user
+        pref: browser.search.separatePrivateDefault.urlbarResult.enabled
       description: Whether the urlbar result for the separate private default is shown.
 
 urlbar:
@@ -713,6 +684,8 @@ preonboarding:
   owner: omc@mozilla.com
   # Exposure is recorded by the spotlight feature used to show the modal
   hasExposure: false
+  # Needed at `sessionstore-windows-restored`.
+  isEarlyStartup: true
   variables:
     enabled:
       type: boolean
@@ -723,20 +696,26 @@ preonboarding:
       type: json
       fallbackPref: browser.preonboarding.screens
       description: Content to show in the onboarding flow
-    disableFirstRunPolicyTab:
-      type: boolean
-      fallbackPref: browser.preonboarding.disableFirstRunPolicyTab
-      description: Should a background tab load the first run policy URL?
     requireAction:
       type: boolean
       fallbackPref: browser.preonboarding.requireAction
       description: >-
         When showModal is enabled, should action be required to proceed (show as a window modal with dismiss using the ESC key disabled)?
-    interactionPref:
-      type: string
-      fallbackPref: browser.preonboarding.interactionPref
+    currentPolicyVersion:
+      type: int
+      fallbackPref: datareporting.policy.currentPolicyVersion
       description: >-
-        Name of a boolean pref that indicates whether the preonboarding modal has been interacted with. If a value is provided, the modal will appear on every startup until the pref is set to true (typically via interaction with the modal's primary CTA).
+        The current policy version displayed by this preonboarding modal.
+    minimumPolicyVersion:
+      type: int
+      fallbackPref: datareporting.policy.minimumPolicyVersion
+      description: >-
+        The minimum policy version which the user must have accepted to not see the preonboarding modal.
+    firstRunURL:
+      type: string
+      fallbackPref: datareporting.policy.firstRunURL
+      description: >-
+        URL of browser tab to be opened on first run instead of infobar.
 
 moreFromMozilla:
   description: "New page on about:preferences to suggest more Mozilla products"
@@ -933,6 +912,21 @@ newtabAdSizingExperiment:
       description: >-
         Billboard row position.
 
+newtabInlineTopicSelection:
+  description: >-
+      Adds Inline topic selection to sections layout
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    TopicSelectionEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.topicSelection.enabled
+      description: >-
+        Enables inline topic selection
+
+
 newtabLayoutExperiment:
   description: >-
     Change the default layout of new tab by adjusting sizes and spacing of elements.
@@ -953,6 +947,34 @@ newtabLayoutExperiment:
         pref: browser.newtabpage.activity-stream.newtabLayouts.variant-b
       description: >-
         Variant B in layouts experiment.
+
+newtabShortcutsExperiment:
+  description: >-
+    Adjusting sizes and spacing of new tab shortcuts.
+  owner: sdowne@mozilla.com
+  hasExposure: false
+  variables:
+    refresh:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabShortcuts.refresh
+      description: >-
+        Adjusting sizes and spacing of new tab shortcuts.
+
+newtabAprilFools:
+  description: >-
+    Replaces logo and wordmark for April Fools Day.
+  owner: achurchwell@mozilla.com
+  hasExposure: false
+  variables:
+    isAprilFools:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabLogo.aprilfools
+      description: >-
+        Replaces logo and wordmark for April Fools Day.
 
 newtabSponsoredContent:
   description: >-
@@ -1436,13 +1458,15 @@ pocketNewtab:
     regionWeatherConfig:
       description: A comma-separated list of regions that get weather by default.
       type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.region-weather-config
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.region-weather-config
     localeWeatherConfig:
       description: A comma-separated list of locales that weather widget supports.
       type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.locale-weather-config
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.locale-weather-config
     topSitesMaxSponsored:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       type: int
@@ -2898,7 +2922,7 @@ syncSetupFlow:
   hasExposure: true
   exposureDescription: >-
     Exposure is recorded when the user is enrolled in an experiment using this
-    feature and we show an indicator when we detect their sync is disconnected.
+    feature and the avatar menu or app (hamburger) menu -> account on Firefox Desktop is opened
   variables:
     enabled:
       description: True if we should show the user the updated sync set-up UI
@@ -4077,7 +4101,12 @@ certCompression:
 bounceTrackingProtection:
   description: Controls the Bounce Tracking Protection feature.
   owner: emz@mozilla.com
-  hasExposure: false
+  isEarlyStartup: true
+  hasExposure: true
+  exposureDescription: >-
+    Exposure is recored after every purge run which purged at least one tracker.
+    Exposure is only recorded when the feature is fully enabled and not in
+    dry-run mode.
   variables:
     mode:
       type: int
@@ -4264,3 +4293,110 @@ selectableProfiles:
     enabled:
       type: boolean
       description: Enables the multiple profiles feature when true. Turning off this variable will not disable the feature.
+
+storageAccessHeuristics:
+  description: Heuristics that grant cookie access automatically for foreign resources
+  owner: bvandersloot@mozilla.com
+  hasExposure: false
+  variables:
+    popup_past_interaction:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.restrict3rdpartystorage.heuristic.window_open
+      description: >-
+        Do we grant cookie access to a third party when it is opened in a popup if it has
+        been interacted with in the recent past?
+    popup_interaction:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.restrict3rdpartystorage.heuristic.opened_window_after_interaction
+      description: >-
+        Do we grant cookie access to a third party when it is opened in a popup if it has
+        the opener relationship and the user interacts with the popup?
+    navigation:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.restrict3rdpartystorage.heuristic.navigation
+      description: >-
+        Do we grant cookie access to a third party when it is interacted with earlier in this
+        tab's history, and the current first party is even further back in the history?
+    redirect:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.restrict3rdpartystorage.heuristic.recently_visited
+      description: >-
+        Do we grant cookie access to a third party when it has been interacted with in the recent
+        past, has been visited in the past few minutes, and redirects itself to another top level
+        site?
+    redirect_tracker:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.restrict3rdpartystorage.heuristic.redirect
+      description: >-
+        Do we grant cookie access to a tracker third party when it has been interacted with in the
+        recent past and redirects itself to another top level site?
+
+auto-pip:
+  description: "Automatic Picture-in-Picture"
+  owner: mconley@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not to auto-open PiP when switching tabs.
+      setPref:
+        branch: user
+        pref: "media.videocontrols.picture-in-picture.enable-when-switching-tabs.enabled"
+
+urlbar-ime-search:
+  description: "Urlbar IME"
+  owner: search-and-suggest-program@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not to keep the urlbar panel open during IME composition.
+      setPref:
+        branch: user
+        pref: "browser.urlbar.keepPanelOpenDuringImeComposition"
+
+web-rtc-global-mute-toggles:
+  description: "WebRTC Global Mute Toggles"
+  owner: mconley@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not to enable global mute toggles to the WebRTC indicator.
+      setPref:
+        branch: user
+        pref: "privacy.webrtc.globalMuteToggles"
+
+jpeg-xl:
+  description: "JPEG-XL"
+  owner: krosylight@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not to enable JPEG-XL support.
+      setPref:
+        branch: user
+        pref: "image.jxl.enabled"
+
+css-masonry:
+  description: "CSS Masonry Layout"
+  owner: dholbert@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not to enable CSS masonry layout.
+      setPref:
+        branch: user
+        pref: "layout.css.grid-template-masonry-value.enabled"

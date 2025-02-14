@@ -847,7 +847,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
             [experiment2.slug, experiment1.slug],
         )
 
-    def test_sort_by_dates(self):
+    def test_sort_by_start_date(self):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             start_date=datetime.date(2024, 1, 1),
@@ -860,7 +860,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         response = self.client.get(
             reverse("nimbus-list"),
             {
-                "sort": SortChoices.DATES_UP,
+                "sort": SortChoices.START_DATE_UP,
             },
         )
 
@@ -872,13 +872,67 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         response = self.client.get(
             reverse("nimbus-list"),
             {
-                "sort": SortChoices.DATES_DOWN,
+                "sort": SortChoices.START_DATE_DOWN,
             },
         )
 
         self.assertEqual(
             [e.slug for e in response.context["experiments"]],
             [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_end_date(self):
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            start_date=datetime.date(2024, 1, 1),
+            end_date=datetime.date(2024, 2, 1),
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            start_date=datetime.date(2024, 1, 2),
+            end_date=datetime.date(2024, 2, 2),
+        )
+        experiment3 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date(2024, 1, 2),
+            proposed_duration=10,
+        )
+        experiment4 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-list"),
+            {
+                "sort": SortChoices.END_DATE_UP,
+            },
+        )
+
+        expected_order_up = sorted(
+            [experiment1, experiment2, experiment3], key=lambda exp: exp.computed_end_date
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            ([exp.slug for exp in expected_order_up] + [experiment4.slug]),
+        )
+
+        response = self.client.get(
+            reverse("nimbus-list"),
+            {
+                "sort": SortChoices.END_DATE_DOWN,
+            },
+        )
+
+        expected_order_down = sorted(
+            [experiment1, experiment2, experiment3],
+            key=lambda exp: exp.computed_end_date,
+            reverse=True,
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments"]],
+            ([exp.slug for exp in expected_order_down] + [experiment4.slug]),
         )
 
 
@@ -1286,6 +1340,99 @@ class TestMetricsUpdateView(AuthTestCase):
         self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
         self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
         self.assertEqual(experiment.segments, [segment1.slug, segment2.slug])
+
+
+class TestLaunchViews(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperimentFactory.create()
+
+    def test_draft_to_preview(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-draft-to-preview", kwargs={"slug": self.experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.PREVIEW)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.PREVIEW)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+    def test_draft_to_review(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-draft-to-review", kwargs={"slug": self.experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+
+    def test_preview_to_review(self):
+        self.experiment.status = NimbusExperiment.Status.PREVIEW
+        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-preview-to-review", kwargs={"slug": self.experiment.slug}
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+
+    def test_preview_to_draft(self):
+        self.experiment.status = NimbusExperiment.Status.PREVIEW
+        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-preview-to-draft", kwargs={"slug": self.experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+    def test_cancel_review(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-review-to-draft", kwargs={"slug": self.experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
 
 
 class TestAudienceUpdateView(AuthTestCase):

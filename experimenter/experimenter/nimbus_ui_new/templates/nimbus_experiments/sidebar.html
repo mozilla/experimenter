@@ -19,8 +19,13 @@
   <hr class="my-0 mb-2">
   {% for documentation_link in experiment.documentation_links.all %}
     {% if documentation_link.link %}
-      {% include "common/sidebar_link.html" with title=documentation_link.title link=documentation_link.link icon="fa-solid fa-arrow-up-right-from-square" external=True %}
+      {% include "common/sidebar_link.html" with title=documentation_link.get_title_display link=documentation_link.link icon="fa-solid fa-arrow-up-right-from-square" external=True %}
 
     {% endif %}
   {% endfor %}
+  <a class="nav-link d-flex align-items-center"
+     href="{{ experiment.get_detail_preview_recipe_json_url }}">
+    <i class="fa-solid fa-file-code me-2"></i>
+    Preview Recipe JSON
+  </a>
 </div>

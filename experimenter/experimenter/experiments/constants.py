@@ -586,6 +586,8 @@ class NimbusConstants:
         FIREFOX_134 = "134.!"
         FIREFOX_134_1_0 = "134.1.0"
         FIREFOX_135 = "135.!"
+        FIREFOX_135_0_1 = "135.0.1"
+        FIREFOX_135_1_0 = "135.1.0"
         FIREFOX_136 = "136.!"
         FIREFOX_137 = "137.!"
         FIREFOX_138 = "138.!"
@@ -827,6 +829,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
+
+
+EXTERNAL_URLS = {
+    "SIGNOFF_QA": "https://experimenter.info/qa-sign-off",
+    "TRAINING_AND_PLANNING_DOC": "https://experimenter.info/for-product",
+    "PREVIEW_LAUNCH_DOC": "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
+}
 
 
 RISK_QUESTIONS = {
