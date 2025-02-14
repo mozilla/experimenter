@@ -500,7 +500,7 @@ features:
         default:
           min-search-term: 3
           position:
-            is-bottom: true
+            is-bottom: false
             is-position-feature-enabled: true
             is-toolbar-cfr-on: false
           search-highlights: false
