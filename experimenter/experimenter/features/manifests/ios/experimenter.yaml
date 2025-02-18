@@ -233,14 +233,6 @@ pdf-refactor-feature:
     enabled:
       type: boolean
       description: "Enables the feature.\n"
-pull-to-refresh-refactor-feature:
-  description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 rating-prompt-feature:
   description: "This feature enables the rating prompt so we ask in-app rating to users\n"
   hasExposure: true
