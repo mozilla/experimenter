@@ -63,6 +63,6 @@
   "slug": "firefox-desktop-multifeature-test-v7",
   "startDate": "2023-12-01",
   "targeting": "true",
-  "userFacingDescription": "Experimenting on onboarding content when you upgrade Firefox.",
+  "userFacingDescription": "Testing upgrade spotlight holdback",
   "userFacingName": "MR2 Upgrade Spotlight Holdback V7"
 }

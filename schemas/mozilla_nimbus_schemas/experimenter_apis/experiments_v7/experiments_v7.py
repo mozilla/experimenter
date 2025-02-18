@@ -1,28 +1,18 @@
 import datetime
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import SkipJsonSchema
-from typing_extensions import Self
 
 from mozilla_nimbus_schemas.experimenter_apis.common import (
     ExperimentBucketConfig,
     ExperimentLocalizations,
     ExperimentOutcome,
-    _CommonDesktopExperimentBranch,
-    _CommonSdkExperimentBranch,
+    _CommonBaseExperimentBranch,
 )
 
 
-class DesktopExperimentBranchV7(_CommonDesktopExperimentBranch):
-    pass
-
-
-class SdkExperimentBranchV7(_CommonSdkExperimentBranch):
-    """The branch definition for SDK-based applications."""
-
-
 class BaseExperimentV7(BaseModel):
-    """The base experiment definition accessible to both Desktop and SDK experiments."""
+    """The base experiment definition for V7."""
 
     schemaVersion: str = Field(description="Version of the NimbusExperiment schema.")
     slug: str = Field(description="Unique identifier for the experiment.")
@@ -90,24 +80,9 @@ class BaseExperimentV7(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
 
-class DesktopNimbusExperimentV7(BaseExperimentV7):
-    """A Nimbus experiment for Firefox Desktop."""
+class NimbusExperimentV7(BaseExperimentV7):
+    """A generic Nimbus experiment for V7."""
 
-    branches: list[DesktopExperimentBranchV7] = Field(
+    branches: list[_CommonBaseExperimentBranch] = Field(
         description="Branch configuration for the experiment."
-    )
-
-    @model_validator(mode="after")
-    @classmethod
-    def validate_firefox_labs(cls, data: Self) -> Self:
-        if data.isRollout and data.userFacingName is None:
-            raise ValueError("Firefox Labs experiments require a user-facing name.")
-        return data
-
-
-class SdkNimbusExperimentV7(BaseExperimentV7):
-    """A Nimbus experiment for Nimbus SDK-based applications."""
-
-    branches: list[SdkExperimentBranchV7] = Field(
-        description="Branch configuration for the SDK experiment."
     )

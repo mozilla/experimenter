@@ -7,12 +7,10 @@
     {
       "features": [
         {
-          "enabled": false,
           "featureId": "fenix-default-browser",
           "value": {}
         },
         {
-          "enabled": true,
           "featureId": "homescreen",
           "value": {
             "sections-enabled": {
@@ -31,12 +29,10 @@
     {
       "features": [
         {
-          "enabled": true,
           "featureId": "fenix-default-browser",
           "value": {}
         },
         {
-          "enabled": true,
           "featureId": "homescreen",
           "value": {
             "sections-enabled": {
@@ -79,6 +75,6 @@
   "slug": "firefox-android-multifeature-test-v7",
   "startDate": "2023-12-01",
   "targeting": "true",
-  "userFacingDescription": "firefox-android-multifeature-test V7",
-  "userFacingName": "firefox-android-multifeature-test V7"
+  "userFacingDescription": "Testing mobile experiment for new tab experience",
+  "userFacingName": "Mobile Multi-Feature Test V7"
 }

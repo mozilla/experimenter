@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "SdkNimbusExperimentV7",
-  "description": "A Nimbus experiment for Nimbus SDK-based applications.",
+  "title": "NimbusExperimentV7",
+  "description": "A generic Nimbus experiment for V7.",
   "type": "object",
   "properties": {
     "schemaVersion": {
@@ -166,9 +166,9 @@
       "description": "Per-locale localization substitutions."
     },
     "branches": {
-      "description": "Branch configuration for the SDK experiment.",
+      "description": "Branch configuration for the experiment.",
       "items": {
-        "$ref": "#/$defs/SdkExperimentBranchV7"
+        "$ref": "#/$defs/_CommonBaseExperimentBranch"
       },
       "type": "array"
     }
@@ -277,8 +277,7 @@
       ],
       "type": "string"
     },
-    "SdkExperimentBranchV7": {
-      "description": "The branch definition for SDK-based applications.",
+    "_CommonBaseExperimentBranch": {
       "properties": {
         "slug": {
           "description": "Identifier for the branch.",
