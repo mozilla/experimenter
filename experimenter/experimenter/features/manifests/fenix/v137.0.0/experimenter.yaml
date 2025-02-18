@@ -298,6 +298,14 @@ pki:
     certificateTransparencyMode:
       type: int
       description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
+pqcrypto:
+  description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    postQuantumKeyExchangeEnabled:
+      type: boolean
+      description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
 print:
   description: A feature for printing from the share or browser menu.
   hasExposure: true
