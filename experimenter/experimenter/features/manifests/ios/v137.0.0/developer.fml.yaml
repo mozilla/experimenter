@@ -498,13 +498,6 @@ features:
         description: "Enables the feature.\n"
         type: Boolean
         default: false
-  pull-to-refresh-refactor-feature:
-    description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
-    variables:
-      enabled:
-        description: "Enables the feature\n"
-        type: Boolean
-        default: true
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
