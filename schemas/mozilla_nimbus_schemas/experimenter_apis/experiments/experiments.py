@@ -66,9 +66,19 @@ class BaseExperiment(BaseModel):
             but is required field for all Remote Settings records."
     )
     appName: str = Field(
-        description="A slug identifying the targeted product of this experiment."
+        description='A slug identifying the targeted product of this experiment. \
+            It should be a lowercased_with_underscores name that is short and \
+                unambiguous and it should match the app_name found in \
+                    https://probeinfo.telemetry.mozilla.org/glean/repositories. \
+                        Examples are "fenix" and "firefox_desktop".'
     )
-    appId: str = Field(description="The platform identifier for the targeted app.")
+    appId: str = Field(
+        description='The platform identifier for the targeted app. \
+            This should match app\'s identifier exactly as it appears in \
+                the relevant app store listing (for relevant platforms) or the app\'s\
+                      Glean initialization (for other platforms). Examples are \
+                      "org.mozilla.firefox_beta" and "firefox-desktop".'
+    )
     channel: str = Field(
         description="A specific channel of an application such as 'nightly', \
             'beta', or 'release'."
@@ -77,47 +87,69 @@ class BaseExperiment(BaseModel):
         description="Public name of the experiment displayed on 'about:studies'."
     )
     userFacingDescription: str = Field(
-        description="Short public description of the experiment."
+        description='Short public description of the experiment. \
+            that will be displayed on "about:studies".'
     )
     isEnrollmentPaused: bool = Field(
-        description="Whether new users should be enrolled into the experiment."
+        description="When this property is set to true, the SDK should not enroll\
+              new users into the experiment that have not already been enrolled."
     )
     isRollout: bool | SkipJsonSchema[None] = Field(
-        description="Whether this experiment is a rollout.", default=None
+        description="When this property is set to true, treat this experiment \
+              as a rollout. Rollouts are currently handled as single-branch \
+              experiments separated from the bucketing namespace for normal experiments. \
+              See-also: https://mozilla-hub.atlassian.net/browse/SDK-405",
+        default=None,
     )
     bucketConfig: ExperimentBucketConfig = Field(description="Bucketing configuration.")
     outcomes: list[ExperimentOutcome] | SkipJsonSchema[None] = Field(
         description="List of outcomes relevant to analysis.", default=None
     )
     featureIds: list[str] | SkipJsonSchema[None] = Field(
-        description="List of featureIds the experiment includes.", default=None
+        description="A list of featureIds the experiment contains configurations for.",
+        default=None,
     )
     targeting: str | None = Field(
-        description="A JEXL targeting expression.", default=None
+        description="A JEXL targeting expression used to filter out experiments.",
+        default=None,
     )
     startDate: datetime.date | None = Field(
-        description="Actual publish date of the experiment."
+        description="Actual publish date of the experiment. \
+        Note that this value is expected to be null in Remote Settings."
     )
     enrollmentEndDate: datetime.date | None = Field(
-        description="Actual enrollment end date.", default=None
+        description="Actual enrollment end date of the experiment. \
+            Note that this value is expected to be null in Remote Settings.",
+        default=None,
     )
     endDate: datetime.date | None = Field(
-        description="Actual end date of this experiment."
+        description="Actual end date of this experiment.\
+              Note that this field is expected to be null in Remote Settings."
     )
     proposedDuration: int | SkipJsonSchema[None] = Field(
-        description="Proposed duration of the experiment.", default=None
+        description="Duration of the experiment from the start date in days. \
+            Note that this property is only used during the analysis phase \
+                (i.e., not by the SDK).",
+        default=None,
     )
     proposedEnrollment: int = Field(
-        description="Number of days expected for new user enrollment."
+        description="This represents the number of days that we expect to \
+            enroll new users. Note that this property is only used during\
+                  the analysis phase (i.e., not by the SDK)."
     )
     referenceBranch: str | None = Field(
-        description="Slug of the reference branch, if applicable."
+        description='The slug of the reference branch \
+            (i.e., the branch we consider "control").'
     )
     locales: list[str] | None = Field(
-        description="List of targeted locale codes.", default=None
+        description='The list of locale codes (e.g., "en-US" or "fr") that this \
+            experiment is targeting. If null, all locales are targeted.',
+        default=None,
     )
     publishedDate: datetime.datetime | None = Field(
-        description="First published date to Remote Settings.", default=None
+        description="The date that this experiment was first published to \
+            Remote Settings. If null, it has not yet been published.",
+        default=None,
     )
     localizations: ExperimentLocalizations | None = Field(
         description="Per-locale localization substitutions.", default=None
@@ -141,7 +173,9 @@ class DesktopNimbusExperiment(BaseExperiment):
     )
 
     isFirefoxLabsOptIn: bool = Field(
-        description="Whether this experiment is a Firefox Labs Opt-In.", default=None
+        description="When this property is set to true, treat this experiment as a \
+            Firefox Labs experiment",
+        default=None,
     )
     firefoxLabsGroup: str | None = Field(
         description="The group this should appear under in Firefox Labs", default=None
@@ -154,7 +188,8 @@ class DesktopNimbusExperiment(BaseExperiment):
     )
     firefoxLabsDescriptionLinks: dict[str, HttpUrl] | None = Field(
         description="Links that will be used with the Firefox Labs \
-            description Fluent ID.",
+            description Fluent ID. May be null for Firefox Labs Opt-In recipes \
+                that do not use links.",
         default=None,
     )
     featureValidationOptOut: bool | SkipJsonSchema[None] = Field(

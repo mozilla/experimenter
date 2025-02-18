@@ -53,11 +53,11 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   id: string;
   /**
-   * A slug identifying the targeted product of this experiment.
+   * A slug identifying the targeted product of this experiment.             It should be a lowercased_with_underscores name that is short and                 unambiguous and it should match the app_name found in                     https://probeinfo.telemetry.mozilla.org/glean/repositories.                         Examples are "fenix" and "firefox_desktop".
    */
   appName: string;
   /**
-   * The platform identifier for the targeted app.
+   * The platform identifier for the targeted app.             This should match app's identifier exactly as it appears in                 the relevant app store listing (for relevant platforms) or the app's                      Glean initialization (for other platforms). Examples are                       "org.mozilla.firefox_beta" and "firefox-desktop".
    */
   appId: string;
   /**
@@ -69,15 +69,15 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   userFacingName: string;
   /**
-   * Short public description of the experiment.
+   * Short public description of the experiment.             that will be displayed on "about:studies".
    */
   userFacingDescription: string;
   /**
-   * Whether new users should be enrolled into the experiment.
+   * When this property is set to true, the SDK should not enroll              new users into the experiment that have not already been enrolled.
    */
   isEnrollmentPaused: boolean;
   /**
-   * Whether this experiment is a rollout.
+   * When this property is set to true, treat this experiment               as a rollout. Rollouts are currently handled as single-branch               experiments separated from the bucketing namespace for normal experiments.               See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
    */
   isRollout?: boolean;
   bucketConfig: ExperimentBucketConfig;
@@ -86,43 +86,43 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   outcomes?: ExperimentOutcome[];
   /**
-   * List of featureIds the experiment includes.
+   * A list of featureIds the experiment contains configurations for.
    */
   featureIds?: string[];
   /**
-   * A JEXL targeting expression.
+   * A JEXL targeting expression used to filter out experiments.
    */
   targeting?: string | null;
   /**
-   * Actual publish date of the experiment.
+   * Actual publish date of the experiment.         Note that this value is expected to be null in Remote Settings.
    */
   startDate: string | null;
   /**
-   * Actual enrollment end date.
+   * Actual enrollment end date of the experiment.             Note that this value is expected to be null in Remote Settings.
    */
   enrollmentEndDate?: string | null;
   /**
-   * Actual end date of this experiment.
+   * Actual end date of this experiment.              Note that this field is expected to be null in Remote Settings.
    */
   endDate: string | null;
   /**
-   * Proposed duration of the experiment.
+   * Duration of the experiment from the start date in days.             Note that this property is only used during the analysis phase                 (i.e., not by the SDK).
    */
   proposedDuration?: number;
   /**
-   * Number of days expected for new user enrollment.
+   * This represents the number of days that we expect to             enroll new users. Note that this property is only used during                  the analysis phase (i.e., not by the SDK).
    */
   proposedEnrollment: number;
   /**
-   * Slug of the reference branch, if applicable.
+   * The slug of the reference branch             (i.e., the branch we consider "control").
    */
   referenceBranch: string | null;
   /**
-   * List of targeted locale codes.
+   * The list of locale codes (e.g., "en-US" or "fr") that this             experiment is targeting. If null, all locales are targeted.
    */
   locales?: string[] | null;
   /**
-   * First published date to Remote Settings.
+   * The date that this experiment was first published to             Remote Settings. If null, it has not yet been published.
    */
   publishedDate?: string | null;
   /**
@@ -134,7 +134,7 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   branches: DesktopAllVersionsExperimentBranch[];
   /**
-   * Whether this experiment is a Firefox Labs Opt-In.
+   * When this property is set to true, treat this experiment as a             Firefox Labs experiment
    */
   isFirefoxLabsOptIn?: boolean;
   /**
@@ -150,7 +150,7 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   firefoxLabsDescription?: string | null;
   /**
-   * Links that will be used with the Firefox Labs             description Fluent ID.
+   * Links that will be used with the Firefox Labs             description Fluent ID. May be null for Firefox Labs Opt-In recipes                 that do not use links.
    */
   firefoxLabsDescriptionLinks?: {
     [k: string]: string;
@@ -272,11 +272,11 @@ export interface DesktopNimbusExperiment {
    */
   id: string;
   /**
-   * A slug identifying the targeted product of this experiment.
+   * A slug identifying the targeted product of this experiment.             It should be a lowercased_with_underscores name that is short and                 unambiguous and it should match the app_name found in                     https://probeinfo.telemetry.mozilla.org/glean/repositories.                         Examples are "fenix" and "firefox_desktop".
    */
   appName: string;
   /**
-   * The platform identifier for the targeted app.
+   * The platform identifier for the targeted app.             This should match app's identifier exactly as it appears in                 the relevant app store listing (for relevant platforms) or the app's                      Glean initialization (for other platforms). Examples are                       "org.mozilla.firefox_beta" and "firefox-desktop".
    */
   appId: string;
   /**
@@ -288,15 +288,15 @@ export interface DesktopNimbusExperiment {
    */
   userFacingName: string;
   /**
-   * Short public description of the experiment.
+   * Short public description of the experiment.             that will be displayed on "about:studies".
    */
   userFacingDescription: string;
   /**
-   * Whether new users should be enrolled into the experiment.
+   * When this property is set to true, the SDK should not enroll              new users into the experiment that have not already been enrolled.
    */
   isEnrollmentPaused: boolean;
   /**
-   * Whether this experiment is a rollout.
+   * When this property is set to true, treat this experiment               as a rollout. Rollouts are currently handled as single-branch               experiments separated from the bucketing namespace for normal experiments.               See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
    */
   isRollout?: boolean;
   bucketConfig: ExperimentBucketConfig;
@@ -305,43 +305,43 @@ export interface DesktopNimbusExperiment {
    */
   outcomes?: ExperimentOutcome[];
   /**
-   * List of featureIds the experiment includes.
+   * A list of featureIds the experiment contains configurations for.
    */
   featureIds?: string[];
   /**
-   * A JEXL targeting expression.
+   * A JEXL targeting expression used to filter out experiments.
    */
   targeting?: string | null;
   /**
-   * Actual publish date of the experiment.
+   * Actual publish date of the experiment.         Note that this value is expected to be null in Remote Settings.
    */
   startDate: string | null;
   /**
-   * Actual enrollment end date.
+   * Actual enrollment end date of the experiment.             Note that this value is expected to be null in Remote Settings.
    */
   enrollmentEndDate?: string | null;
   /**
-   * Actual end date of this experiment.
+   * Actual end date of this experiment.              Note that this field is expected to be null in Remote Settings.
    */
   endDate: string | null;
   /**
-   * Proposed duration of the experiment.
+   * Duration of the experiment from the start date in days.             Note that this property is only used during the analysis phase                 (i.e., not by the SDK).
    */
   proposedDuration?: number;
   /**
-   * Number of days expected for new user enrollment.
+   * This represents the number of days that we expect to             enroll new users. Note that this property is only used during                  the analysis phase (i.e., not by the SDK).
    */
   proposedEnrollment: number;
   /**
-   * Slug of the reference branch, if applicable.
+   * The slug of the reference branch             (i.e., the branch we consider "control").
    */
   referenceBranch: string | null;
   /**
-   * List of targeted locale codes.
+   * The list of locale codes (e.g., "en-US" or "fr") that this             experiment is targeting. If null, all locales are targeted.
    */
   locales?: string[] | null;
   /**
-   * First published date to Remote Settings.
+   * The date that this experiment was first published to             Remote Settings. If null, it has not yet been published.
    */
   publishedDate?: string | null;
   /**
@@ -353,7 +353,7 @@ export interface DesktopNimbusExperiment {
    */
   branches: DesktopExperimentBranch[];
   /**
-   * Whether this experiment is a Firefox Labs Opt-In.
+   * When this property is set to true, treat this experiment as a             Firefox Labs experiment
    */
   isFirefoxLabsOptIn?: boolean;
   /**
@@ -369,7 +369,7 @@ export interface DesktopNimbusExperiment {
    */
   firefoxLabsDescription?: string | null;
   /**
-   * Links that will be used with the Firefox Labs             description Fluent ID.
+   * Links that will be used with the Firefox Labs             description Fluent ID. May be null for Firefox Labs Opt-In recipes                 that do not use links.
    */
   firefoxLabsDescriptionLinks?: {
     [k: string]: string;
@@ -419,11 +419,11 @@ export interface SdkNimbusExperiment {
    */
   id: string;
   /**
-   * A slug identifying the targeted product of this experiment.
+   * A slug identifying the targeted product of this experiment.             It should be a lowercased_with_underscores name that is short and                 unambiguous and it should match the app_name found in                     https://probeinfo.telemetry.mozilla.org/glean/repositories.                         Examples are "fenix" and "firefox_desktop".
    */
   appName: string;
   /**
-   * The platform identifier for the targeted app.
+   * The platform identifier for the targeted app.             This should match app's identifier exactly as it appears in                 the relevant app store listing (for relevant platforms) or the app's                      Glean initialization (for other platforms). Examples are                       "org.mozilla.firefox_beta" and "firefox-desktop".
    */
   appId: string;
   /**
@@ -435,15 +435,15 @@ export interface SdkNimbusExperiment {
    */
   userFacingName: string;
   /**
-   * Short public description of the experiment.
+   * Short public description of the experiment.             that will be displayed on "about:studies".
    */
   userFacingDescription: string;
   /**
-   * Whether new users should be enrolled into the experiment.
+   * When this property is set to true, the SDK should not enroll              new users into the experiment that have not already been enrolled.
    */
   isEnrollmentPaused: boolean;
   /**
-   * Whether this experiment is a rollout.
+   * When this property is set to true, treat this experiment               as a rollout. Rollouts are currently handled as single-branch               experiments separated from the bucketing namespace for normal experiments.               See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
    */
   isRollout?: boolean;
   bucketConfig: ExperimentBucketConfig;
@@ -452,43 +452,43 @@ export interface SdkNimbusExperiment {
    */
   outcomes?: ExperimentOutcome[];
   /**
-   * List of featureIds the experiment includes.
+   * A list of featureIds the experiment contains configurations for.
    */
   featureIds?: string[];
   /**
-   * A JEXL targeting expression.
+   * A JEXL targeting expression used to filter out experiments.
    */
   targeting?: string | null;
   /**
-   * Actual publish date of the experiment.
+   * Actual publish date of the experiment.         Note that this value is expected to be null in Remote Settings.
    */
   startDate: string | null;
   /**
-   * Actual enrollment end date.
+   * Actual enrollment end date of the experiment.             Note that this value is expected to be null in Remote Settings.
    */
   enrollmentEndDate?: string | null;
   /**
-   * Actual end date of this experiment.
+   * Actual end date of this experiment.              Note that this field is expected to be null in Remote Settings.
    */
   endDate: string | null;
   /**
-   * Proposed duration of the experiment.
+   * Duration of the experiment from the start date in days.             Note that this property is only used during the analysis phase                 (i.e., not by the SDK).
    */
   proposedDuration?: number;
   /**
-   * Number of days expected for new user enrollment.
+   * This represents the number of days that we expect to             enroll new users. Note that this property is only used during                  the analysis phase (i.e., not by the SDK).
    */
   proposedEnrollment: number;
   /**
-   * Slug of the reference branch, if applicable.
+   * The slug of the reference branch             (i.e., the branch we consider "control").
    */
   referenceBranch: string | null;
   /**
-   * List of targeted locale codes.
+   * The list of locale codes (e.g., "en-US" or "fr") that this             experiment is targeting. If null, all locales are targeted.
    */
   locales?: string[] | null;
   /**
-   * First published date to Remote Settings.
+   * The date that this experiment was first published to             Remote Settings. If null, it has not yet been published.
    */
   publishedDate?: string | null;
   /**
