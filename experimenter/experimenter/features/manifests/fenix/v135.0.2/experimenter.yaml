@@ -34,17 +34,6 @@ cookie-banners:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
-encourage-search-cfr:
-  description: A feature that shows a CFR on first launch to encourage users to make a search
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    cfrText:
-      type: string
-      description: The text to show in the CFR
-    enabled:
-      type: boolean
-      description: "When true, the CFR will show"
 fingerprinting-protection:
   description: Control Fingerprinting Protection
   hasExposure: true
@@ -139,14 +128,6 @@ juno-onboarding:
     conditions:
       type: json
       description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
-mars:
-  description: Mozilla Ad Routing Service (MARS) unified ads service.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable MARS endpoint to serve sponsored top sites and stories.\n"
 menu-redesign:
   description: Control the new menu redesign.
   hasExposure: true
@@ -158,14 +139,6 @@ menu-redesign:
     report-site-issue:
       type: boolean
       description: "If true, report site issue menu item and preview is available."
-merino-recommendations:
-  description: Sets the recommendations provider service to Merino.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable Merino endpoint to serve recommendations.\n"
 messaging:
   description: "The in-app messaging system.\n"
   hasExposure: true
@@ -298,14 +271,6 @@ pki:
     certificateTransparencyMode:
       type: int
       description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
-pqcrypto:
-  description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    postQuantumKeyExchangeEnabled:
-      type: boolean
-      description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
 print:
   description: A feature for printing from the share or browser menu.
   hasExposure: true
@@ -402,6 +367,20 @@ ship:
     disabled:
       type: boolean
       description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
+shopping-experience:
+  description: A feature that shows product review quality information.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "if true, the shopping experience feature is shown to the user."
+    product-recommendations:
+      type: boolean
+      description: "if true, recommended products feature is enabled to be shown to the user based on their preference."
+    product-recommendations-exposure:
+      type: boolean
+      description: "if true, we want to record recommended products inventory for opted-in users, even if product recommendations are disabled."
 splash-screen:
   description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
   hasExposure: true
