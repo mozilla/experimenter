@@ -120,7 +120,7 @@ class Celery:
         autofinalize=...,
         namespace=...,
         strict_typing=...,
-        **kwargs
+        **kwargs,
     ) -> None: ...
     def on_init(self):  # -> None:
         """Optional callback called at init."""
@@ -174,7 +174,7 @@ class Celery:
 
             .. code-block:: python
 
-                @app.task(exchange='feeds')
+                @app.task(exchange="feeds")
                 def refresh_feed(url):
                     return store_feed(feedparser.parse(url))
 
@@ -232,7 +232,7 @@ class Celery:
         Object is either an actual object or the name of a module to import.
 
         Example:
-            >>> celery.config_from_object('myapp.celeryconfig')
+            >>> celery.config_from_object("myapp.celeryconfig")
 
             >>> from myapp import celeryconfig
             >>> celery.config_from_object(celeryconfig)
@@ -252,8 +252,8 @@ class Celery:
         of a module to import.
 
         Example:
-            >>> os.environ['CELERY_CONFIG_MODULE'] = 'myapp.celeryconfig'
-            >>> celery.config_from_envvar('CELERY_CONFIG_MODULE')
+            >>> os.environ["CELERY_CONFIG_MODULE"] = "myapp.celeryconfig"
+            >>> celery.config_from_envvar("CELERY_CONFIG_MODULE")
         """
         ...
     def config_from_cmdline(self, argv, namespace=...): ...
@@ -360,7 +360,7 @@ class Celery:
         shadow=...,
         chain=...,
         task_type=...,
-        **options
+        **options,
     ):
         """Send task by name.
 
@@ -399,7 +399,7 @@ class Celery:
         heartbeat=...,
         login_method=...,
         failover_strategy=...,
-        **kwargs
+        **kwargs,
     ):
         """Establish a connection to the message broker.
 

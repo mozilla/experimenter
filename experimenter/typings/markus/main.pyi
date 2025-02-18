@@ -48,11 +48,13 @@ def configure(backends, raise_errors=...):  # -> None:
 
         import markus
 
-        markus.configure([
-            {
-                "class": "markus.backends.logging.LoggingMetrics",
-            }
-        ])
+        markus.configure(
+            [
+                {
+                    "class": "markus.backends.logging.LoggingMetrics",
+                }
+            ]
+        )
 
     This sets up a
     :py:class:`markus.backends.logging.LoggingMetrics` backend with
@@ -60,14 +62,14 @@ def configure(backends, raise_errors=...):  # -> None:
 
         import markus
 
-        markus.configure([
-            {
-                "class": "markus.backends.logging.LoggingMetrics",
-                "options": {
-                    "logger_name": "metrics"
+        markus.configure(
+            [
+                {
+                    "class": "markus.backends.logging.LoggingMetrics",
+                    "options": {"logger_name": "metrics"},
                 }
-            }
-        ])
+            ]
+        )
 
     This sets up a :py:class:`markus.backends.logging.LoggingMetrics`
     backend that adds a tag to every metric::
@@ -75,12 +77,14 @@ def configure(backends, raise_errors=...):  # -> None:
         import markus
         from markus.filters import AddTagFilter
 
-        markus.configure([
-            {
-                "class": "markus.backends.logging.LoggingMetrics",
-                "filters": [AddTagFilter("color:blue")],
-            }
-        ])
+        markus.configure(
+            [
+                {
+                    "class": "markus.backends.logging.LoggingMetrics",
+                    "filters": [AddTagFilter("color:blue")],
+                }
+            ]
+        )
 
     You can set up zero or more backends.
 
@@ -321,7 +325,7 @@ class MetricsInterface:
         >>> mymetrics = get_metrics(__name__)
 
         >>> def long_function():
-        ...     with mymetrics.timer('long_function'):
+        ...     with mymetrics.timer("long_function"):
         ...         # perform some thing we want to keep metrics on
         ...         pass
 
@@ -417,7 +421,6 @@ def get_metrics(thing=..., extra=..., filters=...):  # -> MetricsInterface:
     >>> class Foo:
     ...     def __init__(self, myprefix):
     ...         self.metrics = get_metrics(self, extra=myprefix)
-    ...
     >>> foo = Foo("jim")
 
     Assume that ``Foo`` is defined in the ``myapp`` module. Then this will
@@ -428,10 +431,9 @@ def get_metrics(thing=..., extra=..., filters=...):  # -> MetricsInterface:
     >>> from markus.main import MetricsFilter
     >>> class BlueTagFilter(MetricsFilter):
     ...     def filter(self, record):
-    ...         record.tags.append('color:blue')
+    ...         record.tags.append("color:blue")
     ...         return record
-    ...
-    >>> metrics = get_metrics('foo', filters=[BlueTagFilter()])
+    >>> metrics = get_metrics("foo", filters=[BlueTagFilter()])
 
     """
     ...

@@ -6,7 +6,6 @@ from selenium.webdriver.common.by import By
 
 
 class ObjectiveAndAnalysisPage(Base):
-
     URL_TEMPLATE = "{experiment_url}edit-objectives"
 
     _objectives_text_box_locator = (By.CSS_SELECTOR, "#id_objectives")

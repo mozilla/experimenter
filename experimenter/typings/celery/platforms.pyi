@@ -137,7 +137,7 @@ def create_pidlock(pidfile):  # -> Pidfile:
        Pidfile: used to manage the lock.
 
     Example:
-        >>> pidlock = create_pidlock('/var/run/app.pid')
+        >>> pidlock = create_pidlock("/var/run/app.pid")
     """
     ...
 
@@ -154,7 +154,7 @@ def fd_by_path(paths):  # -> list[int]:
         List[int]: List of file descriptors.
 
     Example:
-        >>> keep = fd_by_path(['/dev/urandom', '/my/precious/'])
+        >>> keep = fd_by_path(["/dev/urandom", "/my/precious/"])
     """
     ...
 
@@ -170,7 +170,7 @@ class DaemonContext:
         fake=...,
         after_chdir=...,
         after_forkers=...,
-        **kwargs
+        **kwargs,
     ) -> None: ...
     def redirect_to_null(self, fd): ...
     def open(self): ...
@@ -282,29 +282,27 @@ class Signals:
         >>> from celery.platforms import signals
 
         >>> from proj.handlers import my_handler
-        >>> signals['INT'] = my_handler
+        >>> signals["INT"] = my_handler
 
-        >>> signals['INT']
+        >>> signals["INT"]
         my_handler
 
-        >>> signals.supported('INT')
+        >>> signals.supported("INT")
         True
 
-        >>> signals.signum('INT')
+        >>> signals.signum("INT")
         2
 
-        >>> signals.ignore('USR1')
-        >>> signals['USR1'] == signals.ignored
+        >>> signals.ignore("USR1")
+        >>> signals["USR1"] == signals.ignored
         True
 
-        >>> signals.reset('USR1')
-        >>> signals['USR1'] == signals.default
+        >>> signals.reset("USR1")
+        >>> signals["USR1"] == signals.default
         True
 
         >>> from proj.handlers import exit_handler, hup_handler
-        >>> signals.update(INT=exit_handler,
-        ...                TERM=exit_handler,
-        ...                HUP=hup_handler)
+        >>> signals.update(INT=exit_handler, TERM=exit_handler, HUP=hup_handler)
     """
 
     ignored = ...

@@ -26,6 +26,6 @@ def add_parser_options(
     default_collection=...,
     include_bucket=...,
     include_collection=...,
-    **kwargs
+    **kwargs,
 ): ...
 def setup_logger(logger, args): ...

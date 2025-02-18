@@ -68,7 +68,6 @@ def restore_bucket_range(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0196_nimbusbranch_feature_enabled"),
     ]

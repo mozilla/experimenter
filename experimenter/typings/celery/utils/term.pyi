@@ -21,10 +21,15 @@ class colored:
 
     Example:
         >>> c = colored(enabled=True)
-        >>> print(str(c.red('the quick '), c.blue('brown ', c.bold('fox ')),
-        ...       c.magenta(c.underline('jumps over')),
-        ...       c.yellow(' the lazy '),
-        ...       c.green('dog ')))
+        >>> print(
+        ...     str(
+        ...         c.red("the quick "),
+        ...         c.blue("brown ", c.bold("fox ")),
+        ...         c.magenta(c.underline("jumps over")),
+        ...         c.yellow(" the lazy "),
+        ...         c.green("dog "),
+        ...     )
+        ... )
     """
 
     def __init__(self, *s, **kwargs) -> None: ...

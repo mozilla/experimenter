@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0274_nimbusbranch_firefox_labs_title_and_more"),
     ]

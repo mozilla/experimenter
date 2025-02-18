@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0242_nimbusexperiment_takeaways_qbr_learning"),
     ]

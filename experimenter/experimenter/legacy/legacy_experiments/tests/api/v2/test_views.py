@@ -193,7 +193,6 @@ class TestExperimentDesignMultiPrefView(TestCase):
         self.preference = VariantPreferencesFactory.create(variant=self.variant)
 
     def test_get_design_multi_pref_returns_design_info(self):
-
         response = self.client.get(
             reverse(
                 "experiments-design-multi-pref", kwargs={"slug": self.experiment.slug}

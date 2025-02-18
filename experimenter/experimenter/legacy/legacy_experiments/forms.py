@@ -52,7 +52,6 @@ class DSIssueURLField(forms.URLField):
             )
 
             if ds is None:
-
                 raise forms.ValidationError(err_str.format(ds_url=settings.DS_ISSUE_HOST))
         return cleaned_value
 
@@ -85,7 +84,6 @@ class ChangeLogMixin(object):
         return ""
 
     def save(self, *args, **kwargs):
-
         experiment = super().save(*args, **kwargs)
         new_serialized_vals = ChangeLogSerializer(self.instance).data
         message = self.get_changelog_message()
@@ -102,7 +100,6 @@ class ChangeLogMixin(object):
 
 
 class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
-
     type = forms.ChoiceField(
         label="Type",
         choices=Experiment.FEATURE_TYPE_CHOICES(),
@@ -266,7 +263,6 @@ class RadioWidgetCloser(RadioWidget):
 
 
 class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
-
     objectives = forms.CharField(
         required=False,
         label="Hypothesis",
@@ -321,7 +317,6 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
 
 
 class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
-
     results_url = forms.URLField(
         label="Primary Results URL",
         help_text=Experiment.RESULTS_URL_HELP_TEXT,
@@ -375,7 +370,6 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
 
 
 class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
-
     # Radio Buttons
     risk_partner_related = forms.ChoiceField(
         required=False,
@@ -584,7 +578,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
     review_qa_requested = forms.BooleanField(
         required=False,
         label=mark_safe(
-            f"QA <a href={settings.JIRA_URL} target='_blank'>" "Jira</a> Request Sent"
+            f"QA <a href={settings.JIRA_URL} target='_blank'>Jira</a> Request Sent"
         ),
         help_text=Experiment.REVIEW_QA_REQUESTED_HELP_TEXT,
     )
@@ -724,7 +718,6 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         return experiment
 
     def clean(self):
-
         super(ExperimentReviewForm, self).clean()
 
         permissions = [
@@ -736,7 +729,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
             (
                 "review_relman",
                 "legacy_experiments.can_check_relman_signoff",
-                "You don't have permission to edit Release " "Management signoff fields",
+                "You don't have permission to edit Release Management signoff fields",
             ),
         ]
 
@@ -754,7 +747,6 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
 
 
 class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
-
     attention = forms.CharField(required=False)
 
     class Meta:
@@ -790,7 +782,6 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
             and self.new_status == Experiment.STATUS_REVIEW
             and not experiment.bugzilla_id
         ):
-
             tasks.create_experiment_bug_task.delay(self.request.user.id, experiment.id)
 
         if (
@@ -808,7 +799,6 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
 
 
 class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
-
     archived = forms.BooleanField(required=False)
 
     class Meta:
@@ -838,7 +828,6 @@ class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm
 
 
 class ExperimentSubscribedForm(ExperimentConstants, forms.ModelForm):
-
     subscribed = forms.BooleanField(required=False)
 
     class Meta:
@@ -884,7 +873,6 @@ class ExperimentCommentForm(forms.ModelForm):
 
 
 class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
-
     IDS_ADDED_MESSAGE = "Recipe ID(s) Added"
 
     normandy_id = forms.IntegerField(

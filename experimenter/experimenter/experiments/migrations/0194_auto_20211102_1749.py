@@ -9,7 +9,6 @@ def set_feature_value(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0193_remove_nimbusbranch_feature_enabled"),
     ]

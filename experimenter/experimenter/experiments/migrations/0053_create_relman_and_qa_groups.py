@@ -34,7 +34,6 @@ def remove_permissions(apps, schema_editor):
 
 
 def add_groups(apps, schema_editor):
-
     Group = apps.get_model("auth", "Group")
     Permission = apps.get_model("auth", "Permission")
     ContentType = apps.get_model("contenttypes", "ContentType")
@@ -66,7 +65,6 @@ def remove_groups(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0052_experiment_risk_security"),
         ("auth", "0009_alter_user_last_name_max_length"),

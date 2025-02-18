@@ -196,7 +196,6 @@ class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
 
 class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema_for_int(self):
-
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ROLLOUT,
             recipe_slug="normandy-slug",
@@ -276,7 +275,6 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_for_multi_pref(self):
-
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ROLLOUT,
             recipe_slug="normandy-slug",
@@ -434,7 +432,7 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertEqual(serializer.data["action_name"], "branched-addon-study")
         self.assertEqual(serializer.data["name"], experiment.name)
 
-        expected_comment = f"{experiment.client_matching}\n" f"Platform: ['All Linux']\n"
+        expected_comment = f"{experiment.client_matching}\nPlatform: ['All Linux']\n"
         self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
             serializer.data["filter_object"],
@@ -476,7 +474,7 @@ class TestExperimentRecipeSerializer(TestCase):
         variant.save()
 
         expected_comment = expected_comment = (
-            f"{experiment.client_matching}\n" f"Platform: ['All Windows']\n"
+            f"{experiment.client_matching}\nPlatform: ['All Windows']\n"
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "multi-preference-experiment")
@@ -688,7 +686,7 @@ class TestExperimentRecipeSerializer(TestCase):
         variant.save()
 
         expected_comment = expected_comment = (
-            f"{experiment.client_matching}\n" f"Platform: ['All Windows']\n"
+            f"{experiment.client_matching}\nPlatform: ['All Windows']\n"
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "messaging-experiment")

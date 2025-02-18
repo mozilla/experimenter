@@ -21,7 +21,7 @@ class Client:
         retry_after=...,
         timeout=...,
         ignore_batch_4xx=...,
-        headers=...
+        headers=...,
     ) -> None: ...
     def clone(self, **kwargs): ...
     @retry_timeout
@@ -50,7 +50,7 @@ class Client:
         original=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict:
         """Issue a PATCH request on a bucket.
 
@@ -78,7 +78,7 @@ class Client:
         data=...,
         permissions=...,
         safe=...,
-        if_not_exists=...
+        if_not_exists=...,
     ) -> Dict: ...
     @retry_timeout
     def update_group(
@@ -95,7 +95,7 @@ class Client:
         original=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict:
         """Issue a PATCH request on a bucket.
 
@@ -124,7 +124,7 @@ class Client:
         data=...,
         permissions=...,
         safe=...,
-        if_not_exists=...
+        if_not_exists=...,
     ) -> Dict: ...
     @retry_timeout
     def update_collection(
@@ -141,7 +141,7 @@ class Client:
         original=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict:
         """Issue a PATCH request on a collection.
 
@@ -180,7 +180,7 @@ class Client:
         data=...,
         permissions=...,
         safe=...,
-        if_not_exists=...
+        if_not_exists=...,
     ) -> Dict: ...
     @retry_timeout
     def update_record(
@@ -192,7 +192,7 @@ class Client:
         data=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict: ...
     @retry_timeout
     def patch_record(
@@ -206,7 +206,7 @@ class Client:
         original=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict:
         """Issue a PATCH request on a record.
 
@@ -244,7 +244,7 @@ class AsyncClient:
         retry_after=...,
         timeout=...,
         ignore_batch_4xx=...,
-        headers=...
+        headers=...,
     ) -> None: ...
     def clone(self, **kwargs): ...
     async def server_info(self) -> Dict: ...
@@ -265,7 +265,7 @@ class AsyncClient:
         original=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict: ...
     async def delete_bucket(
         self, *, id=..., safe=..., if_match=..., if_exists=...
@@ -281,7 +281,7 @@ class AsyncClient:
         data=...,
         permissions=...,
         safe=...,
-        if_not_exists=...
+        if_not_exists=...,
     ) -> Dict: ...
     async def update_group(
         self, *, id=..., bucket=..., data=..., permissions=..., safe=..., if_match=...
@@ -296,7 +296,7 @@ class AsyncClient:
         original=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict: ...
     async def delete_group(
         self, *, id, bucket=..., safe=..., if_match=..., if_exists=...
@@ -312,7 +312,7 @@ class AsyncClient:
         data=...,
         permissions=...,
         safe=...,
-        if_not_exists=...
+        if_not_exists=...,
     ) -> Dict: ...
     async def update_collection(
         self, *, id=..., bucket=..., data=..., permissions=..., safe=..., if_match=...
@@ -327,7 +327,7 @@ class AsyncClient:
         original=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict: ...
     async def delete_collection(
         self, *, id=..., bucket=..., safe=..., if_match=..., if_exists=...
@@ -350,7 +350,7 @@ class AsyncClient:
         data=...,
         permissions=...,
         safe=...,
-        if_not_exists=...
+        if_not_exists=...,
     ) -> Dict: ...
     async def update_record(
         self,
@@ -361,7 +361,7 @@ class AsyncClient:
         data=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict: ...
     async def patch_record(
         self,
@@ -374,7 +374,7 @@ class AsyncClient:
         original=...,
         permissions=...,
         safe=...,
-        if_match=...
+        if_match=...,
     ) -> Dict: ...
     async def delete_record(
         self, *, id, collection=..., bucket=..., safe=..., if_match=..., if_exists=...

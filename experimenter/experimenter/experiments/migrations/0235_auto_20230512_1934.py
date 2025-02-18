@@ -11,7 +11,6 @@ def remove_dirty_publish_status(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0234_alter_nimbusexperiment_is_rollout_dirty"),
     ]

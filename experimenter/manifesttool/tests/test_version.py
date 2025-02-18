@@ -568,8 +568,7 @@ class VersionTests(TestCase):
                 )
             else:
                 url_template = (
-                    f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
-                    f"{ref.target}/{{path}}"
+                    f"{HGMO_URL}/{app_config.repo.name}/raw-file/{ref.target}/{{path}}"
                 )
                 rsps.append(responses.get(url_template.format(path=good_path), body=body))
                 responses.get(url_template.format(path=bad_path), status=404, body=b"")

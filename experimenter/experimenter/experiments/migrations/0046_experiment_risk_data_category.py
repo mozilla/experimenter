@@ -34,7 +34,6 @@ def all_risks():
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0045_auto_20190408_2059")]
 
     operations = [
