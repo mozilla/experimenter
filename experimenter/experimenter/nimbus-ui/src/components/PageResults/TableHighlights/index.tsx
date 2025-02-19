@@ -20,13 +20,12 @@ import {
   AnalysisBases,
   BranchComparisonValues,
 } from "src/lib/visualization/types";
-import { getTableDisplayType } from "src/lib/visualization/utils";
+import { getTableDisplayType, shouldUseDou } from "src/lib/visualization/utils";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "src/types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export type TableHighlightsProps = {
   experiment: getExperiment_experimentBySlug;
@@ -40,21 +39,22 @@ type Branch =
   | getExperiment_experimentBySlug_referenceBranch
   | getExperiment_experimentBySlug_treatmentBranches;
 
-const getHighlightMetrics = (outcomes: OutcomesList, isDesktop = false) => {
+const getHighlightMetrics = (outcomes: OutcomesList, useDou: boolean) => {
   // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
-  const highlightMetricsList = HIGHLIGHTS_METRICS_LIST.map(
-    (highlightMetric) => {
-      if (isDesktop && highlightMetric.value === METRIC.DAYS_OF_USE) {
+  let highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
+  if (useDou) {
+    highlightMetricsList = highlightMetricsList.map((metric) => {
+      if (metric.value === METRIC.DAILY_ACTIVE_USERS) {
         return {
-          value: METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-          name: "Qualified Cumulative Days of Use",
-          tooltip: METRICS_TIPS.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-          group: METRIC_TO_GROUP[METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE],
+          value: METRIC.DAYS_OF_USE,
+          name: "Days of Use",
+          tooltip: METRICS_TIPS.DAYS_OF_USE,
+          group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
         };
       }
-      return highlightMetric;
-    },
-  );
+      return metric;
+    });
+  }
   outcomes?.forEach((outcome) => {
     if (!outcome?.isDefault) {
       return;
@@ -95,10 +95,6 @@ const TableHighlights = ({
   referenceBranch,
 }: TableHighlightsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
-  const highlightMetricsList = getHighlightMetrics(
-    primaryOutcomes,
-    experiment.application === NimbusExperimentApplicationEnum.DESKTOP,
-  );
   const branchDescriptions = getBranchDescriptions(
     experiment.referenceBranch,
     experiment.treatmentBranches,
@@ -108,6 +104,8 @@ const TableHighlights = ({
     sortedBranchNames,
   } = useContext(ResultsContext);
   const overallResults = overall![analysisBasis]?.[segment]!;
+  const useDou = shouldUseDou(overallResults[referenceBranch]);
+  const highlightMetricsList = getHighlightMetrics(primaryOutcomes, useDou);
 
   return (
     <table data-testid="table-highlights" className="table mb-0 pt-2">
