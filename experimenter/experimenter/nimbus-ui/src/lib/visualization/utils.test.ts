@@ -4,11 +4,14 @@
 
 import {
   mockAnalysis,
+  mockAnalysisOnlyGuardrailsNoDau,
+  mockIncompleteAnalysis,
   MOCK_METADATA_WITH_CONFIG,
 } from "src/lib/visualization/mocks";
 import {
   getControlBranchName,
   getSortedBranchNames,
+  shouldUseDou,
 } from "src/lib/visualization/utils";
 
 describe("getSortedBranchNames", () => {
@@ -81,5 +84,41 @@ describe("getControlBranchName", () => {
         ...MOCK_ANALYSIS_NO_BRANCH_INFO,
       }),
     ).toThrow("no branch name");
+  });
+});
+
+describe("shouldUseDou", () => {
+  it("returns true if DAU is empty and DOU results exist", () => {
+    const useDou = shouldUseDou(
+      mockAnalysisOnlyGuardrailsNoDau().overall.enrollments.all.control,
+    );
+    expect(useDou).toBe(true);
+  });
+  it("returns false if both DAU and DOU results exist", () => {
+    const useDou = shouldUseDou(mockAnalysis().overall.enrollments.all.control);
+    expect(useDou).toBe(false);
+  });
+  it("returns false if neither DAU and DOU results exist", () => {
+    const useDou = shouldUseDou(
+      mockIncompleteAnalysis().overall.enrollments.all.control,
+    );
+    expect(useDou).toBe(false);
+  });
+  it("returns false if no results exist", () => {
+    const useDou = shouldUseDou(undefined);
+    expect(useDou).toBe(false);
+  });
+  it("returns false if results are invalid", () => {
+    const results = mockAnalysisOnlyGuardrailsNoDau({
+      overall: {
+        enrollments: {
+          all: {
+            control: { branch_data: { other_metrics: { days_of_use: {} } } },
+          },
+        },
+      },
+    });
+    const useDou = shouldUseDou(results.overall.enrollments.all.control);
+    expect(useDou).toBe(false);
   });
 });
