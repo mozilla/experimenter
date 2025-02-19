@@ -78,7 +78,7 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
         ]
 
     def get_changelog_message(self):
-        return f'{self.request.user} created {self.cleaned_data["name"]}'
+        return f"{self.request.user} created {self.cleaned_data['name']}"
 
     def clean_name(self):
         name = self.cleaned_data["name"]

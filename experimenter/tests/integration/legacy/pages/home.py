@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 
 
 class Home(Base):
-
     _create_experiment_btn_locator = (By.CSS_SELECTOR, "a.col.btn-primary")
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-list-view")
     _load_legacy_page = (By.CSS_SELECTOR, "#legacy_page_link")

@@ -13,7 +13,7 @@ class DjangoFilterConnectionField(DjangoConnectionField):
         extra_filter_meta=...,
         filterset_class=...,
         *args,
-        **kwargs
+        **kwargs,
     ) -> None: ...
     @property
     def args(self): ...

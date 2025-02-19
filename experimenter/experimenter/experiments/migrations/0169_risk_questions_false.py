@@ -11,7 +11,6 @@ def set_risk_questions_to_false(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0168_auto_20210503_1340"),
     ]

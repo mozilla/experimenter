@@ -49,7 +49,7 @@ def get_model_field(model, field_name):  # -> None:
 
     ex::
 
-        f = get_model_field(Book, 'author__first_name')
+        f = get_model_field(Book, "author__first_name")
 
     """
     ...

@@ -15,10 +15,7 @@ class AddTagFilter(MetricsFilter):
 
         from someplace import get_host
 
-        metrics = markus.get_metrics(
-            __name__,
-            filters=[AddTag("host:" + get_host())]
-        )
+        metrics = markus.get_metrics(__name__, filters=[AddTag("host:" + get_host())])
 
     """
 

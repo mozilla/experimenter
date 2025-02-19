@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("base", "0004_language"),
         ("experiments", "0206_alter_nimbusfeatureconfig_name"),

@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0065_results_section")]
 
     operations = [migrations.RemoveField(model_name="experiment", name="project")]

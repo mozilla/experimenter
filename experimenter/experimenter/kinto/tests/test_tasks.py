@@ -1121,7 +1121,6 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(
     def test_publishes_preview_experiments_and_unpublishes_non_preview_experiments(
         self, application
     ):
-
         should_publish_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PREVIEW,
             published_date=None,

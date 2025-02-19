@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0250_nimbusexperiment_qa_status"),
     ]

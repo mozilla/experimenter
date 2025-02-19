@@ -6,7 +6,7 @@ def import_object(module_name, attribute_name):  # -> Any:
     """Import an object from its absolute path.
 
     Example:
-        >>> import_object('datetime', 'datetime')
+        >>> import_object("datetime", "datetime")
         <type 'datetime.datetime'>
     """
     ...

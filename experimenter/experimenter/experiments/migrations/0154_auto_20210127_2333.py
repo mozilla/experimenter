@@ -18,7 +18,6 @@ def update_channels(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0153_auto_20210127_1855"),
     ]

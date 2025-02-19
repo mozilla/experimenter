@@ -38,7 +38,6 @@ def reverse_analysis_owner(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("experiments", "0072_changelog_pruning"),

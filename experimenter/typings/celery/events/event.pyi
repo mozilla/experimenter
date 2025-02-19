@@ -22,10 +22,10 @@ def group_from(type):
     """Get the group part of an event type name.
 
     Example:
-        >>> group_from('task-sent')
+        >>> group_from("task-sent")
         'task'
 
-        >>> group_from('custom-my-event')
+        >>> group_from("custom-my-event")
         'custom'
     """
     ...

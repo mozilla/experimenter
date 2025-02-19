@@ -147,8 +147,7 @@ FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
     name="First start-up users from Chrome",
     slug="first_run_chrome",
     description=(
-        "First start-up users (e.g. for about:welcome) who download Firefox "
-        "from Chrome"
+        "First start-up users (e.g. for about:welcome) who download Firefox from Chrome"
     ),
     targeting=f"{FIRST_RUN.targeting} && attributionData.ua == 'chrome'",
     desktop_telemetry=(

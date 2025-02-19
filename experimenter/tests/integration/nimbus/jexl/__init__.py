@@ -36,13 +36,13 @@ def to_str(node):
     elif type(node) is Literal:
         return f"{json.dumps(node.value)}"
     elif type(node) is ArrayLiteral:
-        return f'[{", ".join([to_str(a) for a in node.value])}]'
+        return f"[{', '.join([to_str(a) for a in node.value])}]"
     elif type(node) is UnaryExpression:
         return f"({node.operator.symbol}{to_str(node.right)})"
     elif type(node) is BinaryExpression:
         return f"({to_str(node.left)} {node.operator.symbol} {to_str(node.right)})"
     elif type(node) is Transform:
-        args = f'({", ".join([to_str(a) for a in node.args])})' if node.args else ""
+        args = f"({', '.join([to_str(a) for a in node.args])})" if node.args else ""
         return f"{to_str(node.subject)}|{node.name}{args}"
     elif type(node) is FilterExpression:
         return f"{to_str(node.subject)}[{to_str(node.expression)}]"

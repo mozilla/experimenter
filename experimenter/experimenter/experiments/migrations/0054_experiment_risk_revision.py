@@ -20,7 +20,6 @@ def populate_risk_revision(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0053_create_relman_and_qa_groups")]
 
     operations = [

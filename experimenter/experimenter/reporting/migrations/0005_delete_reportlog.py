@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("reporting", "0004_alter_reportlog_experiment_type"),
     ]

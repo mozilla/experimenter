@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0118_remove_nimbusexperiment_firefox_max_version"),
     ]

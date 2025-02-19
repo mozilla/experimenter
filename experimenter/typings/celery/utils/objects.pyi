@@ -71,8 +71,8 @@ class getitem_property:
         >>> class Me(dict):
         ...     deep = defaultdict(dict)
         ...
-        ...     foo = _getitem_property('foo')
-        ...     deep_thing = _getitem_property('deep.thing')
+        ...     foo = _getitem_property("foo")
+        ...     deep_thing = _getitem_property("deep.thing")
 
 
         >>> me = Me()
@@ -82,7 +82,7 @@ class getitem_property:
         >>> me.foo = 10
         >>> me.foo
         10
-        >>> me['foo']
+        >>> me["foo"]
         10
 
         >>> me.deep_thing = 42

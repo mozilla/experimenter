@@ -20,9 +20,11 @@ def convert_to_status_next(apps, schema_editor):
         status_next=NimbusConstants.Status.COMPLETE
     )
 
-    NimbusExperiment.objects.filter(status=NimbusConstants.Status.DRAFT,).exclude(
-        publish_status=NimbusConstants.PublishStatus.IDLE
-    ).update(status_next=NimbusConstants.Status.LIVE)
+    NimbusExperiment.objects.filter(
+        status=NimbusConstants.Status.DRAFT,
+    ).exclude(publish_status=NimbusConstants.PublishStatus.IDLE).update(
+        status_next=NimbusConstants.Status.LIVE
+    )
 
 
 def convert_from_status_next(apps, schema_editor):

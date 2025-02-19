@@ -13,7 +13,6 @@ def migrate_conclusion_recommendations(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         (
             "experiments",

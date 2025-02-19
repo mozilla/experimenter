@@ -187,12 +187,10 @@ def update_population_info(experiment, recipe_data):
 
 
 def update_population_percent(experiment, recipe_data, filter_objects):
-
     changed_data = {}
     if bucket_sample := filter_objects.get("bucketSample") or filter_objects.get(
         "namespaceSample"
     ):
-
         decimal.getcontext().prec = 5
         bucket_total = bucket_sample.get("total", experiment.BUCKET_TOTAL)
         percent_decimal = (
@@ -217,7 +215,6 @@ def update_firefox_versions(experiment, recipe_data, filter_objects):
     changed_data = {}
 
     if versions := filter_objects.get("version"):
-
         min_version = str(float(min(versions["versions"])))
         max_version = str(float(max(versions["versions"])))
         if experiment.firefox_min_version != min_version:
