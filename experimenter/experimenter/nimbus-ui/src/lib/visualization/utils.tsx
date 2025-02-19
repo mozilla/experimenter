@@ -6,11 +6,13 @@ import {
   BRANCH_COMPARISON,
   DISPLAY_TYPE,
   METRIC,
+  METRIC_TO_GROUP,
 } from "src/lib/visualization/constants";
 import {
   AnalysisData,
   AnalysisDataOverall,
   BranchComparisonValues,
+  BranchDescription,
   FormattedAnalysisPoint,
 } from "src/lib/visualization/types";
 
@@ -96,4 +98,49 @@ export const getExtremeBounds = (
     }
   });
   return extreme;
+};
+
+/**
+ * Determine whether UI should fallback to using DOU instead of DAU.
+ *
+ * @param results BranchDescription to search for DOU and DAU
+ * @returns true if `results` contains DOU but not DAU results, else false
+ */
+export const shouldUseDou = (results: BranchDescription | undefined) => {
+  if (!results) {
+    return false;
+  }
+  const dauGroup = METRIC_TO_GROUP[METRIC.DAILY_ACTIVE_USERS];
+  const douGroup = METRIC_TO_GROUP[METRIC.DAYS_OF_USE];
+  try {
+    // DAU is not guaranteed to have `absolute` data so we'll check the branch comparison data
+    if (METRIC.DAILY_ACTIVE_USERS in results.branch_data[dauGroup]) {
+      for (const branch in results.branch_data[dauGroup][
+        METRIC.DAILY_ACTIVE_USERS
+      ].difference) {
+        if (
+          results.branch_data[dauGroup][METRIC.DAILY_ACTIVE_USERS].difference[
+            branch
+          ].all.length > 0
+        ) {
+          // found DAU -- don't use DOU
+          return false;
+        }
+      }
+    }
+    // DOU should always have `absolute` data
+    if (METRIC.DAYS_OF_USE in results.branch_data[douGroup]) {
+      // didn't find DAU, return true if DOU data exists
+      return (
+        results.branch_data[dauGroup][METRIC.DAYS_OF_USE].absolute.all.length >
+        0
+      );
+    }
+  } catch (e) {
+    // if there is some problem traversing the results, we default to false
+    return false;
+  }
+
+  // found neither DOU or DAU, default to DAU
+  return false;
 };

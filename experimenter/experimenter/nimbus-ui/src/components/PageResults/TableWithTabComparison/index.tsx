@@ -23,7 +23,6 @@ export type TableWithTabComparisonProps = {
   className?: string;
   analysisBasis?: AnalysisBases;
   segment?: string;
-  isDesktop?: boolean;
   referenceBranch: string;
 };
 
@@ -33,7 +32,6 @@ export const TableWithTabComparison = ({
   className = "rounded-bottom mb-5",
   analysisBasis = "enrollments",
   segment = "all",
-  isDesktop = false,
   referenceBranch,
 }: TableWithTabComparisonProps) => (
   <Tabs defaultActiveKey={BRANCH_COMPARISON.UPLIFT} className="border-bottom-0">
@@ -51,7 +49,6 @@ export const TableWithTabComparison = ({
           <Table
             analysisBasis={analysisBasis}
             segment={segment}
-            isDesktop={isDesktop}
             referenceBranch={referenceBranch}
           />
         )}
@@ -74,7 +71,6 @@ export const TableWithTabComparison = ({
               branchComparison={BRANCH_COMPARISON.ABSOLUTE}
               analysisBasis={analysisBasis}
               segment={segment}
-              isDesktop={isDesktop}
               referenceBranch={referenceBranch}
             />
           </>
