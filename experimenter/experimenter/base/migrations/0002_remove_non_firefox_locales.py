@@ -73,7 +73,6 @@ def remove_locales(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("base", "0001_initial"),
     ]

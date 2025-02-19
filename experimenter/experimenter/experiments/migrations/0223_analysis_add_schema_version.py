@@ -13,7 +13,6 @@ def analysis_add_schema_version(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0222_auto_20221207_2104"),
     ]

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0271_remove_nimbusexperiment_conclusion_recommendation"),
     ]

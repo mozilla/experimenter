@@ -32,7 +32,6 @@ class Segments:
 
         config_collection = None
         if segment_data is None:
-
             config_collection = LocalConfigCollection.from_local_path(
                 path=METRIC_HUB_SEGMENTS_PATH_DEFAULT, is_private=False
             )

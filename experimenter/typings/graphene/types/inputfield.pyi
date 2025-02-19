@@ -54,7 +54,7 @@ class InputField(MountedType):
         description=...,
         required=...,
         _creation_counter=...,
-        **extra_args
+        **extra_args,
     ) -> None: ...
     @property
     def type(self): ...

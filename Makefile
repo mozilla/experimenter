@@ -40,8 +40,8 @@ NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-
 NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
 RUFF_CHECK = ruff check experimenter/ tests/
 RUFF_FIX = ruff check --fix experimenter/ tests/
-BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
-BLACK_FIX = black -l 90 . --exclude node_modules
+RUFF_FORMAT_CHECK = ruff format --check --diff . --exclude node_modules
+RUFF_FORMAT_FIX = ruff format . --exclude node_modules
 CHECK_DOCS = python manage.py generate_docs --check=true
 GENERATE_DOCS = python manage.py generate_docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
@@ -155,7 +155,7 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 	echo "All containers removed!"
 
 lint: build_test  ## Running linting on source code
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
 check: lint
 
 test: build_test  ## Run tests
@@ -192,7 +192,7 @@ generate_types: build_dev
 	$(COMPOSE_RUN) experimenter sh -c "$(NIMBUS_TYPES_GENERATE)"
 
 format: build_dev  ## Format source tree
-	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)" "$(ESLINT_FIX_NIMBUS_UI_NEW)"'
+	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)" "$(ESLINT_FIX_NIMBUS_UI_NEW)"'
 code_format: format
 
 makemigrations: build_dev

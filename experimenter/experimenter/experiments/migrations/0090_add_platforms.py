@@ -7,7 +7,6 @@ import experimenter.legacy.legacy_experiments.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0089_experiment_total_enrolled_clients"),
     ]

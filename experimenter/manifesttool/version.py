@@ -211,9 +211,9 @@ def resolve_ref_versions(
 
     versions = {}
 
-    version_file_paths: str | list[
-        str
-    ] = app_config.release_discovery.version_file.root.path
+    version_file_paths: str | list[str] = (
+        app_config.release_discovery.version_file.root.path
+    )
     if not isinstance(version_file_paths, list):
         version_file_paths = [version_file_paths]
 

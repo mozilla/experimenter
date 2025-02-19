@@ -23,11 +23,11 @@ class DeclarationSet:
         """Split a declaration name into a (declaration, subpath) tuple.
 
         Examples:
-        >>> DeclarationSet.split('foo__bar')
+        >>> DeclarationSet.split("foo__bar")
         ('foo', 'bar')
-        >>> DeclarationSet.split('foo')
+        >>> DeclarationSet.split("foo")
         ('foo', None)
-        >>> DeclarationSet.split('foo__bar__baz')
+        >>> DeclarationSet.split("foo__bar__baz")
         ('foo', 'bar__baz')
         """
         ...

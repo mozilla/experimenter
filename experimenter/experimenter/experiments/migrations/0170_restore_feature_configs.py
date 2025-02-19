@@ -25,7 +25,6 @@ def restore_feature_configs(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0169_risk_questions_false"),
     ]

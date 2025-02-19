@@ -11,7 +11,6 @@ from selenium.webdriver.support.select import Select
 
 
 class DesignPage(Base):
-
     URL_TEMPLATE = "{experiment_url}edit-design"
     _page_wait_locator = (By.CSS_SELECTOR, ".page-edit-design")
 

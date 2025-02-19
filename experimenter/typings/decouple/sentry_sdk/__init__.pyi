@@ -26,10 +26,12 @@ __all__ = ["EmptyError", "FullError", "Queue"]
 
 class EmptyError(Exception):
     "Exception raised by Queue.get(block=0)/get_nowait()."
+
     ...
 
 class FullError(Exception):
     "Exception raised by Queue.put(block=0)/put_nowait()."
+
     ...
 
 class Queue:

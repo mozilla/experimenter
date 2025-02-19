@@ -17,7 +17,6 @@ def restore_feature_enabled(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0195_nimbusexperiment_is_rollout"),
     ]

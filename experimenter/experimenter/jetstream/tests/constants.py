@@ -296,15 +296,15 @@ class JetstreamTestData:
 
                 data_point_overall = range_data.copy()
                 data_point_overall.count = 48.0
-                overall_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_overall)
+                )
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
-                weekly_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_weekly)
+                )
 
                 data.append(
                     JetstreamDataPoint(
@@ -339,15 +339,15 @@ class JetstreamTestData:
 
                 data_point_overall = range_data.copy()
                 data_point_overall.count = 0.0
-                overall_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_overall)
+                )
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
-                weekly_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_weekly)
+                )
 
                 data.append(
                     JetstreamDataPoint(
@@ -1289,15 +1289,15 @@ class ZeroJetstreamTestData(JetstreamTestData):
 
                 data_point_overall = range_data.copy()
                 data_point_overall.count = 0.0
-                overall_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_overall)
+                )
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
-                weekly_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_weekly)
+                )
 
                 data.append(
                     JetstreamDataPoint(

@@ -6,7 +6,6 @@ from selenium.webdriver.support.select import Select
 
 
 class TimelineAndPopulationPage(Base):
-
     URL_TEMPLATE = "{experiment_url}edit-timeline-population"
 
     _rollout_playbook_locator = (By.CSS_SELECTOR, "#id_rollout_playbook")

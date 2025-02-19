@@ -45,9 +45,11 @@ class param(_param):
 
     Intended to be used as an argument to ``@parameterized``::
 
-        @parameterized([
-            param("foo", bar=16),
-        ])
+        @parameterized(
+            [
+                param("foo", bar=16),
+            ]
+        )
         def test_stuff(foo, bar=16):
             pass
     """
@@ -185,7 +187,6 @@ class parameterized:
         ... def test_add1(name, input, expected):
         ...     actual = add1(input)
         ...     assert_equal(actual, expected)
-        ...
         >>> locals()
         ... 'test_add1_foo_0': <function ...> ...
         >>>
@@ -205,12 +206,13 @@ def parameterized_class(
 
     1) With a list of dictionaries containing attributes to override::
 
-        @parameterized_class([
-            { "username": "foo" },
-            { "username": "bar", "access_level": 2 },
-        ])
-        class TestUserAccessLevel(TestCase):
-            ...
+        @parameterized_class(
+            [
+                {"username": "foo"},
+                {"username": "bar", "access_level": 2},
+            ]
+        )
+        class TestUserAccessLevel(TestCase): ...
 
     2) With a tuple of attributes, then a list of tuples of values:
 

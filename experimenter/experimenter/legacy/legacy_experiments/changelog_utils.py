@@ -171,7 +171,6 @@ def generate_change_log(
     message=None,
     form_fields=None,
 ):
-
     changed_values = {}
     old_status = None
 

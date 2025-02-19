@@ -6,7 +6,6 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class Base(Page):
-
     _save_btn_locator = (By.CSS_SELECTOR, "#save-btn")
     _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
 
@@ -35,7 +34,6 @@ class Base(Page):
 
 
 class Header(Region):
-
     _current_user_locator = (By.CSS_SELECTOR, ".fa-user")
     _owned_experiments_link_locator = (
         By.CSS_SELECTOR,

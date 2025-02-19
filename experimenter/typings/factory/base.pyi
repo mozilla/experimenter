@@ -252,6 +252,7 @@ class StubFactory(Factory):
     class Meta:
         strategy = ...
         model = StubObject
+
     @classmethod
     def build(cls, **kwargs): ...
     @classmethod

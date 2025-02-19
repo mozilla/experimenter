@@ -129,7 +129,7 @@ def trace_task_ret(
     content_encoding,
     loads=...,
     app=...,
-    **extra_request
+    **extra_request,
 ): ...
 def fast_trace_task(
     task,
@@ -141,7 +141,7 @@ def fast_trace_task(
     loads=...,
     _loc=...,
     hostname=...,
-    **_
+    **_,
 ): ...
 def report_internal_error(task, exc): ...
 def setup_worker_optimizations(app, hostname=...):  # -> None:

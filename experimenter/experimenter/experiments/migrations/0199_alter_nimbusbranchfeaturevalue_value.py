@@ -9,7 +9,6 @@ def update_value_default(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0198_auto_20211110_1527"),
     ]

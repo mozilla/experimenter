@@ -224,7 +224,6 @@ class ExperimentDesignBaseSerializer(
         return data
 
     def is_variant_valid(self, variants):
-
         slugified_nanes = [slugify(variant["name"]) for variant in variants]
         unique_names = len(set(slugified_nanes)) == len(variants)
         non_empty = all(slugified_nanes)
@@ -371,7 +370,6 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
         )
         submitted_pref_ids = []
         for variant_data, prefs in variant_preferences:
-
             variant = instance.variants.get(name=variant_data["name"])
             for pref in prefs:
                 pref["variant_id"] = variant.id

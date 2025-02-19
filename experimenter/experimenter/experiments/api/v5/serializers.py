@@ -830,7 +830,7 @@ class NimbusExperimentSerializer(
             and not self.instance.can_review(self.context["user"])
         ):
             raise serializers.ValidationError(
-                f'{self.context["user"]} can not review this experiment.'
+                f"{self.context['user']} can not review this experiment."
             )
         return publish_status
 

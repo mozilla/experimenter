@@ -38,13 +38,13 @@ def resolve_branch(repo: str, bookmark: str) -> Ref:
 
 
 @overload
-def fetch_file(repo: str, file_path: str, rev: str) -> str:
-    ...  # pragma: no cover
+def fetch_file(repo: str, file_path: str, rev: str) -> str: ...  # pragma: no cover
 
 
 @overload
-def fetch_file(repo: str, file_path: str, rev: str, download_path: Path) -> None:
-    ...  # pragma: no cover
+def fetch_file(
+    repo: str, file_path: str, rev: str, download_path: Path
+) -> None: ...  # pragma: no cover
 
 
 def fetch_file(

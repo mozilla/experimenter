@@ -148,7 +148,7 @@ class Task:
         link=...,
         link_error=...,
         shadow=...,
-        **options
+        **options,
     ):  # -> EagerResult | Any:
         """Apply tasks asynchronously by sending a message.
 
@@ -267,7 +267,7 @@ class Task:
                 def shadow_name(task, args, kwargs, options):
                     return qualname(args[0])
 
-                @app.task(shadow_name=shadow_name, serializer='pickle')
+                @app.task(shadow_name=shadow_name, serializer="pickle")
                 def apply_function_async(fun, *args, **kwargs):
                     return fun(*args, **kwargs)
 
@@ -290,7 +290,7 @@ class Task:
         eta=...,
         countdown=...,
         max_retries=...,
-        **options
+        **options,
     ):  # -> Retry:
         """Retry the task, adding it to the back of the queue.
 
@@ -365,7 +365,7 @@ class Task:
         logfile=...,
         loglevel=...,
         headers=...,
-        **options
+        **options,
     ):  # -> EagerResult:
         """Execute this task locally, by blocking until the task returns.
 

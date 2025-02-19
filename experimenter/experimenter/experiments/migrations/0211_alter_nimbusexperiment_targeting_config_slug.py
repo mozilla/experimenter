@@ -11,7 +11,6 @@ def update_no_targeting_defaults(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0210_alter_nimbusexperiment_channel"),
     ]

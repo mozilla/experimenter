@@ -8,7 +8,6 @@ import experimenter.legacy.legacy_experiments.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0003_auto_20171120_2205")]
 
     operations = [

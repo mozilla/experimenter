@@ -33,7 +33,6 @@ def analysis_add_basis(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0223_analysis_add_schema_version"),
     ]

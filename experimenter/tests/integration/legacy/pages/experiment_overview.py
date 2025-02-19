@@ -16,7 +16,6 @@ def get_random_digits():
 
 
 class ExperimentOverview(Base):
-
     URL_TEMPLATE = "{experiment_url}edit"
 
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-overview")

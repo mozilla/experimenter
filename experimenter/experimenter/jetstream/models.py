@@ -272,9 +272,9 @@ class ResultsObjectModelBase(BaseModel):
                         significance_to_branch = getattr(
                             metric_data.significance, comparison_to_branch
                         )
-                        getattr(significance_to_branch, window)[
-                            window_index
-                        ] = significance
+                        getattr(significance_to_branch, window)[window_index] = (
+                            significance
+                        )
 
                 if window == AnalysisWindow.WEEKLY:
                     data_point.window_index = window_index

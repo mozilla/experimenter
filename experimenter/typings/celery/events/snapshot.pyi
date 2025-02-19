@@ -44,7 +44,7 @@ def evcam(
     pidfile=...,
     timer=...,
     app=...,
-    **kwargs
+    **kwargs,
 ):  # -> None:
     """Start snapshot recorder."""
     ...
