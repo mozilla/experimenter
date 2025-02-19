@@ -11,7 +11,6 @@ def set_no_feature_configs_read_only(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0189_auto_20211022_2155"),
     ]

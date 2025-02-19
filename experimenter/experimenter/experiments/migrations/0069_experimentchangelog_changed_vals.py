@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0068_experiment_related_to")]
 
     def format_to_new_changelog(apps, schema_editor):

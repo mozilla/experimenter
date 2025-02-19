@@ -18,7 +18,6 @@ def remove_non_ldap_emails(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0180_auto_20210803_1832"),
         ("notifications", "0003_auto_20190103_1849"),

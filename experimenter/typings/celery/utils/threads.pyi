@@ -47,7 +47,7 @@ def release_local(local):  # -> None:
         >>> loc = Local()
         >>> loc.foo = 42
         >>> release_local(loc)
-        >>> hasattr(loc, 'foo')
+        >>> hasattr(loc, "foo")
         False
     """
     ...

@@ -124,11 +124,11 @@ class crontab_parser:
 
     .. code-block:: pycon
 
-        >>> minutes = crontab_parser(60).parse('*/15')
+        >>> minutes = crontab_parser(60).parse("*/15")
         [0, 15, 30, 45]
-        >>> hours = crontab_parser(24).parse('*/4')
+        >>> hours = crontab_parser(24).parse("*/4")
         [0, 4, 8, 12, 16, 20]
-        >>> day_of_week = crontab_parser(7).parse('*')
+        >>> day_of_week = crontab_parser(7).parse("*")
         [0, 1, 2, 3, 4, 5, 6]
 
     It can also parse day of month and month of year expressions if initialized
@@ -136,11 +136,11 @@ class crontab_parser:
 
     .. code-block:: pycon
 
-        >>> days_of_month = crontab_parser(31, 1).parse('*/3')
+        >>> days_of_month = crontab_parser(31, 1).parse("*/3")
         [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31]
-        >>> months_of_year = crontab_parser(12, 1).parse('*/2')
+        >>> months_of_year = crontab_parser(12, 1).parse("*/2")
         [1, 3, 5, 7, 9, 11]
-        >>> months_of_year = crontab_parser(12, 1).parse('2-12/2')
+        >>> months_of_year = crontab_parser(12, 1).parse("2-12/2")
         [2, 4, 6, 8, 10, 12]
 
     The maximum possible expanded value returned is found by the formula:
@@ -240,7 +240,7 @@ class crontab(BaseSchedule):
         day_of_week=...,
         day_of_month=...,
         month_of_year=...,
-        **kwargs
+        **kwargs,
     ) -> None: ...
     def __repr__(self): ...
     def __reduce__(self): ...

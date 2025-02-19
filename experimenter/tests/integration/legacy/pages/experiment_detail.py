@@ -6,7 +6,6 @@ from selenium.webdriver.common.by import By
 
 
 class DetailPage(Base):
-
     URL_TEMPLATE = "{experiment_url}"
 
     _begin_signoffs_btn_locator = (By.CSS_SELECTOR, ".proceed-status-color")
@@ -65,7 +64,6 @@ class DetailPage(Base):
         return DesignPage(self.driver, self.base_url).wait_for_page_to_load()
 
     class ObjectivesRegion(Region):
-
         _edit_btn_locator = (By.CSS_SELECTOR, "#objectives-edit-btn")
         _detail_locator = (By.CSS_SELECTOR, "#objectives-section-detail")
 
@@ -84,7 +82,6 @@ class DetailPage(Base):
             return element.text
 
     class AnalysisRegion(Region):
-
         _edit_btn_locator = (By.CSS_SELECTOR, "#analysis-edit-btn")
         _detail_locator = (
             By.CSS_SELECTOR,

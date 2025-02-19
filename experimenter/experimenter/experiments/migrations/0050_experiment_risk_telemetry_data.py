@@ -22,7 +22,6 @@ def populate_risk_telemetry_data(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0049_experiment_risk_revenue")]
 
     operations = [

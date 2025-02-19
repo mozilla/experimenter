@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0171_alter_nimbusexperiment_targeting_config_slug"),
     ]

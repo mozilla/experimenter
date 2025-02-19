@@ -26,7 +26,6 @@ def move_permissions(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [

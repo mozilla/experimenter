@@ -11,7 +11,6 @@ def update_removed_targeting_config_slugs(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0214_migrate_sticky"),
     ]

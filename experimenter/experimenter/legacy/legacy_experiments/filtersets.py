@@ -24,7 +24,6 @@ class SearchWidget(forms.widgets.TextInput):
 
 
 class ExperimentFilterset(filters.FilterSet):
-
     search = filters.CharFilter(
         method="filter_search",
         widget=SearchWidget(

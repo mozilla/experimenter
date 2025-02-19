@@ -12,7 +12,6 @@ def update_public_description(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0097_remove_public_name"),
     ]

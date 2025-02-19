@@ -18,7 +18,6 @@ def limit_durations(apps, schema_editor):  # pragma: nocover
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0027_auto_20190124_2239")]
 
     operations = [

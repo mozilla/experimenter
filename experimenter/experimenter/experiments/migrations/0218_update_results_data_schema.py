@@ -21,7 +21,6 @@ def update_results_data_schema(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0217_auto_20220901_1914"),
     ]

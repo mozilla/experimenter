@@ -155,7 +155,6 @@ def format_creation_bug_body(experiment, extra_fields):
 
 
 def format_summary(experiment):
-
     truncated_name = experiment.name[0:EXPERIMENT_NAME_MAX_LEN]
 
     if truncated_name != experiment.name:

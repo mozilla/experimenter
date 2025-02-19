@@ -814,11 +814,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            (
-                "(os.isMac) "
-                "&& (locale in ['en-CA', 'en-US']) "
-                "&& (region in ['CA', 'US'])"
-            ),
+            ("(os.isMac) && (locale in ['en-CA', 'en-US']) && (region in ['CA', 'US'])"),
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -3209,8 +3205,7 @@ class TestNimbusExperiment(TestCase):
                             "id": experiment_changelogs[0]["changes"][0]["id"],
                             "event": ChangeEventType.STATE.name,
                             "event_message": (
-                                f"{user} changed value of Status from "
-                                f"Draft to Preview"
+                                f"{user} changed value of Status from Draft to Preview"
                             ),
                             "changed_by": user,
                             "timestamp": formatted_timestamp_3,

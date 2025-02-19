@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0081_remove_experiment_risk_internal_only")]
 
     operations = [

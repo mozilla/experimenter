@@ -6,7 +6,6 @@ authors = ["Mozilla"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-black = "22.12.0"
 celery = "5.4.0"
 chardet = "4.0.0"
 click = "8.1.6"
@@ -131,6 +130,12 @@ exclude = ["migrations", ".tox", "node_modules", "legacy", ".pyenv"]
 
 # Same as Black.
 line-length = 90
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
 [tool.ruff.lint]
 select = [
     "A",

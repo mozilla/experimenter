@@ -45,7 +45,6 @@ def migrate_sticky_experiments(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0213_alter_nimbusexperiment_languages_field_for_mobile_client"),
     ]

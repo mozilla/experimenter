@@ -18,7 +18,7 @@ def apply_target(
     getpid=...,
     propagate=...,
     monotonic=...,
-    **_
+    **_,
 ):  # -> None:
     """Apply function within pool context."""
     ...
@@ -45,7 +45,7 @@ class BasePool:
         forking_enable=...,
         callbacks_propagate=...,
         app=...,
-        **options
+        **options,
     ) -> None: ...
     def on_start(self): ...
     def did_start_ok(self): ...

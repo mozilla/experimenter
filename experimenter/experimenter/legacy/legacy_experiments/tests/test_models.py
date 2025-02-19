@@ -1637,7 +1637,6 @@ class TestVariantPreferences(TestCase):
             pv2.save()
 
     def test_valid_preference_are_associated_to_variant(self):
-
         self.pref.save()
 
         pv2 = VariantPreferences()

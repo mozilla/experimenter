@@ -109,7 +109,6 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         )
 
     def test_update_live_experiment_task(self):
-
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE, normandy_id=1234
         )
@@ -289,7 +288,6 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.assertEqual(len(mail.outbox), 1)
 
     def test_accepted_experiment_becomes_live_if_normandy_enabled(self):
-
         experiment = ExperimentFactory.create(
             normandy_id=1234,
             proposed_start_date=date.today(),
@@ -587,7 +585,6 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
         )
 
     def test_set_is_paused_value_task(self):
-
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=12345
         )
@@ -622,7 +619,6 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
         self.assertEquals(experiment.changes.latest().message, "Enrollment Re-enabled")
 
     def test_set_is_paused_value_with_bad_recipe(self):
-
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=12345
         )

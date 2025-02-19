@@ -49,7 +49,7 @@ class Settings(ConfigurationView):
 
         Example:
             >>> from proj.celery import app
-            >>> app.conf.find_option('disable_rate_limits')
+            >>> app.conf.find_option("disable_rate_limits")
             ('worker', 'prefetch_multiplier',
              <Option: type->bool default->False>))
 
@@ -68,7 +68,7 @@ class Settings(ConfigurationView):
 
         Example:
             >>> from proj.celery import app
-            >>> app.conf.get_by_parts('worker', 'disable_rate_limits')
+            >>> app.conf.get_by_parts("worker", "disable_rate_limits")
             False
         """
         ...

@@ -4,13 +4,11 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0121_prune_add_version_changelogs"),
     ]
 
     def prune_new_changelog(apps, schema_editor):
-
         ExperimentChangeLog = apps.get_model("experiments", "ExperimentChangeLog")
 
         ExperimentChangeLog.objects.filter(

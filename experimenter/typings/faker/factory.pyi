@@ -16,5 +16,5 @@ class Factory:
         generator=...,
         includes=...,
         use_weighting=...,
-        **config
+        **config,
     ): ...

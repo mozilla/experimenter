@@ -13,7 +13,6 @@ def set_default_qa_status(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0256_nimbusversionedschema_is_early_startup"),
     ]

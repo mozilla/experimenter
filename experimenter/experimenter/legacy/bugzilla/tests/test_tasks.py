@@ -158,7 +158,6 @@ class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
         self.mock_bugzilla_requests_put.side_effect = RequestException()
 
         with self.assertRaises(bugzilla.BugzillaError):
-
             tasks.update_bug_resolution_task(self.user.id, self.experiment.id)
 
             self.mock_bugzilla_requests_put.side_effect = RequestException()

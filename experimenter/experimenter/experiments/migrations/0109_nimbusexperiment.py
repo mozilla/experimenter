@@ -10,7 +10,6 @@ import experimenter.legacy.legacy_experiments.constants
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("projects", "0005_project"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

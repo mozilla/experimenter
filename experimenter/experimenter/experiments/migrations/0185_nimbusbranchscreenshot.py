@@ -7,7 +7,6 @@ import experimenter.experiments.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0184_nimbusexperiment_parent"),
     ]

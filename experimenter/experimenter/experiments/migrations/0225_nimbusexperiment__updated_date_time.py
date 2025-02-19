@@ -7,7 +7,6 @@ from django.db import migrations, models
 def update_updated_date_time_with_changelog_last_changed_on(apps, schema_editor):
     NimbusExperiment = apps.get_model("experiments", "NimbusExperiment")
     for experiment in NimbusExperiment.objects.all():
-
         # disabling auto_now
         experiment._meta.get_field("_updated_date_time").auto_now = False
 
@@ -19,7 +18,6 @@ def update_updated_date_time_with_changelog_last_changed_on(apps, schema_editor)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0224_analysis_add_basis"),
     ]

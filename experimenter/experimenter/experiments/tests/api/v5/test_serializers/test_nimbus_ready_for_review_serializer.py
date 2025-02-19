@@ -4776,9 +4776,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             firefox_min_version
         ) >= NimbusExperiment.Version.parse(
             NimbusExperiment.MIN_REQUIRED_VERSION
-        ) or NimbusExperiment.Application.is_web(
-            application
-        )
+        ) or NimbusExperiment.Application.is_web(application)
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -4972,9 +4970,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
     def test_validate_feature_configs_multiple_alternate_collections(
         self, kinto_collections_by_feature_id
     ):
-        default_collection = (
-            experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP.default_kinto_collection
-        )
+        default_collection = experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP.default_kinto_collection  # noqa: E501
 
         with patch.object(
             experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP,

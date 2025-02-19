@@ -13,7 +13,6 @@ def remove_viz_api_v1(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0225_nimbusexperiment__updated_date_time"),
     ]

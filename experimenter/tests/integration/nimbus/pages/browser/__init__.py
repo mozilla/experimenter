@@ -17,7 +17,6 @@ class Browser:
 
 
 class AboutConfig(Page):
-
     URL_TEMPLATE = "about:config"
 
     _search_bar_locator = (By.ID, "about-config-search")

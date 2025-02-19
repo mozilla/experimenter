@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 
 
 class OwnedExperiments(Base):
-
     _owned_text_locator = (By.CSS_SELECTOR, ".m-0")
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-list-view")
 

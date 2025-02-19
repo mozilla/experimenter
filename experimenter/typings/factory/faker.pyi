@@ -29,7 +29,7 @@ class Faker(declarations.BaseDeclaration):
         calls ``faker.Faker.ean(length=10)``)
 
     Usage:
-        >>> foo = factory.Faker('name')
+        >>> foo = factory.Faker("name")
     """
 
     def __init__(self, provider, **kwargs) -> None: ...
