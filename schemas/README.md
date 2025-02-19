@@ -10,28 +10,52 @@ This directory contains a package of schemas published to various repositories f
 - node ^16
 - yarn ^1.22
 
-#### Common Operations
+### Common Operations
 From project root (i.e., parent to this directory)
 - Build: `make schemas_build`
 - Run linting and tests: `make schemas_check`
 - Code formatting: `make schemas_format`
 
-#### Building Python Schemas Package
-`make schemas_build_pypi`
 
-#### Building Typescript Schemas Package
-`make schemas_build_npm`
+### Adding New Schemas
+
+**Example**
+Creating a new sub-package `new_stuff`
+1. Add new directory `mozilla_nimbus_schemas` / `new_stuff` with schemas inside.
+1. Add `new_stuff` schemas to the `new_stuff` directory's `__init__.py` file.
+1. Add `new_stuff` to top level `__init__.py`:
+    >`from mozilla_nimbus_schemas.new_stuff import *`
+1. Generate Typescript and/or JSON Schemas for `new_stuff` by updating the `generate_json_schema.py` script like so:
+    
+    a. Import `new_stuff` alongside existing `mozilla_nimbus_schemas` imports, e.g.,
+      >`from mozilla_nimbus_schemas import experiments, jetstream, new_stuff`
+  
+    b. (optional) Add `new_stuff` to Typescript generation
+    * Update `TS_SCHEMA_PACKAGES` list, e.g.,
+      >`TS_SCHEMA_PACKAGES = [experiments, jetstream, new_stuff]`
+
+    c. (optional) Add `new_stuff` to JSON Schema generation
+    * Update `JSON_SCHEMA_PACKAGES` list, e.g.,
+      >`JSON_SCHEMA_PACKAGES = [experiments, new_stuff]`
+
+1. Build everything with `make schemas_build`
+
+1. Update the version (see [Versioning](#versioningversioning) below).
 
 ## Schemas
 ### Jetstream
 
 Contains schemas describing analysis results, metadata, and errors from [Jetstream](https://github.com/mozilla/jetstream).
 
+### Experiments
+
+Defines the schemas used for validating the Experimenter v6 API. Previously defined in the now-deprecated [`nimbus-shared`](https://github.com/mozilla/nimbus-shared).
+
 
 ## Deployment
 The build and deployment occurs automatically through CI. A deployment is triggered on merges into the `main` branch when the version number changes. Schemas are published to various repos for access in different languages.
 
-#### Versioning
+### Versioning
 `mozilla-nimbus-schemas` uses a date-based versioning scheme (`CalVer`). The format is `yyyy.m.MINOR`, where `m` is the non-zero-padded month, and `MINOR` is an incrementing number starting from 1 for each month. Notably, this `MINOR` number does NOT correspond to the day of the month. For example, the second release in June of 2023 would have a version of `2023.6.2`.
 
 #### Version Updates

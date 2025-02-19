@@ -345,18 +345,24 @@ urlbar:
         branch: default
         pref: browser.urlbar.quicksuggest.contextualOptIn
       description: Whether the Firefox Suggest contextual opt-in result is enabled. If true, this implicitly disables shouldShowOnboardingDialog.
-    quickSuggestContextualOptInSayHello:
-      type: boolean
+    quickSuggestContextualOptInFirstReshowAfterPeriodDays:
+      type: int
       setPref:
         branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.sayHello
-      description: Controls which variant of the copy is used for the Firefox Suggest contextual opt-in result.
-    quickSuggestContextualOptInTopPosition:
-      type: boolean
+        pref: browser.urlbar.quicksuggest.contextualOptIn.firstReshowAfterPeriodDays
+      description: Period until reshow the Firefox Suggest contextual opt-in result when first dismissed.
+    quickSuggestContextualOptInSecondReshowAfterPeriodDays:
+      type: int
       setPref:
         branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.topPosition
-      description: Controls whether the Firefox Suggest contextual opt-in result appears at the top of results or at the bottom, after one-off buttons.
+        pref: browser.urlbar.quicksuggest.contextualOptIn.secondReshowAfterPeriodDays
+      description: Period until reshow the Firefox Suggest contextual opt-in result when second dismissed.
+    quickSuggestContextualOptInThirdReshowAfterPeriodDays:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.contextualOptIn.thirdReshowAfterPeriodDays
+      description: Period until reshow the Firefox Suggest contextual opt-in result when third dismissed.
     quickSuggestDataCollectionEnabled:
       type: boolean
       description: Whether data collection should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) data collection, if the user has already toggled that preference.
@@ -439,14 +445,6 @@ urlbar:
         - default
         - interest
         - random
-    quickSuggestScenario:
-      # IMPORTANT: This should not have a fallbackPref. See UrlbarPrefs.sys.mjs.
-      type: string
-      description: The Firefox Suggest scenario in which the user is enrolled
-      enum:
-        - history
-        - offline
-        - online
     quickSuggestScoreMap:
       type: json
       description: >-
@@ -497,6 +495,14 @@ urlbar:
         branch: default
         pref: browser.urlbar.recentsearches.maxResults
       description: The maximum number of recent searches to show.
+    suggestCalculator:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.urlbar.suggest.calculator
+      description: >-
+        Whether or not to show calculator results when a user types a valid
+        calculation string into the urlbar.
     weatherFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.weather.featureGate
@@ -1508,13 +1514,15 @@ pocketNewtab:
     regionWeatherConfig:
       description: A comma-separated list of regions that get weather by default.
       type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.region-weather-config
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.region-weather-config
     localeWeatherConfig:
       description: A comma-separated list of locales that weather widget supports.
       type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.locale-weather-config
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.locale-weather-config
     topSitesMaxSponsored:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       type: int
@@ -2250,18 +2258,12 @@ dohPrefs:
       setPref:
         branch: default
         pref: "doh-rollout.uri"
-    enableFallbackWarningPage:
-      description: Whether DoH fallback warning page will be displayed when DoH doesn't work in TRR first mode.
-      type: boolean
+    dohProviderList:
+      description: An override of the rollout provider-list json
+      type: string
       setPref:
         branch: default
-        pref: "network.trr.display_fallback_warning"
-    showFallbackCheckbox:
-      description: Whether the checkbox to enable the fallback warning page is displayed in the settings UI.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.trr_ui.show_fallback_warning_option"
+        pref: "doh-rollout.provider-list"
     nativeHTTPSRecords:
       description: Whether we can perform native DNS HTTPS lookups
       type: boolean
@@ -2970,7 +2972,7 @@ syncSetupFlow:
   hasExposure: true
   exposureDescription: >-
     Exposure is recorded when the user is enrolled in an experiment using this
-    feature and we show an indicator when we detect their sync is disconnected.
+    feature and the avatar menu or app (hamburger) menu -> account on Firefox Desktop is opened
   variables:
     enabled:
       description: True if we should show the user the updated sync set-up UI

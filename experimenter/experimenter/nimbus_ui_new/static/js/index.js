@@ -8,6 +8,7 @@ import * as bootstrap from "bootstrap";
 import "htmx.org";
 import "bootstrap-select";
 
+window.bootstrap = bootstrap;
 const setupThemeSwitcher = () => {
   const LIGHT = "light";
   const DARK = "dark";

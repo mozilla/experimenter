@@ -479,6 +479,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_update_audience_url(self):
         return reverse("nimbus-new-update-audience", kwargs={"slug": self.slug})
 
+    def get_detail_preview_recipe_json_url(self):
+        return f"{self.get_detail_url()}#preview-recipe-json"
+
     @property
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())

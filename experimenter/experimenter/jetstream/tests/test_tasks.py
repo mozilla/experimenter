@@ -448,6 +448,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     Group.OTHER.value: {
                         "some_count": "Some Count",
                         "another_count": "Another Count",
+                        "some_dau_impact": "Some Dau Impact",
                     },
                 },
                 "metadata": {
@@ -1048,6 +1049,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     Group.OTHER.value: {
                         "some_count": "Some Count",
                         "another_count": "Another Count",
+                        "some_dau_impact": "Some Dau Impact",
                     },
                 },
                 "metadata": {},

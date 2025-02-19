@@ -8,6 +8,7 @@ module.exports = {
     review_controls: "./js/review_controls.js",
     edit_audience: "./js/edit_audience.js",
     show_errors: "./js/show_errors.js",
+    experiment_detail: "./js/experiment_detail.js",
   },
   output: {
     filename: "[name].bundle.js",
