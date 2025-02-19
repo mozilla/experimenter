@@ -57,6 +57,31 @@ export const MOCK_METADATA = {
   },
 };
 
+export const MOCK_METADATA_GUARDRAILS_ONLY_NO_DAU = {
+  analysis_start_time: "2022-08-11 20:06:30.309647+00:00",
+  metrics: {
+    search_count: {
+      bigger_is_better: true,
+      description:
+        "This is a metric description for search. It's made by a data scientist at the creation time of the metric [Link](https://www.example.com)",
+      friendly_name: "Search Count",
+    },
+    days_of_use: {
+      bigger_is_better: true,
+      description:
+        "This is a metric description for days of use. It's made by a data scientist at the creation time of the metric [Link](https://www.example.com)",
+      friendly_name: "Days of Use",
+    },
+    retained: {
+      bigger_is_better: true,
+      description:
+        "This is a metric description for retention. It's made by a data scientist at the creation time of the metric [Link](https://www.example.com)",
+      friendly_name: "2-Week Browser Retention",
+    },
+  },
+  outcomes: {},
+};
+
 /**
  * Certain experiment properties can be overridden in the Jetstream config which are exposed in
  * the metadata via an `external_config` object in schema version 4+. If overrides exist, they
@@ -105,8 +130,18 @@ export const CONTROL_NEUTRAL = {
       all: [],
     },
     treatment: {
-      first: {},
-      all: [],
+      first: {
+        point: -0.1,
+        lower: -1.084,
+        upper: -0.022,
+      },
+      all: [
+        {
+          point: -0.1,
+          lower: -1.084,
+          upper: -0.022,
+        },
+      ],
     },
   },
   relative_uplift: {
@@ -228,8 +263,18 @@ export const WEEKLY_CONTROL = {
   },
   difference: {
     treatment: {
-      first: {},
-      all: [],
+      first: {
+        point: -0.1,
+        lower: -1.084,
+        upper: -0.022,
+      },
+      all: [
+        {
+          point: -0.1,
+          lower: -1.084,
+          upper: -0.022,
+        },
+      ],
     },
     control: {
       first: {},
@@ -800,6 +845,7 @@ export const weeklyMockAnalysis = (modifications = {}) =>
             feature_d: WEEKLY_CONTROL,
             retained: WEEKLY_CONTROL,
             days_of_use: WEEKLY_CONTROL,
+            client_level_daily_active_users_v2: WEEKLY_CONTROL,
           },
         },
       },
@@ -812,6 +858,40 @@ export const weeklyMockAnalysis = (modifications = {}) =>
           other_metrics: {
             identity: WEEKLY_IDENTITY,
             feature_d: WEEKLY_TREATMENT,
+            retained: WEEKLY_TREATMENT,
+            days_of_use: WEEKLY_TREATMENT,
+            client_level_daily_active_users_v2: WEEKLY_TREATMENT,
+          },
+        },
+      },
+    },
+    modifications,
+  );
+
+export const weeklyMockAnalysisGuardrailsOnlyNoDau = (modifications = {}) =>
+  Object.assign(
+    {
+      control: {
+        is_control: true,
+        branch_data: {
+          search_metrics: {
+            search_count: WEEKLY_CONTROL,
+          },
+          other_metrics: {
+            identity: WEEKLY_IDENTITY,
+            retained: WEEKLY_CONTROL,
+            days_of_use: WEEKLY_CONTROL,
+          },
+        },
+      },
+      treatment: {
+        is_control: false,
+        branch_data: {
+          search_metrics: {
+            search_count: WEEKLY_TREATMENT,
+          },
+          other_metrics: {
+            identity: WEEKLY_IDENTITY,
             retained: WEEKLY_TREATMENT,
             days_of_use: WEEKLY_TREATMENT,
           },
@@ -2698,6 +2778,353 @@ export const mockAnalysis = (modifications = {}) =>
                       },
                     },
                   },
+                },
+                search_metrics: {
+                  search_count: TREATMENT_NEGATIVE,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    modifications,
+  );
+
+export const mockAnalysisOnlyGuardrailsNoDau = (modifications = {}) =>
+  Object.assign(
+    {
+      other_metrics: { other_metrics: {} },
+      metadata: MOCK_METADATA_GUARDRAILS_ONLY_NO_DAU,
+      show_analysis: true,
+      errors: {
+        experiment: [],
+      },
+      weekly: {
+        enrollments: { all: weeklyMockAnalysisGuardrailsOnlyNoDau() },
+        exposures: { all: weeklyMockAnalysisGuardrailsOnlyNoDau() },
+      },
+      overall: {
+        enrollments: {
+          all: {
+            control: {
+              is_control: true,
+              branch_data: {
+                other_metrics: {
+                  identity: {
+                    absolute: {
+                      all: [
+                        {
+                          point: 198,
+                        },
+                      ],
+                      first: {
+                        point: 198,
+                      },
+                    },
+                    difference: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    relative_uplift: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    percent: 45,
+                  },
+                  retained: {
+                    absolute: {
+                      all: [
+                        {
+                          point: 0.9261083743842364,
+                          lower: 0.8864481497569532,
+                          upper: 0.9578449264993547,
+                        },
+                      ],
+                      first: {
+                        point: 14.967359019193298,
+                        lower: 10.534758870048162,
+                        upper: 20.754349791764547,
+                      },
+                    },
+                    difference: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    relative_uplift: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                  },
+                  days_of_use: CONTROL_NEUTRAL,
+                },
+                search_metrics: {
+                  search_count: {
+                    absolute: {
+                      all: [
+                        {
+                          point: 14.967359019193298,
+                          lower: 10.534758870048162,
+                          upper: 20.754349791764547,
+                        },
+                      ],
+                      first: {
+                        point: 14.967359019193298,
+                        lower: 10.534758870048162,
+                        upper: 20.754349791764547,
+                      },
+                    },
+                    difference: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    relative_uplift: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            treatment: {
+              is_control: false,
+              branch_data: {
+                other_metrics: {
+                  identity: {
+                    absolute: {
+                      first: {
+                        point: 200,
+                      },
+                      all: [
+                        {
+                          point: 200,
+                        },
+                      ],
+                    },
+                    difference: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    relative_uplift: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    percent: 55,
+                  },
+                  retained: TREATMENT_NEUTRAL,
+                  days_of_use: TREATMENT_NEUTRAL,
+                },
+                search_metrics: {
+                  search_count: TREATMENT_NEGATIVE,
+                },
+              },
+            },
+          },
+        },
+        exposures: {
+          all: {
+            control: {
+              is_control: true,
+              branch_data: {
+                other_metrics: {
+                  identity: {
+                    absolute: {
+                      all: [
+                        {
+                          point: 198,
+                        },
+                      ],
+                      first: {
+                        point: 198,
+                      },
+                    },
+                    difference: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    relative_uplift: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    percent: 45,
+                  },
+                  retained: {
+                    absolute: {
+                      all: [
+                        {
+                          point: 0.9261083743842364,
+                          lower: 0.8864481497569532,
+                          upper: 0.9578449264993547,
+                        },
+                      ],
+                      first: {
+                        point: 14.967359019193298,
+                        lower: 10.534758870048162,
+                        upper: 20.754349791764547,
+                      },
+                    },
+                    difference: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    relative_uplift: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                  },
+                  days_of_use: CONTROL_NEUTRAL,
+                },
+                search_metrics: {
+                  search_count: {
+                    absolute: {
+                      all: [
+                        {
+                          point: 14.967359019193298,
+                          lower: 10.534758870048162,
+                          upper: 20.754349791764547,
+                        },
+                      ],
+                      first: {
+                        point: 14.967359019193298,
+                        lower: 10.534758870048162,
+                        upper: 20.754349791764547,
+                      },
+                    },
+                    difference: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    relative_uplift: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            treatment: {
+              is_control: false,
+              branch_data: {
+                other_metrics: {
+                  identity: {
+                    absolute: {
+                      first: {
+                        point: 200,
+                      },
+                      all: [
+                        {
+                          point: 200,
+                        },
+                      ],
+                    },
+                    difference: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    relative_uplift: {
+                      control: {
+                        first: {},
+                        all: [],
+                      },
+                      treatment: {
+                        first: {},
+                        all: [],
+                      },
+                    },
+                    percent: 55,
+                  },
+                  retained: TREATMENT_NEUTRAL,
+                  days_of_use: TREATMENT_NEUTRAL,
                 },
                 search_metrics: {
                   search_count: TREATMENT_NEGATIVE,

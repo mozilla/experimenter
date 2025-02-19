@@ -7,6 +7,7 @@ import React from "react";
 import TableResultsWeekly from "src/components/PageResults/TableResultsWeekly";
 import { MockResultsContextProvider } from "src/lib/mocks";
 import { BRANCH_COMPARISON } from "src/lib/visualization/constants";
+import { mockAnalysisOnlyGuardrailsNoDau } from "src/lib/visualization/mocks";
 
 describe("TableResultsWeekly", () => {
   it("renders as expected with relative uplift branch comparison (default)", () => {
@@ -16,7 +17,7 @@ describe("TableResultsWeekly", () => {
       </MockResultsContextProvider>,
     );
 
-    const EXPECTED_HEADINGS = ["Retention", "Search", "Days of Use"];
+    const EXPECTED_HEADINGS = ["Retention", "Search", "Daily Active Users"];
     const EXPECTED_WEEKS = ["Week 1", "Week 2"];
 
     EXPECTED_HEADINGS.forEach((heading) => {
@@ -33,6 +34,19 @@ describe("TableResultsWeekly", () => {
     expect(screen.getAllByText("-45.5% to 51%", { exact: false })).toHaveLength(
       6,
     );
+  });
+
+  it("renders correct headings for older Days of Use experiments", () => {
+    render(
+      <MockResultsContextProvider analysis={mockAnalysisOnlyGuardrailsNoDau()}>
+        <TableResultsWeekly referenceBranch="control" />
+      </MockResultsContextProvider>,
+    );
+    const EXPECTED_HEADINGS = ["Retention", "Search", "Days of Use"];
+
+    EXPECTED_HEADINGS.forEach((heading) => {
+      expect(screen.getByText(heading)).toBeInTheDocument();
+    });
   });
 
   it("renders as expected with absolute branch comparison", () => {

@@ -113,31 +113,34 @@ export const shouldUseDou = (results: BranchDescription | undefined) => {
   const dauGroup = METRIC_TO_GROUP[METRIC.DAILY_ACTIVE_USERS];
   const douGroup = METRIC_TO_GROUP[METRIC.DAYS_OF_USE];
   try {
-    let foundDauData = false;
-    let foundDouData = false;
     // DAU is not guaranteed to have `absolute` data so we'll check the branch comparison data
     if (METRIC.DAILY_ACTIVE_USERS in results.branch_data[dauGroup]) {
-      Object.keys(
-        results.branch_data[dauGroup][METRIC.DAILY_ACTIVE_USERS].difference,
-      ).forEach((branch) => {
+      for (const branch in results.branch_data[dauGroup][
+        METRIC.DAILY_ACTIVE_USERS
+      ].difference) {
         if (
           results.branch_data[dauGroup][METRIC.DAILY_ACTIVE_USERS].difference[
             branch
           ].all.length > 0
         ) {
-          foundDauData = true;
+          // found DAU -- don't use DOU
+          return false;
         }
-      });
+      }
     }
     // DOU should always have `absolute` data
     if (METRIC.DAYS_OF_USE in results.branch_data[douGroup]) {
-      foundDouData =
+      // didn't find DAU, return true if DOU data exists
+      return (
         results.branch_data[dauGroup][METRIC.DAYS_OF_USE].absolute.all.length >
-        0;
+        0
+      );
     }
-    return !foundDauData && foundDouData;
   } catch (e) {
     // if there is some problem traversing the results, we default to false
     return false;
   }
+
+  // found neither DOU or DAU, default to DAU
+  return false;
 };

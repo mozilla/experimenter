@@ -8,8 +8,10 @@ import TableResults from "src/components/PageResults/TableResults";
 import { mockExperimentQuery, MockResultsContextProvider } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
 import { BRANCH_COMPARISON } from "src/lib/visualization/constants";
-import { mockIncompleteAnalysis } from "src/lib/visualization/mocks";
-import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
+import {
+  mockAnalysisOnlyGuardrailsNoDau,
+  mockIncompleteAnalysis,
+} from "src/lib/visualization/mocks";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
@@ -37,15 +39,14 @@ describe("TableResults", () => {
     });
   });
 
-  it("renders correct headings for non-desktop experiments", () => {
-    const { experiment: ios_experiment } = mockExperimentQuery("demo-slug", {
-      application: NimbusExperimentApplicationEnum.IOS,
-    });
+  it("renders correct headings for older Days of Use experiments", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <MockResultsContextProvider>
+        <MockResultsContextProvider
+          analysis={mockAnalysisOnlyGuardrailsNoDau()}
+        >
           <TableResults
-            experiment={ios_experiment}
+            {...{ experiment }}
             referenceBranch={experiment.referenceBranch!.slug}
           />
         </MockResultsContextProvider>
@@ -54,7 +55,7 @@ describe("TableResults", () => {
     const EXPECTED_HEADINGS = [
       "2-Week Browser Retention",
       "Mean Searches Per User",
-      "Overall Mean Days of Use Per User",
+      "Days of Use",
       "Total Users",
     ];
 

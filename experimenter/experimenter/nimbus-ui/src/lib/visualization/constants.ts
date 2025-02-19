@@ -193,7 +193,7 @@ export const RESULTS_METRICS_LIST = [
   },
   {
     value: METRIC.DAILY_ACTIVE_USERS,
-    name: "Daily Active users",
+    name: "Daily Active Users",
     tooltip: METRICS_TIPS.DAILY_ACTIVE_USERS,
     type: METRIC_TYPE.GUARDRAIL,
     group: METRIC_TO_GROUP[METRIC.DAILY_ACTIVE_USERS],

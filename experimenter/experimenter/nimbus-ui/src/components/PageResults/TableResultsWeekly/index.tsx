@@ -57,11 +57,13 @@ const TableResultsWeekly = ({
   referenceBranch,
 }: TableResultsWeeklyProps) => {
   const {
-    analysis: { overall },
+    analysis: { overall, weekly },
   } = useContext(ResultsContext);
   const hasOverallResults = !!overall?.[analysisBasis]?.all;
-  const overallResults = overall![analysisBasis]?.[segment]!;
-  const useDou = shouldUseDou(overallResults[referenceBranch]);
+  const hasWeeklyResults = !!weekly?.[analysisBasis]?.all;
+  const useDou =
+    hasWeeklyResults &&
+    shouldUseDou(weekly![analysisBasis]?.[segment]![referenceBranch]);
   const [open, setOpen] = useState(!hasOverallResults);
 
   return (
