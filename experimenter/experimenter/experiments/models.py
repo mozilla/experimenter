@@ -1374,11 +1374,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             NimbusReviewSerializer,
         )
 
-        temp_data = NimbusReviewSerializer(self).data
+        serializer_data = NimbusReviewSerializer(self).data
         if data:
-            temp_data.update(data)
+            serializer_data.update(data)
 
-        serializer = NimbusReviewSerializer(self, data=temp_data)
+        serializer = NimbusReviewSerializer(self, data=serializer_data)
 
         if serializer.is_valid():
             return []
@@ -1401,7 +1401,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if not field_errors:
             return []
 
-        error_fields = [field for field, _ in field_errors]
+        error_fields = {field for field, _ in field_errors}
         pages_with_errors = []
 
         for page, fields in NimbusUIConstants.FIELD_PAGE_MAP.items():

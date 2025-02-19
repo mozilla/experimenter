@@ -26,8 +26,8 @@ from experimenter.targeting.constants import NimbusTargetingConfig
 
 class NimbusChangeLogFormMixin:
     def __init__(self, *args, request: HttpRequest = None, **kwargs):
-        super().__init__(*args, **kwargs)
         self.request = request
+        super().__init__(*args, **kwargs)
 
     def get_changelog_message(self) -> str:
         raise NotImplementedError
@@ -41,10 +41,13 @@ class NimbusChangeLogFormMixin:
 
 
 class NimbusSerializerErrorMixin:
-    def clean(self):
-        if self.show_validation_errors:
-            cleaned_data = super().clean()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.validation_errors = {}
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.show_validation_errors:
             for key, value in cleaned_data.items():
                 if isinstance(value, models.QuerySet):
                     cleaned_data[key] = [item.pk for item in value]
@@ -54,24 +57,39 @@ class NimbusSerializerErrorMixin:
                 "required_experiments_branches",
             ]:
                 if field_name in cleaned_data:
-                    slugs = cleaned_data[field_name]
-                    pks = []
-                    for slug in slugs:
-                        experiment_slug = slug.split(":")[0]
-                        experiment = NimbusExperiment.objects.get(slug=experiment_slug)
-                        pks.append(experiment.pk)
-                    cleaned_data[field_name.replace("branches", "")] = pks
+                    slugs = [
+                        slug_and_branch.split(":")[0]
+                        for slug_and_branch in cleaned_data[field_name]
+                    ]
+                    pks = list(
+                        NimbusExperiment.objects.filter(slug__in=slugs).values_list(
+                            "pk", flat=True
+                        )
+                    )
+                    cleaned_data[field_name.replace("_branches", "")] = pks
 
             errors = self.instance.get_invalid_fields_errors(data=cleaned_data)
 
-            if errors:
-                for field, error in errors:
-                    if field in self.fields:
-                        self.add_error(field, error)
+            for field, error in errors:
+                if field in self.fields:
+                    if field not in self.validation_errors:
+                        self.validation_errors[field] = []
+                    self.validation_errors[field].append(error)
 
             return cleaned_data
+
+        return cleaned_data
+
+
+class ShowValidationErrorsMixin:
+    def __init__(self, *args, **kwargs):
+        if self.request:
+            self.show_validation_errors = (
+                self.request.GET.get("show_errors", "") == "true"
+            )
         else:
-            return super().clean()
+            self.show_validation_errors = False
+        super().__init__(*args, **kwargs)
 
 
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -224,7 +242,12 @@ class NimbusDocumentationLinkForm(forms.ModelForm):
         fields = ("title", "link")
 
 
-class OverviewForm(NimbusChangeLogFormMixin, NimbusSerializerErrorMixin, forms.ModelForm):
+class OverviewForm(
+    NimbusChangeLogFormMixin,
+    ShowValidationErrorsMixin,
+    NimbusSerializerErrorMixin,
+    forms.ModelForm,
+):
     YES_NO_CHOICES = (
         (True, "Yes"),
         (False, "No"),
@@ -281,11 +304,6 @@ class OverviewForm(NimbusChangeLogFormMixin, NimbusSerializerErrorMixin, forms.M
         ]
 
     def __init__(self, *args, **kwargs):
-        request = kwargs.get("request")
-        if request:
-            self.show_validation_errors = request.GET.get("show_errors", "") == "true"
-        else:
-            self.show_validation_errors = False
         super().__init__(*args, **kwargs)
         self.NimbusDocumentationLinkFormSet = inlineformset_factory(
             NimbusExperiment,
@@ -381,7 +399,12 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated metrics"
 
 
-class AudienceForm(NimbusChangeLogFormMixin, NimbusSerializerErrorMixin, forms.ModelForm):
+class AudienceForm(
+    NimbusChangeLogFormMixin,
+    ShowValidationErrorsMixin,
+    NimbusSerializerErrorMixin,
+    forms.ModelForm,
+):
     def get_experiment_branch_choices():
         return sorted(
             [
@@ -498,11 +521,6 @@ class AudienceForm(NimbusChangeLogFormMixin, NimbusSerializerErrorMixin, forms.M
         ]
 
     def __init__(self, *args, **kwargs):
-        request = kwargs.get("request")
-        if request:
-            self.show_validation_errors = request.GET.get("show_errors", "") == "true"
-        else:
-            self.show_validation_errors = False
         super().__init__(*args, **kwargs)
         self.setup_initial_experiments_branches("required_experiments_branches")
         self.setup_initial_experiments_branches("excluded_experiments_branches")

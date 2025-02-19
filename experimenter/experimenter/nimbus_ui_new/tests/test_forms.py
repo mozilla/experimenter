@@ -587,6 +587,7 @@ class TestOverviewForm(RequestFormTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             documentation_links=[],
         )
+        documentation_link = NimbusDocumentationLinkFactory.create()
 
         form_data = {
             "name": "test-experiment",
@@ -597,7 +598,13 @@ class TestOverviewForm(RequestFormTestCase):
             "risk_brand": None,
             "risk_message": None,
             "projects": [],
-            "documentation_links-TOTAL_FORMS": "0",
+            "documentation_links-TOTAL_FORMS": "1",
+            "documentation_links-INITIAL_FORMS": "1",
+            "documentation_links-0-id": documentation_link.id,
+            "documentation_links-0-title": (
+                NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+            ),
+            "documentation_links-0-link": "https://www.example.com",
         }
 
         form_show_errors = OverviewForm(
@@ -606,19 +613,29 @@ class TestOverviewForm(RequestFormTestCase):
             request=self.request,
         )
 
-        self.assertFalse(form_show_errors.is_valid())
+        self.assertTrue(form_show_errors.is_valid())
+        self.assertTrue(form_show_errors.show_validation_errors)
         self.assertIn(
-            "This field may not be blank.", form_show_errors.errors["hypothesis"]
+            "This field may not be blank.",
+            form_show_errors.validation_errors["hypothesis"],
         )
         self.assertIn(
-            "This field may not be blank.", form_show_errors.errors["public_description"]
+            "This field may not be blank.",
+            form_show_errors.validation_errors["public_description"],
         )
         self.assertIn(
-            "Must be a valid boolean.", form_show_errors.errors["risk_partner_related"]
+            "Must be a valid boolean.",
+            form_show_errors.validation_errors["risk_partner_related"],
         )
-        self.assertIn("Must be a valid boolean.", form_show_errors.errors["risk_revenue"])
-        self.assertIn("Must be a valid boolean.", form_show_errors.errors["risk_brand"])
-        self.assertIn("Must be a valid boolean.", form_show_errors.errors["risk_message"])
+        self.assertIn(
+            "Must be a valid boolean.", form_show_errors.validation_errors["risk_revenue"]
+        )
+        self.assertIn(
+            "Must be a valid boolean.", form_show_errors.validation_errors["risk_brand"]
+        )
+        self.assertIn(
+            "Must be a valid boolean.", form_show_errors.validation_errors["risk_message"]
+        )
 
         form_hide_errors = OverviewForm(
             instance=experiment,
@@ -626,7 +643,9 @@ class TestOverviewForm(RequestFormTestCase):
             request=None,
         )
 
-        self.assertFalse(form_hide_errors.is_valid())
+        self.assertTrue(form_show_errors.is_valid())
+        self.assertFalse(form_hide_errors.show_validation_errors)
+        self.assertEqual(form_hide_errors.validation_errors, {})
 
 
 class TestDocumentationLinkCreateForm(RequestFormTestCase):
@@ -839,7 +858,6 @@ class TestAudienceForm(RequestFormTestCase):
         form_show_errors = AudienceForm(
             instance=experiment,
             data={
-                "excluded_experiments_branches": ["invalid_experiment:invalid_branch"],
                 "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
                 "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
                 "is_sticky": True,
@@ -851,25 +869,19 @@ class TestAudienceForm(RequestFormTestCase):
             },
             request=self.request,
         )
-
-        self.assertFalse(form_show_errors.is_valid())
-
+        self.assertTrue(form_show_errors.is_valid())
+        self.assertTrue(form_show_errors.show_validation_errors)
         self.assertIn(
             "Ensure this value is greater than or equal to 1.",
-            form_show_errors.errors["proposed_duration"],
+            form_show_errors.validation_errors["proposed_duration"],
         )
         self.assertIn(
             "Ensure this value is greater than or equal to 0.0001.",
-            form_show_errors.errors["population_percent"],
+            form_show_errors.validation_errors["population_percent"],
         )
         self.assertIn(
             "Ensure this value is greater than or equal to 1.",
-            form_show_errors.errors["proposed_enrollment"],
-        )
-        self.assertIn(
-            "Select a valid choice. invalid_experiment:invalid_branch is not one of "
-            "the available choices.",
-            form_show_errors.errors["excluded_experiments_branches"],
+            form_show_errors.validation_errors["proposed_enrollment"],
         )
 
         form_hide_errors = AudienceForm(
@@ -886,4 +898,7 @@ class TestAudienceForm(RequestFormTestCase):
             },
             request=None,
         )
-        self.assertTrue(form_hide_errors.is_valid())
+
+        self.assertTrue(form_show_errors.is_valid())
+        self.assertFalse(form_hide_errors.show_validation_errors)
+        self.assertEqual(form_hide_errors.validation_errors, {})

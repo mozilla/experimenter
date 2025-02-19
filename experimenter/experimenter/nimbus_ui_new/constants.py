@@ -76,7 +76,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "proposed_duration",
             "population_percent",
             "total_enrolled_clients",
-            "required_experiments",
-            "excluded_experiments",
+            "required_experiments_branches",
+            "excluded_experiments_branches",
         ],
     }
