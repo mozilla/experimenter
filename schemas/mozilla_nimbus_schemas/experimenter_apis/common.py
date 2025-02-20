@@ -61,7 +61,7 @@ class ExperimentLocalizations(RootModel[dict[str, dict[str, str]]]):
     model_config = ConfigDict(title="ExperimentLocalizations")
 
 
-class _CommonBaseExperimentBranch(BaseModel):
+class BaseExperimentBranch(BaseModel):
     slug: str = Field(description="Identifier for the branch.")
     ratio: int = Field(
         description=(

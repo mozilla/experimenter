@@ -5,10 +5,10 @@ from pydantic.json_schema import SkipJsonSchema
 from typing_extensions import Self
 
 from mozilla_nimbus_schemas.experimenter_apis.common import (
+    BaseExperimentBranch,
     ExperimentFeatureConfig,
     ExperimentLocalizations,
     _CommonBaseExperiment,
-    _CommonBaseExperimentBranch,
 )
 
 
@@ -18,7 +18,7 @@ class DesktopPre95FeatureConfig(ExperimentFeatureConfig):
     value: dict[str, Any]
 
 
-class DesktopExperimentBranch(_CommonBaseExperimentBranch):
+class DesktopExperimentBranch(BaseExperimentBranch):
     """The branch definition supported on Firefox Desktop 95+."""
 
     # Firefox Desktop-specific fields should be added to *this* schema. They will be
@@ -29,7 +29,7 @@ class DesktopExperimentBranch(_CommonBaseExperimentBranch):
     )
 
 
-class SdkExperimentBranch(_CommonBaseExperimentBranch):
+class SdkExperimentBranch(BaseExperimentBranch):
     """The branch definition for SDK-based applications.
 
     Supported on Firefox for Android 96+, Firefox for iOS 39+, and all versions of Cirrus.

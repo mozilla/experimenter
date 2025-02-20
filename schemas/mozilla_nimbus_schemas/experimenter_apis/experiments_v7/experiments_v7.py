@@ -1,9 +1,9 @@
 from pydantic import Field
 
 from mozilla_nimbus_schemas.experimenter_apis.common import (
+    BaseExperimentBranch,
     ExperimentLocalizations,
     _CommonBaseExperiment,
-    _CommonBaseExperimentBranch,
 )
 
 
@@ -14,6 +14,6 @@ class NimbusExperimentV7(_CommonBaseExperiment):
         description="Per-locale localization substitutions.", default=None
     )
 
-    branches: list[_CommonBaseExperimentBranch] = Field(
+    branches: list[BaseExperimentBranch] = Field(
         description="Branch configuration for the experiment."
     )
