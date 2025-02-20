@@ -10,7 +10,7 @@ import pytest
 from jsonschema.protocols import Validator
 from jsonschema.validators import validator_for
 
-from mozilla_nimbus_schemas.experiments import (
+from mozilla_nimbus_schemas.experimenter_apis.experiments import (
     DesktopAllVersionsNimbusExperiment,
     DesktopNimbusExperiment,
     SdkNimbusExperiment,
