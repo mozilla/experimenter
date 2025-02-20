@@ -1,9 +1,10 @@
 # experimenter_apis/common.py
-
+import datetime
 from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel
+from pydantic.json_schema import SkipJsonSchema
 
 
 class RandomizationUnit(str, Enum):
@@ -42,7 +43,11 @@ class ExperimentOutcome(BaseModel):
 class ExperimentFeatureConfig(BaseModel):
     featureId: str = Field(description="The identifier for the feature flag.")
     value: dict[str, Any] = Field(
-        description="The values that define the feature configuration."
+        description=(
+            "The values that define the feature configuration.\n"
+            "\n"
+            "This should be validated against a schema."
+        )
     )
 
 
@@ -70,19 +75,103 @@ class _CommonBaseExperimentBranch(BaseModel):
     )
 
 
-class _CommonDesktopExperimentBranch(_CommonBaseExperimentBranch):
-    """The branch definition supported on Firefox Desktop 95+."""
+class _CommonBaseExperiment(BaseModel):
+    """Common base class for all Nimbus experiment
+    versions (used in V6 & V7)."""
 
-    # Firefox Desktop-specific fields should be added to *this* schema. They will be
-    # inherited by the stricter DesktopAllVersionsExperimentBranch schema.
-
-    firefoxLabsTitle: str | None = Field(
-        description="The branch title shown in Firefox Labs (Fluent ID)", default=None
+    schemaVersion: str = Field(
+        description="Version of the NimbusExperiment schema this experiment refers to"
+    )
+    slug: str = Field(description="Unique identifier for the experiment")
+    id: str = Field(
+        description="Unique identifier for the experiment. This is a duplicate of slug, \
+            but is required field for all Remote Settings records."
+    )
+    appName: str = Field(
+        description='A slug identifying the targeted product of this experiment. \
+            It should be a lowercased_with_underscores name that is short and \
+                unambiguous and it should match the app_name found in \
+                    https://probeinfo.telemetry.mozilla.org/glean/repositories. \
+                        Examples are "fenix" and "firefox_desktop".'
+    )
+    appId: str = Field(
+        description='The platform identifier for the targeted app. \
+            This should match app\'s identifier exactly as it appears in \
+                the relevant app store listing (for relevant platforms) or the app\'s\
+                      Glean initialization (for other platforms). Examples are \
+                      "org.mozilla.firefox_beta" and "firefox-desktop".'
+    )
+    channel: str = Field(
+        description="A specific channel of an application such as 'nightly', \
+            'beta', or 'release'."
+    )
+    userFacingName: str = Field(
+        description="Public name of the experiment displayed on 'about:studies'."
+    )
+    userFacingDescription: str = Field(
+        description='Short public description of the experiment. \
+            that will be displayed on "about:studies".'
+    )
+    isEnrollmentPaused: bool = Field(
+        description="When this property is set to true, the SDK should not enroll\
+              new users into the experiment that have not already been enrolled."
+    )
+    isRollout: bool | SkipJsonSchema[None] = Field(
+        description="When this property is set to true, treat this experiment \
+              as a rollout. Rollouts are currently handled as single-branch \
+              experiments separated from the bucketing namespace for normal experiments. \
+              See-also: https://mozilla-hub.atlassian.net/browse/SDK-405",
+        default=None,
+    )
+    bucketConfig: ExperimentBucketConfig = Field(description="Bucketing configuration.")
+    outcomes: list[ExperimentOutcome] | SkipJsonSchema[None] = Field(
+        description="List of outcomes relevant to analysis.", default=None
+    )
+    featureIds: list[str] | SkipJsonSchema[None] = Field(
+        description="A list of featureIds the experiment contains configurations for.",
+        default=None,
+    )
+    targeting: str | None = Field(
+        description="A JEXL targeting expression used to filter out experiments.",
+        default=None,
+    )
+    startDate: datetime.date | None = Field(
+        description="Actual publish date of the experiment. \
+        Note that this value is expected to be null in Remote Settings."
+    )
+    enrollmentEndDate: datetime.date | None = Field(
+        description="Actual enrollment end date of the experiment. \
+            Note that this value is expected to be null in Remote Settings.",
+        default=None,
+    )
+    endDate: datetime.date | None = Field(
+        description="Actual end date of this experiment.\
+              Note that this field is expected to be null in Remote Settings."
+    )
+    proposedDuration: int | SkipJsonSchema[None] = Field(
+        description="Duration of the experiment from the start date in days. \
+            Note that this property is only used during the analysis phase \
+                (i.e., not by the SDK).",
+        default=None,
+    )
+    proposedEnrollment: int = Field(
+        description="This represents the number of days that we expect to \
+            enroll new users. Note that this property is only used during\
+                  the analysis phase (i.e., not by the SDK)."
+    )
+    referenceBranch: str | None = Field(
+        description='The slug of the reference branch \
+            (i.e., the branch we consider "control").'
+    )
+    locales: list[str] | None = Field(
+        description='The list of locale codes (e.g., "en-US" or "fr") that this \
+            experiment is targeting. If null, all locales are targeted.',
+        default=None,
+    )
+    publishedDate: datetime.datetime | None = Field(
+        description="The date that this experiment was first published to \
+            Remote Settings. If null, it has not yet been published.",
+        default=None,
     )
 
-
-class _CommonSdkExperimentBranch(_CommonBaseExperimentBranch):
-    """The branch definition for SDK-based applications.
-
-    Supported on Firefox for Android 96+, Firefox for iOS 39+, and all versions of Cirrus.
-    """
+    model_config = ConfigDict(use_enum_values=True)

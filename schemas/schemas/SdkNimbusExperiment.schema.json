@@ -154,17 +154,6 @@
       ],
       "description": "The date that this experiment was first published to             Remote Settings. If null, it has not yet been published."
     },
-    "localizations": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/ExperimentLocalizations"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Per-locale localization substitutions."
-    },
     "branches": {
       "description": "Branch configuration for the SDK experiment.",
       "items": {
@@ -230,7 +219,7 @@
           "type": "string"
         },
         "value": {
-          "description": "The values that define the feature configuration.",
+          "description": "The values that define the feature configuration. This should be validated against a schema.",
           "type": "object"
         }
       },
@@ -238,16 +227,6 @@
         "featureId",
         "value"
       ],
-      "type": "object"
-    },
-    "ExperimentLocalizations": {
-      "additionalProperties": {
-        "additionalProperties": {
-          "type": "string"
-        },
-        "type": "object"
-      },
-      "description": "Per-locale localization substitutions. The top level key is the locale (e.g., \"en-US\" or \"fr\"). Each entry is a mapping of string IDs to their localized equivalents.",
       "type": "object"
     },
     "ExperimentOutcome": {

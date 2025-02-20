@@ -1,47 +1,47 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "title": "NimbusExperimentV7",
-  "description": "A generic Nimbus experiment for V7.",
+  "description": "A Nimbus experiment for V7.",
   "type": "object",
   "properties": {
     "schemaVersion": {
-      "description": "Version of the NimbusExperiment schema.",
+      "description": "Version of the NimbusExperiment schema this experiment refers to",
       "type": "string"
     },
     "slug": {
-      "description": "Unique identifier for the experiment.",
+      "description": "Unique identifier for the experiment",
       "type": "string"
     },
     "id": {
-      "description": "Unique identifier for the experiment. This is a duplicate of slug.",
+      "description": "Unique identifier for the experiment. This is a duplicate of slug,             but is required field for all Remote Settings records.",
       "type": "string"
     },
     "appName": {
-      "description": "A slug identifying the targeted product of this experiment.",
+      "description": "A slug identifying the targeted product of this experiment.             It should be a lowercased_with_underscores name that is short and                 unambiguous and it should match the app_name found in                     https://probeinfo.telemetry.mozilla.org/glean/repositories.                         Examples are \"fenix\" and \"firefox_desktop\".",
       "type": "string"
     },
     "appId": {
-      "description": "The platform identifier for the targeted app.",
+      "description": "The platform identifier for the targeted app.             This should match app's identifier exactly as it appears in                 the relevant app store listing (for relevant platforms) or the app's                      Glean initialization (for other platforms). Examples are                       \"org.mozilla.firefox_beta\" and \"firefox-desktop\".",
       "type": "string"
     },
     "channel": {
-      "description": "A specific channel of an application such as             'nightly', 'beta', 'release'.",
+      "description": "A specific channel of an application such as 'nightly',             'beta', or 'release'.",
       "type": "string"
     },
     "userFacingName": {
-      "description": "Public name of the experiment displayed in the UI.",
+      "description": "Public name of the experiment displayed on 'about:studies'.",
       "type": "string"
     },
     "userFacingDescription": {
-      "description": "Short public description of the experiment.",
+      "description": "Short public description of the experiment.             that will be displayed on \"about:studies\".",
       "type": "string"
     },
     "isEnrollmentPaused": {
-      "description": "Whether new users should be enrolled into the experiment.",
+      "description": "When this property is set to true, the SDK should not enroll              new users into the experiment that have not already been enrolled.",
       "type": "boolean"
     },
     "isRollout": {
-      "description": "Whether this experiment is a rollout.",
+      "description": "When this property is set to true, treat this experiment               as a rollout. Rollouts are currently handled as single-branch               experiments separated from the bucketing namespace for normal experiments.               See-also: https://mozilla-hub.atlassian.net/browse/SDK-405",
       "type": "boolean"
     },
     "bucketConfig": {
@@ -56,7 +56,7 @@
       "type": "array"
     },
     "featureIds": {
-      "description": "List of featureIds the experiment includes.",
+      "description": "A list of featureIds the experiment contains configurations for.",
       "items": {
         "type": "string"
       },
@@ -71,7 +71,7 @@
           "type": "null"
         }
       ],
-      "description": "A JEXL targeting expression."
+      "description": "A JEXL targeting expression used to filter out experiments."
     },
     "startDate": {
       "anyOf": [
@@ -83,7 +83,7 @@
           "type": "null"
         }
       ],
-      "description": "Actual publish date of the experiment."
+      "description": "Actual publish date of the experiment.         Note that this value is expected to be null in Remote Settings."
     },
     "enrollmentEndDate": {
       "anyOf": [
@@ -95,7 +95,7 @@
           "type": "null"
         }
       ],
-      "description": "Actual enrollment end date of the experiment."
+      "description": "Actual enrollment end date of the experiment.             Note that this value is expected to be null in Remote Settings."
     },
     "endDate": {
       "anyOf": [
@@ -107,14 +107,14 @@
           "type": "null"
         }
       ],
-      "description": "Actual end date of this experiment."
+      "description": "Actual end date of this experiment.              Note that this field is expected to be null in Remote Settings."
     },
     "proposedDuration": {
-      "description": "Proposed duration of the experiment.",
+      "description": "Duration of the experiment from the start date in days.             Note that this property is only used during the analysis phase                 (i.e., not by the SDK).",
       "type": "integer"
     },
     "proposedEnrollment": {
-      "description": "Number of days expected for new user enrollment.",
+      "description": "This represents the number of days that we expect to             enroll new users. Note that this property is only used during                  the analysis phase (i.e., not by the SDK).",
       "type": "integer"
     },
     "referenceBranch": {
@@ -126,7 +126,7 @@
           "type": "null"
         }
       ],
-      "description": "Slug of the reference branch, if applicable."
+      "description": "The slug of the reference branch             (i.e., the branch we consider \"control\")."
     },
     "locales": {
       "anyOf": [
@@ -140,7 +140,7 @@
           "type": "null"
         }
       ],
-      "description": "List of targeted locale codes."
+      "description": "The list of locale codes (e.g., \"en-US\" or \"fr\") that this             experiment is targeting. If null, all locales are targeted."
     },
     "publishedDate": {
       "anyOf": [
@@ -152,7 +152,7 @@
           "type": "null"
         }
       ],
-      "description": "First published date to Remote Settings."
+      "description": "The date that this experiment was first published to             Remote Settings. If null, it has not yet been published."
     },
     "localizations": {
       "anyOf": [
@@ -230,7 +230,7 @@
           "type": "string"
         },
         "value": {
-          "description": "The values that define the feature configuration.",
+          "description": "The values that define the feature configuration. This should be validated against a schema.",
           "type": "object"
         }
       },

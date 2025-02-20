@@ -126,10 +126,6 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   publishedDate?: string | null;
   /**
-   * Per-locale localization substitutions.
-   */
-  localizations?: ExperimentLocalizations | null;
-  /**
    * Branch configuration for the experiment.
    */
   branches: DesktopAllVersionsExperimentBranch[];
@@ -163,6 +159,7 @@ export interface DesktopAllVersionsNimbusExperiment {
    * Does the experiment require a restart to take effect?
    */
   requiresRestart?: boolean;
+  localizations?: ExperimentLocalizations | null;
 }
 /**
  * Common Bucketing Configuration used across all versions.
@@ -197,17 +194,6 @@ export interface ExperimentOutcome {
   priority: string;
 }
 /**
- * Per-locale localization substitutions.
- *
- * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
- * string IDs to their localized equivalents.
- */
-export interface ExperimentLocalizations {
-  [k: string]: {
-    [k: string]: string;
-  };
-}
-/**
  * The branch definition supported on all Firefox Desktop versions.
  *
  * This version requires the feature field to be present to support older Firefox Desktop
@@ -240,6 +226,8 @@ export interface ExperimentFeatureConfig {
   featureId: string;
   /**
    * The values that define the feature configuration.
+   *
+   * This should be validated against a schema.
    */
   value: {
     [k: string]: unknown;
@@ -251,6 +239,17 @@ export interface DesktopPre95FeatureConfig {
     [k: string]: unknown;
   };
   enabled: false;
+}
+/**
+ * Per-locale localization substitutions.
+ *
+ * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
+ * string IDs to their localized equivalents.
+ */
+export interface ExperimentLocalizations {
+  [k: string]: {
+    [k: string]: string;
+  };
 }
 /**
  * A Nimbus experiment for Firefox Desktop.
@@ -345,10 +344,6 @@ export interface DesktopNimbusExperiment {
    */
   publishedDate?: string | null;
   /**
-   * Per-locale localization substitutions.
-   */
-  localizations?: ExperimentLocalizations | null;
-  /**
    * Branch configuration for the experiment.
    */
   branches: DesktopExperimentBranch[];
@@ -382,7 +377,11 @@ export interface DesktopNimbusExperiment {
    * Does the experiment require a restart to take effect?
    */
   requiresRestart?: boolean;
+  localizations?: ExperimentLocalizations | null;
 }
+/**
+ * The branch definition supported on Firefox Desktop 95+.
+ */
 export interface DesktopExperimentBranch {
   /**
    * Identifier for the branch.
@@ -491,10 +490,6 @@ export interface SdkNimbusExperiment {
    * The date that this experiment was first published to             Remote Settings. If null, it has not yet been published.
    */
   publishedDate?: string | null;
-  /**
-   * Per-locale localization substitutions.
-   */
-  localizations?: ExperimentLocalizations | null;
   /**
    * Branch configuration for the SDK experiment.
    */

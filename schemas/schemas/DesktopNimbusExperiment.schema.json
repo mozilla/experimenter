@@ -154,17 +154,6 @@
       ],
       "description": "The date that this experiment was first published to             Remote Settings. If null, it has not yet been published."
     },
-    "localizations": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/ExperimentLocalizations"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Per-locale localization substitutions."
-    },
     "branches": {
       "description": "Branch configuration for the experiment.",
       "items": {
@@ -233,6 +222,16 @@
     "requiresRestart": {
       "description": "Does the experiment require a restart to take effect?",
       "type": "boolean"
+    },
+    "localizations": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExperimentLocalizations"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "required": [
@@ -294,6 +293,7 @@
   },
   "$defs": {
     "DesktopExperimentBranch": {
+      "description": "The branch definition supported on Firefox Desktop 95+.",
       "properties": {
         "slug": {
           "description": "Identifier for the branch.",
@@ -368,7 +368,7 @@
           "type": "string"
         },
         "value": {
-          "description": "The values that define the feature configuration.",
+          "description": "The values that define the feature configuration. This should be validated against a schema.",
           "type": "object"
         }
       },
