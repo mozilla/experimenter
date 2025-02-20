@@ -243,7 +243,7 @@ class ResultsObjectModelBase(BaseModel):
                 # significance for each window. Overall should always be 1 because
                 # there is only ever one overall window.
                 window_index = (
-                    1
+                    "1"
                     if window == AnalysisWindow.OVERALL
                     else jetstream_data_point.window_index
                 )
