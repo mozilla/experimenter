@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "ExperimentFeatureConfig",
+  "type": "object",
+  "properties": {
+    "featureId": {
+      "description": "The identifier for the feature flag.",
+      "type": "string"
+    },
+    "value": {
+      "description": "The values that define the feature configuration. This should be validated against a schema.",
+      "type": "object"
+    }
+  },
+  "required": [
+    "featureId",
+    "value"
+  ]
+}

@@ -15,14 +15,14 @@ import click
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel, create_model
 
-from mozilla_nimbus_schemas import experiments, jetstream
+from mozilla_nimbus_schemas import experiments, experiments_v7, jetstream
 
 NEWLINES_RE = re.compile("\n+")
 
 # Add new sub-packages to list(s) below if you want them to have
 # JSON Schema and/or Typescript generated.
-JSON_SCHEMA_PACKAGES = [experiments]
-TS_SCHEMA_PACKAGES = [experiments, jetstream]
+JSON_SCHEMA_PACKAGES = [experiments, experiments_v7]
+TS_SCHEMA_PACKAGES = [experiments, jetstream, experiments_v7]
 
 
 def clean_output_file(ts_path: Path) -> None:

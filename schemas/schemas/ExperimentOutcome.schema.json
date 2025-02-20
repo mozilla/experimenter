@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "ExperimentOutcome",
+  "type": "object",
+  "properties": {
+    "slug": {
+      "description": "Identifier for the outcome.",
+      "type": "string"
+    },
+    "priority": {
+      "description": "e.g., \"primary\" or \"secondary\".",
+      "type": "string"
+    }
+  },
+  "required": [
+    "slug",
+    "priority"
+  ]
+}
