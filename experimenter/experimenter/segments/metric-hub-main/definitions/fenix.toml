@@ -443,28 +443,28 @@ owner = "loines@mozilla.com"
 
 [metrics.turn_on_notifications_ctr_onboarding]
 select_expression = "COALESCE(SUM(turn_on_notifications_flag))"
-data_source = "special_onboarding_events"
+data_source = "special_onboarding_events_v2"
 friendly_name = "Turn on Notification Click"
 description = "This metric looks at proportion of all new profiles that were exposed to the turn on notification card and clicked the action during on-boarding."
 owner = "rbaffourawuah@mozilla.com"
 
 [metrics.set_to_default_ctr_onboarding]
 select_expression = "COALESCE(SUM(set_to_default_flag))"
-data_source = "special_onboarding_events"
+data_source = "special_onboarding_events_v2"
 friendly_name = "Set to Default Click"
 description = "This metric looks at proportion of all new profiles that were exposed to the set to default card and clicked the action during on-boarding."
 owner = "rbaffourawuah@mozilla.com"
 
 [metrics.sign_in_ctr_onboarding]
 select_expression = "COALESCE(SUM(sign_in_flag))"
-data_source = "special_onboarding_events"
+data_source = "special_onboarding_events_v2"
 friendly_name = "Sign in Click"
 description = "This metric looks at proportion of all new profiles that were exposed to the sign-in card and clicked the action during on-boarding."
 owner = "rbaffourawuah@mozilla.com"
 
 [metrics.at_least_1_cta_ctr_onboarding]
 select_expression = "COALESCE(SUM(at_least_1_cta))"
-data_source = "special_onboarding_events"
+data_source = "special_onboarding_events_v2"
 friendly_name = "Clicked at least one CTA"
 description = "This metric looks at proportion of all new profiles that were exposed to onboarding cards and clicked at least one action during on-boarding."
 owner = "rbaffourawuah@mozilla.com"
@@ -667,6 +667,57 @@ LEFT JOIN (
   CROSS JOIN
      UNNEST(event.extra) AS ext
   WHERE event.category = "onboarding" AND ext.key ="action" AND event.name in  ("set_to_default", "turn_on_notifications", "sign_in")
+  AND DATE(submission_timestamp) >= "2023-01-01"
+  GROUP BY 1
+) conv
+ON expo.client_id = conv.client_id
+GROUP BY 1, 2, 3, 4, 5, 6
+)
+"""
+experiments_column_type = "none"
+
+[data_sources.special_onboarding_events_v2]
+from_expression = """(
+SELECT
+    expo.submission_date
+    , expo.client_id
+    , case when (conv.set_to_default >= 1 AND expo.set_to_default_card >= 1) then 1
+           when (coalesce(conv.set_to_default, 0) = 0 AND expo.set_to_default_card >= 1) then 0 else null end as set_to_default_flag
+    , case when (conv.turn_on_notifications >= 1 AND expo.turn_on_notifications_card >= 1) then 1
+           when (coalesce(conv.turn_on_notifications, 0) = 0 AND expo.turn_on_notifications_card >= 1) then 0 else null end as turn_on_notifications_flag
+    , case when (conv.sign_in >= 1 AND expo.sign_in_card >= 1) then 1
+           when (coalesce(conv.sign_in,0) = 0 AND expo.sign_in_card >= 1) then 0 else null end as sign_in_flag
+    , case when (conv.set_to_default >= 1 AND expo.set_to_default_card >= 1) OR (conv.turn_on_notifications >= 1 AND expo.turn_on_notifications_card >= 1) OR (conv.sign_in >= 1 AND expo.sign_in_card >= 1)then 1
+           when (coalesce(conv.set_to_default, 0) = 0 AND coalesce(conv.turn_on_notifications, 0) = 0 AND coalesce(conv.sign_in,0) = 0)  AND (set_to_default_card >= 1 OR turn_on_notifications_card >= 1 OR sign_in_card >= 1) then 0 else null end as at_least_1_cta
+
+FROM (
+      SELECT
+            client_id as client_id
+            , min(DATE(submission_timestamp)) as submission_date
+            , count(case when event_name = "set_to_default_card" then DATE(submission_timestamp) END) as set_to_default_card
+            , count(case when event_name = "turn_on_notifications_card" then DATE(submission_timestamp) END) as turn_on_notifications_card
+            , count(case when event_name = "sign_in_card" then DATE(submission_timestamp) END) as sign_in_card
+      FROM
+        `mozdata.org_mozilla_firefox.events_stream` tm
+
+      WHERE event_category = "onboarding"
+        AND JSON_VALUE(event_extra, "$.action") = 'impression'
+        AND event_name in ("set_to_default_card", "turn_on_notifications_card", "sign_in_card")
+      AND DATE(submission_timestamp) >= "2023-01-01"
+      GROUP BY 1
+      ) expo
+LEFT JOIN (
+  SELECT
+      client_id as client_id
+            , count(case when event_name = "set_to_default" then DATE(submission_timestamp) END) as set_to_default
+            , count(case when event_name = "turn_on_notifications" then DATE(submission_timestamp) END) as turn_on_notifications
+            , count(case when event_name = "sign_in" then DATE(submission_timestamp) END) as sign_in
+  FROM
+    `mozdata.org_mozilla_firefox.events_stream` tm
+
+  WHERE event_category = "onboarding" 
+    AND JSON_QUERY(event_extra, "$.action") IS NOT NULL
+    AND event_name in  ("set_to_default", "turn_on_notifications", "sign_in")
   AND DATE(submission_timestamp) >= "2023-01-01"
   GROUP BY 1
 ) conv
