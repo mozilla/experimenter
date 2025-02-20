@@ -126,7 +126,7 @@ class JetstreamTestData:
     @classmethod
     def get_significance_data_row(cls, VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW):
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW = (
-            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.copy()
+            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_copy()
         )
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.point = -2.0
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.upper = -1.0
@@ -135,7 +135,7 @@ class JetstreamTestData:
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.statistic = Statistic.BINOMIAL
 
         CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW = (
-            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.copy()
+            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_copy()
         )
         CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.point = 12.0
         CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.upper = 13.0
@@ -151,21 +151,32 @@ class JetstreamTestData:
     @classmethod
     def get_data_points(cls):
         DATA_POINT_A = DataPoint(lower=10, point=12, upper=13, window_index=1)
-        DATA_POINT_F = DATA_POINT_A.copy()
+        DATA_POINT_F = DATA_POINT_A.model_copy()
         DATA_POINT_F.window_index = None
+        DATA_POINT_A_COVARIATE = DATA_POINT_A.model_copy()
+        DATA_POINT_A_COVARIATE.point = 11.5
+        DATA_POINT_F_COVARIATE = DATA_POINT_F.model_copy()
+        DATA_POINT_F_COVARIATE.point = 11.5
 
         DATA_POINT_B = DataPoint(lower=-5, point=12, upper=13, window_index=1)
-        DATA_POINT_E = DATA_POINT_B.copy()
+        DATA_POINT_E = DATA_POINT_B.model_copy()
         DATA_POINT_E.window_index = None
 
         DATA_POINT_C = DataPoint(lower=-5, point=-2, upper=-1, window_index=1)
-        DATA_POINT_D = DATA_POINT_C.copy()
+        DATA_POINT_D = DATA_POINT_C.model_copy()
         DATA_POINT_D.window_index = None
 
         ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
         ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
-        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
+        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.model_copy()
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 50.0
+
+        ABSOLUTE_METRIC_DATA_A_COVARIATE = cls.get_absolute_metric_data(
+            DATA_POINT_A_COVARIATE
+        )
+        ABSOLUTE_METRIC_DATA_F_COVARIATE = cls.get_absolute_metric_data(
+            DATA_POINT_F_COVARIATE
+        )
         return (
             DATA_POINT_A,
             DATA_POINT_F,
@@ -176,6 +187,8 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
+            ABSOLUTE_METRIC_DATA_A_COVARIATE,
+            ABSOLUTE_METRIC_DATA_F_COVARIATE,
         )
 
     @classmethod
@@ -406,6 +419,12 @@ class JetstreamTestData:
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
 
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.metric = "some_count"
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.point = 11.5
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.statistic = Statistic.LINEAR_MODEL_MEAN
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.branch = "variant"
+
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO = DATA_IDENTITY_ROW.copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.metric = "some_ratio"
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.statistic = Statistic.POPULATION_RATIO
@@ -476,6 +495,17 @@ class JetstreamTestData:
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.analysis_basis = (
+            AnalysisBasis.EXPOSURES
+        )
+
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.metric = "some_count"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.point = 11.5
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.statistic = (
+            Statistic.LINEAR_MODEL_MEAN
+        )
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.branch = "variant"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.analysis_basis = (
             AnalysisBasis.EXPOSURES
         )
 
@@ -560,6 +590,17 @@ class JetstreamTestData:
             EXPOSURES_BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
             VARIANT_EXPOSURES_BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
         ]
+        if cls == JetstreamTestData:
+            # don't test that the mean_lm (covariate adjusted) stat
+            # supercedes the mean stat for non-JetstreamTestData classes
+            DAILY_DATA.append(
+                VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.model_dump(exclude_none=True)
+            )
+            DAILY_EXPOSURES_DATA.append(
+                EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.model_dump(
+                    exclude_none=True
+                )
+            )
         SEGMENT_DATA = [
             SEGMENTED_ROW_VARIANT.model_dump(exclude_none=True),
             SEGMENTED_ROW_CONTROL.model_dump(exclude_none=True),
@@ -579,6 +620,8 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
+            ABSOLUTE_METRIC_DATA_A_COVARIATE,
+            ABSOLUTE_METRIC_DATA_F_COVARIATE,
         ) = cls.get_data_points()
 
         (
@@ -651,7 +694,7 @@ class JetstreamTestData:
                     Group.USAGE.value: {},
                     Group.OTHER.value: {
                         "identity": ABSOLUTE_METRIC_DATA_A.model_dump(exclude_none=True),
-                        "some_count": ABSOLUTE_METRIC_DATA_A.model_dump(
+                        "some_count": ABSOLUTE_METRIC_DATA_A_COVARIATE.model_dump(
                             exclude_none=True
                         ),
                         "some_ratio": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
@@ -717,7 +760,7 @@ class JetstreamTestData:
                         "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.model_dump(
                             exclude_none=True
                         ),
-                        "some_count": ABSOLUTE_METRIC_DATA_F.model_dump(
+                        "some_count": ABSOLUTE_METRIC_DATA_F_COVARIATE.model_dump(
                             exclude_none=True
                         ),
                         "some_ratio": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
@@ -948,6 +991,8 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
+            _,
+            _,
         ) = cls.get_data_points()
 
         (
@@ -1228,6 +1273,8 @@ class ZeroJetstreamTestData(JetstreamTestData):
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
+            ABSOLUTE_METRIC_DATA_A,
+            ABSOLUTE_METRIC_DATA_F,
         )
 
     @classmethod
@@ -1405,4 +1452,6 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
+            ABSOLUTE_METRIC_DATA_A,
+            ABSOLUTE_METRIC_DATA_F,
         )
