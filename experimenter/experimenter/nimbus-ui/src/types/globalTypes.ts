@@ -242,6 +242,9 @@ export enum NimbusExperimentQAStatusEnum {
   GREEN = "GREEN",
   NOT_SET = "NOT_SET",
   RED = "RED",
+  SELF_GREEN = "SELF_GREEN",
+  SELF_RED = "SELF_RED",
+  SELF_YELLOW = "SELF_YELLOW",
   YELLOW = "YELLOW",
 }
 
