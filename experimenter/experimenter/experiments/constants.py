@@ -378,9 +378,12 @@ class NimbusConstants:
     )
 
     class QAStatus(models.TextChoices):
-        RED = "RED"
-        YELLOW = "YELLOW"
-        GREEN = "GREEN"
+        RED = ("RED", "QA: Red")
+        YELLOW = ("YELLOW", "QA: Yellow")
+        GREEN = ("GREEN", "QA: Green")
+        SELF_RED = ("SELF RED", "Self QA: Red")
+        SELF_YELLOW = ("SELF YELLOW", "Self QA: Yellow")
+        SELF_GREEN = ("SELF GREEN", "Self QA: Green")
         NOT_SET = "NOT SET"
 
     APPLICATION_CONFIGS = {

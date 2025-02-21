@@ -226,6 +226,21 @@ export const QA_STATUS_PROPERTIES: Record<
     description: "❌ QA: Red",
     className: "danger",
   },
+  [NimbusExperimentQAStatusEnum.SELF_GREEN]: {
+    emoji: "✅",
+    description: "✅ Self QA: Green",
+    className: "success",
+  },
+  [NimbusExperimentQAStatusEnum.SELF_YELLOW]: {
+    emoji: "⚠️",
+    description: "⚠️ Self QA: Yellow",
+    className: "text-dark",
+  },
+  [NimbusExperimentQAStatusEnum.SELF_RED]: {
+    emoji: "❌",
+    description: "❌ Self QA: Red",
+    className: "danger",
+  },
   [NimbusExperimentQAStatusEnum.NOT_SET]: {
     emoji: "⌛️",
     description: "⌛️ QA: Not set",
