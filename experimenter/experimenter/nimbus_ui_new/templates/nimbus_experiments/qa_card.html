@@ -39,7 +39,7 @@
         <tbody>
           <tr>
             <th>QA Status</th>
-            <td colspan="3">{{ experiment.qa_status|format_not_set|title }}</td>
+            <td colspan="3">{{ experiment.get_qa_status_display }}</td>
           </tr>
           <tr>
             <th>QA Comment</th>

@@ -79,6 +79,26 @@ export const QAEditor = ({
       description:
         QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.GREEN].description,
     },
+    {
+      label: NimbusExperimentQAStatusEnum.SELF_RED,
+      value: NimbusExperimentQAStatusEnum.SELF_RED,
+      description:
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.SELF_RED].description,
+    },
+    {
+      label: NimbusExperimentQAStatusEnum.SELF_YELLOW,
+      value: NimbusExperimentQAStatusEnum.SELF_YELLOW,
+      description:
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.SELF_YELLOW]
+          .description,
+    },
+    {
+      label: NimbusExperimentQAStatusEnum.SELF_GREEN,
+      value: NimbusExperimentQAStatusEnum.SELF_GREEN,
+      description:
+        QA_STATUS_PROPERTIES[NimbusExperimentQAStatusEnum.SELF_GREEN]
+          .description,
+    },
   ] as const;
 
   const onClickCancel = useCallback(
