@@ -114,14 +114,15 @@
             {% endif %}
           </th>
           <td>
-            {% if experiment.qa_status == 'NOT SET' %}<i class="fa-regular fa-circle-question"></i>{% endif %}
-            {% if experiment.qa_status == 'GREEN' %}
-              <span class="text-success"><i class="fa-regular fa-circle-check"></i></span>
-            {% endif %}
-            {% if experiment.qa_status == 'YELLOW' %}
+            {% if experiment.qa_status == experiment.QAStatus.NOT_SET %}
+              <i class="fa-regular fa-circle-question"></i>
+            {% elif experiment.qa_status == experiment.QAStatus.GREEN or experiment.qa_status == experiment.QAStatus.SELF_GREEN %}
+              <span class="text-success">
+                <i class="fa-regular fa-circle-check"></i>
+              </span>
+            {% elif experiment.qa_status == experiment.QAStatus.YELLOW or experiment.qa_status == experiment.QAStatus.SELF_YELLOW %}
               <span class="text-warning"><i class="fa-regular fa-circle-pause"></i></span>
-            {% endif %}
-            {% if experiment.qa_status == 'RED' %}
+            {% elif experiment.qa_status == experiment.QAStatus.RED or experiment.qa_status == experiment.QAStatus.SELF_RED %}
               <span class="text-danger"><i class="fa-regular fa-circle-xmark"></i></span>
             {% endif %}
           </td>

@@ -409,6 +409,9 @@ enum NimbusExperimentQAStatusEnum {
   RED
   YELLOW
   GREEN
+  SELF_RED
+  SELF_YELLOW
+  SELF_GREEN
   NOT_SET
 }
 
