@@ -189,6 +189,8 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
             ABSOLUTE_METRIC_DATA_A_COVARIATE,
             ABSOLUTE_METRIC_DATA_F_COVARIATE,
+            DATA_POINT_A_COVARIATE,
+            DATA_POINT_F_COVARIATE,
         )
 
     @classmethod
@@ -200,6 +202,8 @@ class JetstreamTestData:
         DATA_POINT_E,
         DATA_POINT_C,
         DATA_POINT_D,
+        DATA_POINT_A_COVARIATE,
+        DATA_POINT_F_COVARIATE,
     ):
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_B,
@@ -207,7 +211,7 @@ class JetstreamTestData:
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL = cls.get_difference_metric_data(
-            DATA_POINT_A,
+            DATA_POINT_A_COVARIATE,
             SignificanceData(weekly={"1": Significance.POSITIVE.value}, overall={}),
             comparison_to_branch="control",
         )
@@ -222,7 +226,7 @@ class JetstreamTestData:
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL = cls.get_difference_metric_data(
-            DATA_POINT_F,
+            DATA_POINT_F_COVARIATE,
             SignificanceData(weekly={}, overall={"1": Significance.POSITIVE.value}),
             comparison_to_branch="control",
         )
@@ -307,13 +311,13 @@ class JetstreamTestData:
                 if Group.OTHER not in weekly_data[branch]["branch_data"]:
                     weekly_data[branch]["branch_data"][Group.OTHER.value] = {}
 
-                data_point_overall = range_data.copy()
+                data_point_overall = range_data.model_copy()
                 data_point_overall.count = 48.0
                 overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_overall)
                 )
 
-                data_point_weekly = range_data.copy()
+                data_point_weekly = range_data.model_copy()
                 data_point_weekly.window_index = "1"
                 weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_weekly)
@@ -350,13 +354,13 @@ class JetstreamTestData:
                 if Group.OTHER not in weekly_data[branch]["branch_data"]:
                     weekly_data[branch]["branch_data"][Group.OTHER.value] = {}
 
-                data_point_overall = range_data.copy()
+                data_point_overall = range_data.model_copy()
                 data_point_overall.count = 0.0
                 overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_overall)
                 )
 
-                data_point_weekly = range_data.copy()
+                data_point_weekly = range_data.model_copy()
                 data_point_weekly.window_index = "1"
                 weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_weekly)
@@ -403,67 +407,75 @@ class JetstreamTestData:
     def get_test_data(cls, primary_outcomes):
         DATA_IDENTITY_ROW = cls.get_identity_row()
 
-        CONTROL_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        CONTROL_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         CONTROL_DATA_ROW.branch = "control"
 
-        VARIANT_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         VARIANT_DATA_ROW.branch = "variant"
 
-        SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.copy()
+        SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.model_copy()
         SEGMENTED_ROW_VARIANT.segment = "some_segment"
-        SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.copy()
+        SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.model_copy()
         SEGMENTED_ROW_CONTROL.segment = "some_segment"
 
-        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.model_copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
 
-        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM = DATA_IDENTITY_ROW.model_copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.metric = "some_count"
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.point = 11.5
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.statistic = Statistic.LINEAR_MODEL_MEAN
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.branch = "variant"
 
-        VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO = DATA_IDENTITY_ROW.model_copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.metric = "some_ratio"
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.statistic = Statistic.POPULATION_RATIO
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.branch = "variant"
 
-        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT = DATA_IDENTITY_ROW.model_copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.metric = "some_dau_impact"
         VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.statistic = (
             Statistic.PER_CLIENT_DAU_IMPACT
         )
         VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.branch = "variant"
 
-        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.model_copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.branch = "variant"
 
-        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.comparison = BranchComparison.DIFFERENCE
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.metric = Metric.SEARCH
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.statistic = Statistic.MEAN
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.branch = "variant"
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.comparison_to_branch = "control"
 
-        BROKEN_STATISTIC_DATA_ROW = CONTROL_DATA_ROW.copy()
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW_MEAN_LM = (
+            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_copy()
+        )
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW_MEAN_LM.statistic = (
+            Statistic.LINEAR_MODEL_MEAN
+        )
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW_MEAN_LM.point = 11.5
+
+        BROKEN_STATISTIC_DATA_ROW = CONTROL_DATA_ROW.model_copy()
         BROKEN_STATISTIC_DATA_ROW.comparison = BranchComparison.ABSOLUTE
         BROKEN_STATISTIC_DATA_ROW.metric = "custom_metric"
         BROKEN_STATISTIC_DATA_ROW.statistic = "something_else"
 
-        VARIANT_BROKEN_STATISTIC_DATA_ROW = VARIANT_DATA_ROW.copy()
+        VARIANT_BROKEN_STATISTIC_DATA_ROW = VARIANT_DATA_ROW.model_copy()
         VARIANT_BROKEN_STATISTIC_DATA_ROW.comparison = BranchComparison.ABSOLUTE
         VARIANT_BROKEN_STATISTIC_DATA_ROW.metric = "custom_metric"
         VARIANT_BROKEN_STATISTIC_DATA_ROW.statistic = "something_else"
 
-        EXPOSURES_BROKEN_STATISTIC_DATA_ROW = BROKEN_STATISTIC_DATA_ROW.copy()
+        EXPOSURES_BROKEN_STATISTIC_DATA_ROW = BROKEN_STATISTIC_DATA_ROW.model_copy()
         EXPOSURES_BROKEN_STATISTIC_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
 
         VARIANT_EXPOSURES_BROKEN_STATISTIC_DATA_ROW = (
-            VARIANT_BROKEN_STATISTIC_DATA_ROW.copy()
+            VARIANT_BROKEN_STATISTIC_DATA_ROW.model_copy()
         )
         VARIANT_EXPOSURES_BROKEN_STATISTIC_DATA_ROW.analysis_basis = (
             AnalysisBasis.EXPOSURES
@@ -475,22 +487,22 @@ class JetstreamTestData:
         ) = cls.get_significance_data_row(VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW)
 
         # exposures
-        EXPOSURES_CONTROL_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_CONTROL_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         EXPOSURES_CONTROL_DATA_ROW.branch = "control"
         EXPOSURES_CONTROL_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
 
-        EXPOSURES_VARIANT_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         EXPOSURES_VARIANT_DATA_ROW.branch = "variant"
         EXPOSURES_VARIANT_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
 
-        EXPOSURES_SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.copy()
+        EXPOSURES_SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.model_copy()
         EXPOSURES_SEGMENTED_ROW_VARIANT.segment = "some_segment"
         EXPOSURES_SEGMENTED_ROW_VARIANT.analysis_basis = AnalysisBasis.EXPOSURES
-        EXPOSURES_SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.copy()
+        EXPOSURES_SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.model_copy()
         EXPOSURES_SEGMENTED_ROW_CONTROL.segment = "some_segment"
         EXPOSURES_SEGMENTED_ROW_CONTROL.analysis_basis = AnalysisBasis.EXPOSURES
 
-        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.model_copy()
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
@@ -498,7 +510,7 @@ class JetstreamTestData:
             AnalysisBasis.EXPOSURES
         )
 
-        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM = DATA_IDENTITY_ROW.model_copy()
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.metric = "some_count"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.point = 11.5
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.statistic = (
@@ -509,7 +521,7 @@ class JetstreamTestData:
             AnalysisBasis.EXPOSURES
         )
 
-        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO = DATA_IDENTITY_ROW.model_copy()
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.metric = "some_ratio"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.statistic = (
             Statistic.POPULATION_RATIO
@@ -519,7 +531,9 @@ class JetstreamTestData:
             AnalysisBasis.EXPOSURES
         )
 
-        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT = (
+            DATA_IDENTITY_ROW.model_copy()
+        )
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.metric = "some_dau_impact"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.statistic = (
             Statistic.PER_CLIENT_DAU_IMPACT
@@ -529,7 +543,9 @@ class JetstreamTestData:
             AnalysisBasis.EXPOSURES
         )
 
-        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = (
+            DATA_IDENTITY_ROW.model_copy()
+        )
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.branch = "variant"
@@ -537,7 +553,7 @@ class JetstreamTestData:
             AnalysisBasis.EXPOSURES
         )
 
-        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.comparison = (
             BranchComparison.DIFFERENCE
         )
@@ -548,6 +564,14 @@ class JetstreamTestData:
         EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.analysis_basis = (
             AnalysisBasis.EXPOSURES
         )
+
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW_MEAN_LM = (
+            EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_copy()
+        )
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW_MEAN_LM.statistic = (
+            Statistic.LINEAR_MODEL_MEAN
+        )
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW_MEAN_LM.point = 11.5
 
         (
             EXPOSURES_VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
@@ -593,14 +617,25 @@ class JetstreamTestData:
         if cls == JetstreamTestData:
             # don't test that the mean_lm (covariate adjusted) stat
             # supercedes the mean stat for non-JetstreamTestData classes
-            DAILY_DATA.append(
-                VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.model_dump(exclude_none=True)
+            DAILY_DATA.extend(
+                [
+                    VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.model_dump(exclude_none=True),
+                    VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW_MEAN_LM.model_dump(
+                        exclude_none=True
+                    ),
+                ]
             )
-            DAILY_EXPOSURES_DATA.append(
-                EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.model_dump(
-                    exclude_none=True
-                )
+            DAILY_EXPOSURES_DATA.extend(
+                [
+                    EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN_LM.model_dump(
+                        exclude_none=True
+                    ),
+                    EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW_MEAN_LM.model_dump(
+                        exclude_none=True
+                    ),
+                ]
             )
+
         SEGMENT_DATA = [
             SEGMENTED_ROW_VARIANT.model_dump(exclude_none=True),
             SEGMENTED_ROW_CONTROL.model_dump(exclude_none=True),
@@ -622,6 +657,8 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
             ABSOLUTE_METRIC_DATA_A_COVARIATE,
             ABSOLUTE_METRIC_DATA_F_COVARIATE,
+            DATA_POINT_A_COVARIATE,
+            DATA_POINT_F_COVARIATE,
         ) = cls.get_data_points()
 
         (
@@ -644,6 +681,8 @@ class JetstreamTestData:
             DATA_POINT_E,
             DATA_POINT_C,
             DATA_POINT_D,
+            DATA_POINT_A_COVARIATE,
+            DATA_POINT_F_COVARIATE,
         )
 
         PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
@@ -890,28 +929,28 @@ class JetstreamTestData:
         # similar to above but missing weekly retention metric for exposures
         DATA_IDENTITY_ROW = cls.get_identity_row()
 
-        CONTROL_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        CONTROL_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         CONTROL_DATA_ROW.branch = "control"
 
-        VARIANT_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         VARIANT_DATA_ROW.branch = "variant"
 
-        SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.copy()
+        SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.model_copy()
         SEGMENTED_ROW_VARIANT.segment = "some_segment"
-        SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.copy()
+        SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.model_copy()
         SEGMENTED_ROW_CONTROL.segment = "some_segment"
 
-        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.model_copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
 
-        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.model_copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.branch = "variant"
 
-        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.comparison = BranchComparison.DIFFERENCE
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.metric = Metric.SEARCH
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.statistic = Statistic.MEAN
@@ -924,22 +963,22 @@ class JetstreamTestData:
         ) = cls.get_significance_data_row(VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW)
 
         # exposures
-        EXPOSURES_CONTROL_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_CONTROL_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         EXPOSURES_CONTROL_DATA_ROW.branch = "control"
         EXPOSURES_CONTROL_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
 
-        EXPOSURES_VARIANT_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         EXPOSURES_VARIANT_DATA_ROW.branch = "variant"
         EXPOSURES_VARIANT_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
 
-        EXPOSURES_SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.copy()
+        EXPOSURES_SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.model_copy()
         EXPOSURES_SEGMENTED_ROW_VARIANT.segment = "some_segment"
         EXPOSURES_SEGMENTED_ROW_VARIANT.analysis_basis = AnalysisBasis.EXPOSURES
-        EXPOSURES_SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.copy()
+        EXPOSURES_SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.model_copy()
         EXPOSURES_SEGMENTED_ROW_CONTROL.segment = "some_segment"
         EXPOSURES_SEGMENTED_ROW_CONTROL.analysis_basis = AnalysisBasis.EXPOSURES
 
-        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.model_copy()
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
@@ -947,7 +986,9 @@ class JetstreamTestData:
             AnalysisBasis.EXPOSURES
         )
 
-        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = (
+            DATA_IDENTITY_ROW.model_copy()
+        )
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.branch = "variant"
@@ -993,6 +1034,8 @@ class JetstreamTestData:
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
             _,
             _,
+            _,
+            _,
         ) = cls.get_data_points()
 
         (
@@ -1015,6 +1058,8 @@ class JetstreamTestData:
             DATA_POINT_E,
             DATA_POINT_C,
             DATA_POINT_D,
+            DATA_POINT_A,
+            DATA_POINT_F,
         )
 
         PairwiseBranchComparisonData = cls.get_pairwise_branch_comparison_data()
@@ -1223,7 +1268,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
     @classmethod
     def get_significance_data_row(cls, VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW):
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW = (
-            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.copy()
+            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_copy()
         )
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.point = 0.0
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.upper = 0.0
@@ -1232,7 +1277,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.statistic = Statistic.BINOMIAL
 
         CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW = (
-            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.copy()
+            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_copy()
         )
         CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.point = 0.0
         CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.upper = 0.0
@@ -1248,20 +1293,20 @@ class ZeroJetstreamTestData(JetstreamTestData):
     @classmethod
     def get_data_points(cls):
         DATA_POINT_A = DataPoint(lower=0, point=0, upper=0, window_index=1)
-        DATA_POINT_F = DATA_POINT_A.copy()
+        DATA_POINT_F = DATA_POINT_A.model_copy()
         DATA_POINT_F.window_index = None
 
         DATA_POINT_B = DataPoint(lower=0, point=0, upper=0, window_index=1)
-        DATA_POINT_E = DATA_POINT_B.copy()
+        DATA_POINT_E = DATA_POINT_B.model_copy()
         DATA_POINT_E.window_index = None
 
         DATA_POINT_C = DataPoint(lower=0, point=0, upper=0, window_index=1)
-        DATA_POINT_D = DATA_POINT_C.copy()
+        DATA_POINT_D = DATA_POINT_C.model_copy()
         DATA_POINT_D.window_index = None
 
         ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
         ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
-        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
+        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.model_copy()
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 0.0
         return (
             DATA_POINT_A,
@@ -1275,6 +1320,8 @@ class ZeroJetstreamTestData(JetstreamTestData):
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
+            DATA_POINT_A,
+            DATA_POINT_F,
         )
 
     @classmethod
@@ -1286,6 +1333,8 @@ class ZeroJetstreamTestData(JetstreamTestData):
         DATA_POINT_E,
         DATA_POINT_C,
         DATA_POINT_D,
+        DATA_POINT_A_COVARIATE,
+        DATA_POINT_F_COVARIATE,
     ):
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_B,
@@ -1384,13 +1433,13 @@ class ZeroJetstreamTestData(JetstreamTestData):
                 if Group.OTHER not in weekly_data[branch]["branch_data"]:
                     weekly_data[branch]["branch_data"][Group.OTHER.value] = {}
 
-                data_point_overall = range_data.copy()
+                data_point_overall = range_data.model_copy()
                 data_point_overall.count = 0.0
                 overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_overall)
                 )
 
-                data_point_weekly = range_data.copy()
+                data_point_weekly = range_data.model_copy()
                 data_point_weekly.window_index = "1"
                 weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_weekly)
@@ -1427,20 +1476,20 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
     @classmethod
     def get_data_points(cls):
         DATA_POINT_A = DataPoint(lower=None, point=None, upper=None, window_index=None)
-        DATA_POINT_F = DATA_POINT_A.copy()
+        DATA_POINT_F = DATA_POINT_A.model_copy()
         DATA_POINT_F.window_index = None
 
         DATA_POINT_B = DataPoint(lower=None, point=None, upper=None, window_index=None)
-        DATA_POINT_E = DATA_POINT_B.copy()
+        DATA_POINT_E = DATA_POINT_B.model_copy()
         DATA_POINT_E.window_index = None
 
         DATA_POINT_C = DataPoint(lower=None, point=None, upper=None, window_index=None)
-        DATA_POINT_D = DATA_POINT_C.copy()
+        DATA_POINT_D = DATA_POINT_C.model_copy()
         DATA_POINT_D.window_index = None
 
         ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
         ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
-        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
+        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.model_copy()
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = None
         return (
             DATA_POINT_A,
@@ -1454,4 +1503,6 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
             ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
             ABSOLUTE_METRIC_DATA_A,
             ABSOLUTE_METRIC_DATA_F,
+            DATA_POINT_A,
+            DATA_POINT_F,
         )
