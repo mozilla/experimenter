@@ -699,7 +699,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def can_preview_to_review(self):
         return self.is_preview
 
-    def can_show_remote_settings_pending(self, reviewer):
+    def should_show_remote_settings_pending(self, reviewer):
 
         return self.publish_status in (
             self.PublishStatus.APPROVED,
@@ -707,7 +707,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ) and self.can_review(reviewer)
 
     @property
-    def can_show_timeout_message(self):
+    def should_show_timeout_message(self):
         return self.changes.latest_timeout()
 
     @property

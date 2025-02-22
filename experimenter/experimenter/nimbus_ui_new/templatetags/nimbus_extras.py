@@ -84,5 +84,5 @@ def format_json(value):
 
 
 @register.filter
-def can_show_remote_settings_pending(experiment, reviewer):
-    return experiment.can_show_remote_settings_pending(reviewer)
+def should_show_remote_settings_pending(experiment, reviewer):
+    return experiment.should_show_remote_settings_pending(reviewer)

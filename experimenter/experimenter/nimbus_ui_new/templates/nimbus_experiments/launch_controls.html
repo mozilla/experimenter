@@ -118,7 +118,7 @@
       </div>
       <!-- Review Mode Controls -->
     {% elif experiment.is_review %}
-      {% if experiment.can_show_timeout_message %}
+      {% if experiment.should_show_timeout_message %}
         <div class="alert alert-danger" role="alert">
           <p>
             <span role="img" aria-label="red X emoji">❌</span>
@@ -166,7 +166,7 @@
                 hx-target="#content"
                 hx-swap="outerHTML">Cancel Review</button>
       </div>
-    {% elif experiment|can_show_remote_settings_pending:user %}
+    {% elif experiment|should_show_remote_settings_pending:user %}
       <div class="alert alert-primary">
         <p>
           <strong>Action required:</strong> Please review this change in Remote Settings to launch this experiment.
