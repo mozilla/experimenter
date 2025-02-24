@@ -2342,7 +2342,9 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
     description="Target users who have never used the new or old sidebar",
     targeting=(
         "!('sidebar.revamp'|preferenceValue) && "
-        "'sidebar.backupState'|preferenceValue == '{}'"
+        "'sidebar.backupState'|preferenceValue == '{}' &&"
+        "primaryResolution.width > 1366 &&"
+        "primaryResolution.height > 768"
     ),
     desktop_telemetry="",
     sticky_required=False,
