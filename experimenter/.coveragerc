@@ -6,6 +6,7 @@ source =
 #branch = True
 omit =
     */tests/*
+    */migrations/*
 
 [report]
 fail_under = 100
@@ -13,7 +14,7 @@ omit =
     bin/manifest-tool.py
     manage.py
     experimenter/wsgi.py
-    *migrations*
+    */migrations/*
 
 # Regexes for lines to exclude from consideration
 exclude_lines =

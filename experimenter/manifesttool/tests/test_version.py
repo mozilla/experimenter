@@ -354,7 +354,7 @@ class VersionTests(TestCase):
             model = VersionModel.parse_obj(obj)
             self.assertEqual(model.version, expected)
         else:
-            with self.assertRaisesRegexp(ValidationError, f"Invalid version {repr(s)}"):
+            with self.assertRaisesRegex(ValidationError, f"Invalid version {repr(s)}"):
                 VersionModel.parse_obj(obj)
 
     @parameterized.expand(
@@ -517,7 +517,10 @@ class VersionTests(TestCase):
                     fml_path="nimbus.fml.yaml",
                     release_discovery=ReleaseDiscovery(
                         version_file=VersionFile.create_plain_text(
-                            ["a/version.txt", "b/version.txt"]
+                            [
+                                "a/version.txt",
+                                "b/version.txt",
+                            ]
                         ),
                         strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
                     ),
@@ -532,7 +535,10 @@ class VersionTests(TestCase):
                     fml_path="experimenter.yaml",
                     release_discovery=ReleaseDiscovery(
                         version_file=VersionFile.create_plain_text(
-                            ["a/version.txt", "b/version.txt"]
+                            [
+                                "a/version.txt",
+                                "b/version.txt",
+                            ]
                         ),
                         strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
                     ),
@@ -591,7 +597,10 @@ class VersionTests(TestCase):
             fml_path="nimbus.fml.yaml",
             release_discovery=ReleaseDiscovery(
                 version_file=VersionFile.create_plain_text(
-                    ["a/version.txt", "b/version.txt"]
+                    [
+                        "a/version.txt",
+                        "b/version.txt",
+                    ]
                 ),
                 strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
             ),
