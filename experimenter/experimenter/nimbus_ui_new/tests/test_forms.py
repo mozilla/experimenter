@@ -351,6 +351,9 @@ class TestLaunchForms(RequestFormTestCase):
         self.mock_push_task = patch.object(
             nimbus_check_kinto_push_queue_by_collection, "apply_async"
         ).start()
+        self.mock_allocate_bucket_range = patch.object(
+            NimbusExperiment, "allocate_bucket_range"
+        ).start()
 
         self.addCleanup(patch.stopall)
 
@@ -371,6 +374,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("launched experiment to Preview", changelog.message)
         self.mock_preview_task.assert_called_once_with(countdown=5)
+        self.mock_allocate_bucket_range.assert_called_once()
 
     def test_draft_to_review_form(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -408,7 +412,6 @@ class TestLaunchForms(RequestFormTestCase):
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("requested launch from Preview", changelog.message)
-        self.mock_preview_task.assert_called_once_with(countdown=5)
 
     def test_preview_to_draft_form(self):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
@@ -467,11 +470,11 @@ class TestLaunchForms(RequestFormTestCase):
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
-        self.assertIn(f"{self.user.email} approved the review.", changelog.message)
-
+        self.assertIn(f"{self.user} approved the review.", changelog.message)
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
         )
+        self.mock_allocate_bucket_range.assert_called_once()
 
     def test_review_to_reject_form_with_reason(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -494,7 +497,7 @@ class TestLaunchForms(RequestFormTestCase):
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn(
-            f"{self.user.email} rejected the review with reason: Needs more work.",
+            f"{self.user} rejected the review with reason: Needs more work.",
             changelog.message,
         )
 

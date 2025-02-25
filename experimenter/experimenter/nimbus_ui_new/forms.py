@@ -539,20 +539,11 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         experiment.status_next = self.status_next
         experiment.publish_status = self.publish_status
         experiment.save()
-        # Allocate bucket range if needed
-        if experiment.has_filter(NimbusExperiment.Filters.SHOULD_ALLOCATE_BUCKETS):
-            experiment.allocate_bucket_range()
-
-        if experiment.should_call_preview_task:
-            nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
-
-        if experiment.should_call_push_task:
-            collection = experiment.kinto_collection
-            nimbus_check_kinto_push_queue_by_collection.apply_async(
-                countdown=5, args=[collection]
-            )
-
+        self.post_save_actions(experiment)
         return experiment
+
+    def post_save_actions(self, experiment):
+        pass
 
 
 class DraftToPreviewForm(UpdateStatusForm):
@@ -562,6 +553,10 @@ class DraftToPreviewForm(UpdateStatusForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} launched experiment to Preview"
+
+    def post_save_actions(self, experiment):
+        experiment.allocate_bucket_range()
+        nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
 
 
 class DraftToReviewForm(UpdateStatusForm):
@@ -590,6 +585,9 @@ class PreviewToDraftForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} moved the experiment back to Draft"
 
+    def post_save_actions(self, experiment):
+        nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+
 
 class ReviewToDraftForm(UpdateStatusForm):
     status = NimbusExperiment.Status.DRAFT
@@ -607,6 +605,12 @@ class ReviewToApproveForm(UpdateStatusForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the review."
+
+    def post_save_actions(self, experiment):
+        experiment.allocate_bucket_range()
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
 
 
 class ReviewToRejectForm(UpdateStatusForm):

@@ -1303,6 +1303,9 @@ class TestLaunchViews(AuthTestCase):
         self.mock_push_task = patch.object(
             nimbus_check_kinto_push_queue_by_collection, "apply_async"
         ).start()
+        self.mock_allocate_bucket_range = patch.object(
+            NimbusExperiment, "allocate_bucket_range"
+        ).start()
 
         self.addCleanup(patch.stopall)
 
@@ -1324,6 +1327,7 @@ class TestLaunchViews(AuthTestCase):
         )
 
         self.mock_preview_task.assert_called_once_with(countdown=5)
+        self.mock_allocate_bucket_range.assert_called_once()
 
     def test_draft_to_review(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -1360,8 +1364,6 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(
             self.experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
         )
-
-        self.mock_preview_task.assert_called_once_with(countdown=5)
 
     def test_preview_to_draft(self):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
@@ -1422,6 +1424,7 @@ class TestLaunchViews(AuthTestCase):
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[self.experiment.kinto_collection]
         )
+        self.mock_allocate_bucket_range.assert_called_once()
 
     def test_review_to_reject_view_with_reason(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT

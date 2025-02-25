@@ -711,17 +711,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.changes.latest_timeout()
 
     @property
-    def should_call_preview_task(self):
-        return self.status in {
-            NimbusExperiment.Status.PREVIEW,
-            NimbusExperiment.Status.DRAFT,
-        }
-
-    @property
-    def should_call_push_task(self):
-        return self.publish_status == NimbusExperiment.PublishStatus.APPROVED
-
-    @property
     def draft_date(self):
         if change := self.changes.all().order_by("changed_on").first():
             return change.changed_on.date()
