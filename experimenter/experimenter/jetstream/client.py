@@ -53,7 +53,7 @@ def load_data_from_gcs(path):
 
 def validate_data(data_json):
     if data_json:
-        Statistics.parse_obj(data_json)
+        Statistics.model_validate(data_json)
     return data_json
 
 
@@ -65,7 +65,7 @@ def get_data(slug, window):
 
 def validate_metadata(metadata_json):
     if metadata_json:
-        Metadata.parse_obj(metadata_json)
+        Metadata.model_validate(metadata_json)
     return metadata_json
 
 
@@ -77,7 +77,7 @@ def get_metadata(slug):
 
 def validate_analysis_errors(analysis_errors_json):
     if analysis_errors_json:
-        AnalysisErrors.parse_obj(analysis_errors_json)
+        AnalysisErrors.model_validate(analysis_errors_json)
     return analysis_errors_json
 
 
@@ -106,6 +106,7 @@ def get_results_metrics_map(
         Metric.SEARCH: {Statistic.MEAN},
         Metric.DAYS_OF_USE: {Statistic.MEAN},
         Metric.USER_COUNT: {Statistic.COUNT, Statistic.PERCENT},
+        Metric.DAILY_ACTIVE_USERS: {Statistic.PER_CLIENT_DAU_IMPACT},
     }
     primary_metrics_set: set[str] = set()
     primary_outcome_metrics: list[OutcomeMetric] = list(
@@ -159,7 +160,7 @@ def get_other_metrics_names_and_map(
     other_metrics_map = {}
 
     # This is an ordered list of priorities of stats to graph
-    priority_stats = [Statistic.MEAN, Statistic.BINOMIAL]
+    priority_stats = [Statistic.MEAN, Statistic.BINOMIAL, Statistic.PER_CLIENT_DAU_IMPACT]
     other_data = [
         data_point for data_point in data if data_point.metric not in results_metrics_map
     ]
@@ -274,7 +275,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
             # Convert output object to dict and put into the final object
-            transformed_data = data.dict(exclude_none=True) or None
+            transformed_data = data.model_dump(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
 
         for segment, segment_data in segment_points_exposures.items():
@@ -308,7 +309,7 @@ def get_experiment_data(experiment: NimbusExperiment):
 
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
-            transformed_data = data.dict(exclude_none=True) or None
+            transformed_data = data.model_dump(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.EXPOSURES][segment] = transformed_data
 
     errors_by_metric = {}
@@ -350,7 +351,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                 message=e,
                 timestamp=datetime.now(),
             )
-            errors_experiment_overall.append(analysis_error.dict())
+            errors_experiment_overall.append(analysis_error.model_dump())
 
     errors_by_metric["experiment"] = errors_experiment_overall
 
@@ -363,5 +364,5 @@ def get_experiment_data(experiment: NimbusExperiment):
 
 def get_population_sizing_data():
     sizing_data = get_sizing_data(suffix="latest")
-    sizing = SampleSizes.parse_obj(sizing_data) if sizing_data is not None else {}
+    sizing = SampleSizes.model_validate(sizing_data) if sizing_data is not None else {}
     return {"v1": sizing}

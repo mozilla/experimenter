@@ -26,7 +26,6 @@ def set_feature_config(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0190_nimbusfeatureconfig_read_only"),
     ]

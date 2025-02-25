@@ -147,8 +147,7 @@ FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
     name="First start-up users from Chrome",
     slug="first_run_chrome",
     description=(
-        "First start-up users (e.g. for about:welcome) who download Firefox "
-        "from Chrome"
+        "First start-up users (e.g. for about:welcome) who download Firefox from Chrome"
     ),
     targeting=f"{FIRST_RUN.targeting} && attributionData.ua == 'chrome'",
     desktop_telemetry=(
@@ -2212,6 +2211,28 @@ EXISTING_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SIGNED_IN_USER = NimbusTargetingConfig(
+    name="Signed-in User",
+    slug="signed_in_user",
+    description="Users who are signed into FxA",
+    targeting="isFxASignedIn",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_USER = NimbusTargetingConfig(
+    name="Signed-out User",
+    slug="signed_out_user",
+    description="Users who are NOT signed into FxA",
+    targeting="!isFxASignedIn",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 SYNC_USER = NimbusTargetingConfig(
     name="Sync User",
     slug="sync_user",
@@ -2321,7 +2342,9 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
     description="Target users who have never used the new or old sidebar",
     targeting=(
         "!('sidebar.revamp'|preferenceValue) && "
-        "'sidebar.backupState'|preferenceValue == '{}'"
+        "'sidebar.backupState'|preferenceValue == '{}' &&"
+        "primaryResolution.width > 1366 &&"
+        "primaryResolution.height > 768"
     ),
     desktop_telemetry="",
     sticky_required=False,

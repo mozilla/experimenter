@@ -122,7 +122,7 @@ def detach(
     callback=lambda ctx, _, value: value or ctx.obj.app.conf.worker_prefetch_multiplier,
     cls=CeleryOption,
     help_group="Worker Options",
-    help="Set custom prefetch multiplier value" "for this worker instance.",
+    help="Set custom prefetch multiplier valuefor this worker instance.",
 )
 @click.option(
     "-c",
@@ -161,14 +161,14 @@ def detach(
     type=float,
     cls=CeleryOption,
     help_group="Pool Options",
-    help="Enables a hard time limit " "(in seconds int/float) for tasks.",
+    help="Enables a hard time limit (in seconds int/float) for tasks.",
 )
 @click.option(
     "--soft-time-limit",
     type=float,
     cls=CeleryOption,
     help_group="Pool Options",
-    help="Enables a soft time limit " "(in seconds int/float) for tasks.",
+    help="Enables a soft time limit (in seconds int/float) for tasks.",
 )
 @click.option(
     "--max-tasks-per-child",
@@ -251,7 +251,7 @@ def worker(
     logfile=...,
     pidfile=...,
     statedb=...,
-    **kwargs
+    **kwargs,
 ):  # -> Literal[1] | None:
     """Start worker instance.
 

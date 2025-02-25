@@ -84,7 +84,7 @@ class EventDispatcher:
         retry=...,
         retry_policy=...,
         Event=...,
-        **fields
+        **fields,
     ):  # -> None:
         """Send event.
 

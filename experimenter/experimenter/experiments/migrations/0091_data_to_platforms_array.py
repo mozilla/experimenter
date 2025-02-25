@@ -28,7 +28,6 @@ def reverse_platform_string_to_array(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0090_add_platforms"),
     ]

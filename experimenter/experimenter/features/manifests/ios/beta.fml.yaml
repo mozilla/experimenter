@@ -55,6 +55,13 @@ features:
         description: "If true, we will allow use dark reader on webpages to toggle dark mode"
         type: Boolean
         default: false
+  download-live-activities-feature:
+    description: "Download Live Activities Feature\n"
+    variables:
+      enabled:
+        description: "If true, the download live activities feature is enabled\n"
+        type: Boolean
+        default: false
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
@@ -474,13 +481,13 @@ features:
         description: "If true, the password generator feature is enabled"
         type: Boolean
         default: false
-  pull-to-refresh-refactor-feature:
-    description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
+  pdf-refactor-feature:
+    description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
     variables:
       enabled:
-        description: "Enables the feature\n"
+        description: "Enables the feature.\n"
         type: Boolean
-        default: true
+        default: false
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
@@ -587,6 +594,13 @@ features:
         description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
         type: Option<PageContent>
         default: text-excerpt
+  tab-tray-ui-experiments:
+    description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
+    variables:
+      enabled:
+        description: "If true, enables the tab tray UI experiments.\n"
+        type: Boolean
+        default: false
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:

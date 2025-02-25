@@ -46,7 +46,6 @@ def send_experiment_launch_email(experiment):
 
 
 def send_experiment_ending_email(experiment):
-
     format_and_send_html_email(
         experiment,
         "experiments/emails/experiment_ending_email.html",
@@ -60,7 +59,6 @@ def send_experiment_ending_email(experiment):
 
 
 def send_enrollment_pause_email(experiment):
-
     format_and_send_html_email(
         experiment,
         "experiments/emails/enrollment_pause_email.html",
@@ -91,7 +89,6 @@ def send_experiment_comment_email(comment):
 
 
 def send_experiment_change_email(change):
-
     # Launch has its own separate email
     if change != "Launched Experiment":
         subject = Experiment.CHANGE_EMAIL_SUBJECT.format(change=change)

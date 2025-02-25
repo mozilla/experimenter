@@ -456,9 +456,7 @@ class ExperimentConstants(object):
         A <strong>{[1]}</strong> slowly deploys a pref or addon change
         to increasing numbers of users.
       </p>
-    """.format(
-        *TYPE_CHOICES
-    )
+    """.format(*TYPE_CHOICES)
 
     OWNER_HELP_TEXT = """
       <p>
@@ -562,9 +560,7 @@ class ExperimentConstants(object):
         <strong>Example:</strong>
         {}show_bug.cgi?id=12345
       </p>
-    """.format(
-        settings.BUGZILLA_HOST
-    )
+    """.format(settings.BUGZILLA_HOST)
 
     RELATED_WORK_HELP_TEXT = """
       <p>
@@ -1127,7 +1123,7 @@ If applicable, link to any relevant test builds / staging information
     QA_STATUS_DEFAULT = "What is the QA status: Not started, Green, Yellow, Red"
 
     ATTENTION_MESSAGE = (
-        "This delivery requires special attention " "and should be reviewed ASAP"
+        "This delivery requires special attention and should be reviewed ASAP"
     )
 
     INTENT_TO_SHIP_EMAIL_SUBJECT = "Delivery Intent to ship: {name} {version} {channel}"
@@ -1137,7 +1133,7 @@ If applicable, link to any relevant test builds / staging information
     ENDING_EMAIL_SUBJECT = "Delivery ending soon: {name} {version} {channel}"
 
     PAUSE_EMAIL_SUBJECT = (
-        "Experimenter enrollment ending verification " "for: {name} {version} {channel}"
+        "Experimenter enrollment ending verification for: {name} {version} {channel}"
     )
 
     COMMENT_EMAIL_SUBJECT = (

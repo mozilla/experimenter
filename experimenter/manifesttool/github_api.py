@@ -92,13 +92,13 @@ def _get_refs(repo: str, kind: str) -> list[Ref]:
 
 
 @overload
-def fetch_file(repo: str, file_path: str, rev: str) -> str:
-    ...  # pragma: no cover
+def fetch_file(repo: str, file_path: str, rev: str) -> str: ...  # pragma: no cover
 
 
 @overload
-def fetch_file(repo: str, file_path: str, rev: str, download_path: Path) -> None:
-    ...  # pragma: no cover
+def fetch_file(
+    repo: str, file_path: str, rev: str, download_path: Path
+) -> None: ...  # pragma: no cover
 
 
 def fetch_file(

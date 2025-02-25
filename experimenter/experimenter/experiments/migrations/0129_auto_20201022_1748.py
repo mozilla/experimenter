@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0128_nimbusexperiment_total_enrolled_clients"),
     ]

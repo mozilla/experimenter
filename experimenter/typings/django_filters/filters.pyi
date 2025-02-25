@@ -65,7 +65,7 @@ class Filter:
         method=...,
         distinct=...,
         exclude=...,
-        **kwargs
+        **kwargs,
     ) -> None: ...
     def get_method(self, qs):
         """Return filter method based on whether we're excluding
@@ -279,10 +279,10 @@ class LookupChoiceFilter(Filter):
         price = django_filters.LookupChoiceFilter(
             field_class=forms.DecimalField,
             lookup_choices=[
-                ('exact', 'Equals'),
-                ('gt', 'Greater than'),
-                ('lt', 'Less than'),
-            ]
+                ("exact", "Equals"),
+                ("gt", "Greater than"),
+                ("lt", "Less than"),
+            ],
         )
 
     """

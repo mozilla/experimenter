@@ -279,7 +279,7 @@ class Resource(metaclass=DeclarativeMetaclass):
         using_transactions=...,
         dry_run=...,
         raise_errors=...,
-        **kwargs
+        **kwargs,
     ):
         """
         Imports data from ``tablib.Dataset``. Refer to :doc:`import_workflow`
@@ -304,7 +304,7 @@ class Resource(metaclass=DeclarativeMetaclass):
         use_transactions=...,
         collect_failed_rows=...,
         rollback_on_validation_errors=...,
-        **kwargs
+        **kwargs,
     ):  # -> Result:
         """
         Imports data from ``tablib.Dataset``. Refer to :doc:`import_workflow`
@@ -336,7 +336,7 @@ class Resource(metaclass=DeclarativeMetaclass):
         using_transactions,
         collect_failed_rows,
         rollback_on_validation_errors=...,
-        **kwargs
+        **kwargs,
     ): ...
     def get_export_order(self): ...
     def before_export(self, queryset, *args, **kwargs):  # -> None:

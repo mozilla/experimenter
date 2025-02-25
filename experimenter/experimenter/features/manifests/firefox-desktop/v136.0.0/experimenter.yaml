@@ -684,6 +684,8 @@ preonboarding:
   owner: omc@mozilla.com
   # Exposure is recorded by the spotlight feature used to show the modal
   hasExposure: false
+  # Needed at `sessionstore-windows-restored`.
+  isEarlyStartup: true
   variables:
     enabled:
       type: boolean
@@ -694,20 +696,26 @@ preonboarding:
       type: json
       fallbackPref: browser.preonboarding.screens
       description: Content to show in the onboarding flow
-    disableFirstRunPolicyTab:
-      type: boolean
-      fallbackPref: browser.preonboarding.disableFirstRunPolicyTab
-      description: Should a background tab load the first run policy URL?
     requireAction:
       type: boolean
       fallbackPref: browser.preonboarding.requireAction
       description: >-
         When showModal is enabled, should action be required to proceed (show as a window modal with dismiss using the ESC key disabled)?
-    interactionPref:
-      type: string
-      fallbackPref: browser.preonboarding.interactionPref
+    currentPolicyVersion:
+      type: int
+      fallbackPref: datareporting.policy.currentPolicyVersion
       description: >-
-        Name of a boolean pref that indicates whether the preonboarding modal has been interacted with. If a value is provided, the modal will appear on every startup until the pref is set to true (typically via interaction with the modal's primary CTA).
+        The current policy version displayed by this preonboarding modal.
+    minimumPolicyVersion:
+      type: int
+      fallbackPref: datareporting.policy.minimumPolicyVersion
+      description: >-
+        The minimum policy version which the user must have accepted to not see the preonboarding modal.
+    firstRunURL:
+      type: string
+      fallbackPref: datareporting.policy.firstRunURL
+      description: >-
+        URL of browser tab to be opened on first run instead of infobar.
 
 moreFromMozilla:
   description: "New page on about:preferences to suggest more Mozilla products"
@@ -1450,13 +1458,15 @@ pocketNewtab:
     regionWeatherConfig:
       description: A comma-separated list of regions that get weather by default.
       type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.region-weather-config
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.region-weather-config
     localeWeatherConfig:
       description: A comma-separated list of locales that weather widget supports.
       type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.locale-weather-config
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.locale-weather-config
     topSitesMaxSponsored:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       type: int
@@ -2912,7 +2922,7 @@ syncSetupFlow:
   hasExposure: true
   exposureDescription: >-
     Exposure is recorded when the user is enrolled in an experiment using this
-    feature and we show an indicator when we detect their sync is disconnected.
+    feature and the avatar menu or app (hamburger) menu -> account on Firefox Desktop is opened
   variables:
     enabled:
       description: True if we should show the user the updated sync set-up UI

@@ -356,8 +356,7 @@ class Experiment(ExperimentConstants, models.Model):
         version_string = self.firefox_min_version_integer
         if self.firefox_max_version:
             version_string = (
-                f"{self.firefox_min_version_integer}-"
-                f"{self.firefox_max_version_integer}"
+                f"{self.firefox_min_version_integer}-{self.firefox_max_version_integer}"
             )
 
         slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
@@ -557,7 +556,6 @@ class Experiment(ExperimentConstants, models.Model):
     def ordered_changes(self):
         date_ordered_changes = []
         for date, users in sorted(self.grouped_changes.items(), reverse=True):
-
             date_changes = []
             for user, user_changes in users.items():
                 date_changes.append((user, set([c for c in list(user_changes)])))
@@ -670,7 +668,6 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_pref_rollout(self):
-
         return self.is_pref_rollout and self.preferences.count() > 0
 
     @property
@@ -952,7 +949,6 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     def clone(self, name, user):
-
         cloned = copy.copy(self)
         variants = ExperimentVariant.objects.filter(experiment=self)
 

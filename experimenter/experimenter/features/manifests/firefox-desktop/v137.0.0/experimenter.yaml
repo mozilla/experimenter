@@ -344,19 +344,25 @@ urlbar:
       setPref:
         branch: default
         pref: browser.urlbar.quicksuggest.contextualOptIn
-      description: Whether the Firefox Suggest contextual opt-in result is enabled. If true, this implicitly disables shouldShowOnboardingDialog.
-    quickSuggestContextualOptInSayHello:
-      type: boolean
+      description: Whether the Firefox Suggest contextual opt-in result is enabled.
+    quickSuggestContextualOptInFirstReshowAfterPeriodDays:
+      type: int
       setPref:
         branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.sayHello
-      description: Controls which variant of the copy is used for the Firefox Suggest contextual opt-in result.
-    quickSuggestContextualOptInTopPosition:
-      type: boolean
+        pref: browser.urlbar.quicksuggest.contextualOptIn.firstReshowAfterPeriodDays
+      description: Period until reshow the Firefox Suggest contextual opt-in result when first dismissed.
+    quickSuggestContextualOptInSecondReshowAfterPeriodDays:
+      type: int
       setPref:
         branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.topPosition
-      description: Controls whether the Firefox Suggest contextual opt-in result appears at the top of results or at the bottom, after one-off buttons.
+        pref: browser.urlbar.quicksuggest.contextualOptIn.secondReshowAfterPeriodDays
+      description: Period until reshow the Firefox Suggest contextual opt-in result when second dismissed.
+    quickSuggestContextualOptInThirdReshowAfterPeriodDays:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.contextualOptIn.thirdReshowAfterPeriodDays
+      description: Period until reshow the Firefox Suggest contextual opt-in result when third dismissed.
     quickSuggestDataCollectionEnabled:
       type: boolean
       description: Whether data collection should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) data collection, if the user has already toggled that preference.
@@ -383,21 +389,6 @@ urlbar:
         other results in the same experiment branch, it's also not necessary to
         set `showExposureResults: false`. To also record keyword exposures,
         include "rust_exposure" in `keywordExposureResults`.
-    quickSuggestHideSettingsUI:
-      type: boolean
-      fallbackPref: browser.urlbar.quicksuggest.hideSettingsUI
-      description: >-
-        This variable is intended to be used in potential exposure experiments
-        in regions and locales where Suggest normally isn't enabled. Potential
-        exposure suggestions are implemented in Suggest, and this variable lets
-        us enable core Suggest functionality but keep it hidden. Set both
-        `quickSuggestEnabled` and `quickSuggestHideSettingsUI` to true, along
-        with `quickSuggestExposureSuggestionTypes`. This variable does NOT hide
-        visible suggestions and other UI that can be independently enabled with
-        other Nimbus variables. But since all visible suggestions are disabled
-        by default for users not in the Suggest population, as long as you don't
-        set any Nimbus variables to enable other suggestions and UI, Suggest
-        will remain hidden.
     quickSuggestImpressionCapsSponsoredEnabled:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.impressionCaps.sponsoredEnabled
@@ -420,10 +411,6 @@ urlbar:
       description: >-
         The index of non-sponsored QuickSuggest results within the general
         group. A negative index is relative to the end of the group
-    quickSuggestOnboardingDialogVariation:
-      type: string
-      description: >-
-        Specify the messages/UI variation for QuickSuggest onboarding dialog. This value is case insensitive.
     quickSuggestRankingMode:
       type: string
       fallbackPref: browser.urlbar.quicksuggest.rankingMode
@@ -439,14 +426,6 @@ urlbar:
         - default
         - interest
         - random
-    quickSuggestScenario:
-      # IMPORTANT: This should not have a fallbackPref. See UrlbarPrefs.sys.mjs.
-      type: string
-      description: The Firefox Suggest scenario in which the user is enrolled
-      enum:
-        - history
-        - offline
-        - online
     quickSuggestScoreMap:
       type: json
       description: >-
@@ -457,14 +436,17 @@ urlbar:
         the scores in this map will override scores that are set in remote
         settings and Merino as well as scores that are hardcoded in the client.
         Example entries: `"amo": 0.5`, `"adm_sponsored": 0.9`
-    quickSuggestShouldShowOnboardingDialog:
-      type: boolean
-      fallbackPref: browser.urlbar.quicksuggest.shouldShowOnboardingDialog
-      description: Whether or not to show the QuickSuggest onboarding dialog
-    quickSuggestShowOnboardingDialogAfterNRestarts:
+    quickSuggestSettingsUi:
       type: int
-      fallbackPref: browser.urlbar.quicksuggest.showOnboardingDialogAfterNRestarts
-      description: Show QuickSuggest onboarding dialog after N browser restarts
+      fallbackPref: browser.urlbar.quicksuggest.settingsUi
+      description: >-
+        When Suggest is enabled, this determines the Suggest settings that will
+        be visible in the settings UI (about:preferences). When Suggest is
+        disabled, this is ignored and Suggest settings are hidden. Possible
+        values:
+        0: (default) Full, all settings will be shown.
+        1: None, no settings will be shown.
+        2: Offline only, settings that pertain to online will be hidden.
     quickSuggestSponsoredEnabled:
       type: boolean
       description: Whether sponsored suggestions should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) sponsored suggestions, if the user has already toggled that preference.
@@ -497,6 +479,14 @@ urlbar:
         branch: default
         pref: browser.urlbar.recentsearches.maxResults
       description: The maximum number of recent searches to show.
+    suggestCalculator:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.urlbar.suggest.calculator
+      description: >-
+        Whether or not to show calculator results when a user types a valid
+        calculation string into the urlbar.
     weatherFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.weather.featureGate
@@ -608,6 +598,53 @@ urlbar:
       setPref:
         branch: user
         pref: "places.frecency.pages.alternative.halfLifeDays"
+    pagesMaxVisitGap:
+      description: >-
+        The maximum allowed time (in seconds) between when a visit was recorded
+        and when an interaction occurs for them to be paired. This accounts
+        for slight discrepancies in their timestamps.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.maxVisitGapSeconds"
+    pagesNumInteractions:
+      description: >-
+        The number of recent interactions that should be examined.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.numInteractions"
+    pagesViewTimeSeconds:
+      description: >-
+        The minimum allowed time (in seconds) a page was viewed before upgrading
+        the score of a visit.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.viewTimeSeconds"
+    pageViewTimeIfManyKeypressesSeconds:
+      description: >-
+        The minimum allowed time (in seconds) a page was viewed before checking
+        the manyKeypresses threshold.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.viewTimeIfManyKeypressesSeconds"
+    manyKeypresses:
+      description: >-
+        The minimum number of keypresses typed before upgrading the score
+        of a visit.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.interactions.manyKeypresses"
+    pagesVeryHighWeight:
+      description: >-
+        The weight to use for the very high importance bucket.
+      type: int
+      setPref:
+        branch: user
+        pref: "places.frecency.pages.alternative.veryHighWeight"
     pagesHighWeight:
       description: >-
         The weight to use for the high importance bucket.
@@ -692,20 +729,26 @@ preonboarding:
       type: json
       fallbackPref: browser.preonboarding.screens
       description: Content to show in the onboarding flow
-    disableFirstRunPolicyTab:
-      type: boolean
-      fallbackPref: browser.preonboarding.disableFirstRunPolicyTab
-      description: Should a background tab load the first run policy URL?
     requireAction:
       type: boolean
       fallbackPref: browser.preonboarding.requireAction
       description: >-
         When showModal is enabled, should action be required to proceed (show as a window modal with dismiss using the ESC key disabled)?
-    interactionPref:
-      type: string
-      fallbackPref: browser.preonboarding.interactionPref
+    currentPolicyVersion:
+      type: int
+      fallbackPref: datareporting.policy.currentPolicyVersion
       description: >-
-        Name of a boolean pref that indicates whether the preonboarding modal has been interacted with. If a value is provided, the modal will appear on every startup until the pref is set to true (typically via interaction with the modal's primary CTA).
+        The current policy version displayed by this preonboarding modal.
+    minimumPolicyVersion:
+      type: int
+      fallbackPref: datareporting.policy.minimumPolicyVersion
+      description: >-
+        The minimum policy version which the user must have accepted to not see the preonboarding modal.
+    firstRunURL:
+      type: string
+      fallbackPref: datareporting.policy.firstRunURL
+      description: >-
+        URL of browser tab to be opened on first run instead of infobar.
 
 moreFromMozilla:
   description: "New page on about:preferences to suggest more Mozilla products"
@@ -912,7 +955,7 @@ newtabInlineTopicSelection:
       type: boolean
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.sections.topicSelection.enabled
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.interestPicker.enabled
       description: >-
         Enables inline topic selection
 
@@ -938,6 +981,27 @@ newtabLayoutExperiment:
       description: >-
         Variant B in layouts experiment.
 
+newtabCustomWallpaper:
+  description: >-
+    Modify the wallpaper selection feature to support user-uploaded custom wallpaper images
+  owner: mcrawford@mozilla.com
+  hasExposure: false
+  variables:
+    uploadWallpaper:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.enabled
+      description: >-
+        Turns on and off ability to upload a custom wallpaper.
+    colorPicker:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customColor.enabled
+      description: >-
+        Turns on and off background color picker.
+
 newtabShortcutsExperiment:
   description: >-
     Adjusting sizes and spacing of new tab shortcuts.
@@ -951,20 +1015,6 @@ newtabShortcutsExperiment:
         pref: browser.newtabpage.activity-stream.newtabShortcuts.refresh
       description: >-
         Adjusting sizes and spacing of new tab shortcuts.
-
-newtabAprilFools:
-  description: >-
-    Replaces logo and wordmark for April Fools Day.
-  owner: achurchwell@mozilla.com
-  hasExposure: false
-  variables:
-    isAprilFools:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabLogo.aprilfools
-      description: >-
-        Replaces logo and wordmark for April Fools Day.
 
 newtabSponsoredContent:
   description: >-
@@ -1122,6 +1172,13 @@ newTabSectionsExperiment:
         pref:  browser.newtabpage.activity-stream.discoverystream.sections.cards.enabled
       description: >-
         Enable the revised pocket story card UI in recommended stories on newtab
+    personalizationInferredEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.enabled
+      description: >-
+        Enable the inferred personalization for topics
     localeSectionstConfig:
       type: string
       setPref:
@@ -1448,13 +1505,15 @@ pocketNewtab:
     regionWeatherConfig:
       description: A comma-separated list of regions that get weather by default.
       type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.region-weather-config
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.region-weather-config
     localeWeatherConfig:
       description: A comma-separated list of locales that weather widget supports.
       type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.locale-weather-config
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.locale-weather-config
     topSitesMaxSponsored:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       type: int
@@ -2190,18 +2249,12 @@ dohPrefs:
       setPref:
         branch: default
         pref: "doh-rollout.uri"
-    enableFallbackWarningPage:
-      description: Whether DoH fallback warning page will be displayed when DoH doesn't work in TRR first mode.
-      type: boolean
+    dohProviderList:
+      description: An override of the rollout provider-list json
+      type: string
       setPref:
         branch: default
-        pref: "network.trr.display_fallback_warning"
-    showFallbackCheckbox:
-      description: Whether the checkbox to enable the fallback warning page is displayed in the settings UI.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.trr_ui.show_fallback_warning_option"
+        pref: "doh-rollout.provider-list"
     nativeHTTPSRecords:
       description: Whether we can perform native DNS HTTPS lookups
       type: boolean
@@ -2910,7 +2963,7 @@ syncSetupFlow:
   hasExposure: true
   exposureDescription: >-
     Exposure is recorded when the user is enrolled in an experiment using this
-    feature and we show an indicator when we detect their sync is disconnected.
+    feature and the avatar menu or app (hamburger) menu -> account on Firefox Desktop is opened
   variables:
     enabled:
       description: True if we should show the user the updated sync set-up UI

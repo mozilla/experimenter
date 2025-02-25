@@ -378,9 +378,12 @@ class NimbusConstants:
     )
 
     class QAStatus(models.TextChoices):
-        RED = "RED"
-        YELLOW = "YELLOW"
-        GREEN = "GREEN"
+        RED = ("RED", "QA: Red")
+        YELLOW = ("YELLOW", "QA: Yellow")
+        GREEN = ("GREEN", "QA: Green")
+        SELF_RED = ("SELF RED", "Self QA: Red")
+        SELF_YELLOW = ("SELF YELLOW", "Self QA: Yellow")
+        SELF_GREEN = ("SELF GREEN", "Self QA: Green")
         NOT_SET = "NOT SET"
 
     APPLICATION_CONFIGS = {
@@ -586,6 +589,7 @@ class NimbusConstants:
         FIREFOX_134 = "134.!"
         FIREFOX_134_1_0 = "134.1.0"
         FIREFOX_135 = "135.!"
+        FIREFOX_135_0_1 = "135.0.1"
         FIREFOX_135_1_0 = "135.1.0"
         FIREFOX_136 = "136.!"
         FIREFOX_137 = "137.!"

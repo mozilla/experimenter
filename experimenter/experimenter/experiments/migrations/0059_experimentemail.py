@@ -7,7 +7,6 @@ import experimenter.legacy.legacy_experiments.constants
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0058_firefox_min_max_version")]
 
     operations = [

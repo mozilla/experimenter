@@ -4,7 +4,6 @@ from selenium.webdriver.common.by import By
 
 
 class RiskAndTestingPage(Base):
-
     URL_TEMPLATE = "{experiment_url}edit-risks"
 
     _risks_locator = (By.CSS_SELECTOR, ".form-group")
@@ -40,7 +39,6 @@ class RiskAndTestingPage(Base):
         return DetailPage(self.driver, self.base_url).wait_for_page_to_load()
 
     class Risks(Region):
-
         _button_labels = (By.CSS_SELECTOR, ".radio label")
         _button_radio_button = (By.CSS_SELECTOR, "input")
         _risk_choices = (By.CSS_SELECTOR, "label strong")

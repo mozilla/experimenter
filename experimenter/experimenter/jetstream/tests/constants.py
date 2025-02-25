@@ -44,8 +44,8 @@ class JetstreamTestData:
         if is_retention:
             all_data_points.append(DATA_POINT)
 
-        significance = cls.get_pairwise_significance_data()().dict()
-        difference = cls.get_pairwise_branch_comparison_data()().dict()
+        significance = cls.get_pairwise_significance_data()().model_dump()
+        difference = cls.get_pairwise_branch_comparison_data()().model_dump()
 
         # initialize pairwise branch comparisons inside dicts
         for branch in branches:
@@ -55,7 +55,7 @@ class JetstreamTestData:
         # set the comparison branch's data
         comparison_data = BranchComparisonData(
             first=DATA_POINT, all=all_data_points
-        ).dict()
+        ).model_dump()
         significance[comparison_to_branch] = deepcopy(SIGNIFICANCE.model_dump())
         difference[comparison_to_branch] = comparison_data
 
@@ -273,7 +273,7 @@ class JetstreamTestData:
             difference=cls.get_pairwise_branch_comparison_data()(),
             relative_uplift=cls.get_pairwise_branch_comparison_data()(),
             significance=cls.get_pairwise_significance_data()(),
-        ).dict(exclude_none=True)
+        ).model_dump(exclude_none=True)
 
     @classmethod
     def add_outcome_data(
@@ -296,26 +296,26 @@ class JetstreamTestData:
 
                 data_point_overall = range_data.copy()
                 data_point_overall.count = 48.0
-                overall_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_overall)
+                )
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
-                weekly_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_weekly)
+                )
 
                 data.append(
                     JetstreamDataPoint(
-                        **range_data.dict(exclude_none=True),
+                        **range_data.model_dump(exclude_none=True),
                         metric=primary_metric,
                         branch=branch,
                         statistic="binomial",
                         window_index="1",
                         segment=Segment.ALL,
                         analysis_basis=analysis_basis,
-                    ).dict(exclude_none=True)
+                    ).model_dump(exclude_none=True)
                 )
 
     @classmethod
@@ -339,26 +339,26 @@ class JetstreamTestData:
 
                 data_point_overall = range_data.copy()
                 data_point_overall.count = 0.0
-                overall_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_overall)
+                )
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
-                weekly_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_weekly)
+                )
 
                 data.append(
                     JetstreamDataPoint(
-                        **range_data.dict(exclude_none=True),
+                        **range_data.model_dump(exclude_none=True),
                         metric=primary_metric,
                         branch=branch,
                         statistic="mean",
                         window_index="1",
                         segment=Segment.ALL,
                         analysis_basis=analysis_basis,
-                    ).dict(exclude_none=True)
+                    ).model_dump(exclude_none=True)
                 )
 
     @classmethod
@@ -410,6 +410,13 @@ class JetstreamTestData:
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.metric = "some_ratio"
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.statistic = Statistic.POPULATION_RATIO
         VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.branch = "variant"
+
+        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.metric = "some_dau_impact"
+        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.statistic = (
+            Statistic.PER_CLIENT_DAU_IMPACT
+        )
+        VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.branch = "variant"
 
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
@@ -482,6 +489,16 @@ class JetstreamTestData:
             AnalysisBasis.EXPOSURES
         )
 
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.metric = "some_dau_impact"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.statistic = (
+            Statistic.PER_CLIENT_DAU_IMPACT
+        )
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.branch = "variant"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.analysis_basis = (
+            AnalysisBasis.EXPOSURES
+        )
+
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
         EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
@@ -510,36 +527,46 @@ class JetstreamTestData:
         )
 
         DAILY_DATA = [
-            CONTROL_DATA_ROW.dict(exclude_none=True),
-            VARIANT_DATA_ROW.dict(exclude_none=True),
-            VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
-            VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.dict(exclude_none=True),
-            VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
-            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
-            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
-            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
-            BROKEN_STATISTIC_DATA_ROW.dict(exclude_none=True),
-            VARIANT_BROKEN_STATISTIC_DATA_ROW.dict(exclude_none=True),
+            CONTROL_DATA_ROW.model_dump(exclude_none=True),
+            VARIANT_DATA_ROW.model_dump(exclude_none=True),
+            VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.model_dump(exclude_none=True),
+            VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.model_dump(exclude_none=True),
+            VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.model_dump(exclude_none=True),
+            VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.model_dump(exclude_none=True),
+            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
+            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
+            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
+            BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
+            VARIANT_BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
         ]
         DAILY_EXPOSURES_DATA = [
-            EXPOSURES_CONTROL_DATA_ROW.dict(exclude_none=True),
-            EXPOSURES_VARIANT_DATA_ROW.dict(exclude_none=True),
-            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
-            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.dict(exclude_none=True),
-            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
-            EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
-            EXPOSURES_VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
-            EXPOSURES_CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
-            EXPOSURES_BROKEN_STATISTIC_DATA_ROW.dict(exclude_none=True),
-            VARIANT_EXPOSURES_BROKEN_STATISTIC_DATA_ROW.dict(exclude_none=True),
+            EXPOSURES_CONTROL_DATA_ROW.model_dump(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_ROW.model_dump(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.model_dump(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_RATIO.model_dump(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.model_dump(
+                exclude_none=True
+            ),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.model_dump(
+                exclude_none=True
+            ),
+            EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_dump(
+                exclude_none=True
+            ),
+            EXPOSURES_VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_dump(
+                exclude_none=True
+            ),
+            EXPOSURES_CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
+            EXPOSURES_BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
+            VARIANT_EXPOSURES_BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
         ]
         SEGMENT_DATA = [
-            SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
-            SEGMENTED_ROW_CONTROL.dict(exclude_none=True),
+            SEGMENTED_ROW_VARIANT.model_dump(exclude_none=True),
+            SEGMENTED_ROW_CONTROL.model_dump(exclude_none=True),
         ]
         SEGMENT_EXPOSURES_DATA = [
-            EXPOSURES_SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
-            EXPOSURES_SEGMENTED_ROW_CONTROL.dict(exclude_none=True),
+            EXPOSURES_SEGMENTED_ROW_VARIANT.model_dump(exclude_none=True),
+            EXPOSURES_SEGMENTED_ROW_CONTROL.model_dump(exclude_none=True),
         ]
 
         (
@@ -591,18 +618,23 @@ class JetstreamTestData:
                 "is_control": True,
                 "branch_data": {
                     Group.SEARCH.value: {
-                        "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "search_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                     Group.USAGE.value: {},
                     Group.OTHER.value: {
-                        "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                        "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "some_ratio": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT.dict(
+                        "identity": ABSOLUTE_METRIC_DATA_A.model_dump(exclude_none=True),
+                        "some_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_ratio": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_dau_impact": EMPTY_METRIC_DATA.model_dump(
                             exclude_none=True
                         ),
-                        "custom_metric": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                        "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                 },
             },
@@ -611,21 +643,30 @@ class JetstreamTestData:
                 "branch_data": {
                     Group.SEARCH.value: {
                         "search_count": (
-                            DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL.dict(
+                            DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL.model_dump(
                                 exclude_none=True
                             )
                         ),
                     },
                     Group.USAGE.value: {},
                     Group.OTHER.value: {
-                        "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                        "some_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                        "some_ratio": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "another_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                        "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL.dict(
+                        "identity": ABSOLUTE_METRIC_DATA_A.model_dump(exclude_none=True),
+                        "some_count": ABSOLUTE_METRIC_DATA_A.model_dump(
                             exclude_none=True
                         ),
-                        "custom_metric": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "some_ratio": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_dau_impact": ABSOLUTE_METRIC_DATA_A.model_dump(
+                            exclude_none=True
+                        ),
+                        "another_count": ABSOLUTE_METRIC_DATA_A.model_dump(
+                            exclude_none=True
+                        ),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                        "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                 },
             },
@@ -636,23 +677,28 @@ class JetstreamTestData:
                 "is_control": True,
                 "branch_data": {
                     Group.SEARCH.value: {
-                        "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "search_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                     Group.USAGE.value: {},
                     Group.OTHER.value: {
-                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
+                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.model_dump(
                             exclude_none=True
                         ),
-                        "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "some_ratio": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "default_browser_action": EMPTY_METRIC_DATA.dict(
+                        "some_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_ratio": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_dau_impact": EMPTY_METRIC_DATA.model_dump(
                             exclude_none=True
                         ),
-                        "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT.dict(
+                        "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "default_browser_action": EMPTY_METRIC_DATA.model_dump(
                             exclude_none=True
                         ),
-                        "custom_metric": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                        "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                 },
             },
@@ -661,23 +707,32 @@ class JetstreamTestData:
                 "branch_data": {
                     Group.SEARCH.value: {
                         "search_count": (
-                            DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL.dict(
+                            DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL.model_dump(
                                 exclude_none=True
                             )
                         ),
                     },
                     Group.USAGE.value: {},
                     Group.OTHER.value: {
-                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
+                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.model_dump(
                             exclude_none=True
                         ),
-                        "some_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
-                        "some_ratio": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "another_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
-                        "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL.dict(
+                        "some_count": ABSOLUTE_METRIC_DATA_F.model_dump(
                             exclude_none=True
                         ),
-                        "custom_metric": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "some_ratio": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_dau_impact": ABSOLUTE_METRIC_DATA_F.model_dump(
+                            exclude_none=True
+                        ),
+                        "another_count": ABSOLUTE_METRIC_DATA_F.model_dump(
+                            exclude_none=True
+                        ),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                        "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                 },
             },
@@ -858,27 +913,29 @@ class JetstreamTestData:
         )
 
         DAILY_DATA = [
-            CONTROL_DATA_ROW.dict(exclude_none=True),
-            VARIANT_DATA_ROW.dict(exclude_none=True),
-            VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
-            VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
-            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
-            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
-            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+            CONTROL_DATA_ROW.model_dump(exclude_none=True),
+            VARIANT_DATA_ROW.model_dump(exclude_none=True),
+            VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.model_dump(exclude_none=True),
+            VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.model_dump(exclude_none=True),
+            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
+            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
+            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
         ]
         DAILY_EXPOSURES_DATA = [
-            EXPOSURES_CONTROL_DATA_ROW.dict(exclude_none=True),
-            EXPOSURES_VARIANT_DATA_ROW.dict(exclude_none=True),
-            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
-            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
+            EXPOSURES_CONTROL_DATA_ROW.model_dump(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_ROW.model_dump(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.model_dump(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.model_dump(
+                exclude_none=True
+            ),
         ]
         SEGMENT_DATA = [
-            SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
-            SEGMENTED_ROW_CONTROL.dict(exclude_none=True),
+            SEGMENTED_ROW_VARIANT.model_dump(exclude_none=True),
+            SEGMENTED_ROW_CONTROL.model_dump(exclude_none=True),
         ]
         SEGMENT_EXPOSURES_DATA = [
-            EXPOSURES_SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
-            EXPOSURES_SEGMENTED_ROW_CONTROL.dict(exclude_none=True),
+            EXPOSURES_SEGMENTED_ROW_VARIANT.model_dump(exclude_none=True),
+            EXPOSURES_SEGMENTED_ROW_CONTROL.model_dump(exclude_none=True),
         ]
 
         (
@@ -930,15 +987,17 @@ class JetstreamTestData:
                 "is_control": True,
                 "branch_data": {
                     Group.SEARCH.value: {
-                        "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "search_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                     Group.USAGE.value: {},
                     Group.OTHER.value: {
-                        "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                        "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT.dict(
-                            exclude_none=True
+                        "identity": ABSOLUTE_METRIC_DATA_A.model_dump(exclude_none=True),
+                        "some_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT.model_dump(
+                                exclude_none=True
+                            )
                         ),
                     },
                 },
@@ -948,18 +1007,24 @@ class JetstreamTestData:
                 "branch_data": {
                     Group.SEARCH.value: {
                         "search_count": (
-                            DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL.dict(
+                            DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL.model_dump(
                                 exclude_none=True
                             )
                         ),
                     },
                     Group.USAGE.value: {},
                     Group.OTHER.value: {
-                        "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                        "some_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                        "another_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                        "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL.dict(
+                        "identity": ABSOLUTE_METRIC_DATA_A.model_dump(exclude_none=True),
+                        "some_count": ABSOLUTE_METRIC_DATA_A.model_dump(
                             exclude_none=True
+                        ),
+                        "another_count": ABSOLUTE_METRIC_DATA_A.model_dump(
+                            exclude_none=True
+                        ),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL.model_dump(
+                                exclude_none=True
+                            )
                         ),
                     },
                 },
@@ -994,17 +1059,19 @@ class JetstreamTestData:
                 "is_control": True,
                 "branch_data": {
                     Group.SEARCH.value: {
-                        "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "search_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                     Group.USAGE.value: {},
                     Group.OTHER.value: {
-                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
+                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.model_dump(
                             exclude_none=True
                         ),
-                        "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                        "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT.dict(
-                            exclude_none=True
+                        "some_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT.model_dump(
+                                exclude_none=True
+                            )
                         ),
                     },
                 },
@@ -1014,20 +1081,26 @@ class JetstreamTestData:
                 "branch_data": {
                     Group.SEARCH.value: {
                         "search_count": (
-                            DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL.dict(
+                            DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE_CONTROL.model_dump(
                                 exclude_none=True
                             )
                         ),
                     },
                     Group.USAGE.value: {},
                     Group.OTHER.value: {
-                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
+                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.model_dump(
                             exclude_none=True
                         ),
-                        "some_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
-                        "another_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
-                        "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL.dict(
+                        "some_count": ABSOLUTE_METRIC_DATA_F.model_dump(
                             exclude_none=True
+                        ),
+                        "another_count": ABSOLUTE_METRIC_DATA_F.model_dump(
+                            exclude_none=True
+                        ),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL.model_dump(
+                                exclude_none=True
+                            )
                         ),
                     },
                 },
@@ -1266,26 +1339,26 @@ class ZeroJetstreamTestData(JetstreamTestData):
 
                 data_point_overall = range_data.copy()
                 data_point_overall.count = 0.0
-                overall_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_overall)
+                overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_overall)
+                )
 
                 data_point_weekly = range_data.copy()
                 data_point_weekly.window_index = "1"
-                weekly_data[branch]["branch_data"][Group.OTHER.value][
-                    primary_metric
-                ] = cls.get_metric_data(data_point_weekly)
+                weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
+                    cls.get_metric_data(data_point_weekly)
+                )
 
                 data.append(
                     JetstreamDataPoint(
-                        **range_data.dict(exclude_none=True),
+                        **range_data.model_dump(exclude_none=True),
                         metric=primary_metric,
                         branch=branch,
                         statistic="binomial",
                         window_index="1",
                         segment=Segment.ALL,
                         analysis_basis=analysis_basis,
-                    ).dict(exclude_none=True)
+                    ).model_dump(exclude_none=True)
                 )
 
 

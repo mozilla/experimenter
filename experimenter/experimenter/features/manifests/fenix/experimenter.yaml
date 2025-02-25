@@ -298,6 +298,14 @@ pki:
     certificateTransparencyMode:
       type: int
       description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
+pqcrypto:
+  description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    postQuantumKeyExchangeEnabled:
+      type: boolean
+      description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
 print:
   description: A feature for printing from the share or browser menu.
   hasExposure: true
@@ -456,6 +464,17 @@ translations:
     page-settings-enabled:
       type: boolean
       description: "Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.\n"
+trending-searches:
+  description: Enables trending searches.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to enable trending searches.\n"
+    show-trending-searches-on-homepage:
+      type: boolean
+      description: "Whether or not to display trending searches on the homepage.\n"
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true

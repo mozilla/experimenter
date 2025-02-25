@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0114_remove_nimbusexperiment_bugzilla_id"),
     ]

@@ -22,7 +22,6 @@ def migrate_feature_configs(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0197_auto_20211109_2000"),
     ]

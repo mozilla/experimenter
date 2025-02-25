@@ -190,7 +190,7 @@ class ForeignKeyWidget(Widget):
     ::
 
         class Meta:
-            fields = ('author__name',)
+            fields = ("author__name",)
 
     …using a :class:`~import_export.widgets.ForeignKeyWidget` has the
     advantage that it can not only be used for exporting, but also importing
@@ -205,12 +205,13 @@ class ForeignKeyWidget(Widget):
 
         class BookResource(resources.ModelResource):
             author = fields.Field(
-                column_name='author',
-                attribute='author',
-                widget=ForeignKeyWidget(Author, 'name'))
+                column_name="author",
+                attribute="author",
+                widget=ForeignKeyWidget(Author, "name"),
+            )
 
             class Meta:
-                fields = ('author',)
+                fields = ("author",)
 
     :param model: The Model the ForeignKey refers to (required).
     :param field: A field on the related model used for looking up a particular object.
@@ -235,7 +236,7 @@ class ForeignKeyWidget(Widget):
                 def get_queryset(self, value, row, *args, **kwargs):
                     return self.model.objects.filter(
                         first_name__iexact=row["first_name"],
-                        last_name__iexact=row["last_name"]
+                        last_name__iexact=row["last_name"],
                     )
         """
         ...

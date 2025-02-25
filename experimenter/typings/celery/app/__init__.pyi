@@ -50,11 +50,10 @@ def shared_task(*args, **kwargs):  # -> Proxy | ((fun: Unknown) -> Proxy):
         >>> @shared_task
         ... def add(x, y):
         ...     return x + y
-        ...
-        >>> app1 = Celery(broker='amqp://')
+        >>> app1 = Celery(broker="amqp://")
         >>> add.app is app1
         True
-        >>> app2 = Celery(broker='redis://')
+        >>> app2 = Celery(broker="redis://")
         >>> add.app is app2
         True
     """
