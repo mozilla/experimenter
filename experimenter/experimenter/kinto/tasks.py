@@ -178,7 +178,6 @@ def handle_launching_experiments(applications, records, collection):
             experiment.status_next = None
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
             experiment.published_dto = published_record
-            experiment.computed_end_date(use_cache=False)
             experiment.save()
 
             generate_nimbus_changelog(
@@ -186,6 +185,8 @@ def handle_launching_experiments(applications, records, collection):
                 get_kinto_user(),
                 message=NimbusChangeLog.Messages.LIVE,
             )
+
+            experiment.update_computed_end_date()
 
             logger.info(f"{experiment.slug} launched")
 
@@ -209,7 +210,6 @@ def handle_updating_experiments(applications, records, collection):
             experiment.status_next = None
             experiment.published_dto = published_record
             experiment.is_rollout_dirty = False
-            experiment.computed_end_date(use_cache=False)
             experiment.save()
 
             generate_nimbus_changelog(
@@ -217,6 +217,8 @@ def handle_updating_experiments(applications, records, collection):
                 get_kinto_user(),
                 message=NimbusChangeLog.Messages.UPDATED_IN_KINTO,
             )
+
+            experiment.update_computed_end_date()
 
             logger.info(f"{experiment.slug} updated")
 
@@ -236,7 +238,6 @@ def handle_ending_experiments(applications, records, collection):
             experiment.status_next = None
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
             experiment.is_rollout_dirty = False
-            experiment.computed_end_date(use_cache=False)
             experiment.save()
 
             generate_nimbus_changelog(
@@ -244,6 +245,8 @@ def handle_ending_experiments(applications, records, collection):
                 get_kinto_user(),
                 message=NimbusChangeLog.Messages.COMPLETED,
             )
+
+            experiment.update_computed_end_date()
 
             logger.info(f"{experiment.slug} ended")
 

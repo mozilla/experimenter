@@ -697,6 +697,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 and experiment.status_next is None
             ) and end_date is not None:
                 experiment._end_date = end_date
+                experiment._computed_end_date = end_date
                 current_datetime = end_date
 
             experiment.save()

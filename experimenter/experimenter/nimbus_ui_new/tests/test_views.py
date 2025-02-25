@@ -847,7 +847,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
             [experiment2.slug, experiment1.slug],
         )
 
-    def test_sort_by_dates(self):
+    def test_sort_by_start_date(self):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             start_date=datetime.date(2024, 1, 1),
@@ -860,7 +860,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         response = self.client.get(
             reverse("nimbus-list"),
             {
-                "sort": SortChoices.DATES_UP,
+                "sort": SortChoices.START_DATE_UP,
             },
         )
 
@@ -872,13 +872,64 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         response = self.client.get(
             reverse("nimbus-list"),
             {
-                "sort": SortChoices.DATES_DOWN,
+                "sort": SortChoices.START_DATE_DOWN,
             },
         )
 
         self.assertEqual(
             [e.slug for e in response.context["experiments"]],
             [experiment2.slug, experiment1.slug],
+        )
+
+    def test_sort_by_end_date(self):
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="experiment-1",
+            start_date=datetime.date(2024, 1, 3),
+            end_date=datetime.date(2024, 2, 1),
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="experiment-2",
+            start_date=datetime.date(2024, 1, 1),
+            end_date=datetime.date(2024, 2, 3),
+        )
+
+        response = self.client.get(
+            reverse("nimbus-list"),
+            {
+                "status": NimbusExperiment.Status.COMPLETE,
+                "sort": SortChoices.END_DATE_UP,
+            },
+        )
+        filtered_response = [
+            e.slug
+            for e in response.context["experiments"]
+            if e.slug in ["experiment-1", "experiment-2"]
+        ]
+
+        self.assertEqual(
+            filtered_response,
+            ([experiment1.slug, experiment2.slug]),
+        )
+
+        response = self.client.get(
+            reverse("nimbus-list"),
+            {
+                "status": NimbusExperiment.Status.COMPLETE,
+                "sort": SortChoices.END_DATE_DOWN,
+            },
+        )
+
+        filtered_response = [
+            e.slug
+            for e in response.context["experiments"]
+            if e.slug in ["experiment-1", "experiment-2"]
+        ]
+
+        self.assertEqual(
+            filtered_response,
+            ([experiment2.slug, experiment1.slug]),
         )
 
 

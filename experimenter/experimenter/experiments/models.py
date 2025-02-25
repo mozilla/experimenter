@@ -845,12 +845,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def actual_enrollment_end_date(self):
         return self._enrollment_end_date or None
 
+    def _get_computed_end_date(self):
+        return self.end_date or self.proposed_end_date
+
+    def update_computed_end_date(self):
+        self._computed_end_date = self._get_computed_end_date()
+        self.save()
+
     @property
-    def computed_end_date(self, use_cache=True):
-        if use_cache and self._computed_end_date:
+    def computed_end_date(self):
+        if self._computed_end_date:
             return self._computed_end_date
-        self._computed_end_date = self.end_date or self.proposed_end_date
-        return self._computed_end_date
+        return self._get_computed_end_date()
 
     @property
     def computed_draft_days(self):
