@@ -709,7 +709,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.is_preview
 
     def should_show_remote_settings_pending(self, reviewer):
-
         return self.publish_status in (
             self.PublishStatus.APPROVED,
             self.PublishStatus.WAITING,
