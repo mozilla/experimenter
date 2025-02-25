@@ -983,11 +983,11 @@ class FetchTests(TestCase):
             fetch_releases(manifest_dir, "fml_app", app_config, cache)
 
         self.assertEqual(fetch_fml_app.call_count, 1)
-        fetch_fml_app.called_once_with(
+        fetch_fml_app.assert_called_once_with(
             manifest_dir,
             "fml_app",
             app_config,
-            Ref("branch", "updated-branch"),
+            Ref("branch", "up-to-date-branch"),
             Version(1),
         )
 
