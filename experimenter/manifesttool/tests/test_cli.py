@@ -283,7 +283,7 @@ class CliTests(TestCase):
         fetch_fml_app.assert_called_once_with(Path("."), "fml_app", FML_APP_CONFIG)
 
         self.assertIn(
-            "SUMMARY:\n\n" "SUCCESS:\n\n" "fml_app at main (resolved) version None\n\n",
+            "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved) version None\n\n",
             result.stdout,
         )
 

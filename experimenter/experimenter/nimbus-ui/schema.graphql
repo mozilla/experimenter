@@ -300,6 +300,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_134
   FIREFOX_134_1_0
   FIREFOX_135
+  FIREFOX_135_0_1
   FIREFOX_135_1_0
   FIREFOX_136
   FIREFOX_137
@@ -408,6 +409,9 @@ enum NimbusExperimentQAStatusEnum {
   RED
   YELLOW
   GREEN
+  SELF_RED
+  SELF_YELLOW
+  SELF_GREEN
   NOT_SET
 }
 

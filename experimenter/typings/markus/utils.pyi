@@ -51,11 +51,7 @@ def generate_tag(key, value=...):  # -> str:
     >>> import markus
     >>> from markus.utils import generate_tag
     >>> mymetrics = markus.get_metrics(__name__)
-    >>> mymetrics.incr(
-    ...     "somekey",
-    ...     value=1,
-    ...     tags=[generate_tag("rule", "is_yellow")]
-    ... )
+    >>> mymetrics.incr("somekey", value=1, tags=[generate_tag("rule", "is_yellow")])
 
     """
     ...

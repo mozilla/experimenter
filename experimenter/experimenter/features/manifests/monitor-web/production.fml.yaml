@@ -19,6 +19,17 @@ features:
         description: If the feature is enabled
         type: Boolean
         default: false
+  example-feature:
+    description: An example feature
+    variables:
+      enabled:
+        description: If the feature is enabled
+        type: Boolean
+        default: false
+      something:
+        description: Another variable
+        type: Option<String>
+        default: ~
   landing-page-free-scan-cta:
     description: Landing page free scan CTA
     variables:

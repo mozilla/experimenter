@@ -10,7 +10,7 @@ import yaml
 from jsonschema.protocols import Validator
 from jsonschema.validators import validator_for
 
-from mozilla_nimbus_schemas.experiments.feature_manifests import (
+from mozilla_nimbus_schemas.experimenter_apis.experiments.feature_manifests import (
     DesktopFeatureManifest,
     DesktopFeatureVariable,
     SdkFeatureManifest,

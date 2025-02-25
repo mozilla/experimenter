@@ -130,6 +130,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_134 = "FIREFOX_134",
   FIREFOX_134_1_0 = "FIREFOX_134_1_0",
   FIREFOX_135 = "FIREFOX_135",
+  FIREFOX_135_0_1 = "FIREFOX_135_0_1",
   FIREFOX_135_1_0 = "FIREFOX_135_1_0",
   FIREFOX_136 = "FIREFOX_136",
   FIREFOX_137 = "FIREFOX_137",
@@ -241,6 +242,9 @@ export enum NimbusExperimentQAStatusEnum {
   GREEN = "GREEN",
   NOT_SET = "NOT_SET",
   RED = "RED",
+  SELF_GREEN = "SELF_GREEN",
+  SELF_RED = "SELF_RED",
+  SELF_YELLOW = "SELF_YELLOW",
   YELLOW = "YELLOW",
 }
 

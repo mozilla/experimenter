@@ -116,7 +116,6 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         )
 
     def test_filters_by_firefox_version(self):
-
         exp_1 = ExperimentFactory.create_with_variants(
             name="Experiment 1", firefox_min_version="58.0", firefox_max_version="62.0"
         )
@@ -310,7 +309,6 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertCountEqual(list(filter.qs), [exp1, exp2, exp3, exp4])
 
     def set_up_date_tests(self):
-
         self.exp_1 = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="experiment 1",

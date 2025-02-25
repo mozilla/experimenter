@@ -20,7 +20,6 @@ def populate_risk_security(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0051_experiment_risk_ux")]
 
     operations = [

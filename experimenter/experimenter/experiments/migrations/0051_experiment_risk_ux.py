@@ -20,7 +20,6 @@ def populate_risk_ux(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0050_experiment_risk_telemetry_data")]
 
     operations = [

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("base", "0002_remove_non_firefox_locales"),
         ("experiments", "0166_add_missing_feature_config"),

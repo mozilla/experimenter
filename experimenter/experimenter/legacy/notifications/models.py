@@ -16,7 +16,6 @@ class NotificationManager(models.Manager):
 
 
 class Notification(models.Model):
-
     user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="notifications"
     )

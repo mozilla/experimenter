@@ -61,7 +61,7 @@ def move(
     callback=...,
     limit=...,
     transform=...,
-    **kwargs
+    **kwargs,
 ):  # -> State:
     """Find tasks by filtering them and move the tasks to a new queue.
 
@@ -98,9 +98,8 @@ def move(
     .. code-block:: python
 
         def is_wanted_task(body, message):
-            if body['id'] == wanted_id:
-                return Queue('foo', exchange=Exchange('foo'),
-                             routing_key='foo')
+            if body["id"] == wanted_id:
+                return Queue("foo", exchange=Exchange("foo"), routing_key="foo")
 
         move(is_wanted_task)
 
@@ -152,7 +151,7 @@ class Filterer:
         consume_from=...,
         state=...,
         accept=...,
-        **kwargs
+        **kwargs,
     ) -> None: ...
     def start(self): ...
     def update_state(self, body, message): ...
@@ -176,7 +175,7 @@ def start_filter(
     consume_from=...,
     state=...,
     accept=...,
-    **kwargs
+    **kwargs,
 ):  # -> State:
     """Filter tasks."""
     ...
@@ -200,11 +199,14 @@ def move_by_idmap(map, **kwargs):  # -> State:
     Where ``queue`` is a queue to move the task to.
 
     Example:
-        >>> move_by_idmap({
-        ...     '5bee6e82-f4ac-468e-bd3d-13e8600250bc': Queue('name'),
-        ...     'ada8652d-aef3-466b-abd2-becdaf1b82b3': Queue('name'),
-        ...     '3a2b140d-7db1-41ba-ac90-c36a0ef4ab1f': Queue('name')},
-        ...   queues=['hipri'])
+        >>> move_by_idmap(
+        ...     {
+        ...         "5bee6e82-f4ac-468e-bd3d-13e8600250bc": Queue("name"),
+        ...         "ada8652d-aef3-466b-abd2-becdaf1b82b3": Queue("name"),
+        ...         "3a2b140d-7db1-41ba-ac90-c36a0ef4ab1f": Queue("name"),
+        ...     },
+        ...     queues=["hipri"],
+        ... )
     """
     ...
 
@@ -214,10 +216,12 @@ def move_by_taskmap(map, **kwargs):  # -> State:
     ``queue`` is the queue to move the task to.
 
     Example:
-        >>> move_by_taskmap({
-        ...     'tasks.add': Queue('name'),
-        ...     'tasks.mul': Queue('name'),
-        ... })
+        >>> move_by_taskmap(
+        ...     {
+        ...         "tasks.add": Queue("name"),
+        ...         "tasks.mul": Queue("name"),
+        ...     }
+        ... )
     """
     ...
 

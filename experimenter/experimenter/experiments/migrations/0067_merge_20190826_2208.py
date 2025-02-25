@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0066_remove_experiment_project"),
         ("experiments", "0066_auto_20190823_2110"),

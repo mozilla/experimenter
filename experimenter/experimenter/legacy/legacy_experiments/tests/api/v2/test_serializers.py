@@ -266,7 +266,6 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(variant.preferences.filter(id=variant_pref.id).count(), 0)
 
     def test_serializer_updates_existing_variant_pref(self):
-
         variant = ExperimentVariantFactory.create(experiment=self.experiment)
         variant_pref = VariantPreferencesFactory.create(variant=variant)
         self.pref1["id"] = variant_pref.id
@@ -1156,7 +1155,6 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
 
 class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
     def test_pref_fields_required_for_rollout_type_pref(self):
-
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
 
         data = {"rollout_type": Experiment.TYPE_PREF}
@@ -1424,7 +1422,6 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
     def test_update_change_log_creates_log_with_correct_change(self):
-
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_DRAFT,
             num_variants=0,

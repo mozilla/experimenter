@@ -37,8 +37,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Preview": ("The number of days the experiment has spent in the preview stage."),
         "Review": ("The number of days the experiment has spent in the review stage."),
         "Enrollment": (
-            "The duration from the start to the end of the participant enrollment "
-            "period."
+            "The duration from the start to the end of the participant enrollment period."
         ),
         "Complete": (
             "The total number of days from the start of participant enrollment "

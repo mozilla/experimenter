@@ -22,33 +22,34 @@ import {
   AnalysisBases,
   BranchComparisonValues,
 } from "src/lib/visualization/types";
-import { getTableDisplayType } from "src/lib/visualization/utils";
+import { getTableDisplayType, shouldUseDou } from "src/lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export type TableResultsProps = {
   experiment: getExperiment_experimentBySlug;
   branchComparison?: BranchComparisonValues;
   analysisBasis?: AnalysisBases;
   segment?: string;
-  isDesktop?: boolean;
   referenceBranch: string;
 };
 
-const getResultMetrics = (outcomes: OutcomesList, isDesktop = false) => {
+const getResultMetrics = (outcomes: OutcomesList, useDou: boolean) => {
   // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
-  const resultsMetricsList = RESULTS_METRICS_LIST.map((resultMetric) => {
-    if (isDesktop && resultMetric.value === METRIC.DAYS_OF_USE) {
-      return {
-        value: METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-        name: "Qualified Cumulative Days of Use",
-        tooltip: METRICS_TIPS.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-        type: METRIC_TYPE.GUARDRAIL,
-        group: METRIC_TO_GROUP[METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE],
-      };
-    }
-    return resultMetric;
-  });
+  let resultsMetricsList = [...RESULTS_METRICS_LIST];
+  if (useDou) {
+    resultsMetricsList = resultsMetricsList.map((metric) => {
+      if (metric.value === METRIC.DAILY_ACTIVE_USERS) {
+        return {
+          value: METRIC.DAYS_OF_USE,
+          name: "Days of Use",
+          tooltip: METRICS_TIPS.DAYS_OF_USE,
+          type: METRIC_TYPE.GUARDRAIL,
+          group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
+        };
+      }
+      return metric;
+    });
+  }
   outcomes?.forEach((outcome) => {
     if (!outcome?.isDefault) {
       return;
@@ -70,20 +71,16 @@ const TableResults = ({
   branchComparison = BRANCH_COMPARISON.UPLIFT,
   analysisBasis = "enrollments",
   segment = "all",
-  isDesktop = false,
   referenceBranch,
 }: TableResultsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
-  const resultsMetricsList = getResultMetrics(
-    primaryOutcomes,
-    isDesktop ||
-      experiment.application === NimbusExperimentApplicationEnum.DESKTOP,
-  );
   const {
     analysis: { metadata, overall },
     sortedBranchNames,
   } = useContext(ResultsContext);
   const overallResults = overall![analysisBasis]?.[segment]!;
+  const useDou = shouldUseDou(overallResults[referenceBranch]);
+  const resultsMetricsList = getResultMetrics(primaryOutcomes, useDou);
 
   return (
     <table

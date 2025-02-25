@@ -45,7 +45,7 @@ class DjangoObjectType(ObjectType):
         interfaces=...,
         convert_choices_to_enum=...,
         _meta=...,
-        **options
+        **options,
     ): ...
     def resolve_id(self, info): ...
     @classmethod

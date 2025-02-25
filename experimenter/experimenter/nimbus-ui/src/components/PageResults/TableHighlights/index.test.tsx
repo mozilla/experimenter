@@ -8,6 +8,7 @@ import TableHighlights from "src/components/PageResults/TableHighlights";
 import { mockExperimentQuery, MockResultsContextProvider } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
 import { BRANCH_COMPARISON } from "src/lib/visualization/constants";
+import { mockAnalysisOnlyGuardrailsNoDau } from "src/lib/visualization/mocks";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
@@ -94,6 +95,11 @@ describe("TableHighlights", () => {
     expect(screen.getAllByText("-45.5% to 51%", { exact: false })).toHaveLength(
       4,
     );
+    const EXPECTED_HEADINGS = ["Retention", "Search", "Daily Active Users"];
+
+    EXPECTED_HEADINGS.forEach((heading) => {
+      expect(screen.getByText(heading)).toBeInTheDocument();
+    });
   });
 
   it("with absolute comparison, renders expected values", () => {
@@ -115,5 +121,25 @@ describe("TableHighlights", () => {
     expect(screen.getAllByText("0.02 to 0.08", { exact: false })).toHaveLength(
       5,
     );
+  });
+
+  it("renders correct headings for older Days of Use experiments", () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <MockResultsContextProvider
+          analysis={mockAnalysisOnlyGuardrailsNoDau()}
+        >
+          <TableHighlights
+            {...{ experiment }}
+            referenceBranch={experiment.referenceBranch!.slug}
+          />
+        </MockResultsContextProvider>
+      </RouterSlugProvider>,
+    );
+    const EXPECTED_HEADINGS = ["Retention", "Search", "Days of Use"];
+
+    EXPECTED_HEADINGS.forEach((heading) => {
+      expect(screen.getByText(heading)).toBeInTheDocument();
+    });
   });
 });

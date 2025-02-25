@@ -384,6 +384,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
     )
+    firefox_labs_description_links = models.JSONField[dict[str, str]](
+        "Firefox Labs Description Links",
+        blank=True,
+        null=True,
+        default=None,
+    )
     firefox_labs_group = models.CharField(
         "The group this should appear under in Firefox Labs",
         blank=True,
@@ -472,6 +478,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def get_update_audience_url(self):
         return reverse("nimbus-new-update-audience", kwargs={"slug": self.slug})
+
+    def get_detail_preview_recipe_json_url(self):
+        return f"{self.get_detail_url()}#preview-recipe-json"
 
     @property
     def experiment_url(self):

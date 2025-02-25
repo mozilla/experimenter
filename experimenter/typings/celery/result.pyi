@@ -161,7 +161,7 @@ class AsyncResult(ResultBase):
 
             @app.task(trail=True)
             def pow2(i):
-                return i ** 2
+                return i**2
 
         .. code-block:: pycon
 
@@ -169,8 +169,7 @@ class AsyncResult(ResultBase):
             >>> from proj.tasks import A
 
             >>> result = A.delay(10)
-            >>> [v for v in result.collect()
-            ...  if not isinstance(v, (ResultBase, tuple))]
+            >>> [v for v in result.collect() if not isinstance(v, (ResultBase, tuple))]
             [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
 
         Note:

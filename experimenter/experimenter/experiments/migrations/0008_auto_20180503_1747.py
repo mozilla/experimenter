@@ -23,7 +23,6 @@ def update_statuses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0007_auto_20180424_2039")]
 
     operations = [

@@ -21,46 +21,49 @@ import {
   AnalysisBases,
   BranchComparisonValues,
 } from "src/lib/visualization/types";
+import { shouldUseDou } from "src/lib/visualization/utils";
 
 export type TableResultsWeeklyProps = {
   branchComparison?: BranchComparisonValues;
   analysisBasis?: AnalysisBases;
   segment?: string;
-  isDesktop?: boolean;
   referenceBranch: string;
 };
 
-const getHighlightMetrics = (isDesktop = false) => {
+const getHighlightMetrics = (useDou: boolean) => {
   // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
-  if (isDesktop) {
-    const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
-    return highlightMetricsList.map((highlightMetric) => {
-      if (highlightMetric.value === METRIC.DAYS_OF_USE) {
+  let highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
+  if (useDou) {
+    highlightMetricsList = highlightMetricsList.map((metric) => {
+      if (metric.value === METRIC.DAILY_ACTIVE_USERS) {
         return {
-          value: METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-          name: "Qualified Cumulative Days of Use",
-          tooltip: METRICS_TIPS.QUALIFIED_CUMULATIVE_DAYS_OF_USE,
-          group: METRIC_TO_GROUP[METRIC.QUALIFIED_CUMULATIVE_DAYS_OF_USE],
+          value: METRIC.DAYS_OF_USE,
+          name: "Days of Use",
+          tooltip: METRICS_TIPS.DAYS_OF_USE,
+          group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
         };
       }
-      return highlightMetric;
+      return metric;
     });
   }
 
-  return HIGHLIGHTS_METRICS_LIST;
+  return highlightMetricsList;
 };
 
 const TableResultsWeekly = ({
   branchComparison = BRANCH_COMPARISON.UPLIFT,
   analysisBasis = "enrollments",
   segment = "all",
-  isDesktop = false,
   referenceBranch,
 }: TableResultsWeeklyProps) => {
   const {
-    analysis: { overall },
+    analysis: { overall, weekly },
   } = useContext(ResultsContext);
   const hasOverallResults = !!overall?.[analysisBasis]?.all;
+  const hasWeeklyResults = !!weekly?.[analysisBasis]?.all;
+  const useDou =
+    hasWeeklyResults &&
+    shouldUseDou(weekly![analysisBasis]?.[segment]![referenceBranch]);
   const [open, setOpen] = useState(!hasOverallResults);
 
   return (
@@ -90,7 +93,7 @@ const TableResultsWeekly = ({
       </span>
       <Collapse in={open}>
         <div className="mt-2">
-          {getHighlightMetrics(isDesktop).map((metric, index) => {
+          {getHighlightMetrics(useDou).map((metric, index) => {
             return (
               <div key={`${metric.value}_weekly`}>
                 <h3
