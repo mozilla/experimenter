@@ -121,6 +121,8 @@ class ExceptionUtilsTests(TestCase):
 Traceback (most recent call last):
   File "/experimenter/manifesttool/tests/test_exception_utils.py", line 0000, in test_format_exception_tb
     raise CalledProcessError(
+        1, ["/bin/bogus"], output=b"this is stdout", stderr=b"this\\nis\\nstderr\\n"
+    )
 subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
 
 stdout:

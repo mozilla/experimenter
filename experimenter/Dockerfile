@@ -1,6 +1,6 @@
 #-------------------------
 # System packages
-FROM python:3.11-bullseye AS system-builder
+FROM python:3.13-bullseye AS system-builder
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
@@ -53,6 +53,7 @@ COPY ./yarn.lock /experimenter/yarn.lock
 COPY ./experimenter/legacy/legacy-ui/core/package.json /experimenter/experimenter/legacy/legacy-ui/core/package.json
 COPY ./experimenter/nimbus-ui/package.json /experimenter/experimenter/nimbus-ui/package.json
 COPY ./experimenter/nimbus_ui_new/static/package.json /experimenter/experimenter/nimbus_ui_new/static/package.json
+RUN python3 -m pip install setuptools
 RUN yarn install --frozen-lockfile
 COPY ./experimenter/legacy/legacy-ui/core/ /experimenter/experimenter/legacy/legacy-ui/core/
 COPY ./experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
@@ -70,7 +71,7 @@ RUN chmod +x /experimenter/bin/wait-for-it.sh
 
 # Python packages
 COPY --from=python-builder /usr/local/bin/ /usr/local/bin/
-COPY --from=python-builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=python-builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 
 # Node packages
 COPY --from=node-builder /experimenter/experimenter/legacy/legacy-ui/core/node_modules/ /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
@@ -113,7 +114,7 @@ RUN yarn workspace @experimenter/nimbus_ui_new build
 
 # Deploy image
 #-------------------------
-FROM python:3.11.1-slim AS deploy
+FROM python:3.13-slim AS deploy
 
 # Create a non-root user with UID 10001
 RUN groupadd -g 10001 app && \
@@ -131,7 +132,7 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates git pos
 
 # Copy source from previously built containers
 COPY --from=dev /usr/local/bin/ /usr/local/bin/
-COPY --from=dev /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=dev /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=dev /experimenter/bin/ /experimenter/bin/
 COPY --from=dev /application-services/nimbus_megazord/ /application-services/nimbus_megazord/
 COPY ./manage.py /experimenter/manage.py

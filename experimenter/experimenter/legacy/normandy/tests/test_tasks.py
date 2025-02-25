@@ -616,7 +616,7 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
         self.assertFalse(experiment.is_paused)
 
-        self.assertEquals(experiment.changes.latest().message, "Enrollment Re-enabled")
+        self.assertEqual(experiment.changes.latest().message, "Enrollment Re-enabled")
 
     def test_set_is_paused_value_with_bad_recipe(self):
         experiment = ExperimentFactory.create_with_status(
