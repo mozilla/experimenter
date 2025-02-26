@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('experiments', '0278_alter_nimbusexperiment_qa_status'),
+        ("experiments", "0278_alter_nimbusexperiment_qa_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='nimbusexperiment',
-            name='_computed_end_date',
-            field=models.DateField(blank=True, null=True, verbose_name='Computed End Date'),
+            model_name="nimbusexperiment",
+            name="_computed_end_date",
+            field=models.DateField(
+                blank=True, null=True, verbose_name="Computed End Date"
+            ),
         ),
     ]
