@@ -623,6 +623,10 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
+      layout:
+        description: "The type of layout of the toolbars.\n"
+        type: Option<ToolbarLayoutType>
+        default: baseline
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
@@ -632,7 +636,7 @@ features:
         type: Boolean
         default: false
       unified_search:
-        description: "Enables the unified search feature\n"
+        description: "Enables the unified search feature.\n"
         type: Boolean
         default: false
   tos-feature:
@@ -827,6 +831,15 @@ enums:
     variants:
       inactive-tabs:
         description: Tabs that have been automatically closed for the user.
+  ToolbarLayoutType:
+    description: The type of toolbar layout.
+    variants:
+      baseline:
+        description: The default layout of the toolbars.
+      version1:
+        description: Shows the share and tabs button in the navigation toolbar. The menu button is displayed in the address toolbar.
+      version2:
+        description: Shows the tabs and menu button in the navigation toolbar. The share button is displayed in the address toolbar.
 objects:
   AwesomeBar:
     description: "A configuration option for the awesome bar. Part of the `search` feature."
