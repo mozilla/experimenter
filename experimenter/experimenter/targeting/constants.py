@@ -2342,9 +2342,19 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
     description="Target users who have never used the new or old sidebar",
     targeting=(
         "!('sidebar.revamp'|preferenceValue) && "
-        "'sidebar.backupState'|preferenceValue == '{}' &&"
+        "!('browser.engagement.sidebar-button.has-used'|preferenceValue) && "
         "primaryResolution.width > 1366 &&"
-        "primaryResolution.height > 768"
+        "primaryResolution.height > 768 &&"
+        "addonsInfo.addons['{446900e4-71c2-419f-a6a7-df9c091e268b}'] == null &&"
+        "addonsInfo.addons['{c3c10168-4186-445c-9c5b-63f12b8e2c87}'] == null &&"
+        "addonsInfo.addons['@m3u8link'] == null &&"
+        "addonsInfo.addons['jid0-adyhmvsP91nUO8pRv0Mn2VKeB84@jetpack'] == null &&"
+        "addonsInfo.addons['{3c078156-979c-498b-8990-85f7987dd929}'] == null &&"
+        "addonsInfo.addons['simple-tab-groups@drive4ik'] == null &&"
+        "addonsInfo.addons['{531906d3-e22f-4a6c-a102-8057b88a1a63}'] == null &&"
+        "addonsInfo.addons['tab-stash@condordes.net'] == null &&"
+        "addonsInfo.addons['treestyletab@piro.sakura.ne.jp'] == null &&"
+        "addonsInfo.addons['{b9db16a4-6edc-47ec-a1f4-b86292ed211d}'] == null"
     ),
     desktop_telemetry="",
     sticky_required=False,
