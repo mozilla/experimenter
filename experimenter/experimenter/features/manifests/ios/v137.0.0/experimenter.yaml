@@ -15,6 +15,14 @@ address-autofill-edit:
     status:
       type: boolean
       description: "If true, we will allow user to edit the address"
+app-icon-selection-feature:
+  description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Controls whether users see the setting to customize their app icon in Settings.\n"
 bookmark-refactor-feature:
   description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
   hasExposure: true
