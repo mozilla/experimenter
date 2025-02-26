@@ -344,6 +344,14 @@ re-engagement-notification:
     type:
       type: int
       description: The type of re-engagement notification that is shown to the inactive user.
+recent-searches:
+  description: Enables recent searches.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to enable recent searches.\n"
 remote-tab-management:
   description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
   hasExposure: true
@@ -369,6 +377,14 @@ search-extra-params:
     search-engine:
       type: string
       description: The search engine name.
+search-suggestions-on-homepage:
+  description: Enables search suggestions on homepage.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to enable search suggestions on homepage.\n"
 search-term-groups:
   description: A feature allowing the grouping of URLs around the search term that it came from.
   hasExposure: true
@@ -472,9 +488,6 @@ trending-searches:
     enabled:
       type: boolean
       description: "Whether or not to enable trending searches.\n"
-    show-trending-searches-on-homepage:
-      type: boolean
-      description: "Whether or not to display trending searches on the homepage.\n"
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true

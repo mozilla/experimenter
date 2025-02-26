@@ -546,6 +546,13 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
+  recent-searches:
+    description: Enables recent searches.
+    variables:
+      enabled:
+        description: "Whether or not to enable recent searches.\n"
+        type: Boolean
+        default: false
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:
@@ -572,6 +579,13 @@ features:
         description: The search engine name.
         type: String
         default: ""
+  search-suggestions-on-homepage:
+    description: Enables search suggestions on homepage.
+    variables:
+      enabled:
+        description: "Whether or not to enable search suggestions on homepage.\n"
+        type: Boolean
+        default: false
   search-term-groups:
     description: A feature allowing the grouping of URLs around the search term that it came from.
     variables:
@@ -678,10 +692,6 @@ features:
     variables:
       enabled:
         description: "Whether or not to enable trending searches.\n"
-        type: Boolean
-        default: false
-      show-trending-searches-on-homepage:
-        description: "Whether or not to display trending searches on the homepage.\n"
         type: Boolean
         default: false
   user-characteristics:
