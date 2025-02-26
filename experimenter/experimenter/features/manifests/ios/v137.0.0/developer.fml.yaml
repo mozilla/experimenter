@@ -19,6 +19,13 @@ features:
         description: "If true, we will allow user to edit the address"
         type: Boolean
         default: true
+  app-icon-selection-feature:
+    description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
+    variables:
+      enabled:
+        description: "Controls whether users see the setting to customize their app icon in Settings.\n"
+        type: Boolean
+        default: true
   bookmark-refactor-feature:
     description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
     variables:
