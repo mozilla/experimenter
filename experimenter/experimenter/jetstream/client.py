@@ -39,6 +39,7 @@ ALL_STATISTICS = {
     Statistic.COUNT,
     Statistic.PERCENT,
     Statistic.POPULATION_RATIO,
+    Statistic.LINEAR_MODEL_MEAN,
 }
 
 analysis_storage = storages["analysis"]
@@ -103,8 +104,8 @@ def get_results_metrics_map(
     # used to see which statistic will be used for each metric.
     results_metrics_map: dict[str, set[Statistic]] = {
         Metric.RETENTION: {Statistic.BINOMIAL},
-        Metric.SEARCH: {Statistic.MEAN},
-        Metric.DAYS_OF_USE: {Statistic.MEAN},
+        Metric.SEARCH: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
+        Metric.DAYS_OF_USE: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
         Metric.USER_COUNT: {Statistic.COUNT, Statistic.PERCENT},
         Metric.DAILY_ACTIVE_USERS: {Statistic.PER_CLIENT_DAU_IMPACT},
     }
@@ -160,7 +161,12 @@ def get_other_metrics_names_and_map(
     other_metrics_map = {}
 
     # This is an ordered list of priorities of stats to graph
-    priority_stats = [Statistic.MEAN, Statistic.BINOMIAL, Statistic.PER_CLIENT_DAU_IMPACT]
+    priority_stats = [
+        Statistic.LINEAR_MODEL_MEAN,
+        Statistic.MEAN,
+        Statistic.BINOMIAL,
+        Statistic.PER_CLIENT_DAU_IMPACT,
+    ]
     other_data = [
         data_point for data_point in data if data_point.metric not in results_metrics_map
     ]

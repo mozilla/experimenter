@@ -226,6 +226,23 @@ class ResultsObjectModelBase(BaseModel):
             statistic = jetstream_data_point.statistic
 
             if metric in result_metrics and statistic in result_metrics[metric]:
+                # We added an improved LINEAR_MODEL_MEAN statistic that should supercede
+                # MEAN when available, but we still want MEAN if it isn't available
+                if (
+                    statistic == Statistic.MEAN
+                    and Statistic.LINEAR_MODEL_MEAN in result_metrics[metric]
+                    and len(
+                        [
+                            d
+                            for d in data
+                            if d.metric == metric
+                            and d.statistic == Statistic.LINEAR_MODEL_MEAN
+                        ]
+                    )
+                    > 0
+                ):
+                    continue
+
                 comparison_to_branch = jetstream_data_point.comparison_to_branch
 
                 branch_comparison = (
