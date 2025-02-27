@@ -65,8 +65,10 @@ class SortChoices(models.TextChoices):
     FEATURES_DOWN = "-feature_configs__slug"
     VERSIONS_UP = "firefox_min_version"
     VERSIONS_DOWN = "-firefox_min_version"
-    DATES_UP = "_start_date"
-    DATES_DOWN = "-_start_date"
+    START_DATE_UP = "_start_date"
+    START_DATE_DOWN = "-_start_date"
+    END_DATE_UP = "_computed_end_date"
+    END_DATE_DOWN = "-_computed_end_date"
 
 
 class IconMultiSelectWidget(MultiSelectWidget):
