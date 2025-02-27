@@ -64,7 +64,8 @@
         {% include "nimbus_experiments/table_header.html" with field="Size" up=sort_choices.SIZE_UP down=sort_choices.SIZE_DOWN %}
         {% include "nimbus_experiments/table_header.html" with field="Features" up=sort_choices.FEATURES_UP down=sort_choices.FEATURES_DOWN %}
         {% include "nimbus_experiments/table_header.html" with field="Versions" up=sort_choices.VERSIONS_UP down=sort_choices.VERSIONS_DOWN %}
-        {% include "nimbus_experiments/table_header.html" with field="Dates" up=sort_choices.DATES_UP down=sort_choices.DATES_DOWN %}
+        {% include "nimbus_experiments/table_header.html" with field="Start" up=sort_choices.START_DATE_UP down=sort_choices.START_DATE_DOWN %}
+        {% include "nimbus_experiments/table_header.html" with field="End" up=sort_choices.END_DATE_UP down=sort_choices.END_DATE_DOWN %}
 
         <th scope="col">Results</th>
       </tr>
@@ -149,11 +150,14 @@
           </td>
           <td>
             {% if experiment.start_date %}
-              {{ experiment.start_date|date:"Y-m-d" }} -
-              <br>
-              {{ experiment.computed_end_date|date:"Y-m-d" }}
-              <br>
-              ({{ experiment.computed_duration_days }} days)
+              {{ experiment.start_date|date:"Y-m-d" }}
+            {% else %}
+              N/A
+            {% endif %}
+          </td>
+          <td>
+            {% if experiment.computed_end_date %}
+              {{ experiment.computed_end_date|date:"Y-m-d" }} ({{ experiment.computed_duration_days }} days)
             {% else %}
               N/A
             {% endif %}

@@ -278,11 +278,13 @@ class TestNimbusCheckKintoPushQueueByCollection(
 
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(experiment)
+        self.assertEqual(experiment.computed_end_date, experiment.proposed_end_date)
 
         self.setup_kinto_pending_review()
 
         self._assert_check_collection_unchanged(target_collection)
         self._assert_experiment_status_unchanged(experiment)
+        self.assertEqual(experiment.computed_end_date, experiment.proposed_end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_approved_launch_and_no_kinto_pending_pushes_experiment(
@@ -297,12 +299,18 @@ class TestNimbusCheckKintoPushQueueByCollection(
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature_config],
         )
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
 
         self.setup_kinto_get_main_records([])
         self.setup_kinto_no_pending_review()
 
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
 
         self._assert_check_collection_changed(
             target_collection, pushed=launching_experiment
@@ -321,12 +329,18 @@ class TestNimbusCheckKintoPushQueueByCollection(
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature_config],
         )
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
 
         self.setup_kinto_get_main_records([])
         self.setup_kinto_no_pending_review()
 
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
 
         self._assert_check_collection_changed(
             target_collection, updated=launching_experiment
@@ -342,6 +356,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature_config],
         )
+        self.assertEqual(
+            ending_experiment.computed_end_date, ending_experiment.proposed_end_date
+        )
 
         self.setup_kinto_get_main_records([])
         self.setup_kinto_no_pending_review()
@@ -350,6 +367,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_experiment_status_unchanged(ending_experiment)
 
         self._assert_check_collection_changed(target_collection, ended=ending_experiment)
+        self.assertEqual(
+            ending_experiment.computed_end_date, ending_experiment.proposed_end_date
+        )
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     @override_settings(KINTO_REVIEW_TIMEOUT=0)
@@ -375,6 +395,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(pending_experiment)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertEqual(
+            pending_experiment.computed_end_date, pending_experiment.proposed_end_date
+        )
+        self.assertIsNone(launching_experiment.computed_end_date)
 
         self.setup_kinto_pending_review()
 
@@ -389,6 +413,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
         )
         self.assertIsNone(pending_experiment.published_date)
+        self.assertEqual(
+            pending_experiment.computed_end_date, pending_experiment.proposed_end_date
+        )
+        self.assertIsNone(launching_experiment.computed_end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     @override_settings(KINTO_REVIEW_TIMEOUT=0)
@@ -415,6 +443,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(pending_experiment)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertEqual(
+            pending_experiment.computed_end_date, pending_experiment.proposed_end_date
+        )
+        self.assertIsNone(launching_experiment.computed_end_date)
 
         self.setup_kinto_pending_review()
 
@@ -429,6 +461,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
         )
         self.assertEqual(pending_experiment.published_date, expected_published_date)
+        self.assertEqual(
+            pending_experiment.computed_end_date, pending_experiment.proposed_end_date
+        )
+        self.assertIsNone(launching_experiment.computed_end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     @override_settings(KINTO_REVIEW_TIMEOUT=0)
@@ -455,6 +491,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(pending_experiment)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertEqual(
+            pending_experiment.computed_end_date, pending_experiment.proposed_end_date
+        )
+        self.assertIsNone(launching_experiment.computed_end_date)
 
         self.setup_kinto_pending_review()
 
@@ -469,6 +509,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
         )
         self.assertEqual(pending_experiment.published_date, expected_published_date)
+        self.assertEqual(
+            pending_experiment.computed_end_date, pending_experiment.proposed_end_date
+        )
+        self.assertIsNone(launching_experiment.computed_end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_rejected_launch_rolls_back_and_pushes(
@@ -496,6 +540,8 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(rejected_experiment)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertIsNone(rejected_experiment.computed_end_date)
+        self.assertIsNone(launching_experiment.computed_end_date)
 
         self.setup_kinto_rejected_review()
         self._assert_check_collection_changed(
@@ -513,6 +559,8 @@ class TestNimbusCheckKintoPushQueueByCollection(
         )
         self.assertIsNone(rejected_experiment.status_next)
         self.assertIsNone(rejected_experiment.published_date)
+        self.assertIsNone(rejected_experiment.computed_end_date)
+        self.assertIsNone(launching_experiment.computed_end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_rejected_update_rolls_back_and_pushes(
@@ -538,6 +586,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(rejected_experiment)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertEqual(
+            rejected_experiment.computed_end_date, rejected_experiment.proposed_end_date
+        )
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
 
         self.setup_kinto_rejected_review()
 
@@ -557,6 +611,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertIsNone(rejected_experiment.status_next)
         self.assertFalse(rejected_experiment.is_paused)
         self.assertEqual(rejected_experiment.published_date, expected_published_date)
+        self.assertEqual(
+            rejected_experiment.computed_end_date, rejected_experiment.proposed_end_date
+        )
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_rejected_update_live_rollout_rolls_back_and_pushes(
@@ -578,6 +638,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
 
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(rejected_experiment)
+        self.assertEqual(
+            rejected_experiment.computed_end_date, rejected_experiment.proposed_end_date
+        )
 
         self.setup_kinto_rejected_review()
 
@@ -596,6 +659,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertIsNone(rejected_experiment.status_next)
         self.assertFalse(rejected_experiment.is_paused)
         self.assertEqual(rejected_experiment.published_date, expected_published_date)
+        self.assertEqual(
+            rejected_experiment.computed_end_date, rejected_experiment.proposed_end_date
+        )
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_rejected_end_rolls_back_and_pushes(
@@ -621,6 +687,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(rejected_experiment)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertEqual(
+            rejected_experiment.computed_end_date, rejected_experiment.proposed_end_date
+        )
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
 
         self.setup_kinto_rejected_review()
         self._assert_check_collection_changed(
@@ -639,6 +711,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         )
         self.assertEqual(rejected_experiment.status_next, None)
         self.assertEqual(rejected_experiment.published_date, expected_published_date)
+        self.assertEqual(
+            rejected_experiment.computed_end_date, rejected_experiment.proposed_end_date
+        )
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_rollout_rejected_end_rolls_back_and_pushes(
@@ -666,6 +744,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(rejected_rollout)
         self._assert_experiment_status_unchanged(launching_rollout)
+        self.assertEqual(
+            rejected_rollout.computed_end_date, rejected_rollout.proposed_end_date
+        )
+        self.assertEqual(
+            launching_rollout.computed_end_date, launching_rollout.proposed_end_date
+        )
 
         self.setup_kinto_rejected_review()
         self._assert_check_collection_changed(
@@ -683,6 +767,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         )
         self.assertEqual(rejected_rollout.status_next, None)
         self.assertEqual(rejected_rollout.published_date, expected_published_date)
+        self.assertEqual(
+            rejected_rollout.computed_end_date, rejected_rollout.proposed_end_date
+        )
+        self.assertEqual(
+            launching_rollout.computed_end_date, launching_rollout.proposed_end_date
+        )
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_dirty_rollout_rejected_end_rolls_back_and_pushes(
@@ -711,6 +801,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(rejected_rollout)
         self._assert_experiment_status_unchanged(launching_rollout)
+        self.assertEqual(
+            rejected_rollout.computed_end_date, rejected_rollout.proposed_end_date
+        )
+        self.assertEqual(
+            launching_rollout.computed_end_date, launching_rollout.proposed_end_date
+        )
 
         self.setup_kinto_rejected_review()
 
@@ -730,6 +826,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertEqual(rejected_rollout.status_next, None)
         self.assertTrue(rejected_rollout.is_rollout_dirty)
         self.assertEqual(rejected_rollout.published_date, expected_published_date)
+        self.assertEqual(
+            rejected_rollout.computed_end_date, rejected_rollout.proposed_end_date
+        )
+        self.assertEqual(
+            launching_rollout.computed_end_date, launching_rollout.proposed_end_date
+        )
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_approved_update_sets_experiment_to_idle_saves_published_dto(
@@ -753,6 +855,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
 
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(updated_experiment)
+        self.assertEqual(
+            updated_experiment.computed_end_date, updated_experiment.proposed_end_date
+        )
 
         self._assert_check_collection_unchanged(target_collection)
         self._assert_experiment_status_changed(
@@ -772,6 +877,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
             {"id": updated_experiment.slug},
         )
         self.assertFalse(updated_experiment.is_rollout_dirty)
+        self.assertEqual(
+            updated_experiment.computed_end_date, updated_experiment.proposed_end_date
+        )
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_missing_review_and_queued_launch_rolls_back_and_pushes(
@@ -789,12 +897,14 @@ class TestNimbusCheckKintoPushQueueByCollection(
 
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertIsNone(launching_experiment.computed_end_date)
 
         self.setup_kinto_pending_review()
 
         self._assert_check_collection_changed(
             target_collection, pushed=launching_experiment, collection_patched=True
         )
+        self.assertIsNone(launching_experiment.computed_end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_with_missing_rejection_and_queued_launch_rolls_back_and_pushes(
@@ -812,11 +922,13 @@ class TestNimbusCheckKintoPushQueueByCollection(
 
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertIsNone(launching_experiment.computed_end_date)
 
         self.setup_kinto_rejected_review()
         self._assert_check_collection_changed(
             target_collection, pushed=launching_experiment, collection_patched=True
         )
+        self.assertIsNone(launching_experiment.computed_end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_check_waiting_launching_experiment_with_signed_collection_becomes_rejection(
@@ -835,6 +947,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
 
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(waiting_experiment)
+        self.assertIsNone(waiting_experiment.computed_end_date)
 
         self._assert_check_collection_unchanged(target_collection)
         self._assert_experiment_status_changed(
@@ -850,6 +963,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
         )
         self.assertIsNone(waiting_experiment.status_next)
         self.assertIsNone(waiting_experiment.published_date)
+        self.assertIsNone(waiting_experiment.computed_end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_launching_experiment_live_when_record_is_in_main(
@@ -867,6 +981,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
 
         self._assert_check_collection_unchanged(alternate_collection)
         self._assert_experiment_status_unchanged(launching_experiment)
+        self.assertIsNone(launching_experiment.computed_end_date)
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
 
         self.setup_kinto_get_main_records([launching_experiment.slug])
 
@@ -884,6 +1002,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertIsNone(launching_experiment.status_next)
         self.assertEqual(
             launching_experiment.published_dto, {"id": launching_experiment.slug}
+        )
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+        )
+        self.assertEqual(
+            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
         )
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
@@ -906,6 +1030,8 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.setup_kinto_no_pending_review()
 
         self._assert_check_collection_unchanged(alternate_collection)
+        self.assertEqual(experiment1.computed_end_date, experiment1.proposed_end_date)
+        self.assertEqual(experiment2.computed_end_date, experiment2.proposed_end_date)
 
         self.setup_kinto_get_main_records([experiment1.slug])
 
@@ -924,6 +1050,8 @@ class TestNimbusCheckKintoPushQueueByCollection(
                 "message": NimbusChangeLog.Messages.COMPLETED,
             },
         )
+        self.assertEqual(experiment1.computed_end_date, experiment1.proposed_end_date)
+        self.assertEqual(experiment2.computed_end_date, experiment2.end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_updating_experiment_with_published_dto_none_is_skipped(

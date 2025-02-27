@@ -325,6 +325,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     _start_date = models.DateField("Start Date", blank=True, null=True)
     _enrollment_end_date = models.DateField("Enrollment End Date", blank=True, null=True)
+    _computed_end_date = models.DateField("Computed End Date", blank=True, null=True)
     _end_date = models.DateField("End Date", blank=True, null=True)
     prevent_pref_conflicts = models.BooleanField(
         "Prevent Preference Conflicts Flag", blank=True, null=True, default=False
@@ -844,9 +845,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def actual_enrollment_end_date(self):
         return self._enrollment_end_date or None
 
+    def _get_computed_end_date(self):
+        return self.end_date or self.proposed_end_date
+
+    def update_computed_end_date(self, end_date=None):
+        self._computed_end_date = end_date or self._get_computed_end_date()
+        self.save()
+
     @property
     def computed_end_date(self):
-        return self.end_date or self.proposed_end_date
+        if self._computed_end_date:
+            return self._computed_end_date
+        end_date = self._get_computed_end_date()
+        self.update_computed_end_date(end_date)
+        return end_date
 
     @property
     def computed_draft_days(self):
@@ -1264,7 +1276,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             # QA signoff is always recommended
             "qa_signoff": True,
             "vp_signoff": any(
-                (self.risk_brand, self.risk_revenue, self.risk_partner_related)
+                (
+                    self.risk_brand,
+                    self.risk_revenue,
+                    self.risk_partner_related,
+                )
             ),
             "legal_signoff": any((self.risk_revenue, self.risk_partner_related)),
         }

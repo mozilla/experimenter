@@ -186,6 +186,8 @@ def handle_launching_experiments(applications, records, collection):
                 message=NimbusChangeLog.Messages.LIVE,
             )
 
+            experiment.update_computed_end_date()
+
             logger.info(f"{experiment.slug} launched")
 
 
@@ -216,6 +218,8 @@ def handle_updating_experiments(applications, records, collection):
                 message=NimbusChangeLog.Messages.UPDATED_IN_KINTO,
             )
 
+            experiment.update_computed_end_date()
+
             logger.info(f"{experiment.slug} updated")
 
 
@@ -241,6 +245,8 @@ def handle_ending_experiments(applications, records, collection):
                 get_kinto_user(),
                 message=NimbusChangeLog.Messages.COMPLETED,
             )
+
+            experiment.update_computed_end_date()
 
             logger.info(f"{experiment.slug} ended")
 
