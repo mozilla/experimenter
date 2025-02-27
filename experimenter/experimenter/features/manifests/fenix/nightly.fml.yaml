@@ -593,6 +593,25 @@ features:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
         default: true
+  sent-from-firefox:
+    description: A feature that allows the user to add a download firefox footer to a shared link.
+    variables:
+      download-link:
+        description: A store download link.
+        type: Text
+        default: ""
+      enabled:
+        description: "If true, the feature is available for the user."
+        type: Boolean
+        default: false
+      show-snackbar:
+        description: "If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings."
+        type: Boolean
+        default: false
+      template-message:
+        description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
+        type: Text
+        default: ""
   set-as-default-prompt:
     description: "Displays native default browser prompt to existing users.\n"
     variables:
