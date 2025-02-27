@@ -62,6 +62,13 @@ features:
         description: "If true, we will allow use dark reader on webpages to toggle dark mode"
         type: Boolean
         default: true
+  deeplink-optimization-refactor-feature:
+    description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
+    variables:
+      enabled:
+        description: "Variable description\n"
+        type: Boolean
+        default: true
   download-live-activities-feature:
     description: "Download Live Activities Feature\n"
     variables:
