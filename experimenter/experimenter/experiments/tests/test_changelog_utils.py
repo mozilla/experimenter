@@ -45,6 +45,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         self.assertEqual(
             data,
             {
+                "_computed_end_date": None,
                 "_end_date": None,
                 "_enrollment_end_date": None,
                 "_start_date": None,
@@ -164,6 +165,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         self.assertEqual(
             data,
             {
+                "_computed_end_date": "2020-02-01",
                 "_end_date": "2020-02-01",
                 "_enrollment_end_date": None,
                 "_start_date": "2020-01-01",
