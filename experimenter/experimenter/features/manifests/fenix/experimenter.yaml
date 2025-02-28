@@ -26,6 +26,14 @@ bookmarks:
     new-compose-ui:
       type: boolean
       description: "if true, enable new compose based UI"
+compose-homepage:
+  description: Turns on compose homepage.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to turn on the compose homepage.\n"
 cookie-banners:
   description: Features for cookie banner handling.
   hasExposure: true

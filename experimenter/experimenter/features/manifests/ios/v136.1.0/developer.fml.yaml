@@ -19,20 +19,13 @@ features:
         description: "If true, we will allow user to edit the address"
         type: Boolean
         default: true
-  app-icon-selection-feature:
-    description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
-    variables:
-      enabled:
-        description: "Controls whether users see the setting to customize their app icon in Settings.\n"
-        type: Boolean
-        default: true
   bookmark-refactor-feature:
     description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
     variables:
       enabled:
         description: "Enables the bookmark refactor feature\n"
         type: Boolean
-        default: true
+        default: false
   cleanup-history-reenabled:
     description: "This feature flag will help us slowly re-enable the cleanupHistoryIfNeeded functionnality at startup of the app\n"
     variables:
@@ -60,20 +53,6 @@ features:
     variables:
       status:
         description: "If true, we will allow use dark reader on webpages to toggle dark mode"
-        type: Boolean
-        default: true
-  deeplink-optimization-refactor-feature:
-    description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
-    variables:
-      enabled:
-        description: "Variable description\n"
-        type: Boolean
-        default: true
-  download-live-activities-feature:
-    description: "Download Live Activities Feature\n"
-    variables:
-      enabled:
-        description: "If true, the download live activities feature is enabled\n"
         type: Boolean
         default: true
   felt-privacy-feature:
@@ -505,13 +484,13 @@ features:
         description: "If true, the password generator feature is enabled"
         type: Boolean
         default: true
-  pdf-refactor-feature:
-    description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
+  pull-to-refresh-refactor-feature:
+    description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
     variables:
       enabled:
-        description: "Enables the feature.\n"
+        description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
@@ -618,13 +597,6 @@ features:
         description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
         type: Option<PageContent>
         default: text-excerpt
-  tab-tray-ui-experiments:
-    description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
-    variables:
-      enabled:
-        description: "If true, enables the tab tray UI experiments.\n"
-        type: Boolean
-        default: true
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -640,10 +612,6 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: true
-      layout:
-        description: "The type of layout of the toolbars.\n"
-        type: Option<ToolbarLayoutType>
-        default: baseline
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
@@ -651,13 +619,9 @@ features:
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
-        default: false
-      swiping_tabs:
-        description: "Enables swipe gestures to switch between browser tabs.\n"
-        type: Boolean
-        default: false
+        default: true
       unified_search:
-        description: "Enables the unified search feature.\n"
+        description: "Enables the unified search feature\n"
         type: Boolean
         default: false
   tos-feature:
@@ -852,15 +816,6 @@ enums:
     variants:
       inactive-tabs:
         description: Tabs that have been automatically closed for the user.
-  ToolbarLayoutType:
-    description: The type of toolbar layout.
-    variants:
-      baseline:
-        description: The default layout of the toolbars.
-      version1:
-        description: Shows the share and tabs button in the navigation toolbar. The menu button is displayed in the address toolbar.
-      version2:
-        description: Shows the tabs and menu button in the navigation toolbar. The share button is displayed in the address toolbar.
 objects:
   AwesomeBar:
     description: "A configuration option for the awesome bar. Part of the `search` feature."
