@@ -12,6 +12,10 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
 )
+from experimenter.kinto.tasks import (
+    nimbus_check_kinto_push_queue_by_collection,
+    nimbus_synchronize_preview_experiments_in_kinto,
+)
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
@@ -546,6 +550,12 @@ class DraftToPreviewForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} launched experiment to Preview"
 
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.allocate_bucket_range()
+        nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        return experiment
+
 
 class DraftToReviewForm(UpdateStatusForm):
     status = NimbusExperiment.Status.DRAFT
@@ -573,6 +583,11 @@ class PreviewToDraftForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} moved the experiment back to Draft"
 
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        return experiment
+
 
 class ReviewToDraftForm(UpdateStatusForm):
     status = NimbusExperiment.Status.DRAFT
@@ -581,3 +596,33 @@ class ReviewToDraftForm(UpdateStatusForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} cancelled the review"
+
+
+class ReviewToApproveForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the review."
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.allocate_bucket_range()
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        return experiment
+
+
+class ReviewToRejectForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.DRAFT
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+    changelog_message = forms.CharField(
+        required=True, label="Reason for Rejection", max_length=1000
+    )
+
+    def get_changelog_message(self):
+        changelog_message = self.cleaned_data.get("changelog_message", "")
+        return f"{self.request.user} rejected the review with reason: {changelog_message}"
