@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
@@ -15,6 +17,10 @@ from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
 )
+from experimenter.kinto.tasks import (
+    nimbus_check_kinto_push_queue_by_collection,
+    nimbus_synchronize_preview_experiments_in_kinto,
+)
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.forms import (
     AudienceForm,
@@ -28,7 +34,9 @@ from experimenter.nimbus_ui_new.forms import (
     PreviewToDraftForm,
     PreviewToReviewForm,
     QAStatusForm,
+    ReviewToApproveForm,
     ReviewToDraftForm,
+    ReviewToRejectForm,
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
@@ -337,6 +345,18 @@ class TestLaunchForms(RequestFormTestCase):
         super().setUp()
         self.experiment = NimbusExperimentFactory.create()
 
+        self.mock_preview_task = patch.object(
+            nimbus_synchronize_preview_experiments_in_kinto, "apply_async"
+        ).start()
+        self.mock_push_task = patch.object(
+            nimbus_check_kinto_push_queue_by_collection, "apply_async"
+        ).start()
+        self.mock_allocate_bucket_range = patch.object(
+            NimbusExperiment, "allocate_bucket_range"
+        ).start()
+
+        self.addCleanup(patch.stopall)
+
     def test_draft_to_preview_form(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = None
@@ -353,6 +373,8 @@ class TestLaunchForms(RequestFormTestCase):
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("launched experiment to Preview", changelog.message)
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+        self.mock_allocate_bucket_range.assert_called_once()
 
     def test_draft_to_review_form(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -376,6 +398,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.status_next = NimbusExperiment.Status.PREVIEW
         self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         self.experiment.save()
+
         form = PreviewToReviewForm(
             data={}, instance=self.experiment, request=self.request
         )
@@ -395,6 +418,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.status_next = NimbusExperiment.Status.PREVIEW
         self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         self.experiment.save()
+
         form = PreviewToDraftForm(data={}, instance=self.experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -406,6 +430,7 @@ class TestLaunchForms(RequestFormTestCase):
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("moved the experiment back to Draft", changelog.message)
+        self.mock_preview_task.assert_called_once_with(countdown=5)
 
     def test_review_to_draft_form(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -424,6 +449,57 @@ class TestLaunchForms(RequestFormTestCase):
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("cancelled the review", changelog.message)
+
+    def test_review_to_approve_form(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        form = ReviewToApproveForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(f"{self.user} approved the review.", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        self.mock_allocate_bucket_range.assert_called_once()
+
+    def test_review_to_reject_form_with_reason(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        form = ReviewToRejectForm(
+            data={"changelog_message": "Needs more work."},
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(
+            f"{self.user} rejected the review with reason: Needs more work.",
+            changelog.message,
+        )
 
 
 class TestOverviewForm(RequestFormTestCase):

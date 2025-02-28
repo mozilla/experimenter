@@ -12,3 +12,32 @@ window.toggleSubmitButton = function () {
   const submitButton = document.getElementById("request-launch-button");
   submitButton.disabled = !(checkbox1.checked && checkbox2.checked);
 };
+
+function initializeRejectApproveListeners() {
+  const rejectButton = document.getElementById("reject-button");
+  const reviewControls = document.getElementById("review-controls");
+  const rejectFormContainer = document.getElementById("reject-form-container");
+  const cancelReject = document.getElementById("cancel-reject");
+
+  if (rejectButton) {
+    rejectButton.addEventListener("click", () => {
+      reviewControls.classList.add("d-none");
+      rejectFormContainer.classList.remove("d-none");
+    });
+  }
+
+  if (cancelReject) {
+    cancelReject.addEventListener("click", () => {
+      rejectFormContainer.classList.add("d-none");
+      reviewControls.classList.remove("d-none");
+    });
+  }
+}
+
+// Initialize listeners on initial load
+document.addEventListener("DOMContentLoaded", initializeRejectApproveListeners);
+
+// Reinitialize listeners after HTMX content swaps
+document.body.addEventListener("htmx:afterSwap", () => {
+  initializeRejectApproveListeners();
+});

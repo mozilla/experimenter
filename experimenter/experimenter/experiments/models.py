@@ -674,6 +674,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @property
+    def is_review_timeline(self):
+        return self.status in {
+            self.Status.DRAFT,
+            self.Status.PREVIEW,
+        } and self.publish_status in {
+            self.PublishStatus.REVIEW,
+            self.PublishStatus.APPROVED,
+            self.PublishStatus.WAITING,
+        }
+
+    @property
     def is_preview(self):
         return self.status == self.Status.PREVIEW
 
@@ -708,6 +719,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def can_preview_to_review(self):
         return self.is_preview
+
+    def should_show_remote_settings_pending(self, reviewer):
+        return self.publish_status in (
+            self.PublishStatus.APPROVED,
+            self.PublishStatus.WAITING,
+        ) and self.can_review(reviewer)
+
+    @property
+    def should_show_timeout_message(self):
+        return self.changes.latest_timeout()
 
     @property
     def draft_date(self):
@@ -925,7 +946,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             {
                 "label": self.PublishStatus.REVIEW,
                 "date": self.review_date,
-                "is_active": self.is_review,
+                "is_active": self.is_review_timeline,
                 "days": self.computed_review_days,
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Review"],
             },

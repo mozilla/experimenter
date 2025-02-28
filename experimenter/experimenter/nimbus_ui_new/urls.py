@@ -15,7 +15,9 @@ from experimenter.nimbus_ui_new.views import (
     PreviewToDraftView,
     PreviewToReviewView,
     QAStatusUpdateView,
+    ReviewToApproveView,
     ReviewToDraftView,
+    ReviewToRejectView,
     SignoffUpdateView,
     SubscribeView,
     TakeawaysUpdateView,
@@ -117,5 +119,15 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/review-to-draft/$",
         ReviewToDraftView.as_view(),
         name="nimbus-new-review-to-draft",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/review-to-approve/$",
+        ReviewToApproveView.as_view(),
+        name="nimbus-new-review-to-approve",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/review-to-reject/$",
+        ReviewToRejectView.as_view(),
+        name="nimbus-new-review-to-reject",
     ),
 ]
