@@ -21,6 +21,10 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
+from experimenter.kinto.tasks import (
+    nimbus_check_kinto_push_queue_by_collection,
+    nimbus_synchronize_preview_experiments_in_kinto,
+)
 from experimenter.nimbus_ui_new.filtersets import SortChoices, TypeChoices
 from experimenter.nimbus_ui_new.forms import QAStatusForm, TakeawaysForm
 from experimenter.nimbus_ui_new.views import StatusChoices
@@ -1344,6 +1348,18 @@ class TestLaunchViews(AuthTestCase):
         super().setUp()
         self.experiment = NimbusExperimentFactory.create()
 
+        self.mock_preview_task = patch.object(
+            nimbus_synchronize_preview_experiments_in_kinto, "apply_async"
+        ).start()
+        self.mock_push_task = patch.object(
+            nimbus_check_kinto_push_queue_by_collection, "apply_async"
+        ).start()
+        self.mock_allocate_bucket_range = patch.object(
+            NimbusExperiment, "allocate_bucket_range"
+        ).start()
+
+        self.addCleanup(patch.stopall)
+
     def test_draft_to_preview(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = None
@@ -1360,6 +1376,9 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(
             self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
+
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+        self.mock_allocate_bucket_range.assert_called_once()
 
     def test_draft_to_review(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -1414,6 +1433,8 @@ class TestLaunchViews(AuthTestCase):
             self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
 
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+
     def test_cancel_review(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = NimbusExperiment.Status.LIVE
@@ -1429,6 +1450,57 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.DRAFT)
         self.assertEqual(
             self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+    def test_review_to_approve_view(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-review-to-approve", kwargs={"slug": self.experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(f"{self.user.email} approved the review.", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[self.experiment.kinto_collection]
+        )
+        self.mock_allocate_bucket_range.assert_called_once()
+
+    def test_review_to_reject_view_with_reason(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-review-to-reject", kwargs={"slug": self.experiment.slug}),
+            data={"changelog_message": "Not ready for launch."},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(
+            f"{self.user.email} rejected the review with reason: Not ready for launch.",
+            changelog.message,
         )
 
 

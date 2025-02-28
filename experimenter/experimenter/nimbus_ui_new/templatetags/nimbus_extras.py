@@ -81,3 +81,8 @@ def format_json(value):
         f'<pre class="text-monospace" style="white-space: pre-wrap; '
         f'word-wrap: break-word;">{parsed_json}</pre>'
     )
+
+
+@register.filter
+def should_show_remote_settings_pending(experiment, reviewer):
+    return experiment.should_show_remote_settings_pending(reviewer)
