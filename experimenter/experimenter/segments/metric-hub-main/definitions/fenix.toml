@@ -428,7 +428,7 @@ description = "Number of times Contile Sponsored Tiles setting is flipped."
 owner = "xluo-all@mozilla.com"
 
 [metrics.new_profile_activation]
-select_expression = "COALESCE(SUM(activated))"
+select_expression = "COUNTIF(is_activated)"
 data_source = "new_profile_activation"
 friendly_name = "New Profile Activation"
 description = "A new profile is counted as activated one week after creation if it meets the following conditions: 1) at least 3 days of use during first week 2) at least one search between days 4-7."
@@ -620,7 +620,7 @@ client_id_column = "client_id"
 submission_date_column = "submission_date"
 
 [data_sources.new_profile_activation]
-from_expression = "`moz-fx-data-shared-prod.fenix.new_profile_activation`"
+from_expression = "`moz-fx-data-shared-prod.fenix.new_profile_activation_clients`"
 experiments_column_type = "none"
 
 [data_sources.special_onboarding_events]
