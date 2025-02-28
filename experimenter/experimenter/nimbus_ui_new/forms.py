@@ -539,11 +539,7 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         experiment.status_next = self.status_next
         experiment.publish_status = self.publish_status
         experiment.save()
-        self.post_save_actions(experiment)
         return experiment
-
-    def post_save_actions(self, experiment):
-        pass
 
 
 class DraftToPreviewForm(UpdateStatusForm):
@@ -554,9 +550,11 @@ class DraftToPreviewForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} launched experiment to Preview"
 
-    def post_save_actions(self, experiment):
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
         experiment.allocate_bucket_range()
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        return experiment
 
 
 class DraftToReviewForm(UpdateStatusForm):
@@ -585,8 +583,10 @@ class PreviewToDraftForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} moved the experiment back to Draft"
 
-    def post_save_actions(self, experiment):
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        return experiment
 
 
 class ReviewToDraftForm(UpdateStatusForm):
@@ -606,11 +606,13 @@ class ReviewToApproveForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} approved the review."
 
-    def post_save_actions(self, experiment):
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
         experiment.allocate_bucket_range()
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
+        return experiment
 
 
 class ReviewToRejectForm(UpdateStatusForm):
