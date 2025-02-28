@@ -3538,6 +3538,94 @@ class TestNimbusExperiment(TestCase):
         recipe_json_keys = sorted(json.loads(experiment.recipe_json.replace("\n", "")))
         self.assertEqual(serialized_keys, recipe_json_keys)
 
+    def test_get_invalid_pages(self):
+        experiment_1 = NimbusExperimentFactory.create(
+            name="test-experiment-1",
+            public_description="",
+        )
+        invalid_pages = experiment_1.get_invalid_pages
+        self.assertEqual(invalid_pages, ["overview"])
+
+        experiment_2 = NimbusExperimentFactory.create(
+            name="test-experiment-2",
+            feature_configs=[],
+            population_percent=0,
+        )
+        invalid_pages = experiment_2.get_invalid_pages
+        self.assertEqual(invalid_pages, ["branches", "audience"])
+
+        experiment_3 = NimbusExperimentFactory.create(
+            name="test-experiment-3",
+            public_description="",
+            population_percent=0,
+        )
+        invalid_pages = experiment_3.get_invalid_pages
+        self.assertEqual(invalid_pages, ["overview", "audience"])
+
+        experiment_4 = NimbusExperimentFactory.create(
+            name="test-experiment-4",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            is_sticky=True,
+        )
+        invalid_pages = experiment_4.get_invalid_fields_errors()
+        self.assertEqual(invalid_pages, [])
+
+    def test_get_invalid_fields_errors(self):
+        experiment_1 = NimbusExperimentFactory.create(
+            name="test-experiment-1",
+            public_description="",
+        )
+        errors = experiment_1.get_invalid_fields_errors()
+        self.assertIn(("public_description", "This field may not be blank."), errors)
+
+        experiment_2 = NimbusExperimentFactory.create(
+            name="test-experiment-2",
+            feature_configs=[],
+            population_percent=0,
+        )
+        errors = experiment_2.get_invalid_fields_errors()
+        self.assertIn(
+            (
+                "feature_configs",
+                "You must select a feature configuration from the drop down.",
+            ),
+            errors,
+        )
+        self.assertIn(
+            (
+                "population_percent",
+                "Ensure this value is greater than or equal to 0.0001.",
+            ),
+            errors,
+        )
+
+        experiment_3 = NimbusExperimentFactory.create(
+            name="test-experiment-3",
+            public_description="",
+            population_percent=0,
+        )
+        experiment_3.excluded_experiments.set([experiment_3])
+        experiment_3.required_experiments.set([experiment_3])
+
+        errors = experiment_3.get_invalid_fields_errors()
+        self.assertIn(("public_description", "This field may not be blank."), errors)
+        self.assertIn(
+            (
+                "excluded_experiments_branches",
+                "This experiment cannot be included "
+                "in the list of required or excluded experiments",
+            ),
+            errors,
+        )
+        self.assertIn(
+            (
+                "required_experiments_branches",
+                "This experiment cannot be included in the list of required or "
+                "excluded experiments",
+            ),
+            errors,
+        )
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
