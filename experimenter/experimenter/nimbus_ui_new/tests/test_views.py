@@ -1254,6 +1254,89 @@ class TestOverviewUpdateView(AuthTestCase):
         )
         self.assertEqual(documentation_link.link, "https://www.example.com")
 
+    def test_invalid_form_fields_with_show_errors(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+        response = self.client.post(
+            reverse("nimbus-new-update-overview", kwargs={"slug": experiment.slug}) + "?show_errors=true",
+            {
+                "name": "test-experiment",
+                "hypothesis": "",
+                "public_description": "",
+                "risk_partner_related": "",
+                "risk_revenue": "",
+                "risk_brand": "",
+                "risk_message": "",
+                "projects": [],
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": NimbusExperiment.DocumentationLink.DESIGN_DOC.value,
+                "documentation_links-0-link": "https://www.example.com",
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        validation_errors = response.context['validation_errors']
+        self.assertIn(
+            "This field may not be blank.",
+            validation_errors["hypothesis"]
+        )
+        self.assertIn(
+            "This field may not be blank.",
+            validation_errors["public_description"]
+        )
+        self.assertIn(
+            "This question may not be blank.",
+            validation_errors["risk_partner_related"]
+        )
+        self.assertIn(
+            "This question may not be blank.",
+            validation_errors["risk_revenue"]
+        )
+        self.assertIn(
+            "This question may not be blank.",
+            validation_errors["risk_brand"]
+        )
+        self.assertIn(
+            "This question may not be blank.",
+            validation_errors["risk_message"]
+        )
+
+    def test_invalid_form_fields_without_show_errors(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+        response = self.client.post(
+            reverse("nimbus-new-update-overview", kwargs={"slug": experiment.slug}),
+            {
+                "name": "test-experiment",
+                "hypothesis": "",
+                "public_description": "",
+                "risk_partner_related": "",
+                "risk_revenue": "",
+                "risk_brand": "",
+                "risk_message": "",
+                "projects": [],
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": NimbusExperiment.DocumentationLink.DESIGN_DOC.value,
+                "documentation_links-0-link": "https://www.example.com",
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        validation_errors = response.context['validation_errors']
+        self.assertEqual(validation_errors, {})
+
 
 class TestDocumentationLinkCreateView(AuthTestCase):
     def test_post_creates_documentation_link(self):
@@ -1598,3 +1681,92 @@ class TestAudienceUpdateView(AuthTestCase):
                 parent_experiment=experiment, child_experiment=required, branch_slug=None
             ).exists()
         )
+
+    def test_invalid_form_fields_with_show_errors(self):
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            proposed_release_date=None,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            total_enrolled_clients=0,
+            is_sticky=False,
+            countries=[],
+            locales=[],
+            languages=[],
+        )
+        response = self.client.post(
+            reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug}) + "?show_errors=true",
+            {   
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
+                "is_sticky": True,
+                "population_percent": 0,
+                "proposed_duration": 0,
+                "proposed_enrollment": 0,
+                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "total_enrolled_clients": 0,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        validation_errors = response.context['validation_errors']
+        self.assertIn(
+            "Ensure this value is greater than or equal to 1.",
+            validation_errors["proposed_duration"],
+        )
+        self.assertIn(
+            "Ensure this value is greater than or equal to 0.0001.",
+            validation_errors["population_percent"],
+        )
+        self.assertIn(
+            "Ensure this value is greater than or equal to 1.",
+            validation_errors["proposed_enrollment"],
+        )
+
+    def test_invalid_form_fields_without_show_errors(self):
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            proposed_release_date=None,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            total_enrolled_clients=0,
+            is_sticky=False,
+            countries=[],
+            locales=[],
+            languages=[],
+        )
+        response = self.client.post(
+            reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug}),
+            {   
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
+                "is_sticky": True,
+                "population_percent": 0,
+                "proposed_duration": 0,
+                "proposed_enrollment": 0,
+                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "total_enrolled_clients": 0,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        validation_errors = response.context['validation_errors']
+        self.assertEqual(validation_errors, {})

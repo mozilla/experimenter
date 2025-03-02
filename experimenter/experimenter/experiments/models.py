@@ -1369,15 +1369,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return warnings
 
-    def get_invalid_fields_errors(self, data=None):
+    def get_invalid_fields_errors(self):
         from experimenter.experiments.api.v5.serializers import (
             NimbusReviewSerializer,
         )
 
         serializer_data = NimbusReviewSerializer(self).data
-        if data:
-            serializer_data.update(data)
-
         serializer = NimbusReviewSerializer(self, data=serializer_data)
 
         if serializer.is_valid():

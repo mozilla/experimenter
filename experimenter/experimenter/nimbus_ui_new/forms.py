@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.db import models
 from django.forms import inlineformset_factory
 from django.http import HttpRequest
 from django.utils.text import slugify
@@ -26,8 +25,8 @@ from experimenter.targeting.constants import NimbusTargetingConfig
 
 class NimbusChangeLogFormMixin:
     def __init__(self, *args, request: HttpRequest = None, **kwargs):
-        self.request = request
         super().__init__(*args, **kwargs)
+        self.request = request
 
     def get_changelog_message(self) -> str:
         raise NotImplementedError
@@ -38,58 +37,6 @@ class NimbusChangeLogFormMixin:
             experiment, self.request.user, self.get_changelog_message()
         )
         return experiment
-
-
-class NimbusSerializerErrorMixin:
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.validation_errors = {}
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if self.show_validation_errors:
-            for key, value in cleaned_data.items():
-                if isinstance(value, models.QuerySet):
-                    cleaned_data[key] = [item.pk for item in value]
-
-            for field_name in [
-                "excluded_experiments_branches",
-                "required_experiments_branches",
-            ]:
-                if field_name in cleaned_data:
-                    slugs = [
-                        slug_and_branch.split(":")[0]
-                        for slug_and_branch in cleaned_data[field_name]
-                    ]
-                    pks = list(
-                        NimbusExperiment.objects.filter(slug__in=slugs).values_list(
-                            "pk", flat=True
-                        )
-                    )
-                    cleaned_data[field_name.replace("_branches", "")] = pks
-
-            errors = self.instance.get_invalid_fields_errors(data=cleaned_data)
-
-            for field, error in errors:
-                if field in self.fields:
-                    if field not in self.validation_errors:
-                        self.validation_errors[field] = []
-                    self.validation_errors[field].append(error)
-
-            return cleaned_data
-
-        return cleaned_data
-
-
-class ShowValidationErrorsMixin:
-    def __init__(self, *args, **kwargs):
-        if self.request:
-            self.show_validation_errors = (
-                self.request.GET.get("show_errors", "") == "true"
-            )
-        else:
-            self.show_validation_errors = False
-        super().__init__(*args, **kwargs)
 
 
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -244,8 +191,6 @@ class NimbusDocumentationLinkForm(forms.ModelForm):
 
 class OverviewForm(
     NimbusChangeLogFormMixin,
-    ShowValidationErrorsMixin,
-    NimbusSerializerErrorMixin,
     forms.ModelForm,
 ):
     YES_NO_CHOICES = (
@@ -401,8 +346,6 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 class AudienceForm(
     NimbusChangeLogFormMixin,
-    ShowValidationErrorsMixin,
-    NimbusSerializerErrorMixin,
     forms.ModelForm,
 ):
     def get_experiment_branch_choices():

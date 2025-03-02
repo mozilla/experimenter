@@ -25,13 +25,13 @@
             <label for="id_channel" class="form-label">Channel</label>
             {{ form.channel|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.channel.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-            {% for error in form.validation_errors.channel %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.channel %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
           </div>
           <div class="col-4">
             <label for="id_firefox_min_version" class="form-label">Min Version</label>
             {{ form.firefox_min_version|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.firefox_min_version.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-            {% for error in form.validation_errors.firefox_min_version %}
+            {% for error in validation_errors.firefox_min_version %}
               <div class="form-text text-danger">{{ error }}</div>
             {% endfor %}
           </div>
@@ -39,7 +39,7 @@
             <label for="id_firefox_max_version" class="form-label">Max Version</label>
             {{ form.firefox_max_version|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.firefox_max_version.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-            {% for error in form.validation_errors.firefox_max_version %}
+            {% for error in validation_errors.firefox_max_version %}
               <div class="form-text text-danger">{{ error }}</div>
             {% endfor %}
           </div>
@@ -50,19 +50,19 @@
               <label for="id_locales" class="form-label">Locales</label>
               {{ form.locales|add_class:"form-control"|add_error_class:"is-invalid" }}
               {% for error in form.locales.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in form.validation_errors.locales %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.locales %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             {% else %}
               <label for="id_languages" class="form-label">Languages</label>
               {{ form.languages|add_class:"form-control"|add_error_class:"is-invalid" }}
               {% for error in form.languages.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in form.validation_errors.languages %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.languages %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             {% endif %}
           </div>
           <div class="col-6">
             <label for="id_countries" class="form-label">Countries</label>
             {{ form.countries|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.countries.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-            {% for error in form.validation_errors.countries %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.countries %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
           </div>
         </div>
         <div class="row mb-3">
@@ -70,7 +70,7 @@
             <label for="id_targeting_config_slug" class="form-label">Advanced Targeting</label>
             {{ form.targeting_config_slug|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.targeting_config_slug.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-            {% for error in form.validation_errors.targeting_config_slug %}
+            {% for error in validation_errors.targeting_config_slug %}
               <div class="form-text text-danger">{{ error }}</div>
             {% endfor %}
           </div>
@@ -84,7 +84,7 @@
             {% for error in form.excluded_experiments_branches.errors %}
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
-            {% for error in form.validation_errors.excluded_experiments_branches %}
+            {% for error in validation_errors.excluded_experiments_branches %}
               <div class="form-text text-danger">{{ error }}</div>
             {% endfor %}
           </div>
@@ -98,7 +98,7 @@
             {% for error in form.required_experiments_branches.errors %}
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
-            {% for error in form.validation_errors.required_experiments_branches %}
+            {% for error in validation_errors.required_experiments_branches %}
               <div class="form-text text-danger">{{ error }}</div>
             {% endfor %}
           </div>
@@ -110,7 +110,7 @@
             <a target="_blank"
                href="https://experimenter.info/workflow/implementing/custom-audiences">Learn more</a>
             {% for error in form.is_sticky.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-            {% for error in form.validation_errors.is_sticky %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.is_sticky %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
           </div>
         </div>
         <div class="card bg-body-tertiary border-0 p-4">
@@ -146,14 +146,14 @@
                 <span class="input-group-text">%</span>
                 {% for error in form.population_percent.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               </div>
-              {% for error in form.validation_errors.population_percent %}
+              {% for error in validation_errors.population_percent %}
                 <div class="form-text text-danger">{{ error }}</div>
               {% endfor %}
             </div>
             <div class="col">
               {{ form.total_enrolled_clients|add_class:"form-control"|add_error_class:"is-invalid" }}
               {% for error in form.total_enrolled_clients.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in form.validation_errors.total_enrolled_clients %}
+              {% for error in validation_errors.total_enrolled_clients %}
                 <div class="form-text text-danger">{{ error }}</div>
               {% endfor %}
             </div>
@@ -166,7 +166,7 @@
                 <span class="input-group-text">days</span>
                 {% for error in form.proposed_enrollment.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               </div>
-              {% for error in form.validation_errors.proposed_enrollment %}
+              {% for error in validation_errors.proposed_enrollment %}
                 <div class="form-text text-danger">{{ error }}</div>
               {% endfor %}
             </div>
@@ -177,9 +177,7 @@
                 <span class="input-group-text">days</span>
                 {% for error in form.proposed_duration.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               </div>
-              {% for error in form.validation_errors.proposed_duration %}
-                <div class="form-text text-danger">{{ error }}</div>
-              {% endfor %}
+              {% for error in validation_errors.proposed_duration %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             </div>
           </div>
         </div>
@@ -200,7 +198,7 @@
             Audience saved!
           </div>
         {% endif %}
-        {% if not form.is_valid or form.validation_errors %}
+        {% if not form.is_valid or validation_errors %}
           <div class="toast text-bg-danger position-fixed top-1 end-0 m-3 w-auto"
                role="alert"
                aria-live="assertive"
