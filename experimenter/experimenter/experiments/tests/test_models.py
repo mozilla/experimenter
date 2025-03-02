@@ -3567,7 +3567,7 @@ class TestNimbusExperiment(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             is_sticky=True,
         )
-        invalid_pages = experiment_4.get_invalid_fields_errors()
+        invalid_pages = experiment_4.get_invalid_pages
         self.assertEqual(invalid_pages, [])
 
     def test_get_invalid_fields_errors(self):

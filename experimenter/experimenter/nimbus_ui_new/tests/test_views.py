@@ -1261,7 +1261,8 @@ class TestOverviewUpdateView(AuthTestCase):
             documentation_links=[documentation_link],
         )
         response = self.client.post(
-            reverse("nimbus-new-update-overview", kwargs={"slug": experiment.slug}) + "?show_errors=true",
+            reverse("nimbus-new-update-overview", kwargs={"slug": experiment.slug})
+            + "?show_errors=true",
             {
                 "name": "test-experiment",
                 "hypothesis": "",
@@ -1274,37 +1275,29 @@ class TestOverviewUpdateView(AuthTestCase):
                 "documentation_links-TOTAL_FORMS": "1",
                 "documentation_links-INITIAL_FORMS": "1",
                 "documentation_links-0-id": documentation_link.id,
-                "documentation_links-0-title": NimbusExperiment.DocumentationLink.DESIGN_DOC.value,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
                 "documentation_links-0-link": "https://www.example.com",
-            }
+            },
         )
 
         self.assertEqual(response.status_code, 200)
 
-        validation_errors = response.context['validation_errors']
+        validation_errors = response.context["validation_errors"]
+        self.assertIn("This field may not be blank.", validation_errors["hypothesis"])
         self.assertIn(
-            "This field may not be blank.",
-            validation_errors["hypothesis"]
+            "This field may not be blank.", validation_errors["public_description"]
         )
         self.assertIn(
-            "This field may not be blank.",
-            validation_errors["public_description"]
+            "This question may not be blank.", validation_errors["risk_partner_related"]
         )
         self.assertIn(
-            "This question may not be blank.",
-            validation_errors["risk_partner_related"]
+            "This question may not be blank.", validation_errors["risk_revenue"]
         )
+        self.assertIn("This question may not be blank.", validation_errors["risk_brand"])
         self.assertIn(
-            "This question may not be blank.",
-            validation_errors["risk_revenue"]
-        )
-        self.assertIn(
-            "This question may not be blank.",
-            validation_errors["risk_brand"]
-        )
-        self.assertIn(
-            "This question may not be blank.",
-            validation_errors["risk_message"]
+            "This question may not be blank.", validation_errors["risk_message"]
         )
 
     def test_invalid_form_fields_without_show_errors(self):
@@ -1327,14 +1320,16 @@ class TestOverviewUpdateView(AuthTestCase):
                 "documentation_links-TOTAL_FORMS": "1",
                 "documentation_links-INITIAL_FORMS": "1",
                 "documentation_links-0-id": documentation_link.id,
-                "documentation_links-0-title": NimbusExperiment.DocumentationLink.DESIGN_DOC.value,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
                 "documentation_links-0-link": "https://www.example.com",
-            }
+            },
         )
 
         self.assertEqual(response.status_code, 200)
 
-        validation_errors = response.context['validation_errors']
+        validation_errors = response.context["validation_errors"]
         self.assertEqual(validation_errors, {})
 
 
@@ -1703,8 +1698,9 @@ class TestAudienceUpdateView(AuthTestCase):
             languages=[],
         )
         response = self.client.post(
-            reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug}) + "?show_errors=true",
-            {   
+            reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug})
+            + "?show_errors=true",
+            {
                 "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
                 "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
                 "is_sticky": True,
@@ -1713,12 +1709,12 @@ class TestAudienceUpdateView(AuthTestCase):
                 "proposed_enrollment": 0,
                 "required_experiments_branches": [required.branch_choices()[0][0]],
                 "total_enrolled_clients": 0,
-            }
+            },
         )
 
         self.assertEqual(response.status_code, 200)
 
-        validation_errors = response.context['validation_errors']
+        validation_errors = response.context["validation_errors"]
         self.assertIn(
             "Ensure this value is greater than or equal to 1.",
             validation_errors["proposed_duration"],
@@ -1754,7 +1750,7 @@ class TestAudienceUpdateView(AuthTestCase):
         )
         response = self.client.post(
             reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug}),
-            {   
+            {
                 "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
                 "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,
                 "is_sticky": True,
@@ -1763,10 +1759,10 @@ class TestAudienceUpdateView(AuthTestCase):
                 "proposed_enrollment": 0,
                 "required_experiments_branches": [required.branch_choices()[0][0]],
                 "total_enrolled_clients": 0,
-            }
+            },
         )
 
         self.assertEqual(response.status_code, 200)
 
-        validation_errors = response.context['validation_errors']
+        validation_errors = response.context["validation_errors"]
         self.assertEqual(validation_errors, {})

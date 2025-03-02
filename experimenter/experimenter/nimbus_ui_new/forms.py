@@ -189,10 +189,7 @@ class NimbusDocumentationLinkForm(forms.ModelForm):
         fields = ("title", "link")
 
 
-class OverviewForm(
-    NimbusChangeLogFormMixin,
-    forms.ModelForm,
-):
+class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     YES_NO_CHOICES = (
         (True, "Yes"),
         (False, "No"),
@@ -344,10 +341,7 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated metrics"
 
 
-class AudienceForm(
-    NimbusChangeLogFormMixin,
-    forms.ModelForm,
-):
+class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def get_experiment_branch_choices():
         return sorted(
             [
