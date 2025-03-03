@@ -186,6 +186,52 @@ describe("AppLayoutSidebarLaunched", () => {
       );
     });
 
+    it("displays helpful message when observation period is too short", () => {
+      const expectedDate = "2023-01-01T00:00:00.000+0000";
+      render(
+        <Subject
+          status={NimbusExperimentStatusEnum.COMPLETE}
+          experiment={
+            mockExperimentQuery("my-special-slug/design", {
+              resultsExpectedDate: expectedDate,
+              computedEndDate: new Date().toISOString(),
+              enrollmentEndDate: new Date().toISOString(),
+            }).experiment
+          }
+        />,
+      );
+      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
+        "Experiment could not be analyzed:",
+      );
+
+      expect(
+        screen.queryByText(humanDate(expectedDate)),
+      ).not.toBeInTheDocument();
+    });
+
+    it("displays helpful observation too short message when enrollment never ended", () => {
+      const expectedDate = "2023-01-01T00:00:00.000+0000";
+      render(
+        <Subject
+          status={NimbusExperimentStatusEnum.COMPLETE}
+          experiment={
+            mockExperimentQuery("my-special-slug/design", {
+              resultsExpectedDate: expectedDate,
+              computedEndDate: new Date().toISOString(),
+              isEnrollmentPaused: false,
+            }).experiment
+          }
+        />,
+      );
+      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
+        "Experiment could not be analyzed:",
+      );
+
+      expect(
+        screen.queryByText(humanDate(expectedDate)),
+      ).not.toBeInTheDocument();
+    });
+
     it("when complete and has analysis results displays summary and results items", () => {
       const { experiment } = mockExperimentQuery("my-special-slug", {
         showResultsUrl: true,
