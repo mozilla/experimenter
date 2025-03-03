@@ -40,7 +40,10 @@ const showSignificanceField = (
   // Attributes set to 'undefined' don't render in the DOM
   const className = significance ? `${significance}-significance` : undefined;
   const tooltipId = `${name}_tooltip`;
-  const intervalTooltipId = `${name}_${fullInterval.replaceAll(' ', '_')}_interval_tooltip`;
+  const intervalTooltipId = `${name}_${fullInterval.replaceAll(
+    " ",
+    "_",
+  )}_interval_tooltip`;
   switch (significance) {
     case SIGNIFICANCE.POSITIVE:
       significanceIcon = (
@@ -80,12 +83,10 @@ const showSignificanceField = (
           <TooltipWithMarkdown markdown={tooltip} {...{ tooltipId }} />
           {changeText}
           &nbsp;
-          <span data-tip data-for={intervalTooltipId} >
+          <span data-tip data-for={intervalTooltipId}>
             {intervalText}
           </span>
-          <ReactTooltip id={intervalTooltipId}>
-            {fullInterval}
-          </ReactTooltip>
+          <ReactTooltip id={intervalTooltipId}>{fullInterval}</ReactTooltip>
         </div>
         <ReactTooltip />
       </>
@@ -95,14 +96,11 @@ const showSignificanceField = (
     <>
       <span {...{ className }} data-testid={className}>
         {significanceIcon}&nbsp;
-        
-        <span data-tip data-for={intervalTooltipId} >
+        <span data-tip data-for={intervalTooltipId}>
           {interval}
         </span>
         &nbsp;
-        <ReactTooltip id={intervalTooltipId}>
-          {fullInterval}
-        </ReactTooltip>
+        <ReactTooltip id={intervalTooltipId}>{fullInterval}</ReactTooltip>
         {isControlBranch && BASELINE_TEXT}
       </span>
       <ReactTooltip />
