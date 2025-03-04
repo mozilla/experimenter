@@ -273,6 +273,14 @@ search:
     awesome-bar:
       type: json
       description: Configuring the awesome bar.
+search-engine-consolidation-feature:
+  description: "This feature is for managing the roll out of Search Engine Consolidation support in iOS\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 sent-from-firefox-feature:
   description: "Adds additional promo text to links shared to WhatsApp.\n"
   hasExposure: true

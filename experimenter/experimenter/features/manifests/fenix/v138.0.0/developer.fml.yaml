@@ -171,7 +171,7 @@ features:
             enabled: true
             extra-data: ~
             image-res: ic_onboarding_welcome
-            ordering: 5
+            ordering: 10
             prerequisites:
               - ALWAYS
             primary-button-label: juno_onboarding_default_browser_positive_button
@@ -185,7 +185,7 @@ features:
             enabled: true
             extra-data: ~
             image-res: ic_onboarding_search_widget
-            ordering: 10
+            ordering: 15
             prerequisites:
               - ALWAYS
             primary-button-label: juno_onboarding_add_search_widget_positive_button
@@ -199,7 +199,7 @@ features:
             enabled: true
             extra-data: ~
             image-res: ic_onboarding_sync
-            ordering: 15
+            ordering: 20
             prerequisites:
               - ALWAYS
             primary-button-label: juno_onboarding_sign_in_positive_button
@@ -213,77 +213,12 @@ features:
             enabled: true
             extra-data: ~
             image-res: ic_notification_permission
-            ordering: 20
+            ordering: 30
             prerequisites:
               - ALWAYS
             primary-button-label: juno_onboarding_enable_notifications_positive_button
             secondary-button-label: juno_onboarding_enable_notifications_negative_button
             title: juno_onboarding_enable_notifications_title_nimbus_2
-          terms-of-service:
-            card-type: terms-of-service
-            enabled: false
-            title: onboarding_welcome_to_firefox
-            ordering: 0
-            image-res: ic_firefox
-            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label
-            extra-data:
-              term-of-service-data:
-                line-one-text: onboarding_term_of_service_line_one
-                line-one-link-text: onboarding_term_of_service_line_one_link_text
-                line-two-text: onboarding_term_of_service_line_two
-                line-two-link-text: onboarding_term_of_service_line_two_link_text
-                line-three-text: onboarding_term_of_service_line_three
-                line-three-link-text: onboarding_term_of_service_line_three_link_text
-          theme-selection:
-            card-type: theme-selection
-            enabled: false
-            title: onboarding_customize_theme_title
-            body: onboarding_customize_theme_description
-            image-res: ic_pick_a_theme
-            ordering: 30
-            primary-button-label: onboarding_save_and_continue_button
-            secondary-button-label: onboarding_customize_theme_skip_button
-            extra-data:
-              customization-theme-data:
-                - theme-type: theme-system
-                  label: onboarding_customize_theme_system_option
-                  image-res: ic_pick_a_theme_system_auto
-                - theme-type: theme-light
-                  label: onboarding_customize_theme_light_option
-                  image-res: ic_pick_a_theme_light
-                - theme-type: theme-dark
-                  label: onboarding_customize_theme_dark_option
-                  image-res: ic_pick_a_theme_dark
-          toolbar-placement:
-            card-type: toolbar-placement
-            enabled: false
-            title: onboarding_customize_toolbar_title
-            body: onboarding_customize_toolbar_description
-            image-res: ic_onboarding_customize_toolbar
-            ordering: 35
-            primary-button-label: onboarding_save_and_start_button
-            secondary-button-label: onboarding_customize_toolbar_skip_button
-            extra-data:
-              customization-toolbar-data:
-                - toolbar-type: toolbar-top
-                  label: onboarding_customize_toolbar_top_option
-                  image-res: ic_onboarding_top_toolbar
-                - toolbar-type: toolbar-bottom
-                  label: onboarding_customize_toolbar_bottom_option
-                  image-res: ic_onboarding_bottom_toolbar
-          marketing-data:
-            card-type: marketing-data
-            enabled: false
-            title: onboarding_marketing_title
-            body: onboarding_marketing_body
-            image-res: ic_onboarding_welcome
-            ordering: 40
-            primary-button-label: onboarding_marketing_positive_button
-            extra-data:
-              marketing-data:
-                body-line-one-text: onboarding_marketing_learn_more
-                body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_in_checkbox
         string-alias: OnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
@@ -503,7 +438,7 @@ features:
       enabled:
         description: "When the feature is enabled then microsurveys can be used.\n"
         type: Boolean
-        default: true
+        default: false
   mr2022:
     description: Features for MR 2022.
     variables:
@@ -710,25 +645,6 @@ features:
         description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
         type: Text
         default: sent_from_firefox_template
-  set-as-default-prompt:
-    description: "Displays native default browser prompt to existing users.\n"
-    variables:
-      app-cold-starts-between-prompts:
-        description: "Minimum number of app cold starts before the next prompt should be displayed to the user.\n"
-        type: Int
-        default: 4
-      days-between-prompts:
-        description: "Minimum number of days between displays of Set as default prompt.\n"
-        type: Int
-        default: 14
-      enabled:
-        description: "When the feature is enabled then the Set as default prompt can be triggered for existing users.\n"
-        type: Boolean
-        default: true
-      max-number-of-times-to-display:
-        description: "Maximum number of time the prompt should be displayed.\n"
-        type: Int
-        default: 3
   ship:
     description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:
@@ -773,6 +689,13 @@ features:
         description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
         type: Boolean
         default: true
+  top-sites-suggestions:
+    description: Enables top sites suggestions.
+    variables:
+      enabled:
+        description: "Whether or not to enable top sites suggestions.\n"
+        type: Boolean
+        default: false
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
