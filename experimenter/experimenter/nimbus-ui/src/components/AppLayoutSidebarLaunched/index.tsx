@@ -252,8 +252,8 @@ export const AppLayoutSidebarLaunched = ({
                       Experiment could not be analyzed:{" "}
                       <LinkExternal href="https://experimenter.info/configuring/#the-observation-window">
                         observation period
-                      </LinkExternal>
-                      {" "}must last at least 1 week.
+                      </LinkExternal>{" "}
+                      must last at least 1 week.
                     </>
                   ) : (
                     <>
