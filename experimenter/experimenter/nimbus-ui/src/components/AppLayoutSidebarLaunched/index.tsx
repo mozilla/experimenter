@@ -253,7 +253,7 @@ export const AppLayoutSidebarLaunched = ({
                       <LinkExternal href="https://experimenter.info/configuring/#the-observation-window">
                         observation period
                       </LinkExternal>
-                      {" "}too short.
+                      {" "}must last at least 1 week.
                     </>
                   ) : (
                     <>

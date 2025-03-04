@@ -203,6 +203,9 @@ describe("AppLayoutSidebarLaunched", () => {
       expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
         "Experiment could not be analyzed:",
       );
+      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
+        "must last at least 1 week.",
+      );
 
       expect(
         screen.queryByText(humanDate(expectedDate)),
@@ -225,6 +228,9 @@ describe("AppLayoutSidebarLaunched", () => {
       );
       expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
         "Experiment could not be analyzed:",
+      );
+      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
+        "must last at least 1 week.",
       );
 
       expect(
