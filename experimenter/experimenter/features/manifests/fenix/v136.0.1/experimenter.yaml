@@ -26,14 +26,6 @@ bookmarks:
     new-compose-ui:
       type: boolean
       description: "if true, enable new compose based UI"
-compose-homepage:
-  description: Turns on compose homepage.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to turn on the compose homepage.\n"
 cookie-banners:
   description: Features for cookie banner handling.
   hasExposure: true
@@ -166,14 +158,6 @@ menu-redesign:
     report-site-issue:
       type: boolean
       description: "If true, report site issue menu item and preview is available."
-merino-recommendations:
-  description: Sets the recommendations provider service to Merino.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable Merino endpoint to serve recommendations.\n"
 messaging:
   description: "The in-app messaging system.\n"
   hasExposure: true
@@ -306,14 +290,6 @@ pki:
     certificateTransparencyMode:
       type: int
       description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
-pqcrypto:
-  description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    postQuantumKeyExchangeEnabled:
-      type: boolean
-      description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
 print:
   description: A feature for printing from the share or browser menu.
   hasExposure: true
@@ -352,14 +328,6 @@ re-engagement-notification:
     type:
       type: int
       description: The type of re-engagement notification that is shown to the inactive user.
-recent-searches:
-  description: Enables recent searches.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable recent searches.\n"
 remote-tab-management:
   description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
   hasExposure: true
@@ -385,14 +353,6 @@ search-extra-params:
     search-engine:
       type: string
       description: The search engine name.
-search-suggestions-on-homepage:
-  description: Enables search suggestions on homepage.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable search suggestions on homepage.\n"
 search-term-groups:
   description: A feature allowing the grouping of URLs around the search term that it came from.
   hasExposure: true
@@ -401,23 +361,23 @@ search-term-groups:
     enabled:
       type: boolean
       description: "If true, the feature shows up on the homescreen and on the new tab screen."
-sent-from-firefox:
-  description: A feature that allows the user to add a download firefox footer to a shared link.
+set-as-default-prompt:
+  description: "Displays native default browser prompt to existing users.\n"
   hasExposure: true
   exposureDescription: ""
   variables:
-    download-link:
-      type: string
-      description: A store download link.
+    app-cold-starts-between-prompts:
+      type: int
+      description: "Minimum number of app cold starts before the next prompt should be displayed to the user.\n"
+    days-between-prompts:
+      type: int
+      description: "Minimum number of days between displays of Set as default prompt.\n"
     enabled:
       type: boolean
-      description: "If true, the feature is available for the user."
-    show-snackbar:
-      type: boolean
-      description: "If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings."
-    template-message:
-      type: string
-      description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
+      description: "When the feature is enabled then the Set as default prompt can be triggered for existing users.\n"
+    max-number-of-times-to-display:
+      type: int
+      description: "Maximum number of time the prompt should be displayed.\n"
 ship:
   description: The feature that controls Session History in Parent (SHIP) in Gecko.
   hasExposure: true
@@ -462,14 +422,6 @@ third-party-cookie-blocking:
     enabled-private:
       type: boolean
       description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
-top-sites-suggestions:
-  description: Enables top sites suggestions.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable top sites suggestions.\n"
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
@@ -496,14 +448,6 @@ translations:
     page-settings-enabled:
       type: boolean
       description: "Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.\n"
-trending-searches:
-  description: Enables trending searches.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable trending searches.\n"
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true

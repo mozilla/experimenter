@@ -530,6 +530,13 @@ features:
             is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
+  search-engine-consolidation-feature:
+    description: "This feature is for managing the roll out of Search Engine Consolidation support in iOS\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   sent-from-firefox-feature:
     description: "Adds additional promo text to links shared to WhatsApp.\n"
     variables:
@@ -848,9 +855,7 @@ enums:
       baseline:
         description: The default layout of the toolbars.
       version1:
-        description: Shows the share and tabs button in the navigation toolbar. The menu button is displayed in the address toolbar.
-      version2:
-        description: Shows the tabs and menu button in the navigation toolbar. The share button is displayed in the address toolbar.
+        description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
 objects:
   AwesomeBar:
     description: "A configuration option for the awesome bar. Part of the `search` feature."

@@ -602,7 +602,8 @@ columns_as_dimensions = true
 [data_sources.funnel_retention]
 from_expression = """(
     SELECT *
-     FROM `mozdata.firefox_ios.retention`
+    FROM `mozdata.firefox_ios.retention`
+    WHERE metric_date = first_seen_date
 )"""
 friendly_name = "iOS Funnel Retention Metrics"
 description = "Bottom of the funnel metrics pulled from clients telemetry table"
