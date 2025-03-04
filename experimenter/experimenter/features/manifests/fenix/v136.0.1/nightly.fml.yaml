@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - developer
+  - nightly
 features:
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
@@ -31,13 +31,6 @@ features:
     variables:
       new-compose-ui:
         description: "if true, enable new compose based UI"
-        type: Boolean
-        default: false
-  compose-homepage:
-    description: Turns on compose homepage.
-    variables:
-      enabled:
-        description: "Whether or not to turn on the compose homepage.\n"
         type: Boolean
         default: false
   cookie-banners:
@@ -100,7 +93,7 @@ features:
       boost-amp-wiki:
         description: "The feature boost wiki and AMP suggestions to the top of its group.\n"
         type: Boolean
-        default: true
+        default: false
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
@@ -245,13 +238,6 @@ features:
         description: "If true, report site issue menu item and preview is available."
         type: Boolean
         default: true
-  merino-recommendations:
-    description: Sets the recommendations provider service to Merino.
-    variables:
-      enabled:
-        description: "Whether or not to enable Merino endpoint to serve recommendations.\n"
-        type: Boolean
-        default: false
   messaging:
     description: "The in-app messaging system.\n"
     variables:
@@ -324,35 +310,12 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-              - RECENTLY_PRINTED
-            style: MICROSURVEY
-            microsurvey-config:
-              utm-content: homepage
-              icon: ic_print
-              answers:
-                - text: likert_scale_option_1
-                  ordering: 0
-                - text: likert_scale_option_2
-                  ordering: 1
-                - text: likert_scale_option_3
-                  ordering: 2
-                - text: likert_scale_option_4
-                  ordering: 3
-                - text: likert_scale_option_5
-                  ordering: 4
-                - text: likert_scale_option_6
-                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
         type: NotificationConfig
         default:
-          refresh-interval: 120
+          refresh-interval: 240
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -363,7 +326,7 @@ features:
         default:
           DEFAULT:
             priority: 50
-            max-display-count: 100
+            max-display-count: 5
           SURVEY:
             priority: 55
             max-display-count: 1
@@ -382,9 +345,6 @@ features:
           MICROSURVEY:
             priority: 50
             max-display-count: 5
-          EXPIRES_QUICKLY:
-            priority: 100
-            max-display-count: 1
         string-alias: StyleName
       triggers:
         description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
@@ -438,7 +398,7 @@ features:
       enabled:
         description: "When the feature is enabled then microsurveys can be used.\n"
         type: Boolean
-        default: false
+        default: true
   mr2022:
     description: Features for MR 2022.
     variables:
@@ -532,13 +492,6 @@ features:
         description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
         type: Int
         default: 0
-  pqcrypto:
-    description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
-    variables:
-      postQuantumKeyExchangeEnabled:
-        description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
-        type: Boolean
-        default: false
   print:
     description: A feature for printing from the share or browser menu.
     variables:
@@ -579,13 +532,6 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
-  recent-searches:
-    description: Enables recent searches.
-    variables:
-      enabled:
-        description: "Whether or not to enable recent searches.\n"
-        type: Boolean
-        default: false
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:
@@ -612,13 +558,6 @@ features:
         description: The search engine name.
         type: String
         default: ""
-  search-suggestions-on-homepage:
-    description: Enables search suggestions on homepage.
-    variables:
-      enabled:
-        description: "Whether or not to enable search suggestions on homepage.\n"
-        type: Boolean
-        default: false
   search-term-groups:
     description: A feature allowing the grouping of URLs around the search term that it came from.
     variables:
@@ -626,25 +565,25 @@ features:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
         default: true
-  sent-from-firefox:
-    description: A feature that allows the user to add a download firefox footer to a shared link.
+  set-as-default-prompt:
+    description: "Displays native default browser prompt to existing users.\n"
     variables:
-      download-link:
-        description: A store download link.
-        type: Text
-        default: "[Download Link]"
+      app-cold-starts-between-prompts:
+        description: "Minimum number of app cold starts before the next prompt should be displayed to the user.\n"
+        type: Int
+        default: 4
+      days-between-prompts:
+        description: "Minimum number of days between displays of Set as default prompt.\n"
+        type: Int
+        default: 14
       enabled:
-        description: "If true, the feature is available for the user."
+        description: "When the feature is enabled then the Set as default prompt can be triggered for existing users.\n"
         type: Boolean
         default: true
-      show-snackbar:
-        description: "If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings."
-        type: Boolean
-        default: true
-      template-message:
-        description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
-        type: Text
-        default: sent_from_firefox_template
+      max-number-of-times-to-display:
+        description: "Maximum number of time the prompt should be displayed.\n"
+        type: Int
+        default: 3
   ship:
     description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:
@@ -689,13 +628,6 @@ features:
         description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
         type: Boolean
         default: true
-  top-sites-suggestions:
-    description: Enables top sites suggestions.
-    variables:
-      enabled:
-        description: "Whether or not to enable top sites suggestions.\n"
-        type: Boolean
-        default: false
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -727,13 +659,6 @@ features:
         description: "Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.\n"
         type: Boolean
         default: true
-  trending-searches:
-    description: Enables trending searches.
-    variables:
-      enabled:
-        description: "Whether or not to enable trending searches.\n"
-        type: Boolean
-        default: false
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
