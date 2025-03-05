@@ -298,6 +298,16 @@ class SdkFeature(BaseFeature):
         description="The variables that this feature can set."
     )
 
+    allow_coenrollment: bool = Field(
+        alias="allow-coenrollment",
+        description=(
+            "If true, clients can enroll in multiple experiments and rollouts that use "
+            "this feature."
+        ),
+        default=False,
+    )
+
+
 
 class DesktopFeature(BaseFeature):
     """A feature."""
@@ -334,6 +344,15 @@ class DesktopFeature(BaseFeature):
         alias="schema",
         description="An optional JSON schema that describes the feature variables.",
         default=None,
+    )
+
+    allow_coenrollment: bool = Field(
+        alias="allowCoenrollment",
+        description=(
+            "If true, clients can enroll in multiple experiments and rollouts that use "
+            "this feature."
+        ),
+        default=False,
     )
 
 
