@@ -136,6 +136,13 @@ features:
         description: "If true, the feature is active"
         type: Boolean
         default: true
+  homepage-search-bar:
+    description: Enables the homepage search bar.
+    variables:
+      enabled:
+        description: "Whether or not to enable the homepage search bar.\n"
+        type: Boolean
+        default: false
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
