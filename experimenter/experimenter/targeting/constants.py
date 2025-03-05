@@ -1380,6 +1380,17 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_NEW_NON_DEFAULT_USER = NimbusTarget
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_PLUS_WITH_BACKGROUND_TASK_NOTIFICATION = NimbusTargetingConfig(
+    name="Windows 10+ users with background task notification",
+    slug="windows_10_background_task_notification",
+    description="Windows 10+ users with Firefox running a background task",
+    targeting="isBackgroundTaskMode && (os.isWindows && os.windowsVersion >= 10)",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
