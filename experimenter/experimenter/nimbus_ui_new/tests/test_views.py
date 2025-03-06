@@ -1941,6 +1941,88 @@ class TestLaunchViews(AuthTestCase):
         )
         self.mock_allocate_bucket_range.assert_called_once()
 
+    def test_live_to_end_enrollment_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.is_paused = False
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-live-to-end-enrollment", kwargs={"slug": self.experiment.slug}
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+        self.assertTrue(self.experiment.is_paused)
+
+    def test_live_to_complete_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.is_paused = False
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-live-to-complete", kwargs={"slug": self.experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+        self.assertTrue(self.experiment.is_paused)
+
+    def test_approve_end_enrollment_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-approve-end-enrollment", kwargs={"slug": self.experiment.slug}
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.assertTrue(self.experiment.is_paused)
+
+    def test_approve_end_experiment_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-approve-end-experiment", kwargs={"slug": self.experiment.slug}
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.assertTrue(self.experiment.is_paused)
+
     def test_review_to_reject_view_with_reason(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = NimbusExperiment.Status.LIVE
@@ -1966,6 +2048,128 @@ class TestLaunchViews(AuthTestCase):
             f"{self.user.email} rejected the review with reason: Not ready for launch.",
             changelog.message,
         )
+
+    def test_reject_end_enrollment_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-cancel-reject-end", kwargs={"slug": self.experiment.slug}
+            ),
+            data={
+                "changelog_message": "Enrollment should continue.",
+                "action_type": "end_enrollment",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertFalse(self.experiment.is_paused)
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(
+            "rejected the review with reason: Enrollment should continue.",
+            changelog.message,
+        )
+
+    def test_cancel_end_enrollment_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-cancel-reject-end", kwargs={"slug": self.experiment.slug}
+            ),
+            data={
+                "cancel_message": "Cancelled end enrollment request.",
+                "action_type": "end_enrollment",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertFalse(self.experiment.is_paused)
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("Cancelled end enrollment request.", changelog.message)
+
+    def test_reject_end_experiment_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-cancel-reject-end", kwargs={"slug": self.experiment.slug}
+            ),
+            data={
+                "changelog_message": "Experiment should continue.",
+                "action_type": "end_experiment",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertFalse(self.experiment.is_paused)
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(
+            "rejected the review with reason: Experiment should continue.",
+            changelog.message,
+        )
+
+    def test_cancel_end_experiment_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-cancel-reject-end", kwargs={"slug": self.experiment.slug}
+            ),
+            data={
+                "cancel_message": "Cancelled end experiment request.",
+                "action_type": "end_experiment",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertFalse(self.experiment.is_paused)
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("Cancelled end experiment request.", changelog.message)
 
 
 class TestAudienceUpdateView(AuthTestCase):

@@ -873,18 +873,20 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     status = None
     status_next = None
     publish_status = None
+    is_paused = None
 
     class Meta:
         model = NimbusExperiment
         fields = []
 
     def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.status = self.status
-        experiment.status_next = self.status_next
-        experiment.publish_status = self.publish_status
-        experiment.save()
-        return experiment
+        self.instance.status = self.status
+        self.instance.status_next = self.status_next
+        self.instance.publish_status = self.publish_status
+
+        if self.is_paused is not None:
+            self.instance.is_paused = self.is_paused
+        return super().save(commit=commit)
 
 
 class DraftToPreviewForm(UpdateStatusForm):
@@ -971,3 +973,94 @@ class ReviewToRejectForm(UpdateStatusForm):
     def get_changelog_message(self):
         changelog_message = self.cleaned_data.get("changelog_message", "")
         return f"{self.request.user} rejected the review with reason: {changelog_message}"
+
+
+class LiveToEndEnrollmentForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = True
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested review to end enrollment"
+
+
+class ApproveEndEnrollmentForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = True
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the end enrollment request"
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        return experiment
+
+
+class LiveToCompleteForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.COMPLETE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = True
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested review to end experiment"
+
+
+class ApproveEndExperimentForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.COMPLETE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = True
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the end experiment request"
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        return experiment
+
+
+class CancelRejectEndForm(UpdateStatusForm):
+    """
+    Single form to handle both cancel and reject actions
+    for end enrollment & end experiment.
+    """
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    changelog_message = forms.CharField(
+        required=False, label="Changelog Message", max_length=1000
+    )
+
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
+
+    def __init__(self, *args, experiment=None, **kwargs):
+        data = kwargs.get("data", {})
+        self.experiment = experiment
+        super().__init__(*args, **kwargs)
+        self.action_type = data.get("action_type")
+        if self.action_type == "end_enrollment":
+            self.is_paused = False
+        elif self.action_type == "end_experiment":
+            self.is_paused = experiment.is_paused if experiment else False
+
+    def get_changelog_message(self):
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"

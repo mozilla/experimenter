@@ -1,0 +1,56 @@
+{% load nimbus_extras %}
+
+{% if experiment.should_show_timeout_message %}
+  <div class="alert alert-danger">
+    <p>
+      <span role="img" aria-label="red X emoji">❌</span>
+      Remote Settings request has timed out, please go through the approval flow to {{ experiment.review_messages }} again.
+    </p>
+  </div>
+{% endif %}
+<div id="review-controls">
+  <div class="alert alert-primary">
+    <p>
+      <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
+    </p>
+    <button type="button"
+            class="btn btn-success"
+            hx-post="{% url approval_url slug=experiment.slug %}"
+            hx-select="#content"
+            hx-target="#content"
+            hx-swap="outerHTML">Approve and {{ action_type|title |remove_underscores }}</button>
+    <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
+  </div>
+  <div class="alert alert-primary">
+    <button type="button"
+            class="btn btn-secondary"
+            hx-post="{% url cancel_url slug=experiment.slug %}"
+            hx-select="#content"
+            hx-target="#content"
+            hx-swap="outerHTML"
+            hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}",  "action_type": "{{ action_type }}"}}'>
+      Cancel Review
+    </button>
+  </div>
+</div>
+<!-- Rejection Form -->
+<div id="reject-form-container" class="d-none alert alert-warning">
+  <label for="changelog_message">
+    <strong>You are rejecting the request to {{ experiment.review_messages }}. Please provide a reason:</strong>
+  </label>
+  <textarea id="changelog_message"
+            name="changelog_message"
+            class="form-control"
+            rows="4"
+            required></textarea>
+  <input type="hidden" name="action_type" value="{{ action_type }}">
+  <!-- Hidden input field -->
+  <button type="submit"
+          class="btn btn-danger mt-2"
+          hx-post="{% url reject_url slug=experiment.slug %}"
+          hx-select="#content"
+          hx-target="#content"
+          hx-swap="outerHTML"
+          hx-include="[name='changelog_message'], [name='action_type']">Submit Rejection</button>
+  <button type="button" class="btn btn-secondary mt-2" id="cancel-reject">Cancel</button>
+</div>
