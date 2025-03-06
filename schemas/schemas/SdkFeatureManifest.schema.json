@@ -44,6 +44,10 @@
           },
           "description": "The variables that this feature can set.",
           "type": "object"
+        },
+        "allow-coenrollment": {
+          "description": "If true, clients can enroll in multiple experiments and rollouts that use this feature.",
+          "type": "boolean"
         }
       },
       "required": [
