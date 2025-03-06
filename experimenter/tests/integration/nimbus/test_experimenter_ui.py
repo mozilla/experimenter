@@ -8,12 +8,12 @@ from nimbus.models.base_dataclass import (
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
 
-MOBILE_APPS = [
-    BaseExperimentApplications.FIREFOX_FENIX.value,
-    BaseExperimentApplications.FIREFOX_IOS.value,
-    BaseExperimentApplications.FOCUS_ANDROID.value,
-    BaseExperimentApplications.FOCUS_IOS.value,
-]
+# MOBILE_APPS = [
+#     BaseExperimentApplications.FIREFOX_FENIX.value,
+#     BaseExperimentApplications.FIREFOX_IOS.value,
+#     BaseExperimentApplications.FOCUS_ANDROID.value,
+#     BaseExperimentApplications.FOCUS_IOS.value,
+# ]
 
 
 @pytest.fixture

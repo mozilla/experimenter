@@ -5,11 +5,11 @@ from typing import Optional
 
 class BaseExperimentApplications(Enum):
     FIREFOX_DESKTOP = "DESKTOP"
-    FIREFOX_FENIX = "FENIX"
-    FIREFOX_IOS = "IOS"
-    FOCUS_ANDROID = "FOCUS_ANDROID"
-    FOCUS_IOS = "FOCUS_IOS"
-    DEMO_APP = "DEMO_APP"
+    # FIREFOX_FENIX = "FENIX"
+    # FIREFOX_IOS = "IOS"
+    # FOCUS_ANDROID = "FOCUS_ANDROID"
+    # FOCUS_IOS = "FOCUS_IOS"
+    # DEMO_APP = "DEMO_APP"
 
 
 class BaseExperimentAudienceChannels(Enum):

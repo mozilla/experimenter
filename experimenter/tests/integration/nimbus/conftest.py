@@ -31,39 +31,39 @@ APPLICATION_KINTO_REVIEW_PATH = {
     BaseExperimentApplications.FIREFOX_DESKTOP.value: (
         "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
     ),
-    BaseExperimentApplications.FIREFOX_FENIX.value: (
-        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
-    ),
-    BaseExperimentApplications.FIREFOX_IOS.value: (
-        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
-    ),
-    BaseExperimentApplications.FOCUS_ANDROID.value: (
-        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
-    ),
-    BaseExperimentApplications.FOCUS_IOS.value: (
-        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
-    ),
-    BaseExperimentApplications.DEMO_APP.value: (
-        "#/buckets/main-workspace/collections/nimbus-web-experiments/simple-review"
-    ),
+    # BaseExperimentApplications.FIREFOX_FENIX.value: (
+    #     "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    # ),
+    # BaseExperimentApplications.FIREFOX_IOS.value: (
+    #     "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    # ),
+    # BaseExperimentApplications.FOCUS_ANDROID.value: (
+    #     "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    # ),
+    # BaseExperimentApplications.FOCUS_IOS.value: (
+    #     "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    # ),
+    # BaseExperimentApplications.DEMO_APP.value: (
+    #     "#/buckets/main-workspace/collections/nimbus-web-experiments/simple-review"
+    # ),
 }
 
 APPLICATION_KINTO_COLLECTION = {
     BaseExperimentApplications.FIREFOX_DESKTOP.value: KINTO_COLLECTION_DESKTOP,
-    BaseExperimentApplications.FIREFOX_FENIX.value: KINTO_COLLECTION_MOBILE,
-    BaseExperimentApplications.FIREFOX_IOS.value: KINTO_COLLECTION_MOBILE,
-    BaseExperimentApplications.FOCUS_ANDROID.value: KINTO_COLLECTION_MOBILE,
-    BaseExperimentApplications.FOCUS_IOS.value: KINTO_COLLECTION_MOBILE,
-    BaseExperimentApplications.DEMO_APP.value: KINTO_COLLECTION_WEB,
+    # BaseExperimentApplications.FIREFOX_FENIX.value: KINTO_COLLECTION_MOBILE,
+    # BaseExperimentApplications.FIREFOX_IOS.value: KINTO_COLLECTION_MOBILE,
+    # BaseExperimentApplications.FOCUS_ANDROID.value: KINTO_COLLECTION_MOBILE,
+    # BaseExperimentApplications.FOCUS_IOS.value: KINTO_COLLECTION_MOBILE,
+    # BaseExperimentApplications.DEMO_APP.value: KINTO_COLLECTION_WEB,
 }
 
 APPLICATION_SELECT_VALUE = {
     BaseExperimentApplications.FIREFOX_DESKTOP.value: "firefox-desktop",
-    BaseExperimentApplications.FIREFOX_FENIX.value: "fenix",
-    BaseExperimentApplications.FIREFOX_IOS.value: "ios",
-    BaseExperimentApplications.FOCUS_ANDROID.value: "focus-android",
-    BaseExperimentApplications.FOCUS_IOS.value: "focus-ios",
-    BaseExperimentApplications.DEMO_APP.value: "demo-app",
+    # BaseExperimentApplications.FIREFOX_FENIX.value: "fenix",
+    # BaseExperimentApplications.FIREFOX_IOS.value: "ios",
+    # BaseExperimentApplications.FOCUS_ANDROID.value: "focus-android",
+    # BaseExperimentApplications.FOCUS_IOS.value: "focus-ios",
+    # BaseExperimentApplications.DEMO_APP.value: "demo-app",
 }
 
 
@@ -77,21 +77,21 @@ def fixture_application_feature_ids():
         BaseExperimentApplications.FIREFOX_DESKTOP.value: helpers.get_feature_id_as_string(  #  NOQA
             "no-feature-firefox-desktop", BaseExperimentApplications.FIREFOX_DESKTOP.value
         ),
-        BaseExperimentApplications.FIREFOX_FENIX.value: helpers.get_feature_id_as_string(
-            "no-feature-fenix", BaseExperimentApplications.FIREFOX_FENIX.value
-        ),
-        BaseExperimentApplications.FIREFOX_IOS.value: helpers.get_feature_id_as_string(
-            "no-feature-ios", BaseExperimentApplications.FIREFOX_IOS.value
-        ),
-        BaseExperimentApplications.FOCUS_ANDROID.value: helpers.get_feature_id_as_string(
-            "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID.value
-        ),
-        BaseExperimentApplications.FOCUS_IOS.value: helpers.get_feature_id_as_string(
-            "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS.value
-        ),
-        BaseExperimentApplications.DEMO_APP.value: helpers.get_feature_id_as_string(
-            "example-feature", BaseExperimentApplications.DEMO_APP.value
-        ),
+        # BaseExperimentApplications.FIREFOX_FENIX.value: helpers.get_feature_id_as_string(
+        #     "no-feature-fenix", BaseExperimentApplications.FIREFOX_FENIX.value
+        # ),
+        # BaseExperimentApplications.FIREFOX_IOS.value: helpers.get_feature_id_as_string(
+        #     "no-feature-ios", BaseExperimentApplications.FIREFOX_IOS.value
+        # ),
+        # BaseExperimentApplications.FOCUS_ANDROID.value: helpers.get_feature_id_as_string(
+        #     "no-feature-focus-android", BaseExperimentApplications.FOCUS_ANDROID.value
+        # ),
+        # BaseExperimentApplications.FOCUS_IOS.value: helpers.get_feature_id_as_string(
+        #     "no-feature-focus-ios", BaseExperimentApplications.FOCUS_IOS.value
+        # ),
+        # BaseExperimentApplications.DEMO_APP.value: helpers.get_feature_id_as_string(
+        #     "example-feature", BaseExperimentApplications.DEMO_APP.value
+        # ),
     }
 
 
@@ -226,14 +226,14 @@ def default_data(
             primary_outcomes=[load_experiment_outcomes["firefox_desktop"][0]],
             secondary_outcomes=[load_experiment_outcomes["firefox_desktop"][1]],
         ),
-        BaseExperimentApplications.FIREFOX_FENIX.value: BaseExperimentMetricsDataClass(
-            primary_outcomes=[load_experiment_outcomes["fenix"][0]],
-            secondary_outcomes=[load_experiment_outcomes["fenix"][1]],
-        ),
-        BaseExperimentApplications.FIREFOX_IOS.value: BaseExperimentMetricsDataClass(
-            primary_outcomes=[load_experiment_outcomes["firefox_ios"][0]],
-            secondary_outcomes=[load_experiment_outcomes["firefox_ios"][1]],
-        ),
+        # BaseExperimentApplications.FIREFOX_FENIX.value: BaseExperimentMetricsDataClass(
+        #     primary_outcomes=[load_experiment_outcomes["fenix"][0]],
+        #     secondary_outcomes=[load_experiment_outcomes["fenix"][1]],
+        # ),
+        # BaseExperimentApplications.FIREFOX_IOS.value: BaseExperimentMetricsDataClass(
+        #     primary_outcomes=[load_experiment_outcomes["firefox_ios"][0]],
+        #     secondary_outcomes=[load_experiment_outcomes["firefox_ios"][1]],
+        # ),
     }
 
     return BaseExperimentDataClass(
@@ -337,23 +337,23 @@ def create_experiment(base_url, default_data):
         audience.targeting = "no_targeting"
         audience.percentage = "100"
         audience.expected_clients = default_data.audience.expected_clients
-        if default_data.application != BaseExperimentApplications.DEMO_APP.value:
-            audience.min_version = default_data.audience.min_version
-            audience.percentage = default_data.audience.percentage
-            audience.targeting = default_data.audience.targeting
-            audience.countries = ["Canada"]
-            if (
-                default_data.application
-                != BaseExperimentApplications.FIREFOX_DESKTOP.value
-            ):
-                audience.languages = ["English"]
-            else:
-                audience.locales = ["English (US)"]
+        # if default_data.application != BaseExperimentApplications.DEMO_APP.value:
+        #     audience.min_version = default_data.audience.min_version
+        #     audience.percentage = default_data.audience.percentage
+        #     audience.targeting = default_data.audience.targeting
+        #     audience.countries = ["Canada"]
+        if (
+            default_data.application
+            != BaseExperimentApplications.FIREFOX_DESKTOP.value
+        ):
+            audience.languages = ["English"]
         else:
-            if languages:
-                audience.languages = ["English"]
-            if countries:
-                audience.countries = ["Canada"]
+            audience.locales = ["English (US)"]
+        #else:
+        if languages:
+            audience.languages = ["English"]
+        if countries:
+            audience.countries = ["Canada"]
 
         return audience.save_and_continue()
 

@@ -55,6 +55,7 @@ poetry -C experimenter/tests/integration \
     --driver Firefox \
     --verify-base-url \
     --base-url https://nginx/nimbus/ \
+    --count=50 \
     experimenter/tests/integration/nimbus \
     -vvv \
-    $PYTEST_ARGS
+    -k test_archive_experiment
