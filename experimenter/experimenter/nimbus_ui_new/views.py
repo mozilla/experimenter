@@ -45,27 +45,27 @@ class RequestFormMixin:
         return kwargs
 
 
-class RenderResponseMixin:
+class ValidationErrorsMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         show_errors = self.request.GET.get("show_errors", "") == "true"
         errors = self.get_object().get_invalid_fields_errors()
-        form = self.get_form()
 
         validation_errors = {}
 
-        if form and show_errors:
+        if show_errors:
             for field, error in errors:
-                if field in form.fields:
-                    if field not in validation_errors:
-                        validation_errors[field] = []
-                    validation_errors[field].append(error)
+                if field not in validation_errors:
+                    validation_errors[field] = []
+                validation_errors[field].append(error)
 
         context["validation_errors"] = validation_errors
 
         return context
 
+
+class RenderResponseMixin:
     def form_valid(self, form):
         super().form_valid(form)
         return self.render_to_response(self.get_context_data(form=form))
@@ -261,7 +261,11 @@ class NimbusExperimentsCreateView(
 
 
 class OverviewUpdateView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    ValidationErrorsMixin,
+    UpdateView,
 ):
     form_class = OverviewForm
     template_name = "nimbus_experiments/edit_overview.html"
@@ -283,7 +287,11 @@ class MetricsUpdateView(
 
 
 class AudienceUpdateView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    ValidationErrorsMixin,
+    UpdateView,
 ):
     form_class = AudienceForm
     template_name = "nimbus_experiments/edit_audience.html"
