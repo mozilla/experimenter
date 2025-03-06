@@ -79,6 +79,9 @@ describe("TableResults", () => {
     expect(screen.getAllByText("-45.5% to 51%", { exact: false })).toHaveLength(
       4,
     );
+    expect(
+      screen.getAllByText("-45.52103% to 51.049857%", { exact: false }),
+    ).toHaveLength(4);
     expect(screen.getByText("198")).toBeInTheDocument();
     expect(screen.getByText("45%")).toBeInTheDocument();
     expect(screen.getByText("200")).toBeInTheDocument();
