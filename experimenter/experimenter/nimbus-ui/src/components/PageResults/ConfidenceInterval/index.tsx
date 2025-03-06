@@ -6,6 +6,7 @@
 // TODO: EXP-638 remove this ^
 
 import React from "react";
+import ReactTooltip from "react-tooltip";
 
 const MIN_BOUNDS_WIDTH = 22;
 
@@ -66,7 +67,8 @@ const ConfidenceInterval: React.FC<{
   range: number;
   significance: string;
   referenceBranch: string;
-}> = ({ upper, lower, range, significance, referenceBranch }) => {
+  tooltip?: string;
+}> = ({ upper, lower, range, significance, referenceBranch, tooltip }) => {
   const fullWidth = range * 2;
   const barWidth = ((upper - lower) / fullWidth) * 100;
   const leftPercent = (Math.abs(lower - range * -1) / fullWidth) * 100;
@@ -80,10 +82,18 @@ const ConfidenceInterval: React.FC<{
   );
   const line = renderLine(leftPercent, barWidth, significance);
 
+  const tooltipId = `${tooltip}_tooltip`;
+
   return (
     <div className="pr-5">
-      <div className="row w-100 float-right position-relative">{bounds}</div>
-
+      <div
+        className="row w-100 float-right position-relative"
+        data-tip
+        data-for={tooltipId}
+      >
+        {bounds}
+      </div>
+      <ReactTooltip id={tooltipId}>{tooltip}</ReactTooltip>
       <div
         className="row w-50 float-right mt-4"
         data-testid={`${significance}-block`}
