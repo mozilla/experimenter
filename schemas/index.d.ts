@@ -554,6 +554,10 @@ export interface DesktopFeature {
     [k: string]: DesktopFeatureVariable;
   };
   schema?: NimbusFeatureSchema;
+  /**
+   * If true, clients can enroll in multiple experiments and rollouts that use this feature.
+   */
+  allowCoenrollment?: boolean;
 }
 /**
  * A feature variable.
@@ -646,6 +650,10 @@ export interface SdkFeature {
   variables: {
     [k: string]: SdkFeatureVariable;
   };
+  /**
+   * If true, clients can enroll in multiple experiments and rollouts that use this feature.
+   */
+  "allow-coenrollment"?: boolean;
 }
 /**
  * A feature variable.
