@@ -117,65 +117,52 @@
         {% endif %}
       </div>
       <!-- Review Mode Controls -->
-    {% elif experiment.is_review %}
-      {% if experiment.should_show_timeout_message %}
+
+       {% elif experiment|should_show_remote_settings_pending:user %}
+
         <div class="alert alert-danger" role="alert">
-          <p>
-            <span role="img" aria-label="red X emoji">❌</span>
-            Remote Settings request has timed out, please go through the approval flow to launch this experiment again.
-          </p>
+    <p>
+      <strong>Action required:</strong> 
+      Please review this change in Remote Settings to {{ experiment.remote_settings_pending_message }}.
+    </p>
+    <a href="{{ experiment.review_url }}"
+       class="btn btn-primary"
+       target="_blank"
+       rel="noopener noreferrer">Open Remote Settings</a>
+  </div>
+
+      {% elif experiment.is_review %}
+      {% include "nimbus_experiments/approval_rejection_controls.html" with message=experiment.changes.latest_review_request.changed_by.email|add:" requested to launch this experiment." timeout_message="Remote Settings request has timed out. Please retry." approval_url="nimbus-new-review-to-approve" approve_button_text="Approve and Launch Experiment" reject_url="nimbus-new-review-to-reject" reject_button_text="Reject" reject_reason_text="You are rejecting the request to launch this experiment. Please provide a reason:" reject_submit_button_text="Submit Rejection" reject_cancel_button_text="Cancel" cancel_url="nimbus-new-review-to-draft" cancel_button_text="Cancel Review" experiment=experiment %}
+
+    {% elif experiment.is_enrollment or experiment.is_observation %}
+      {% if experiment.should_show_end_enrollment or experiment.should_show_end_experiment %}
+        <div id="default-controls" class="alert alert-primary">
+          {% if experiment.should_show_end_enrollment %}
+            <button type="button"
+                    hx-post="{% url 'nimbus-new-live-to-end-enrollment' slug=experiment.slug %}"
+                    hx-select="#content"
+                    hx-target="#content"
+                    hx-swap="outerHTML"
+                    class="btn btn-primary m-2">End Enrollment</button>
+          {% endif %}
+          {% if experiment.should_show_end_experiment %}
+            <button type="button"
+                    hx-post="{% url 'nimbus-new-live-to-complete' slug=experiment.slug %}"
+                    hx-select="#content"
+                    hx-target="#content"
+                    hx-swap="outerHTML"
+                    class="btn btn-primary">End Experiment</button>
+          {% endif %}
         </div>
       {% endif %}
-      <div id="review-controls" class="alert alert-primary">
-        <p>
-          <strong>{{ experiment.changes.latest_review_request.changed_by.email }}</strong> requested to Launch this experiment.
-        </p>
-        <button type="button"
-                class="btn btn-success"
-                hx-post="{% url 'nimbus-new-review-to-approve' slug=experiment.slug %}"
-                hx-select="#content"
-                hx-target="#content"
-                hx-swap="outerHTML">Approve and Launch Experiment</button>
-        <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
-      </div>
-      <!-- Rejection Form -->
-      <div id="reject-form-container" class="d-none alert alert-warning">
-        <label for="changelog_message">
-          <strong>You are rejecting the request to launch this experiment.</strong> Please add some comments:
-        </label>
-        <textarea id="changelog_message"
-                  name="changelog_message"
-                  class="form-control"
-                  rows="4"
-                  required></textarea>
-        <button type="submit"
-                class="btn btn-danger mt-2"
-                hx-post="{% url 'nimbus-new-review-to-reject' slug=experiment.slug %}"
-                hx-select="#content"
-                hx-target="#content"
-                hx-swap="outerHTML"
-                hx-include="#changelog_message">Submit</button>
-        <button type="button" class="btn btn-secondary mt-2" id="cancel-reject">Cancel</button>
-      </div>
-      <div class="alert alert-warning">
-        <p>The experiment is currently under review. If you wish to cancel the review, click the button below:</p>
-        <button type="button"
-                class="btn btn-primary"
-                hx-post="{% url 'nimbus-new-review-to-draft' slug=experiment.slug %}"
-                hx-select="#content"
-                hx-target="#content"
-                hx-swap="outerHTML">Cancel Review</button>
-      </div>
-    {% elif experiment|should_show_remote_settings_pending:user %}
-      <div class="alert alert-primary">
-        <p>
-          <strong>Action required:</strong> Please review this change in Remote Settings to launch this experiment.
-        </p>
-        <a href="{{ experiment.review_url }}"
-           class="btn btn-primary"
-           target="_blank"
-           rel="noopener noreferrer">Open Remote Settings</a>
-      </div>
+      {% if experiment.is_enrollment_pause_requested %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with  message=experiment.changes.latest_review_request.changed_by.email|add:" requested to end enrollment for this experiment." timeout_message="Remote Settings request has timed out. Please retry." approval_url="nimbus-new-approve-end-enrollment" approve_button_text="Approve and End Enrollment" reject_url="nimbus-new-reject-end-enrollment" reject_button_text="Reject" reject_reason_text="You are rejecting the request to end enrollment. Please provide a reason:" reject_submit_button_text="Submit Rejection" reject_cancel_button_text="Cancel" cancel_url="nimbus-new-cancel-end-enrollment" cancel_button_text="Cancel Review" experiment=experiment %}
+
+      {% endif %}
+      {% if experiment.is_end_experiment_requested %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with message=experiment.changes.latest_review_request.changed_by.email|add:" requested to end this experiment." timeout_message="Remote Settings request has timed out. Please retry." approval_url="nimbus-new-approve-end-experiment" approve_button_text="Approve and End Experiment" reject_url="nimbus-new-reject-end-experiment" reject_button_text="Reject" reject_reason_text="You are rejecting the request to end the experiment. Please provide a reason:" reject_submit_button_text="Submit Rejection" reject_cancel_button_text="Cancel" cancel_url="nimbus-new-cancel-end-experiment" cancel_button_text="Cancel Review" experiment=experiment %}
+
+      {% endif %}
     {% endif %}
   </form>
 </div>

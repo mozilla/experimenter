@@ -1,0 +1,47 @@
+{% load nimbus_extras %}
+
+<div id="review-controls" class="alert alert-danger">
+  <p>
+    <strong>{{ message }}</strong>
+  </p>
+  {% if experiment.should_show_timeout_message %}
+    <div class="alert alert-danger">
+      <p>
+        <span role="img" aria-label="red X emoji">❌</span>
+        {{ timeout_message }}
+      </p>
+    </div>
+  {% endif %}
+  <button type="button"
+          class="btn btn-success"
+          hx-post="{% url approval_url slug=experiment.slug %}"
+          hx-select="#content"
+          hx-target="#content"
+          hx-swap="outerHTML">{{ approve_button_text }}</button>
+  <button type="button" class="btn btn-danger" id="reject-button">{{ reject_button_text }}</button>
+  <button type="button"
+          class="btn btn-secondary"
+          hx-post="{% url cancel_url slug=experiment.slug %}"
+          hx-select="#content"
+          hx-target="#content"
+          hx-swap="outerHTML">{{ cancel_button_text }}</button>
+</div>
+<!-- Rejection Form -->
+<div id="reject-form-container" class="d-none alert alert-warning">
+  <label for="changelog_message">
+    <strong>{{ reject_reason_text }}</strong>
+  </label>
+  <textarea id="changelog_message"
+            name="changelog_message"
+            class="form-control"
+            rows="4"
+            required></textarea>
+  <button type="submit"
+          class="btn btn-danger mt-2"
+          hx-post="{% url reject_url slug=experiment.slug %}"
+          hx-select="#content"
+          hx-target="#content"
+          hx-swap="outerHTML"
+          hx-include="#changelog_message">{{ reject_submit_button_text }}</button>
+  <button type="button" class="btn btn-secondary mt-2" id="cancel-reject">{{ reject_cancel_button_text }}</button>
+</div>
