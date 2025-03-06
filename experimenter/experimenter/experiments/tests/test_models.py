@@ -3576,7 +3576,7 @@ class TestNimbusExperiment(TestCase):
             public_description="",
         )
         errors = experiment_1.get_invalid_fields_errors()
-        self.assertIn(("public_description", "This field may not be blank."), errors)
+        self.assertIn("This field may not be blank.", errors["public_description"])
 
         experiment_2 = NimbusExperimentFactory.create(
             name="test-experiment-2",
@@ -3585,18 +3585,12 @@ class TestNimbusExperiment(TestCase):
         )
         errors = experiment_2.get_invalid_fields_errors()
         self.assertIn(
-            (
-                "feature_configs",
-                "You must select a feature configuration from the drop down.",
-            ),
-            errors,
+            "You must select a feature configuration from the drop down.",
+            errors["feature_configs"],
         )
         self.assertIn(
-            (
-                "population_percent",
-                "Ensure this value is greater than or equal to 0.0001.",
-            ),
-            errors,
+            "Ensure this value is greater than or equal to 0.0001.",
+            errors["population_percent"],
         )
 
         experiment_3 = NimbusExperimentFactory.create(
@@ -3608,22 +3602,16 @@ class TestNimbusExperiment(TestCase):
         experiment_3.required_experiments.set([experiment_3])
 
         errors = experiment_3.get_invalid_fields_errors()
-        self.assertIn(("public_description", "This field may not be blank."), errors)
+        self.assertIn("This field may not be blank.", errors["public_description"])
         self.assertIn(
-            (
-                "excluded_experiments_branches",
-                "This experiment cannot be included "
-                "in the list of required or excluded experiments",
-            ),
-            errors,
+            "This experiment cannot be included "
+            "in the list of required or excluded experiments",
+            errors["excluded_experiments_branches"],
         )
         self.assertIn(
-            (
-                "required_experiments_branches",
-                "This experiment cannot be included in the list of required or "
-                "excluded experiments",
-            ),
-            errors,
+            "This experiment cannot be included in the list of required or "
+            "excluded experiments",
+            errors["required_experiments_branches"],
         )
 
 

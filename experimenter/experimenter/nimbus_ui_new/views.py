@@ -50,15 +50,12 @@ class ValidationErrorsMixin:
         context = super().get_context_data(**kwargs)
 
         show_errors = self.request.GET.get("show_errors", "") == "true"
-        errors = self.get_object().get_invalid_fields_errors()
+        field_errors = self.get_object().get_invalid_fields_errors()
 
         validation_errors = {}
 
         if show_errors:
-            for field, error in errors:
-                if field not in validation_errors:
-                    validation_errors[field] = []
-                validation_errors[field].append(error)
+            validation_errors = field_errors
 
         context["validation_errors"] = validation_errors
 
