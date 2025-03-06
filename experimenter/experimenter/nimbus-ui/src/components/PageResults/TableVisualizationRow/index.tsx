@@ -27,6 +27,7 @@ const BASELINE_TEXT = "(baseline)";
 const showSignificanceField = (
   significance: string | undefined,
   interval: string,
+  fullInterval: string,
   name: string,
   tableLabel: string,
   tooltip: string,
@@ -39,6 +40,10 @@ const showSignificanceField = (
   // Attributes set to 'undefined' don't render in the DOM
   const className = significance ? `${significance}-significance` : undefined;
   const tooltipId = `${name}_tooltip`;
+  const intervalTooltipId = `${name}_${fullInterval.replaceAll(
+    " ",
+    "_",
+  )}_interval_tooltip`;
   switch (significance) {
     case SIGNIFICANCE.POSITIVE:
       significanceIcon = (
@@ -76,7 +81,12 @@ const showSignificanceField = (
           </span>
           &nbsp;
           <TooltipWithMarkdown markdown={tooltip} {...{ tooltipId }} />
-          {changeText} {intervalText}
+          {changeText}
+          &nbsp;
+          <span data-tip data-for={intervalTooltipId}>
+            {intervalText}
+          </span>
+          <ReactTooltip id={intervalTooltipId}>{fullInterval}</ReactTooltip>
         </div>
         <ReactTooltip />
       </>
@@ -85,8 +95,12 @@ const showSignificanceField = (
   return (
     <>
       <span {...{ className }} data-testid={className}>
-        {significanceIcon}&nbsp;{interval}&nbsp;
-        {isControlBranch && BASELINE_TEXT}
+        {significanceIcon}&nbsp;
+        <span data-tip data-for={intervalTooltipId}>
+          {interval} {isControlBranch && BASELINE_TEXT}
+        </span>
+        &nbsp;
+        <ReactTooltip id={intervalTooltipId}>{fullInterval}</ReactTooltip>
       </span>
       <ReactTooltip />
     </>
@@ -111,13 +125,16 @@ const conversionChangeField = (
   significance: string | undefined,
   referenceBranch: string,
 ) => {
+  const tooltip = `${Math.round(lower * 100000000) / 1000000}% to ${
+    Math.round(upper * 100000000) / 1000000
+  }%`;
   lower = Math.round(lower * 1000) / 10;
   upper = Math.round(upper * 1000) / 10;
   range = Math.round(range * 1000) / 10;
   significance = significance || SIGNIFICANCE.NEUTRAL;
   return (
     <ConfidenceInterval
-      {...{ upper, lower, range, significance, referenceBranch }}
+      {...{ upper, lower, range, significance, referenceBranch, tooltip }}
     />
   );
 };
@@ -145,9 +162,12 @@ const countField = (
   const interval = `${lower ? lower.toFixed(2) : lower} to ${
     upper ? upper.toFixed(2) : upper
   }`;
+  const fullInterval =
+    lower && upper ? `${lower.toFixed(6)} to ${upper.toFixed(6)}` : "";
   return showSignificanceField(
     significance,
     interval,
+    fullInterval,
     metricName,
     tableLabel,
     tooltip,
@@ -171,9 +191,16 @@ const percentField = (
   const interval = `${Math.round(lower * 1000) / 10}% to ${
     Math.round(upper * 1000) / 10
   }%`;
+  const fullInterval =
+    lower && upper
+      ? `${Math.round(lower * 100000000) / 1000000}% to ${
+          Math.round(upper * 100000000) / 1000000
+        }%`
+      : "";
   return showSignificanceField(
     significance,
     interval,
+    fullInterval,
     metricName,
     tableLabel,
     tooltip,
@@ -266,7 +293,7 @@ const TableVisualizationRow: React.FC<{
               lower!,
               upper!,
               significance,
-              metricName,
+              metricName || metricKey,
               tableLabel,
               tooltipText,
               isControlBranch,
