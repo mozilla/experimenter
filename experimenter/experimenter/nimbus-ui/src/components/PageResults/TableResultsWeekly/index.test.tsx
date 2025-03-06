@@ -62,6 +62,9 @@ describe("TableResultsWeekly", () => {
     expect(
       screen.getAllByText("2.4% to 8.4% (baseline)", { exact: false }),
     ).toHaveLength(2);
+    expect(
+      screen.getAllByText("2.435727% to 8.411464%", { exact: false }),
+    ).toHaveLength(2);
   });
 
   it("behaves as expected when clicked", () => {

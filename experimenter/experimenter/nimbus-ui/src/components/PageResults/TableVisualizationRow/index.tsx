@@ -97,11 +97,10 @@ const showSignificanceField = (
       <span {...{ className }} data-testid={className}>
         {significanceIcon}&nbsp;
         <span data-tip data-for={intervalTooltipId}>
-          {interval}
+          {interval} {isControlBranch && BASELINE_TEXT}
         </span>
         &nbsp;
         <ReactTooltip id={intervalTooltipId}>{fullInterval}</ReactTooltip>
-        {isControlBranch && BASELINE_TEXT}
       </span>
       <ReactTooltip />
     </>
@@ -126,13 +125,16 @@ const conversionChangeField = (
   significance: string | undefined,
   referenceBranch: string,
 ) => {
+  const tooltip = `${Math.round(lower * 100000000) / 1000000}% to ${
+    Math.round(upper * 100000000) / 1000000
+  }%`;
   lower = Math.round(lower * 1000) / 10;
   upper = Math.round(upper * 1000) / 10;
   range = Math.round(range * 1000) / 10;
   significance = significance || SIGNIFICANCE.NEUTRAL;
   return (
     <ConfidenceInterval
-      {...{ upper, lower, range, significance, referenceBranch }}
+      {...{ upper, lower, range, significance, referenceBranch, tooltip }}
     />
   );
 };
@@ -160,7 +162,8 @@ const countField = (
   const interval = `${lower ? lower.toFixed(2) : lower} to ${
     upper ? upper.toFixed(2) : upper
   }`;
-  const fullInterval = `${lower} to ${upper}`;
+  const fullInterval =
+    lower && upper ? `${lower.toFixed(6)} to ${upper.toFixed(6)}` : "";
   return showSignificanceField(
     significance,
     interval,
@@ -188,7 +191,12 @@ const percentField = (
   const interval = `${Math.round(lower * 1000) / 10}% to ${
     Math.round(upper * 1000) / 10
   }%`;
-  const fullInterval = `${lower * 100}% to ${upper * 100}%`;
+  const fullInterval =
+    lower && upper
+      ? `${Math.round(lower * 100000000) / 1000000}% to ${
+          Math.round(upper * 100000000) / 1000000
+        }%`
+      : "";
   return showSignificanceField(
     significance,
     interval,
