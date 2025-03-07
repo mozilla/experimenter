@@ -8,7 +8,7 @@ OLD_VERSION=$(cat ./schemas/VERSION)
 if [ "$#" -ne 1 ]; then
   echo "USAGE: ./set_schemas_version.sh <version>"
   echo "<version> is the desired version of the package"
-  echo "Version scheme is CalVer (yyyy.m.#)"
+  echo "Version scheme is semver"
   echo
   echo "Current version is $OLD_VERSION"
 
