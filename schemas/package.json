@@ -20,5 +20,8 @@
   "files": [
     "index.d.ts",
     "schemas"
-  ]
+  ],
+  "dependencies": {
+    "@mozilla/nimbus-schemas": "file:"
+  }
 }

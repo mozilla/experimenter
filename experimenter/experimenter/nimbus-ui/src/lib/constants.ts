@@ -43,7 +43,11 @@ export const EXTERNAL_URLS = {
   METRICS_EXPERIMENTER_DOC:
     "https://experimenter.info/deep-dives/jetstream/metrics",
   // EXP-866 TBD URL
-  PREVIEW_LAUNCH_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
+PREVIEW_LAUNCH_DOC: "http://experimenter.info/preview-workflow",  // Assuming this is the correct new URL
+
+// If the Nimbus page URL is needed later, you can keep it commented
+//PREVIEW_LAUNCH_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
+
   RISK_BRAND: "https://experimenter.info/comms-sign-off",
   RISK_MESSAGE:
     "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation",
