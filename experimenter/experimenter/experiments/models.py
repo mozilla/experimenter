@@ -1369,6 +1369,45 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return warnings
 
+    def get_invalid_fields_errors(self):
+        from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
+
+        serializer_data = NimbusReviewSerializer(self).data
+        serializer = NimbusReviewSerializer(self, data=serializer_data)
+
+        if serializer.is_valid():
+            return {}
+        else:
+            errors = serializer.errors
+
+            if "excluded_experiments" in errors:
+                errors["excluded_experiments_branches"] = errors.pop(
+                    "excluded_experiments"
+                )
+
+            if "required_experiments" in errors:
+                errors["required_experiments_branches"] = errors.pop(
+                    "required_experiments"
+                )
+
+            return errors
+
+    @property
+    def get_invalid_pages(self):
+        field_errors = self.get_invalid_fields_errors()
+
+        if not field_errors:
+            return []
+
+        error_fields = field_errors.keys()
+        pages_with_errors = []
+
+        for page, fields in NimbusUIConstants.FIELD_PAGE_MAP.items():
+            if any(field in error_fields for field in fields):
+                pages_with_errors.append(page)
+
+        return pages_with_errors
+
     def clone(self, name, user, rollout_branch_slug=None, changed_on=None):
         # Inline import to prevent circular import
         from experimenter.experiments.changelog_utils import generate_nimbus_changelog
