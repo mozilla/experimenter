@@ -368,6 +368,9 @@ recent-searches:
     enabled:
       type: boolean
       description: "Whether or not to enable recent searches.\n"
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
 remote-tab-management:
   description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
   hasExposure: true
@@ -478,6 +481,9 @@ top-sites-suggestions:
     enabled:
       type: boolean
       description: "Whether or not to enable top sites suggestions.\n"
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
@@ -512,6 +518,9 @@ trending-searches:
     enabled:
       type: boolean
       description: "Whether or not to enable trending searches.\n"
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true
