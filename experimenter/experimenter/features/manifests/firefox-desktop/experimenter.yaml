@@ -363,6 +363,18 @@ urlbar:
         branch: default
         pref: browser.urlbar.quicksuggest.contextualOptIn.thirdReshowAfterPeriodDays
       description: Period until reshow the Firefox Suggest contextual opt-in result when third dismissed.
+    quickSuggestContextualOptInImpressionLimit:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.contextualOptIn.impressionLimit
+      description: Limit for impression to dismiss the Firefox Suggest contextual opt-in result.
+    quickSuggestContextualOptInImpressionDaysLimit:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.contextualOptIn.impressionDaysLimit
+      description: Days until dismiss the Firefox Suggest contextual opt-in result after first impression.
     quickSuggestDataCollectionEnabled:
       type: boolean
       description: Whether data collection should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) data collection, if the user has already toggled that preference.
@@ -4463,3 +4475,15 @@ contextual-password-manager:
         branch: user
         pref: browser.contextual-password-manager.enabled
       description: If true, we will allow user to add the contextual password manager feature to the sidebar.
+
+h1-in-section-styles:
+  description: "H1 in section user agent styles"
+  owner: zcorpan@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: Whether to enable H1 in section UA styles, see https://github.com/whatwg/html/issues/7867.
+      setPref:
+        branch: user
+        pref: layout.css.h1-in-section-ua-styles.enabled
