@@ -590,6 +590,10 @@ features:
         description: "Whether or not to enable recent searches.\n"
         type: Boolean
         default: false
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 4
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:
@@ -700,6 +704,10 @@ features:
         description: "Whether or not to enable top sites suggestions.\n"
         type: Boolean
         default: false
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 4
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -738,6 +746,10 @@ features:
         description: "Whether or not to enable trending searches.\n"
         type: Boolean
         default: false
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 4
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
