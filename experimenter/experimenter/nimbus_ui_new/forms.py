@@ -528,6 +528,7 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     status = None
     status_next = None
     publish_status = None
+    is_paused = None
 
     class Meta:
         model = NimbusExperiment
@@ -538,6 +539,10 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         experiment.status = self.status
         experiment.status_next = self.status_next
         experiment.publish_status = self.publish_status
+
+        if self.is_paused is not None:
+            experiment.is_paused = self.is_paused
+
         experiment.save()
         return experiment
 
@@ -632,29 +637,23 @@ class LiveToEndEnrollmentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} requested review to end enrollment"
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.is_paused = True
-        experiment.save()
-        return experiment
 
 
 class ApproveEndEnrollmentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the end enrollment request"
 
     def save(self, commit=True):
         experiment = super().save(commit=commit)
-        experiment.is_paused = True
-        experiment.save()
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
@@ -665,98 +664,52 @@ class LiveToCompleteForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} requested review to end experiment"
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.is_paused = True
-        experiment.save()
-        return experiment
 
 
 class ApproveEndExperimentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the end experiment request"
 
     def save(self, commit=True):
         experiment = super().save(commit=commit)
-        experiment.is_paused = True
-        experiment.save()
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
         return experiment
 
 
-class CancelEndExperimentForm(UpdateStatusForm):
+class CancelRejectEndForm(UpdateStatusForm):
+    """
+    Single form to handle both cancel and reject actions
+    for end enrollment & end experiment.
+    """
+
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    is_paused = False
 
-    def get_changelog_message(self):
-        return (
-            f"{self.request.user} cancelled the review request for ending the experiment"
-        )
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.is_paused = False
-        experiment.save()
-        return experiment
-
-
-class CancelEndEnrollmentForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.LIVE
-    status_next = None
-    publish_status = NimbusExperiment.PublishStatus.IDLE
-
-    def get_changelog_message(self):
-        return f"{self.request.user} cancelled the review request for ending enrollment"
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.is_paused = False
-        experiment.save()
-        return experiment
-
-
-class RejectEndEnrollmentForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.LIVE
-    status_next = None
-    publish_status = NimbusExperiment.PublishStatus.IDLE
     changelog_message = forms.CharField(
-        required=True, label="Reason for Rejection", max_length=1000
+        required=False, label="Changelog Message", max_length=1000
+    )
+
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
     )
 
     def get_changelog_message(self):
-        return self.cleaned_data["changelog_message"]
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.is_paused = False
-        experiment.save()
-        return experiment
-
-
-class RejectEndExperimentForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.LIVE
-    status_next = None
-    publish_status = NimbusExperiment.PublishStatus.IDLE
-    changelog_message = forms.CharField(
-        required=True, label="Reason for Rejection", max_length=1000
-    )
-
-    def get_changelog_message(self):
-        return self.cleaned_data["changelog_message"]
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.is_paused = False
-        experiment.save()
-        return experiment
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"

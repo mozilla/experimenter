@@ -3538,6 +3538,22 @@ class TestNimbusExperiment(TestCase):
         recipe_json_keys = sorted(json.loads(experiment.recipe_json.replace("\n", "")))
         self.assertEqual(serialized_keys, recipe_json_keys)
 
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE, "launch this experiment"),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE, "end this experiment"),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+                "end enrollment for this experiment",
+            ),
+        ]
+    )
+    def test_remote_settings_pending_message_with_lifecycless(
+        self, lifecycle, expected_message
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        self.assertEqual(experiment.remote_settings_pending_message, expected_message)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):

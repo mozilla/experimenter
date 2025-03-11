@@ -725,16 +725,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.PublishStatus.APPROVED,
             self.PublishStatus.WAITING,
         ) and self.can_review(reviewer)
+
     @property
     def remote_settings_pending_message(self):
-
-        if self.publish_status in (self.PublishStatus.APPROVED, self.PublishStatus.WAITING):
+        if self.publish_status in (
+            self.PublishStatus.APPROVED,
+            self.PublishStatus.WAITING,
+        ):
             if self.status_next == self.Status.COMPLETE:
                 return "end this experiment"
             elif self.is_paused:
                 return "end enrollment for this experiment"
             else:
                 return "launch this experiment"
+
     @property
     def should_show_timeout_message(self):
         return self.changes.latest_timeout()
@@ -1037,7 +1041,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return (
             self.status == self.Status.LIVE
             and self.status_next == self.Status.LIVE
-            and self.is_enrollment_pause_pending  # Enrollment pause is pending but not yet published
+            and self.is_enrollment_pause_pending
         )
 
     @property

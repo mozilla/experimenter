@@ -1,30 +1,35 @@
 {% load nimbus_extras %}
 
-<div id="review-controls" class="alert alert-danger">
-  <p>
-    <strong>{{ message }}</strong>
-  </p>
-  {% if experiment.should_show_timeout_message %}
-    <div class="alert alert-danger">
-      <p>
-        <span role="img" aria-label="red X emoji">❌</span>
-        {{ timeout_message }}
-      </p>
-    </div>
-  {% endif %}
-  <button type="button"
-          class="btn btn-success"
-          hx-post="{% url approval_url slug=experiment.slug %}"
-          hx-select="#content"
-          hx-target="#content"
-          hx-swap="outerHTML">{{ approve_button_text }}</button>
-  <button type="button" class="btn btn-danger" id="reject-button">{{ reject_button_text }}</button>
-  <button type="button"
-          class="btn btn-secondary"
-          hx-post="{% url cancel_url slug=experiment.slug %}"
-          hx-select="#content"
-          hx-target="#content"
-          hx-swap="outerHTML">{{ cancel_button_text }}</button>
+{% if experiment.should_show_timeout_message %}
+  <div class="alert alert-danger">
+    <p>
+      <span role="img" aria-label="red X emoji">❌</span>
+      {{ timeout_message }}
+    </p>
+  </div>
+{% endif %}
+<div id="review-controls">
+  <div class="alert alert-primary">
+    <p>
+      <strong>{{ message }}</strong>
+    </p>
+    <button type="button"
+            class="btn btn-success"
+            hx-post="{% url approval_url slug=experiment.slug %}"
+            hx-select="#content"
+            hx-target="#content"
+            hx-swap="outerHTML">{{ approve_button_text }}</button>
+    <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
+  </div>
+  <div class="alert alert-primary">
+    <button type="button"
+            class="btn btn-secondary"
+            hx-post="{% url cancel_url slug=experiment.slug %}"
+            hx-select="#content"
+            hx-target="#content"
+            hx-swap="outerHTML"
+            hx-vals='{"cancel_message": "{{ cancel_message }}"}'>Cancel Review</button>
+  </div>
 </div>
 <!-- Rejection Form -->
 <div id="reject-form-container" class="d-none alert alert-warning">
@@ -42,6 +47,6 @@
           hx-select="#content"
           hx-target="#content"
           hx-swap="outerHTML"
-          hx-include="#changelog_message">{{ reject_submit_button_text }}</button>
-  <button type="button" class="btn btn-secondary mt-2" id="cancel-reject">{{ reject_cancel_button_text }}</button>
+          hx-include="#changelog_message">Submit Rejection</button>
+  <button type="button" class="btn btn-secondary mt-2" id="cancel-reject">Cancel</button>
 </div>
