@@ -15,14 +15,6 @@ address-autofill-edit:
     status:
       type: boolean
       description: "If true, we will allow user to edit the address"
-app-icon-selection-feature:
-  description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Controls whether users see the setting to customize their app icon in Settings.\n"
 bookmark-refactor-feature:
   description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
   hasExposure: true
@@ -55,22 +47,14 @@ credit-card-autofill:
     credit-card-autofill-status:
       type: boolean
       description: "If true, we will allow user to use the credit autofill feature"
-deeplink-optimization-refactor-feature:
-  description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
+dark-reader-feature:
+  description: "This property defines if we legacy dark theme code or darkreader should be used to toggle dark mode on/off\n"
   hasExposure: true
   exposureDescription: ""
   variables:
-    enabled:
+    status:
       type: boolean
-      description: "Variable description\n"
-download-live-activities-feature:
-  description: "Download Live Activities Feature\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If true, the download live activities feature is enabled\n"
+      description: "If true, we will allow use dark reader on webpages to toggle dark mode"
 felt-privacy-feature:
   description: The feature that enhances private browsing mode
   hasExposure: true
@@ -233,14 +217,14 @@ password-generator-feature:
     enabled:
       type: boolean
       description: "If true, the password generator feature is enabled"
-pdf-refactor-feature:
-  description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
+pull-to-refresh-refactor-feature:
+  description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
   hasExposure: true
   exposureDescription: ""
   variables:
     enabled:
       type: boolean
-      description: "Enables the feature.\n"
+      description: "Enables the feature\n"
 rating-prompt-feature:
   description: "This feature enables the rating prompt so we ask in-app rating to users\n"
   hasExposure: true
@@ -265,14 +249,6 @@ search:
     awesome-bar:
       type: json
       description: Configuring the awesome bar.
-search-engine-consolidation-feature:
-  description: "This feature is for managing the roll out of Search Engine Consolidation support in iOS\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 sent-from-firefox-feature:
   description: "Adds additional promo text to links shared to WhatsApp.\n"
   hasExposure: true
@@ -332,14 +308,6 @@ spotlight-search:
     searchable-content:
       type: string
       description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
-tab-tray-ui-experiments:
-  description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If true, enables the tab tray UI experiments.\n"
 tabTrayFeature:
   description: The tab tray screen that the user goes to when they open the tab tray.
   hasExposure: true
@@ -356,21 +324,15 @@ toolbar-refactor-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
-    layout:
-      type: string
-      description: "The type of layout of the toolbars.\n"
     navigation_hint:
       type: boolean
       description: "If true, enables the navigation contextual hint.\n"
     one_tap_new_tab:
       type: boolean
       description: "If true, enables the one tap new tab feature for users.\n"
-    swiping_tabs:
-      type: boolean
-      description: "Enables swipe gestures to switch between browser tabs.\n"
     unified_search:
       type: boolean
-      description: "Enables the unified search feature.\n"
+      description: "Enables the unified search feature\n"
 tos-feature:
   description: "This feature is for managing the roll out of the ToS (Term of Service) implementation\n"
   hasExposure: true
