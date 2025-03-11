@@ -55,13 +55,6 @@ features:
         description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
         default: true
-  dark-reader-feature:
-    description: "This property defines if we legacy dark theme code or darkreader should be used to toggle dark mode on/off\n"
-    variables:
-      status:
-        description: "If true, we will allow use dark reader on webpages to toggle dark mode"
-        type: Boolean
-        default: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
@@ -858,9 +851,7 @@ enums:
       baseline:
         description: The default layout of the toolbars.
       version1:
-        description: Shows the share and tabs button in the navigation toolbar. The menu button is displayed in the address toolbar.
-      version2:
-        description: Shows the tabs and menu button in the navigation toolbar. The share button is displayed in the address toolbar.
+        description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
 objects:
   AwesomeBar:
     description: "A configuration option for the awesome bar. Part of the `search` feature."
