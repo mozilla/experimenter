@@ -5,6 +5,17 @@ about:
 channels:
   - developer
 features:
+  SetupChecklist:
+    description: A feature on the home page that allows the user to track onboarding setup progress.
+    variables:
+      enabled:
+        description: "If true, the setup checklist will be enabled."
+        type: Boolean
+        default: false
+      setup-checklist-type:
+        description: The collection used for the setup checklist.
+        type: SetupChecklistType
+        default: collection-1
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -921,6 +932,13 @@ enums:
         description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in private mode. 0 for setting to be disabled, and 1 for enabling the setting."
       query-parameter-stripping-strip-list:
         description: An string separated by commas indicating the list of query params to be stripped from URIs. This list will be merged with records coming from RemoteSettings.
+  SetupChecklistType:
+    description: An enum to represent the different experiment branches for the setup checklist.
+    variants:
+      collection-1:
+        description: The collection for the setup checklist that has 3 items.
+      collection-2:
+        description: The collection for the setup checklist that has 6 items.
   SuggestionType:
     description: The type of a Firefox Suggest search suggestion.
     variants:

@@ -3,19 +3,8 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - nightly
+  - release
 features:
-  SetupChecklist:
-    description: A feature on the home page that allows the user to track onboarding setup progress.
-    variables:
-      enabled:
-        description: "If true, the setup checklist will be enabled."
-        type: Boolean
-        default: false
-      setup-checklist-type:
-        description: The collection used for the setup checklist.
-        type: SetupChecklistType
-        default: collection-1
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -44,13 +33,6 @@ features:
         description: "if true, enable new compose based UI"
         type: Boolean
         default: false
-  compose-homepage:
-    description: Turns on compose homepage.
-    variables:
-      enabled:
-        description: "Whether or not to turn on the compose homepage.\n"
-        type: Boolean
-        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -58,9 +40,9 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<CookieBannersSection, Int>"
         default:
-          feature-ui: 1
+          feature-ui: 0
           feature-setting-value: 0
-          feature-setting-value-pbm: 1
+          feature-setting-value-pbm: 0
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
@@ -115,7 +97,7 @@ features:
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -146,14 +128,7 @@ features:
       enabled:
         description: "If true, the feature is active"
         type: Boolean
-        default: false
-  homepage-search-bar:
-    description: Enables the homepage search bar.
-    variables:
-      enabled:
-        description: "Whether or not to enable the homepage search bar.\n"
-        type: Boolean
-        default: false
+        default: true
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -262,13 +237,6 @@ features:
       report-site-issue:
         description: "If true, report site issue menu item and preview is available."
         type: Boolean
-        default: true
-  merino-recommendations:
-    description: Sets the recommendations provider service to Merino.
-    variables:
-      enabled:
-        description: "Whether or not to enable Merino endpoint to serve recommendations.\n"
-        type: Boolean
         default: false
   messaging:
     description: "The in-app messaging system.\n"
@@ -342,29 +310,6 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example-nightly:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-              - RECENTLY_PRINTED
-            style: MICROSURVEY
-            microsurvey-config:
-              utm-content: homepage
-              icon: ic_print
-              answers:
-                - text: likert_scale_option_1
-                  ordering: 0
-                - text: likert_scale_option_2
-                  ordering: 1
-                - text: likert_scale_option_3
-                  ordering: 2
-                - text: likert_scale_option_4
-                  ordering: 3
-                - text: likert_scale_option_5
-                  ordering: 4
-                - text: likert_scale_option_6
-                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -453,7 +398,7 @@ features:
       enabled:
         description: "When the feature is enabled then microsurveys can be used.\n"
         type: Boolean
-        default: false
+        default: true
   mr2022:
     description: Features for MR 2022.
     variables:
@@ -473,7 +418,7 @@ features:
       enabled:
         description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
         type: Boolean
-        default: true
+        default: false
   networking:
     description: Enables networking features
     variables:
@@ -547,13 +492,6 @@ features:
         description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
         type: Int
         default: 0
-  pqcrypto:
-    description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
-    variables:
-      postQuantumKeyExchangeEnabled:
-        description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
-        type: Boolean
-        default: false
   print:
     description: A feature for printing from the share or browser menu.
     variables:
@@ -594,17 +532,6 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
-  recent-searches:
-    description: Enables recent searches.
-    variables:
-      enabled:
-        description: "Whether or not to enable recent searches.\n"
-        type: Boolean
-        default: false
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 4
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:
@@ -631,39 +558,32 @@ features:
         description: The search engine name.
         type: String
         default: ""
-  search-suggestions-on-homepage:
-    description: Enables search suggestions on homepage.
-    variables:
-      enabled:
-        description: "Whether or not to enable search suggestions on homepage.\n"
-        type: Boolean
-        default: false
   search-term-groups:
     description: A feature allowing the grouping of URLs around the search term that it came from.
     variables:
       enabled:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
-        default: true
-  sent-from-firefox:
-    description: A feature that allows the user to add a download firefox footer to a shared link.
+        default: false
+  set-as-default-prompt:
+    description: "Displays native default browser prompt to existing users.\n"
     variables:
-      download-link:
-        description: A store download link.
-        type: Text
-        default: ""
+      app-cold-starts-between-prompts:
+        description: "Minimum number of app cold starts before the next prompt should be displayed to the user.\n"
+        type: Int
+        default: 4
+      days-between-prompts:
+        description: "Minimum number of days between displays of Set as default prompt.\n"
+        type: Int
+        default: 14
       enabled:
-        description: "If true, the feature is available for the user."
+        description: "When the feature is enabled then the Set as default prompt can be triggered for existing users.\n"
         type: Boolean
-        default: false
-      show-snackbar:
-        description: "If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings."
-        type: Boolean
-        default: false
-      template-message:
-        description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
-        type: Text
-        default: ""
+        default: true
+      max-number-of-times-to-display:
+        description: "Maximum number of time the prompt should be displayed.\n"
+        type: Int
+        default: 3
   ship:
     description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:
@@ -692,7 +612,7 @@ features:
       enabled:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
-        default: false
+        default: true
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -708,17 +628,6 @@ features:
         description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
         type: Boolean
         default: true
-  top-sites-suggestions:
-    description: Enables top sites suggestions.
-    variables:
-      enabled:
-        description: "Whether or not to enable top sites suggestions.\n"
-        type: Boolean
-        default: false
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 4
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -750,17 +659,6 @@ features:
         description: "Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.\n"
         type: Boolean
         default: true
-  trending-searches:
-    description: Enables trending searches.
-    variables:
-      enabled:
-        description: "Whether or not to enable trending searches.\n"
-        type: Boolean
-        default: false
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 4
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -866,13 +764,6 @@ enums:
         description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in private mode. 0 for setting to be disabled, and 1 for enabling the setting."
       query-parameter-stripping-strip-list:
         description: An string separated by commas indicating the list of query params to be stripped from URIs. This list will be merged with records coming from RemoteSettings.
-  SetupChecklistType:
-    description: An enum to represent the different experiment branches for the setup checklist.
-    variants:
-      collection-1:
-        description: The collection for the setup checklist that has 3 items.
-      collection-2:
-        description: The collection for the setup checklist that has 6 items.
   SuggestionType:
     description: The type of a Firefox Suggest search suggestion.
     variants:
