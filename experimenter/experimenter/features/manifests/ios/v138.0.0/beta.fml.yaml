@@ -55,13 +55,6 @@ features:
         description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
         default: true
-  dark-reader-feature:
-    description: "This property defines if we legacy dark theme code or darkreader should be used to toggle dark mode on/off\n"
-    variables:
-      status:
-        description: "If true, we will allow use dark reader on webpages to toggle dark mode"
-        type: Boolean
-        default: false
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:

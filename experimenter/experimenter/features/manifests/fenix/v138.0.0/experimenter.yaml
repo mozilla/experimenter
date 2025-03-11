@@ -1,4 +1,18 @@
 ---
+SetupChecklist:
+  description: A feature on the home page that allows the user to track onboarding setup progress.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the setup checklist will be enabled."
+    setup-checklist-type:
+      type: string
+      description: The collection used for the setup checklist.
+      enum:
+        - collection-1
+        - collection-2
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
