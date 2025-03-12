@@ -1392,7 +1392,7 @@ WINDOWS_10_PLUS_WITH_BACKGROUND_TASK_NOTIFICATION = NimbusTargetingConfig(
 )
 
 WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY = NimbusTargetingConfig(
-    name="Windows 10+ users with Firefox running a background task and 1hr+ of inactivity",
+    name="Windows 10+ users with background task notification and 1hr+ of inactivity",
     slug="windows10_background_task_notification_1hr_inactivity",
     description=(
         "Windows 10+ users with 1hr+ of inactivity in the past day "
