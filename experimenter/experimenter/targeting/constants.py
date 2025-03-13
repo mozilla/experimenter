@@ -2001,6 +2001,28 @@ ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+ANDROID_EARLY_APP_LAUNCH_USERS_ONLY = NimbusTargetingConfig(
+    name="Android early app launch users only",
+    slug="android_early_app_launch_users_only",
+    description="Targeting users under or equal 20 app launches since install",
+    targeting="number_of_app_launches <= 20",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_LATER_APP_LAUNCH_USERS_ONLY = NimbusTargetingConfig(
+    name="Android later app launch users only",
+    slug="android_later_app_launch_users_only",
+    description="Targeting users over 20 app launches since install",
+    targeting="number_of_app_launches > 20",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 IOS_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
     name="Review checker enabled users only",
     slug="ios_review_checker_enabled_users_only",
