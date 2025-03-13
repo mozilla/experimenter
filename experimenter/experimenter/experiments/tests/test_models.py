@@ -1830,6 +1830,30 @@ class TestNimbusExperiment(TestCase):
         )  # Check if the last status "Complete" is active
         self.assertEqual(timeline[-1]["date"], experiment.end_date)
 
+    def test_conclusion_recommendation_labels(self):
+        recommendations = list(NimbusConstants.ConclusionRecommendation)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            end_date=datetime.date(2023, 7, 1),
+            conclusion_recommendations=recommendations,
+        )
+
+        expected_labels = [
+            "Rerun",
+            "Graduate",
+            "Change course",
+            "Stop",
+            "Run follow ups",
+            "None",
+        ]
+
+        self.assertEqual(experiment.conclusion_recommendation_labels, expected_labels)
+
+    def test_empty_conclusion_recommendations(self):
+        experiment = NimbusExperimentFactory.create(conclusion_recommendations=[])
+
+        self.assertEqual(experiment.conclusion_recommendation_labels, [])
+
     def test_monitoring_dashboard_url_is_valid_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
