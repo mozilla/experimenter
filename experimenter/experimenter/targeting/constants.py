@@ -2222,6 +2222,25 @@ SEARCH_ROLLOUT_2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
+    name="Ad blockers installed",
+    slug="ad_blockers_installed",
+    description="Users who have installed an adblocker.",
+    targeting="""
+        addonsInfo.addons['uBlock0@raymondhill.net'] != null ||
+        addonsInfo.addons['adblockultimate@adblockultimate.net'] != null ||
+        addonsInfo.addons['firefox@ghostery.com'] != null ||
+        addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack'] != null ||
+        addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null ||
+        addonsInfo.addons['jid1-MnnxcxisBPnSXQ@jetpack'] != null ||
+        addonsInfo.addons['{74145f27-f039-47ce-a470-a662b129930a}'] != null
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EARLY_DAY_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
     name="Early Day Windows 10 1903 User Has Default",
     slug="early_day_win1903_user_has_default",
