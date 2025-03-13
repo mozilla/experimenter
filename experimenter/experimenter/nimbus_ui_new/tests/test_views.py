@@ -1064,14 +1064,28 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertEqual(self.experiment.qa_status, "NOT_SET")
 
     def test_takeaways_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="experiment",
+            start_date=datetime.date(2024, 1, 1),
+            end_date=datetime.date(2024, 2, 3),
+            takeaways_qbr_learning=True,
+            takeaways_metric_gain=True,
+            takeaways_summary="This is a summary.",
+            takeaways_gain_amount="0.5% gain in retention",
+            conclusion_recommendations=[
+                NimbusExperiment.ConclusionRecommendation.RERUN,
+                NimbusExperiment.ConclusionRecommendation.GRADUATE,
+            ],
+        )
         response = self.client.get(
-            reverse("nimbus-new-detail", kwargs={"slug": self.experiment.slug}),
+            reverse("nimbus-new-detail", kwargs={"slug": experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, NimbusExperiment.Takeaways.QBR_LEARNING)
         self.assertContains(response, NimbusExperiment.Takeaways.DAU_GAIN)
-        self.assertContains(response, self.experiment.takeaways_summary)
-        self.assertContains(response, self.experiment.takeaways_gain_amount)
+        self.assertContains(response, experiment.takeaways_summary)
+        self.assertContains(response, experiment.takeaways_gain_amount)
         self.assertContains(
             response, NimbusExperiment.ConclusionRecommendation.GRADUATE.label
         )
