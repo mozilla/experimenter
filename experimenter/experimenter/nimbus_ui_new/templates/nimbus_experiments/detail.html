@@ -26,8 +26,10 @@
   {% include "nimbus_experiments/launch_controls.html" %}
 
   <!-- Takeaways Card -->
-  {% include "nimbus_experiments/takeaways_card.html" %}
+  {% if experiment.is_complete %}
+    {% include "nimbus_experiments/takeaways_card.html" %}
 
+  {% endif %}
   <!-- Overview Card -->
   <div class="card mb-3">
     <div class="card-header">
