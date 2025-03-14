@@ -519,6 +519,13 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
+  rust-keychain-refactor:
+    description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
+    variables:
+      rust-keychain-enabled:
+        description: "Whether the use of the rust keychain logic is enabled for rust components. When enabled, the rust keychain is used to store and retrieve encryption key data for rust components. Otherwise, the pre-existing MZKeychainWrapper logic is used.\n"
+        type: Boolean
+        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
