@@ -696,7 +696,6 @@ class CancelRejectEndForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
-    is_paused = False
 
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
@@ -705,6 +704,16 @@ class CancelRejectEndForm(UpdateStatusForm):
     cancel_message = forms.CharField(
         required=False, label="Cancel Message", max_length=1000
     )
+
+    def __init__(self, *args, experiment=None, **kwargs):
+        data = kwargs.get("data", {})
+        self.experiment = experiment
+        super().__init__(*args, **kwargs)
+        self.action_type = data.get("action_type")
+        if self.action_type == "end_enrollment":
+            self.is_paused = False
+        elif self.action_type == "end_experiment":
+            self.is_paused = experiment.is_paused if experiment else False
 
     def get_changelog_message(self):
         if self.cleaned_data.get("changelog_message"):

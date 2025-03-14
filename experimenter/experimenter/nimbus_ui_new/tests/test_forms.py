@@ -610,7 +610,10 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.save()
 
         form = CancelRejectEndForm(
-            data={"changelog_message": "Enrollment should continue."},
+            data={
+                "changelog_message": "Enrollment should continue.",
+                "action_type": "end_enrollment",
+            },
             instance=self.experiment,
             request=self.request,
         )
@@ -637,7 +640,10 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.save()
 
         form = CancelRejectEndForm(
-            data={"cancel_message": "Cancelled end enrollment request."},
+            data={
+                "cancel_message": "Cancelled end enrollment request.",
+                "action_type": "end_enrollment",
+            },
             instance=self.experiment,
             request=self.request,
         )
@@ -661,7 +667,10 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.save()
 
         form = CancelRejectEndForm(
-            data={"changelog_message": "Experiment should continue."},
+            data={
+                "changelog_message": "Experiment should continue.",
+                "action_type": "end_experiment",
+            },
             instance=self.experiment,
             request=self.request,
         )
@@ -688,7 +697,10 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.save()
 
         form = CancelRejectEndForm(
-            data={"cancel_message": "Cancelled end experiment request."},
+            data={
+                "cancel_message": "Cancelled end experiment request.",
+                "action_type": "end_experiment",
+            },
             instance=self.experiment,
             request=self.request,
         )

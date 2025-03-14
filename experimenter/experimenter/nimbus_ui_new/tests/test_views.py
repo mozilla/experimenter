@@ -1596,7 +1596,10 @@ class TestLaunchViews(AuthTestCase):
             reverse(
                 "nimbus-new-cancel-reject-end", kwargs={"slug": self.experiment.slug}
             ),
-            data={"changelog_message": "Enrollment should continue."},
+            data={
+                "changelog_message": "Enrollment should continue.",
+                "action_type": "end_enrollment",
+            },
         )
         self.assertEqual(response.status_code, 200)
         self.experiment.refresh_from_db()
@@ -1625,7 +1628,10 @@ class TestLaunchViews(AuthTestCase):
             reverse(
                 "nimbus-new-cancel-reject-end", kwargs={"slug": self.experiment.slug}
             ),
-            data={"cancel_message": "Cancelled end enrollment request."},
+            data={
+                "cancel_message": "Cancelled end enrollment request.",
+                "action_type": "end_enrollment",
+            },
         )
         self.assertEqual(response.status_code, 200)
         self.experiment.refresh_from_db()
@@ -1651,7 +1657,10 @@ class TestLaunchViews(AuthTestCase):
             reverse(
                 "nimbus-new-cancel-reject-end", kwargs={"slug": self.experiment.slug}
             ),
-            data={"changelog_message": "Experiment should continue."},
+            data={
+                "changelog_message": "Experiment should continue.",
+                "action_type": "end_experiment",
+            },
         )
         self.assertEqual(response.status_code, 200)
         self.experiment.refresh_from_db()
@@ -1680,7 +1689,10 @@ class TestLaunchViews(AuthTestCase):
             reverse(
                 "nimbus-new-cancel-reject-end", kwargs={"slug": self.experiment.slug}
             ),
-            data={"cancel_message": "Cancelled end experiment request."},
+            data={
+                "cancel_message": "Cancelled end experiment request.",
+                "action_type": "end_experiment",
+            },
         )
         self.assertEqual(response.status_code, 200)
         self.experiment.refresh_from_db()

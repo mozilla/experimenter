@@ -3540,11 +3540,17 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE, "launch this experiment"),
-            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE, "end this experiment"),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+            ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
-                "end enrollment for this experiment",
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
             ),
         ]
     )
@@ -3553,6 +3559,27 @@ class TestNimbusExperiment(TestCase):
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         self.assertEqual(experiment.remote_settings_pending_message, expected_message)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
+            ),
+        ]
+    )
+    def test_review_messages_and_action_type(self, lifecycle, expected_message):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        self.assertEqual(experiment.review_messages(), expected_message)
+        self.assertEqual(experiment.review_request_action_type, expected_message)
 
 
 class TestNimbusBranch(TestCase):
@@ -3726,6 +3753,17 @@ class TestNimbusChangeLogManager(TestCase):
         change = generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertEqual(experiment.changes.latest_review_request(), change)
+
+    def test_latest_review_request_returns_email_change_for_idle_to_review(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
+        self.assertEqual(experiment.latest_review_requested_by, experiment.owner.email)
 
     def test_latest_review_request_returns_change_for_dirty_to_review(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

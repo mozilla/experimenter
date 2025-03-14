@@ -726,18 +726,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.PublishStatus.WAITING,
         ) and self.can_review(reviewer)
 
+    def review_messages(self):
+        if self.status_next == self.Status.COMPLETE:
+            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"]
+        elif self.is_paused:
+            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"]
+        else:
+            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"]
+
     @property
     def remote_settings_pending_message(self):
         if self.publish_status in (
             self.PublishStatus.APPROVED,
             self.PublishStatus.WAITING,
         ):
-            if self.status_next == self.Status.COMPLETE:
-                return "end this experiment"
-            elif self.is_paused:
-                return "end enrollment for this experiment"
-            else:
-                return "launch this experiment"
+            return self.review_messages()
+
+    @property
+    def review_request_action_type(self):
+        return self.review_messages()
 
     @property
     def should_show_timeout_message(self):
@@ -745,13 +752,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def should_show_end_enrollment(self):
-        return (
-            self.status == self.Status.LIVE
-            and self.publish_status
-            not in [self.PublishStatus.APPROVED, self.PublishStatus.REVIEW]
-            and not self.is_paused
-            and not self.is_rollout
-        )
+        return self.is_enrollment
 
     @property
     def should_show_end_experiment(self):
@@ -768,6 +769,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             and self.status_next == self.Status.COMPLETE
             and self.publish_status == self.PublishStatus.REVIEW
         )
+
+    @property
+    def latest_review_requested_by(self):
+        review_request = self.changes.latest_review_request()
+        if review_request:
+            return review_request.changed_by.email
 
     @property
     def draft_date(self):
