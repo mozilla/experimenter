@@ -19,13 +19,6 @@ features:
         description: "If true, we will allow user to edit the address"
         type: Boolean
         default: false
-  app-icon-selection-feature:
-    description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
-    variables:
-      enabled:
-        description: "Controls whether users see the setting to customize their app icon in Settings.\n"
-        type: Boolean
-        default: false
   bookmark-refactor-feature:
     description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
     variables:
@@ -55,18 +48,11 @@ features:
         description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
         default: true
-  deeplink-optimization-refactor-feature:
-    description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
+  dark-reader-feature:
+    description: "This property defines if we legacy dark theme code or darkreader should be used to toggle dark mode on/off\n"
     variables:
-      enabled:
-        description: "Variable description\n"
-        type: Boolean
-        default: false
-  download-live-activities-feature:
-    description: "Download Live Activities Feature\n"
-    variables:
-      enabled:
-        description: "If true, the download live activities feature is enabled\n"
+      status:
+        description: "If true, we will allow use dark reader on webpages to toggle dark mode"
         type: Boolean
         default: false
   felt-privacy-feature:
@@ -470,11 +456,11 @@ features:
         description: "If true, the password generator feature is enabled"
         type: Boolean
         default: false
-  pdf-refactor-feature:
-    description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
+  pull-to-refresh-refactor-feature:
+    description: "The Feature flag to manage the roll out of the new pull to refresh feature.\n"
     variables:
       enabled:
-        description: "Enables the feature.\n"
+        description: "Enables the feature\n"
         type: Boolean
         default: false
   rating-prompt-feature:
@@ -491,13 +477,6 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-  rust-keychain-refactor:
-    description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
-    variables:
-      rust-keychain-enabled:
-        description: "Whether the use of the rust keychain logic is enabled for rust components. When enabled, the rust keychain is used to store and retrieve encryption key data for rust components. Otherwise, the pre-existing MZKeychainWrapper logic is used.\n"
-        type: Boolean
-        default: false
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -512,13 +491,6 @@ features:
             is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
-  search-engine-consolidation-feature:
-    description: "This feature is for managing the roll out of Search Engine Consolidation support in iOS\n"
-    variables:
-      enabled:
-        description: "Enables the feature\n"
-        type: Boolean
-        default: false
   sent-from-firefox-feature:
     description: "Adds additional promo text to links shared to WhatsApp.\n"
     variables:
@@ -597,13 +569,6 @@ features:
         description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
         type: Option<PageContent>
         default: text-excerpt
-  tab-tray-ui-experiments:
-    description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
-    variables:
-      enabled:
-        description: "If true, enables the tab tray UI experiments.\n"
-        type: Boolean
-        default: false
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -619,10 +584,6 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-      layout:
-        description: "The type of layout of the toolbars.\n"
-        type: Option<ToolbarLayoutType>
-        default: baseline
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
@@ -631,12 +592,8 @@ features:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
         default: false
-      swiping_tabs:
-        description: "Enables swipe gestures to switch between browser tabs.\n"
-        type: Boolean
-        default: false
       unified_search:
-        description: "Enables the unified search feature.\n"
+        description: "Enables the unified search feature\n"
         type: Boolean
         default: false
   tos-feature:
@@ -831,13 +788,6 @@ enums:
     variants:
       inactive-tabs:
         description: Tabs that have been automatically closed for the user.
-  ToolbarLayoutType:
-    description: The type of toolbar layout.
-    variants:
-      baseline:
-        description: The default layout of the toolbars.
-      version1:
-        description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
 objects:
   AwesomeBar:
     description: "A configuration option for the awesome bar. Part of the `search` feature."
