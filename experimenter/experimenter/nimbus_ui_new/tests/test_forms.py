@@ -29,6 +29,7 @@ from experimenter.nimbus_ui_new.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     MetricsForm,
+    NimbusExperimentCloneForm,
     NimbusExperimentCreateForm,
     OverviewForm,
     PreviewToDraftForm,
@@ -40,7 +41,9 @@ from experimenter.nimbus_ui_new.forms import (
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
+    ToggleArchiveForm,
     UnsubscribeForm,
+    UpdateCloneSlugForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -115,6 +118,153 @@ class TestNimbusExperimentCreateForm(RequestFormTestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(
             form.errors["hypothesis"], [NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER]
+        )
+
+
+class TestNimbusExperimentCloneForm(RequestFormTestCase):
+    def test_valid_clone_form_creates_experiment(self):
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "Cloned Experiment",
+            "slug": "cloned-experiment",
+        }
+        form = NimbusExperimentCloneForm(
+            data, parent_slug=parent_experiment.slug, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+
+        cloned_experiment = form.save()
+
+        self.assertEqual(cloned_experiment.owner, self.user)
+        self.assertEqual(cloned_experiment.name, "Cloned Experiment")
+        self.assertEqual(cloned_experiment.slug, "cloned-experiment")
+        self.assertEqual(
+            cloned_experiment.application, NimbusExperiment.Application.DESKTOP
+        )
+
+        changelog_message = form.get_changelog_message()
+        self.assertEqual(changelog_message, f"{self.user} cloned Original Experiment")
+
+    def test_invalid_unsluggable_name(self):
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "$.",
+            "slug": "",
+        }
+        form = NimbusExperimentCloneForm(
+            data, parent_slug=parent_experiment.slug, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_NAME_INVALID])
+
+    def test_invalid_duplicate_slug(self):
+        NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Cloned Experiment",
+            slug="cloned-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "Cloned Experiment.",
+            "slug": "cloned-experiment",
+        }
+        form = NimbusExperimentCloneForm(
+            data, parent_slug=parent_experiment.slug, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["name"], [NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG]
+        )
+
+
+class TestUpdateCloneSlugForm(RequestFormTestCase):
+    def test_form_update_slug(self):
+        experiment = NimbusExperimentFactory.create(
+            name="Test Experiment",
+            slug="test-experiment",
+        )
+
+        data = {
+            "slug": "updated-experiment-slug",
+        }
+
+        form = UpdateCloneSlugForm(data, instance=experiment)
+
+        self.assertTrue(form.is_valid())
+
+
+class TestToggleArchiveForm(RequestFormTestCase):
+    def test_toggle_archive(self):
+        experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Test Experiment",
+            slug="test-experiment",
+            is_archived=False,
+        )
+
+        data = {
+            "owner": self.user,
+        }
+
+        form = ToggleArchiveForm(data, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid())
+
+        updated_experiment = form.save()
+
+        self.assertTrue(updated_experiment.is_archived)
+
+        changelog_message = form.get_changelog_message()
+
+        self.assertEqual(
+            changelog_message, f"{self.user} set the Is Archived Flag to True"
+        )
+
+    def test_toggle_unarchive(self):
+        experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Test Experiment",
+            slug="test-experiment",
+            is_archived=True,
+        )
+
+        data = {
+            "owner": self.user,
+        }
+
+        form = ToggleArchiveForm(data, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid())
+
+        updated_experiment = form.save()
+
+        self.assertFalse(updated_experiment.is_archived)
+
+        changelog_message = form.get_changelog_message()
+
+        self.assertEqual(
+            changelog_message, f"{self.user} set the Is Archived Flag to False"
         )
 
 

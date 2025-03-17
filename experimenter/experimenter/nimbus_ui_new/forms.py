@@ -106,6 +106,89 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return cleaned_data
 
 
+class NimbusExperimentCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    owner = forms.ModelChoiceField(
+        User.objects.all(),
+        widget=forms.widgets.HiddenInput(),
+    )
+    name = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    slug = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "owner",
+            "name",
+            "slug",
+        ]
+
+    def __init__(self, *args, parent_slug=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parent_slug = parent_slug
+        self.initial["name"] = self.instance.name + " Copy"
+        self.initial["slug"] = slugify(self.instance.name + " Copy")
+
+    def get_changelog_message(self):
+        parent_experiment = NimbusExperiment.objects.get(slug=self.parent_slug)
+        return f"{self.request.user} cloned {parent_experiment.name}"
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if NimbusExperiment.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG
+            )
+        return name
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if "name" in cleaned_data:
+            cleaned_data["slug"] = slugify(cleaned_data["name"])
+        return cleaned_data
+
+    def save(self):
+        parent_experiment = NimbusExperiment.objects.get(slug=self.parent_slug)
+        clone = parent_experiment.clone(
+            self.cleaned_data["name"], self.cleaned_data["owner"]
+        )
+
+        return clone
+
+
+class UpdateCloneSlugForm(forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+
+class ToggleArchiveForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    owner = forms.ModelChoiceField(
+        User.objects.all(),
+        widget=forms.widgets.HiddenInput(),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["owner"]
+
+    def save(self):
+        self.instance.is_archived = not self.instance.is_archived
+        super().save()
+        return self.instance
+
+    def get_changelog_message(self):
+        return (
+            f"{self.request.user} set the Is Archived Flag to {self.instance.is_archived}"
+        )
+
+
 class QAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     class Meta:
         model = NimbusExperiment

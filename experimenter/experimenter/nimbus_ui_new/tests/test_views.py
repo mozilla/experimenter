@@ -1209,6 +1209,96 @@ class TestNimbusExperimentsCreateView(AuthTestCase):
         self.assertEqual(experiment.owner, self.user)
 
 
+class TestNimbusExperimentsCloneView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperimentFactory.create(
+            slug="test-experiment",
+            application="firefox-desktop",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+        )
+
+    def test_post_clones_experiment(self):
+        response = self.client.post(
+            reverse("nimbus-new-clone", kwargs={"slug": self.experiment.slug}),
+            {"owner": self.user, "name": "Test Experiment Copy"},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment = NimbusExperiment.objects.get(slug="test-experiment-copy")
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(experiment.owner, self.user)
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_120
+        )
+    
+    def test_post_passes_experiment(self):
+        response = self.client.post(
+            reverse("nimbus-new-clone", kwargs={"slug": self.experiment.slug}),
+            {"owner": self.user, "name": "Test Experiment"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context['experiment'], self.experiment)
+
+
+class TestUpdateCloneSlugView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperimentFactory.create(
+            slug="test-experiment",
+            name="Test Experiment",
+        )
+
+    def test_post_updates_slug(self):
+        response = self.client.post(
+            reverse(
+                "nimbus-new-update-clone-slug", kwargs={"slug": self.experiment.slug}
+            ),
+            {"name": "Test Experiment Clone"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context["slug"], "test-experiment-clone")
+
+
+class TestToggleArchiveView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperiment.objects.create(
+            slug="test-experiment",
+            name="Test Experiment",
+            owner=self.user,
+            is_archived=False,
+        )
+
+    def test_toggle_archive_status_to_archive(self):
+        response = self.client.post(
+            reverse("nimbus-new-toggle-archive", kwargs={"slug": self.experiment.slug}),
+            {"owner": self.user},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
+        self.assertTrue(updated_experiment.is_archived)
+
+    def test_toggle_archive_status_to_unarchive(self):
+        self.experiment.is_archived = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-toggle-archive", kwargs={"slug": self.experiment.slug}),
+            {"owner": self.user},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
+        self.assertFalse(updated_experiment.is_archived)
+
+
 class TestOverviewUpdateView(AuthTestCase):
     def test_get_renders_page(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
