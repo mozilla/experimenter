@@ -245,6 +245,7 @@
     "userFacingDescription",
     "isEnrollmentPaused",
     "bucketConfig",
+    "featureIds",
     "startDate",
     "endDate",
     "proposedEnrollment",
