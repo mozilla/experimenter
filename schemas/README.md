@@ -56,7 +56,9 @@ Defines the schemas used for validating the Experimenter v6 API. Previously defi
 The build and deployment occurs automatically through CI. A deployment is triggered on merges into the `main` branch when the version number changes. Schemas are published to various repos for access in different languages.
 
 ### Versioning
-`mozilla-nimbus-schemas` uses a date-based versioning scheme (`CalVer`). The format is `yyyy.m.MINOR`, where `m` is the non-zero-padded month, and `MINOR` is an incrementing number starting from 1 for each month. Notably, this `MINOR` number does NOT correspond to the day of the month. For example, the second release in June of 2023 would have a version of `2023.6.2`.
+`mozilla-nimbus-schemas` uses semantic versioning (`semver`) of `major.minor.patch`. Previously, we
+used a date-based versioning scheme (`CalVer`), which is why the version is so high (3000+). Any
+breaking changes should result in an increase in the major version.
 
 #### Version Updates
 1. To update the published package versions, update the `VERSION` file in this directory.
