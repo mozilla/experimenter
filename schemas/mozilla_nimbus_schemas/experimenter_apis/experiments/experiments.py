@@ -5,10 +5,10 @@ from pydantic.json_schema import SkipJsonSchema
 from typing_extensions import Self
 
 from mozilla_nimbus_schemas.experimenter_apis.common import (
+    BaseExperiment,
     BaseExperimentBranch,
     ExperimentFeatureConfig,
     ExperimentLocalizations,
-    _CommonBaseExperiment,
 )
 
 
@@ -54,14 +54,6 @@ class DesktopAllVersionsExperimentBranch(DesktopExperimentBranch):
     )
 
 
-class BaseExperiment(_CommonBaseExperiment):
-    """The base experiment definition accessible to:
-
-    1. The Nimbus SDK via Remote Settings
-    2. Jetstream via the Experimenter API
-    """
-
-
 class DesktopNimbusExperiment(BaseExperiment):
     """A Nimbus experiment for Firefox Desktop.
 
@@ -77,30 +69,42 @@ class DesktopNimbusExperiment(BaseExperiment):
     )
 
     isFirefoxLabsOptIn: bool = Field(
-        description="When this property is set to true, treat this experiment as a \
-            Firefox Labs experiment",
+        description=(
+            "When this property is set to true, treat this experiment as a"
+            "Firefox Labs experiment"
+        ),
         default=None,
     )
     firefoxLabsGroup: str | None = Field(
-        description="The group this should appear under in Firefox Labs", default=None
+        description="The group this should appear under in Firefox Labs",
+        default=None,
     )
     firefoxLabsTitle: str | None = Field(
-        description="The title shown in Firefox Labs (Fluent ID)", default=None
+        description="The title shown in Firefox Labs (Fluent ID)",
+        default=None,
     )
     firefoxLabsDescription: str | None = Field(
-        description="The description shown in Firefox Labs (Fluent ID)", default=None
+        description="The description shown in Firefox Labs (Fluent ID)",
+        default=None,
     )
     firefoxLabsDescriptionLinks: dict[str, HttpUrl] | None = Field(
-        description="Links that will be used with the Firefox Labs \
-            description Fluent ID. May be null for Firefox Labs Opt-In recipes \
-                that do not use links.",
+        description=(
+            "Links that will be used with the firefoxLabsDescription Fluent ID. May be "
+            "null for Firefox Labs Opt-In recipes that do not use links."
+        ),
         default=None,
     )
     featureValidationOptOut: bool | SkipJsonSchema[None] = Field(
-        description="Opt out of feature schema validation.", default=None
+        description="Opt out of feature schema validation.",
+        default=None,
     )
     requiresRestart: bool | SkipJsonSchema[None] = Field(
-        description="Does the experiment require a restart to take effect?", default=False
+        description=(
+            "Does the experiment require a restart to take effect?\n"
+            "\n"
+            "Only used by Firefox Labs Opt-Ins."
+        ),
+        default=False,
     )
     localizations: ExperimentLocalizations | None = Field(default=None)
 
@@ -110,23 +114,28 @@ class DesktopNimbusExperiment(BaseExperiment):
         if data.isFirefoxLabsOptIn:
             if data.firefoxLabsTitle is None:
                 raise ValueError(
-                    "missing field firefoxLabsTitle (required for Firefox Labs)"
+                    "missing field firefoxLabsTitle (required because isFirefoxLabsOptIn "
+                    "is True)"
                 )
             if data.firefoxLabsDescription is None:
                 raise ValueError(
-                    "missing field firefoxLabsDescription (required for Firefox Labs)"
+                    "missing field firefoxLabsDescription (required because "
+                    "isFirefoxLabsOptIn is True)"
                 )
             if data.firefoxLabsGroup is None:
                 raise ValueError(
-                    "missing field firefoxLabsGroup (required for Firefox Labs)"
+                    "missing field firefoxLabsGroup (required because isFirefoxLabsOptIn "
+                    "is True)"
                 )
             if not data.isRollout:
                 for branch in data.branches:
                     if branch.firefoxLabsTitle is None:
                         raise ValueError(
-                            f"branch with slug {branch.slug} is missing \
-                                firefoxLabsTitle (required for Firefox Labs)"
+                            f"branch with slug {branch.slug} is missing "
+                            "firefoxLabsTitle field "
+                            "(required because firefoxLabsTitle is True)"
                         )
+
         return data
 
     model_config = ConfigDict(
