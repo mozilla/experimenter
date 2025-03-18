@@ -115,7 +115,7 @@ features:
       enabled:
         description: "If true, enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
