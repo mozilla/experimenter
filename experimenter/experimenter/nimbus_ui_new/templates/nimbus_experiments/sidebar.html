@@ -64,7 +64,8 @@
         <form id="cloneForm"
               hx-post="{% url 'nimbus-new-clone' experiment.slug %}"
               hx-target="#cloneForm">
-          {% include "nimbus_experiments/clone.html" with form=clone_form experiment=experiment %}
+              {% csrf_token %}
+          {% include "nimbus_experiments/clone.html" with form=clone_form experiment=experiment form_id_prefix="clone" %}
 
         </form>
       </div>

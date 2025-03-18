@@ -6,40 +6,44 @@
 <div class="form-group mb-3">
   <div class="row">
     <div class="col">
-      <label for="name" class="mb-1">Public Name</label>
+      <label for="{{ form_id_prefix }}-name" class="mb-1">Public Name</label>
     </div>
   </div>
   <div class="row">
     <div class="col">
       {% csrf_token %}
       <input type="text"
-             id="name"
+             id="{{ form_id_prefix }}-name"
              name="name"
              value="{{ form.name.value }}"
              class="form-control {% if form.name.errors %}is-invalid{% endif %}"
              hx-post="{% url 'nimbus-new-update-clone-slug' experiment.slug %}"
              hx-trigger="load, input"
-             hx-target="#slug" />
-      {% for error in form.name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+             hx-target="#{{ form_id_prefix }}-slug"
+             />
+      {% for error in form.name.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
     </div>
   </div>
   <p class="form-text text-muted">This name will be public to users in about:studies.</p>
 </div>
+
 <div class="form-group mb-4">
   <div class="row">
     <div class="col">
-      <label for="slug" class="mb-1">Slug</label>
+      <label for="{{ form_id_prefix }}-slug" class="mb-1">Slug</label>
     </div>
   </div>
   <div class="row">
-    <div class="col" id="slug">
+    <div class="col" id="{{ form_id_prefix }}-slug">
       {% csrf_token %}
       {% include 'nimbus_experiments/clone_slug_field.html' with form=form experiment=experiment %}
-
     </div>
   </div>
   <p class="form-text text-muted">This is a unique identifier based on the public name.</p>
 </div>
+
 <div class="d-flex justify-content-end">
   <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
   <button type="submit" class="btn btn-primary">

@@ -26,6 +26,7 @@ from experimenter.nimbus_ui_new.forms import (
     MetricsForm,
     NimbusExperimentCloneForm,
     NimbusExperimentCreateForm,
+    NimbusExperimentPromoteToRolloutForm,
     OverviewForm,
     PreviewToDraftForm,
     PreviewToReviewForm,
@@ -38,7 +39,6 @@ from experimenter.nimbus_ui_new.forms import (
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
-    UpdateCloneSlugForm,
 )
 
 
@@ -79,7 +79,7 @@ class NimbusExperimentViewMixin:
     context_object_name = "experiment"
 
 
-class CloneExperimentViewMixin:
+class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["clone_form"] = NimbusExperimentCloneForm(instance=self.object)
@@ -87,7 +87,7 @@ class CloneExperimentViewMixin:
 
 
 class NimbusChangeLogsView(
-    NimbusExperimentViewMixin, CloneExperimentViewMixin, DetailView
+    NimbusExperimentViewMixin, CloneExperimentFormMixin, DetailView
 ):
     template_name = "changelog/overview.html"
 
@@ -185,7 +185,7 @@ def build_experiment_context(experiment):
 
 
 class NimbusExperimentDetailView(
-    NimbusExperimentViewMixin, CloneExperimentViewMixin, UpdateView
+    NimbusExperimentViewMixin, CloneExperimentFormMixin, UpdateView
 ):
     template_name = "nimbus_experiments/detail.html"
     fields = []
@@ -194,6 +194,7 @@ class NimbusExperimentDetailView(
         context = super().get_context_data(**kwargs)
         experiment_context = build_experiment_context(self.object)
         context.update(experiment_context)
+        context["promote_to_rollout_forms"] = NimbusExperimentPromoteToRolloutForm(instance=self.object)
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
         if context["qa_edit_mode"]:
@@ -266,16 +267,14 @@ class NimbusExperimentsCreateView(
             )
         return response
 
-
-class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, CreateView):
-    form_class = NimbusExperimentCloneForm
-    template_name = "nimbus_experiments/clone.html"
-
+    
+class NimbusExperimentsCloneMixin:
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["data"] = kwargs["data"].copy()
         kwargs["data"]["owner"] = self.request.user
         kwargs["parent_slug"] = self.kwargs.get("slug")
+        kwargs["branch_slug"] = self.kwargs.get("branch")
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -291,18 +290,26 @@ class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, Cr
                 "nimbus-new-detail", kwargs={"slug": self.object.slug}
             )
         return response
+    
+
+class NimbusExperimentsCloneView(NimbusExperimentsCloneMixin, NimbusExperimentViewMixin, RequestFormMixin, CreateView):
+    form_class = NimbusExperimentCloneForm
+    template_name = "nimbus_experiments/clone.html"
+
+
+class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneMixin, NimbusExperimentViewMixin, RequestFormMixin, CreateView):
+    form_class = NimbusExperimentPromoteToRolloutForm
+    template_name = "nimbus_experiments/clone.html"
 
 
 class UpdateCloneSlugView(NimbusExperimentViewMixin, RenderResponseMixin, UpdateView):
-    form_class = UpdateCloneSlugForm
     template_name = "nimbus_experiments/clone_slug_field.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    
+    def post(self, request, *args, **kwargs):
         name = self.request.POST.get("name", "")
         slug = slugify(name)
-        context["slug"] = slug
-        return context
+        return self.render_to_response({"slug": slug})
 
 
 class ToggleArchiveView(
@@ -326,7 +333,7 @@ class OverviewUpdateView(
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
-    CloneExperimentViewMixin,
+    CloneExperimentFormMixin,
     UpdateView,
 ):
     form_class = OverviewForm
@@ -345,7 +352,7 @@ class MetricsUpdateView(
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
-    CloneExperimentViewMixin,
+    CloneExperimentFormMixin,
     UpdateView,
 ):
     form_class = MetricsForm
@@ -358,7 +365,7 @@ class AudienceUpdateView(
     RequestFormMixin,
    
     RenderResponseMixin,
-    CloneExperimentViewMixin,
+    CloneExperimentFormMixin,
    
     ValidationErrorsMixin,
     UpdateView,,

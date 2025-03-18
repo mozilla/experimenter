@@ -12,6 +12,7 @@ from experimenter.nimbus_ui_new.views import (
     NimbusExperimentsCloneView,
     NimbusExperimentsCreateView,
     NimbusExperimentsListTableView,
+    NimbusExperimentsPromoteToRolloutView,
     OverviewUpdateView,
     PreviewToDraftView,
     PreviewToReviewView,
@@ -92,6 +93,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/clone/$",
         NimbusExperimentsCloneView.as_view(),
         name="nimbus-new-clone",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/promote_to_rollout/(?:(?P<branch>[\w-]+)/)?$",
+        NimbusExperimentsPromoteToRolloutView.as_view(),
+        name="nimbus-new-promote-to-rollout",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/update_clone_slug/$",

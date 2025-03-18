@@ -200,22 +200,6 @@ class TestNimbusExperimentCloneForm(RequestFormTestCase):
         )
 
 
-class TestUpdateCloneSlugForm(RequestFormTestCase):
-    def test_form_update_slug(self):
-        experiment = NimbusExperimentFactory.create(
-            name="Test Experiment",
-            slug="test-experiment",
-        )
-
-        data = {
-            "slug": "updated-experiment-slug",
-        }
-
-        form = UpdateCloneSlugForm(data, instance=experiment)
-
-        self.assertTrue(form.is_valid())
-
-
 class TestToggleArchiveForm(RequestFormTestCase):
     def test_toggle_archive(self):
         experiment = NimbusExperiment.objects.create(
