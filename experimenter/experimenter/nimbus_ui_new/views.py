@@ -47,19 +47,14 @@ class RequestFormMixin:
 
 class ValidationErrorsMixin:
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
         show_errors = self.request.GET.get("show_errors", "") == "true"
         field_errors = self.get_object().get_invalid_fields_errors()
 
         validation_errors = {}
-
         if show_errors:
             validation_errors = field_errors
 
-        context["validation_errors"] = validation_errors
-
-        return context
+        return super().get_context_data(validation_errors=validation_errors, **kwargs)
 
 
 class RenderResponseMixin:
