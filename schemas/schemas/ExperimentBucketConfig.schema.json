@@ -1,7 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "title": "ExperimentBucketConfig",
-  "description": "Common Bucketing Configuration used across all versions.",
   "type": "object",
   "properties": {
     "randomizationUnit": {
@@ -20,7 +19,7 @@
       "type": "integer"
     },
     "total": {
-      "description": "The total number of buckets. You can assume             this will always be 10000.",
+      "description": "The total number of buckets. You can assume this will always be 10000.",
       "type": "integer"
     }
   },

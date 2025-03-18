@@ -1,13 +1,13 @@
 from pydantic import Field
 
 from mozilla_nimbus_schemas.experimenter_apis.common import (
+    BaseExperiment,
     BaseExperimentBranch,
     ExperimentLocalizations,
-    _CommonBaseExperiment,
 )
 
 
-class NimbusExperimentV7(_CommonBaseExperiment):
+class NimbusExperimentV7(BaseExperiment):
     """A Nimbus experiment for V7."""
 
     localizations: ExperimentLocalizations | None = Field(
