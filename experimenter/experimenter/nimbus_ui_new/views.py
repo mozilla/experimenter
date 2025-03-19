@@ -361,14 +361,11 @@ class MetricsUpdateView(
 
 class AudienceUpdateView(
     NimbusExperimentViewMixin,
-   
     RequestFormMixin,
-   
     RenderResponseMixin,
     CloneExperimentFormMixin,
-   
     ValidationErrorsMixin,
-    UpdateView,,
+    UpdateView,
 ):
     form_class = AudienceForm
     template_name = "nimbus_experiments/edit_audience.html"
