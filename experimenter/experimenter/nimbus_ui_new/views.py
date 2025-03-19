@@ -45,6 +45,18 @@ class RequestFormMixin:
         return kwargs
 
 
+class ValidationErrorsMixin:
+    def get_context_data(self, **kwargs):
+        show_errors = self.request.GET.get("show_errors", "") == "true"
+        field_errors = self.get_object().get_invalid_fields_errors()
+
+        validation_errors = {}
+        if show_errors:
+            validation_errors = field_errors
+
+        return super().get_context_data(validation_errors=validation_errors, **kwargs)
+
+
 class RenderResponseMixin:
     def form_valid(self, form):
         super().form_valid(form)
@@ -241,7 +253,11 @@ class NimbusExperimentsCreateView(
 
 
 class OverviewUpdateView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    ValidationErrorsMixin,
+    UpdateView,
 ):
     form_class = OverviewForm
     template_name = "nimbus_experiments/edit_overview.html"
@@ -263,7 +279,11 @@ class MetricsUpdateView(
 
 
 class AudienceUpdateView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    ValidationErrorsMixin,
+    UpdateView,
 ):
     form_class = AudienceForm
     template_name = "nimbus_experiments/edit_audience.html"

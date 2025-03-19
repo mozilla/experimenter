@@ -9,13 +9,12 @@
 
 {% block main_content %}
   <form id="metrics-form"
-        {% if form.is_bound %}class="was-validated"{% endif %}
-        hx-post="{% url 'nimbus-new-update-overview' experiment.slug %}"
+        {% if form.is_bound and form.is_valid %}class="was-validated"{% endif %}
+        hx-post="{% url 'nimbus-new-update-overview' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
         hx-select="#metrics-form"
         hx-target="#metrics-form"
         hx-swap="outerHTML">
     {% csrf_token %}
-    {{ form.errors }}
     <div class="card mb-3">
       <div class="card-header">
         <h4>Overview</h4>
@@ -24,14 +23,18 @@
         <div class="row mb-3">
           <div class="col">
             <label for="id_name" class="form-label">Public Name</label>
-            {{ form.name }}
+            {{ form.name|add_class:"form-control"|add_error_class:"is-invalid" }}
+            {% for error in form.name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.name %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             <p class="form-text">This name will be public to users in about:studies.</p>
           </div>
         </div>
         <div class="row mb-3">
           <div class="col">
             <label for="id_hypothesis" class="form-label">Hypothesis</label>
-            {{ form.hypothesis }}
+            {{ form.hypothesis|add_class:"form-control"|add_error_class:"is-invalid" }}
+            {% for error in form.hypothesis.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.hypothesis %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             <p class="form-text">You can add any supporting documents here.</p>
           </div>
         </div>
@@ -45,7 +48,11 @@
               </a>
             </label>
           </div>
-          <div class="col-2 text-end">{{ form.risk_brand }}</div>
+          <div class="col-2 text-end">
+            {{ form.risk_brand|add_error_class:"is-invalid" }}
+            {% for error in form.risk_brand.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.risk_brand %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+          </div>
         </div>
         <div class="row mb-3">
           <div class="col-10">
@@ -57,7 +64,11 @@
               </a>
             </label>
           </div>
-          <div class="col-2 text-end">{{ form.risk_message }}</div>
+          <div class="col-2 text-end">
+            {{ form.risk_message|add_error_class:"is-invalid" }}
+            {% for error in form.risk_message.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.risk_message %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+          </div>
         </div>
         <div class="row mb-3">
           <div class="col">
@@ -75,13 +86,19 @@
         <div class="row mb-3">
           <div class="col">
             <label for="id_projects" class="form-label">Team Projects</label>
-            {{ form.projects }}
+            {{ form.projects|add_class:"form-control"|add_error_class:"is-invalid" }}
+            {% for error in form.projects.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.projects %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
           </div>
         </div>
         <div class="row mb-3">
           <div class="col">
             <label for="id_public_description" class="form-label">Public Description</label>
-            {{ form.public_description }}
+            {{ form.public_description|add_class:"form-control"|add_error_class:"is-invalid" }}
+            {% for error in form.public_description.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.public_description %}
+              <div class="form-text text-danger">{{ error }}</div>
+            {% endfor %}
             <p class="form-text">This description will be public to users on about:studies</p>
           </div>
         </div>
@@ -95,7 +112,11 @@
               </a>
             </label>
           </div>
-          <div class="col-2 text-end">{{ form.risk_revenue }}</div>
+          <div class="col-2 text-end">
+            {{ form.risk_revenue|add_error_class:"is-invalid" }}
+            {% for error in form.risk_revenue.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.risk_revenue %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+          </div>
         </div>
         <div class="row mb-3">
           <div class="col-10">
@@ -107,7 +128,13 @@
               </a>
             </label>
           </div>
-          <div class="col-2 text-end">{{ form.risk_partner_related }}</div>
+          <div class="col-2 text-end">
+            {{ form.risk_partner_related|add_error_class:"is-invalid" }}
+            {% for error in form.risk_partner_related.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            {% for error in validation_errors.risk_partner_related %}
+              <div class="form-text text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
         </div>
         <div class="row mb-2">
           <div class="col-12">
@@ -127,8 +154,8 @@
               {{ link_form.id }}
               <div class="row mb-3">
                 <div class="col-4">
-                  {{ link_form.title }}
-                  {{ link_form.title.errors }}
+                  {{ link_form.title|add_class:"form-control"|add_error_class:"is-invalid" }}
+                  {% for error in link_form.title.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
                 </div>
                 <div class="col-8 d-flex align-items-center">
                   <div class="flex-grow-1 me-2">
@@ -170,15 +197,27 @@
       <button type="submit" class="btn btn-secondary ms-2">Save and Continue</button>
     </div>
     {% if form.is_bound %}
-      <div class="toast text-bg-success position-fixed top-0 end-0 m-3 w-auto"
-           role="alert"
-           aria-live="assertive"
-           aria-atomic="true">
-        <div class="toast-body">
-          <i class="fa-regular fa-circle-check"></i>
-          Overview saved!
+      {% if form.is_valid %}
+        <div class="toast text-bg-success position-fixed top-0 end-0 m-3 w-auto"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
+          <div class="toast-body">
+            <i class="fa-regular fa-circle-check"></i>
+            Overview saved!
+          </div>
+        {% endif %}
+        {% if not form.is_valid or validation_errors %}
+          <div class="toast text-bg-danger position-fixed top-1 end-0 m-3 w-auto"
+               role="alert"
+               aria-live="assertive"
+               aria-atomic="true">
+            <div class="toast-body">
+              <i class="fa-regular fa-circle-check"></i>
+              Please fix the errors
+            </div>
+          {% endif %}
         </div>
-      </div>
-    {% endif %}
-  </form>
-{% endblock main_content %}
+      {% endif %}
+    </form>
+  {% endblock main_content %}
