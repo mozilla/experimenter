@@ -220,6 +220,16 @@ def test_desktop_nimbus_experiment_with_fxlabs_opt_in_invalid_description_links(
     assert "{'foo': 'bar'} is not valid under any of the given schemas" in error_messages
 
 
+def test_desktop_experiment_feature_ids_required(
+    validate_desktop_experiment,
+):
+    """Testing the featureIds field is required."""
+    experiment_json = _desktop_nimbus_experiment(False)
+    del experiment_json["featureIds"]
+
+    validate_desktop_experiment(experiment_json, valid=False, valid_all_versions=False)
+
+
 def _desktop_nimbus_experiment(isRollout: bool) -> dict[str, Any]:
     return {
         "appId": "firefox-desktop",
