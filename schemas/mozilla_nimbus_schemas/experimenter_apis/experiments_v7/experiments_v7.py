@@ -1,19 +1,23 @@
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from mozilla_nimbus_schemas.experimenter_apis.common import (
     BaseExperiment,
     BaseExperimentBranch,
-    ExperimentLocalizations,
 )
+
+
+class DocumentationLink(BaseModel):
+    title: str = Field(description="The name associated with the link.")
+    link: str = Field(description="The URL associated with the link.")
 
 
 class NimbusExperimentV7(BaseExperiment):
     """A Nimbus experiment for V7."""
 
-    localizations: ExperimentLocalizations | None = Field(
-        description="Per-locale localization substitutions.", default=None
-    )
-
     branches: list[BaseExperimentBranch] = Field(
         description="Branch configuration for the experiment."
+    )
+
+    documentationLinks: list[DocumentationLink] = Field(
+        description="All documentation links associated with this experiment."
     )
