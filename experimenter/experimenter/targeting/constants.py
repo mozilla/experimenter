@@ -2248,15 +2248,41 @@ AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
     name="Ad blockers installed",
     slug="ad_blockers_installed",
     description="Users who have installed an adblocker.",
-    targeting="""
-        addonsInfo.addons['uBlock0@raymondhill.net'] != null ||
-        addonsInfo.addons['adblockultimate@adblockultimate.net'] != null ||
-        addonsInfo.addons['firefox@ghostery.com'] != null ||
-        addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack'] != null ||
-        addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null ||
-        addonsInfo.addons['jid1-MnnxcxisBPnSXQ@jetpack'] != null ||
-        addonsInfo.addons['{74145f27-f039-47ce-a470-a662b129930a}'] != null
-    """,
+    targeting=(
+        "addonsInfo.addons['uBlock0@raymondhill.net'] != null || "
+        "addonsInfo.addons['adblockultimate@adblockultimate.net'] != null || "
+        "addonsInfo.addons['firefox@ghostery.com'] != null || "
+        "addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack'] != null || "
+        "addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null || "
+        "addonsInfo.addons['jid1-MnnxcxisBPnSXQ@jetpack'] != null || "
+        "addonsInfo.addons['{74145f27-f039-47ce-a470-a662b129930a}'] != null"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
+    name="Has Bing as current default search engine and ad blockers installed",
+    slug="has_bing_as_current_default_search_engine_and_ad_blockers_installed",
+    description=(
+        "Users with bing as current default search engine and has an adblocker installed."
+    ),
+    targeting=(f"searchEngines.current =='bing' && ({AD_BLOCKERS_INSTALLED.targeting})"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_NO_AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
+    name="Has Bing as current default search engine and no ad blockers installed",
+    slug="has_bing_as_current_default_search_engine_and_no_ad_blockers_installed",
+    description=(
+        "Users with bing as current default search engine and has no adblocker installed."
+    ),
+    targeting=(f"searchEngines.current =='bing' && !({AD_BLOCKERS_INSTALLED.targeting})"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
