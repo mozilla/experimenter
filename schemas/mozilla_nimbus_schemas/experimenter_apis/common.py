@@ -153,9 +153,8 @@ class BaseExperiment(BaseModel):
         description="A list of outcomes relevant to the experiment analysis.",
         default=None,
     )
-    featureIds: list[str] | SkipJsonSchema[None] = Field(
+    featureIds: list[str] = Field(
         description="A list of featureIds the experiment contains configurations for.",
-        default=None,
     )
     targeting: str | None = Field(
         description="A JEXL targeting expression used to filter out experiments.",

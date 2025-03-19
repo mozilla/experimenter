@@ -100,7 +100,7 @@ export interface DesktopAllVersionsNimbusExperiment {
   /**
    * A list of featureIds the experiment contains configurations for.
    */
-  featureIds?: string[];
+  featureIds: string[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
@@ -346,7 +346,7 @@ export interface DesktopNimbusExperiment {
   /**
    * A list of featureIds the experiment contains configurations for.
    */
-  featureIds?: string[];
+  featureIds: string[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
@@ -522,7 +522,7 @@ export interface SdkNimbusExperiment {
   /**
    * A list of featureIds the experiment contains configurations for.
    */
-  featureIds?: string[];
+  featureIds: string[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
