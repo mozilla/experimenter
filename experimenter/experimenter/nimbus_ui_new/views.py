@@ -276,7 +276,6 @@ class NimbusExperimentsCloneMixin:
         kwargs["parent_slug"] = self.kwargs.get("slug")
         kwargs["branch_slug"] = self.kwargs.get("branch")
         return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["experiment"] = self.get_object()
@@ -290,7 +289,7 @@ class NimbusExperimentsCloneMixin:
                 "nimbus-new-detail", kwargs={"slug": self.object.slug}
             )
         return response
-    
+
 
 class NimbusExperimentsCloneView(NimbusExperimentsCloneMixin, NimbusExperimentViewMixin, RequestFormMixin, CreateView):
     form_class = NimbusExperimentCloneForm

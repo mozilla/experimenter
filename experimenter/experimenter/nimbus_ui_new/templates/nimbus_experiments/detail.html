@@ -413,11 +413,12 @@
      <div class="modal-body bg-body-tertiary">
        <form id="promoteToRolloutForm-{{ branch.slug }}"
              hx-post="{% url 'nimbus-new-promote-to-rollout' experiment.slug branch.slug %}"
-             hx-target="#promoteToRolloutModal-{{ branch.slug }}">
-         {% csrf_token %}
+             hx-target="#promoteToRolloutForm-{{ branch.slug }}">
+
          
          {% with form_id_prefix="promote-"|add:branch.slug %}
-         {% include "nimbus_experiments/clone.html" with form=promote_to_rollout_forms experiment=experiment form_id_prefix=form_id_prefix %}
+         <p>{{form_id_prefix}}</p>
+         {% include "nimbus_experiments/clone.html" with form=promote_to_rollout_forms experiment=experiment form_id_prefix=form_id_prefix branch_slug=branch.slug %}
        {% endwith %}
          
        </form>

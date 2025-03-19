@@ -115,7 +115,8 @@ class NimbusExperimentCloneMixin:
         required=True, widget=forms.TextInput(attrs={"class": "form-control"})
     )
     slug = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+        required=False,
+        widget=forms.widgets.HiddenInput(),
     )
 
     class Meta:
@@ -143,15 +144,50 @@ class NimbusExperimentCloneMixin:
         if "name" in cleaned_data:
             cleaned_data["slug"] = slugify(cleaned_data["name"])
         return cleaned_data
-    
 
-class NimbusExperimentCloneForm(NimbusExperimentCloneMixin, NimbusChangeLogFormMixin, forms.ModelForm):
-    def __init__(self, *args, parent_slug=None, **kwargs):
+
+class NimbusExperimentCloneForm( NimbusChangeLogFormMixin, forms.ModelForm):
+
+    owner = forms.ModelChoiceField(
+        User.objects.all(),
+        widget=forms.widgets.HiddenInput(),
+    )
+    name = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    slug = forms.CharField(
+        required=False,
+        widget=forms.widgets.HiddenInput(),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "owner",
+            "name",
+            "slug",
+        ]
+    def __init__(self, *args, parent_slug=None, branch_slug=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.parent_slug = parent_slug
-        self.initial["name"] = self.instance.name + " Copy"
-        self.initial["slug"] = slugify(self.instance.name + " Copy")
+        self.branch_slug = branch_slug
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if NimbusExperiment.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG
+            )
+        return name
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if "name" in cleaned_data:
+            cleaned_data["slug"] = slugify(cleaned_data["name"])
+        return cleaned_data
+    
     def get_changelog_message(self):
         parent_experiment = NimbusExperiment.objects.get(slug=self.parent_slug)
         return f"{self.request.user} cloned {parent_experiment.name}"
@@ -165,15 +201,49 @@ class NimbusExperimentCloneForm(NimbusExperimentCloneMixin, NimbusChangeLogFormM
         return clone
 
 
-class NimbusExperimentPromoteToRolloutForm(NimbusExperimentCloneMixin, NimbusChangeLogFormMixin, forms.ModelForm):
+class NimbusExperimentPromoteToRolloutForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    owner = forms.ModelChoiceField(
+        User.objects.all(),
+        widget=forms.widgets.HiddenInput(),
+    )
+    name = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    slug = forms.CharField(
+        required=False,
+        widget=forms.widgets.HiddenInput(),
+    )
 
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "owner",
+            "name",
+            "slug",
+        ]
     def __init__(self, *args, parent_slug=None, branch_slug=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.parent_slug = parent_slug
         self.branch_slug = branch_slug
-        self.initial["name"] = f"{self.instance.name} - {self.branch_slug} Rollout"
-        self.initial["slug"] = slugify(f"{self.instance.name} - {self.branch_slug} Rollout")
+        
 
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if NimbusExperiment.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG
+            )
+        return name
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if "name" in cleaned_data:
+            cleaned_data["slug"] = slugify(cleaned_data["name"])
+        return cleaned_data
+    
     def get_changelog_message(self):
         parent_experiment = NimbusExperiment.objects.get(slug=self.parent_slug)
         return f"{self.request.user} cloned {parent_experiment.name}"

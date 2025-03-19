@@ -2,7 +2,7 @@
 {% load nimbus_extras %}
 {% load django_bootstrap5 %}
 {% load widget_tweaks %}
-
+{% csrf_token %}
 <div class="form-group mb-3">
   <div class="row">
     <div class="col">
@@ -15,7 +15,7 @@
       <input type="text"
              id="{{ form_id_prefix }}-name"
              name="name"
-             value="{{ form.name.value }}"
+             value="{{ form.name.value }}{% if not form.is_bound %}{% if branch_slug %} - {{ branch_slug }} Rollout{% else %} Copy{% endif %}{% endif %}"
              class="form-control {% if form.name.errors %}is-invalid{% endif %}"
              hx-post="{% url 'nimbus-new-update-clone-slug' experiment.slug %}"
              hx-trigger="load, input"
