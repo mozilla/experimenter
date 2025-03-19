@@ -142,6 +142,17 @@
       ],
       "description": "The list of locale codes (e.g., \"en-US\" or \"fr\") that this experiment is targeting. If null, all locales are targeted."
     },
+    "localizations": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExperimentLocalizations"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Per-locale localization substitutions."
+    },
     "publishedDate": {
       "anyOf": [
         {
@@ -173,6 +184,7 @@
     "userFacingDescription",
     "isEnrollmentPaused",
     "bucketConfig",
+    "featureIds",
     "startDate",
     "endDate",
     "proposedEnrollment",
@@ -226,6 +238,16 @@
         "featureId",
         "value"
       ],
+      "type": "object"
+    },
+    "ExperimentLocalizations": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "description": "Per-locale localization substitutions. The top level key is the locale (e.g., \"en-US\" or \"fr\"). Each entry is a mapping of string IDs to their localized equivalents.",
       "type": "object"
     },
     "ExperimentOutcome": {

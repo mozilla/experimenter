@@ -1,4 +1,3 @@
-# experimenter_apis/common.py
 import datetime
 from enum import Enum
 from typing import Any
@@ -154,9 +153,8 @@ class BaseExperiment(BaseModel):
         description="A list of outcomes relevant to the experiment analysis.",
         default=None,
     )
-    featureIds: list[str] | SkipJsonSchema[None] = Field(
+    featureIds: list[str] = Field(
         description="A list of featureIds the experiment contains configurations for.",
-        default=None,
     )
     targeting: str | None = Field(
         description="A JEXL targeting expression used to filter out experiments.",
@@ -214,6 +212,9 @@ class BaseExperiment(BaseModel):
             "If null, all locales are targeted."
         ),
         default=None,
+    )
+    localizations: ExperimentLocalizations | None = Field(
+        description="Per-locale localization substitutions.", default=None
     )
     publishedDate: datetime.datetime | None = Field(
         description=(

@@ -100,7 +100,7 @@ export interface DesktopAllVersionsNimbusExperiment {
   /**
    * A list of featureIds the experiment contains configurations for.
    */
-  featureIds?: string[];
+  featureIds: string[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
@@ -145,6 +145,7 @@ export interface DesktopAllVersionsNimbusExperiment {
    * If null, all locales are targeted.
    */
   locales?: string[] | null;
+  localizations?: ExperimentLocalizations | null;
   /**
    * The date that this experiment was first published to Remote Settings.
    *
@@ -187,7 +188,6 @@ export interface DesktopAllVersionsNimbusExperiment {
    * Only used by Firefox Labs Opt-Ins.
    */
   requiresRestart?: boolean;
-  localizations?: ExperimentLocalizations | null;
 }
 export interface ExperimentBucketConfig {
   randomizationUnit: RandomizationUnit;
@@ -219,6 +219,17 @@ export interface ExperimentOutcome {
    * e.g., "primary" or "secondary".
    */
   priority: string;
+}
+/**
+ * Per-locale localization substitutions.
+ *
+ * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
+ * string IDs to their localized equivalents.
+ */
+export interface ExperimentLocalizations {
+  [k: string]: {
+    [k: string]: string;
+  };
 }
 /**
  * The branch definition supported on all Firefox Desktop versions.
@@ -267,17 +278,6 @@ export interface DesktopPre95FeatureConfig {
     [k: string]: unknown;
   };
   enabled: false;
-}
-/**
- * Per-locale localization substitutions.
- *
- * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
- * string IDs to their localized equivalents.
- */
-export interface ExperimentLocalizations {
-  [k: string]: {
-    [k: string]: string;
-  };
 }
 /**
  * A Nimbus experiment for Firefox Desktop.
@@ -346,7 +346,7 @@ export interface DesktopNimbusExperiment {
   /**
    * A list of featureIds the experiment contains configurations for.
    */
-  featureIds?: string[];
+  featureIds: string[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
@@ -391,6 +391,7 @@ export interface DesktopNimbusExperiment {
    * If null, all locales are targeted.
    */
   locales?: string[] | null;
+  localizations?: ExperimentLocalizations | null;
   /**
    * The date that this experiment was first published to Remote Settings.
    *
@@ -433,7 +434,6 @@ export interface DesktopNimbusExperiment {
    * Only used by Firefox Labs Opt-Ins.
    */
   requiresRestart?: boolean;
-  localizations?: ExperimentLocalizations | null;
 }
 /**
  * The branch definition supported on Firefox Desktop 95+.
@@ -522,7 +522,7 @@ export interface SdkNimbusExperiment {
   /**
    * A list of featureIds the experiment contains configurations for.
    */
-  featureIds?: string[];
+  featureIds: string[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
@@ -567,6 +567,10 @@ export interface SdkNimbusExperiment {
    * If null, all locales are targeted.
    */
   locales?: string[] | null;
+  /**
+   * Per-locale localization substitutions.
+   */
+  localizations?: ExperimentLocalizations | null;
   /**
    * The date that this experiment was first published to Remote Settings.
    *
