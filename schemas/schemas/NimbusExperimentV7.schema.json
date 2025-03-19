@@ -142,6 +142,17 @@
       ],
       "description": "The list of locale codes (e.g., \"en-US\" or \"fr\") that this experiment is targeting. If null, all locales are targeted."
     },
+    "localizations": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExperimentLocalizations"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Per-locale localization substitutions."
+    },
     "publishedDate": {
       "anyOf": [
         {
@@ -154,21 +165,17 @@
       ],
       "description": "The date that this experiment was first published to Remote Settings. If null, it has not yet been published."
     },
-    "localizations": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/ExperimentLocalizations"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Per-locale localization substitutions."
-    },
     "branches": {
       "description": "Branch configuration for the experiment.",
       "items": {
         "$ref": "#/$defs/BaseExperimentBranch"
+      },
+      "type": "array"
+    },
+    "documentationLinks": {
+      "description": "All documentation links associated with this experiment.",
+      "items": {
+        "$ref": "#/$defs/DocumentationLink"
       },
       "type": "array"
     }
@@ -188,7 +195,8 @@
     "endDate",
     "proposedEnrollment",
     "referenceBranch",
-    "branches"
+    "branches",
+    "documentationLinks"
   ],
   "$defs": {
     "BaseExperimentBranch": {
@@ -213,6 +221,23 @@
         "slug",
         "ratio",
         "features"
+      ],
+      "type": "object"
+    },
+    "DocumentationLink": {
+      "properties": {
+        "title": {
+          "description": "The name associated with the link.",
+          "type": "string"
+        },
+        "link": {
+          "description": "The URL associated with the link.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "link"
       ],
       "type": "object"
     },

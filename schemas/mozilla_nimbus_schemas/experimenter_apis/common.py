@@ -1,4 +1,3 @@
-# experimenter_apis/common.py
 import datetime
 from enum import Enum
 from typing import Any
@@ -214,6 +213,9 @@ class BaseExperiment(BaseModel):
             "If null, all locales are targeted."
         ),
         default=None,
+    )
+    localizations: ExperimentLocalizations | None = Field(
+        description="Per-locale localization substitutions.", default=None
     )
     publishedDate: datetime.datetime | None = Field(
         description=(
