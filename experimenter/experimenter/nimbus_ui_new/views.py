@@ -24,9 +24,9 @@ from experimenter.nimbus_ui_new.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     MetricsForm,
-    NimbusExperimentCloneForm,
     NimbusExperimentCreateForm,
     NimbusExperimentPromoteToRolloutForm,
+    NimbusExperimentSidebarCloneForm,
     OverviewForm,
     PreviewToDraftForm,
     PreviewToReviewForm,
@@ -82,7 +82,7 @@ class NimbusExperimentViewMixin:
 class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["clone_form"] = NimbusExperimentCloneForm(instance=self.object)
+        context["clone_form"] = NimbusExperimentSidebarCloneForm(instance=self.object)
         return context
 
 
@@ -194,7 +194,9 @@ class NimbusExperimentDetailView(
         context = super().get_context_data(**kwargs)
         experiment_context = build_experiment_context(self.object)
         context.update(experiment_context)
-        context["promote_to_rollout_forms"] = NimbusExperimentPromoteToRolloutForm(instance=self.object)
+        context["promote_to_rollout_forms"] = NimbusExperimentPromoteToRolloutForm(
+            instance=self.object
+        )
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
         if context["qa_edit_mode"]:
@@ -267,8 +269,8 @@ class NimbusExperimentsCreateView(
             )
         return response
 
-    
-class NimbusExperimentsCloneMixin:
+
+class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["data"] = kwargs["data"].copy()
@@ -276,6 +278,7 @@ class NimbusExperimentsCloneMixin:
         kwargs["parent_slug"] = self.kwargs.get("slug")
         kwargs["branch_slug"] = self.kwargs.get("branch")
         return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["experiment"] = self.get_object()
@@ -291,12 +294,12 @@ class NimbusExperimentsCloneMixin:
         return response
 
 
-class NimbusExperimentsCloneView(NimbusExperimentsCloneMixin, NimbusExperimentViewMixin, RequestFormMixin, CreateView):
-    form_class = NimbusExperimentCloneForm
+class NimbusExperimentsSidebarCloneView(NimbusExperimentsCloneView):
+    form_class = NimbusExperimentSidebarCloneForm
     template_name = "nimbus_experiments/clone.html"
 
 
-class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneMixin, NimbusExperimentViewMixin, RequestFormMixin, CreateView):
+class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneView):
     form_class = NimbusExperimentPromoteToRolloutForm
     template_name = "nimbus_experiments/clone.html"
 
@@ -304,7 +307,6 @@ class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneMixin, NimbusE
 class UpdateCloneSlugView(NimbusExperimentViewMixin, RenderResponseMixin, UpdateView):
     template_name = "nimbus_experiments/clone_slug_field.html"
 
-    
     def post(self, request, *args, **kwargs):
         name = self.request.POST.get("name", "")
         slug = slugify(name)
