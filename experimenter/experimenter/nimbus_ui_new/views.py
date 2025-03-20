@@ -317,7 +317,6 @@ class ToggleArchiveView(
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
-    ValidationErrorsMixin,
     UpdateView,
 ):
     form_class = ToggleArchiveForm
@@ -334,6 +333,7 @@ class OverviewUpdateView(
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
+    ValidationErrorsMixin,
     CloneExperimentFormMixin,
     UpdateView,
 ):

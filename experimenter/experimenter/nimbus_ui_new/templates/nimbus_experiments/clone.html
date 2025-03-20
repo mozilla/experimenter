@@ -3,8 +3,8 @@
 {% load django_bootstrap5 %}
 {% load widget_tweaks %}
 
-{% csrf_token %}
 <div class="form-group mb-3">
+  {% csrf_token %}
   <div class="row">
     <div class="col">
       <label for="{{ form_id_prefix }}-name" class="mb-1">Public Name</label>
@@ -12,7 +12,6 @@
   </div>
   <div class="row">
     <div class="col">
-      {% csrf_token %}
       <input type="text"
              id="{{ form_id_prefix }}-name"
              name="name"
@@ -34,7 +33,6 @@
   </div>
   <div class="row">
     <div class="col" id="{{ form_id_prefix }}-slug">
-      {% csrf_token %}
       {% include 'nimbus_experiments/clone_slug_field.html' with form=form experiment=experiment %}
 
     </div>
