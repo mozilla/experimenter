@@ -88,7 +88,7 @@ HB_LESS_THAN_2_DAY_PROFILE = NimbusTargetingConfig(
     description="Profile between 10 minutes and 2 days old (used for HB surveys)",
     targeting="({is_older_than_10_min} && {is_newer_than_2_days})".format(
         is_older_than_10_min="(currentDate|date - profileAgeCreated|date) / 60000 > 10",
-        is_newer_than_2_days="(currentDate|date - profileAgeCreated|date) / 3600000 <= 48"
+        is_newer_than_2_days="(currentDate|date - profileAgeCreated|date) / 3600000 <= 48",
     ),
     desktop_telemetry="environment.profile.creation_date",
     sticky_required=True,
