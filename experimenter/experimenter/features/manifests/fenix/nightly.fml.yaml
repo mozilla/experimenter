@@ -591,7 +591,7 @@ features:
       certificateTransparencyMode:
         description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
         type: Int
-        default: 0
+        default: 2
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
