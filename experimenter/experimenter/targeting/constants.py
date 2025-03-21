@@ -82,6 +82,20 @@ NEW_PROFILE_CREATED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+HB_LESS_THAN_2_DAY_PROFILE = NimbusTargetingConfig(
+    name="Heartbeat less than 2 day old profile",
+    slug="hb_2_day_profile",
+    description="Profile between 10 minutes and 2 days old (used for HB surveys)",
+    targeting="({older_than_10_min} && {newer_than_2_days})".format(
+        older_than_10_min="(currentDate|date - profileAgeCreated|date) / 60000 > 10",
+        newer_than_2_days="(currentDate|date - profileAgeCreated|date) / 3600000 <= 48",
+    ),
+    desktop_telemetry="environment.profile.creation_date",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_NEW_PROFILE_CREATED = NimbusTargetingConfig(
     name="Not new profile created",
     slug="not_new_profile_created",
