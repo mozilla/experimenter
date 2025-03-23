@@ -131,7 +131,7 @@ export const ChangeApprovalOperations: React.FC<
             </LinkExternal>{" "}
             or a qualified reviewer to review and {actionDescription}. If you
             don’t have a team reviewer, paste the experiment URL in
-            #ask-experimenter and ask for a review to launch your experiment.{" "}
+            #ask-experimenter and ask for a review to end enrollment of your experiment.{" "}
             <a
               href="#copy"
               className="cursor-copy"
