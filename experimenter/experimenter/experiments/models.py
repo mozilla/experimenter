@@ -689,7 +689,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.status == self.Status.PREVIEW
 
     @property
-    def is_enrollment(self):
+    def is_enrolling(self):
         return self.status == self.Status.LIVE and not self.is_paused_published
 
     @property
@@ -743,16 +743,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return self.review_messages()
 
     @property
-    def review_request_action_type(self):
-        return self.review_messages()
-
-    @property
     def should_show_timeout_message(self):
         return self.changes.latest_timeout()
 
     @property
     def should_show_end_enrollment(self):
-        return self.is_enrollment
+        return self.is_enrolling
 
     @property
     def should_show_end_experiment(self):
@@ -999,7 +995,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             {
                 "label": NimbusConstants.ENROLLMENT,
                 "date": self.start_date,
-                "is_active": self.is_enrollment,
+                "is_active": self.is_enrolling,
                 "days": self.computed_enrollment_days,
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Enrollment"],
             },

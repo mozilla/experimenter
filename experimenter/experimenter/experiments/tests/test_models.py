@@ -3579,7 +3579,6 @@ class TestNimbusExperiment(TestCase):
     def test_review_messages_and_action_type(self, lifecycle, expected_message):
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         self.assertEqual(experiment.review_messages(), expected_message)
-        self.assertEqual(experiment.review_request_action_type, expected_message)
 
 
 class TestNimbusBranch(TestCase):

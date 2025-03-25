@@ -4,14 +4,14 @@
   <div class="alert alert-danger">
     <p>
       <span role="img" aria-label="red X emoji">❌</span>
-      Remote Settings request has timed out, please go through the approval flow to {{ experiment.review_request_action_type }} again.
+      Remote Settings request has timed out, please go through the approval flow to {{ experiment.review_messages }} again.
     </p>
   </div>
 {% endif %}
 <div id="review-controls">
   <div class="alert alert-primary">
     <p>
-      <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_request_action_type }}</strong>
+      <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
     </p>
     <button type="button"
             class="btn btn-success"
@@ -28,7 +28,7 @@
             hx-select="#content"
             hx-target="#content"
             hx-swap="outerHTML"
-            hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_request_action_type }}",  "action_type": "{{ action_type }}"}}'>
+            hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}",  "action_type": "{{ action_type }}"}}'>
       Cancel Review
     </button>
   </div>
@@ -36,7 +36,7 @@
 <!-- Rejection Form -->
 <div id="reject-form-container" class="d-none alert alert-warning">
   <label for="changelog_message">
-    <strong>You are rejecting the request to {{ experiment.review_request_action_type }}. Please provide a reason:</strong>
+    <strong>You are rejecting the request to {{ experiment.review_messages }}. Please provide a reason:</strong>
   </label>
   <textarea id="changelog_message"
             name="changelog_message"

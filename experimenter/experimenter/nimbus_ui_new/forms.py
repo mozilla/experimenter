@@ -535,16 +535,13 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         fields = []
 
     def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.status = self.status
-        experiment.status_next = self.status_next
-        experiment.publish_status = self.publish_status
+        self.instance.status = self.status
+        self.instance.status_next = self.status_next
+        self.instance.publish_status = self.publish_status
 
         if self.is_paused is not None:
-            experiment.is_paused = self.is_paused
-
-        experiment.save()
-        return experiment
+            self.instance.is_paused = self.is_paused
+        return super().save(commit=commit)
 
 
 class DraftToPreviewForm(UpdateStatusForm):

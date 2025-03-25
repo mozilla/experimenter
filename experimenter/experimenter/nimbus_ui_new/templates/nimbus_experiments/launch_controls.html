@@ -131,7 +131,7 @@
     {% elif experiment.is_review %}
       {% include "nimbus_experiments/approval_rejection_controls.html" with approval_url="nimbus-new-review-to-approve" reject_url="nimbus-new-review-to-reject" cancel_url="nimbus-new-review-to-draft" experiment=experiment action_type="launch_experiment" %}
 
-    {% elif experiment.is_enrollment or experiment.is_observation %}
+    {% elif experiment.is_enrolling or experiment.is_observation %}
       {% if experiment.is_enrollment_pause_requested %}
         {% include "nimbus_experiments/approval_rejection_controls.html" with approval_url="nimbus-new-approve-end-enrollment" reject_url="nimbus-new-cancel-reject-end" cancel_url="nimbus-new-cancel-reject-end" experiment=experiment action_type="end_enrollment" %}
 
