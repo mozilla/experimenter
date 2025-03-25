@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from itertools import chain
 from pathlib import Path
 
@@ -355,7 +355,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                 func_name="load_data_from_gcs",
                 log_level="WARNING",
                 message=e,
-                timestamp=datetime.now(),
+                timestamp=datetime.now(timezone.utc),
             )
             errors_experiment_overall.append(analysis_error.model_dump())
 

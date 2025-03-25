@@ -2122,7 +2122,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             lifecycle, primary_outcomes=[primary_outcome]
         )
 
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(datetime.timezone.utc)
 
         with (
             patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
