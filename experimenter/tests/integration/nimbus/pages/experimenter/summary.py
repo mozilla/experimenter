@@ -102,8 +102,8 @@ class SummaryPage(ExperimenterBase):
     )
 
     def wait_for_archive_label_visible(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._archive_label_locator),
+        self.wait_with_refresh(
+            self._archive_label_locator,
             message="Summary Page: could not find archive label",
         )
 

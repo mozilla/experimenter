@@ -363,6 +363,18 @@ urlbar:
         branch: default
         pref: browser.urlbar.quicksuggest.contextualOptIn.thirdReshowAfterPeriodDays
       description: Period until reshow the Firefox Suggest contextual opt-in result when third dismissed.
+    quickSuggestContextualOptInImpressionLimit:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.contextualOptIn.impressionLimit
+      description: Limit for impression to dismiss the Firefox Suggest contextual opt-in result.
+    quickSuggestContextualOptInImpressionDaysLimit:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.contextualOptIn.impressionDaysLimit
+      description: Days until dismiss the Firefox Suggest contextual opt-in result after first impression.
     quickSuggestDataCollectionEnabled:
       type: boolean
       description: Whether data collection should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) data collection, if the user has already toggled that preference.
@@ -607,13 +619,6 @@ urlbar:
       setPref:
         branch: user
         pref: "places.frecency.pages.alternative.interactions.maxVisitGapSeconds"
-    pagesNumInteractions:
-      description: >-
-        The number of recent interactions that should be examined.
-      type: int
-      setPref:
-        branch: user
-        pref: "places.frecency.pages.alternative.interactions.numInteractions"
     pagesViewTimeSeconds:
       description: >-
         The minimum allowed time (in seconds) a page was viewed before upgrading
@@ -1211,6 +1216,13 @@ newTabSectionsExperiment:
         pref: browser.newtabpage.activity-stream.discoverystream.sections.personalization.enabled
       description: >-
         Enable personalized sections layout. Allow users to follow/unfollow topic sections.
+    sectionsCustomizeMenuPanel:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.customizeMenuPanel.enabled
+      description: >-
+        Enable personalized sections menu panel. Allow users to follow/unfollow topic sections.
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -1838,6 +1850,12 @@ pdfjs:
       setPref:
         branch: default
         pref: browser.ml.enable
+    enableSignatureEditor:
+      description: Set to true to enable the signature editor
+      type: boolean
+      setPref:
+        branch: default
+        pref: pdfjs.enableSignatureEditor
 
 # fxms-message-* placeholder feature ids
 #
@@ -4458,3 +4476,15 @@ css-masonry:
       setPref:
         branch: user
         pref: "layout.css.grid-template-masonry-value.enabled"
+
+h1-in-section-styles:
+  description: "H1 in section user agent styles"
+  owner: zcorpan@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: Whether to enable H1 in section UA styles, see https://github.com/whatwg/html/issues/7867.
+      setPref:
+        branch: user
+        pref: layout.css.h1-in-section-ua-styles.enabled

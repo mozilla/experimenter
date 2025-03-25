@@ -166,6 +166,20 @@ export const AppLayoutSidebarLaunched = ({
     </>
   );
 
+  // compute the observation period in days (or default to a value > 7)
+  const observationPeriodDays =
+    experiment.enrollmentEndDate && experiment.computedEndDate
+      ? Math.round(
+          (new Date(experiment.computedEndDate).getTime() -
+            new Date(experiment.enrollmentEndDate).getTime()) /
+            (1000 * 60 * 60 * 24),
+        )
+      : 8;
+
+  const observationTooShort =
+    status.complete &&
+    (observationPeriodDays < 7 || !!!experiment.isEnrollmentPaused);
+
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
       <Row className="h-md-100">
@@ -233,6 +247,14 @@ export const AppLayoutSidebarLaunched = ({
                     </>
                   ) : analysis?.metadata?.external_config?.skip ? (
                     "Experiment analysis was skipped"
+                  ) : observationTooShort ? (
+                    <>
+                      Experiment could not be analyzed:{" "}
+                      <LinkExternal href="https://experimenter.info/configuring/#the-observation-window">
+                        observation period
+                      </LinkExternal>{" "}
+                      must last at least 1 week.
+                    </>
                   ) : (
                     <>
                       {experiment.isRollout

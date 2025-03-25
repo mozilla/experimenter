@@ -48,8 +48,40 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "period ended."
         ),
     }
+    
     REVIEW_REQUEST_MESSAGES = {
         "END_EXPERIMENT": "end this experiment",
         "END_ENROLLMENT": "end enrollment for this experiment",
         "LAUNCH_EXPERIMENT": "launch this experiment",
+
+    FIELD_PAGE_MAP = {
+        "overview": [
+            "projects",
+            "public_description",
+            "risk_brand",
+            "risk_message",
+            "risk_revenue",
+            "risk_partner_related",
+        ],
+        "branches": [
+            "reference_branch",
+            "treatment_branches",
+            "feature_configs",
+            "is_rollout",
+            "localizations",
+        ],
+        "audience": [
+            "channel",
+            "firefox_min_version",
+            "languages",
+            "locales",
+            "countries",
+            "targeting_config_slug",
+            "proposed_enrollment",
+            "proposed_duration",
+            "population_percent",
+            "total_enrolled_clients",
+            "required_experiments_branches",
+            "excluded_experiments_branches",
+        ],
     }

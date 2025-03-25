@@ -981,7 +981,7 @@ export function mockSingleDirectoryExperiment(
     firefoxMaxVersion: MOCK_CONFIG.firefoxVersions![3]!
       .value as NimbusExperimentFirefoxVersionEnum,
     monitoringDashboardUrl:
-      "https://mozilla.cloud.looker.com/dashboards-next/216?Experiment=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
+      "https://mozilla.cloud.looker.com/dashboards/experimentation::experiment_enrollments?Experiment=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
     rolloutMonitoringDashboardUrl:
       "https://mozilla.cloud.looker.com/dashboards/operational_monitoring::experiment_slug",
     name: "Open-architected background installation",

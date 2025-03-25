@@ -82,6 +82,20 @@ NEW_PROFILE_CREATED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+HB_LESS_THAN_2_DAY_PROFILE = NimbusTargetingConfig(
+    name="Heartbeat less than 2 day old profile",
+    slug="hb_2_day_profile",
+    description="Profile between 10 minutes and 2 days old (used for HB surveys)",
+    targeting="({older_than_10_min} && {newer_than_2_days})".format(
+        older_than_10_min="(currentDate|date - profileAgeCreated|date) / 60000 > 10",
+        newer_than_2_days="(currentDate|date - profileAgeCreated|date) / 3600000 <= 48",
+    ),
+    desktop_telemetry="environment.profile.creation_date",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_NEW_PROFILE_CREATED = NimbusTargetingConfig(
     name="Not new profile created",
     slug="not_new_profile_created",
@@ -1380,6 +1394,45 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_NEW_NON_DEFAULT_USER = NimbusTarget
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_PLUS_WITH_BACKGROUND_TASK_NOTIFICATION = NimbusTargetingConfig(
+    name="Windows 10+ users with background task notification",
+    slug="windows_10_background_task_notification",
+    description="Windows 10+ users with Firefox running a background task",
+    targeting="isBackgroundTaskMode && (os.isWindows && os.windowsVersion >= 10)",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY = NimbusTargetingConfig(
+    name="Windows 10+ users with background task notification and 1hr+ of inactivity",
+    slug="windows10_background_task_notification_1hr_inactivity",
+    description=(
+        "Windows 10+ users with 1hr+ of inactivity in the past day "
+        "who are running a background task"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
+        )
+        &&
+        isBackgroundTaskMode
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
@@ -1962,6 +2015,28 @@ ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+ANDROID_EARLY_APP_LAUNCH_USERS_ONLY = NimbusTargetingConfig(
+    name="Android early app launch users only",
+    slug="android_early_app_launch_users_only",
+    description="Targeting users under or equal 20 app launches since install",
+    targeting="number_of_app_launches <= 20",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_LATER_APP_LAUNCH_USERS_ONLY = NimbusTargetingConfig(
+    name="Android later app launch users only",
+    slug="android_later_app_launch_users_only",
+    description="Targeting users over 20 app launches since install",
+    targeting="number_of_app_launches > 20",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 IOS_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
     name="Review checker enabled users only",
     slug="ios_review_checker_enabled_users_only",
@@ -2177,6 +2252,51 @@ SEARCH_ROLLOUT_2 = NimbusTargetingConfig(
     slug="search_rollout_2",
     description="Search Rollout 2 Namespace",
     targeting="",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
+    name="Ad blockers installed",
+    slug="ad_blockers_installed",
+    description="Users who have installed an adblocker.",
+    targeting=(
+        "addonsInfo.addons['uBlock0@raymondhill.net'] != null || "
+        "addonsInfo.addons['adblockultimate@adblockultimate.net'] != null || "
+        "addonsInfo.addons['firefox@ghostery.com'] != null || "
+        "addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack'] != null || "
+        "addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null || "
+        "addonsInfo.addons['jid1-MnnxcxisBPnSXQ@jetpack'] != null || "
+        "addonsInfo.addons['{74145f27-f039-47ce-a470-a662b129930a}'] != null"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
+    name="Has Bing as current default search engine and ad blockers installed",
+    slug="has_bing_as_current_default_search_engine_and_ad_blockers_installed",
+    description=(
+        "Users with bing as current default search engine and has an adblocker installed."
+    ),
+    targeting=(f"searchEngines.current =='bing' && ({AD_BLOCKERS_INSTALLED.targeting})"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_NO_AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
+    name="Has Bing as current default search engine and no ad blockers installed",
+    slug="has_bing_as_current_default_search_engine_and_no_ad_blockers_installed",
+    description=(
+        "Users with bing as current default search engine and has no adblocker installed."
+    ),
+    targeting=(f"searchEngines.current =='bing' && !({AD_BLOCKERS_INSTALLED.targeting})"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

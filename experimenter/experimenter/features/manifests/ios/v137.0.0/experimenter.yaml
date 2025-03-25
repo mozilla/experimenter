@@ -23,6 +23,14 @@ app-icon-selection-feature:
     enabled:
       type: boolean
       description: "Controls whether users see the setting to customize their app icon in Settings.\n"
+appearance-menu-feature:
+  description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "If true, we will show the new appearance menu entry"
 bookmark-refactor-feature:
   description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
   hasExposure: true
@@ -55,14 +63,6 @@ credit-card-autofill:
     credit-card-autofill-status:
       type: boolean
       description: "If true, we will allow user to use the credit autofill feature"
-dark-reader-feature:
-  description: "This property defines if we legacy dark theme code or darkreader should be used to toggle dark mode on/off\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    status:
-      type: boolean
-      description: "If true, we will allow use dark reader on webpages to toggle dark mode"
 deeplink-optimization-refactor-feature:
   description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
   hasExposure: true

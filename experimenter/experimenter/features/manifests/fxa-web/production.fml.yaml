@@ -6,13 +6,13 @@ channels:
   - production
 features:
   example-feature:
-    description: An example feature
+    description: An example feature.
     variables:
+      emoji:
+        description: An emoji to show for this treatment.
+        type: Option<String>
+        default: ❤️
       enabled:
-        description: If the feature is enabled
+        description: If the feature is enabled.
         type: Boolean
         default: false
-      something:
-        description: Another variable
-        type: Option<String>
-        default: gnihtemos

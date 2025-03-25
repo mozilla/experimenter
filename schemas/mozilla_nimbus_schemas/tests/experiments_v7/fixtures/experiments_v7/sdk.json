@@ -76,5 +76,6 @@
   "startDate": "2023-12-01",
   "targeting": "true",
   "userFacingDescription": "Testing mobile experiment for new tab experience",
-  "userFacingName": "Mobile Multi-Feature Test V7"
+  "userFacingName": "Mobile Multi-Feature Test V7",
+  "documentationLinks": []
 }
