@@ -2127,10 +2127,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         with (
             patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
-            patch("experimenter.jetstream.client.datetime") as mock_datetime,
+            patch("experimenter.jetstream.client.timezone") as mock_timezone,
         ):
             mock_exists.return_value = False
-            mock_datetime.now.return_value = now
+            mock_timezone.now.return_value = now
 
             experiment_errors = [
                 {
@@ -2146,7 +2146,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "metric": None,
                     "segment": None,
                     "statistic": None,
-                    "timestamp": now.isoformat(timespec="milliseconds"),
+                    "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                        "+00:00"
+                    )
+                    + "Z",
                 },
                 {
                     "analysis_basis": None,
@@ -2161,7 +2164,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "metric": None,
                     "segment": None,
                     "statistic": None,
-                    "timestamp": now.isoformat(timespec="milliseconds"),
+                    "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                        "+00:00"
+                    )
+                    + "Z",
                 },
                 {
                     "analysis_basis": None,
@@ -2176,7 +2182,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "metric": None,
                     "segment": None,
                     "statistic": None,
-                    "timestamp": now.isoformat(timespec="milliseconds"),
+                    "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                        "+00:00"
+                    )
+                    + "Z",
                 },
             ]
             if lifecycle == NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE:
@@ -2194,7 +2203,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "metric": None,
                         "segment": None,
                         "statistic": None,
-                        "timestamp": now.isoformat(timespec="milliseconds"),
+                        "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                            "+00:00"
+                        )
+                        + "Z",
                     },
                 )
 
