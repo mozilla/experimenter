@@ -5,6 +5,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import SampleSizes, SampleSizesFactory
 from parameterized import parameterized
 
@@ -2122,7 +2123,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             lifecycle, primary_outcomes=[primary_outcome]
         )
 
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = timezone.now()
 
         with (
             patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,

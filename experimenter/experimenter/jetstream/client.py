@@ -1,11 +1,12 @@
 import json
 from collections import defaultdict
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 from itertools import chain
 from pathlib import Path
 
 from django.conf import settings
 from django.core.files.storage import storages
+from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import (
     AnalysisBasis,
     AnalysisError,
@@ -355,7 +356,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                 func_name="load_data_from_gcs",
                 log_level="WARNING",
                 message=e,
-                timestamp=datetime.now(timezone.utc),
+                timestamp=timezone.now(),
             )
             errors_experiment_overall.append(analysis_error.model_dump())
 
