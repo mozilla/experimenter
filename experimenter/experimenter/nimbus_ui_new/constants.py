@@ -28,7 +28,20 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     proportion has accounted for this:"""
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
-
+    TARGETING_CRITERIA_REQUEST = (
+        "https://github.com/mozilla-extensions/nimbus-devtools/issues/new"
+        "?title=Targeting%20criteria%20request"
+        "&body=*%20What%20is%20the%20criteria%20you%20need%20to%20target%20based%20on%3F%20Be%20specific.%0A"
+        "Ex%3A%20if%20targeting%20based%20on%20a%20preference%2C%20what%20is%20the%20preference%20name%20and%20what%20state%20should%20it%20be%3F%20%0A"
+        "Ex%3A%20if%20you%20need%20to%20target%20only%20Windows%20users%2C%20is%20there%20a%20minimum%20version%3F%0A%0A"
+        "*%20Do%20you%20need%20to%20include%20or%20exclude%20users%20based%20on%20the%20criteria%20you%20described"
+    )
+    CUSTOM_AUDIENCES = "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience"
+    TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
+    targeting list - file a new targeting request. See guidance link for developers
+    to add new advanced targeting. Either share that request link with your
+    feature engineering team or share the link in #ask-experimenter to engage a
+    developer to create your targeting."""
     TIMELINE_TOOLTIPS = {
         "Draft": (
             "The duration from the initial draft of the experiment to its entry "

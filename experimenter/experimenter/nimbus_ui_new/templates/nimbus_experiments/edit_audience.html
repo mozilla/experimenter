@@ -51,7 +51,23 @@
         </div>
         <div class="row mb-3">
           <div class="col">
-            <label for="id_targeting_config_slug" class="form-label">Advanced Targeting</label>
+            <label for="id_targeting_config_slug"
+                   class="form-label d-flex align-items-center">
+              Advanced Targeting
+              <a target="_blank"
+                 href="{{ targeting_criteria_request_url }}"
+                 class="ms-2"
+                 style="font-size: 0.9em">file targeting criteria request</a>
+              <i class="fa-regular fa-circle-question fa-sm ps-2 text-muted"
+                 data-bs-toggle="tooltip"
+                 data-bs-placement="right"
+                 title="{{ targeting_criteria_request_info }}">
+              </i>
+              <a href="{{ custom_audiences_url }}"
+                 target="_blank"
+                 class="ms-1 text-decoration-none"
+                 style="font-size: 0.9em">(guidance)</a>
+            </label>
             {{ form.targeting_config_slug }}
           </div>
         </div>
