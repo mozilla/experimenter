@@ -118,10 +118,6 @@ class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm
         required=False,
         widget=forms.widgets.HiddenInput(),
     )
-    branch_slug = forms.CharField(
-        widget=forms.HiddenInput(),
-        required=False,
-    )
 
     class Meta:
         model = NimbusExperiment
