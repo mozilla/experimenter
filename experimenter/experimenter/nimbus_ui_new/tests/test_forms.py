@@ -136,8 +136,14 @@ class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
             "slug": "cloned-experiment",
         }
         form = NimbusExperimentSidebarCloneForm(
-            data, parent_slug=parent_experiment.slug, request=self.request
+            data, instance=parent_experiment, request=self.request
         )
+        changelog_message = form.get_changelog_message()
+        self.assertEqual(
+            changelog_message,
+            f"{self.user} cloned this experiment from Original Experiment",
+        )
+
         self.assertTrue(form.is_valid())
 
         cloned_experiment = form.save()
@@ -147,12 +153,6 @@ class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
         self.assertEqual(cloned_experiment.slug, "cloned-experiment")
         self.assertEqual(
             cloned_experiment.application, NimbusExperiment.Application.DESKTOP
-        )
-
-        changelog_message = form.get_changelog_message()
-        self.assertEqual(
-            changelog_message,
-            f"{self.user} cloned this experiment from Original Experiment",
         )
 
     def test_invalid_unsluggable_name(self):
@@ -169,7 +169,7 @@ class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
             "slug": "",
         }
         form = NimbusExperimentSidebarCloneForm(
-            data, parent_slug=parent_experiment.slug, request=self.request
+            data, instance=parent_experiment, request=self.request
         )
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_NAME_INVALID])
@@ -195,7 +195,7 @@ class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
             "slug": "cloned-experiment",
         }
         form = NimbusExperimentSidebarCloneForm(
-            data, parent_slug=parent_experiment.slug, request=self.request
+            data, instance=parent_experiment, request=self.request
         )
         self.assertFalse(form.is_valid())
         self.assertEqual(
@@ -216,13 +216,19 @@ class TestNimbusExperimentPromoteToRolloutForm(RequestFormTestCase):
             "owner": self.user,
             "name": "Cloned Experiment",
             "slug": "cloned-experiment",
+            "branch_slug": "control",
         }
         form = NimbusExperimentPromoteToRolloutForm(
             data,
-            parent_slug=parent_experiment.slug,
-            branch_slug="control",
+            instance=parent_experiment,
             request=self.request,
         )
+        changelog_message = form.get_changelog_message()
+        self.assertEqual(
+            changelog_message,
+            f"{self.user} cloned this experiment from Original Experiment",
+        )
+
         self.assertTrue(form.is_valid())
 
         cloned_experiment = form.save()
@@ -233,12 +239,6 @@ class TestNimbusExperimentPromoteToRolloutForm(RequestFormTestCase):
         self.assertTrue(cloned_experiment.is_rollout)
         self.assertEqual(
             cloned_experiment.application, NimbusExperiment.Application.DESKTOP
-        )
-
-        changelog_message = form.get_changelog_message()
-        self.assertEqual(
-            changelog_message,
-            f"{self.user} cloned this experiment from Original Experiment",
         )
 
     def test_invalid_unsluggable_name(self):
@@ -253,11 +253,11 @@ class TestNimbusExperimentPromoteToRolloutForm(RequestFormTestCase):
             "owner": self.user,
             "name": "$.",
             "slug": "",
+            "branch_slug": "control",
         }
         form = NimbusExperimentPromoteToRolloutForm(
             data,
-            parent_slug=parent_experiment.slug,
-            branch_slug=parent_experiment.branch_choices()[0][0],
+            instance=parent_experiment,
             request=self.request,
         )
         self.assertFalse(form.is_valid())
@@ -282,11 +282,11 @@ class TestNimbusExperimentPromoteToRolloutForm(RequestFormTestCase):
             "owner": self.user,
             "name": "Cloned Experiment.",
             "slug": "cloned-experiment",
+            "branch_slug": "control",
         }
         form = NimbusExperimentPromoteToRolloutForm(
             data,
-            parent_slug=parent_experiment.slug,
-            branch_slug=parent_experiment.branch_choices()[0][0],
+            instance=parent_experiment,
             request=self.request,
         )
         self.assertFalse(form.is_valid())

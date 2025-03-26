@@ -1313,9 +1313,11 @@ class TestToggleArchiveView(AuthTestCase):
         response = self.client.post(
             reverse("nimbus-new-toggle-archive", kwargs={"slug": self.experiment.slug}),
             {"owner": self.user},
+            HTTP_HX_REQUEST="true",
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("HX-Refresh"), "true")
 
         updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
         self.assertTrue(updated_experiment.is_archived)
@@ -1327,9 +1329,11 @@ class TestToggleArchiveView(AuthTestCase):
         response = self.client.post(
             reverse("nimbus-new-toggle-archive", kwargs={"slug": self.experiment.slug}),
             {"owner": self.user},
+            HTTP_HX_REQUEST="true",
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("HX-Refresh"), "true")
 
         updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
         self.assertFalse(updated_experiment.is_archived)

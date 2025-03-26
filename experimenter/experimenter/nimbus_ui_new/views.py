@@ -270,13 +270,11 @@ class NimbusExperimentsCreateView(
         return response
 
 
-class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, CreateView):
+class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["data"] = kwargs["data"].copy()
         kwargs["data"]["owner"] = self.request.user
-        kwargs["parent_slug"] = self.kwargs.get("slug")
-        kwargs["branch_slug"] = self.kwargs.get("branch")
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -322,11 +320,13 @@ class ToggleArchiveView(
     form_class = ToggleArchiveForm
     template_name = "nimbus_experiments/archive_button.html"
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["data"] = kwargs["data"].copy()
-        kwargs["data"]["owner"] = self.request.user
-        return kwargs
+    def form_valid(self, form):
+        form.save()
+
+        if self.request.headers.get("HX-Request"):
+            response = HttpResponse()
+            response.headers["HX-Refresh"] = "true"
+            return response
 
 
 class OverviewUpdateView(

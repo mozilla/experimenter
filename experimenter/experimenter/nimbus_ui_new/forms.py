@@ -106,11 +106,26 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return cleaned_data
 
 
-class NimbusExperimentCloneFormMixin:
-    def __init__(self, *args, parent_slug=None, branch_slug=None, **kwargs):
-        self.parent_slug = parent_slug
-        self.branch_slug = branch_slug
-        super().__init__(*args, **kwargs)
+class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    owner = forms.ModelChoiceField(
+        User.objects.all(),
+        widget=forms.widgets.HiddenInput(),
+    )
+    name = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    slug = forms.CharField(
+        required=False,
+        widget=forms.widgets.HiddenInput(),
+    )
+    branch_slug = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False,
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["owner", "name", "slug"]
 
     def clean_name(self):
         name = self.cleaned_data["name"]
@@ -130,39 +145,15 @@ class NimbusExperimentCloneFormMixin:
         return cleaned_data
 
     def get_changelog_message(self):
-        parent_experiment = NimbusExperiment.objects.get(slug=self.parent_slug)
-        return f"{self.request.user} cloned this experiment from {parent_experiment.name}"
-
-
-class NimbusExperimentSidebarCloneForm(
-    NimbusExperimentCloneFormMixin, NimbusChangeLogFormMixin, forms.ModelForm
-):
-    owner = forms.ModelChoiceField(
-        User.objects.all(),
-        widget=forms.widgets.HiddenInput(),
-    )
-    name = forms.CharField(
-        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
-    )
-    slug = forms.CharField(
-        required=False,
-        widget=forms.widgets.HiddenInput(),
-    )
-
-    class Meta:
-        model = NimbusExperiment
-        fields = ["owner", "name", "slug"]
+        return f"{self.request.user} cloned this experiment from {self.instance.name}"
 
     def save(self):
-        parent_experiment = NimbusExperiment.objects.get(slug=self.parent_slug)
-        clone = parent_experiment.clone(
-            self.cleaned_data["name"], self.cleaned_data["owner"]
-        )
+        clone = self.instance.clone(self.cleaned_data["name"], self.cleaned_data["owner"])
         return clone
 
 
 class NimbusExperimentPromoteToRolloutForm(
-    NimbusExperimentCloneFormMixin, NimbusChangeLogFormMixin, forms.ModelForm
+    NimbusExperimentSidebarCloneForm, NimbusChangeLogFormMixin, forms.ModelForm
 ):
     owner = forms.ModelChoiceField(
         User.objects.all(),
@@ -175,28 +166,28 @@ class NimbusExperimentPromoteToRolloutForm(
         required=False,
         widget=forms.widgets.HiddenInput(),
     )
+    branch_slug = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False,
+    )
 
     class Meta:
         model = NimbusExperiment
         fields = ["owner", "name", "slug"]
 
     def save(self):
-        parent_experiment = NimbusExperiment.objects.get(slug=self.parent_slug)
-        clone = parent_experiment.clone(
-            self.cleaned_data["name"], self.cleaned_data["owner"], self.branch_slug
+        clone = self.instance.clone(
+            self.cleaned_data["name"],
+            self.cleaned_data["owner"],
+            self.cleaned_data["branch_slug"],
         )
         return clone
 
 
 class ToggleArchiveForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    owner = forms.ModelChoiceField(
-        User.objects.all(),
-        widget=forms.widgets.HiddenInput(),
-    )
-
     class Meta:
         model = NimbusExperiment
-        fields = ["owner"]
+        fields = []
 
     def save(self):
         self.instance.is_archived = not self.instance.is_archived
