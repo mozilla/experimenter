@@ -64,5 +64,11 @@
   "startDate": "2023-12-01",
   "targeting": "true",
   "userFacingDescription": "Testing upgrade spotlight holdback",
-  "userFacingName": "MR2 Upgrade Spotlight Holdback V7"
+  "userFacingName": "MR2 Upgrade Spotlight Holdback V7",
+  "documentationLinks": [
+    {
+      "title": "document title",
+      "link": "https://example.com"
+    }
+  ]
 }

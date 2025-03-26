@@ -26,6 +26,13 @@ features:
         description: "Controls whether users see the setting to customize their app icon in Settings.\n"
         type: Boolean
         default: false
+  appearance-menu-feature:
+    description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
+    variables:
+      status:
+        description: "If true, we will show the new appearance menu entry"
+        type: Boolean
+        default: false
   bookmark-refactor-feature:
     description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
     variables:

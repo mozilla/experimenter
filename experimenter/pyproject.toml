@@ -9,7 +9,7 @@ asgiref = "3.8.1"
 celery = "^5.4.0"
 chardet = "4.0.0"
 click = "8.1.6"
-coverage = "^7.6.12"
+coverage = "^7.7.1"
 datadog = "0.51.0"
 dj-inmemorystorage = "^2.1.0"
 django = "^5.1"
@@ -36,7 +36,7 @@ fontawesomefree = "6.6.0"
 google-cloud-storage = "^3.1.0"
 graphene-django = "^3.2.0"
 graphene-file-upload = "^1.3.0"
-gunicorn = "22.0.0"
+gunicorn = "23.0.0"
 ipdb = "0.13.9"
 jsonschema = "^4.23.0"
 kinto-http = "11.7.0"
@@ -66,8 +66,8 @@ PyYAML = "^6.0"
 redis = "4.6.0"
 requests = { version = "2.32.2", extras = ["security"] }
 responses = "0.25.0"
-ruff = "^0.9.1"
-sentry-sdk = "^2.22.0"
+ruff = "^0.11.0"
+sentry-sdk = "^2.24.1"
 sqlparse = "0.5.0"
 tblib = "1.7.0"
 toml = "^0.10.2"
@@ -176,6 +176,7 @@ ignore = [
     "N812",
     "N815",
     "PIE796",
+    "PTH208",
     "RET503",
     "RET504",
     "RET505",

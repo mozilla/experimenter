@@ -23,6 +23,14 @@ app-icon-selection-feature:
     enabled:
       type: boolean
       description: "Controls whether users see the setting to customize their app icon in Settings.\n"
+appearance-menu-feature:
+  description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "If true, we will show the new appearance menu entry"
 bookmark-refactor-feature:
   description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
   hasExposure: true

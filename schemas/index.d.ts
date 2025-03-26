@@ -49,80 +49,107 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   slug: string;
   /**
-   * Unique identifier for the experiment. This is a duplicate of slug,             but is required field for all Remote Settings records.
+   * Unique identifier for the experiiment.
+   *
+   * This is a duplicate of slug, but is required field for all Remote Settings records.
    */
   id: string;
   /**
-   * A slug identifying the targeted product of this experiment.             It should be a lowercased_with_underscores name that is short and                 unambiguous and it should match the app_name found in                     https://probeinfo.telemetry.mozilla.org/glean/repositories.                         Examples are "fenix" and "firefox_desktop".
+   * A slug identifying the targeted product of this experiment.
+   *
+   * It should be a lowercased_with_underscores name that is short and unambiguous and it should match the app_name found in https://probeinfo.telemetry.mozilla.org/glean/repositories. Examples are "fenix" and "firefox_desktop".
    */
   appName: string;
   /**
-   * The platform identifier for the targeted app.             This should match app's identifier exactly as it appears in                 the relevant app store listing (for relevant platforms) or the app's                      Glean initialization (for other platforms). Examples are                       "org.mozilla.firefox_beta" and "firefox-desktop".
+   * The platform identifier for the targeted app.
+   *
+   * This should match app's identifier exactly as it appears in the relevant app store listing (for relevant platforms) or the app's Glean initialization (for other platforms).
+   *
+   * Examples are "org.mozilla.firefox_beta" and "firefox-desktop".
    */
   appId: string;
   /**
-   * A specific channel of an application such as 'nightly',             'beta', or 'release'.
+   * A specific channel of an application such as "nightly", "beta", or "release".
    */
   channel: string;
   /**
-   * Public name of the experiment displayed on 'about:studies'.
+   * Public name of the experiment that will be displayed on "about:studies".
    */
   userFacingName: string;
   /**
-   * Short public description of the experiment.             that will be displayed on "about:studies".
+   * Short public description of the experiment that will be displayed on "about:studies".
    */
   userFacingDescription: string;
   /**
-   * When this property is set to true, the SDK should not enroll              new users into the experiment that have not already been enrolled.
+   * When this property is set to true, the SDK should not enroll new users into the experiment that have not already been enrolled.
    */
   isEnrollmentPaused: boolean;
   /**
-   * When this property is set to true, treat this experiment               as a rollout. Rollouts are currently handled as single-branch               experiments separated from the bucketing namespace for normal experiments.               See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
+   * When this property is set to true, treat this experiment as a rollout.
+   *
+   * Rollouts are currently handled as single-branch experiments separated from the bucketing namespace for normal experiments.
+   *
+   * See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
    */
   isRollout?: boolean;
   bucketConfig: ExperimentBucketConfig;
   /**
-   * List of outcomes relevant to analysis.
+   * A list of outcomes relevant to the experiment analysis.
    */
   outcomes?: ExperimentOutcome[];
   /**
    * A list of featureIds the experiment contains configurations for.
    */
-  featureIds?: string[];
+  featureIds: string[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
   targeting?: string | null;
   /**
-   * Actual publish date of the experiment.         Note that this value is expected to be null in Remote Settings.
+   * Actual publish date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
    */
   startDate: string | null;
   /**
-   * Actual enrollment end date of the experiment.             Note that this value is expected to be null in Remote Settings.
+   * Actual enrollment end date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
    */
   enrollmentEndDate?: string | null;
   /**
-   * Actual end date of this experiment.              Note that this field is expected to be null in Remote Settings.
+   * Actual end date of this experiment.
+   *
+   * Note that this field is expected to be null in Remote Settings.
    */
   endDate: string | null;
   /**
-   * Duration of the experiment from the start date in days.             Note that this property is only used during the analysis phase                 (i.e., not by the SDK).
+   * Duration of the experiment from the start date in days.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
    */
   proposedDuration?: number;
   /**
-   * This represents the number of days that we expect to             enroll new users. Note that this property is only used during                  the analysis phase (i.e., not by the SDK).
+   * This represents the number of days that we expect to enroll new users.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
    */
   proposedEnrollment: number;
   /**
-   * The slug of the reference branch             (i.e., the branch we consider "control").
+   * The slug of the reference branch (i.e., the branch we consider "control").
    */
   referenceBranch: string | null;
   /**
-   * The list of locale codes (e.g., "en-US" or "fr") that this             experiment is targeting. If null, all locales are targeted.
+   * The list of locale codes (e.g., "en-US" or "fr") that this experiment is targeting.
+   *
+   * If null, all locales are targeted.
    */
   locales?: string[] | null;
+  localizations?: ExperimentLocalizations | null;
   /**
-   * The date that this experiment was first published to             Remote Settings. If null, it has not yet been published.
+   * The date that this experiment was first published to Remote Settings.
+   *
+   * If null, it has not yet been published.
    */
   publishedDate?: string | null;
   /**
@@ -130,7 +157,7 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   branches: DesktopAllVersionsExperimentBranch[];
   /**
-   * When this property is set to true, treat this experiment as a             Firefox Labs experiment
+   * When this property is set to true, treat this experiment as aFirefox Labs experiment
    */
   isFirefoxLabsOptIn?: boolean;
   /**
@@ -146,7 +173,7 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   firefoxLabsDescription?: string | null;
   /**
-   * Links that will be used with the Firefox Labs             description Fluent ID. May be null for Firefox Labs Opt-In recipes                 that do not use links.
+   * Links that will be used with the firefoxLabsDescription Fluent ID. May be null for Firefox Labs Opt-In recipes that do not use links.
    */
   firefoxLabsDescriptionLinks?: {
     [k: string]: string;
@@ -157,13 +184,11 @@ export interface DesktopAllVersionsNimbusExperiment {
   featureValidationOptOut?: boolean;
   /**
    * Does the experiment require a restart to take effect?
+   *
+   * Only used by Firefox Labs Opt-Ins.
    */
   requiresRestart?: boolean;
-  localizations?: ExperimentLocalizations | null;
 }
-/**
- * Common Bucketing Configuration used across all versions.
- */
 export interface ExperimentBucketConfig {
   randomizationUnit: RandomizationUnit;
   /**
@@ -179,7 +204,9 @@ export interface ExperimentBucketConfig {
    */
   count: number;
   /**
-   * The total number of buckets. You can assume             this will always be 10000.
+   * The total number of buckets.
+   *
+   * You can assume this will always be 10000.
    */
   total: number;
 }
@@ -194,6 +221,17 @@ export interface ExperimentOutcome {
   priority: string;
 }
 /**
+ * Per-locale localization substitutions.
+ *
+ * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
+ * string IDs to their localized equivalents.
+ */
+export interface ExperimentLocalizations {
+  [k: string]: {
+    [k: string]: string;
+  };
+}
+/**
  * The branch definition supported on all Firefox Desktop versions.
  *
  * This version requires the feature field to be present to support older Firefox Desktop
@@ -206,7 +244,8 @@ export interface DesktopAllVersionsExperimentBranch {
   slug: string;
   /**
    * Relative ratio of population for the branch.
-   * e.g., if branch A=1 and branch B=3, then branch A                 would get 25% of the population.
+   *
+   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
    */
   ratio: number;
   /**
@@ -241,17 +280,6 @@ export interface DesktopPre95FeatureConfig {
   enabled: false;
 }
 /**
- * Per-locale localization substitutions.
- *
- * The top level key is the locale (e.g., "en-US" or "fr"). Each entry is a mapping of
- * string IDs to their localized equivalents.
- */
-export interface ExperimentLocalizations {
-  [k: string]: {
-    [k: string]: string;
-  };
-}
-/**
  * A Nimbus experiment for Firefox Desktop.
  *
  * This schema is less strict than DesktopAllVersionsNimbusExperiment and is intended for
@@ -267,80 +295,107 @@ export interface DesktopNimbusExperiment {
    */
   slug: string;
   /**
-   * Unique identifier for the experiment. This is a duplicate of slug,             but is required field for all Remote Settings records.
+   * Unique identifier for the experiiment.
+   *
+   * This is a duplicate of slug, but is required field for all Remote Settings records.
    */
   id: string;
   /**
-   * A slug identifying the targeted product of this experiment.             It should be a lowercased_with_underscores name that is short and                 unambiguous and it should match the app_name found in                     https://probeinfo.telemetry.mozilla.org/glean/repositories.                         Examples are "fenix" and "firefox_desktop".
+   * A slug identifying the targeted product of this experiment.
+   *
+   * It should be a lowercased_with_underscores name that is short and unambiguous and it should match the app_name found in https://probeinfo.telemetry.mozilla.org/glean/repositories. Examples are "fenix" and "firefox_desktop".
    */
   appName: string;
   /**
-   * The platform identifier for the targeted app.             This should match app's identifier exactly as it appears in                 the relevant app store listing (for relevant platforms) or the app's                      Glean initialization (for other platforms). Examples are                       "org.mozilla.firefox_beta" and "firefox-desktop".
+   * The platform identifier for the targeted app.
+   *
+   * This should match app's identifier exactly as it appears in the relevant app store listing (for relevant platforms) or the app's Glean initialization (for other platforms).
+   *
+   * Examples are "org.mozilla.firefox_beta" and "firefox-desktop".
    */
   appId: string;
   /**
-   * A specific channel of an application such as 'nightly',             'beta', or 'release'.
+   * A specific channel of an application such as "nightly", "beta", or "release".
    */
   channel: string;
   /**
-   * Public name of the experiment displayed on 'about:studies'.
+   * Public name of the experiment that will be displayed on "about:studies".
    */
   userFacingName: string;
   /**
-   * Short public description of the experiment.             that will be displayed on "about:studies".
+   * Short public description of the experiment that will be displayed on "about:studies".
    */
   userFacingDescription: string;
   /**
-   * When this property is set to true, the SDK should not enroll              new users into the experiment that have not already been enrolled.
+   * When this property is set to true, the SDK should not enroll new users into the experiment that have not already been enrolled.
    */
   isEnrollmentPaused: boolean;
   /**
-   * When this property is set to true, treat this experiment               as a rollout. Rollouts are currently handled as single-branch               experiments separated from the bucketing namespace for normal experiments.               See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
+   * When this property is set to true, treat this experiment as a rollout.
+   *
+   * Rollouts are currently handled as single-branch experiments separated from the bucketing namespace for normal experiments.
+   *
+   * See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
    */
   isRollout?: boolean;
   bucketConfig: ExperimentBucketConfig;
   /**
-   * List of outcomes relevant to analysis.
+   * A list of outcomes relevant to the experiment analysis.
    */
   outcomes?: ExperimentOutcome[];
   /**
    * A list of featureIds the experiment contains configurations for.
    */
-  featureIds?: string[];
+  featureIds: string[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
   targeting?: string | null;
   /**
-   * Actual publish date of the experiment.         Note that this value is expected to be null in Remote Settings.
+   * Actual publish date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
    */
   startDate: string | null;
   /**
-   * Actual enrollment end date of the experiment.             Note that this value is expected to be null in Remote Settings.
+   * Actual enrollment end date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
    */
   enrollmentEndDate?: string | null;
   /**
-   * Actual end date of this experiment.              Note that this field is expected to be null in Remote Settings.
+   * Actual end date of this experiment.
+   *
+   * Note that this field is expected to be null in Remote Settings.
    */
   endDate: string | null;
   /**
-   * Duration of the experiment from the start date in days.             Note that this property is only used during the analysis phase                 (i.e., not by the SDK).
+   * Duration of the experiment from the start date in days.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
    */
   proposedDuration?: number;
   /**
-   * This represents the number of days that we expect to             enroll new users. Note that this property is only used during                  the analysis phase (i.e., not by the SDK).
+   * This represents the number of days that we expect to enroll new users.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
    */
   proposedEnrollment: number;
   /**
-   * The slug of the reference branch             (i.e., the branch we consider "control").
+   * The slug of the reference branch (i.e., the branch we consider "control").
    */
   referenceBranch: string | null;
   /**
-   * The list of locale codes (e.g., "en-US" or "fr") that this             experiment is targeting. If null, all locales are targeted.
+   * The list of locale codes (e.g., "en-US" or "fr") that this experiment is targeting.
+   *
+   * If null, all locales are targeted.
    */
   locales?: string[] | null;
+  localizations?: ExperimentLocalizations | null;
   /**
-   * The date that this experiment was first published to             Remote Settings. If null, it has not yet been published.
+   * The date that this experiment was first published to Remote Settings.
+   *
+   * If null, it has not yet been published.
    */
   publishedDate?: string | null;
   /**
@@ -348,7 +403,7 @@ export interface DesktopNimbusExperiment {
    */
   branches: DesktopExperimentBranch[];
   /**
-   * When this property is set to true, treat this experiment as a             Firefox Labs experiment
+   * When this property is set to true, treat this experiment as aFirefox Labs experiment
    */
   isFirefoxLabsOptIn?: boolean;
   /**
@@ -364,7 +419,7 @@ export interface DesktopNimbusExperiment {
    */
   firefoxLabsDescription?: string | null;
   /**
-   * Links that will be used with the Firefox Labs             description Fluent ID. May be null for Firefox Labs Opt-In recipes                 that do not use links.
+   * Links that will be used with the firefoxLabsDescription Fluent ID. May be null for Firefox Labs Opt-In recipes that do not use links.
    */
   firefoxLabsDescriptionLinks?: {
     [k: string]: string;
@@ -375,9 +430,10 @@ export interface DesktopNimbusExperiment {
   featureValidationOptOut?: boolean;
   /**
    * Does the experiment require a restart to take effect?
+   *
+   * Only used by Firefox Labs Opt-Ins.
    */
   requiresRestart?: boolean;
-  localizations?: ExperimentLocalizations | null;
 }
 /**
  * The branch definition supported on Firefox Desktop 95+.
@@ -389,7 +445,8 @@ export interface DesktopExperimentBranch {
   slug: string;
   /**
    * Relative ratio of population for the branch.
-   * e.g., if branch A=1 and branch B=3, then branch A                 would get 25% of the population.
+   *
+   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
    */
   ratio: number;
   /**
@@ -414,80 +471,110 @@ export interface SdkNimbusExperiment {
    */
   slug: string;
   /**
-   * Unique identifier for the experiment. This is a duplicate of slug,             but is required field for all Remote Settings records.
+   * Unique identifier for the experiiment.
+   *
+   * This is a duplicate of slug, but is required field for all Remote Settings records.
    */
   id: string;
   /**
-   * A slug identifying the targeted product of this experiment.             It should be a lowercased_with_underscores name that is short and                 unambiguous and it should match the app_name found in                     https://probeinfo.telemetry.mozilla.org/glean/repositories.                         Examples are "fenix" and "firefox_desktop".
+   * A slug identifying the targeted product of this experiment.
+   *
+   * It should be a lowercased_with_underscores name that is short and unambiguous and it should match the app_name found in https://probeinfo.telemetry.mozilla.org/glean/repositories. Examples are "fenix" and "firefox_desktop".
    */
   appName: string;
   /**
-   * The platform identifier for the targeted app.             This should match app's identifier exactly as it appears in                 the relevant app store listing (for relevant platforms) or the app's                      Glean initialization (for other platforms). Examples are                       "org.mozilla.firefox_beta" and "firefox-desktop".
+   * The platform identifier for the targeted app.
+   *
+   * This should match app's identifier exactly as it appears in the relevant app store listing (for relevant platforms) or the app's Glean initialization (for other platforms).
+   *
+   * Examples are "org.mozilla.firefox_beta" and "firefox-desktop".
    */
   appId: string;
   /**
-   * A specific channel of an application such as 'nightly',             'beta', or 'release'.
+   * A specific channel of an application such as "nightly", "beta", or "release".
    */
   channel: string;
   /**
-   * Public name of the experiment displayed on 'about:studies'.
+   * Public name of the experiment that will be displayed on "about:studies".
    */
   userFacingName: string;
   /**
-   * Short public description of the experiment.             that will be displayed on "about:studies".
+   * Short public description of the experiment that will be displayed on "about:studies".
    */
   userFacingDescription: string;
   /**
-   * When this property is set to true, the SDK should not enroll              new users into the experiment that have not already been enrolled.
+   * When this property is set to true, the SDK should not enroll new users into the experiment that have not already been enrolled.
    */
   isEnrollmentPaused: boolean;
   /**
-   * When this property is set to true, treat this experiment               as a rollout. Rollouts are currently handled as single-branch               experiments separated from the bucketing namespace for normal experiments.               See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
+   * When this property is set to true, treat this experiment as a rollout.
+   *
+   * Rollouts are currently handled as single-branch experiments separated from the bucketing namespace for normal experiments.
+   *
+   * See-also: https://mozilla-hub.atlassian.net/browse/SDK-405
    */
   isRollout?: boolean;
   bucketConfig: ExperimentBucketConfig;
   /**
-   * List of outcomes relevant to analysis.
+   * A list of outcomes relevant to the experiment analysis.
    */
   outcomes?: ExperimentOutcome[];
   /**
    * A list of featureIds the experiment contains configurations for.
    */
-  featureIds?: string[];
+  featureIds: string[];
   /**
    * A JEXL targeting expression used to filter out experiments.
    */
   targeting?: string | null;
   /**
-   * Actual publish date of the experiment.         Note that this value is expected to be null in Remote Settings.
+   * Actual publish date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
    */
   startDate: string | null;
   /**
-   * Actual enrollment end date of the experiment.             Note that this value is expected to be null in Remote Settings.
+   * Actual enrollment end date of the experiment.
+   *
+   * Note that this value is expected to be null in Remote Settings.
    */
   enrollmentEndDate?: string | null;
   /**
-   * Actual end date of this experiment.              Note that this field is expected to be null in Remote Settings.
+   * Actual end date of this experiment.
+   *
+   * Note that this field is expected to be null in Remote Settings.
    */
   endDate: string | null;
   /**
-   * Duration of the experiment from the start date in days.             Note that this property is only used during the analysis phase                 (i.e., not by the SDK).
+   * Duration of the experiment from the start date in days.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
    */
   proposedDuration?: number;
   /**
-   * This represents the number of days that we expect to             enroll new users. Note that this property is only used during                  the analysis phase (i.e., not by the SDK).
+   * This represents the number of days that we expect to enroll new users.
+   *
+   * Note that this property is only used during the analysis phase (i.e., not by the SDK).
    */
   proposedEnrollment: number;
   /**
-   * The slug of the reference branch             (i.e., the branch we consider "control").
+   * The slug of the reference branch (i.e., the branch we consider "control").
    */
   referenceBranch: string | null;
   /**
-   * The list of locale codes (e.g., "en-US" or "fr") that this             experiment is targeting. If null, all locales are targeted.
+   * The list of locale codes (e.g., "en-US" or "fr") that this experiment is targeting.
+   *
+   * If null, all locales are targeted.
    */
   locales?: string[] | null;
   /**
-   * The date that this experiment was first published to             Remote Settings. If null, it has not yet been published.
+   * Per-locale localization substitutions.
+   */
+  localizations?: ExperimentLocalizations | null;
+  /**
+   * The date that this experiment was first published to Remote Settings.
+   *
+   * If null, it has not yet been published.
    */
   publishedDate?: string | null;
   /**
@@ -507,7 +594,8 @@ export interface SdkExperimentBranch {
   slug: string;
   /**
    * Relative ratio of population for the branch.
-   * e.g., if branch A=1 and branch B=3, then branch A                 would get 25% of the population.
+   *
+   * e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.
    */
   ratio: number;
   /**
