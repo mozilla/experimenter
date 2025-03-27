@@ -31,7 +31,16 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     proportion has accounted for this:"""
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
-
+    TARGETING_CRITERIA_REQUEST = (
+        "https://github.com/mozilla/experimenter/issues/new"
+        "?template=targeting_request_template.yml"
+        "&title=Targeting%20criteria%20request"
+    )
+    CUSTOM_AUDIENCES = "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience"
+    TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
+    targeting list - file a new targeting request with this link, and share the created
+    request with either your feature engineering team or in #ask-experimenter
+    so the new targeting can be added."""
     TIMELINE_TOOLTIPS = {
         "Draft": (
             "The duration from the initial draft of the experiment to its entry "

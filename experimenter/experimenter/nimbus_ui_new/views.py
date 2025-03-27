@@ -371,6 +371,21 @@ class AudienceUpdateView(
     form_class = AudienceForm
     template_name = "nimbus_experiments/edit_audience.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "custom_audiences_url": NimbusUIConstants.CUSTOM_AUDIENCES,
+                "targeting_criteria_request_url": (
+                    NimbusUIConstants.TARGETING_CRITERIA_REQUEST
+                ),
+                "targeting_criteria_request_info": (
+                    NimbusUIConstants.TARGETING_CRITERIA_REQUEST_INFO
+                ),
+            }
+        )
+        return context
+
 
 class SubscribeView(
     NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
