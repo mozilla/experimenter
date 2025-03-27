@@ -38,10 +38,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     CUSTOM_AUDIENCES = "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience"
     TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
-    targeting list - file a new targeting request. See guidance link for developers
-    to add new advanced targeting. Either share that request link with your
-    feature engineering team or share the link in #ask-experimenter to engage a
-    developer to create your targeting."""
+    targeting list - file a new targeting request with this link, and share the created request with either
+    your feature engineering team or in #ask-experimenter so the new targeting can be added."""
     TIMELINE_TOOLTIPS = {
         "Draft": (
             "The duration from the initial draft of the experiment to its entry "
