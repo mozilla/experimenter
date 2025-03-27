@@ -29,7 +29,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
     TARGETING_CRITERIA_REQUEST = (
-        "https://github.com/mozilla-extensions/nimbus-devtools/issues/new"
+        "https://github.com/mozilla/experimenter/issues/new"
         "?title=Targeting%20criteria%20request"
         "&body=*%20What%20is%20the%20criteria%20you%20need%20to%20target%20based%20on%3F%20Be%20specific.%0A"
         "Ex%3A%20if%20targeting%20based%20on%20a%20preference%2C%20what%20is%20the%20preference%20name%20and%20what%20state%20should%20it%20be%3F%20%0A"
