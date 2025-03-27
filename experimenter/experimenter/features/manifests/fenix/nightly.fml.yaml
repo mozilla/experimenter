@@ -58,9 +58,9 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<CookieBannersSection, Int>"
         default:
-          feature-ui: 1
+          feature-ui: 0
           feature-setting-value: 0
-          feature-setting-value-pbm: 1
+          feature-setting-value-pbm: 0
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
@@ -1043,6 +1043,10 @@ objects:
         description: The text for line two of the body.
         type: Text
         default: ""
+      new-layout:
+        description: Enables new marketing card layout.
+        type: Boolean
+        default: false
   MessageData:
     description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
     fields:
