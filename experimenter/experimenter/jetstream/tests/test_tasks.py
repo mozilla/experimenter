@@ -449,6 +449,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "some_count": "Some Count",
                         "another_count": "Another Count",
                         "some_dau_impact": "Some Dau Impact",
+                        "some_ratio": "Some Ratio",
                     },
                 },
                 "metadata": {
@@ -1050,6 +1051,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "some_count": "Some Count",
                         "another_count": "Another Count",
                         "some_dau_impact": "Some Dau Impact",
+                        "some_ratio": "Some Ratio",
                     },
                 },
                 "metadata": {},

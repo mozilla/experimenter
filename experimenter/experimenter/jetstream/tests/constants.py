@@ -736,7 +736,9 @@ class JetstreamTestData:
                         "some_count": ABSOLUTE_METRIC_DATA_A_COVARIATE.model_dump(
                             exclude_none=True
                         ),
-                        "some_ratio": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_ratio": ABSOLUTE_METRIC_DATA_A.model_dump(
+                            exclude_none=True
+                        ),
                         "some_dau_impact": ABSOLUTE_METRIC_DATA_A.model_dump(
                             exclude_none=True
                         ),
@@ -802,7 +804,9 @@ class JetstreamTestData:
                         "some_count": ABSOLUTE_METRIC_DATA_F_COVARIATE.model_dump(
                             exclude_none=True
                         ),
-                        "some_ratio": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_ratio": ABSOLUTE_METRIC_DATA_F.model_dump(
+                            exclude_none=True
+                        ),
                         "some_dau_impact": ABSOLUTE_METRIC_DATA_F.model_dump(
                             exclude_none=True
                         ),

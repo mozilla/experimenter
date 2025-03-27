@@ -166,6 +166,7 @@ def get_other_metrics_names_and_map(
         Statistic.MEAN,
         Statistic.BINOMIAL,
         Statistic.PER_CLIENT_DAU_IMPACT,
+        Statistic.POPULATION_RATIO,
     ]
     other_data = [
         data_point for data_point in data if data_point.metric not in results_metrics_map
