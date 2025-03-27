@@ -1,0 +1,33 @@
+name: Targeting Criteria Request
+description: Request new advanced targeting logic for an experiment.
+title: "[Targeting] "
+labels: [targeting, enhancement]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide detailed criteria for audience targeting. A developer will help implement it.
+
+  - type: textarea
+    id: criteria
+    attributes:
+      label: What is the criteria you need to target based on?
+      description: Be specific. Ex: preference name and expected value, OS and version, etc.
+      placeholder: ex. Preference `browser.tabs.firefox-view` is set to `true`
+    validations:
+      required: true
+
+  - type: textarea
+    id: include_exclude
+    attributes:
+      label: Should the targeting include or exclude users?
+      description: Specify if you're including or excluding users based on this criteria.
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes (optional)
+      description: Anything else you'd like the team to know?

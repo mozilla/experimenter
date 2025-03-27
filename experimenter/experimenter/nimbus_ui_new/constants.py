@@ -30,16 +30,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
     TARGETING_CRITERIA_REQUEST = (
         "https://github.com/mozilla/experimenter/issues/new"
-        "?title=Targeting%20criteria%20request"
-        "&body=*%20What%20is%20the%20criteria%20you%20need%20to%20target%20based%20on%3F%20Be%20specific.%0A"
-        "Ex%3A%20if%20targeting%20based%20on%20a%20preference%2C%20what%20is%20the%20preference%20name%20and%20what%20state%20should%20it%20be%3F%20%0A"
-        "Ex%3A%20if%20you%20need%20to%20target%20only%20Windows%20users%2C%20is%20there%20a%20minimum%20version%3F%0A%0A"
-        "*%20Do%20you%20need%20to%20include%20or%20exclude%20users%20based%20on%20the%20criteria%20you%20described"
+        "?template=targeting_request_template.yml"
+        "&title=Targeting%20criteria%20request"
     )
     CUSTOM_AUDIENCES = "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience"
     TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
-    targeting list - file a new targeting request with this link, and share the created request with either
-    your feature engineering team or in #ask-experimenter so the new targeting can be added."""
+    targeting list - file a new targeting request with this link, and share the created
+    request with eithervyour feature engineering team or in #ask-experimenter
+    so the new targeting can be added."""
     TIMELINE_TOOLTIPS = {
         "Draft": (
             "The duration from the initial draft of the experiment to its entry "
