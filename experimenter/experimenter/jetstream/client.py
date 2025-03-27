@@ -6,6 +6,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.files.storage import storages
+from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import (
     AnalysisBasis,
     AnalysisError,
@@ -166,6 +167,7 @@ def get_other_metrics_names_and_map(
         Statistic.MEAN,
         Statistic.BINOMIAL,
         Statistic.PER_CLIENT_DAU_IMPACT,
+        Statistic.POPULATION_RATIO,
     ]
     other_data = [
         data_point for data_point in data if data_point.metric not in results_metrics_map
@@ -355,7 +357,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                 func_name="load_data_from_gcs",
                 log_level="WARNING",
                 message=e,
-                timestamp=datetime.now(),
+                timestamp=timezone.now(),
             )
             errors_experiment_overall.append(analysis_error.model_dump())
 
