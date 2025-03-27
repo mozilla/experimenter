@@ -223,6 +223,14 @@ urlbar:
     autoFillAdaptiveHistoryUseCountThreshold:
       type: string
       description: This value assumes float expression like "0.47". Threshold for use count of input history that we handle as adaptive history autofill. If the use count is this value or more, it will be a candidate.
+    deduplicationEnabled:
+      type: boolean
+      setPref:
+        pref: browser.urlbar.deduplication.enabled
+        branch: user
+      description: >-
+        Feature gate that controls whether result deduplication in the urlbar
+        is enabled.
     fakespotFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.fakespot.featureGate
@@ -1024,6 +1032,20 @@ newtabCustomWallpaper:
         pref: browser.newtabpage.activity-stream.newtabWallpapers.customColor.enabled
       description: >-
         Turns on and off background color picker.
+    maxFileSizeEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.fileSize.enabled
+      description: >-
+        Turns on and off maximum file size for uploaded images
+    maxFileSize:
+      type: int
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.fileSize
+      description: >-
+        Maximum file size (in MB) a user can upload
 
 newtabShortcutsExperiment:
   description: >-
@@ -4292,9 +4314,6 @@ sidebar:
     minVersion:
       type: string
       description: Minimum Firefox version to apply prefs
-    main.tools:
-      type: string
-      description: sidebar.main.tools pref value to set on user branch; which tools for sidebar panels show in the launcher
     revamp:
       type: boolean
       description: sidebar.revamp pref value to set on user branch; true for new experience
@@ -4364,8 +4383,22 @@ tabGroups:
   variables:
     enabled:
       type: boolean
-      fallbackPref: browser.tabs.groups.enabled
+      setPref:
+        branch: user
+        pref: browser.tabs.groups.enabled
       description: Controls whether users can create new tab groups via drag and drop or the tab context menu
+
+smartTabGroups:
+  description: Prefs to control Smart Tab Groups
+  owner: rrando@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.tabs.groups.smart.enabled
+      description: Controls whether users can use ml features for suggesting tab group names or similar tabs
 
 smartblockEmbeds:
   description: Pref to control Smartblock Embeds
