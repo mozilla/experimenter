@@ -1,7 +1,6 @@
 name: Targeting Criteria Request
 description: Request new advanced targeting logic for an experiment.
 title: "[Targeting] "
-labels: [targeting, enhancement]
 
 body:
   - type: markdown
