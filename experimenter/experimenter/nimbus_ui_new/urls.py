@@ -11,6 +11,8 @@ from experimenter.nimbus_ui_new.views import (
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
     NimbusExperimentsListTableView,
+    NimbusExperimentsPromoteToRolloutView,
+    NimbusExperimentsSidebarCloneView,
     OverviewUpdateView,
     PreviewToDraftView,
     PreviewToReviewView,
@@ -21,7 +23,9 @@ from experimenter.nimbus_ui_new.views import (
     SignoffUpdateView,
     SubscribeView,
     TakeawaysUpdateView,
+    ToggleArchiveView,
     UnsubscribeView,
+    UpdateCloneSlugView,
 )
 
 urlpatterns = [
@@ -84,6 +88,26 @@ urlpatterns = [
         r"^create/",
         NimbusExperimentsCreateView.as_view(),
         name="nimbus-new-create",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/clone/$",
+        NimbusExperimentsSidebarCloneView.as_view(),
+        name="nimbus-new-clone",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/promote_to_rollout/(?:(?P<branch>[\w-]+)/)?$",
+        NimbusExperimentsPromoteToRolloutView.as_view(),
+        name="nimbus-new-promote-to-rollout",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/update_clone_slug/$",
+        UpdateCloneSlugView.as_view(),
+        name="nimbus-new-update-clone-slug",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/toggle-archive/$",
+        ToggleArchiveView.as_view(),
+        name="nimbus-new-toggle-archive",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/subscribe/",
