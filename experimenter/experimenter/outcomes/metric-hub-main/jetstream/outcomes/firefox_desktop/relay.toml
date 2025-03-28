@@ -8,12 +8,11 @@ friendly_name = "Relay Optin: Relay offer shown to client"
 description = "Number of times Relay offer is shown"
 select_expression = """
       COALESCE(COUNTIF(
-         event_method= 'shown'
+         event_method = 'shown'
          AND event_object = 'offer_relay'
-         AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"
+data_source = "relay_integration_events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_clicked_relay_offer]
@@ -23,10 +22,9 @@ select_expression = """
       COALESCE(COUNTIF(
          event_method = 'clicked'
          AND event_object = 'offer_relay'
-         AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"
+data_source = "relay_integration_events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_shown_opt_in_panel]
@@ -36,10 +34,9 @@ select_expression = """
       COALESCE(COUNTIF(
          event_method = 'shown'
          AND event_object = 'opt_in_panel'
-         AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"
+data_source = "relay_integration_events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_enabled_opt_in_panel]
@@ -49,10 +46,9 @@ select_expression = """
       COALESCE(COUNTIF(
          event_method = 'enabled'
          AND event_object = 'opt_in_panel'
-         AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"
+data_source = "relay_integration_events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_postponed_opt_in_panel]
@@ -62,10 +58,9 @@ select_expression = """
       COALESCE(COUNTIF(
          event_method = 'postponed'
          AND event_object = 'opt_in_panel'
-         AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"
+data_source = "relay_integration_events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_disabled_opt_in_panel]
@@ -75,10 +70,9 @@ select_expression = """
       COALESCE(COUNTIF(
          event_method = 'disabled'
          AND event_object = 'opt_in_panel'
-         AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"
+data_source = "relay_integration_events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_shown_fill_username]
@@ -88,10 +82,9 @@ select_expression = """
       COALESCE(COUNTIF(
          event_method = 'shown'
          AND event_object = 'fill_username'
-         AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"
+data_source = "relay_integration_events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_integration_clicked_fill_username]
@@ -101,10 +94,9 @@ select_expression = """
       COALESCE(COUNTIF(
          event_method = 'clicked'
          AND event_object = 'fill_username'
-         AND event_category = 'relay_integration'
       ),0)
 """
-data_source = "events"
+data_source = "relay_integration_events"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.relay_optin_rate]
@@ -154,3 +146,12 @@ depends_on = [
 [metrics.fill_username_ctr.statistics.population_ratio]
 numerator = "relay_integration_clicked_fill_username"
 denominator = "relay_integration_shown_fill_username"
+
+[data_sources.relay_integration_events]
+from_expression = """(
+      SELECT * FROM `mozdata.telemetry.events`
+      WHERE event_category = 'relay_integration'
+)"""
+experiments_column_type = "native"
+friendly_name = "Relay Integration Events"
+description = "Events Ping filtered to relay_integration category"
