@@ -17,11 +17,16 @@ from experimenter.nimbus_ui_new.filtersets import (
     StatusChoices,
 )
 from experimenter.nimbus_ui_new.forms import (
+    ApproveEndEnrollmentForm,
+    ApproveEndExperimentForm,
     AudienceForm,
+    CancelRejectEndForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
+    LiveToCompleteForm,
+    LiveToEndEnrollmentForm,
     MetricsForm,
     NimbusExperimentCreateForm,
     OverviewForm,
@@ -348,3 +353,23 @@ class ReviewToApproveView(StatusUpdateView):
 
 class ReviewToRejectView(StatusUpdateView):
     form_class = ReviewToRejectForm
+
+
+class LiveToEndEnrollmentView(StatusUpdateView):
+    form_class = LiveToEndEnrollmentForm
+
+
+class ApproveEndEnrollmentView(StatusUpdateView):
+    form_class = ApproveEndEnrollmentForm
+
+
+class LiveToCompleteView(StatusUpdateView):
+    form_class = LiveToCompleteForm
+
+
+class ApproveEndExperimentView(StatusUpdateView):
+    form_class = ApproveEndExperimentForm
+
+
+class CancelRejectEndView(StatusUpdateView):
+    form_class = CancelRejectEndForm
