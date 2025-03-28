@@ -110,6 +110,7 @@ def sensitive_url():
 def firefox_options(firefox_options):
     """Set Firefox Options."""
     firefox_options.log.level = "trace"
+    firefox_options.set_preference("remote.system-access-check.enabled", False)
     return firefox_options
 
 

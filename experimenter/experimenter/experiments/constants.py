@@ -246,6 +246,7 @@ APPLICATION_CONFIG_FXA_WEB = ApplicationConfig(
     slug="fxa-web",
     app_name="accounts_cirrus",
     channel_app_id={
+        Channel.STAGING: "accounts.cirrus",
         Channel.PRODUCTION: "accounts.cirrus",
     },
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,

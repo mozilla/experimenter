@@ -5,6 +5,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import SampleSizes, SampleSizesFactory
 from parameterized import parameterized
 
@@ -449,6 +450,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "some_count": "Some Count",
                         "another_count": "Another Count",
                         "some_dau_impact": "Some Dau Impact",
+                        "some_ratio": "Some Ratio",
                     },
                 },
                 "metadata": {
@@ -1050,6 +1052,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "some_count": "Some Count",
                         "another_count": "Another Count",
                         "some_dau_impact": "Some Dau Impact",
+                        "some_ratio": "Some Ratio",
                     },
                 },
                 "metadata": {},
@@ -2122,14 +2125,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             lifecycle, primary_outcomes=[primary_outcome]
         )
 
-        now = datetime.datetime.now()
+        now = timezone.now()
 
         with (
             patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
-            patch("experimenter.jetstream.client.datetime") as mock_datetime,
+            patch("experimenter.jetstream.client.timezone") as mock_timezone,
         ):
             mock_exists.return_value = False
-            mock_datetime.now.return_value = now
+            mock_timezone.now.return_value = now
 
             experiment_errors = [
                 {
@@ -2145,7 +2148,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "metric": None,
                     "segment": None,
                     "statistic": None,
-                    "timestamp": now.isoformat(timespec="milliseconds"),
+                    "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                        "+00:00"
+                    )
+                    + "Z",
                 },
                 {
                     "analysis_basis": None,
@@ -2160,7 +2166,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "metric": None,
                     "segment": None,
                     "statistic": None,
-                    "timestamp": now.isoformat(timespec="milliseconds"),
+                    "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                        "+00:00"
+                    )
+                    + "Z",
                 },
                 {
                     "analysis_basis": None,
@@ -2175,7 +2184,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "metric": None,
                     "segment": None,
                     "statistic": None,
-                    "timestamp": now.isoformat(timespec="milliseconds"),
+                    "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                        "+00:00"
+                    )
+                    + "Z",
                 },
             ]
             if lifecycle == NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE:
@@ -2193,7 +2205,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "metric": None,
                         "segment": None,
                         "statistic": None,
-                        "timestamp": now.isoformat(timespec="milliseconds"),
+                        "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                            "+00:00"
+                        )
+                        + "Z",
                     },
                 )
 
