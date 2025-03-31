@@ -2482,6 +2482,27 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+OLD_SIDEBAR_USERS = NimbusTargetingConfig(
+    name="Users that use the old sidebar",
+    slug="old_sidebar_users",
+    description="Target users who use the old sidebar",
+    targeting="!('sidebar.revamp'|preferenceValue)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NEW_SIDEBAR_USERS = NimbusTargetingConfig(
+    name="Users that use the new sidebar",
+    slug="new_sidebar_users",
+    description="Target users who use the new sidebar",
+    targeting="'sidebar.revamp'|preferenceValue",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
