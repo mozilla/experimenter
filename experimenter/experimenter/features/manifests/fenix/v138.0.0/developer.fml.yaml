@@ -50,7 +50,7 @@ features:
       enabled:
         description: "Whether or not to turn on the compose homepage.\n"
         type: Boolean
-        default: false
+        default: true
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -167,6 +167,7 @@ features:
           recent-explorations: true
           pocket: true
           pocket-sponsored-stories: true
+          synced-tabs: true
   javascript:
     description: Enables Javascript Engine (Spidermonkey) features
     variables:
@@ -769,6 +770,13 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
+  tab-strip:
+    description: Enables tab strip.
+    variables:
+      enabled:
+        description: "Whether or not to enable tab strip.\n"
+        type: Boolean
+        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -880,6 +888,8 @@ enums:
         description: Subsection of the Pocket homescreen section which shows sponsored stories.
       recent-explorations:
         description: The tab groups
+      synced-tabs:
+        description: The synced tabs section of the homepage.
       top-sites:
         description: The frecency and pinned sites.
   MR2022Section:
