@@ -473,6 +473,14 @@ suggest-shipped-domains:
     enabled:
       type: boolean
       description: "Suggest domains from the shipped domain list.\n"
+tab-strip:
+  description: Enables tab strip.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to enable tab strip.\n"
 third-party-cookie-blocking:
   description: Control third-party cookie blocking.
   hasExposure: true
