@@ -1224,6 +1224,13 @@ newTabSectionsExperiment:
         pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.enabled
       description: >-
         Enable the inferred personalization for topics
+    reportContentEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref:  browser.newtabpage.activity-stream.discoverystream.reportContent.enabled
+      description: >-
+        Enable reporting for ads and content
     localeSectionstConfig:
       type: string
       setPref:
@@ -2313,6 +2320,12 @@ dohPrefs:
       setPref:
         branch: default
         pref: "doh-rollout.provider-list"
+    dohProviderSteeringList:
+      description: An override of the rollout steering provider-list json
+      type: string
+      setPref:
+        branch: default
+        pref: "doh-rollout.provider-steering.provider-list"
     nativeHTTPSRecords:
       description: Whether we can perform native DNS HTTPS lookups
       type: boolean
@@ -4309,6 +4322,18 @@ chatbot:
         The prefs to set under browser.ml.chat.* with object keys as the
         sub-pref and values objects indicating the desired branch and value
         defaulting to clearing the user branch value.
+
+linkPreviews:
+  description: Enabling the link previews feature
+  owner: elee@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.ml.linkPreview.enabled
+      description: If true, will show previews when over link and keyboard shortcut is pressed
 
 sidebar:
   description: Sidebar feature configuration
