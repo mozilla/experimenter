@@ -639,7 +639,7 @@ features:
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
-        default: true
+        default: false
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
