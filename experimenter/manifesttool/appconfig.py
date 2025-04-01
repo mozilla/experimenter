@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, Field, RootModel, model_validator
+from pydantic import BaseModel, Field, RootModel, field_validator, model_validator
 
 from manifesttool.version import Version
 
@@ -36,12 +36,12 @@ class VersionFileType(str, Enum):
 
 class PlainTextVersionFile(BaseModel):
     type: Literal[VersionFileType.PLAIN_TEXT]
-    path: str | list[str]
+    path: str
 
 
 class PListVersionFile(BaseModel):
     type: Literal[VersionFileType.PLIST]
-    path: str | list[str]
+    path: str
     key: str
 
 
@@ -49,7 +49,7 @@ class VersionFile(RootModel):
     root: PlainTextVersionFile | PListVersionFile = Field(discriminator="type")
 
     @classmethod
-    def create_plain_text(cls, path: str | list[str]):  # pragma: no cover
+    def create_plain_text(cls, path: str):  # pragma: no cover
         return cls(
             PlainTextVersionFile(
                 type=VersionFileType.PLAIN_TEXT,
@@ -58,7 +58,7 @@ class VersionFile(RootModel):
         )
 
     @classmethod
-    def create_plist(cls, path: str | list[str], key: str):  # pragma: no cover
+    def create_plist(cls, path: str, key: str):  # pragma: no cover
         return cls(
             PListVersionFile(
                 type=VersionFileType.PLIST,
@@ -127,8 +127,18 @@ class DiscoveryStrategy(RootModel):
 
 
 class ReleaseDiscovery(BaseModel):
-    version_file: VersionFile
+    version_file: list[VersionFile]
     strategies: list[DiscoveryStrategy] = Field(min_items=1)
+
+    @field_validator("version_file", mode="before")
+    @classmethod
+    def ensure_version_file_is_list(
+        cls, value: VersionFile | list[VersionFile]
+    ) -> list[VersionFile]:
+        if isinstance(value, list):
+            return value
+
+        return [value]
 
 
 class AppConfig(BaseModel):
