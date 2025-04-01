@@ -5,17 +5,6 @@ about:
 channels:
   - developer
 features:
-  SetupChecklist:
-    description: A feature on the home page that allows the user to track onboarding setup progress.
-    variables:
-      enabled:
-        description: "If true, the setup checklist will be enabled."
-        type: Boolean
-        default: false
-      setup-checklist-type:
-        description: The collection used for the setup checklist.
-        type: SetupChecklistType
-        default: collection-1
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -50,7 +39,7 @@ features:
       enabled:
         description: "Whether or not to turn on the compose homepage.\n"
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -147,13 +136,6 @@ features:
         description: "If true, the feature is active"
         type: Boolean
         default: false
-  homepage-search-bar:
-    description: Enables the homepage search bar.
-    variables:
-      enabled:
-        description: "Whether or not to enable the homepage search bar.\n"
-        type: Boolean
-        default: false
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -167,7 +149,6 @@ features:
           recent-explorations: true
           pocket: true
           pocket-sponsored-stories: true
-          synced-tabs: true
   javascript:
     description: Enables Javascript Engine (Spidermonkey) features
     variables:
@@ -260,7 +241,7 @@ features:
             prerequisites:
               - ALWAYS
             primary-button-label: onboarding_save_and_continue_button
-            secondary-button-label: ""
+            secondary-button-label: onboarding_customize_theme_skip_button
             title: onboarding_customize_theme_title
           toolbar-placement:
             body: onboarding_customize_toolbar_description
@@ -281,7 +262,7 @@ features:
             prerequisites:
               - ALWAYS
             primary-button-label: onboarding_save_and_start_button
-            secondary-button-label: ""
+            secondary-button-label: onboarding_customize_toolbar_skip_button
             title: onboarding_customize_toolbar_title
           terms-of-service:
             card-type: terms-of-service
@@ -292,9 +273,9 @@ features:
             primary-button-label: onboarding_term_of_service_agree_and_continue_button_label
             extra-data:
               term-of-service-data:
-                line-one-text: onboarding_term_of_service_line_one_2
-                line-one-link-text: onboarding_term_of_service_line_one_link_text_2
-                line-two-text: onboarding_term_of_service_line_two_2
+                line-one-text: onboarding_term_of_service_line_one
+                line-one-link-text: onboarding_term_of_service_line_one_link_text
+                line-two-text: onboarding_term_of_service_line_two
                 line-two-link-text: onboarding_term_of_service_line_two_link_text
                 line-three-text: onboarding_term_of_service_line_three
                 line-three-link-text: onboarding_term_of_service_line_three_link_text
@@ -530,7 +511,7 @@ features:
       enabled:
         description: "When the feature is enabled then microsurveys can be used.\n"
         type: Boolean
-        default: false
+        default: true
   mr2022:
     description: Features for MR 2022.
     variables:
@@ -623,7 +604,7 @@ features:
       certificateTransparencyMode:
         description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
         type: Int
-        default: 2
+        default: 0
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
@@ -678,10 +659,6 @@ features:
         description: "Whether or not to enable recent searches.\n"
         type: Boolean
         default: false
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 4
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:
@@ -741,6 +718,25 @@ features:
         description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
         type: Text
         default: sent_from_firefox_template
+  set-as-default-prompt:
+    description: "Displays native default browser prompt to existing users.\n"
+    variables:
+      app-cold-starts-between-prompts:
+        description: "Minimum number of app cold starts before the next prompt should be displayed to the user.\n"
+        type: Int
+        default: 4
+      days-between-prompts:
+        description: "Minimum number of days between displays of Set as default prompt.\n"
+        type: Int
+        default: 14
+      enabled:
+        description: "When the feature is enabled then the Set as default prompt can be triggered for existing users.\n"
+        type: Boolean
+        default: true
+      max-number-of-times-to-display:
+        description: "Maximum number of time the prompt should be displayed.\n"
+        type: Int
+        default: 3
   ship:
     description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:
@@ -770,13 +766,6 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
-  tab-strip:
-    description: Enables tab strip.
-    variables:
-      enabled:
-        description: "Whether or not to enable tab strip.\n"
-        type: Boolean
-        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -792,17 +781,6 @@ features:
         description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
         type: Boolean
         default: true
-  top-sites-suggestions:
-    description: Enables top sites suggestions.
-    variables:
-      enabled:
-        description: "Whether or not to enable top sites suggestions.\n"
-        type: Boolean
-        default: false
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 4
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -841,10 +819,6 @@ features:
         description: "Whether or not to enable trending searches.\n"
         type: Boolean
         default: false
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 4
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -888,8 +862,6 @@ enums:
         description: Subsection of the Pocket homescreen section which shows sponsored stories.
       recent-explorations:
         description: The tab groups
-      synced-tabs:
-        description: The synced tabs section of the homepage.
       top-sites:
         description: The frecency and pinned sites.
   MR2022Section:
@@ -952,13 +924,6 @@ enums:
         description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in private mode. 0 for setting to be disabled, and 1 for enabling the setting."
       query-parameter-stripping-strip-list:
         description: An string separated by commas indicating the list of query params to be stripped from URIs. This list will be merged with records coming from RemoteSettings.
-  SetupChecklistType:
-    description: An enum to represent the different experiment branches for the setup checklist.
-    variants:
-      collection-1:
-        description: The collection for the setup checklist that has 3 items.
-      collection-2:
-        description: The collection for the setup checklist that has 6 items.
   SuggestionType:
     description: The type of a Firefox Suggest search suggestion.
     variants:
