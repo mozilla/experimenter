@@ -30,11 +30,14 @@ firefox_ios:
     - "nimbus.fml.yaml"
   release_discovery:
     version_file:
-      type: "plist"
-      path:
-        - "firefox-ios/Client/Info.plist"
-        - "Client/Info.plist"
-      key: "CFBundleShortVersionString"
+      - type: "plaintext"
+        path: "version.txt"
+      - type: "plist"
+        path: "firefox-ios/Client/Info.plist"
+        key: "CFBundleShortVersionString"
+      - type: "plist"
+        path: "Client/Info.plist"
+        key: "CFBundleShortVersionString"
     strategies:
       - type: "tagged"
         branch_re: 'release/v(?P<major>\d+)(?:\.(?P<minor>\d+))?'
@@ -66,11 +69,14 @@ focus_ios:
     - "focus-ios/nimbus.fml.yaml"
   release_discovery:
     version_file:
-      type: "plist"
-      path:
-        - "focus-ios/Blockzilla/Info.plist"
-        - "Blockzilla/Info.plist"
-      key: "CFBundleShortVersionString"
+      - type: "plaintext"
+        path: "version.txt"
+      - type: "plist"
+        path: "Blockzilla/Info.plist"
+        key: "CFBundleShortVersionString"
+      - type: "plist"
+        path: "Blockzilla/Info.plist"
+        key: "CFBundleShortVersionString"
     strategies:
       - type: "tagged"
         branch_re: 'release/v(?P<major>\d+)'
