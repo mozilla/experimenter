@@ -60,4 +60,6 @@ class TestVisualizationView(TestCase):
         self.assertEqual(response.status_code, 404)
 
         json_data = json.loads(response.content)
-        self.assertEqual({"detail": "Not found."}, json_data)
+        self.assertEqual(
+            {"detail": "No NimbusExperiment matches the given query."}, json_data
+        )
