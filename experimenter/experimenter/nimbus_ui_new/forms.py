@@ -144,8 +144,7 @@ class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm
         return f"{self.request.user} cloned this experiment from {self.instance.name}"
 
     def save(self):
-        clone = self.instance.clone(self.cleaned_data["name"], self.cleaned_data["owner"])
-        return clone
+        return self.instance.clone(self.cleaned_data["name"], self.cleaned_data["owner"])
 
 
 class NimbusExperimentPromoteToRolloutForm(
@@ -172,12 +171,11 @@ class NimbusExperimentPromoteToRolloutForm(
         fields = ["owner", "name", "slug"]
 
     def save(self):
-        clone = self.instance.clone(
+        return self.instance.clone(
             self.cleaned_data["name"],
             self.cleaned_data["owner"],
             self.cleaned_data["branch_slug"],
         )
-        return clone
 
 
 class ToggleArchiveForm(NimbusChangeLogFormMixin, forms.ModelForm):

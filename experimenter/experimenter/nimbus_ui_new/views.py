@@ -277,10 +277,9 @@ class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, Up
         kwargs["data"]["owner"] = self.request.user
         return kwargs
 
+    # TODO: https://github.com/mozilla/experimenter/issues/12432
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["experiment"] = self.get_object()
-        return context
+        return super().get_context_data(experiment=self.get_object(), **kwargs)
 
     def post(self, *args, **kwargs):
         response = super().post(*args, **kwargs)
@@ -302,7 +301,7 @@ class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneView):
     template_name = "nimbus_experiments/clone.html"
 
 
-class UpdateCloneSlugView(NimbusExperimentViewMixin, RenderResponseMixin, UpdateView):
+class UpdateCloneSlugView(UpdateView):
     template_name = "nimbus_experiments/clone_slug_field.html"
 
     def post(self, request, *args, **kwargs):
@@ -323,10 +322,10 @@ class ToggleArchiveView(
     def form_valid(self, form):
         form.save()
 
+        response = HttpResponse()
         if self.request.headers.get("HX-Request"):
-            response = HttpResponse()
             response.headers["HX-Refresh"] = "true"
-            return response
+        return response
 
 
 class OverviewUpdateView(

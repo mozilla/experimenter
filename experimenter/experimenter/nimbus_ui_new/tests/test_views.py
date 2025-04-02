@@ -1241,6 +1241,19 @@ class TestNimbusExperimentsSidebarCloneView(AuthTestCase):
 
         self.assertEqual(response.context["experiment"], self.experiment)
 
+    def test_form_invalid_renders_with_experiment_context(self):
+        response = self.client.post(
+            reverse("nimbus-new-clone", kwargs={"slug": self.experiment.slug}),
+            {"owner": self.user, "name": "$."},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTrue(response.context["form"].errors)
+
+        self.assertIn("experiment", response.context)
+        self.assertEqual(response.context["experiment"], self.experiment)
+
 
 class TestNimbusExperimentPromoteToRolloutView(AuthTestCase):
     def setUp(self):
@@ -1275,6 +1288,19 @@ class TestNimbusExperimentPromoteToRolloutView(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
 
+        self.assertEqual(response.context["experiment"], self.experiment)
+
+    def test_form_invalid_renders_with_experiment_context(self):
+        response = self.client.post(
+            reverse("nimbus-new-clone", kwargs={"slug": self.experiment.slug}),
+            {"owner": self.user, "name": "$."},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTrue(response.context["form"].errors)
+
+        self.assertIn("experiment", response.context)
         self.assertEqual(response.context["experiment"], self.experiment)
 
 
