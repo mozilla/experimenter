@@ -26,6 +26,13 @@ features:
         description: "Controls whether users see the setting to customize their app icon in Settings.\n"
         type: Boolean
         default: true
+  appearance-menu-feature:
+    description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
+    variables:
+      status:
+        description: "If true, we will show the new appearance menu entry"
+        type: Boolean
+        default: false
   bookmark-refactor-feature:
     description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
     variables:
@@ -115,7 +122,7 @@ features:
       enabled:
         description: "If true, enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -184,6 +191,7 @@ features:
           OPEN_SETTINGS_PRIVACY: "://deep-link?url=settings/clear-private-data"
           OPEN_SETTINGS_FXA: "://deep-link?url=settings/fxa"
           OPEN_SETTINGS_THEME: "://deep-link?url=settings/theme"
+          OPEN_SETTINGS_APP_ICON: "://deep-link?url=settings/app-icon"
           OPEN_URL: "://open-url"
           VIEW_BOOKMARKS: "://deep-link?url=homepanel/bookmarks"
           VIEW_TOP_SITES: "://deep-link?url=homepanel/top-sites"
@@ -504,7 +512,7 @@ features:
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
-        default: false
+        default: true
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
@@ -631,7 +639,7 @@ features:
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
-        default: true
+        default: false
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
