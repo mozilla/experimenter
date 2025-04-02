@@ -472,7 +472,7 @@ class VersionTests(TestCase):
                     make_responses_for_fetch(
                         app_config.repo.name,
                         ref.target,
-                        app_config.release_discovery.version_file.root.path,
+                        app_config.release_discovery.version_file[0].root.path,
                         body,
                     )
                 )
@@ -480,7 +480,7 @@ class VersionTests(TestCase):
                 rsps.append(
                     responses.get(
                         f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
-                        f"{ref.target}/{app_config.release_discovery.version_file.root.path}",
+                        f"{ref.target}/{app_config.release_discovery.version_file[0].root.path}",
                         body=body,
                     )
                 )
@@ -516,12 +516,10 @@ class VersionTests(TestCase):
                     ),
                     fml_path="nimbus.fml.yaml",
                     release_discovery=ReleaseDiscovery(
-                        version_file=VersionFile.create_plain_text(
-                            [
-                                "a/version.txt",
-                                "b/version.txt",
-                            ]
-                        ),
+                        version_file=[
+                            VersionFile.create_plain_text("a/version.txt"),
+                            VersionFile.create_plain_text("b/version.txt"),
+                        ],
                         strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
                     ),
                 ),
@@ -534,12 +532,10 @@ class VersionTests(TestCase):
                     ),
                     fml_path="experimenter.yaml",
                     release_discovery=ReleaseDiscovery(
-                        version_file=VersionFile.create_plain_text(
-                            [
-                                "a/version.txt",
-                                "b/version.txt",
-                            ]
-                        ),
+                        version_file=[
+                            VersionFile.create_plain_text("a/version.txt"),
+                            VersionFile.create_plain_text("b/version.txt"),
+                        ],
                         strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
                     ),
                 ),
@@ -548,7 +544,7 @@ class VersionTests(TestCase):
     )
     @responses.activate
     def test_resolve_ref_versions_multiple_files(self, app_config, bodies, expected):
-        version_paths = app_config.release_discovery.version_file.root.path
+        version_paths = [vf.root.path for vf in app_config.release_discovery.version_file]
 
         refs = []
         rsps = []
@@ -596,24 +592,22 @@ class VersionTests(TestCase):
             ),
             fml_path="nimbus.fml.yaml",
             release_discovery=ReleaseDiscovery(
-                version_file=VersionFile.create_plain_text(
-                    [
-                        "a/version.txt",
-                        "b/version.txt",
-                    ]
-                ),
+                version_file=[
+                    VersionFile.create_plain_text("a/version.txt"),
+                    VersionFile.create_plain_text("b/version.txt"),
+                ],
                 strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
             ),
         )
 
         rsps = [
             responses.get(
-                f"{GITHUB_API_URL}/repos/{app_config.repo.name}/contents/{path}",
+                f"{GITHUB_API_URL}/repos/{app_config.repo.name}/contents/{vf.root.path}",
                 match=[matchers.query_param_matcher({"ref": "foo"})],
                 status=404,
                 body=b"",
             )
-            for path in app_config.release_discovery.version_file.root.path
+            for vf in app_config.release_discovery.version_file
         ]
 
         with self.assertRaisesRegex(

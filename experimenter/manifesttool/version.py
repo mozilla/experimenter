@@ -12,7 +12,7 @@ from manifesttool import github_api, hgmo_api
 from manifesttool.repository import Ref
 
 if TYPE_CHECKING:  # pragma: no cover
-    from manifesttool.appconfig import AppConfig, VersionFile
+    from manifesttool.appconfig import AppConfig, Repository, VersionFile
 
 
 @dataclass
@@ -211,18 +211,14 @@ def resolve_ref_versions(
 
     versions = {}
 
-    version_file_paths: str | list[str] = (
-        app_config.release_discovery.version_file.root.path
-    )
-    if not isinstance(version_file_paths, list):
-        version_file_paths = [version_file_paths]
+    version_files = app_config.release_discovery.version_file
 
     for ref in refs:
-        for version_file_path in version_file_paths:
+        for version_file in version_files:
             try:
                 version_file_contents = fetch_file(
                     app_config.repo.name,
-                    version_file_path,
+                    version_file.root.path,
                     ref.target,
                 )
             except HTTPError as e:
@@ -231,15 +227,14 @@ def resolve_ref_versions(
 
                 raise  # pragma: no cover
 
-            break
+            version = parse_version_file(version_file, version_file_contents)
 
+            if version is not None:
+                versions[version] = ref
+                break
         else:
-            raise Exception(f"Could not find version file for app {app_config.slug}")
-
-        v = parse_version_file(
-            app_config.release_discovery.version_file, version_file_contents
-        )
-
-        versions[v] = ref
+            raise Exception(
+                f"Could not find version file for app {app_config.slug} at ref {ref.name} ({ref.target})"
+            )
 
     return versions
