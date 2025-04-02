@@ -72,7 +72,7 @@ focus_ios:
       - type: "plaintext"
         path: "version.txt"
       - type: "plist"
-        path: "Blockzilla/Info.plist"
+        path: "focus-ios/Blockzilla/Info.plist"
         key: "CFBundleShortVersionString"
       - type: "plist"
         path: "Blockzilla/Info.plist"
