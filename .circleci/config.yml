@@ -123,12 +123,12 @@ jobs:
 
   integration_nimbus_desktop_ui:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -m nimbus_ui -n 2 --reruns 1
     steps:
       - checkout
@@ -144,12 +144,12 @@ jobs:
 
   integration_nimbus_remote_settings_launch:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -m remote_settings_launch --reruns 1
     steps:
       - checkout
@@ -165,12 +165,12 @@ jobs:
 
   integration_nimbus_remote_settings_all:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings_all --reruns 1
     steps:
       - checkout
@@ -186,14 +186,13 @@ jobs:
 
   integration_nimbus_desktop_enrollment:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: nightly
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1
-      UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
       - check_file_paths:
@@ -209,12 +208,12 @@ jobs:
 
   integration_nimbus_desktop_release_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
@@ -231,14 +230,13 @@ jobs:
 
   integration_nimbus_desktop_beta_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-beta
+      FIREFOX_CHANNEL: beta
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
-      FIREFOX_BETA: 1
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
@@ -254,14 +252,13 @@ jobs:
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: nightly
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1
-      UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
       - check_file_paths:
@@ -387,7 +384,7 @@ jobs:
 
   integration_nimbus_sdk_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -405,12 +402,12 @@ jobs:
 
   integration_nimbus_cirrus:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k DEMO_APP -m cirrus_enrollment --reruns 1
     steps:
       - checkout
@@ -428,7 +425,7 @@ jobs:
   create_mobile_recipes:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -536,7 +533,7 @@ jobs:
   update_external_configs:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - add_ssh_keys:
@@ -580,7 +577,7 @@ jobs:
 
   update_application_services:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - add_ssh_keys:
@@ -617,7 +614,7 @@ jobs:
 
   update_firefox_versions:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     working_directory: ~/experimenter
     steps:
@@ -638,33 +635,10 @@ jobs:
           command: |
             ./scripts/external_integration_updater_script.sh
 
-  build_firefox_versions:
-    working_directory: ~/experimenter
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    steps:
-      - checkout
-      - docker_login:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-      - run:
-          name: Build and upload images
-          command: |
-            # Clone last working version to ensure compatibility with aarch64 apple silicon machines
-            git clone --branch selenium-grid-0.27.0 --depth 1 git@github.com:SeleniumHQ/docker-selenium.git
-            cd docker-selenium
-            BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
-            BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
-            docker tag selenium/standalone-firefox:firefox-release ${DOCKERHUB_REPO}:nimbus-firefox-release
-            docker tag selenium/standalone-firefox:firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker push ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker push ${DOCKERHUB_REPO}:nimbus-firefox-release
-
   build_firefox_fenix:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: xlarge
     steps:
@@ -690,17 +664,6 @@ jobs:
             - tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
 
 workflows:
-  build_firefox:
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - build_firefox_versions
-
   update_configs:
     triggers:
       - schedule:

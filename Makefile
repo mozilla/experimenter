@@ -221,17 +221,15 @@ integration_shell:
 integration_sdk_shell: build_prod build_integration_test
 	$(COMPOSE_INTEGRATION_RUN) rust-sdk bash
 
-integration_vnc_up: build_prod
-	$(COMPOSE_INTEGRATION) up firefox
-
-integration_vnc_up_detached: build_prod
-	$(COMPOSE_INTEGRATION) up -d firefox
+integration_vnc_shell: build_prod
+	$(COMPOSE_INTEGRATION) up -d firefox 
+	docker exec -it $$(docker ps -qf "name=experimenter-firefox-1") bash
 
 integration_test_legacy: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "./experimenter/tests/experimenter_legacy_tests.sh"
 
 integration_test_nimbus_desktop: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "UPDATE_FIREFOX_VERSION=$(UPDATE_FIREFOX_VERSION) FIREFOX_BETA=$(FIREFOX_BETA) FIREFOX_RELEASE=$(FIREFOX_RELEASE) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "FIREFOX_CHANNEL=$(FIREFOX_CHANNEL) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
 
 integration_test_nimbus_sdk: build_integration_test build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"

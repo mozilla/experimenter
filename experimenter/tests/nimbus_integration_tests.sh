@@ -6,9 +6,11 @@ set +x
 export PATH=$PATH:/home/seluser/.local/bin
 
 PYTEST_ARGS=${PYTEST_ARGS:-"-k FIREFOX_DESKTOP"}
+FIREFOX_CHANNEL="release"
 
 install_firefox() {
     local firefox_version="$1"
+    echo $firefox_version
     sudo apt-get update -qqy
     sudo apt-get install xz-utils
     sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/*
@@ -20,23 +22,27 @@ install_firefox() {
     sudo chown -R seluser /opt/firefox/firefox
 }
 
-if [[ -n "${UPDATE_FIREFOX_VERSION}" ]]; then
+case "$FIREFOX_CHANNEL" in
+  nightly)
     sudo ./experimenter/tests/integration/nimbus/utils/nightly-install.sh
-fi
-
-if [[ -n "${FIREFOX_BETA}" ]]; then
+    ;;
+  beta)
     source ./experimenter/tests/firefox_desktop_beta_build.env
     FIREFOX_DESKTOP_BETA_TASK_ID=${FIREFOX_DESKTOP_BETA_TASK_ID//\"/}
     echo "Installing firefox beta from taskcluster"
-    install_firefox "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${FIREFOX_DESKTOP_BETA_TASK_ID}/artifacts/public/build/target.tar.xz"
-fi
-
-if [[ -n "${FIREFOX_RELEASE}" ]]; then
+    install_firefox "https://ftp.mozilla.org/pub/firefox/releases/138.0b1/linux-x86_64/en-US/firefox-138.0b1.tar.xz"
+    ;;
+  release)
     source ./experimenter/tests/firefox_desktop_release_build.env
     FIREFOX_DESKTOP_RELEASE_VERSION_ID=${FIREFOX_DESKTOP_RELEASE_VERSION_ID//\"/}
     echo "Installing firefox release v${FIREFOX_DESKTOP_RELEASE_VERSION_ID}"
-    install_firefox "https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX_DESKTOP_RELEASE_VERSION_ID}/linux-x86_64/en-US/firefox-${FIREFOX_DESKTOP_RELEASE_VERSION_ID}.tar.bz2"
-fi
+    install_firefox "https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX_DESKTOP_RELEASE_VERSION_ID}/linux-x86_64/en-US/firefox-${FIREFOX_DESKTOP_RELEASE_VERSION_ID}.tar.xz"
+    ;;
+  *)
+    echo "Unknown FIREFOX_CHANNEL: '$FIREFOX_CHANNEL'"
+    exit 1
+    ;;
+esac
 
 curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
 sudo chmod -R a+rwx /code/experimenter/tests/integration/

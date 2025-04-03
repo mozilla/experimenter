@@ -434,19 +434,17 @@ For a full reference of all the common commands that can be run inside the conta
 
 Run the integration test suite for experimenter inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
-#### make FIREFOX_VERSION integration_test_nimbus_desktop
+#### make FIREFOX_CHANNEL integration_test_nimbus_desktop
 
 Run the integration test suite for nimbus inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
-FIREFOX_VERSION should either be `nimbus-firefox-release` or `nimbus-firefox-beta`. If you want to run your tests against nightly, please set the variable `UPDATE_FIREFOX_VERSION` to `true` and include it in the make command.
+FIREFOX_CHANNEL should either be `release`, `nightly` or `beta`, and include it in the make command.
 
-#### make FIREFOX_VERSION integration_test_nimbus_sdk
+#### make integration_test_nimbus_sdk
 
 Run the Nimbus SDK integration tests, which tests the advanced targeting configurations against the Nimbus SDK.
 
-FIREFOX_VERSION should either be `nimbus-firefox-release` or `nimbus-firefox-beta`. If you want to run your tests against nightly, please set the variable `UPDATE_FIREFOX_VERSION` to `true` and include it in the make command.
-
-#### make FIREFOX_VERSION integration_vnc_up
+#### make integration_vnc_shell
 
 First start a prod instance of Experimenter with:
 
@@ -457,22 +455,19 @@ make refresh&&make up_prod_detached
 Then start the VNC service:
 
 ```bash
-make FIREFOX_VERSION integration_vnc_up
+make integration_vnc_shell
 ```
 
-Then open your VNC client (Safari does this on OSX or just use [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/)) and open `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter:
-
-```bash
-cd experimenter
-sudo apt get update
-sudo apt install tox
-chmod a+rwx tests/integration/.tox
-tox -c tests/integration/ -e integration-test-nimbus
-```
-
-This should run the integration tests and watch them run in a Firefox instance you can watch and interact with.
+Then open your VNC client (Safari does this on OSX or just use [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/)) and open `vnc://localhost:5900` with password `secret`.
 
 To use NoVNC, navgate to this url `http://localhost:7902` with the password `secret`. Then you can follow the same steps as above.
+
+When the command executes successfully, you will have terminal access to the running Firefox container. After you follow the above steps to connect via VNC, run `firefox` and confirm that a Firefox browser loads.
+
+To then run the tests, set `PYTEST_ARGS` with the tests you want to run, i.e.: `export PYTEST_ARGS=-k test_archive[FIREFOX_DESKTOP]`. You will need to include the nimbus client you want to test against as well. You can also set the Firefox Channel you want to run against via the `FIREFOX_CHANNEL` environment variable. Then execute the test script. The following is an example using the above environment variables: 
+```sh
+PYTEST_ARGS="-k test_archive_experiment[FIREFOX_DESKTOP]" FIREFOX_CHANNEL="nightly" ./experimenter/tests/nimbus_integration_tests.sh
+```
 
 ### Running Integration tests locally
 
@@ -490,19 +485,11 @@ alias firefox="/Applications/Firefox.app/Contents/MacOS/firefox"
 make refresh build_integration_test SKIP_DUMMY=1 up_prod_detached
 ```
 Navigate with your browser to `https://localhost/nimbus` to confirm everything is working.
-4. Install tox:
+4. To then run the tests, set `PYTEST_ARGS` with the tests you want to run, i.e.: `PYTEST_ARGS=-k test_archive_experiment[FIREFOX_DESKTOP]`. You will need to include the nimbus client you want to test against as well. You can also set the Firefox Channel you want to run against via the `FIREFOX_CHANNEL` environment variable. Then execute the test script. The following is an example using the above environment variables: 
 ```sh
-pip install tox
-```
-5. Run the Integration Tests using tox:
-```sh
-tox -c experimenter/tests/integration -e integration-test-nimbus-local
+PYTEST_ARGS="-k test_archive_experiment[FIREFOX_DESKTOP]" FIREFOX_CHANNEL="nightly" ./experimenter/tests/nimbus_integration_tests.sh
 ```
 
-* To run a specific test:
-```sh
-tox -c experimenter/tests/integration -e integration-test-nimbus-local -- -k "test_name_here[WITH_CLIENT]
-```
 Firefox should pop up and start running through your test! You can change the firefox version the tests run on by copying the path of the `firefox-bin` and adding it to the `firefox_options` fixture in the `tests/integration/nimbus/conftest.py` file:
 
 ```sh
@@ -511,7 +498,6 @@ firefox_options.binary = "path/to/firefox-bin"
 
 #### Integration Test options
 
-- `TOX_ARGS`: [Tox](https://tox.readthedocs.io/en/latest/config.html#tox) commandline variables.
 - `PYTEST_ARGS`: [Pytest](https://docs.pytest.org/en/6.2.x/usage.html#) commandline variables.
 
 An example using PYTEST_ARGS to run one test.
@@ -523,13 +509,13 @@ make integration_test_legacy PYTEST_ARGS="-k test_addon_rollout_experiment_e2e"
 Note: You need the following firefox version flag when running integration tests
 
 ```sh
-FIREFOX_VERSION=nimbus-firefox-release
+FIREFOX_CHANNEL=release
 ```
 
 An example for above:
 
 ```sh
-make FIREFOX_VERSION=nimbus-firefox-release integration_test_nimbus_desktop PYTEST_ARGS=ktest_rollout_create_and_update
+make FIREFOX_CHANNEL=release integration_test_nimbus_desktop PYTEST_ARGS=ktest_rollout_create_and_update
 ```
 
 #### make integration_sdk_shell
