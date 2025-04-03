@@ -131,7 +131,9 @@ def selenium(selenium, experiment_slug, kinto_client):
 @pytest.fixture
 def driver(firefox_options):
     firefox_service = Service("/usr/bin/geckodriver")
-    return webdriver.Firefox(service=firefox_service, options=firefox_options)
+    driver = webdriver.Firefox(service=firefox_service, options=firefox_options)
+    yield driver
+    driver.quit()
 
 
 @pytest.fixture(
