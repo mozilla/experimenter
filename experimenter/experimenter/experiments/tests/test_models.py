@@ -2745,6 +2745,76 @@ class TestNimbusExperiment(TestCase):
             experiment.changes.latest_timeout(), experiment.changes.latest_change()
         )
 
+    def test_should_show_remote_settings_pending_true_for_reviewer(self):
+        reviewer = UserFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+        )
+
+        generate_nimbus_changelog(experiment, experiment.owner, "requested review")
+
+        self.assertTrue(experiment.can_review(reviewer))
+        self.assertTrue(experiment.should_show_remote_settings_pending(reviewer))
+
+    def test_should_show_remote_settings_pending_false_for_requesting_user(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+        )
+
+        generate_nimbus_changelog(experiment, experiment.owner, "requested review")
+
+        # Owner tries to review their own request
+        self.assertFalse(experiment.can_review(experiment.owner))
+        self.assertFalse(experiment.should_show_remote_settings_pending(experiment.owner))
+
+    def test_should_show_timeout_message_true_with_real_timeout_changelog(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE
+        )
+
+        experiment.apply_lifecycle_state(
+            NimbusExperimentFactory.LifecycleStates.DRAFT_WAITING
+        )
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "Waiting for review")
+
+        self.assertFalse(experiment.should_show_timeout_message)
+
+        experiment.apply_lifecycle_state(
+            NimbusExperimentFactory.LifecycleStates.DRAFT_REVIEW
+        )
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "Timed out")
+
+        self.assertTrue(experiment.should_show_timeout_message)
+
+    def test_should_show_timeout_message_false_if_no_timeout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE
+        )
+
+        generate_nimbus_changelog(experiment, experiment.owner, "normal change")
+
+        self.assertFalse(experiment.should_show_timeout_message)
+
+    def test_can_preview_to_draft_true_when_status_is_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW
+        )
+        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
+        self.assertTrue(experiment.is_preview)
+        self.assertTrue(experiment.can_preview_to_draft)
+        self.assertTrue(experiment.can_preview_to_review)
+
+    def test_can_preview_to_draft_false_when_status_is_not_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        self.assertNotEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
+        self.assertFalse(experiment.is_preview)
+        self.assertFalse(experiment.can_preview_to_draft)
+        self.assertFalse(experiment.can_preview_to_review)
+
     def test_has_state_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
