@@ -1224,7 +1224,7 @@ export const MockResultsContextProvider = ({
   children: ReactNode;
   analysis?: AnalysisData;
 }) => {
-  const sortedBranchNames = getSortedBranchNames(analysis);
+  const sortedBranchNames = getSortedBranchNames(analysis, mockExperiment());
   const value = {
     analysis,
     sortedBranchNames,
