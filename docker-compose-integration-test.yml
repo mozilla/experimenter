@@ -2,7 +2,7 @@ version: "3"
 
 services:
   firefox:
-    image: selenium/standalone-firefox:nightly
+    image: selenium/standalone-firefox
     env_file: .env
     platform: linux/amd64
     environment:
