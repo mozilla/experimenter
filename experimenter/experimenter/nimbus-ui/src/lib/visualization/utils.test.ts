@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { mockExperiment } from "src/lib/mocks";
 import {
   mockAnalysis,
   mockAnalysisOnlyGuardrailsNoDau,
@@ -34,7 +35,7 @@ describe("getSortedBranchNames", () => {
   };
 
   it("returns a list of branch names, the control branch first", () => {
-    expect(getSortedBranchNames(mockAnalysis())).toEqual([
+    expect(getSortedBranchNames(mockAnalysis(), mockExperiment())).toEqual([
       "control",
       "treatment",
     ]);
@@ -46,6 +47,7 @@ describe("getSortedBranchNames", () => {
         mockAnalysis({
           metadata: MOCK_METADATA_WITH_CONFIG,
         }),
+        mockExperiment(),
       ),
     ).toEqual(["treatment", "control"]);
   });
@@ -54,19 +56,141 @@ describe("getSortedBranchNames", () => {
     expect(
       getSortedBranchNames(
         mockAnalysis({ overall: { enrollments: { all: MOCK_OVERALL } } }),
+        mockExperiment({
+          referenceBranch: {
+            id: 123,
+            name: "User-centric mobile solution",
+            slug: "fum",
+            description:
+              "Behind almost radio result personal none future current.",
+            ratio: 1,
+            featureValues: [
+              {
+                featureConfig: { id: 1 },
+                value: '{"environmental-fact": "really-citizen"}',
+              },
+            ],
+            screenshots: [],
+          },
+          treatmentBranches: [
+            {
+              id: 456,
+              name: "Managed zero tolerance projection",
+              slug: "fee",
+              description: "Next ask then he in degree order.",
+              ratio: 1,
+              featureValues: [
+                {
+                  featureConfig: { id: 1 },
+                  value: '{"effect-effect-whole": "close-teach-exactly"}',
+                },
+              ],
+              screenshots: [],
+            },
+            {
+              id: 4,
+              name: "Managed zero tolerance projection",
+              slug: "fi",
+              description: "Next ask then he in degree order.",
+              ratio: 1,
+              featureValues: [
+                {
+                  featureConfig: { id: 1 },
+                  value: '{"effect-effect-whole": "close-teach-exactly"}',
+                },
+              ],
+              screenshots: [],
+            },
+            {
+              id: 5,
+              name: "Managed zero tolerance projection",
+              slug: "fo",
+              description: "Next ask then he in degree order.",
+              ratio: 1,
+              featureValues: [
+                {
+                  featureConfig: { id: 1 },
+                  value: '{"effect-effect-whole": "close-teach-exactly"}',
+                },
+              ],
+              screenshots: [],
+            },
+            {
+              id: 6,
+              name: "Managed zero tolerance projection",
+              slug: "englishman",
+              description: "Next ask then he in degree order.",
+              ratio: 1,
+              featureValues: [
+                {
+                  featureConfig: { id: 1 },
+                  value: '{"effect-effect-whole": "close-teach-exactly"}',
+                },
+              ],
+              screenshots: [],
+            },
+          ],
+        }),
       ),
     ).toEqual(["fum", "fee", "fi", "fo", "englishman"]);
   });
 
-  it("accounts for external config control branch override with many branches", () => {
+  it("accounts for external config control branch override and ignores extraneous analysis branches", () => {
     expect(
       getSortedBranchNames(
         mockAnalysis({
           overall: { enrollments: { all: MOCK_OVERALL } },
           metadata: { external_config: { reference_branch: "englishman" } },
         }),
+        mockExperiment({
+          referenceBranch: {
+            id: 123,
+            name: "User-centric mobile solution",
+            slug: "fee",
+            description:
+              "Behind almost radio result personal none future current.",
+            ratio: 1,
+            featureValues: [
+              {
+                featureConfig: { id: 1 },
+                value: '{"environmental-fact": "really-citizen"}',
+              },
+            ],
+            screenshots: [],
+          },
+          treatmentBranches: [
+            {
+              id: 456,
+              name: "Managed zero tolerance projection",
+              slug: "englishman",
+              description: "Next ask then he in degree order.",
+              ratio: 1,
+              featureValues: [
+                {
+                  featureConfig: { id: 1 },
+                  value: '{"effect-effect-whole": "close-teach-exactly"}',
+                },
+              ],
+              screenshots: [],
+            },
+            {
+              id: 4,
+              name: "Managed zero tolerance projection",
+              slug: "fi",
+              description: "Next ask then he in degree order.",
+              ratio: 1,
+              featureValues: [
+                {
+                  featureConfig: { id: 1 },
+                  value: '{"effect-effect-whole": "close-teach-exactly"}',
+                },
+              ],
+              screenshots: [],
+            },
+          ],
+        }),
       ),
-    ).toEqual(["englishman", "fee", "fi", "fo", "fum"]);
+    ).toEqual(["englishman", "fee", "fi"]);
   });
 });
 

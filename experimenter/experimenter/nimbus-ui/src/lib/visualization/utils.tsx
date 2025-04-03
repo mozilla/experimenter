@@ -15,6 +15,7 @@ import {
   BranchDescription,
   FormattedAnalysisPoint,
 } from "src/lib/visualization/types";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export const getTableDisplayType = (
   metricKey: string,
@@ -54,20 +55,61 @@ export const getControlBranchName = (analysis: AnalysisData) => {
 };
 
 // Returns [control/reference branch name, treatment branch names]
-export const getSortedBranchNames = (analysis: AnalysisData) => {
+export const getSortedBranchNames = (
+  analysis: AnalysisData,
+  experiment: getExperiment_experimentBySlug | null,
+) => {
+  const branches: string[] = [];
   try {
-    const controlBranchName = getControlBranchName(analysis)!;
+    let configuredReferenceBranch = "";
+    const configuredBranches: string[] = [];
+    let analysisControlBranch = "";
+
+    let actualControlBranch = "";
+    if (
+      experiment &&
+      experiment.referenceBranch &&
+      experiment.treatmentBranches
+    ) {
+      configuredReferenceBranch = experiment.referenceBranch.slug;
+      configuredBranches.push(configuredReferenceBranch);
+      configuredBranches.push(
+        ...experiment.treatmentBranches.map((b) => b!.slug),
+      );
+    }
+    // cross-reference reference branch (prefer analysis data here in case of overrides)
+    try {
+      analysisControlBranch = getControlBranchName(analysis)!;
+    } catch (_e) {}
+    if (
+      configuredReferenceBranch !== analysisControlBranch &&
+      (analysisControlBranch === "" ||
+        !configuredBranches.includes(analysisControlBranch))
+    ) {
+      actualControlBranch = configuredReferenceBranch;
+    } else {
+      actualControlBranch = analysisControlBranch;
+    }
+
+    // cross-reference treatment branches (prefer configured here in case of erroneous
+    // branch data in results -- e.g., from QA)
     const results =
       analysis.overall?.enrollments?.all ||
       analysis.weekly?.enrollments?.all ||
       {};
-    return [
-      controlBranchName,
-      ...Object.keys(results).filter((branch) => branch !== controlBranchName),
+    const analysisBranches = [
+      actualControlBranch,
+      ...Object.keys(results).filter(
+        (branch) => branch !== actualControlBranch,
+      ),
     ];
-  } catch (_e) {
-    return [];
-  }
+    branches.push(
+      ...analysisBranches.filter((branch) =>
+        configuredBranches.includes(branch),
+      ),
+    );
+  } catch (_e) {}
+  return branches;
 };
 
 /**
