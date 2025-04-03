@@ -489,13 +489,6 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
-  password-generator-feature:
-    description: Password Generator Feature
-    variables:
-      enabled:
-        description: "If true, the password generator feature is enabled"
-        type: Boolean
-        default: false
   pdf-refactor-feature:
     description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
     variables:
