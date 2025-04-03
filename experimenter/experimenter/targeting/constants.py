@@ -2504,6 +2504,28 @@ NEW_SIDEBAR_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SIGNED_OUT_EARLY_DAY_USER = NimbusTargetingConfig(
+    name="Signed-out early day user",
+    slug="signed_out_early_day_user",
+    description="Early day users who are NOT signed into FxA",
+    targeting=f"{PROFILELESSTHAN28DAYS} && !isFxASignedIn",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
+    name="Signed-out existing user",
+    slug="signed_out_existing_user",
+    description="Existing users who are NOT signed into FxA",
+    targeting=f"{PROFILE28DAYS} && !isFxASignedIn",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
