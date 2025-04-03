@@ -58,8 +58,10 @@
     {% endfor %}
   {% endif %}
   <!-- Launch Controls Card-->
-  {% include "nimbus_experiments/launch_controls.html" %}
+  {% if not experiment.get_invalid_pages %}
+    {% include "nimbus_experiments/launch_controls.html" %}
 
+  {% endif %}
   <!-- Takeaways Card -->
   {% if experiment.is_complete %}
     {% include "nimbus_experiments/takeaways_card.html" %}

@@ -1,9 +1,17 @@
 from django.test import TestCase
 
+from experimenter.experiments.tests.factories import (
+    NimbusExperimentFactory,
+    UserFactory,
+    generate_nimbus_changelog,
+)
 from experimenter.nimbus_ui_new.templatetags.nimbus_extras import (
     format_json,
     format_not_set,
     remove_underscores,
+)
+from experimenter.nimbus_ui_new.templatetags.nimbus_extras import (
+    should_show_remote_settings_pending as filter_should_show_remote_settings_pending,
 )
 
 
@@ -43,4 +51,23 @@ class FilterTests(TestCase):
             'style="white-space: pre-wrap; word-wrap: break-word;">'
             "{key: value}"
             "</pre>",
+        )
+
+    def test_should_show_remote_settings_pending_filter_true(self):
+        reviewer = UserFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+        )
+        generate_nimbus_changelog(experiment, experiment.owner, "requested review")
+
+        self.assertTrue(filter_should_show_remote_settings_pending(experiment, reviewer))
+
+    def test_should_show_remote_settings_pending_filter_false_for_requester(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+        )
+        generate_nimbus_changelog(experiment, experiment.owner, "requested review")
+
+        self.assertFalse(
+            filter_should_show_remote_settings_pending(experiment, experiment.owner)
         )
