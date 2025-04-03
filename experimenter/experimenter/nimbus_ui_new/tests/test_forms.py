@@ -30,6 +30,8 @@ from experimenter.nimbus_ui_new.forms import (
     DraftToReviewForm,
     MetricsForm,
     NimbusExperimentCreateForm,
+    NimbusExperimentPromoteToRolloutForm,
+    NimbusExperimentSidebarCloneForm,
     OverviewForm,
     PreviewToDraftForm,
     PreviewToReviewForm,
@@ -40,6 +42,7 @@ from experimenter.nimbus_ui_new.forms import (
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
+    ToggleArchiveForm,
     UnsubscribeForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
@@ -115,6 +118,232 @@ class TestNimbusExperimentCreateForm(RequestFormTestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(
             form.errors["hypothesis"], [NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER]
+        )
+
+
+class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
+    def test_valid_clone_form_creates_experiment(self):
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "Cloned Experiment",
+            "slug": "cloned-experiment",
+        }
+        form = NimbusExperimentSidebarCloneForm(
+            data, instance=parent_experiment, request=self.request
+        )
+        changelog_message = form.get_changelog_message()
+        self.assertEqual(
+            changelog_message,
+            f"{self.user} cloned this experiment from Original Experiment",
+        )
+
+        self.assertTrue(form.is_valid())
+
+        cloned_experiment = form.save()
+
+        self.assertEqual(cloned_experiment.owner, self.user)
+        self.assertEqual(cloned_experiment.name, "Cloned Experiment")
+        self.assertEqual(cloned_experiment.slug, "cloned-experiment")
+        self.assertEqual(
+            cloned_experiment.application, NimbusExperiment.Application.DESKTOP
+        )
+
+    def test_invalid_unsluggable_name(self):
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "$.",
+            "slug": "",
+        }
+        form = NimbusExperimentSidebarCloneForm(
+            data, instance=parent_experiment, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_NAME_INVALID])
+
+    def test_invalid_duplicate_slug(self):
+        NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Cloned Experiment",
+            slug="cloned-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "Cloned Experiment.",
+            "slug": "cloned-experiment",
+        }
+        form = NimbusExperimentSidebarCloneForm(
+            data, instance=parent_experiment, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["name"], [NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG]
+        )
+
+
+class TestNimbusExperimentPromoteToRolloutForm(RequestFormTestCase):
+    def test_valid_clone_form_creates_experiment(self):
+        parent_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            name="Original Experiment",
+            slug="original-experiment",
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "Cloned Experiment",
+            "slug": "cloned-experiment",
+            "branch_slug": "control",
+        }
+        form = NimbusExperimentPromoteToRolloutForm(
+            data,
+            instance=parent_experiment,
+            request=self.request,
+        )
+        changelog_message = form.get_changelog_message()
+        self.assertEqual(
+            changelog_message,
+            f"{self.user} cloned this experiment from Original Experiment",
+        )
+
+        self.assertTrue(form.is_valid())
+
+        cloned_experiment = form.save()
+
+        self.assertEqual(cloned_experiment.owner, self.user)
+        self.assertEqual(cloned_experiment.name, "Cloned Experiment")
+        self.assertEqual(cloned_experiment.slug, "cloned-experiment")
+        self.assertTrue(cloned_experiment.is_rollout)
+        self.assertEqual(
+            cloned_experiment.application, NimbusExperiment.Application.DESKTOP
+        )
+
+    def test_invalid_unsluggable_name(self):
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "$.",
+            "slug": "",
+            "branch_slug": "control",
+        }
+        form = NimbusExperimentPromoteToRolloutForm(
+            data,
+            instance=parent_experiment,
+            request=self.request,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_NAME_INVALID])
+
+    def test_invalid_duplicate_slug(self):
+        NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Cloned Experiment",
+            slug="cloned-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "Cloned Experiment.",
+            "slug": "cloned-experiment",
+            "branch_slug": "control",
+        }
+        form = NimbusExperimentPromoteToRolloutForm(
+            data,
+            instance=parent_experiment,
+            request=self.request,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["name"], [NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG]
+        )
+
+
+class TestToggleArchiveForm(RequestFormTestCase):
+    def test_toggle_archive(self):
+        experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Test Experiment",
+            slug="test-experiment",
+            is_archived=False,
+        )
+
+        data = {
+            "owner": self.user,
+        }
+
+        form = ToggleArchiveForm(data, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid())
+
+        updated_experiment = form.save()
+
+        self.assertTrue(updated_experiment.is_archived)
+
+        changelog_message = form.get_changelog_message()
+
+        self.assertEqual(
+            changelog_message, f"{self.user} set the Is Archived Flag to True"
+        )
+
+    def test_toggle_unarchive(self):
+        experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Test Experiment",
+            slug="test-experiment",
+            is_archived=True,
+        )
+
+        data = {
+            "owner": self.user,
+        }
+
+        form = ToggleArchiveForm(data, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid())
+
+        updated_experiment = form.save()
+
+        self.assertFalse(updated_experiment.is_archived)
+
+        changelog_message = form.get_changelog_message()
+
+        self.assertEqual(
+            changelog_message, f"{self.user} set the Is Archived Flag to False"
         )
 
 
