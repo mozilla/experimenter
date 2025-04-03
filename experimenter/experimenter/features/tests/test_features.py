@@ -1,6 +1,6 @@
 import json
+import re
 
-from django.core.checks import Error
 from django.test import TestCase
 from mozilla_nimbus_schemas.experiments.feature_manifests import (
     DesktopFeature,
@@ -195,20 +195,21 @@ class TestCheckFeatures(TestCase):
     @mock_invalid_features
     def test_invalid_features_do_trigger_check_error(self):
         errors = check_features(None)
-        self.assertEqual(
-            errors,
-            [
-                Error(
-                    msg=(
-                        "Error loading feature data 1 validation error for "
-                        "DesktopFeatureManifest\n"
-                        "readerMode.variables\n"
-                        "  Input should be a valid dictionary [type=dict_type, "
-                        "input_value=[{'fallbackPref': "
-                        "'reader...pty string is no CTA)'}], input_type=list]\n"
-                        "    For further information visit "
-                        "https://errors.pydantic.dev/2.10/v/dict_type"
-                    )
-                )
-            ],
+        self.assertEqual(len(errors), 1)
+
+        # Strip Pydantic version from URL before comparing
+        actual_msg = re.sub(
+            r"https://errors\.pydantic\.dev/\d+\.\d+/v/",
+            "https://errors.pydantic.dev/x/v/",
+            errors[0].msg,
         )
+        expected_msg = (
+            "Error loading feature data 1 validation error for "
+            "DesktopFeatureManifest\n"
+            "readerMode.variables\n"
+            "  Input should be a valid dictionary [type=dict_type, "
+            "input_value=[{'fallbackPref': 'reader...pty string is no CTA)'}],"
+            " input_type=list]\n"
+            "    For further information visit https://errors.pydantic.dev/x/v/dict_type"
+        )
+        self.assertEqual(actual_msg, expected_msg)
