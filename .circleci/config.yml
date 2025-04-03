@@ -128,7 +128,7 @@ jobs:
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -m nimbus_ui -n 2 --reruns 1
     steps:
       - checkout
@@ -149,7 +149,7 @@ jobs:
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -m remote_settings_launch --reruns 1
     steps:
       - checkout
@@ -170,7 +170,7 @@ jobs:
     resource_class: medium
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings_all --reruns 1
     steps:
       - checkout
@@ -191,9 +191,8 @@ jobs:
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: nightly
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1
-      UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
       - check_file_paths:
@@ -214,7 +213,7 @@ jobs:
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
@@ -236,9 +235,8 @@ jobs:
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-beta
+      FIREFOX_CHANNEL: beta
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
-      FIREFOX_BETA: 1
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
@@ -259,9 +257,8 @@ jobs:
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: nightly
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1
-      UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
       - check_file_paths:
@@ -410,7 +407,7 @@ jobs:
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k DEMO_APP -m cirrus_enrollment --reruns 1
     steps:
       - checkout
@@ -638,29 +635,6 @@ jobs:
           command: |
             ./scripts/external_integration_updater_script.sh
 
-  build_firefox_versions:
-    working_directory: ~/experimenter
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    steps:
-      - checkout
-      - docker_login:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-      - run:
-          name: Build and upload images
-          command: |
-            # Clone last working version to ensure compatibility with aarch64 apple silicon machines
-            git clone --branch selenium-grid-0.27.0 --depth 1 git@github.com:SeleniumHQ/docker-selenium.git
-            cd docker-selenium
-            BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
-            BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
-            docker tag selenium/standalone-firefox:firefox-release ${DOCKERHUB_REPO}:nimbus-firefox-release
-            docker tag selenium/standalone-firefox:firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker push ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker push ${DOCKERHUB_REPO}:nimbus-firefox-release
-
   build_firefox_fenix:
     working_directory: ~/experimenter
     machine:
@@ -690,17 +664,6 @@ jobs:
             - tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
 
 workflows:
-  build_firefox:
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - build_firefox_versions
-
   update_configs:
     triggers:
       - schedule:
