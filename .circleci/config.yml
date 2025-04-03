@@ -123,9 +123,9 @@ jobs:
 
   integration_nimbus_desktop_ui:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
@@ -144,7 +144,7 @@ jobs:
 
   integration_nimbus_remote_settings_launch:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -165,7 +165,7 @@ jobs:
 
   integration_nimbus_remote_settings_all:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -186,7 +186,7 @@ jobs:
 
   integration_nimbus_desktop_enrollment:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -208,7 +208,7 @@ jobs:
 
   integration_nimbus_desktop_release_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -230,7 +230,7 @@ jobs:
 
   integration_nimbus_desktop_beta_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -252,7 +252,7 @@ jobs:
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -384,7 +384,7 @@ jobs:
 
   integration_nimbus_sdk_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -402,7 +402,7 @@ jobs:
 
   integration_nimbus_cirrus:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
@@ -425,7 +425,7 @@ jobs:
   create_mobile_recipes:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -533,7 +533,7 @@ jobs:
   update_external_configs:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - add_ssh_keys:
@@ -577,7 +577,7 @@ jobs:
 
   update_application_services:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - add_ssh_keys:
@@ -614,7 +614,7 @@ jobs:
 
   update_firefox_versions:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     working_directory: ~/experimenter
     steps:
@@ -638,7 +638,7 @@ jobs:
   build_firefox_fenix:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: xlarge
     steps:
