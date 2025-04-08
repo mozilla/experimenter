@@ -1,7 +1,6 @@
 import time
 
 import pytest
-import requests
 
 from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.pages.browser import AboutConfig
@@ -10,11 +9,10 @@ from nimbus.utils import helpers
 
 
 @pytest.fixture
-def firefox_options(firefox_options, ping_server):
+def firefox_options(firefox_options):
     """Set Firefox Options."""
     firefox_options.log.level = "trace"
     firefox_options.set_preference("browser.cache.disk.smart_size.enabled", False)
-    firefox_options.set_preference("toolkit.telemetry.server", f"{ping_server}")
     firefox_options.set_preference("telemetry.fog.test.localhost_port", -1)
     firefox_options.set_preference("toolkit.telemetry.initDelay", 1)
     firefox_options.set_preference("toolkit.telemetry.minSubsessionLength", 0)
@@ -67,7 +65,6 @@ def test_check_telemetry_enrollment_unenrollment(
     selenium,
     kinto_client,
     telemetry_event_check,
-    check_ping_for_experiment,
     experiment_slug,
     experiment_url,
     default_data_api,
@@ -88,27 +85,14 @@ def test_check_telemetry_enrollment_unenrollment(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
 
-    # Ping the server twice as it sleeps sometimes
-    requests.get("http://ping-server:5000/pings")
-    time.sleep(5)
-
     # Check their was a telemetry event for the enrollment
     control = False
     timeout = time.time() + 60 * 5
     while not control:
-        control = telemetry_event_check(experiment_slug, "enroll")
+        control = telemetry_event_check(experiment_slug, "enrollment")
         if time.time() > timeout:
             raise AssertionError("Experiment enrollment was never seen in ping Data")
-    # check experiment exists, this means it is enrolled
-    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
-
-    # check experiment exists, this means it is enrolled
-    assert check_ping_for_experiment(experiment_slug)
-    for item in requests.get("http://ping-server:5000/pings").json():
-        if "experiments" in item["environment"]:
-            for key in item["environment"]["experiments"]:
-                if experiment_slug in key:
-                    break
+        time.sleep(10)
 
     # unenroll
     summary = SummaryPage(selenium, experiment_url).open()
@@ -117,15 +101,13 @@ def test_check_telemetry_enrollment_unenrollment(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
-    requests.get("http://ping-server:5000/pings")
-    time.sleep(5)
-
     control = False
     timeout = time.time() + 60 * 5
     while not control:
-        control = telemetry_event_check(experiment_slug, "unenroll")
+        control = telemetry_event_check(experiment_slug, "unenrollment")
         if time.time() > timeout:
             raise AssertionError("Experiment enrollment was never seen in ping Data")
+        time.sleep(10)
 
 
 @pytest.mark.desktop_enrollment
@@ -134,14 +116,12 @@ def test_check_telemetry_pref_flip(
     selenium,
     kinto_client,
     default_data_api,
-    check_ping_for_experiment,
     telemetry_event_check,
     trigger_experiment_loader,
     experiment_slug,
     experiment_url,
 ):
     about_config = AboutConfig(selenium)
-
     default_data_api["featureConfigIds"] = [9]
     default_data_api["referenceBranch"] = {
         "description": "reference branch",
@@ -160,39 +140,28 @@ def test_check_telemetry_pref_flip(
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
         default_data_api,
     )
-
     about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
         "nimbus.qa.pref-1", "default", action=trigger_experiment_loader
     )
-
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
-
     kinto_client.approve()
-
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
-
-    # Ping the server twice as it sleeps sometimes
-    requests.get("http://ping-server:5000/pings")
-    time.sleep(5)
 
     # Check there was a telemetry event for the enrollment
     control = False
     timeout = time.time() + 60 * 5
     while not control:
-        control = telemetry_event_check(experiment_slug, "enroll")
+        control = telemetry_event_check(experiment_slug, "enrollment")
         if time.time() > timeout:
             raise AssertionError("Experiment enrollment was never seen in ping Data")
-    # check experiment exists, this means it is enrolled
-    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
     about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
         "nimbus.qa.pref-1", "test_string_automation", action=trigger_experiment_loader
     )
-
     # unenroll
     summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
@@ -200,16 +169,12 @@ def test_check_telemetry_pref_flip(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
-    requests.get("http://ping-server:5000/pings")
-    time.sleep(5)
-
     control = False
     timeout = time.time() + 60 * 5
     while not control:
-        control = telemetry_event_check(experiment_slug, "unenroll")
+        control = telemetry_event_check(experiment_slug, "unenrollment")
         if time.time() > timeout:
             raise AssertionError("Experiment unenrollment was never seen in ping Data")
-
     about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
         "nimbus.qa.pref-1", "default", action=trigger_experiment_loader
@@ -222,7 +187,6 @@ def test_check_telemetry_sticky_targeting(
     selenium,
     kinto_client,
     default_data_api,
-    check_ping_for_experiment,
     telemetry_event_check,
     trigger_experiment_loader,
     experiment_slug,
@@ -231,7 +195,6 @@ def test_check_telemetry_sticky_targeting(
     about_config = AboutConfig(selenium)
     pref_name = "sticky.targeting.test.pref"
 
-    requests.delete("http://ping-server:5000/pings")
     targeting_config_slug = "no_targeting"
     default_data_api["targetingConfigSlug"] = targeting_config_slug
     default_data_api["referenceBranch"] = {
@@ -253,28 +216,19 @@ def test_check_telemetry_sticky_targeting(
         default_data_api,
         targeting=targeting_config_slug,
     )
-
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
-
     kinto_client.approve()
-
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
-
-    # Ping the server twice as it sleeps sometimes
-    requests.get("http://ping-server:5000/pings")
-    time.sleep(5)
 
     # Check there was a telemetry event for the enrollment
     control = False
     timeout = time.time() + 60 * 5
     while not control:
-        control = telemetry_event_check(experiment_slug, "enroll")
+        control = telemetry_event_check(experiment_slug, "enrollment")
         if time.time() > timeout:
             raise AssertionError("Experiment enrollment was never seen in ping Data")
-    # check experiment exists, this means it is enrolled
-    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
     # flip pref
     about_config = about_config.open().wait_for_page_to_load()
@@ -282,17 +236,14 @@ def test_check_telemetry_sticky_targeting(
         pref_name, True, action=trigger_experiment_loader, pref_type=bool
     )
     about_config.flip_pref(pref_name)
-
     assert about_config.get_pref_value(pref_name) == "false"
-
     # check experiment doesn't unenroll after pref flip
     control = False
     timeout = time.time() + 60
     while not control and time.time() < timeout:
-        control = telemetry_event_check(experiment_slug, "unenroll")
+        control = telemetry_event_check(experiment_slug, "unenrollment")
         if control:
             raise AssertionError("Experiment unenrolled when it shouldn't have")
-    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
     # unenroll
     summary = SummaryPage(selenium, experiment_url).open()
@@ -301,16 +252,12 @@ def test_check_telemetry_sticky_targeting(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
-    requests.get("http://ping-server:5000/pings")
-    time.sleep(5)
-
     # check for unenroll event after experiment is ended
     control = False
     timeout = time.time() + 60 * 5
     while not control:
-        control = telemetry_event_check(experiment_slug, "unenroll")
+        control = telemetry_event_check(experiment_slug, "unenrollment")
         if time.time() > timeout:
             raise AssertionError("Experiment unenrollment was never seen in ping Data")
-
     # check pref still matches user change
     assert about_config.get_pref_value(pref_name) == "false"
