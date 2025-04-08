@@ -9,6 +9,8 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
 
 from nimbus.kinto.client import (
     KINTO_COLLECTION_DESKTOP,
@@ -125,6 +127,14 @@ def selenium(selenium, experiment_slug, kinto_client):
             kinto_client.approve()
         except Exception:
             pass
+
+
+@pytest.fixture
+def driver(firefox_options):
+    firefox_service = Service("/usr/bin/geckodriver")
+    driver = webdriver.Firefox(service=firefox_service, options=firefox_options)
+    yield driver
+    driver.quit()
 
 
 @pytest.fixture(
