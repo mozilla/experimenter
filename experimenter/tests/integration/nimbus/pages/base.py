@@ -10,7 +10,7 @@ class Base(Page):
     """Base page."""
 
     def __init__(self, selenium, base_url, **kwargs):
-        super().__init__(selenium, base_url, timeout=80, **kwargs)
+        super().__init__(selenium, base_url, timeout=500, **kwargs)
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
@@ -22,12 +22,12 @@ class Base(Page):
                 self.wait_for_page_to_load()
                 selenium.find_element(*locator)
             except NoSuchElementException:
+                selenium.refresh()
                 sleep_thread = threading.Thread(
                     target=self.non_blocking_sleep, args=(10,)
                 )
                 sleep_thread.start()
                 sleep_thread.join()  # Wait for the thread to finish sleeping
-                selenium.refresh()
                 return False
             else:
                 return True
