@@ -645,9 +645,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env"
-      - docker_login:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Build and upload images
           command: |
