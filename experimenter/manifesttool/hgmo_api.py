@@ -2,9 +2,8 @@ from pathlib import Path
 from typing import Any, Optional, overload
 from urllib.parse import urlencode
 
-import requests
-
 from manifesttool import download
+from manifesttool.http import http_client
 from manifesttool.repository import Ref
 
 HGMO_URL = "https://hg.mozilla.org"
@@ -12,7 +11,7 @@ HGMO_URL = "https://hg.mozilla.org"
 
 def api_request(path: str, **kwargs) -> dict[str, Any]:
     """Make a request to hg.mozilla.org."""
-    return requests.get(f"{HGMO_URL}/{path}", **kwargs).json()
+    return http_client().get(f"{HGMO_URL}/{path}", **kwargs).json()
 
 
 def resolve_branch(repo: str, bookmark: str) -> Ref:
