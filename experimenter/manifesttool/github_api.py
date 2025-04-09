@@ -1,11 +1,13 @@
 import os
 from pathlib import Path
-from typing import Any, Generator, Optional, overload
+from typing import Any, Generator, TYPE_CHECKING, Optional, overload
 
 import requests
 
 from manifesttool import download
+from manifesttool.http import http_client
 from manifesttool.repository import Ref
+
 
 GITHUB_API_URL = "https://api.github.com"
 GITHUB_API_HEADERS = {
@@ -22,7 +24,7 @@ def api_request(
 ) -> requests.Response:
     """Make a request to the GitHub API."""
     url = f"{GITHUB_API_URL}/{path}"
-    rsp = requests.get(url, headers=GITHUB_API_HEADERS, **kwargs)
+    rsp = http_client().get(url, headers=GITHUB_API_HEADERS, **kwargs)
 
     if rsp.status_code == 403:
         if rsp.headers.get("X-RateLimit-Remaining") == "0":

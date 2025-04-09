@@ -1,11 +1,11 @@
 from pathlib import Path
 
-import requests
+from manifesttool.http import http_client
 
 
 def to_path(url: str, download_path: Path):
     """Download the given url to the given path."""
-    with requests.get(url, stream=True) as rsp:
+    with http_client().get(url, stream=True) as rsp:
         rsp.raise_for_status()
 
         with download_path.open("wb") as f:
@@ -15,7 +15,7 @@ def to_path(url: str, download_path: Path):
 
 def as_text(url: str) -> str:
     """Return the contents of the given URL."""
-    rsp = requests.get(url)
+    rsp = http_client().get(url)
     rsp.raise_for_status()
 
     return rsp.text
