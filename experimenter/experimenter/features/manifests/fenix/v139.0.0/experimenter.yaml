@@ -40,6 +40,14 @@ bookmarks:
     new-compose-ui:
       type: boolean
       description: "if true, enable new compose based UI"
+composable-toolbar:
+  description: Use a composable toolbar instead of the View based one.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
 compose-homepage:
   description: Turns on compose homepage.
   hasExposure: true

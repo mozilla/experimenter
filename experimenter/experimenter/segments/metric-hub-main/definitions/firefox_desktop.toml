@@ -1818,6 +1818,21 @@ select_expression = "LOGICAL_OR(COALESCE(sync_count_mobile_mean > 0, FALSE))"
 type = "scalar"
 description = "Did a desktop user sync to mobile"
 
+[metrics.site_breakage_impressions]
+select_expression = "COALESCE(COUNTIF(event_name = 'opened'), 0)"
+data_source = "site_breakage_events"
+friendly_name = "Webcompat Reporting Panel Impressions"
+
+[metrics.site_breakage_uses]
+select_expression = "COALESCE(COUNTIF(event_name = 'send' OR event_name = 'send_more_info'), 0)"
+data_source = "site_breakage_events"
+friendly_name = "Webcompat Reporting Panel Uses"
+
+[metrics.etp_disablement]
+select_expression = "COALESCE(COUNTIF(event_name  = 'click_etp_toggle_off'), 0)"
+data_source = "protections_popup_events"
+friendly_name = "ETP Disablement"
+
 
 [dimensions]
 
@@ -2170,6 +2185,38 @@ submission_date_column = "submission_date"
 client_id_column = "client_id"
 experiments_column_type = "none"
 deprecated = false
+
+[data_sources.site_breakage_events]
+from_expression = """(
+    SELECT
+        metrics.uuid.legacy_telemetry_client_id AS client_id,
+        DATE(submission_timestamp) AS submission_date,
+        ping_info.experiments AS experiments,
+        event.name AS event_name,
+    FROM `mozdata.firefox_desktop.events`
+    CROSS JOIN UNNEST(events) AS event
+    WHERE
+        event.category = 'webcompatreporting'
+)"""
+experiments_column_type = "native"
+friendly_name = "Webcompat reporting tool events"
+description = "Webcompat 'Report Broken Site' pings"
+
+[data_sources.protections_popup_events]
+from_expression = """(
+    SELECT
+        metrics.uuid.legacy_telemetry_client_id AS client_id,
+        DATE(submission_timestamp) AS submission_date,
+        ping_info.experiments AS experiments,
+        event.name AS event_name,
+    FROM `mozdata.firefox_desktop.events`
+    CROSS JOIN UNNEST(events) AS event
+    WHERE
+        event.category = 'security.ui.protectionspopup'
+)"""
+experiments_column_type = "native"
+friendly_name = "Protections popup events"
+description = "Sheild icon 'Protections Popup' pings"
 
 
 [segments]
