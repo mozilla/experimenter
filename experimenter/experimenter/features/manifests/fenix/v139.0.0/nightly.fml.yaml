@@ -44,6 +44,13 @@ features:
         description: "if true, enable new compose based UI"
         type: Boolean
         default: false
+  composable-toolbar:
+    description: Use a composable toolbar instead of the View based one.
+    variables:
+      enabled:
+        description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
+        type: Boolean
+        default: false
   compose-homepage:
     description: Turns on compose homepage.
     variables:

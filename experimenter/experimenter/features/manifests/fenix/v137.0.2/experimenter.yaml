@@ -1,18 +1,4 @@
 ---
-SetupChecklist:
-  description: A feature on the home page that allows the user to track onboarding setup progress.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If true, the setup checklist will be enabled."
-    setup-checklist-type:
-      type: string
-      description: The collection used for the setup checklist.
-      enum:
-        - collection-1
-        - collection-2
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
@@ -40,14 +26,6 @@ bookmarks:
     new-compose-ui:
       type: boolean
       description: "if true, enable new compose based UI"
-composable-toolbar:
-  description: Use a composable toolbar instead of the View based one.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
 compose-homepage:
   description: Turns on compose homepage.
   hasExposure: true
@@ -142,14 +120,6 @@ growth-data:
     enabled:
       type: boolean
       description: "If true, the feature is active"
-homepage-search-bar:
-  description: Enables the homepage search bar.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable the homepage search bar.\n"
 homescreen:
   description: The homescreen that the user goes to when they press home or new tab.
   hasExposure: true
@@ -390,9 +360,6 @@ recent-searches:
     enabled:
       type: boolean
       description: "Whether or not to enable recent searches.\n"
-    max-suggestions:
-      type: int
-      description: The number of maximum suggestions.
 remote-tab-management:
   description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
   hasExposure: true
@@ -451,6 +418,23 @@ sent-from-firefox:
     template-message:
       type: string
       description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
+set-as-default-prompt:
+  description: "Displays native default browser prompt to existing users.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    app-cold-starts-between-prompts:
+      type: int
+      description: "Minimum number of app cold starts before the next prompt should be displayed to the user.\n"
+    days-between-prompts:
+      type: int
+      description: "Minimum number of days between displays of Set as default prompt.\n"
+    enabled:
+      type: boolean
+      description: "When the feature is enabled then the Set as default prompt can be triggered for existing users.\n"
+    max-number-of-times-to-display:
+      type: int
+      description: "Maximum number of time the prompt should be displayed.\n"
 ship:
   description: The feature that controls Session History in Parent (SHIP) in Gecko.
   hasExposure: true
@@ -481,14 +465,6 @@ suggest-shipped-domains:
     enabled:
       type: boolean
       description: "Suggest domains from the shipped domain list.\n"
-tab-strip:
-  description: Enables tab strip.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable tab strip.\n"
 third-party-cookie-blocking:
   description: Control third-party cookie blocking.
   hasExposure: true
@@ -503,17 +479,6 @@ third-party-cookie-blocking:
     enabled-private:
       type: boolean
       description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
-top-sites-suggestions:
-  description: Enables top sites suggestions.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable top sites suggestions.\n"
-    max-suggestions:
-      type: int
-      description: The number of maximum suggestions.
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
@@ -548,9 +513,6 @@ trending-searches:
     enabled:
       type: boolean
       description: "Whether or not to enable trending searches.\n"
-    max-suggestions:
-      type: int
-      description: The number of maximum suggestions.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true

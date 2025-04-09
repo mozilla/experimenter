@@ -1224,13 +1224,13 @@ newTabSectionsExperiment:
         pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.enabled
       description: >-
         Enable the inferred personalization for topics
-    reportContentEnabled:
+    reportAdsEnabled:
       type: boolean
       setPref:
         branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.reportContent.enabled
+        pref:  browser.newtabpage.activity-stream.discoverystream.reportAds.enabled
       description: >-
-        Enable reporting for ads and content
+        Enable reporting for ads
     localeSectionstConfig:
       type: string
       setPref:
@@ -2867,6 +2867,25 @@ networkingDenyIpAddrAny:
       setPref:
         branch: default
         pref: "network.socket.ip_addr_any.disabled"
+
+cookieStore:
+  description: Enablement of cookieStore API
+  owner: edgul@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: dom.cookieStore.enabled
+      description: >-
+        Enablement of the cookie store API to CRUD and monitor cookies from window JS.
+    managerEnabled:
+      description: Enablement of ServiceWorker access to cookie-change events.
+      type: boolean
+      setPref:
+        branch: default
+        pref: dom.cookieStore.manager.enabled
 
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
