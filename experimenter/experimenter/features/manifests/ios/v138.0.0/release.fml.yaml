@@ -19,13 +19,6 @@ features:
         description: "If true, we will allow user to edit the address"
         type: Boolean
         default: false
-  app-icon-selection-feature:
-    description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
-    variables:
-      enabled:
-        description: "Controls whether users see the setting to customize their app icon in Settings.\n"
-        type: Boolean
-        default: true
   appearance-menu-feature:
     description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
     variables:

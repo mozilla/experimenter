@@ -393,6 +393,14 @@ recent-searches:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
+remote-search-configuration:
+  description: Feature to use search configurations from remote servers.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Uses search configuration from remote servers .\n"
 remote-tab-management:
   description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
   hasExposure: true
