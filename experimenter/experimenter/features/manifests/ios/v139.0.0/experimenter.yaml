@@ -1,12 +1,4 @@
 ---
-account-settings-redux-feature:
-  description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 address-autofill-edit:
   description: This property defines if the address editing is enabled in Settings
   hasExposure: true
@@ -276,26 +268,6 @@ sent-from-firefox-feature:
     isTreatmentA:
       type: boolean
       description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
-shopping2023:
-  description: "The configuration setting for the status of the Fakespot feature\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    back_in_stock_reporting:
-      type: boolean
-      description: "If true, enables for users the reporting feature for products back in stock.\n"
-    config:
-      type: json
-      description: "A Map of website configurations\n"
-    product_ads:
-      type: boolean
-      description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
-    relay:
-      type: string
-      description: "Configurable relay URL for production environment\n"
-    status:
-      type: boolean
-      description: "Whether the Fakespot feature is enabled or disabled\n"
 splash-screen:
   description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
   hasExposure: true
@@ -390,11 +362,3 @@ unified-ads:
     enabled:
       type: boolean
       description: "If true, we will enable user to use the unified ads API\n"
-zoom-feature:
-  description: "The configuration for the status of the zoom feature\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    status:
-      type: boolean
-      description: "Whether the page zoom feature is enabled or not\n"
