@@ -191,6 +191,7 @@ features:
           OPEN_SETTINGS_PRIVACY: "://deep-link?url=settings/clear-private-data"
           OPEN_SETTINGS_FXA: "://deep-link?url=settings/fxa"
           OPEN_SETTINGS_THEME: "://deep-link?url=settings/theme"
+          OPEN_SETTINGS_APP_ICON: "://deep-link?url=settings/app-icon"
           OPEN_URL: "://open-url"
           VIEW_BOOKMARKS: "://deep-link?url=homepanel/bookmarks"
           VIEW_TOP_SITES: "://deep-link?url=homepanel/top-sites"
@@ -618,16 +619,13 @@ features:
         description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
         type: Option<PageContent>
         default: text-excerpt
-  tab-animation-feature:
-    description: "An animation for when presenting or dismissing the the tab tray.\n"
-    variables:
-      enabled:
-        description: "If true, enables the animation.\n"
-        type: Boolean
-        default: false
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
+      animation-feature:
+        description: "If true, enables the tab tray animation feature, that occurs when the tab tray opens and closes.\n"
+        type: Boolean
+        default: false
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
