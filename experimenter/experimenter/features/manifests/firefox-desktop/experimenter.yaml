@@ -762,11 +762,6 @@ preonboarding:
       fallbackPref: datareporting.policy.firstRunURL
       description: >-
         URL of browser tab to be opened on first run instead of infobar.
-    onTrainRolloutEnabled:
-      type: boolean
-      fallbackPref: browser.preonboarding.onTrainRolloutEnabled
-      description: >-
-        If an on-train limited rollout is enabled for Mac, Linux, and Windows MSIX
     onTrainRolloutPopulation:
       type: int
       fallbackPref: browser.preonboarding.onTrainRolloutPopulation
@@ -1036,14 +1031,14 @@ newtabCustomWallpaper:
       type: boolean
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.fileSize.enabled
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize.enabled
       description: >-
         Turns on and off maximum file size for uploaded images
     maxFileSize:
       type: int
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.fileSize
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize
       description: >-
         Maximum file size (in MB) a user can upload
 
@@ -4633,3 +4628,16 @@ h1-in-section-styles:
       setPref:
         branch: user
         pref: layout.css.h1-in-section-ua-styles.enabled
+
+expandSignInButton:
+  description: "Add text next to the FxA avatar toolbar icon"
+  owner: skhamis@mozilla.com
+  hasExposure: false
+  variables:
+    ctaCopyVariant:
+      description: >-
+        One of the following values:
+          - fxa-avatar-sign-in
+          - fxa-avatar-sign-up
+        empty will be assumed default experience
+      type: string
