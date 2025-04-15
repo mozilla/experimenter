@@ -142,6 +142,14 @@ growth-data:
     enabled:
       type: boolean
       description: "If true, the feature is active"
+homepage-hide-frecent-top-sites:
+  description: Hides frecent top sites on the homepage.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to hide frecent top sites on the homepage.\n"
 homepage-search-bar:
   description: Enables the homepage search bar.
   hasExposure: true
