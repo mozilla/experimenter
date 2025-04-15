@@ -62,6 +62,7 @@ pytest-rerunfailures = "^14.0"
 setuptools = "^70.3.0"
 dataclasses-json = "^0.6.7"
 flask = "^3.1.0"
+pytest-repeat = "^0.9.4"
 
 
 [build-system]
