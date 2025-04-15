@@ -311,13 +311,6 @@ features:
         description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
         type: Boolean
         default: false
-  night-mode-feature:
-    description: "Describes the night mode feature's configuration\n"
-    variables:
-      enabled:
-        description: "Whether night mode is available for users or not\n"
-        type: Boolean
-        default: true
   onboarding-framework-feature:
     description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
     variables:
