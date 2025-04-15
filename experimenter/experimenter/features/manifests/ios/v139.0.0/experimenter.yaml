@@ -187,14 +187,6 @@ native-error-page-feature:
     no_internet_connection_error:
       type: boolean
       description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
-night-mode-feature:
-  description: "Describes the night mode feature's configuration\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether night mode is available for users or not\n"
 onboarding-framework-feature:
   description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
   hasExposure: true
