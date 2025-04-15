@@ -154,6 +154,13 @@ features:
         description: "If true, the feature is active"
         type: Boolean
         default: true
+  homepage-hide-frecent-top-sites:
+    description: Hides frecent top sites on the homepage.
+    variables:
+      enabled:
+        description: "Whether or not to hide frecent top sites on the homepage.\n"
+        type: Boolean
+        default: false
   homepage-search-bar:
     description: Enables the homepage search bar.
     variables:
