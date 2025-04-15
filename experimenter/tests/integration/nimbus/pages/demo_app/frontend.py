@@ -6,6 +6,8 @@ from nimbus.pages.base import Base
 
 
 class DemoAppPage(Base):
+    _page_wait_locator = (By.CSS_SELECTOR, "#root")
+
     PAGE_TITLE = "Demo app frontend"
     CONTROL_BRANCH = "Control branch"
     TREATMENT_BRANCH = "Treatment branch"
@@ -36,7 +38,9 @@ class DemoAppPage(Base):
         """Wait for and return the result text element matching any text in text_list."""
         xpath_conditions = " or ".join([f".='{text}'" for text in text_list])
         xpath = self.RESULT_TEXT_XPATH_TEMPLATE.format(xpath_conditions)
-        return self.wait_for_and_find_element(By.XPATH, xpath, description="Result Text")
+        return self.wait_for_and_find_element(
+            By.XPATH, xpath, description="Result Text", refresh=True
+        )
 
     def fill_form(self, client_id, context):
         """Fill the form with client_id and context."""
@@ -46,7 +50,10 @@ class DemoAppPage(Base):
     def enable_nimbus_preview(self):
         """Enable Nimbus Preview checkbox if not already selected."""
         preview_checkbox = self.wait_for_and_find_element(
-            By.XPATH, self.PREVIEW_CHECKBOX_XPATH, description="Nimbus Preview Checkbox"
+            By.XPATH,
+            self.PREVIEW_CHECKBOX_XPATH,
+            description="Nimbus Preview Checkbox",
+            refresh=True,
         )
         if not preview_checkbox.is_selected():
             preview_checkbox.click()
@@ -67,7 +74,7 @@ class DemoAppPage(Base):
     def enter_text(self, xpath, text, description):
         """Helper method to enter text into an input field."""
         input_element = self.wait_for_and_find_element(
-            By.XPATH, xpath, description=description
+            By.XPATH, xpath, description=description, refresh=True
         )
         input_element.clear()
         input_element.send_keys(text)
@@ -75,6 +82,6 @@ class DemoAppPage(Base):
     def click_button(self, xpath, description):
         """Helper method to click a button."""
         button_element = self.wait_for_and_find_element(
-            By.XPATH, xpath, description=description
+            By.XPATH, xpath, description=description, refresh=True
         )
         button_element.click()
