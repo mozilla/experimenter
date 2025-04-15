@@ -2989,14 +2989,14 @@ files = [
 
 [[package]]
 name = "sentry-sdk"
-version = "2.25.0"
+version = "2.26.1"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "sentry_sdk-2.25.0-py2.py3-none-any.whl", hash = "sha256:aa0f558209c1819391421d65e25b1c4000f49580e6ecf5c05ff0c6e74f74470b"},
-    {file = "sentry_sdk-2.25.0.tar.gz", hash = "sha256:a6e623691ff03d1758f940fe421e5b65f313f4ac37638079ab94d1b6f052eb15"},
+    {file = "sentry_sdk-2.26.1-py2.py3-none-any.whl", hash = "sha256:e99390e3f217d13ddcbaeaed08789f1ca614d663b345b9da42e35ad6b60d696a"},
+    {file = "sentry_sdk-2.26.1.tar.gz", hash = "sha256:759e019c41551a21519a95e6cef6d91fb4af1054761923dadaee2e6eca9c02c7"},
 ]
 
 [package.dependencies]
@@ -3446,4 +3446,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "f21366448cc9d33696fbda61873e16126c3c87c5535e010df175b07363a6a7a5"
+content-hash = "d46ac09c4279192bddce58180c862ca986076fa994082df8d0bcbd7ef650e72f"
