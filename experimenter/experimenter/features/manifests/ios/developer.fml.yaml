@@ -492,6 +492,13 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
+  revert-unsafe-continuations-refactor:
+    description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
+    variables:
+      enabled:
+        description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
+        type: Boolean
+        default: true
   rust-keychain-refactor:
     description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
     variables:
