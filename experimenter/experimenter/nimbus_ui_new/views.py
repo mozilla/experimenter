@@ -24,6 +24,9 @@ from experimenter.nimbus_ui_new.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     MetricsForm,
+    NimbusBranchCreateForm,
+    NimbusBranchDeleteForm,
+    NimbusBranchesForm,
     NimbusExperimentCreateForm,
     NimbusExperimentPromoteToRolloutForm,
     NimbusExperimentSidebarCloneForm,
@@ -67,7 +70,14 @@ class RenderResponseMixin:
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class RenderParentResponseMixin:
+class RenderDBResponseMixin:
+    def form_valid(self, form):
+        super().form_valid(form)
+        form = self.form_class(instance=self.object)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class RenderParentDBResponseMixin:
     def form_valid(self, form):
         super().form_valid(form)
         form = super().form_class(instance=self.object)
@@ -340,12 +350,33 @@ class OverviewUpdateView(
     template_name = "nimbus_experiments/edit_overview.html"
 
 
-class DocumentationLinkCreateView(RenderParentResponseMixin, OverviewUpdateView):
+class DocumentationLinkCreateView(RenderParentDBResponseMixin, OverviewUpdateView):
     form_class = DocumentationLinkCreateForm
 
 
-class DocumentationLinkDeleteView(RenderParentResponseMixin, OverviewUpdateView):
+class DocumentationLinkDeleteView(RenderParentDBResponseMixin, OverviewUpdateView):
     form_class = DocumentationLinkDeleteForm
+
+
+class BranchesBaseView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = NimbusBranchesForm
+    template_name = "nimbus_experiments/edit_branches.html"
+
+
+class BranchesPartialUpdateView(RenderDBResponseMixin, BranchesBaseView):
+    pass
+
+
+class BranchesUpdateView(RenderResponseMixin, BranchesBaseView):
+    pass
+
+
+class BranchCreateView(RenderParentDBResponseMixin, BranchesBaseView):
+    form_class = NimbusBranchCreateForm
+
+
+class BranchDeleteView(RenderParentDBResponseMixin, BranchesBaseView):
+    form_class = NimbusBranchDeleteForm
 
 
 class MetricsUpdateView(
