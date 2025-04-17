@@ -405,6 +405,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ),
         default=False,
     )
+    equal_branch_ratio = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -473,6 +474,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def get_update_overview_url(self):
         return reverse("nimbus-new-update-overview", kwargs={"slug": self.slug})
+
+    def get_update_branches_url(self):
+        return reverse("nimbus-new-update-branches", kwargs={"slug": self.slug})
 
     def get_update_metrics_url(self):
         return reverse("nimbus-new-update-metrics", kwargs={"slug": self.slug})

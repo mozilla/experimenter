@@ -2,6 +2,10 @@ from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
     AudienceUpdateView,
+    BranchCreateView,
+    BranchDeleteView,
+    BranchesPartialUpdateView,
+    BranchesUpdateView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
     DraftToPreviewView,
@@ -73,6 +77,26 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/delete_documentation_link/$",
         DocumentationLinkDeleteView.as_view(),
         name="nimbus-new-delete-documentation-link",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/update_branches/$",
+        BranchesPartialUpdateView.as_view(),
+        name="nimbus-new-partial-update-branches",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/save_branches/$",
+        BranchesUpdateView.as_view(),
+        name="nimbus-new-update-branches",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/create_branch/$",
+        BranchCreateView.as_view(),
+        name="nimbus-new-create-branch",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/delete_branch/$",
+        BranchDeleteView.as_view(),
+        name="nimbus-new-delete-branch",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/update_metrics/$",

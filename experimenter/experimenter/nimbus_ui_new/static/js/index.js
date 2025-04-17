@@ -70,4 +70,17 @@ $(() => {
     setupTooltips();
     setupToasts();
   });
+
+  // To support HTMX onchange updates on selectpicker, we need to
+  // bubble changes on selectpicker to the original select element
+  // which will trigger the HTMX submit
+  let isInternalChange = false;
+  $(".selectpicker").on("changed.bs.select", function () {
+    if (isInternalChange) {
+      return;
+    }
+    isInternalChange = true;
+    this.dispatchEvent(new Event("change", { bubbles: true }));
+    isInternalChange = false;
+  });
 });
