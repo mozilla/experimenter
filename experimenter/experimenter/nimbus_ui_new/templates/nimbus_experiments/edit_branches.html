@@ -1,0 +1,190 @@
+{% extends "nimbus_experiments/experiment_base.html" %}
+
+{% load static %}
+{% load nimbus_extras %}
+{% load django_bootstrap5 %}
+{% load widget_tweaks %}
+
+{% block title %}{{ experiment.name }} - Overview{% endblock %}
+
+{% block main_content %}
+  <form id="branches-form"
+        {% if form.is_bound %}class="was-validated"{% endif %}
+        hx-post="{% url 'nimbus-new-update-branches' experiment.slug %}"
+        hx-select="#branches-form"
+        hx-target="#branches-form"
+        hx-swap="outerHTML">
+    {% csrf_token %}
+    <div class="card mb-3">
+      <div class="card-header">
+        <h4>Branches</h4>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col">
+            <label for="id_feature_configs" class="form-label">
+              You must select at least one feature configuration for your experiment.
+              <a target="_blank" href="https://experimenter.info/feature-definition/">Learn more</a>
+            </label>
+            {{ form.feature_configs }}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-check">
+              {{ form.is_rollout }}
+              <label class="form-check-label" for="id_is_rollout">This is a rollout (single branch)</label>
+              <a target="_blank"
+                 href="https://experimenter.info/deep-dives/experimenter/rollouts">Learn more</a>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-check">
+              {{ form.warn_feature_schema }}
+              <label class="form-check-label" for="id_warn_feature_schema">Warn only on feature schema validation failure</label>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-check">
+              {{ form.equal_branch_ratio }}
+              <label class="form-check-label" for="id_equal_branch_ratio">Users should be split evenly between all branches</label>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-check">
+              {{ form.prevent_pref_conflicts }}
+              <label class="form-check-label" for="id_prevent_pref_conflicts">
+                Prevent enrollment if users have changed any prefs set by this experiment
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="branches">
+          {{ form.branches.management_form }}
+          {% for branch_form in form.branches %}
+            <div class="card bg-body-tertiary mb-3">
+              <div class="card-body  position-relative">
+                <div class="form-group">
+                  {{ branch_form.id }}
+                  <div class="row">
+                    <div class="col-3">
+                      <label class="d-block">
+                        Branch Name
+                        {{ branch_form.name }}
+                      </label>
+                      {{ branch_form.name.errors }}
+                    </div>
+                    <div class="col-8">
+                      <label class="d-block">
+                        Description
+                        {{ branch_form.description }}
+                      </label>
+                      {{ branch_form.description.errors }}
+                    </div>
+                    <div class="col-1">
+                      <label class="d-block">
+                        Ratio
+                        {% if form.instance.equal_branch_ratio %}
+                          <p>Equal</p>
+                        {% else %}
+                          {{ branch_form.ratio }}
+                        {% endif %}
+                      </label>
+                      {{ branch_form.ratio.errors }}
+                    </div>
+                  </div>
+                </div>
+                {% if not forloop.first %}
+                  <a class="text-primary position-absolute top-0 end-0 m-2"
+                     hx-post="{% url 'nimbus-new-delete-branch' slug=experiment.slug %}"
+                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                     hx-params="branch_id"
+                     hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
+                     hx-select="#branches"
+                     hx-target="#branches">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                  </a>
+                {% endif %}
+                {{ branch_form.branch_feature_values.management_form }}
+                {% for branch_feature_values_form in branch_form.branch_feature_values %}
+                  {{ branch_feature_values_form.id }}
+                  <div class="row mt-3">
+                    <div class="col">
+                      {{ branch_feature_values_form.instance.feature_config.name }}
+                      {{ branch_feature_values_form.value }}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+          {% if not experiment.is_rollout or not experiment.reference_branch %}
+            <div class="row mb-3">
+              <div class="col-12">
+                {% if experiment.branches.count < 20 %}
+                  <button class="btn btn-outline-primary btn-sm"
+                          type="button"
+                          hx-post="{% url 'nimbus-new-create-branch' slug=experiment.slug %}"
+                          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                          hx-params="none"
+                          hx-select="#branches"
+                          hx-target="#branches">+ Add Branch</button>
+                {% else %}
+                  <p class="form-text">An experiment may have no more than 20 branches.</p>
+                  <button class="btn btn-outline-primary btn-sm disabled" type="button">+ Add Branch</button>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div id="localization" class="card mb-3">
+      <div class="card-header">
+        <h4>Localization</h4>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-check">
+              {{ form.is_localized }}
+              <label class="form-check-label" for="id_is_localized">Is this a localized experiment?</label>
+            </div>
+          </div>
+        </div>
+        {% if experiment.is_localized %}
+          <div class="row">
+            <div class="col">
+              <label class="d-block">
+                Localization Substitutions
+                {{ form.localizations }}
+              </label>
+              {{ form.localizations.errors }}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="submit" class="btn btn-secondary ms-2">Save and Continue</button>
+    </div>
+    {% if form.is_bound %}
+      <div class="toast text-bg-success position-fixed top-0 end-0 m-3 w-auto"
+           role="alert"
+           aria-live="assertive"
+           aria-atomic="true">
+        <div class="toast-body">
+          <i class="fa-regular fa-circle-check"></i>
+          Overview saved!
+        </div>
+      </div>
+    {% endif %}
+  </form>
+{% endblock main_content %}

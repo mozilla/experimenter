@@ -6,7 +6,7 @@
   <strong class="ms-3">Edit</strong>
   <hr class="my-0 mb-2">
   {% include "common/sidebar_link.html" with title="Overview" link=experiment.get_update_overview_url icon="fa-regular fa-solid fa-gear" %}
-  {% include "common/sidebar_link.html" with title="Branches" link="" icon="fa-solid fa-layer-group" disabled=True %}
+  {% include "common/sidebar_link.html" with title="Branches" link=experiment.get_update_branches_url icon="fa-solid fa-layer-group" %}
   {% include "common/sidebar_link.html" with title="Metrics" link=experiment.get_update_metrics_url icon="fa-solid fa-arrow-trend-up" %}
   {% include "common/sidebar_link.html" with title="Audience" link=experiment.get_update_audience_url icon="fa-solid fa-user-group" %}
 

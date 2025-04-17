@@ -1,4 +1,5 @@
 import datetime
+import json
 from unittest.mock import patch
 
 from django.conf import settings
@@ -17,6 +18,7 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughRequired,
 )
 from experimenter.experiments.tests.factories import (
+    NimbusBranchFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -26,7 +28,10 @@ from experimenter.kinto.tasks import (
     nimbus_synchronize_preview_experiments_in_kinto,
 )
 from experimenter.nimbus_ui_new.filtersets import SortChoices, TypeChoices
-from experimenter.nimbus_ui_new.forms import QAStatusForm, TakeawaysForm
+from experimenter.nimbus_ui_new.forms import (
+    QAStatusForm,
+    TakeawaysForm,
+)
 from experimenter.nimbus_ui_new.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -1539,6 +1544,212 @@ class TestDocumentationLinkDeleteView(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(experiment.documentation_links.all().count(), 0)
+
+
+class TestBranchesUpdateViews(AuthTestCase):
+    @parameterized.expand(
+        [
+            ("nimbus-new-partial-update-branches",),
+            ("nimbus-new-update-branches",),
+        ]
+    )
+    def test_post_updates_branches(self, url):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1, feature_config2],
+            equal_branch_ratio=False,
+            is_localized=False,
+            localizations=None,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        treatment_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        reference_branch_feature_config2_value = reference_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+        treatment_branch_feature_config1_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        treatment_branch_feature_config2_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+
+        data = {
+            "feature_configs": [feature_config1.id, feature_config2.id],
+            "equal_branch_ratio": False,
+            "branches-TOTAL_FORMS": "2",
+            "branches-INITIAL_FORMS": "2",
+            "branches-MIN_NUM_FORMS": "0",
+            "branches-MAX_NUM_FORMS": "1000",
+            "branches-0-id": reference_branch.id,
+            "branches-0-name": "Control",
+            "branches-0-description": "Control Description",
+            "branches-0-ratio": 2,
+            "branches-0-feature-value-TOTAL_FORMS": "2",
+            "branches-0-feature-value-INITIAL_FORMS": "2",
+            "branches-0-feature-value-MIN_NUM_FORMS": "0",
+            "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+            "branches-0-feature-value-0-id": reference_branch_feature_config1_value.id,
+            "branches-0-feature-value-0-value": json.dumps(
+                {"control-feature1-key": "control-feature-1-value"}
+            ),
+            "branches-0-feature-value-1-id": reference_branch_feature_config2_value.id,
+            "branches-0-feature-value-1-value": json.dumps(
+                {"control-feature-2-key": "control-feature-2-value"}
+            ),
+            "branches-1-id": treatment_branch.id,
+            "branches-1-name": "Treatment",
+            "branches-1-description": "Treatment Description",
+            "branches-1-ratio": 3,
+            "branches-1-feature-value-TOTAL_FORMS": "2",
+            "branches-1-feature-value-INITIAL_FORMS": "2",
+            "branches-1-feature-value-MIN_NUM_FORMS": "0",
+            "branches-1-feature-value-MAX_NUM_FORMS": "1000",
+            "branches-1-feature-value-0-id": treatment_branch_feature_config1_value.id,
+            "branches-1-feature-value-0-value": json.dumps(
+                {"treatment-feature-1-key": "treatment-feature-1-value"}
+            ),
+            "branches-1-feature-value-1-id": treatment_branch_feature_config2_value.id,
+            "branches-1-feature-value-1-value": json.dumps(
+                {"treatment-feature-2-key": "treatment-feature-2-value"}
+            ),
+            "is_localized": True,
+            "localizations": json.dumps({"localization-key": "localization-value"}),
+        }
+
+        response = self.client.post(reverse(url, kwargs={"slug": experiment.slug}), data)
+
+        self.assertEqual(response.status_code, 200)
+        experiment = NimbusExperiment.objects.get(slug=experiment.slug)
+
+        self.assertEqual(
+            set(experiment.feature_configs.all()), {feature_config1, feature_config2}
+        )
+        self.assertFalse(experiment.equal_branch_ratio)
+        self.assertTrue(experiment.is_localized)
+        self.assertEqual(
+            experiment.localizations,
+            json.dumps({"localization-key": "localization-value"}),
+        )
+        self.assertEqual(experiment.reference_branch.name, "Control")
+        self.assertEqual(experiment.reference_branch.slug, "control")
+        self.assertEqual(experiment.reference_branch.description, "Control Description")
+        self.assertEqual(experiment.reference_branch.ratio, 2)
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config1
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature1-key": "control-feature-1-value"}),
+        )
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config2
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature-2-key": "control-feature-2-value"}),
+        )
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, "Treatment")
+        self.assertEqual(treatment_branch.slug, "treatment")
+        self.assertEqual(treatment_branch.description, "Treatment Description")
+        self.assertEqual(treatment_branch.ratio, 3)
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config1)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-1-key": "treatment-feature-1-value"}),
+        )
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config2)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-2-key": "treatment-feature-2-value"}),
+        )
+
+        changelog = experiment.changes.get()
+        self.assertIn("updated branches", changelog.message)
+
+
+class TestBranchCreateView(AuthTestCase):
+    def test_post_creates_branch(self):
+        feature_config1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature_config2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config1, feature_config2],
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+        experiment.reference_branch = None
+        experiment.save()
+
+        response = self.client.post(
+            reverse("nimbus-new-create-branch", kwargs={"slug": experiment.slug}), {}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment = NimbusExperiment.objects.get(slug=experiment.slug)
+
+        self.assertEqual(experiment.reference_branch.name, "Control")
+        self.assertEqual(experiment.reference_branch.slug, "control")
+        self.assertEqual(experiment.reference_branch.description, "")
+        self.assertEqual(experiment.reference_branch.ratio, 1)
+        self.assertEqual(experiment.reference_branch.feature_values.count(), 2)
+        self.assertEqual(
+            set(
+                experiment.reference_branch.feature_values.values_list(
+                    "feature_config", flat=True
+                )
+            ),
+            {feature_config1.id, feature_config2.id},
+        )
+
+        change = experiment.changes.get()
+        self.assertIn("added a branch", change.message)
+
+
+class TestBranchDeleteView(AuthTestCase):
+    def test_post_deletes_branch(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment.changes.all().delete()
+
+        branch_count = experiment.branches.count()
+
+        response = self.client.post(
+            reverse("nimbus-new-delete-branch", kwargs={"slug": experiment.slug}),
+            {"branch_id": experiment.treatment_branches[0].id},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(experiment.branches.count(), branch_count - 1)
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertIn("removed a branch", experiment.changes.get().message)
 
 
 @mock_valid_outcomes
