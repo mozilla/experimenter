@@ -5,7 +5,7 @@ description = "Metrics that describe user interactions with the Awesomebar."
 friendly_name = "Awesomebar Engagement"
 description = "Number of times a user completed their search session by tapping a search result, or entering a URL or a search term."
 select_expression = """
-    COALESCE(COUNTIF(event.category = 'awesomebar' AND event.name = 'engagement'), 0)
+    COALESCE(COUNTIF((event.category IN ('urlbar', 'awesomebar')) AND (event.name = 'engagement')), 0)
 """
 data_source = "events"
 statistics = { sum = {}, bootstrap_mean = {}, deciles = {} }
@@ -14,7 +14,7 @@ statistics = { sum = {}, bootstrap_mean = {}, deciles = {} }
 friendly_name = "Awesomebar Abandonment"
 description = "Number of times a user dismissed the awesomebar without completing their search."
 select_expression = """
-    COALESCE(COUNTIF(event.category = 'awesomebar' AND event.name = 'abandonment'), 0)
+    COALESCE(COUNTIF((event.category IN ('urlbar', 'awesomebar')) AND (event.name = 'abandonment')), 0)
 """
 data_source = "events"
 statistics = { sum = {}, bootstrap_mean = {}, deciles = {} }
