@@ -12,6 +12,13 @@ features:
         description: "If true, we will allow user to edit the address"
         type: Boolean
         default: true
+  address-bar-menu-feature:
+    description: "This property determines if we show the new address bar menu entry or the toolbar menu in settings\n"
+    variables:
+      status:
+        description: "If true, we will show the new address bar menu entry"
+        type: Boolean
+        default: false
   appearance-menu-feature:
     description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
     variables:
@@ -127,6 +134,13 @@ features:
     variables:
       login-autofill-status:
         description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+        type: Boolean
+        default: true
+  logins-verification:
+    description: "Feature that enables the logins verification logic.\n"
+    variables:
+      logins-verification-enabled:
+        description: "Whether the logins verification logic is enabled. When enabled, an attempt will be made to decrypt all stored logins when sync is enabled. If a login cannot be decrypted, it will be locally deleted to unblock syncing.\n"
         type: Boolean
         default: true
   menu-refactor-feature:
@@ -635,6 +649,13 @@ features:
         description: "If true, we will enable user to use the unified ads API\n"
         type: Boolean
         default: true
+  updated-password-manager-feature:
+    description: "This property determines if we use the updated password manager or the legacy one.\n"
+    variables:
+      status:
+        description: "If true, firefox will use the  the updated password manager."
+        type: Boolean
+        default: false
 enums:
   ContextualHint:
     description: The identifiers for a individual contextual hints.
