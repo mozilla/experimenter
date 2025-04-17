@@ -182,6 +182,27 @@ features:
         description: Collection of user facing onboarding cards.
         type: "Map<OnboardingCardKey, OnboardingCardData>"
         default:
+          terms-of-service:
+            body: onboarding_terms_of_service_sub_header_2
+            card-type: terms-of-service
+            disqualifiers:
+              - NEVER
+            enabled: true
+            extra-data:
+              term-of-service-data:
+                line-one-text: onboarding_term_of_service_line_one_2
+                line-one-link-text: onboarding_term_of_service_line_one_link_text_2
+                line-two-text: onboarding_term_of_service_line_two_2
+                line-two-link-text: onboarding_term_of_service_line_two_link_text
+                line-three-text: onboarding_term_of_service_line_three
+                line-three-link-text: onboarding_term_of_service_line_three_link_text
+            image-res: ic_firefox
+            ordering: 1
+            prerequisites:
+              - ALWAYS
+            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label
+            secondary-button-label: ""
+            title: onboarding_welcome_to_firefox
           default-browser:
             body: juno_onboarding_default_browser_description_nimbus_3
             card-type: default-browser
@@ -283,6 +304,24 @@ features:
             primary-button-label: onboarding_save_and_continue_button
             secondary-button-label: ""
             title: onboarding_customize_toolbar_title
+          marketing:
+            body: onboarding_marketing_body
+            card-type: marketing-data
+            disqualifiers:
+              - NEVER
+            enabled: true
+            extra-data:
+              marketing-data:
+                body-line-one-text: onboarding_marketing_learn_more
+                body-line-one-link-text: onboarding_marketing_learn_more
+                body-line-two-text: onboarding_marketing_opt_in_checkbox
+            image-res: ic_onboarding_welcome
+            ordering: 40
+            prerequisites:
+              - ALWAYS
+            primary-button-label: onboarding_marketing_positive_button
+            secondary-button-label: ""
+            title: onboarding_marketing_title
         string-alias: OnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
