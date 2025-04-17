@@ -398,6 +398,14 @@ unified-ads:
     enabled:
       type: boolean
       description: "If true, we will enable user to use the unified ads API\n"
+updated-password-manager-feature:
+  description: "This property determines if we use the updated password manager or the legacy one.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "If true, firefox will use the  the updated password manager."
 zoom-feature:
   description: "The configuration for the status of the zoom feature\n"
   hasExposure: true
