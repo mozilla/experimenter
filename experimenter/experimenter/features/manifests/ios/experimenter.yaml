@@ -233,14 +233,6 @@ rating-prompt-feature:
     enabled:
       type: boolean
       description: "Enables the rating prompt\n"
-redux-search-settings-feature:
-  description: "This feature is for managing the roll out of redux on the search settings screen\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 revert-unsafe-continuations-refactor:
   description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
   hasExposure: true
