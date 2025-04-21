@@ -733,18 +733,18 @@ sftp = ["paramiko (>=1.15.0)"]
 
 [[package]]
 name = "django-test-migrations"
-version = "1.3.0"
+version = "1.5.0"
 description = "Test django schema and data migrations, including ordering"
 optional = false
-python-versions = ">=3.8,<4.0"
+python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "django_test_migrations-1.3.0-py3-none-any.whl", hash = "sha256:b52b29475f9a1bcaa4512f2ec8fad08b5f470cf1cf522e86b7d950252fb6fbf1"},
-    {file = "django_test_migrations-1.3.0.tar.gz", hash = "sha256:b42edb1af481e08c9d91c95aa9b373e76e905a931bc19c086ec00a6cb936876e"},
+    {file = "django_test_migrations-1.5.0-py3-none-any.whl", hash = "sha256:96a08f085fc8bfaa53d44618341d82a2d22fd194c821cd81b147b66f0bec0da8"},
+    {file = "django_test_migrations-1.5.0.tar.gz", hash = "sha256:1cbff04b1e82c5564a6f635284907b381cc11a2ff883adff46776d9126824f07"},
 ]
 
 [package.dependencies]
-typing_extensions = ">=3.6,<5"
+typing_extensions = ">=4.0"
 
 [[package]]
 name = "django-types"
@@ -3448,4 +3448,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "a72545c3aff80a22975daff8819136eb3d47de8ac5a25a30124a744c8c5d0f7b"
+content-hash = "c0359c4ad03bd07613fd20f1ab184ae5e667e1a33efcce84c0a00bcfd8095e28"
