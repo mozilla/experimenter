@@ -1,7 +1,5 @@
-import datetime
 import io
 import json
-import time
 import zipfile
 
 import requests
@@ -21,7 +19,6 @@ class KlaatuClient:
 
     def run_test(self, experiment_slug, branch_slug, targets):
         url = f"{self.base_url}/actions/workflows/{self.workflow_name}/dispatches"
-        before_dispatch_time = datetime.datetime.utcnow().isoformat() + "Z"
 
         data = {
             "ref": "main",
@@ -38,24 +35,26 @@ class KlaatuClient:
                 f"Failed to trigger workflow: {response.status_code}, {response.text}"
             )
 
-        runs_url = (
+    def find_run_id(self, experiment_slug, dispatched_at=None):
+        created_filter = ""
+        if dispatched_at:
+            created_filter = f"&created=>={dispatched_at.isoformat()}Z"
+
+        url = (
             f"{self.base_url}/actions/workflows/{self.workflow_name}/runs"
-            f"?event=workflow_dispatch&created=>={before_dispatch_time}"
+            f"?event=workflow_dispatch{created_filter}"
         )
 
-        timeout = 30
-        elapsed = 0
-        while elapsed < timeout:
-            runs_response = requests.get(runs_url, headers=self.headers)
-            if runs_response.status_code == 200:
-                workflow_runs = runs_response.json().get("workflow_runs", [])
-                for run in workflow_runs:
-                    if experiment_slug in run.get("display_title", ""):
-                        return run["id"]
-            time.sleep(3)
-            elapsed += 3
+        response = requests.get(url, headers=self.headers)
+        if response.status_code != 200:
+            raise Exception(
+                f"Failed to fetch workflow runs: {response.status_code}, {response.text}"
+            )
 
-        raise Exception("Could not find the workflow run.")
+        workflow_runs = response.json().get("workflow_runs", [])
+        for run in workflow_runs:
+            if experiment_slug in run.get("display_title", ""):
+                return run["id"]
 
     def is_job_complete(self, job_id):
         url = f"{self.base_url}/actions/runs/{job_id}"

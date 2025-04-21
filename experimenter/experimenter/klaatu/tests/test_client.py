@@ -1,3 +1,4 @@
+import datetime
 import unittest
 from io import BytesIO
 from unittest import mock
@@ -9,29 +10,15 @@ class TestKlaatuClient(unittest.TestCase):
     def setUp(self):
         self.client = KlaatuClient(workflow_name="windows_manual.yml")
 
-    @mock.patch("time.sleep", return_value=None)
-    @mock.patch("requests.get")
     @mock.patch("requests.post")
-    def test_run_test_returns_expected_run_id(self, mock_post, mock_get, mock_sleep):
+    def test_run_test_returns_none_on_success(self, mock_post):
         mock_post.return_value.status_code = 204
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {
-            "workflow_runs": [
-                {
-                    "id": 12345,
-                    "display_title": "Experiment Smoke tests for "
-                    "training-only-for-dev-tools",
-                }
-            ]
-        }
 
-        run_id = self.client.run_test(
+        self.client.run_test(
             experiment_slug="training-only-for-dev-tools",
             branch_slug="control",
             targets=["latest-beta", "latest", "137.0"],
         )
-
-        self.assertEqual(run_id, 12345)
 
     @mock.patch("requests.post")
     def test_run_test_raises_on_failed_post(self, mock_post):
@@ -43,17 +30,57 @@ class TestKlaatuClient(unittest.TestCase):
 
         self.assertIn("Failed to trigger workflow", str(error.exception))
 
-    @mock.patch("time.sleep", return_value=None)
     @mock.patch("requests.get")
-    @mock.patch("requests.post")
-    def test_run_test_timeout_no_run_found(self, mock_post, mock_get, mock_sleep):
-        mock_get.return_value.status_code = 500
-        mock_get.return_value.text = "Server Error"
-        mock_post.return_value.status_code = 204
-        with self.assertRaises(Exception) as error:
-            self.client.run_test("slug", "branch", ["latest-beta", "latest", "137.0"])
+    def test_find_run_id_returns_correct_id(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "workflow_runs": [
+                {"id": "123", "display_title": "Test for test-experiment"},
+                {"id": "456", "display_title": "Test for other-experiment"},
+            ]
+        }
 
-        self.assertIn("Could not find the workflow run", str(error.exception))
+        run_id = self.client.find_run_id("test-experiment")
+        self.assertEqual(run_id, "123")
+
+    @mock.patch("requests.get")
+    def test_find_run_id_returns_none_when_not_found(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "workflow_runs": [
+                {"id": "12345", "display_title": "Test for other-experiment"},
+            ]
+        }
+
+        run_id = self.client.find_run_id("test-experiment")
+        self.assertIsNone(run_id)
+
+    @mock.patch("requests.get")
+    def test_find_run_id_raises_on_server_error(self, mock_get):
+        mock_get.return_value.status_code = 500
+        mock_get.return_value.text = "Internal Server Error"
+
+        with self.assertRaises(Exception) as error:
+            self.client.find_run_id("test-experiment")
+
+        self.assertIn("Failed to fetch workflow runs", str(error.exception))
+
+    @mock.patch("requests.get")
+    def test_find_run_id_includes_dispatched_at_filter(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "workflow_runs": [
+                {"id": "12345", "display_title": "Test for test-experiment"},
+            ]
+        }
+
+        dispatched_at = datetime.datetime(2025, 4, 20, 15, 30)
+        run_id = self.client.find_run_id("test-experiment", dispatched_at)
+
+        called_url = mock_get.call_args[0][0]
+        self.assertIn("created=>=2025-04-20T15:30:00", called_url)
+
+        self.assertEqual(run_id, "12345")
 
     @mock.patch("requests.get")
     def test_is_job_complete_returns_true(self, mock_get):
