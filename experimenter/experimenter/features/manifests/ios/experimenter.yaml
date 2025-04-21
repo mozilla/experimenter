@@ -1,12 +1,4 @@
 ---
-account-settings-redux-feature:
-  description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature\n"
 address-autofill-edit:
   description: This property defines if the address editing is enabled in Settings
   hasExposure: true
@@ -15,14 +7,14 @@ address-autofill-edit:
     status:
       type: boolean
       description: "If true, we will allow user to edit the address"
-app-icon-selection-feature:
-  description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
+address-bar-menu-feature:
+  description: "This property determines if we show the new address bar menu entry or the toolbar menu in settings\n"
   hasExposure: true
   exposureDescription: ""
   variables:
-    enabled:
+    status:
       type: boolean
-      description: "Controls whether users see the setting to customize their app icon in Settings.\n"
+      description: "If true, we will show the new address bar menu entry"
 appearance-menu-feature:
   description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
   hasExposure: true
@@ -144,6 +136,14 @@ login-autofill:
     login-autofill-status:
       type: boolean
       description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+logins-verification:
+  description: "Feature that enables the logins verification logic.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    logins-verification-enabled:
+      type: boolean
+      description: "Whether the logins verification logic is enabled. When enabled, an attempt will be made to decrypt all stored logins when sync is enabled. If a login cannot be decrypted, it will be locally deleted to unblock syncing.\n"
 menu-refactor-feature:
   description: "Controls the menu refactor feature\n"
   hasExposure: true
@@ -203,14 +203,6 @@ native-error-page-feature:
     no_internet_connection_error:
       type: boolean
       description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
-night-mode-feature:
-  description: "Describes the night mode feature's configuration\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether night mode is available for users or not\n"
 onboarding-framework-feature:
   description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
   hasExposure: true
@@ -249,6 +241,14 @@ redux-search-settings-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
+revert-unsafe-continuations-refactor:
+  description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
 rust-keychain-refactor:
   description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
   hasExposure: true
@@ -284,26 +284,6 @@ sent-from-firefox-feature:
     isTreatmentA:
       type: boolean
       description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
-shopping2023:
-  description: "The configuration setting for the status of the Fakespot feature\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    back_in_stock_reporting:
-      type: boolean
-      description: "If true, enables for users the reporting feature for products back in stock.\n"
-    config:
-      type: json
-      description: "A Map of website configurations\n"
-    product_ads:
-      type: boolean
-      description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
-    relay:
-      type: string
-      description: "Configurable relay URL for production environment\n"
-    status:
-      type: boolean
-      description: "Whether the Fakespot feature is enabled or disabled\n"
 splash-screen:
   description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
   hasExposure: true
@@ -332,19 +312,14 @@ spotlight-search:
     searchable-content:
       type: string
       description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
-tab-animation-feature:
-  description: "An animation for when presenting or dismissing the the tab tray.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If true, enables the animation.\n"
 tab-tray-ui-experiments:
   description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
   hasExposure: true
   exposureDescription: ""
   variables:
+    animation-feature:
+      type: boolean
+      description: "If true, enables the tab tray animation feature, that occurs when the tab tray opens and closes.\n"
     enabled:
       type: boolean
       description: "If true, enables the tab tray UI experiments.\n"
@@ -403,11 +378,11 @@ unified-ads:
     enabled:
       type: boolean
       description: "If true, we will enable user to use the unified ads API\n"
-zoom-feature:
-  description: "The configuration for the status of the zoom feature\n"
+updated-password-manager-feature:
+  description: "This property determines if we use the updated password manager or the legacy one.\n"
   hasExposure: true
   exposureDescription: ""
   variables:
     status:
       type: boolean
-      description: "Whether the page zoom feature is enabled or not\n"
+      description: "If true, firefox will use the  the updated password manager."

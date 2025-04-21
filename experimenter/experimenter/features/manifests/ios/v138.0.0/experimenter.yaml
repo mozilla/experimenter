@@ -15,14 +15,6 @@ address-autofill-edit:
     status:
       type: boolean
       description: "If true, we will allow user to edit the address"
-app-icon-selection-feature:
-  description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Controls whether users see the setting to customize their app icon in Settings.\n"
 appearance-menu-feature:
   description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
   hasExposure: true
@@ -345,6 +337,9 @@ tab-tray-ui-experiments:
   hasExposure: true
   exposureDescription: ""
   variables:
+    animation-feature:
+      type: boolean
+      description: "If true, enables the tab tray animation feature, that occurs when the tab tray opens and closes.\n"
     enabled:
       type: boolean
       description: "If true, enables the tab tray UI experiments.\n"
@@ -403,6 +398,14 @@ unified-ads:
     enabled:
       type: boolean
       description: "If true, we will enable user to use the unified ads API\n"
+updated-password-manager-feature:
+  description: "This property determines if we use the updated password manager or the legacy one.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "If true, firefox will use the  the updated password manager."
 zoom-feature:
   description: "The configuration for the status of the zoom feature\n"
   hasExposure: true

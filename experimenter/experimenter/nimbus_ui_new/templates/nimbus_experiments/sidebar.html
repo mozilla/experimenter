@@ -6,14 +6,14 @@
   <strong class="ms-3">Edit</strong>
   <hr class="my-0 mb-2">
   {% include "common/sidebar_link.html" with title="Overview" link=experiment.get_update_overview_url icon="fa-regular fa-solid fa-gear" %}
-  {% include "common/sidebar_link.html" with title="Branches" link="" icon="fa-solid fa-layer-group" disabled=True %}
+  {% include "common/sidebar_link.html" with title="Branches" link=experiment.get_update_branches_url icon="fa-solid fa-layer-group" %}
   {% include "common/sidebar_link.html" with title="Metrics" link=experiment.get_update_metrics_url icon="fa-solid fa-arrow-trend-up" %}
   {% include "common/sidebar_link.html" with title="Audience" link=experiment.get_update_audience_url icon="fa-solid fa-user-group" %}
 
   <strong class="ms-3">Actions</strong>
   <hr class="my-0 mb-2">
-  {% include "common/sidebar_link.html" with title="Clone" link="" icon="fa-regular fa-copy" disabled=True %}
-  {% include "common/sidebar_link.html" with title="Archive" link="" icon="fa-regular fa-trash-can" disabled=True %}
+  {% include "common/sidebar_link.html" with title="Clone" link="" icon="fa-regular fa-copy fa-lg" data_bs_toggle="modal" data_bs_target="#cloneModal" %}
+  {% include "nimbus_experiments/archive_button.html" with experiment=experiment %}
 
   <strong class="ms-3">Links</strong>
   <hr class="my-0 mb-2">
@@ -42,4 +42,33 @@
     <i class="fa-solid fa-file-code pe-2"></i>
     Preview Recipe JSON
   </a>
+</div>
+<div class="modal fade"
+     id="cloneModal"
+     tabindex="-1"
+     aria-labelledby="cloneModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="cloneModalLabel">
+          <i class="fa-regular fa-copy"></i>
+          Clone Experiment {{ experiment.name }}
+        </h1>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body bg-body-tertiary">
+        <form id="cloneForm"
+              hx-post="{% url 'nimbus-new-clone' experiment.slug %}"
+              hx-target="#cloneForm">
+          {% csrf_token %}
+          {% include "nimbus_experiments/clone.html" with form=clone_form experiment=experiment form_id_prefix="clone" %}
+
+        </form>
+      </div>
+    </div>
+  </div>
 </div>

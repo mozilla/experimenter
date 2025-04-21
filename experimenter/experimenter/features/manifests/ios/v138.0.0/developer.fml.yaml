@@ -19,13 +19,6 @@ features:
         description: "If true, we will allow user to edit the address"
         type: Boolean
         default: true
-  app-icon-selection-feature:
-    description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
-    variables:
-      enabled:
-        description: "Controls whether users see the setting to customize their app icon in Settings.\n"
-        type: Boolean
-        default: true
   appearance-menu-feature:
     description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
     variables:
@@ -629,6 +622,10 @@ features:
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
+      animation-feature:
+        description: "If true, enables the tab tray animation feature, that occurs when the tab tray opens and closes.\n"
+        type: Boolean
+        default: false
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
@@ -689,6 +686,13 @@ features:
         description: "If true, we will enable user to use the unified ads API\n"
         type: Boolean
         default: true
+  updated-password-manager-feature:
+    description: "This property determines if we use the updated password manager or the legacy one.\n"
+    variables:
+      status:
+        description: "If true, firefox will use the  the updated password manager."
+        type: Boolean
+        default: false
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:

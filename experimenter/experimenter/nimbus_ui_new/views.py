@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
+from django.utils.text import slugify
 from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
@@ -23,7 +24,12 @@ from experimenter.nimbus_ui_new.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     MetricsForm,
+    NimbusBranchCreateForm,
+    NimbusBranchDeleteForm,
+    NimbusBranchesForm,
     NimbusExperimentCreateForm,
+    NimbusExperimentPromoteToRolloutForm,
+    NimbusExperimentSidebarCloneForm,
     OverviewForm,
     PreviewToDraftForm,
     PreviewToReviewForm,
@@ -34,6 +40,7 @@ from experimenter.nimbus_ui_new.forms import (
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
+    ToggleArchiveForm,
     UnsubscribeForm,
 )
 
@@ -63,7 +70,14 @@ class RenderResponseMixin:
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class RenderParentResponseMixin:
+class RenderDBResponseMixin:
+    def form_valid(self, form):
+        super().form_valid(form)
+        form = self.form_class(instance=self.object)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class RenderParentDBResponseMixin:
     def form_valid(self, form):
         super().form_valid(form)
         form = super().form_class(instance=self.object)
@@ -75,7 +89,16 @@ class NimbusExperimentViewMixin:
     context_object_name = "experiment"
 
 
-class NimbusChangeLogsView(NimbusExperimentViewMixin, DetailView):
+class CloneExperimentFormMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["clone_form"] = NimbusExperimentSidebarCloneForm(instance=self.object)
+        return context
+
+
+class NimbusChangeLogsView(
+    NimbusExperimentViewMixin, CloneExperimentFormMixin, DetailView
+):
     template_name = "changelog/overview.html"
 
 
@@ -171,7 +194,9 @@ def build_experiment_context(experiment):
     return context
 
 
-class NimbusExperimentDetailView(NimbusExperimentViewMixin, UpdateView):
+class NimbusExperimentDetailView(
+    NimbusExperimentViewMixin, CloneExperimentFormMixin, UpdateView
+):
     template_name = "nimbus_experiments/detail.html"
     fields = []
 
@@ -179,6 +204,9 @@ class NimbusExperimentDetailView(NimbusExperimentViewMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         experiment_context = build_experiment_context(self.object)
         context.update(experiment_context)
+        context["promote_to_rollout_forms"] = NimbusExperimentPromoteToRolloutForm(
+            instance=self.object
+        )
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
         if context["qa_edit_mode"]:
@@ -252,27 +280,111 @@ class NimbusExperimentsCreateView(
         return response
 
 
+class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["data"] = kwargs["data"].copy()
+        kwargs["data"]["owner"] = self.request.user
+        return kwargs
+
+    # TODO: https://github.com/mozilla/experimenter/issues/12432
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(experiment=self.get_object(), **kwargs)
+
+    def post(self, *args, **kwargs):
+        response = super().post(*args, **kwargs)
+        if response.status_code == 302:
+            response = HttpResponse()
+            response.headers["HX-Redirect"] = reverse(
+                "nimbus-new-detail", kwargs={"slug": self.object.slug}
+            )
+        return response
+
+
+class NimbusExperimentsSidebarCloneView(NimbusExperimentsCloneView):
+    form_class = NimbusExperimentSidebarCloneForm
+    template_name = "nimbus_experiments/clone.html"
+
+
+class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneView):
+    form_class = NimbusExperimentPromoteToRolloutForm
+    template_name = "nimbus_experiments/clone.html"
+
+
+class UpdateCloneSlugView(UpdateView):
+    template_name = "nimbus_experiments/clone_slug_field.html"
+
+    def post(self, request, *args, **kwargs):
+        name = self.request.POST.get("name", "")
+        slug = slugify(name)
+        return self.render_to_response({"slug": slug})
+
+
+class ToggleArchiveView(
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
+):
+    form_class = ToggleArchiveForm
+    template_name = "nimbus_experiments/archive_button.html"
+
+    def form_valid(self, form):
+        form.save()
+
+        response = HttpResponse()
+        if self.request.headers.get("HX-Request"):
+            response.headers["HX-Refresh"] = "true"
+        return response
+
+
 class OverviewUpdateView(
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
     ValidationErrorsMixin,
+    CloneExperimentFormMixin,
     UpdateView,
 ):
     form_class = OverviewForm
     template_name = "nimbus_experiments/edit_overview.html"
 
 
-class DocumentationLinkCreateView(RenderParentResponseMixin, OverviewUpdateView):
+class DocumentationLinkCreateView(RenderParentDBResponseMixin, OverviewUpdateView):
     form_class = DocumentationLinkCreateForm
 
 
-class DocumentationLinkDeleteView(RenderParentResponseMixin, OverviewUpdateView):
+class DocumentationLinkDeleteView(RenderParentDBResponseMixin, OverviewUpdateView):
     form_class = DocumentationLinkDeleteForm
 
 
+class BranchesBaseView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = NimbusBranchesForm
+    template_name = "nimbus_experiments/edit_branches.html"
+
+
+class BranchesPartialUpdateView(RenderDBResponseMixin, BranchesBaseView):
+    pass
+
+
+class BranchesUpdateView(RenderResponseMixin, BranchesBaseView):
+    pass
+
+
+class BranchCreateView(RenderParentDBResponseMixin, BranchesBaseView):
+    form_class = NimbusBranchCreateForm
+
+
+class BranchDeleteView(RenderParentDBResponseMixin, BranchesBaseView):
+    form_class = NimbusBranchDeleteForm
+
+
 class MetricsUpdateView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    CloneExperimentFormMixin,
+    UpdateView,
 ):
     form_class = MetricsForm
     template_name = "nimbus_experiments/edit_metrics.html"
@@ -282,6 +394,7 @@ class AudienceUpdateView(
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
+    CloneExperimentFormMixin,
     ValidationErrorsMixin,
     UpdateView,
 ):

@@ -10,7 +10,7 @@ class Base(Page):
     """Base page."""
 
     def __init__(self, selenium, base_url, **kwargs):
-        super().__init__(selenium, base_url, timeout=80, **kwargs)
+        super().__init__(selenium, base_url, timeout=120, **kwargs)
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
@@ -22,28 +22,35 @@ class Base(Page):
                 self.wait_for_page_to_load()
                 selenium.find_element(*locator)
             except NoSuchElementException:
+                selenium.refresh()
                 sleep_thread = threading.Thread(
                     target=self.non_blocking_sleep, args=(10,)
                 )
                 sleep_thread.start()
                 sleep_thread.join()  # Wait for the thread to finish sleeping
-                selenium.refresh()
                 return False
             else:
                 return True
 
         self.wait.until(_wait_for_it, message=message)
 
-    def wait_for_locator(self, locator, description=None):
+    def wait_for_locator(self, locator, description=None, refresh=False):
+        message = f"{self.PAGE_TITLE}: could not find {description}"
+
         if not description:
             description = "locator"
-        self.wait.until(
-            EC.presence_of_all_elements_located(locator),
-            message=f"{self.PAGE_TITLE}: could not find {description}",
-        )
+        if refresh:
+            self.wait_with_refresh(locator, message=message)
+        else:
+            self.wait.until(
+                EC.presence_of_all_elements_located(locator),
+                message=message,
+            )
 
-    def wait_for_and_find_element(self, strategy, locator, description=None):
-        self.wait_for_locator((strategy, locator), description)
+    def wait_for_and_find_element(
+        self, strategy, locator, description=None, refresh=False
+    ):
+        self.wait_for_locator((strategy, locator), description, refresh=refresh)
         return self.find_element(strategy, locator)
 
     def wait_for_and_find_elements(self, strategy, locator, description=None):

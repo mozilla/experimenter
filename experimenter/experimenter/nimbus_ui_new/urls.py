@@ -2,6 +2,10 @@ from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
     AudienceUpdateView,
+    BranchCreateView,
+    BranchDeleteView,
+    BranchesPartialUpdateView,
+    BranchesUpdateView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
     DraftToPreviewView,
@@ -11,6 +15,8 @@ from experimenter.nimbus_ui_new.views import (
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
     NimbusExperimentsListTableView,
+    NimbusExperimentsPromoteToRolloutView,
+    NimbusExperimentsSidebarCloneView,
     OverviewUpdateView,
     PreviewToDraftView,
     PreviewToReviewView,
@@ -21,7 +27,9 @@ from experimenter.nimbus_ui_new.views import (
     SignoffUpdateView,
     SubscribeView,
     TakeawaysUpdateView,
+    ToggleArchiveView,
     UnsubscribeView,
+    UpdateCloneSlugView,
 )
 
 urlpatterns = [
@@ -71,6 +79,26 @@ urlpatterns = [
         name="nimbus-new-delete-documentation-link",
     ),
     re_path(
+        r"^(?P<slug>[\w-]+)/update_branches/$",
+        BranchesPartialUpdateView.as_view(),
+        name="nimbus-new-partial-update-branches",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/save_branches/$",
+        BranchesUpdateView.as_view(),
+        name="nimbus-new-update-branches",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/create_branch/$",
+        BranchCreateView.as_view(),
+        name="nimbus-new-create-branch",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/delete_branch/$",
+        BranchDeleteView.as_view(),
+        name="nimbus-new-delete-branch",
+    ),
+    re_path(
         r"^(?P<slug>[\w-]+)/update_metrics/$",
         MetricsUpdateView.as_view(),
         name="nimbus-new-update-metrics",
@@ -84,6 +112,26 @@ urlpatterns = [
         r"^create/",
         NimbusExperimentsCreateView.as_view(),
         name="nimbus-new-create",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/clone/$",
+        NimbusExperimentsSidebarCloneView.as_view(),
+        name="nimbus-new-clone",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/promote_to_rollout/(?:(?P<branch>[\w-]+)/)?$",
+        NimbusExperimentsPromoteToRolloutView.as_view(),
+        name="nimbus-new-promote-to-rollout",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/update_clone_slug/$",
+        UpdateCloneSlugView.as_view(),
+        name="nimbus-new-update-clone-slug",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/toggle-archive/$",
+        ToggleArchiveView.as_view(),
+        name="nimbus-new-toggle-archive",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/subscribe/",

@@ -1036,14 +1036,14 @@ newtabCustomWallpaper:
       type: boolean
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.fileSize.enabled
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize.enabled
       description: >-
         Turns on and off maximum file size for uploaded images
     maxFileSize:
       type: int
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.fileSize
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize
       description: >-
         Maximum file size (in MB) a user can upload
 
@@ -2464,18 +2464,6 @@ networking:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
-    chipsEnabled:
-      description: Whether CHIPS is enabled or not
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.CHIPS.enabled"
-    chipsMigrationTarget:
-      description: What CHIPS migration count target the browser should reach.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.cookie.CHIPS.migrateDatabaseTarget"
     chipsPartitionLimitEnabled:
       description: Whether we enforce CHIPS partition limit
       type: boolean
@@ -3615,7 +3603,9 @@ shopping2023:
     enabled:
       description: True if the shopping sidebar is enabled (experimental treatment group)
       type: boolean
-      fallbackPref: browser.shopping.experience2023.enabled
+      setPref:
+        branch: default
+        pref: browser.shopping.experience2023.enabled
     control:
       description: True if the experiment is enabled but experience is disabled (experimental control group)
       type: boolean
@@ -3623,7 +3613,9 @@ shopping2023:
     integratedSidebar:
       description: True if the integrated sidebar is enabled.
       type: boolean
-      fallbackPref: browser.shopping.experience2023.integratedSidebar
+      setPref:
+        branch: default
+        pref: browser.shopping.experience2023.integratedSidebar
     adsEnabled:
       description: True if showing recommended products is enabled
       type: boolean
@@ -4340,6 +4332,12 @@ sidebar:
   owner: elee@mozilla.com
   hasExposure: false
   variables:
+    defaultLauncherVisible:
+      type: boolean
+      setPref:
+        branch: user
+        pref: sidebar.revamp.defaultLauncherVisible
+      description: Change the initial visibleness of the sidebar launcher with horizontal tabs; true to make the launcher visible by default
     minVersion:
       type: string
       description: Minimum Firefox version to apply prefs
@@ -4497,6 +4495,25 @@ storageAccessHeuristics:
       description: >-
         Do we grant cookie access to a tracker third party when it has been interacted with in the
         recent past and redirects itself to another top level site?
+
+partitioned-cookie-attribute:
+  description: Control the enablment and migration of cookies to the Partitioned attribute, rather than TCP
+  owner: bvandersloot@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: network.cookie.CHIPS.enabled
+      description: >-
+        Do we respect the Partitioned attribute?
+    chipsMigrationTarget:
+      description: What CHIPS migration count target the browser should reach.
+      type: int
+      setPref:
+        branch: default
+        pref: network.cookie.CHIPS.migrateDatabaseTarget
 
 auto-pip:
   description: "Automatic Picture-in-Picture"

@@ -1,6 +1,8 @@
 <a {% if external %}target="_blank"{% endif %}
    class="nav-link mb-2 {% if request.path == link %}active{% endif %} nav-link-hover {% if disabled %}disabled{% endif %}"
-   href="{{ link }}">
+   href="{{ link }}"
+   {% if data_bs_toggle %}data-bs-toggle="{{ data_bs_toggle }}"{% endif %}
+   {% if data_bs_target %}data-bs-target="{{ data_bs_target }}"{% endif %}>
   <i class="{{ icon }} pe-2"></i>
   <span>{{ title }}</span>
 </a>
