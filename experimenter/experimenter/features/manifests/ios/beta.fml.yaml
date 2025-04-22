@@ -338,9 +338,6 @@ features:
             title: Onboarding/Onboarding.Welcome.Title.TreatementA.v120
             body: Onboarding/Onboarding.Welcome.Description.TreatementA.v120
             image: welcome-globe
-            link:
-              title: Onboarding/Onboarding.Welcome.Link.Action.v114
-              url: "https://www.mozilla.org/privacy/firefox/"
             buttons:
               primary:
                 title: Onboarding/Onboarding.Welcome.ActionTreatementA.v114
@@ -514,7 +511,6 @@ features:
           position:
             is-bottom: false
             is-position-feature-enabled: true
-            is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
   search-engine-consolidation-feature:
@@ -824,7 +820,6 @@ objects:
         default:
           is-position-feature-enabled: true
           is-bottom: true
-          is-toolbar-cfr-on: true
       search-highlights:
         description: Whether or not search highlights are enabled
         type: Boolean
@@ -1040,10 +1035,6 @@ objects:
         default: true
       is-position-feature-enabled:
         description: Whether or not the feature is enabled
-        type: Boolean
-        default: true
-      is-toolbar-cfr-on:
-        description: Whether or not the toolbar CFR shows. This is a temporary hack for Nimbus
         type: Boolean
         default: true
   StyleData:
