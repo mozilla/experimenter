@@ -102,18 +102,6 @@ files = [
 ]
 
 [[package]]
-name = "atomicwrites"
-version = "1.4.1"
-description = "Atomic file writes."
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-groups = ["main"]
-markers = "sys_platform == \"win32\""
-files = [
-    {file = "atomicwrites-1.4.1.tar.gz", hash = "sha256:81b2c9071a49367a7f770170e5eec8cb66567cfbbc8c73d20ce5ca4a8d71cf11"},
-]
-
-[[package]]
 name = "attrs"
 version = "22.2.0"
 description = "Classes Without Boilerplate"
@@ -733,18 +721,18 @@ sftp = ["paramiko (>=1.15.0)"]
 
 [[package]]
 name = "django-test-migrations"
-version = "1.3.0"
+version = "1.5.0"
 description = "Test django schema and data migrations, including ordering"
 optional = false
-python-versions = ">=3.8,<4.0"
+python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "django_test_migrations-1.3.0-py3-none-any.whl", hash = "sha256:b52b29475f9a1bcaa4512f2ec8fad08b5f470cf1cf522e86b7d950252fb6fbf1"},
-    {file = "django_test_migrations-1.3.0.tar.gz", hash = "sha256:b42edb1af481e08c9d91c95aa9b373e76e905a931bc19c086ec00a6cb936876e"},
+    {file = "django_test_migrations-1.5.0-py3-none-any.whl", hash = "sha256:96a08f085fc8bfaa53d44618341d82a2d22fd194c821cd81b147b66f0bec0da8"},
+    {file = "django_test_migrations-1.5.0.tar.gz", hash = "sha256:1cbff04b1e82c5564a6f635284907b381cc11a2ff883adff46776d9126824f07"},
 ]
 
 [package.dependencies]
-typing_extensions = ">=3.6,<5"
+typing_extensions = ">=4.0"
 
 [[package]]
 name = "django-types"
@@ -2016,18 +2004,19 @@ xmp = ["defusedxml"]
 
 [[package]]
 name = "pluggy"
-version = "0.13.1"
+version = "1.5.0"
 description = "plugin and hook calling mechanisms for python"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
-    {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
+    {file = "pluggy-1.5.0-py3-none-any.whl", hash = "sha256:44e1ad92c8ca002de6377e165f3e0f1be63266ab4d554740532335b9d75ea669"},
+    {file = "pluggy-1.5.0.tar.gz", hash = "sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1"},
 ]
 
 [package.extras]
 dev = ["pre-commit", "tox"]
+testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "polyfactory"
@@ -2409,28 +2398,24 @@ dev = ["twine (>=3.4.1)"]
 
 [[package]]
 name = "pytest"
-version = "6.2.4"
+version = "8.3.5"
 description = "pytest: simple powerful testing with Python"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "pytest-6.2.4-py3-none-any.whl", hash = "sha256:91ef2131a9bd6be8f76f1f08eac5c5317221d6ad1e143ae03894b862e8976890"},
-    {file = "pytest-6.2.4.tar.gz", hash = "sha256:50bcad0a0b9c5a72c8e4e7c9855a3ad496ca6a881a3641b4260605450772c54b"},
+    {file = "pytest-8.3.5-py3-none-any.whl", hash = "sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820"},
+    {file = "pytest-8.3.5.tar.gz", hash = "sha256:f4efe70cc14e511565ac476b57c279e12a855b11f48f212af1080ef2263d3845"},
 ]
 
 [package.dependencies]
-atomicwrites = {version = ">=1.0", markers = "sys_platform == \"win32\""}
-attrs = ">=19.2.0"
 colorama = {version = "*", markers = "sys_platform == \"win32\""}
 iniconfig = "*"
 packaging = "*"
-pluggy = ">=0.12,<1.0.0a1"
-py = ">=1.8.2"
-toml = "*"
+pluggy = ">=1.5,<2"
 
 [package.extras]
-testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
+dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
 
 [[package]]
 name = "pytest-cov"
@@ -3448,4 +3433,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "a72545c3aff80a22975daff8819136eb3d47de8ac5a25a30124a744c8c5d0f7b"
+content-hash = "576d5aed6b6e634ba9f995eb7dae101bf8ce426d4ce26e83dd68adc49e593456"
