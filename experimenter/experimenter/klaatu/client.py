@@ -67,7 +67,7 @@ class KlaatuClient:
         )
 
     def download_artifact(self, job_id):
-        artifacts_url = f"{self.base_url}/actions/artifacts"
+        artifacts_url = f"{self.base_url}/actions/runs/{job_id}/artifacts"
 
         response = requests.get(artifacts_url, headers=self.headers)
         if response.status_code != 200:
@@ -76,12 +76,10 @@ class KlaatuClient:
             )
 
         artifacts = response.json().get("artifacts", [])
-        matching_artifacts = [a for a in artifacts if a["workflow_run"]["id"] == job_id]
-
-        if not matching_artifacts:
+        if not artifacts:
             raise Exception(f"No artifact found for job {job_id}")
 
-        for artifact in matching_artifacts:
+        for artifact in artifacts:
             download_url = artifact["archive_download_url"]
 
             download_response = requests.get(download_url, headers=self.headers)

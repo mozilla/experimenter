@@ -142,7 +142,7 @@ class TestKlaatuClient(unittest.TestCase):
         with self.assertRaises(Exception) as error:
             self.client.download_artifact(12345)
 
-        self.assertIn("No artifact found for job", str(error.exception))
+        self.assertIn("No artifact found for job 12345", str(error.exception))
 
     @mock.patch("requests.get")
     def test_download_artifact_raises_on_bad_artifact_response(self, mock_get):
