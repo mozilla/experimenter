@@ -101,14 +101,6 @@ general-app-features:
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
-glean-server-knobs:
-  description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    metrics-enabled:
-      type: json
-      description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
 homepage-rebuild-feature:
   description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
   hasExposure: true
