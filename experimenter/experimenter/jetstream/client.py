@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from itertools import chain
 from pathlib import Path
 
@@ -346,10 +346,11 @@ def get_experiment_data(experiment: NimbusExperiment):
 
     for e in runtime_errors:
         # only store runtime errors for overall window if we expect those results
+        # (and lag by one day so there is time for analysis to complete)
         if "overall.json" not in e or (
             "overall.json" in e
             and experiment.end_date
-            and experiment.end_date < date.today()
+            and experiment.end_date < (date.today() - timedelta(days=1))
         ):
             analysis_error = AnalysisError(
                 experiment=experiment.slug,
