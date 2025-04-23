@@ -102,13 +102,6 @@ features:
         type: GeneralFeature
         default:
           status: true
-  glean-server-knobs:
-    description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
-    variables:
-      metrics-enabled:
-        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
-        type: "Map<String, Boolean>"
-        default: {}
   homepage-rebuild-feature:
     description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
     variables:
@@ -127,7 +120,6 @@ features:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
         type: "Map<HomeScreenSection, Boolean>"
         default:
-          jump-back-in: true
           recent-explorations: false
   login-autofill:
     description: This property defines the login autofill feature for automatically filling in usernames and passwords.
@@ -661,8 +653,6 @@ enums:
   HomeScreenSection:
     description: The identifiers for the sections of the homescreen.
     variants:
-      jump-back-in:
-        description: The tabs the user was looking immediately before being interrupted.
       recent-explorations:
         description: The tab groups
   IconType:
