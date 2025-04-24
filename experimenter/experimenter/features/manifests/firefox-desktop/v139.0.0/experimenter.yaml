@@ -13,6 +13,7 @@
     - firefox-desktop
     - firefox-desktop-background-task
   hasExposure: false
+  allowCoenrollment: true
   variables: {}
 
 testFeature:
@@ -1311,6 +1312,19 @@ newtabPrivatePing:
         pref: browser.newtabpage.activity-stream.telemetry.privatePing.enabled
       description: >-
         Enables the private newtab-content ping sent through OHTTP
+
+newtabTrainhop:
+  description: Experiment feature for the train-hopping newtab extension.
+  owner: mconley@mozilla.com
+  hasExposure: false
+  allowCoenrollment: true
+  variables:
+    type:
+      type: string
+      description: A discriminant to tell different kinds of trainhop experiments apart.
+    payload:
+      type: json
+      description: The experiment configuration.
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -4495,6 +4509,18 @@ smartTabGroups:
         branch: user
         pref: browser.tabs.groups.smart.enabled
       description: Controls whether users can use ml features for suggesting tab group names or similar tabs
+
+smartTabGroupsClustering:
+  description: Prefs to control Smart Tab Groups Clustering Method
+  owner: rrando@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.tabs.groups.smart.suggestOtherTabsMethod
+      description: Controls clustering method used to suggest similar tabs feature
 
 smartblockEmbeds:
   description: Pref to control Smartblock Embeds
