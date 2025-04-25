@@ -2461,6 +2461,7 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
     slug="non_sidebar_users",
     description="Target users who have never used the new or old sidebar",
     targeting=(
+        "!('sidebar.old-sidebar.has-used'|preferenceValue) && "
         "!('sidebar.revamp'|preferenceValue) && "
         "!('browser.engagement.sidebar-button.has-used'|preferenceValue) && "
         "primaryResolution.width > 1366 && "
