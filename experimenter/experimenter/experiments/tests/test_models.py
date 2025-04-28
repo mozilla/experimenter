@@ -1246,7 +1246,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.launch_month, experiment.release_date.strftime("%B"))
 
     @parameterized.expand(
-        [[NimbusExperiment.Status.LIVE], [NimbusExperiment.Status.COMPLETE]]
+        [
+            [NimbusExperiment.Status.LIVE],
+            [NimbusExperiment.Status.COMPLETE],
+        ]
     )
     def test_start_date_uses_most_recent_start_change_without_cache(self, status):
         experiment = NimbusExperimentFactory.create(status=status)
@@ -1265,7 +1268,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
     @parameterized.expand(
-        [[NimbusExperiment.Status.LIVE], [NimbusExperiment.Status.COMPLETE]]
+        [
+            [NimbusExperiment.Status.LIVE],
+            [NimbusExperiment.Status.COMPLETE],
+        ]
     )
     def test_start_date_uses_cached_start_date(self, status):
         cached_date = datetime.date(2022, 1, 1)
@@ -2205,7 +2211,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
             experiment.bucket_range.isolation_group.name,
-            "firefox-desktop-feature-release",
+            "firefox-desktop-feature-release-group_id",
         )
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
@@ -2235,7 +2241,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
             experiment.bucket_range.isolation_group.name,
-            "firefox-desktop-feature-release-mac_only-rollout",
+            "firefox-desktop-feature-release-mac_only-rollout-group_id",
         )
 
     def test_allocate_buckets_deletes_buckets_and_empty_isolation_group(self):
@@ -2318,7 +2324,7 @@ class TestNimbusExperiment(TestCase):
         self.assertNotEqual(original_namespace, experiment.bucket_namespace)
         self.assertEqual(
             experiment.bucket_namespace,
-            "firefox-desktop-feature-release-mac_only-rollout",
+            "firefox-desktop-feature-release-mac_only-rollout-group_id",
         )
 
     def test_required_experiments_branches(self):
@@ -3742,10 +3748,16 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.isolation_group.name, experiment.slug)
         self.assertEqual(bucket.isolation_group.instance, 1)
         self.assertEqual(bucket.isolation_group.total, NimbusExperiment.BUCKET_TOTAL)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_existing_isolation_group_adds_bucket_range(self):
         """
@@ -3764,10 +3776,16 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.end, 99)
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group, isolation_group)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_existing_isolation_group_with_buckets_adds_next_bucket_range(self):
         """
@@ -3789,10 +3807,16 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.end, 199)
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group, isolation_group)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_full_isolation_group_creates_next_isolation_group_adds_bucket_range(
         self,
@@ -3819,10 +3843,17 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group.name, isolation_group.name)
         self.assertEqual(bucket.isolation_group.instance, isolation_group.instance + 1)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_isolation_group_with_group_id(
         self,

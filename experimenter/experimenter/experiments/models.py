@@ -370,7 +370,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         verbose_name="Subscribers",
     )
-    use_group_id = models.BooleanField(default=False)
+    use_group_id = models.BooleanField(default=True)
     objects = NimbusExperimentManager()
     is_firefox_labs_opt_in = models.BooleanField(
         "Is Experiment a Firefox Labs Opt-In?", default=False
@@ -1136,7 +1136,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 keys.append(self.targeting_config_slug)
             keys.append("rollout")
 
-        if self.use_group_id:
+        if self.is_desktop and self.use_group_id:
             keys.append(BucketRandomizationUnit.GROUP_ID)
 
         return "-".join(keys)
@@ -1795,7 +1795,10 @@ class NimbusIsolationGroup(models.Model):
 
     @property
     def randomization_unit(self):
-        if self.bucket_ranges.filter(experiment__use_group_id=True).exists():
+        if self.bucket_ranges.filter(
+            experiment__use_group_id=True,
+            experiment__application=NimbusExperiment.Application.DESKTOP,
+        ).exists():
             return BucketRandomizationUnit.GROUP_ID
         return NimbusExperiment.APPLICATION_CONFIGS[self.application].randomization_unit
 
