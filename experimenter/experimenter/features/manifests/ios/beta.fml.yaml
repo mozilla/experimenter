@@ -48,13 +48,6 @@ features:
         type: "Map<ContextualHint, Boolean>"
         default:
           toolbar-hint: true
-  credit-card-autofill:
-    description: This property defines the credit card autofill feature
-    variables:
-      credit-card-autofill-status:
-        description: "If true, we will allow user to use the credit autofill feature"
-        type: Boolean
-        default: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
@@ -590,7 +583,7 @@ features:
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
-        default: false
+        default: true
       unified_search:
         description: "Enables the unified search feature.\n"
         type: Boolean

@@ -47,14 +47,6 @@ contextual-hint-feature:
     features-enabled:
       type: json
       description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
-credit-card-autofill:
-  description: This property defines the credit card autofill feature
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    credit-card-autofill-status:
-      type: boolean
-      description: "If true, we will allow user to use the credit autofill feature"
 deeplink-optimization-refactor-feature:
   description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
   hasExposure: true
