@@ -1,0 +1,60 @@
+friendly_name = "Sidebar"
+description = "Metrics for Sidebar and Vertical Tabs engagement"
+
+[metrics]
+
+[metrics.sidebar_engagement]
+friendly_name = "Sidebar Engagement"
+description = "Percentage of clients who opened any panel in the sidebar"
+select_expression = "COALESCE(LOGICAL_OR(sidebar), FALSE)"
+data_source = "sidebar_toggle"
+statistics = { binomial = {} }
+
+[metrics.chatbot_engagement]
+friendly_name = "Chatbot Engagement"
+description = "Percentage of clients who opened the chatbot panel in the sidebar after provider is selected"
+select_expression = "COALESCE(LOGICAL_OR(chatbot), FALSE)"
+data_source = "sidebar_toggle"
+statistics = { binomial = {} }
+
+[metrics.sidebar_disable]
+friendly_name = "Sidebar Hard Disable"
+description = "Percentage of clients who remove sidebar button from toolbar"
+select_expression = "COALESCE(MAX_BY(sidebar_button, submission_date), FALSE)"
+data_source = "sidebar_disable"
+statistics = { binomial = {} }
+
+[data_sources.sidebar_toggle]
+from_expression = """(
+  SELECT 
+    legacy_telemetry_client_id as client_id,
+    CAST(submission_timestamp as DATE) as submission_date,
+    TRUE as sidebar,
+    LOGICAL_OR(event_category = 'genai.chatbot' AND JSON_VALUE(event_extra.provider) <> 'none') as chatbot
+  FROM
+    `mozdata.firefox_desktop.events_stream`
+  WHERE
+    event_category IN ('genai.chatbot', 'history', 'synced_tabs', 'bookmarks', 'extension')
+    AND event_name = 'sidebar_toggle'
+    AND JSON_VALUE(event_extra.opened) = 'true'
+  GROUP BY 1, 2, 3
+)"""
+experiments_column_type = "none"
+friendly_name = "Sidebar Open"
+description = "Clients who open any sidebar panel"
+
+[data_sources.sidebar_disable]
+from_expression = """(
+  SELECT DISTINCT
+    DATE(submission_timestamp) as submission_date,
+    metrics.uuid.legacy_telemetry_client_id as client_id,
+    COALESCE(LOGICAL_OR(w.key LIKE 'sidebar-button_pinned%'), FALSE) as sidebar_button
+  FROM
+    `mozdata.firefox_desktop.metrics`
+  CROSS JOIN UNNEST (metrics.labeled_boolean.browser_ui_mirror_for_toolbar_widgets) w
+  WHERE submission_timestamp >= '2024-11-26'
+  GROUP BY 1, 2
+)"""
+experiments_column_type = "none"
+friendly_name = "No Sidebar Button"
+description = "Clients who don't have the sidebar button in the toolbar"
