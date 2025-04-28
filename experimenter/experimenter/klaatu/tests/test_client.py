@@ -33,7 +33,7 @@ class TestKlaatuClient(unittest.TestCase):
         mock_post.return_value.text = "Bad Request"
 
         with self.assertRaises(KlaatuError) as error:
-            self.client.run_test("slug", "branch", [KlaatuTargets.LATEST])
+            self.client.run_test("slug", "branch", [KlaatuTargets.LATEST_RELEASE])
 
         self.assertIn("Failed to trigger workflow", str(error.exception))
 

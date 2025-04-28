@@ -33,7 +33,7 @@ class KlaatuTargets(str, Enum):
     LATEST_NIGHTLY = "latest-nightly"
     LATEST_BETA = "latest-beta"
     LATEST_ESR = "latest-esr"
-    LATEST = "latest"
+    LATEST_RELEASE = "latest"
 
 
 class KlaatuError(Exception):
@@ -103,7 +103,7 @@ class KlaatuClient:
 
         path = KlaatuEndpoints.RUNS.format(workflow=self.workflow_name)
         base_url = urljoin(self.base_url, path)
-        url = base_url + "?" + urlencode(query)
+        url = f"{base_url}?{urlencode(query)}"
 
         response = requests.get(url, headers=self.headers)
         if response.status_code != 200:
