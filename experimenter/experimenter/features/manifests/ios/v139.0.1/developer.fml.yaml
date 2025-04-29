@@ -40,6 +40,14 @@ features:
         description: "When true the cleanupHistoryIfNeeded will be run\n"
         type: Boolean
         default: true
+  contextual-hint-feature:
+    description: This set holds all features pertaining to contextual hints.
+    variables:
+      features-enabled:
+        description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+        type: "Map<ContextualHint, Boolean>"
+        default:
+          toolbar-hint: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
@@ -102,6 +110,13 @@ features:
         type: "Map<HomeScreenSection, Boolean>"
         default:
           recent-explorations: false
+  login-autofill:
+    description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+    variables:
+      login-autofill-status:
+        description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+        type: Boolean
+        default: true
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
@@ -612,6 +627,11 @@ features:
         type: Boolean
         default: false
 enums:
+  ContextualHint:
+    description: The identifiers for a individual contextual hints.
+    variants:
+      toolbar-hint:
+        description: The contextual hint bubble that appears to provide a hint about the toolbar.
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
     variants:
@@ -775,8 +795,6 @@ enums:
         description: The default layout of the toolbars.
       version1:
         description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
-      version2:
-        description: Like version1 but the menu and tabs buttons are inverted.
 objects:
   AwesomeBar:
     description: "A configuration option for the awesome bar. Part of the `search` feature."
