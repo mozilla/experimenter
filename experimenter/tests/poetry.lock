@@ -587,14 +587,14 @@ marshmallow = ">=2.0.0"
 
 [[package]]
 name = "more-itertools"
-version = "10.6.0"
+version = "10.7.0"
 description = "More routines for operating on iterables, beyond itertools"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "more-itertools-10.6.0.tar.gz", hash = "sha256:2cd7fad1009c31cc9fb6a035108509e6547547a7a738374f10bd49a09eb3ee3b"},
-    {file = "more_itertools-10.6.0-py3-none-any.whl", hash = "sha256:6eb054cb4b6db1473f6e15fcc676a08e4732548acd47c708f0e179c2c7c01e89"},
+    {file = "more_itertools-10.7.0-py3-none-any.whl", hash = "sha256:d43980384673cb07d2f7d2d918c616b30c659c089ee23953f601d6609c67510e"},
+    {file = "more_itertools-10.7.0.tar.gz", hash = "sha256:9fddd5403be01a94b204faadcff459ec3568cf110265d3c54323e1e866ad29d3"},
 ]
 
 [[package]]
@@ -1833,4 +1833,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "b951f35ee26123770ccc3003e43762b3c0826cc3a7a853cc01e0bdf32e11690f"
+content-hash = "24c3b4f361afeeaa271abd442b2ebcd057ae6f86ed96c8e58aabbe253f54c97c"
