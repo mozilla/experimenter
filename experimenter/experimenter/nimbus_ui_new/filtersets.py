@@ -48,6 +48,7 @@ STATUS_FILTERS = {
 class TypeChoices(models.TextChoices):
     ROLLOUT = "Rollout"
     EXPERIMENT = "Experiment"
+    LABS = "Labs"
 
 
 class SortChoices(models.TextChoices):
@@ -286,6 +287,8 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             query |= Q(is_rollout=False)
         if TypeChoices.ROLLOUT in value:
             query |= Q(is_rollout=True)
+        if TypeChoices.LABS in value:
+            query |= Q(is_firefox_labs_opt_in=True)
         return queryset.filter(query)
 
     def filter_takeaways(self, queryset, name, values):
