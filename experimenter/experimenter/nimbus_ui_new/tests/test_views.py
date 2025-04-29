@@ -248,17 +248,22 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
     @parameterized.expand(
         (
-            (TypeChoices.ROLLOUT, True),
-            (TypeChoices.EXPERIMENT, False),
+            (TypeChoices.ROLLOUT, True, False),
+            (TypeChoices.EXPERIMENT, False, False),
+            (TypeChoices.LABS, False, True),
         )
     )
-    def test_filter_type(self, type_choice, is_rollout):
+    def test_filter_type(self, type_choice, is_rollout, is_labs):
         experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE, is_rollout=is_rollout
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=is_rollout,
+            is_firefox_labs_opt_in=is_labs,
         )
         [
             NimbusExperimentFactory.create(
-                status=NimbusExperiment.Status.LIVE, is_rollout=(not is_rollout)
+                status=NimbusExperiment.Status.LIVE,
+                is_rollout=(not is_rollout),
+                is_firefox_labs_opt_in=(not is_labs),
             )
             for _i in range(3)
         ]
