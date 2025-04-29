@@ -387,29 +387,35 @@ urlbar:
     quickSuggestDataCollectionEnabled:
       type: boolean
       description: Whether data collection should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) data collection, if the user has already toggled that preference.
+    quickSuggestDynamicSuggestionTypes:
+      type: string
+      setPref:
+        pref: browser.urlbar.quicksuggest.dynamicSuggestionTypes
+        branch: user
+      description: >-
+        Comma-separated list of Suggest dynamic suggestion types to enable. Set
+        this variable to the `suggestion_type` defined in the remote settings
+        record that contains your suggestions. If you want to enable multiple
+        suggestion types, separate them with commas. One particular intended use
+        of this variable is to deliver hidden-exposure suggestions for testing
+        potential exposures. Hidden-exposure suggestions trigger exposure
+        telemetry based on a set of keywords you provide but they are never
+        visible. If you are testing multiple types of hidden-exposure
+        suggestions, consider using one experiment branch per type, especially
+        if you are also enabling keyword exposures. Exposure suggestions are
+        recorded in telemetry with the "rust_exposure" result type. It's not
+        necessary to include "rust_exposure" in `exposureResults`. Unless you
+        are testing other results in the same experiment branch, it's also not
+        necessary to set `showExposureResults: false`. To also record keyword
+        exposures, include "rust_exposure" in `keywordExposureResults`.
     quickSuggestEnabled:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.enabled
-      description: Gate for the Firefox Suggest feature as a whole. If false, the Firefox Suggest preferences UI and Suggest suggestions will not be shown. If true, the preferences UI will be shown, and the user can turn suggestions on or off.
-    quickSuggestExposureSuggestionTypes:
-      type: string
-      setPref:
-        pref: browser.urlbar.quicksuggest.exposureSuggestionTypes
-        branch: user
       description: >-
-        Comma-separated list of Suggest exposure suggestion types to enable.
-        Exposure suggestions are used to test potential exposures. They trigger
-        exposure telemetry based on a set of keywords you provide but they are
-        never visible. Set this variable to the `suggestion_type` defined in the
-        remote settings record(s) that contains your keywords. If you want to
-        test multiple suggestion types, separate them with commas, but also
-        consider using one experiment branch per type, especially if you are
-        also enabling keyword exposures. Exposure suggestions are recorded in
-        telemetry with the "rust_exposure" result type. It's not necessary to
-        include "rust_exposure" in `exposureResults`. Unless you are testing
-        other results in the same experiment branch, it's also not necessary to
-        set `showExposureResults: false`. To also record keyword exposures,
-        include "rust_exposure" in `keywordExposureResults`.
+        Gate for the Firefox Suggest feature as a whole. If false, the Firefox
+        Suggest preferences UI and Suggest suggestions will not be shown. If
+        true, the preferences UI will be shown, and the user can turn
+        suggestions on or off.
     quickSuggestImpressionCapsSponsoredEnabled:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.impressionCaps.sponsoredEnabled
@@ -2251,11 +2257,8 @@ glean:
   description: "The Glean data-control-plane feature within Firefox Desktop for controlling metric configuration"
   owner: glean-team@mozilla.com
   hasExposure: false
+  allowCoenrollment: true
   variables:
-    newtabPingEnabled:
-      type: "boolean"
-      fallbackPref: "browser.newtabpage.ping.enabled"
-      description: "Whether to submit the 'newtab' ping"
     gleanMetricConfiguration:
       type: json
       description: |
@@ -2449,30 +2452,6 @@ networking:
   owner: vgosu@mozilla.com
   hasExposure: false
   variables:
-    ehPreloadEnabled:
-      description: Whether Early Hints preload is enabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.early-hints.enabled"
-    ehPreconnectEnabled:
-      description: Whether Early Hints preconnect is enabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.early-hints.preconnect.enabled"
-    dnsMaxPriorityThreads:
-      description: The maximum number of high priority DNS threads that can be created.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dns.max_high_priority_threads"
-    dnsMaxAnyPriorityThreads:
-      description: The maximum number of DNS threads that can be created to handle any priority DNS requests.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dns.max_any_priority_threads"
     preconnect:
       description: Whether the rel=preconnect feature is enabled
       type: boolean
@@ -2491,6 +2470,103 @@ networking:
       setPref:
         branch: default
         pref: "network.http.http3.cc_algorithm"
+    enableOffMainThreadStreamDecompression:
+      description: Whether to enable decompression of network streams off-main-thread
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.decompression_off_mainthread2"
+    offMainThreadStreamDecompressionThreshold:
+      description: Minimum content length for off-main-thread decompression
+      type: int
+      setPref:
+        branch: default
+        pref: "network.decompression_off_mainthread_min_size"
+    dnsGracePeriod:
+      description: The grace period allows the DNS cache to use expired entries, while kicking off a revalidation in the background.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dnsCacheExpirationGracePeriod"
+    http3UseNSPRForIO:
+      description: true by default using legacy UDP IO via NSPR. When set to false, uses new UDP IO via Fast UDP for Firefox project.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.use_nspr_for_io"
+
+networkingEarlyHints:
+  description: "Networking (Necko) Early Hints"
+  owner: vgosu@mozilla.com
+  hasExposure: false
+  variables:
+    ehPreloadEnabled:
+      description: Whether Early Hints preload is enabled
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.early-hints.enabled"
+    ehPreconnectEnabled:
+      description: Whether Early Hints preconnect is enabled
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.early-hints.preconnect.enabled"
+
+networkingDNS:
+  description: "Networking (Necko) DNS"
+  owner: vgosu@mozilla.com
+  hasExposure: false
+  variables:
+    dnsMaxPriorityThreads:
+      description: The maximum number of high priority DNS threads that can be created.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dns.max_high_priority_threads"
+    dnsMaxAnyPriorityThreads:
+      description: The maximum number of DNS threads that can be created to handle any priority DNS requests.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dns.max_any_priority_threads"
+    maxDnsCacheEntries:
+      description: This is the number of dns cache entries allowed
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dnsCacheEntries"
+
+networkingConnections:
+  description: "Networking (Necko) Connections"
+  owner: vgosu@mozilla.com
+  hasExposure: false
+  variables:
+    httpMaxConnections:
+      description: The maximum number of http connections.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.max-connections"
+    httpMaxPersistentConnectionsPerServer:
+      description: The maximum number of persistent connections to a server
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.max-persistent-connections-per-server"
+    speculativeConnectionLimit:
+      description: The maximum number of half-open sockets allowed for speculative connections
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.speculative-parallel-limit"
+
+
+networkingSendOnDataFinished:
+  description: "Networking (Necko) OnDataFinished"
+  owner: vgosu@mozilla.com
+  hasExposure: false
+  variables:
     sendOnDataFinished:
       description: Whether we can send OnDataFinished in the content process
       type: boolean
@@ -2515,72 +2591,6 @@ networking:
       setPref:
         branch: default
         pref: "network.send_OnDataFinished.cssLoader"
-    enableOffMainThreadStreamDecompression:
-      description: Whether to enable decompression of network streams off-main-thread
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.decompression_off_mainthread2"
-    offMainThreadStreamDecompressionThreshold:
-      description: Minimum content length for off-main-thread decompression
-      type: int
-      setPref:
-        branch: default
-        pref: "network.decompression_off_mainthread_min_size"
-    httpMaxConnections:
-      description: The maximum number of http connections.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.http.max-connections"
-    httpMaxPersistentConnectionsPerServer:
-      description: The maximum number of persistent connections to a server
-      type: int
-      setPref:
-        branch: default
-        pref: "network.http.max-persistent-connections-per-server"
-    speculativeConnectionLimit:
-      description: The maximum number of half-open sockets allowed for speculative connections
-      type: int
-      setPref:
-        branch: default
-        pref: "network.http.speculative-parallel-limit"
-    chipsPartitionLimitEnabled:
-      description: Whether we enforce CHIPS partition limit
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitEnabled"
-    chipsPartitionLimitDryRun:
-      description: Whether we actually perform purging/rejection, used to report telemetry without webcompat issues
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitDryRun"
-    chipsPartitionLimitByteCapacity:
-      description: The actual value of the CHIPS partition limit in bytes
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitByteCapacity"
-    dnsGracePeriod:
-      description: The grace period allows the DNS cache to use expired entries, while kicking off a revalidation in the background.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dnsCacheExpirationGracePeriod"
-    maxDnsCacheEntries:
-      description: This is the number of dns cache entries allowed
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dnsCacheEntries"
-    http3UseNSPRForIO:
-      description: true by default using legacy UDP IO via NSPR. When set to false, uses new UDP IO via Fast UDP for Firefox project.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.http.http3.use_nspr_for_io"
 
 essentialFallbackDomains:
   description: "Whether to retry failing system requests with a backup domain"
@@ -4624,6 +4634,24 @@ partitioned-cookie-attribute:
       setPref:
         branch: default
         pref: network.cookie.CHIPS.migrateDatabaseTarget
+    chipsPartitionLimitEnabled:
+      description: Whether we enforce CHIPS partition limit
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.chips.partitionLimitEnabled"
+    chipsPartitionLimitDryRun:
+      description: Whether we actually perform purging/rejection, used to report telemetry without webcompat issues
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.chips.partitionLimitDryRun"
+    chipsPartitionLimitByteCapacity:
+      description: The actual value of the CHIPS partition limit in bytes
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.chips.partitionLimitByteCapacity"
 
 auto-pip:
   description: "Automatic Picture-in-Picture"
