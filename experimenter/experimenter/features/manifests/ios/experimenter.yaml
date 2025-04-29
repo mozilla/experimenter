@@ -39,14 +39,6 @@ cleanup-history-reenabled:
     enabled:
       type: boolean
       description: "When true the cleanupHistoryIfNeeded will be run\n"
-contextual-hint-feature:
-  description: This set holds all features pertaining to contextual hints.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    features-enabled:
-      type: json
-      description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
 deeplink-optimization-refactor-feature:
   description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
   hasExposure: true
@@ -109,14 +101,6 @@ homescreenFeature:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
-login-autofill:
-  description: This property defines the login autofill feature for automatically filling in usernames and passwords.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    login-autofill-status:
-      type: boolean
-      description: "If true, allows the user to use the login autofill feature for usernames and passwords."
 logins-verification:
   description: "Feature that enables the logins verification logic.\n"
   hasExposure: true
