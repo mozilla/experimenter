@@ -2226,6 +2226,70 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_feature_value_variables(self, data):
+        warn_feature_schema = data.get("warn_feature_schema", False)
+        feature_configs = data.get("feature_configs", [])
+        reference_branch = data.get("reference_branch", {})
+        treatment_branches = data.get("treatment_branches", [])
+        branches = [reference_branch, *treatment_branches]
+
+        feature_branch_variables = {
+            feature_config: {
+                branch["id"]: set(json.loads(feature_value["value"]).keys())
+                for branch in branches
+                for feature_value in branch["feature_values"]
+                if feature_value["feature_config"] == feature_config
+            }
+            for feature_config in feature_configs
+        }
+
+        errors = {
+            "reference_branch": {"feature_values": [{} for _ in feature_configs]},
+            "treatment_branches": [
+                {"feature_values": [{} for _ in feature_configs]}
+                for _ in treatment_branches
+            ],
+        }
+
+        found_errors = False
+        for feature_config_i, feature_config in enumerate(feature_configs):
+            if any(
+                schema.has_remote_schema
+                for schema in self.schemas_by_feature_id[feature_config.slug].schemas
+            ):
+                continue
+
+            branches_variables = feature_branch_variables[feature_config].values()
+            all_variables = set().union(*branches_variables)
+
+            for branch_i, branch in enumerate(branches):
+                branch_variables = feature_branch_variables[feature_config][branch["id"]]
+                if branch_variables != all_variables:
+                    found_errors = True
+
+                    error = (
+                        NimbusConstants.ERROR_FEATURE_VALUE_DIFFERENT_VARIABLES.format(
+                            variables=", ".join(all_variables - branch_variables)
+                        )
+                    )
+
+                    if branch == reference_branch:
+                        errors["reference_branch"]["feature_values"][feature_config_i] = {
+                            "value": [error]
+                        }
+                    else:
+                        errors["treatment_branches"][branch_i - 1]["feature_values"][
+                            feature_config_i
+                        ] = {"value": [error]}
+
+        if found_errors:
+            if warn_feature_schema:
+                self.warnings.update(errors)
+            else:
+                raise serializers.ValidationError(errors)
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -2242,6 +2306,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_rollout_version_support(data)
         data = self._validate_bucket_duplicates(data)
         data = self._validate_proposed_release_date(data)
+        data = self._validate_feature_value_variables(data)
         if application == NimbusExperiment.Application.DESKTOP:
             data = self._validate_desktop_pref_rollouts(data)
             data = self._validate_desktop_pref_flips(data)
