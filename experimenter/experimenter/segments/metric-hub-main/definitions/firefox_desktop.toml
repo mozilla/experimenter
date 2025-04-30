@@ -1115,6 +1115,20 @@ description = """
 Count of impressions of Sponsored Pocket content.
 """
 
+[metrics.sponsored_pocket_ctr]
+depends_on=['sponsored_pocket_clicks', 'sponsored_pocket_impressions']
+friendly_name = "Sponsored Pocket Click Through Rate"
+description = """
+Rate of Clicks per impression for Sponsored Pocket Content
+"""
+
+[metrics.organic_pocket_ctr]
+depends_on=['organic_pocket_clicks', 'organic_pocket_impressions']
+friendly_name = "Organic Pocket Click Through Rate"
+description = """
+Rate of Clicks per impression for Organic Pocket Content
+"""
+
 [metrics.all_tile_impressions_pos1_2]
 data_source = "newtab_visits_topsite_tile_interactions"
 select_expression = """COALESCE(
@@ -1261,6 +1275,20 @@ friendly_name = "Sponsored Tiles Clicks Count (Position 3 or greater)"
 type = "scalar"
 description = """
 Count of Clicks of Sponsored Tiles in the third and greater positions.
+"""
+
+[metrics.sponsored_tile_ctr]
+depends_on=['sponsored_tile_clicks', 'sponsored_tile_impressions']
+friendly_name = "Sponsored Tile Click Through Rate"
+description = """
+Rate of Clicks per Impression Sponsored Tiles (aka Sponsored Topsites on New Tab) across all positions.
+"""
+
+[metrics.newtab_organic_topsite_ctr]
+depends_on=['newtab_organic_topsite_clicks', 'newtab_organic_topsite_impressions']
+friendly_name = "Organic Tile Click Through Rate"
+description = """
+Rate of Clicks per Impression Organic Tiles (aka Sponsored Topsites on New Tab) across all positions.
 """
 
 [metrics.newtab_newtab_enabled]
