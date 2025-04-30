@@ -509,6 +509,13 @@ features:
         description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
         type: Option<PageContent>
         default: text-excerpt
+  start-at-home-feature:
+    description: This feature is for experimenting with opening screen
+    variables:
+      setting:
+        description: This property provides a default setting for the start at home feature
+        type: StartAtHome
+        default: afterFourHours
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
@@ -726,6 +733,15 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
+  StartAtHome:
+    description: The option for what screen to open the app to
+    variants:
+      afterFourHours:
+        description: "Starts the app at the homepage after four hours of inactivity, otherwise starts the app at the most recently viewed tab."
+      always:
+        description: Starts the app at the homepage.
+      disabled:
+        description: Starts the app at the most recently viewed tab.
   SuggestionType:
     description: The type of a Firefox Suggest search suggestion.
     variants:
