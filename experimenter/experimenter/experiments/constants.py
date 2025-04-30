@@ -831,6 +831,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_DESKTOP_PREFFLIPS_128_ESR_ONLY = (
         "The prefFlips feature is only available on Firefox 128 on the ESR branch."
     )
+    ERROR_FEATURE_VALUE_DIFFERENT_VARIABLES = (
+        "The same variables must be used in all branches for a feature. "
+        "This branch is missing: {variables}"
+    )
 
     WARNING_PREF_FLIPS_PREF_CONTROLLED_BY_FEATURE = (
         "Pref '{pref}' is controlled by a variable in feature {feature_config_slug}'"

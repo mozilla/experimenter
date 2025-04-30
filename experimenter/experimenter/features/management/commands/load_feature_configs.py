@@ -171,6 +171,10 @@ class Command(BaseCommand):
                     set_pref_vars={},
                 )
 
+            if feature.has_remote_schema:
+                schema.has_remote_schema = True
+                dirty_fields.append("has_remote_schema")
+
             if (jsonschema := feature.get_jsonschema()) is not None:
                 if schema.schema != jsonschema:
                     schema.schema = jsonschema
