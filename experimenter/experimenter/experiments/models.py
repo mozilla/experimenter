@@ -2119,6 +2119,7 @@ class NimbusVersionedSchema(models.Model):
     # Desktop-only
     set_pref_vars = models.JSONField[dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
+    has_remote_schema = models.BooleanField(null=False, default=False)
 
     class Meta:
         verbose_name = "Nimbus Versioned Schema"

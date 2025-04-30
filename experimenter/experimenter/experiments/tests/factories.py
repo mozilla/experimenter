@@ -766,7 +766,7 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
 class NimbusBranchFeatureValueFactory(factory.django.DjangoModelFactory):
     branch = factory.SubFactory(NimbusBranchFactory)
     feature_config = factory.SubFactory(NimbusFeatureConfigFactory)
-    value = factory.LazyAttribute(lambda o: json.dumps({faker.slug(): faker.slug()}))
+    value = factory.LazyAttribute(lambda o: json.dumps({"variable": faker.slug()}))
 
     class Meta:
         model = NimbusBranchFeatureValue

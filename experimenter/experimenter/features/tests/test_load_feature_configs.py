@@ -15,6 +15,7 @@ from experimenter.experiments.tests.factories import (
 from experimenter.features import Features
 from experimenter.features.tests import (
     mock_invalid_remote_schema_features,
+    mock_remote_schema_features,
     mock_valid_features,
     mock_versioned_features,
 )
@@ -65,8 +66,9 @@ class TestLoadFeatureConfigs(TestCase):
                 "additionalProperties": False,
             },
         )
-
+        self.assertFalse(schema.has_remote_schema)
         self.assertTrue(schema.is_early_startup)
+
         feature_config = NimbusFeatureConfig.objects.get(slug="oldSetPrefFeature")
         schema = feature_config.schemas.get(version=None)
 
@@ -78,6 +80,7 @@ class TestLoadFeatureConfigs(TestCase):
                 "boolean": "nimbus.test.boolean",
             },
         )
+        self.assertFalse(schema.has_remote_schema)
 
         feature_config = NimbusFeatureConfig.objects.get(slug="setPrefFeature")
         schema = feature_config.schemas.get(version=None)
@@ -88,6 +91,7 @@ class TestLoadFeatureConfigs(TestCase):
                 "default": "nimbus.default",
             },
         )
+        self.assertFalse(schema.has_remote_schema)
 
     def test_updates_existing_feature_configs(self):
         NimbusFeatureConfigFactory.create(
@@ -250,6 +254,24 @@ class TestLoadFeatureConfigs(TestCase):
 
         feature_config = NimbusFeatureConfig.objects.get(slug="someFeature")
         self.assertTrue(feature_config.enabled)
+
+
+@mock_remote_schema_features
+class TestLoadRemoteFeatureConfigs(TestCase):
+    maxDiff = None
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Features.clear_cache()
+
+    def test_loads_new_feature_configs(self):
+        self.assertFalse(NimbusFeatureConfig.objects.filter(slug="cfr").exists())
+        call_command("load_feature_configs")
+
+        feature_config = NimbusFeatureConfig.objects.get(slug="cfr")
+        schema = feature_config.schemas.get(version=None)
+        self.assertTrue(schema.has_remote_schema)
 
 
 @mock_invalid_remote_schema_features
