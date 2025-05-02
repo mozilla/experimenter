@@ -1498,6 +1498,74 @@ Count of events where the client changed the weather widget display type to Simp
 
 ########################### END OF NEW TAB METRICS ###########################
 
+########################### START OF AD FUNNEL METRICS ###########################
+[metrics.newtab_clients_with_sponsored_tile_impressions]
+data_source = "newtab_clients_daily"
+select_expression = "COALESCE(COUNTIF(sponsored_topsite_tile_impressions>0), 0)"
+friendly_name = "Newtab Clients with Sponsored Tile Impressions"
+type = "scalar"
+description = """
+Count of clients with any sponsored tile impressions.
+"""
+
+[metrics.newtab_clients_with_sponsored_tile_clicks]
+data_source = "newtab_clients_daily"
+select_expression = "COALESCE(COUNTIF(sponsored_topsite_tile_clicks>0), 0)"
+friendly_name = "Newtab Clients with Sponsored Tile Clicks"
+type = "scalar"
+description = """
+Count of clients with any sponsored tile clicks.
+"""
+
+[metrics.frac_users_with_sponsored_tile_impressions]
+depends_on=['newtab_sponsored_tiles_enabled', 'newtab_clients_with_sponsored_tile_impressions']
+friendly_name = "Fraction of Users with Sponsored Tile Impressions"
+description = """
+Fraction of users with sponsored tile impressions as a fraction of users with sponsored tiles enabled
+"""
+
+[metrics.frac_users_with_sponsored_tile_clicks]
+depends_on=['newtab_clients_with_sponsored_tile_clicks', 'newtab_clients_with_sponsored_tile_impressions']
+friendly_name = "Fraction of Users with Sponsored Tile Impressions"
+description = """
+Fraction of users with sponsored tile clicks as a fraction of users with sponsored tile impressions
+"""
+
+[metrics.newtab_clients_with_sponsored_content_impressions]
+data_source = "newtab_clients_daily"
+select_expression = "COALESCE(COUNTIF(sponsored_pocket_impressions>0), 0)"
+friendly_name = "Newtab Clients with Sponsored Content Impressions"
+type = "scalar"
+description = """
+Count of clients with any sponsored content impressions.
+"""
+
+[metrics.newtab_clients_with_sponsored_content_clicks]
+data_source = "newtab_clients_daily"
+select_expression = "COALESCE(COUNTIF(sponsored_pocket_clicks>0), 0)"
+friendly_name = "Newtab Clients with Sponsored Content Clicks"
+type = "scalar"
+description = """
+Count of clients with any sponsored content clicks.
+"""
+
+[metrics.frac_users_with_sponsored_content_impressions]
+depends_on=['newtab_sponsored_pocket_stories_enabled', 'newtab_clients_with_sponsored_content_impressions']
+friendly_name = "Fraction of Users with Sponsored Content Impressions"
+description = """
+Fraction of users with sponsored content impressions as a fraction of users with sponsored content enabled
+"""
+
+[metrics.frac_users_with_sponsored_content_clicks]
+depends_on=['newtab_clients_with_sponsored_content_impressions', 'newtab_clients_with_sponsored_content_clicks']
+friendly_name = "Fraction of Users with Sponsored Content Clicks"
+description = """
+Fraction of users with sponsored content clicks as a fraction of users with sponsored content impressions
+"""
+
+
+########################### END OF AD FUNNEL METRICS ###########################
+
 [metrics.imported_bookmarks]
 data_source = "clients_daily"
 select_expression = "LOGICAL_OR(bookmark_migrations_quantity_all IS NOT NULL AND bookmark_migrations_quantity_all != 0)"
