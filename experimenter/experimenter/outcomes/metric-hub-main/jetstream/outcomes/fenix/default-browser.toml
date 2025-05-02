@@ -30,6 +30,18 @@ description = """
     This only opens a system UI that allows users to change their default browser,
     so not all of these clients will actually change their default browser.
 """
-select_expression = "COUNTIF(event.name = 'default_browser_changed') > 0"
-data_source = "events"
+select_expression = "COUNTIF(event_name = 'default_browser_changed') > 0"
+data_source = "events_stream_events"
 statistics = { binomial = {} }
+
+
+[data_sources.events_stream_events]
+from_expression = """(
+    SELECT
+        p.*,
+        DATE(p.submission_timestamp) AS submission_date,
+    FROM
+        `moz-fx-data-shared-prod.org_mozilla_firefox.events_stream` p
+    WHERE event_category = 'events'
+)"""
+experiments_column_type = "none"
