@@ -32,7 +32,7 @@ features:
       enabled:
         description: "Enables the bookmark refactor feature\n"
         type: Boolean
-        default: false
+        default: true
   cleanup-history-reenabled:
     description: "This feature flag will help us slowly re-enable the cleanupHistoryIfNeeded functionnality at startup of the app\n"
     variables:
