@@ -8,10 +8,10 @@ COMPOSE = docker compose -f docker-compose.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_RUN = ${COMPOSE} run --rm
 COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker compose -f docker-compose-test.yml
-COMPOSE_TEST_RUN = ${COMPOSE_TEST} run --rm
+COMPOSE_TEST_RUN = ${COMPOSE_TEST} run --name experimenter_test
 COMPOSE_PROD = docker compose -f docker-compose-prod.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml $$(${COMPOSE_CIRRUS})
-COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --rm
+COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --name experimenter_integration
 DOCKER_BUILD = docker buildx build
 
 JOBS = 4
@@ -21,7 +21,7 @@ RED = \033[0;31m
 GREEN = \033[0;32m
 PAD = -------------------------------------------------\n
 COLOR_CHECK = && echo "${GREEN}${PAD}All Checks Passed\n${PAD}${NOCOLOR}" || (echo "${RED}${PAD}Some Checks Failed\n${PAD}${NOCOLOR}";exit 1)
-PYTHON_TEST = pytest --cov --cov-report term-missing
+PYTHON_TEST = pytest --cov --cov-report json:experimenter_coverage.json --cov-report term-missing --junitxml=experimenter_tests.xml
 PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate
@@ -156,7 +156,16 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 
 lint: build_test  ## Running linting on source code
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
+
 check: lint
+	docker rm experimenter_test
+
+check_and_report: lint
+	docker cp experimenter_test:/experimenter/experimenter_coverage.json workspace/test-results
+	docker cp experimenter_test:/experimenter/experimenter_tests.xml workspace/test-results
+	docker cp experimenter_test:/experimenter/experimenter/nimbus-ui/coverage_report workspace/test-results
+	docker cp experimenter_test:/experimenter/experimenter/nimbus-ui/junit.xml workspace/test-results
+	docker rm experimenter_test
 
 test: build_test  ## Run tests
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
@@ -236,7 +245,11 @@ integration_test_nimbus_sdk: build_integration_test build_prod
 
 integration_test_nimbus_fenix:
 	poetry -C experimenter/tests/integration/ -vvv install --no-root
-	poetry -C experimenter/tests/integration/ -vvv run pytest --html=experimenter/tests/integration/test-reports/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android -vvv
+	poetry -C experimenter/tests/integration/ -vvv run pytest --html=workspace/test-results/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android --junitxml=workspace/test-results/experimenter_fenix_integration_tests.xml -vvv
+
+make integration_test_and_report:
+	docker cp experimenter_integration:/code/experimenter/tests/integration/test-reports/experimenter_integration_tests.xml workspace/test-results
+	docker rm experimenter_integration
 
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&
@@ -244,7 +257,7 @@ CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
 CIRRUS_BLACK_FIX = black -l 90 .
 CIRRUS_RUFF_CHECK = ruff check .
 CIRRUS_RUFF_FIX = ruff check --fix .
-CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus -v
+CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus --cov-report json:cirrus_coverage.json --junitxml=cirrus_pytest.xml -v
 CIRRUS_PYTHON_TYPECHECK = pyright -p .
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
@@ -267,8 +280,16 @@ cirrus_down: cirrus_build
 cirrus_test: cirrus_build_test
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c '$(CIRRUS_PYTEST)'
 
-cirrus_check: cirrus_build_test
+cirrus_check: cirrus_lint
+	docker rm experimenter_test
+
+cirrus_lint: cirrus_build_test
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
+
+cirrus_check_and_report: cirrus_lint
+	docker cp experimenter_test:/cirrus/cirrus_pytest.xml workspace/test-results
+	docker cp experimenter_test:/cirrus/cirrus_coverage.json workspace/test-results
+	docker rm experimenter_test
 
 cirrus_code_format: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
