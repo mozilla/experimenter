@@ -44,6 +44,11 @@ commands:
       - run: |
           echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
 
+  create_test_result_workspace:
+    steps:
+      - run:
+          name: Create Workspace
+          command: mkdir -p workspace/test-results
 
 jobs:
   check_experimenter_x86_64:
@@ -56,11 +61,17 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run tests and linting
           command: |
             cp .env.sample .env
-            make check
+            make check_and_report
+      - store_test_results:
+          path: workspace/test-results/experimenter_tests.xml
+      - store_test_results:
+          path: workspace/test-results/junit.xml
+
 
   check_experimenter_aarch64:
     machine:
@@ -72,11 +83,16 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run tests and linting
           command: |
             cp .env.sample .env
-            make check
+            make check_and_report
+      - store_test_results:
+          path: workspace/test-results/experimenter_tests.xml
+      - store_test_results:
+          path: workspace/test-results/junit.xml
 
   check_cirrus_x86_64:
     machine:
@@ -88,10 +104,13 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "cirrus/"
+      - create_test_result_workspace
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check
+            make cirrus_check_and_report
+      - store_test_results:
+          path: workspace/test-results/cirrus_pytest.xml
 
   check_cirrus_aarch64:
     machine:
@@ -103,10 +122,13 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "cirrus/"
+      - create_test_result_workspace
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check
+            make cirrus_check_and_report
+      - store_test_results:
+          path: workspace/test-results/cirrus_pytest.xml
 
   check_schemas:
     machine:
@@ -134,13 +156,16 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_remote_settings_launch:
     machine:
@@ -155,13 +180,16 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_remote_settings_all:
     machine:
@@ -176,13 +204,16 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_desktop_enrollment:
     machine:
@@ -197,14 +228,17 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
           no_output_timeout: 30m
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_desktop_release_targeting:
     machine:
@@ -220,13 +254,16 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_desktop_beta_targeting:
     machine:
@@ -242,13 +279,16 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
@@ -263,13 +303,16 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_fenix_enrollment:
     executor:
@@ -282,6 +325,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env"
+      - create_test_result_workspace
       - attach_workspace:
           at: /tmp/experimenter
       - android/accept-licenses
@@ -306,7 +350,9 @@ jobs:
       - android/save-gradle-cache:
           cache-prefix: v1a
       - store_artifacts:
-          path: /home/circleci/project/test-reports/report.htm
+          path: workspace/test-results/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_fenix_integration_tests.xml
 
   integration_nimbus_ios_enrollment:
     macos:
@@ -325,6 +371,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|<< parameters.file_path >>"
+      - create_test_result_workspace
       - macos/preboot-simulator:
           version: << parameters.ios_version >>
           platform: "iOS"
@@ -364,7 +411,7 @@ jobs:
             cp -f ~/project/experimenter/tests/integration/nimbus/ios/xcodebuild.py ./
             poetry add pydantic==2.10.3
             poetry install
-            poetry run pytest -k test_ios_integration.py --feature ios_enrollment
+            poetry run pytest --junitxml=/Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml -k test_ios_integration.py --feature ios_enrollment
       - run:
           name: Collect XCTest Results
           command: |
@@ -381,6 +428,8 @@ jobs:
           path: ~/project/xcodebuild.log
       - store_artifacts:
           path: ~/project/results.zip
+      - store_test_results:
+          path: /Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml
 
   integration_nimbus_sdk_targeting:
     machine:
@@ -392,13 +441,16 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|application-services/"
+      - create_test_result_workspace
       - run:
           name: Run rust integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_sdk
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_sdk integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_cirrus:
     machine:
@@ -413,14 +465,17 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/experiments/|cirrus/|application-services/"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
             export CIRRUS=1
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   create_mobile_recipes:
     working_directory: ~/experimenter
