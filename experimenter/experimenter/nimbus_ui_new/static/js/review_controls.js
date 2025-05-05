@@ -17,7 +17,7 @@ function initializeRejectApproveListeners() {
   const rejectButton = document.getElementById("reject-button");
   const reviewControls = document.getElementById("review-controls");
   const rejectFormContainer = document.getElementById("reject-form-container");
-  const cancelReject = document.getElementById("cancel-reject");
+  const cancelButton = document.getElementById("cancel");
 
   if (rejectButton) {
     rejectButton.addEventListener("click", () => {
@@ -26,8 +26,8 @@ function initializeRejectApproveListeners() {
     });
   }
 
-  if (cancelReject) {
-    cancelReject.addEventListener("click", () => {
+  if (cancelButton) {
+    cancelButton.addEventListener("click", () => {
       rejectFormContainer.classList.add("d-none");
       reviewControls.classList.remove("d-none");
     });

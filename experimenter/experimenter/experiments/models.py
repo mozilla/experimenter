@@ -693,7 +693,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.status == self.Status.PREVIEW
 
     @property
-    def is_enrollment(self):
+    def is_enrolling(self):
         return self.status == self.Status.LIVE and not self.is_paused_published
 
     @property
@@ -730,9 +730,51 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.PublishStatus.WAITING,
         ) and self.can_review(reviewer)
 
+    def review_messages(self):
+        if self.status_next == self.Status.COMPLETE:
+            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"]
+        elif self.is_paused:
+            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"]
+        else:
+            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"]
+
+    @property
+    def remote_settings_pending_message(self):
+        if self.publish_status in (
+            self.PublishStatus.APPROVED,
+            self.PublishStatus.WAITING,
+        ):
+            return self.review_messages()
+
     @property
     def should_show_timeout_message(self):
         return self.changes.latest_timeout()
+
+    @property
+    def should_show_end_enrollment(self):
+        return self.is_enrolling
+
+    @property
+    def should_show_end_experiment(self):
+        return (
+            self.status == self.Status.LIVE
+            and self.publish_status != self.PublishStatus.REVIEW
+            and not self.should_end
+        )
+
+    @property
+    def is_end_experiment_requested(self):
+        return (
+            self.status == self.Status.LIVE
+            and self.status_next == self.Status.COMPLETE
+            and self.publish_status == self.PublishStatus.REVIEW
+        )
+
+    @property
+    def latest_review_requested_by(self):
+        review_request = self.changes.latest_review_request()
+        if review_request:
+            return review_request.changed_by.email
 
     @property
     def draft_date(self):
@@ -957,7 +999,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             {
                 "label": NimbusConstants.ENROLLMENT,
                 "date": self.start_date,
-                "is_active": self.is_enrollment,
+                "is_active": self.is_enrolling,
                 "days": self.computed_enrollment_days,
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Enrollment"],
             },
@@ -1000,6 +1042,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def is_enrollment_pause_pending(self):
         return self.is_paused and not self.is_paused_published
+
+    @property
+    def is_enrollment_pause_requested(self):
+        return (
+            self.status == self.Status.LIVE
+            and self.status_next == self.Status.LIVE
+            and self.is_enrollment_pause_pending
+        )
 
     @property
     def monitoring_dashboard_url(self):
