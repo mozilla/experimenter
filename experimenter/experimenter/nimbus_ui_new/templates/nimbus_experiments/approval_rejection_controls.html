@@ -18,17 +18,17 @@
             hx-post="{% url approval_url slug=experiment.slug %}"
             hx-select="#content"
             hx-target="#content"
-            hx-swap="outerHTML">Approve and {{ action_type|title |remove_underscores }}</button>
+            hx-swap="outerHTML">Approve and {{ action_label }}</button>
     <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
   </div>
   <div class="alert alert-primary">
     <button type="button"
             class="btn btn-secondary"
-            hx-post="{% url cancel_url slug=experiment.slug %}"
+            hx-post="{% url cancel_reject_url slug=experiment.slug %}"
             hx-select="#content"
             hx-target="#content"
             hx-swap="outerHTML"
-            hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}",  "action_type": "{{ action_type }}"}}'>
+            hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}"}'>
       Cancel Review
     </button>
   </div>
@@ -43,14 +43,12 @@
             class="form-control"
             rows="4"
             required></textarea>
-  <input type="hidden" name="action_type" value="{{ action_type }}">
-  <!-- Hidden input field -->
   <button type="submit"
           class="btn btn-danger mt-2"
-          hx-post="{% url reject_url slug=experiment.slug %}"
+          hx-post="{% url cancel_reject_url slug=experiment.slug %}"
           hx-select="#content"
           hx-target="#content"
           hx-swap="outerHTML"
-          hx-include="[name='changelog_message'], [name='action_type']">Submit Rejection</button>
-  <button type="button" class="btn btn-secondary mt-2" id="cancel-reject">Cancel</button>
+          hx-include="[name='changelog_message']">Submit Rejection</button>
+  <button type="button" class="btn btn-secondary mt-2" id="cancel">Cancel</button>
 </div>

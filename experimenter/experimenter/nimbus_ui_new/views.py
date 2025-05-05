@@ -21,7 +21,8 @@ from experimenter.nimbus_ui_new.forms import (
     ApproveEndEnrollmentForm,
     ApproveEndExperimentForm,
     AudienceForm,
-    CancelRejectEndForm,
+    CancelEndEnrollmentForm,
+    CancelEndExperimentForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
@@ -41,7 +42,6 @@ from experimenter.nimbus_ui_new.forms import (
     QAStatusForm,
     ReviewToApproveForm,
     ReviewToDraftForm,
-    ReviewToRejectForm,
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
@@ -464,10 +464,6 @@ class ReviewToApproveView(StatusUpdateView):
     form_class = ReviewToApproveForm
 
 
-class ReviewToRejectView(StatusUpdateView):
-    form_class = ReviewToRejectForm
-
-
 class LiveToEndEnrollmentView(StatusUpdateView):
     form_class = LiveToEndEnrollmentForm
 
@@ -484,5 +480,9 @@ class ApproveEndExperimentView(StatusUpdateView):
     form_class = ApproveEndExperimentForm
 
 
-class CancelRejectEndView(StatusUpdateView):
-    form_class = CancelRejectEndForm
+class CancelEndEnrollmentView(StatusUpdateView):
+    form_class = CancelEndEnrollmentForm
+
+
+class CancelEndExperimentView(StatusUpdateView):
+    form_class = CancelEndExperimentForm

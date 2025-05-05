@@ -129,14 +129,14 @@
            rel="noopener noreferrer">Open Remote Settings</a>
       </div>
     {% elif experiment.is_review %}
-      {% include "nimbus_experiments/approval_rejection_controls.html" with approval_url="nimbus-new-review-to-approve" reject_url="nimbus-new-review-to-reject" cancel_url="nimbus-new-review-to-draft" experiment=experiment action_type="launch_experiment" %}
+      {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Launch Experiment" approval_url="nimbus-new-review-to-approve" cancel_reject_url="nimbus-new-review-to-draft" experiment=experiment %}
 
     {% elif experiment.is_enrolling or experiment.is_observation %}
       {% if experiment.is_enrollment_pause_requested %}
-        {% include "nimbus_experiments/approval_rejection_controls.html" with approval_url="nimbus-new-approve-end-enrollment" reject_url="nimbus-new-cancel-reject-end" cancel_url="nimbus-new-cancel-reject-end" experiment=experiment action_type="end_enrollment" %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Enrollment" approval_url="nimbus-new-approve-end-enrollment" cancel_reject_url="nimbus-new-cancel-end-enrollment" experiment=experiment %}
 
       {% elif experiment.is_end_experiment_requested %}
-        {% include "nimbus_experiments/approval_rejection_controls.html" with approval_url="nimbus-new-approve-end-experiment" reject_url="nimbus-new-cancel-reject-end" cancel_url="nimbus-new-cancel-reject-end" experiment=experiment action_type="end_experiment" %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-new-approve-end-experiment" cancel_reject_url="nimbus-new-cancel-end-experiment" experiment=experiment %}
 
       {% elif experiment.should_show_end_enrollment or experiment.should_show_end_experiment %}
         <div id="default-controls" class="alert alert-primary mt-3">

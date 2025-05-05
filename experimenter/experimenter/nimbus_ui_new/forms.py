@@ -962,19 +962,6 @@ class ReviewToApproveForm(UpdateStatusForm):
         return experiment
 
 
-class ReviewToRejectForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.DRAFT
-    status_next = None
-    publish_status = NimbusExperiment.PublishStatus.IDLE
-    changelog_message = forms.CharField(
-        required=True, label="Reason for Rejection", max_length=1000
-    )
-
-    def get_changelog_message(self):
-        changelog_message = self.cleaned_data.get("changelog_message", "")
-        return f"{self.request.user} rejected the review with reason: {changelog_message}"
-
-
 class LiveToEndEnrollmentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
@@ -1029,16 +1016,10 @@ class ApproveEndExperimentForm(UpdateStatusForm):
         return experiment
 
 
-class CancelRejectEndForm(UpdateStatusForm):
-    """
-    Single form to handle both cancel and reject actions
-    for end enrollment & end experiment.
-    """
-
+class CancelEndEnrollmentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
-
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
     )
@@ -1047,15 +1028,34 @@ class CancelRejectEndForm(UpdateStatusForm):
         required=False, label="Cancel Message", max_length=1000
     )
 
-    def __init__(self, *args, experiment=None, **kwargs):
-        data = kwargs.get("data", {})
-        self.experiment = experiment
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.action_type = data.get("action_type")
-        if self.action_type == "end_enrollment":
-            self.is_paused = False
-        elif self.action_type == "end_experiment":
-            self.is_paused = experiment.is_paused if experiment else False
+        self.is_paused = False
+
+    def get_changelog_message(self):
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
+
+
+class CancelEndExperimentForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+    changelog_message = forms.CharField(
+        required=False, label="Changelog Message", max_length=1000
+    )
+
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_paused = self.instance.is_paused if self.instance else False
 
     def get_changelog_message(self):
         if self.cleaned_data.get("changelog_message"):

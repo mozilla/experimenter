@@ -10,7 +10,6 @@ from experimenter.nimbus_ui_new.views import (
     BranchesUpdateView,
     CancelEndEnrollmentView,
     CancelEndExperimentView,
-    CancelRejectEndView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
     DraftToPreviewView,
@@ -30,7 +29,6 @@ from experimenter.nimbus_ui_new.views import (
     QAStatusUpdateView,
     ReviewToApproveView,
     ReviewToDraftView,
-    ReviewToRejectView,
     SignoffUpdateView,
     SubscribeView,
     TakeawaysUpdateView,
@@ -181,11 +179,6 @@ urlpatterns = [
         name="nimbus-new-review-to-approve",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/review-to-reject/$",
-        ReviewToRejectView.as_view(),
-        name="nimbus-new-review-to-reject",
-    ),
-    re_path(
         r"^(?P<slug>[\w-]+)/live-to-end-enrollment/$",
         LiveToEndEnrollmentView.as_view(),
         name="nimbus-new-live-to-end-enrollment",
@@ -206,8 +199,13 @@ urlpatterns = [
         name="nimbus-new-approve-end-experiment",
     ),
     re_path(
+        r"^(?P<slug>[\w-]+)/reject-end-enrollment/$",
+        CancelEndEnrollmentView.as_view(),
+        name="nimbus-new-cancel-end-enrollment",
+    ),
+    re_path(
         r"^(?P<slug>[\w-]+)/reject-end-experiment/$",
-        CancelRejectEndView.as_view(),
-        name="nimbus-new-cancel-reject-end",
+        CancelEndExperimentView.as_view(),
+        name="nimbus-new-cancel-end-experiment",
     ),
 ]

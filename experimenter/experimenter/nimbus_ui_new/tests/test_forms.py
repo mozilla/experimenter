@@ -29,7 +29,8 @@ from experimenter.nimbus_ui_new.forms import (
     ApproveEndEnrollmentForm,
     ApproveEndExperimentForm,
     AudienceForm,
-    CancelRejectEndForm,
+    CancelEndEnrollmentForm,
+    CancelEndExperimentForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
@@ -49,7 +50,6 @@ from experimenter.nimbus_ui_new.forms import (
     QAStatusForm,
     ReviewToApproveForm,
     ReviewToDraftForm,
-    ReviewToRejectForm,
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
@@ -716,31 +716,6 @@ class TestLaunchForms(RequestFormTestCase):
         )
         self.mock_allocate_bucket_range.assert_called_once()
 
-    def test_review_to_reject_form_with_reason(self):
-        self.experiment.status = NimbusExperiment.Status.DRAFT
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.save()
-
-        form = ReviewToRejectForm(
-            data={"changelog_message": "Needs more work."},
-            instance=self.experiment,
-            request=self.request,
-        )
-        self.assertTrue(form.is_valid(), form.errors)
-
-        experiment = form.save()
-        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.assertEqual(experiment.status_next, None)
-        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-
-        changelog = experiment.changes.latest("changed_on")
-        self.assertEqual(changelog.changed_by, self.user)
-        self.assertIn(
-            f"{self.user} rejected the review with reason: Needs more work.",
-            changelog.message,
-        )
-
     def test_live_to_end_enrollment_form(self):
         self.experiment.status = NimbusExperiment.Status.LIVE
         self.experiment.status_next = None
@@ -844,10 +819,9 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.is_paused = True
         self.experiment.save()
 
-        form = CancelRejectEndForm(
+        form = CancelEndEnrollmentForm(
             data={
                 "changelog_message": "Enrollment should continue.",
-                "action_type": "end_enrollment",
             },
             instance=self.experiment,
             request=self.request,
@@ -874,10 +848,9 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.is_paused = True
         self.experiment.save()
 
-        form = CancelRejectEndForm(
+        form = CancelEndEnrollmentForm(
             data={
                 "cancel_message": "Cancelled end enrollment request.",
-                "action_type": "end_enrollment",
             },
             instance=self.experiment,
             request=self.request,
@@ -901,10 +874,9 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.is_paused = True
         self.experiment.save()
 
-        form = CancelRejectEndForm(
+        form = CancelEndExperimentForm(
             data={
                 "changelog_message": "Experiment should continue.",
-                "action_type": "end_experiment",
             },
             instance=self.experiment,
             request=self.request,
@@ -915,7 +887,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.assertFalse(experiment.is_paused)
+        self.assertTrue(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
@@ -931,10 +903,9 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.is_paused = True
         self.experiment.save()
 
-        form = CancelRejectEndForm(
+        form = CancelEndExperimentForm(
             data={
                 "cancel_message": "Cancelled end experiment request.",
-                "action_type": "end_experiment",
             },
             instance=self.experiment,
             request=self.request,
@@ -945,7 +916,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.assertFalse(experiment.is_paused)
+        self.assertTrue(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
