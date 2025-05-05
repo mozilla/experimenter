@@ -1,15 +1,21 @@
 from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
+    ApproveEndEnrollmentView,
+    ApproveEndExperimentView,
     AudienceUpdateView,
     BranchCreateView,
     BranchDeleteView,
     BranchesPartialUpdateView,
     BranchesUpdateView,
+    CancelEndEnrollmentView,
+    CancelEndExperimentView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
     DraftToPreviewView,
     DraftToReviewView,
+    LiveToCompleteView,
+    LiveToEndEnrollmentView,
     MetricsUpdateView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
@@ -23,7 +29,6 @@ from experimenter.nimbus_ui_new.views import (
     QAStatusUpdateView,
     ReviewToApproveView,
     ReviewToDraftView,
-    ReviewToRejectView,
     SignoffUpdateView,
     SubscribeView,
     TakeawaysUpdateView,
@@ -174,8 +179,33 @@ urlpatterns = [
         name="nimbus-new-review-to-approve",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/review-to-reject/$",
-        ReviewToRejectView.as_view(),
-        name="nimbus-new-review-to-reject",
+        r"^(?P<slug>[\w-]+)/live-to-end-enrollment/$",
+        LiveToEndEnrollmentView.as_view(),
+        name="nimbus-new-live-to-end-enrollment",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/live-to-complete/$",
+        LiveToCompleteView.as_view(),
+        name="nimbus-new-live-to-complete",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/approve-end-enrollment/$",
+        ApproveEndEnrollmentView.as_view(),
+        name="nimbus-new-approve-end-enrollment",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/approve-end-experiment/$",
+        ApproveEndExperimentView.as_view(),
+        name="nimbus-new-approve-end-experiment",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/reject-end-enrollment/$",
+        CancelEndEnrollmentView.as_view(),
+        name="nimbus-new-cancel-end-enrollment",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/reject-end-experiment/$",
+        CancelEndExperimentView.as_view(),
+        name="nimbus-new-cancel-end-experiment",
     ),
 ]
