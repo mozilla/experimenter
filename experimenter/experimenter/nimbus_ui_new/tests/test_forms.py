@@ -26,11 +26,17 @@ from experimenter.kinto.tasks import (
 )
 from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.forms import (
+    ApproveEndEnrollmentForm,
+    ApproveEndExperimentForm,
     AudienceForm,
+    CancelEndEnrollmentForm,
+    CancelEndExperimentForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
+    LiveToCompleteForm,
+    LiveToEndEnrollmentForm,
     MetricsForm,
     NimbusBranchCreateForm,
     NimbusBranchDeleteForm,
@@ -44,7 +50,6 @@ from experimenter.nimbus_ui_new.forms import (
     QAStatusForm,
     ReviewToApproveForm,
     ReviewToDraftForm,
-    ReviewToRejectForm,
     SignoffForm,
     SubscribeForm,
     TakeawaysForm,
@@ -711,30 +716,211 @@ class TestLaunchForms(RequestFormTestCase):
         )
         self.mock_allocate_bucket_range.assert_called_once()
 
-    def test_review_to_reject_form_with_reason(self):
-        self.experiment.status = NimbusExperiment.Status.DRAFT
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+    def test_live_to_end_enrollment_form(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.is_paused = False
         self.experiment.save()
 
-        form = ReviewToRejectForm(
-            data={"changelog_message": "Needs more work."},
+        form = LiveToEndEnrollmentForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertTrue(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("requested review to end enrollment", changelog.message)
+
+    def test_approve_end_enrollment_form(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        form = ApproveEndEnrollmentForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.assertTrue(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("approved the end enrollment request", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+    def test_live_to_complete_form(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.is_paused = False
+        self.experiment.save()
+
+        form = LiveToCompleteForm(data={}, instance=self.experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertTrue(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("requested review to end experiment", changelog.message)
+
+    def test_approve_end_experiment_form(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        form = ApproveEndExperimentForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.assertTrue(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("approved the end experiment request", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+    def test_reject_end_enrollment_request(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        form = CancelEndEnrollmentForm(
+            data={
+                "changelog_message": "Enrollment should continue.",
+            },
             instance=self.experiment,
             request=self.request,
         )
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
-        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertFalse(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn(
-            f"{self.user} rejected the review with reason: Needs more work.",
+            "rejected the review with reason: Enrollment should continue.",
             changelog.message,
         )
+
+    def test_cancel_end_enrollment_request(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        form = CancelEndEnrollmentForm(
+            data={
+                "cancel_message": "Cancelled end enrollment request.",
+            },
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertFalse(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("Cancelled end enrollment request.", changelog.message)
+
+    def test_reject_end_experiment_request(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        form = CancelEndExperimentForm(
+            data={
+                "changelog_message": "Experiment should continue.",
+            },
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertTrue(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(
+            "rejected the review with reason: Experiment should continue.",
+            changelog.message,
+        )
+
+    def test_cancel_end_experiment_request(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.save()
+
+        form = CancelEndExperimentForm(
+            data={
+                "cancel_message": "Cancelled end experiment request.",
+            },
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertTrue(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("Cancelled end experiment request.", changelog.message)
 
 
 class TestOverviewForm(RequestFormTestCase):
