@@ -2352,7 +2352,7 @@ description = """
 
 [segments.new_unique_profiles]
 data_source = "clients_last_seen"
-select_expression = "COALESCE(ANY_VALUE(first_seen_date) >= submission_date, TRUE)"
+select_expression = "COALESCE(LOGICAL_OR(first_seen_date = submission_date), FALSE)"
 friendly_name = "New unique profiles"
 description = """
     Clients that enrolled the first date their client_id ever appeared
