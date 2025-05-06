@@ -38,6 +38,93 @@ WIN22H2 = "os.windowsBuildNumber >= 19045"
 CORE_ACTIVE_USERS_TARGETING = "'{event}'|eventCountNonZero('Days', 28, 0) >= 21"
 RECENTLY_LOGGED_IN_USERS_TARGETING = "'{event}'|eventCountNonZero('Weeks', 12, 0) >= 1"
 
+# The following indicate whether the user accepted the terms of use in one of our initial phases of experimentation/rollout
+ACCEPTED_TOU_IN_NIMBUS_EXPERIMENT = "'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue == 3"
+# Accepted in 100% on-train rollout in 139 release (after May 27, 6am PT timestamp)
+ACCEPTED_TOU_IN_FULL_ON_TRAIN_ROLLOUT = """
+(
+    'datareporting.policy.dataSubmissionPolicyNotifiedTime'|preferenceValue >= '1748350800000'
+    &&
+    'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue == 2
+    &&
+    'browser.preonboarding.enrolledInOnTrainRollout'|preferenceValue
+)
+"""
+# Accepted in earlier partial rollout indicated by presence of on-train rollout population value
+ACCEPTED_TOU_IN_PARTIAL_ON_TRAIN_ROLLOUT = """
+(
+    'browser.preonboarding.enrolledInOnTrainRollout'|preferenceValue
+    &&
+    'browser.preonboarding.onTrainRolloutPopulation'|preferenceValue
+    &&
+    'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue == 2
+)
+"""
+ACCEPTED_TOU_V1 = "'termsofuse.acceptedVersion'|preferenceValue == 1"
+ACCEPTED_TOU = f"""
+(
+    {ACCEPTED_TOU_IN_NIMBUS_EXPERIMENT}
+    ||
+    {ACCEPTED_TOU_IN_FULL_ON_TRAIN_ROLLOUT}
+    ||
+    {ACCEPTED_TOU_IN_PARTIAL_ON_TRAIN_ROLLOUT}
+    ||
+    {ACCEPTED_TOU_V1}
+)
+"""
+TOU_NOTIFICATION_BYPASS_ENABLED = """
+(
+    'datareporting.policy.dataSubmissionPolicyBypassNotification'|preferenceValue
+    ||
+    'termsOfUse.bypassNotification'|preferenceValue
+)
+"""
+
+# The following indicate whether the user has changed prefs suggesting they prefer not to see ads or ad-like features
+NEW_TAB_AND_HOMEPAGE_NOT_DEFAULT = """
+(
+    (
+        !newtabSettings.isDefault
+        ||
+        !'browser.newtabpage.enabled'|preferenceValue
+    )
+    &&
+    !homePageSettings.isDefault
+)
+"""
+SPONSORED_SEARCH_SUGGESTIONS_DISABLED = "!'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
+TOPSITES_OR_SPONSORED_TOPSITES_DISABLED = """
+(
+    !'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue
+    ||
+    !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+)
+"""
+SPONSORED_STORIES_DISABLED = """
+(
+    !'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue
+    ||
+    !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
+)
+"""
+ADS_DISABLED = f"""
+(
+    (
+        {NEW_TAB_AND_HOMEPAGE_NOT_DEFAULT}
+        &&
+        {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
+    )
+    ||
+    (
+        {TOPSITES_OR_SPONSORED_TOPSITES_DISABLED}
+        &&
+        {SPONSORED_STORIES_DISABLED}
+        &&
+        {SEARCH_SUGGESTIONS_DISABLED}
+    )
+)
+"""
+
 NO_TARGETING = NimbusTargetingConfig(
     name="No Targeting",
     slug="no_targeting",
@@ -2527,6 +2614,34 @@ SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TOU_NOT_ACCEPTED_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
+    name="TOU not accepted yet, ads enabled, Mac or Win",
+    slug="tou_not_accepted_ads_enabled_mac_win",
+    description=(
+        "Users who have not accepted the terms of use yet, "
+        "have not disabled ads, "
+        "and are on Mac or Windows"
+    ),
+    targeting=f"""
+    (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
+        !{ACCEPTED_TOU}
+        &&
+        !{TOU_NOTIFICATION_BYPASS_ENABLED}
+        &&
+        !{ADS_DISABLED}
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
