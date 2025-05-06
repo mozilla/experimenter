@@ -1489,6 +1489,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.takeaways_metric_gain = False
         cloned.takeaways_gain_amount = None
         cloned.takeaways_qbr_learning = False
+        cloned.use_group_id = True
         cloned._start_date = None
         cloned._end_date = None
         cloned._enrollment_end_date = None
