@@ -3011,6 +3011,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
             is_rollout=True,
             is_rollout_dirty=True,
+            use_group_id=False,
         )
         rollout_branch = parent.branches.first()
         child = self._clone_experiment_and_assert_common_expectations(
@@ -3043,6 +3044,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.takeaways_metric_gain, False)
         self.assertEqual(child.takeaways_qbr_learning, False)
         self.assertEqual(child.takeaways_summary, None)
+        self.assertEqual(child.use_group_id, True)
         self.assertEqual(child.conclusion_recommendations, [])
         self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(child.qa_comment, None)
