@@ -52,6 +52,38 @@ commands:
             mkdir -p workspace/test-results
             mkdir -p dashboard/test-results
 
+  upload-to-gcs:
+    parameters:
+      source:
+        type: string
+      destination:
+        type: string
+      extension:
+        type: enum
+        enum: ["xml", "json"]
+    steps:
+      - gcp-cli/setup:
+          gcloud_service_key: ETE_GCLOUD_SERVICE_KEY
+          google_project_id: ETE_GOOGLE_PROJECT_ID
+      - run:
+          name: Upload << parameters.source >> << parameters.extension >> Files to GCS
+          when: always  # Ensure the step runs even if previous steps, like test runs, fail
+          command: |
+            allowed_branches=("main" "update_firefox_versions" "update-application-services" "fix-12587")
+
+            for branch in "${allowed_branches[@]}"; do
+              if [[ "$CIRCLE_BRANCH" == "$branch" ]]; then
+                FILES=$(ls -1 << parameters.source>>/*.<< parameters.extension>> )
+                if [ -z "$FILES" ]; then
+                  echo "No << parameters.extension >> files found in << parameters.source >>/"
+                  exit 1
+                fi
+                gsutil cp $FILES << parameters.destination >>
+              else
+                echo "Skipping artifact upload, not on 'main' branch."
+              fi
+            done
+
 jobs:
   check_experimenter_x86_64:
     machine:
@@ -73,6 +105,14 @@ jobs:
           path: workspace/test-results/experimenter_tests.xml
       - store_test_results:
           path: workspace/test-results/junit.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
+          extension: json
 
 
   check_experimenter_aarch64:
@@ -95,6 +135,14 @@ jobs:
           path: workspace/test-results/experimenter_tests.xml
       - store_test_results:
           path: workspace/test-results/junit.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
+          extension: json
 
   check_cirrus_x86_64:
     machine:
@@ -113,6 +161,14 @@ jobs:
             make cirrus_check_and_report
       - store_test_results:
           path: workspace/test-results/cirrus_pytest.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
+          extension: json
 
   check_cirrus_aarch64:
     machine:
@@ -131,6 +187,14 @@ jobs:
             make cirrus_check_and_report
       - store_test_results:
           path: workspace/test-results/cirrus_pytest.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
+          extension: json
 
   check_schemas:
     machine:
@@ -168,6 +232,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_remote_settings_launch:
     machine:
