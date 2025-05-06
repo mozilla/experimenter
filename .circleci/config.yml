@@ -48,7 +48,9 @@ commands:
     steps:
       - run:
           name: Create Workspace
-          command: mkdir -p workspace/test-results
+          command: |
+            mkdir -p workspace/test-results
+            mkdir -p dashboard/test-results
 
 jobs:
   check_experimenter_x86_64:
@@ -412,6 +414,7 @@ jobs:
             poetry add pydantic==2.10.3
             poetry install
             poetry run pytest --junitxml=/Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml -k test_ios_integration.py --feature ios_enrollment
+            cp experimenter_ios_integration_tests.xml dashboard/test-results/$(CIRCLE_BUILD_NUM)__$(EPOCH_TIME)__$(CIRCLE_PROJECT_REPONAME)__$(CIRCLE_WORKFLOW_ID)__)ios__integration__results.xml
       - run:
           name: Collect XCTest Results
           command: |

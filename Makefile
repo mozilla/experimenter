@@ -14,6 +14,15 @@ COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml $$(
 COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --name experimenter_integration
 DOCKER_BUILD = docker buildx build
 
+EPOCH_TIME := $(shell date +"%s")
+TEST_RESULTS_DIR ?= dashboard/test-results
+TEST_FILE_PREFIX := $(if $(CIRCLECI),$(CIRCLE_BUILD_NUM)__$(EPOCH_TIME)__$(CIRCLE_PROJECT_REPONAME)__$(CIRCLE_WORKFLOW_ID)__)
+UNIT_JUNIT_XML := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)unit__results.xml
+UNIT_COVERAGE_JSON := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)unit__coverage.json
+UI_COVERAGE_JSON := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)ui__coverage.json
+UI_JUNIT_XML := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)ui__results.xml
+INTEGRATION_JUNIT_XML := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)integration__results.xml
+
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
 NOCOLOR= \033[0m
@@ -49,7 +58,6 @@ LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.js
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_projects
-
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
 
@@ -165,6 +173,10 @@ check_and_report: lint
 	docker cp experimenter_test:/experimenter/experimenter_tests.xml workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter/nimbus-ui/coverage_report workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter/nimbus-ui/junit.xml workspace/test-results
+	cp workspace/test-results/experimenter_coverage.json $(UNIT_COVERAGE_JSON)
+	cp workspace/test-results/experimenter_tests.xml $(UNIT_JUNIT_XML)
+	cp workspace/test-results/coverage_report/coverage-final.json $(UI_COVERAGE_JSON)
+	cp workspace/test-results/junit.xml $(UI_JUNIT_XML)
 	docker rm experimenter_test
 
 test: build_test  ## Run tests
@@ -246,9 +258,11 @@ integration_test_nimbus_sdk: build_integration_test build_prod
 integration_test_nimbus_fenix:
 	poetry -C experimenter/tests/integration/ -vvv install --no-root
 	poetry -C experimenter/tests/integration/ -vvv run pytest --html=workspace/test-results/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android --junitxml=workspace/test-results/experimenter_fenix_integration_tests.xml -vvv
+	cp experimenter_fenix_integration_tests.xml $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)fenix__integration__results.xml
 
 make integration_test_and_report:
 	docker cp experimenter_integration:/code/experimenter/tests/integration/test-reports/experimenter_integration_tests.xml workspace/test-results
+	cp workspace/test-results/experimenter_integration_tests.xml $(INTEGRATION_JUNIT_XML)
 	docker rm experimenter_integration
 
 # cirrus
@@ -261,6 +275,8 @@ CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus --cov-report json
 CIRRUS_PYTHON_TYPECHECK = pyright -p .
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
+CIRRUS_COVERAGE_JSON := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)cirrus__unit__coverage.json
+CIRRUS_JUNIT_XML := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)cirrus__integration__results.xml
 
 cirrus_build: build_megazords
 	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
@@ -289,6 +305,8 @@ cirrus_lint: cirrus_build_test
 cirrus_check_and_report: cirrus_lint
 	docker cp experimenter_test:/cirrus/cirrus_pytest.xml workspace/test-results
 	docker cp experimenter_test:/cirrus/cirrus_coverage.json workspace/test-results
+	cp workspace/test-results/cirrus_pytest.xml $(CIRRUS_JUNIT_XML)
+	cp workspace/test-results/cirrus_coverage.json $(CIRRUS_COVERAGE_JSON)
 	docker rm experimenter_test
 
 cirrus_code_format: cirrus_build
