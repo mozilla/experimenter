@@ -343,7 +343,22 @@ class ToggleArchiveView(
         return response
 
 
+class SaveAndContinueMixin:
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if (
+            self.request.headers.get("HX-Request")
+            and self.request.POST.get("save_action") == "continue"
+        ):
+            response = HttpResponse()
+            response.headers["HX-Redirect"] = reverse(
+                self.continue_url_name, kwargs={"slug": self.object.slug}
+            )
+        return response
+
+
 class OverviewUpdateView(
+    SaveAndContinueMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
@@ -353,6 +368,7 @@ class OverviewUpdateView(
 ):
     form_class = OverviewForm
     template_name = "nimbus_experiments/edit_overview.html"
+    continue_url_name = "nimbus-new-update-branches"
 
 
 class DocumentationLinkCreateView(RenderParentDBResponseMixin, OverviewUpdateView):
@@ -372,8 +388,8 @@ class BranchesPartialUpdateView(RenderDBResponseMixin, BranchesBaseView):
     pass
 
 
-class BranchesUpdateView(RenderResponseMixin, BranchesBaseView):
-    pass
+class BranchesUpdateView(SaveAndContinueMixin, RenderResponseMixin, BranchesBaseView):
+    continue_url_name = "nimbus-new-update-metrics"
 
 
 class BranchCreateView(RenderParentDBResponseMixin, BranchesBaseView):
@@ -385,6 +401,7 @@ class BranchDeleteView(RenderParentDBResponseMixin, BranchesBaseView):
 
 
 class MetricsUpdateView(
+    SaveAndContinueMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
@@ -393,9 +410,11 @@ class MetricsUpdateView(
 ):
     form_class = MetricsForm
     template_name = "nimbus_experiments/edit_metrics.html"
+    continue_url_name = "nimbus-new-update-audience"
 
 
 class AudienceUpdateView(
+    SaveAndContinueMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
@@ -405,6 +424,7 @@ class AudienceUpdateView(
 ):
     form_class = AudienceForm
     template_name = "nimbus_experiments/edit_audience.html"
+    continue_url_name = "nimbus-new-detail"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

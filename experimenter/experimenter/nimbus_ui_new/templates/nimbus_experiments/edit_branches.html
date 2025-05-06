@@ -173,7 +173,10 @@
     </div>
     <div class="d-flex justify-content-end">
       <button type="submit" class="btn btn-primary">Save</button>
-      <button type="submit" class="btn btn-secondary ms-2">Save and Continue</button>
+      <button type="submit"
+              name="save_action"
+              value="continue"
+              class="btn btn-secondary ms-2">Save and Continue</button>
     </div>
     {% if form.is_bound %}
       <div class="toast text-bg-success position-fixed top-0 end-0 m-3 w-auto"
