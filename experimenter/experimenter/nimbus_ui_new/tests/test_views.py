@@ -2334,3 +2334,36 @@ class TestAudienceUpdateView(AuthTestCase):
 
         validation_errors = response.context["validation_errors"]
         self.assertEqual(validation_errors, {})
+
+
+class TestSaveAndContinueMixin(AuthTestCase):
+    @parameterized.expand(
+        [
+            (
+                "nimbus-new-update-overview",
+                "nimbus-new-update-branches",
+                {
+                    "name": "new name",
+                    "documentation_links-TOTAL_FORMS": "0",
+                    "documentation_links-INITIAL_FORMS": "0",
+                },
+            ),
+            ("nimbus-new-update-branches", "nimbus-new-update-metrics", {}),
+            ("nimbus-new-update-metrics", "nimbus-new-update-audience", {}),
+            ("nimbus-new-update-audience", "nimbus-new-detail", {}),
+        ]
+    )
+    def test_get_redirects_to_next_step(self, current_url, next_url, data):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        response = self.client.post(
+            reverse(current_url, kwargs={"slug": experiment.slug}),
+            {**data, "save_action": "continue"},
+            headers={"Hx-Request": "true"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse(next_url, kwargs={"slug": experiment.slug}),
+        )
