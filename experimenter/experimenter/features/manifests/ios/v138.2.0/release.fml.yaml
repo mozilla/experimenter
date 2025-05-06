@@ -5,18 +5,18 @@ about:
 channels:
   - release
 features:
+  account-settings-redux-feature:
+    description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
+    variables:
+      enabled:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
     variables:
       status:
         description: "If true, we will allow user to edit the address"
-        type: Boolean
-        default: false
-  address-bar-menu-feature:
-    description: "This property determines if we show the new address bar menu entry or the toolbar menu in settings\n"
-    variables:
-      status:
-        description: "If true, we will show the new address bar menu entry"
         type: Boolean
         default: false
   appearance-menu-feature:
@@ -38,6 +38,21 @@ features:
     variables:
       enabled:
         description: "When true the cleanupHistoryIfNeeded will be run\n"
+        type: Boolean
+        default: false
+  contextual-hint-feature:
+    description: This set holds all features pertaining to contextual hints.
+    variables:
+      features-enabled:
+        description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+        type: "Map<ContextualHint, Boolean>"
+        default:
+          toolbar-hint: true
+  credit-card-autofill:
+    description: This property defines the credit card autofill feature
+    variables:
+      credit-card-autofill-status:
+        description: "If true, we will allow user to use the credit autofill feature"
         type: Boolean
         default: true
   deeplink-optimization-refactor-feature:
@@ -87,13 +102,13 @@ features:
         type: GeneralFeature
         default:
           status: false
-  hnt-top-sites-visual-refresh-feature:
-    description: This feature manages the top sites visual refresh.
+  glean-server-knobs:
+    description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
-      enabled:
-        description: Determines whether the top sites visual refresh is shown.
-        type: Boolean
-        default: false
+      metrics-enabled:
+        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+        type: "Map<String, Boolean>"
+        default: {}
   homepage-rebuild-feature:
     description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
     variables:
@@ -104,18 +119,30 @@ features:
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
+      prefer-switch-to-open-tab:
+        description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
+        type: Boolean
+        default: false
       sections-enabled:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
         type: "Map<HomeScreenSection, Boolean>"
         default:
+          jump-back-in: true
           recent-explorations: false
-  logins-verification:
-    description: "Feature that enables the logins verification logic.\n"
+  js-alert-refactor:
+    description: "This feature is for the JavaScript Webview refactor\n"
     variables:
-      logins-verification-enabled:
-        description: "Whether the logins verification logic is enabled. When enabled, an attempt will be made to decrypt all stored logins when sync is enabled. If a login cannot be decrypted, it will be locally deleted to unblock syncing.\n"
+      enabled:
+        description: "When true this enables the new JS alerts system to be used\n"
         type: Boolean
-        default: false
+        default: true
+  login-autofill:
+    description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+    variables:
+      login-autofill-status:
+        description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+        type: Boolean
+        default: true
   menu-refactor-feature:
     description: "Controls the menu refactor feature\n"
     variables:
@@ -280,6 +307,13 @@ features:
         description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
         type: Boolean
         default: false
+  night-mode-feature:
+    description: "Describes the night mode feature's configuration\n"
+    variables:
+      enabled:
+        description: "Whether night mode is available for users or not\n"
+        type: Boolean
+        default: true
   onboarding-framework-feature:
     description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
     variables:
@@ -441,11 +475,11 @@ features:
         description: "Enables the rating prompt\n"
         type: Boolean
         default: false
-  revert-unsafe-continuations-refactor:
-    description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
+  redux-search-settings-feature:
+    description: "This feature is for managing the roll out of redux on the search settings screen\n"
     variables:
       enabled:
-        description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
+        description: "Enables the feature\n"
         type: Boolean
         default: false
   rust-keychain-refactor:
@@ -466,6 +500,7 @@ features:
           position:
             is-bottom: false
             is-position-feature-enabled: true
+            is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
   search-engine-consolidation-feature:
@@ -486,6 +521,43 @@ features:
         description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
         type: Boolean
         default: true
+  shopping2023:
+    description: "The configuration setting for the status of the Fakespot feature\n"
+    variables:
+      back_in_stock_reporting:
+        description: "If true, enables for users the reporting feature for products back in stock.\n"
+        type: Boolean
+        default: false
+      config:
+        description: "A Map of website configurations\n"
+        type: "Map<String, WebsiteConfig>"
+        default:
+          amazon:
+            productIdFromURLRegex: "(?:[\\\\/]|$|%2F)(?<productId>[A-Z0-9]{10})(?:[\\\\/]|$|\\\\#|\\\\?|%2F)"
+            validTLDs:
+              - com
+              - de
+              - fr
+          walmart:
+            productIdFromURLRegex: "\\\\/ip\\\\/(?:[A-Za-z0-9-]{1,320}\\\\/)?(?<productId>[0-9]{3,13})"
+            validTLDs:
+              - com
+          bestbuy:
+            productIdFromURLRegex: "\\\\/(?<productId>\\\\d+\\\\.p)"
+            validTLDs:
+              - com
+      product_ads:
+        description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
+        type: Boolean
+        default: false
+      relay:
+        description: "Configurable relay URL for production environment\n"
+        type: String
+        default: "https://mozilla-ohttp-fakespot.fastly-edge.com/"
+      status:
+        description: "Whether the Fakespot feature is enabled or disabled\n"
+        type: Boolean
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
     variables:
@@ -516,13 +588,6 @@ features:
         description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
         type: Option<PageContent>
         default: text-excerpt
-  start-at-home-feature:
-    description: This feature is for experimenting with opening screen
-    variables:
-      setting:
-        description: This property provides a default setting for the start at home feature
-        type: StartAtHome
-        default: afterFourHours
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
@@ -597,7 +662,19 @@ features:
         description: "If true, firefox will use the  the updated password manager."
         type: Boolean
         default: false
+  zoom-feature:
+    description: "The configuration for the status of the zoom feature\n"
+    variables:
+      status:
+        description: "Whether the page zoom feature is enabled or not\n"
+        type: Boolean
+        default: true
 enums:
+  ContextualHint:
+    description: The identifiers for a individual contextual hints.
+    variants:
+      toolbar-hint:
+        description: The contextual hint bubble that appears to provide a hint about the toolbar.
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
     variants:
@@ -608,6 +685,8 @@ enums:
   HomeScreenSection:
     description: The identifiers for the sections of the homescreen.
     variants:
+      jump-back-in:
+        description: The tabs the user was looking immediately before being interrupted.
       recent-explorations:
         description: The tab groups
   IconType:
@@ -740,15 +819,6 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
-  StartAtHome:
-    description: The option for what screen to open the app to
-    variants:
-      afterFourHours:
-        description: "Starts the app at the homepage after four hours of inactivity, otherwise starts the app at the most recently viewed tab."
-      always:
-        description: Starts the app at the homepage.
-      disabled:
-        description: Starts the app at the most recently viewed tab.
   SuggestionType:
     description: The type of a Firefox Suggest search suggestion.
     variants:
@@ -770,8 +840,6 @@ enums:
         description: The default layout of the toolbars.
       version1:
         description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
-      version2:
-        description: Like version1 but the menu and tabs buttons are inverted.
 objects:
   AwesomeBar:
     description: "A configuration option for the awesome bar. Part of the `search` feature."
@@ -786,6 +854,7 @@ objects:
         default:
           is-position-feature-enabled: true
           is-bottom: true
+          is-toolbar-cfr-on: true
       search-highlights:
         description: Whether or not search highlights are enabled
         type: Boolean
@@ -1003,6 +1072,10 @@ objects:
         description: Whether or not the feature is enabled
         type: Boolean
         default: true
+      is-toolbar-cfr-on:
+        description: Whether or not the toolbar CFR shows. This is a temporary hack for Nimbus
+        type: Boolean
+        default: true
   StyleData:
     description: "A group of properities (predominantly visual) to the describe style of the message.\n"
     fields:
@@ -1014,3 +1087,14 @@ objects:
         description: "The importance of this message. 0 is not very important, 100 is very important.\n"
         type: Int
         default: 50
+  WebsiteConfig:
+    description: "It represents a configuration for different e-commerce websites and includes regular expressions for extracting product IDs from their respective URLs\n"
+    fields:
+      productIdFromURLRegex:
+        description: "It represents the product ID extracted from a regex query\n"
+        type: String
+        default: ""
+      validTLDs:
+        description: "Valid Top Level Domains\n"
+        type: List<String>
+        default: []
