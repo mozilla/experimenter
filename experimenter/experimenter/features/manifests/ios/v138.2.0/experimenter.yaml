@@ -1,4 +1,12 @@
 ---
+account-settings-redux-feature:
+  description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature\n"
 address-autofill-edit:
   description: This property defines if the address editing is enabled in Settings
   hasExposure: true
@@ -7,14 +15,6 @@ address-autofill-edit:
     status:
       type: boolean
       description: "If true, we will allow user to edit the address"
-address-bar-menu-feature:
-  description: "This property determines if we show the new address bar menu entry or the toolbar menu in settings\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    status:
-      type: boolean
-      description: "If true, we will show the new address bar menu entry"
 appearance-menu-feature:
   description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
   hasExposure: true
@@ -39,6 +39,22 @@ cleanup-history-reenabled:
     enabled:
       type: boolean
       description: "When true the cleanupHistoryIfNeeded will be run\n"
+contextual-hint-feature:
+  description: This set holds all features pertaining to contextual hints.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    features-enabled:
+      type: json
+      description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+credit-card-autofill:
+  description: This property defines the credit card autofill feature
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    credit-card-autofill-status:
+      type: boolean
+      description: "If true, we will allow user to use the credit autofill feature"
 deeplink-optimization-refactor-feature:
   description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
   hasExposure: true
@@ -85,14 +101,14 @@ general-app-features:
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
-hnt-top-sites-visual-refresh-feature:
-  description: This feature manages the top sites visual refresh.
+glean-server-knobs:
+  description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
   hasExposure: true
   exposureDescription: ""
   variables:
-    enabled:
-      type: boolean
-      description: Determines whether the top sites visual refresh is shown.
+    metrics-enabled:
+      type: json
+      description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
 homepage-rebuild-feature:
   description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
   hasExposure: true
@@ -106,17 +122,28 @@ homescreenFeature:
   hasExposure: true
   exposureDescription: ""
   variables:
+    prefer-switch-to-open-tab:
+      type: boolean
+      description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
-logins-verification:
-  description: "Feature that enables the logins verification logic.\n"
+js-alert-refactor:
+  description: "This feature is for the JavaScript Webview refactor\n"
   hasExposure: true
   exposureDescription: ""
   variables:
-    logins-verification-enabled:
+    enabled:
       type: boolean
-      description: "Whether the logins verification logic is enabled. When enabled, an attempt will be made to decrypt all stored logins when sync is enabled. If a login cannot be decrypted, it will be locally deleted to unblock syncing.\n"
+      description: "When true this enables the new JS alerts system to be used\n"
+login-autofill:
+  description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    login-autofill-status:
+      type: boolean
+      description: "If true, allows the user to use the login autofill feature for usernames and passwords."
 menu-refactor-feature:
   description: "Controls the menu refactor feature\n"
   hasExposure: true
@@ -176,6 +203,14 @@ native-error-page-feature:
     no_internet_connection_error:
       type: boolean
       description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
+night-mode-feature:
+  description: "Describes the night mode feature's configuration\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether night mode is available for users or not\n"
 onboarding-framework-feature:
   description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
   hasExposure: true
@@ -206,14 +241,14 @@ rating-prompt-feature:
     enabled:
       type: boolean
       description: "Enables the rating prompt\n"
-revert-unsafe-continuations-refactor:
-  description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
+redux-search-settings-feature:
+  description: "This feature is for managing the roll out of redux on the search settings screen\n"
   hasExposure: true
   exposureDescription: ""
   variables:
     enabled:
       type: boolean
-      description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
+      description: "Enables the feature\n"
 rust-keychain-refactor:
   description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
   hasExposure: true
@@ -249,6 +284,26 @@ sent-from-firefox-feature:
     isTreatmentA:
       type: boolean
       description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
+shopping2023:
+  description: "The configuration setting for the status of the Fakespot feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    back_in_stock_reporting:
+      type: boolean
+      description: "If true, enables for users the reporting feature for products back in stock.\n"
+    config:
+      type: json
+      description: "A Map of website configurations\n"
+    product_ads:
+      type: boolean
+      description: "If true, enables the product advertisement feature, allowing users to see and interact with ads for various products.\n"
+    relay:
+      type: string
+      description: "Configurable relay URL for production environment\n"
+    status:
+      type: boolean
+      description: "Whether the Fakespot feature is enabled or disabled\n"
 splash-screen:
   description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
   hasExposure: true
@@ -277,18 +332,6 @@ spotlight-search:
     searchable-content:
       type: string
       description: "The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.\n"
-start-at-home-feature:
-  description: This feature is for experimenting with opening screen
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    setting:
-      type: string
-      description: This property provides a default setting for the start at home feature
-      enum:
-        - afterFourHours
-        - always
-        - disabled
 tab-tray-ui-experiments:
   description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
   hasExposure: true
@@ -363,3 +406,11 @@ updated-password-manager-feature:
     status:
       type: boolean
       description: "If true, firefox will use the  the updated password manager."
+zoom-feature:
+  description: "The configuration for the status of the zoom feature\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "Whether the page zoom feature is enabled or not\n"

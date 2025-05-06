@@ -85,6 +85,14 @@ general-app-features:
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
+hnt-top-sites-visual-refresh-feature:
+  description: This feature manages the top sites visual refresh.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: Determines whether the top sites visual refresh is shown.
 homepage-rebuild-feature:
   description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
   hasExposure: true
