@@ -548,70 +548,15 @@
           "properties": {
             "type": {
               "type": "string",
-              "description": "Specifies where the message should appear and persist: 'global' (persists across tabs in the current window), 'tab' (only visible in the current tab), or 'universal' (visible across all tabs and windows, current and future).",
+              "description": "Should the message be global (persisted across tabs) or local (disappear when switching to a different tab).",
               "enum": [
                 "global",
-                "tab",
-                "universal"
+                "tab"
               ]
             },
             "text": {
-              "description": "Either a single localizableText, or an array of raw strings and/or localizableText objects. localizableText can contain an optional href property for the text to be rendered as a link.",
-              "oneOf": [
-                {
-                  "$ref": "file:///InfoBar.schema.json#/$defs/plainText"
-                },
-                {
-                  "allOf": [
-                    {
-                      "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText"
-                    },
-                    {
-                      "not": {
-                        "required": [
-                          "href"
-                        ]
-                      }
-                    }
-                  ]
-                },
-                {
-                  "$ref": "file:///InfoBar.schema.json#/$defs/localizableTextWithHref"
-                },
-                {
-                  "$ref": "file:///InfoBar.schema.json#/$defs/rawTextWithHref"
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "oneOf": [
-                      {
-                        "$ref": "file:///InfoBar.schema.json#/$defs/plainText"
-                      },
-                      {
-                        "allOf": [
-                          {
-                            "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText"
-                          },
-                          {
-                            "not": {
-                              "required": [
-                                "href"
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "$ref": "file:///InfoBar.schema.json#/$defs/localizableTextWithHref"
-                      },
-                      {
-                        "$ref": "file:///InfoBar.schema.json#/$defs/rawTextWithHref"
-                      }
-                    ]
-                  }
-                }
-              ]
+              "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText",
+              "description": "The text show in the notification box."
             },
             "priority": {
               "description": "Infobar priority level https://searchfox.org/mozilla-central/rev/3aef835f6cb12e607154d56d68726767172571e4/toolkit/content/widgets/notificationbox.js#387",
@@ -694,43 +639,6 @@
           "description": "Target for links or buttons",
           "type": "string",
           "format": "uri"
-        },
-        "localizableTextWithHref": {
-          "description": "Everything a localizableText allows, plus a required href",
-          "allOf": [
-            {
-              "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText"
-            },
-            {
-              "type": "object",
-              "properties": {
-                "href": {
-                  "$ref": "file:///InfoBar.schema.json#/$defs/linkUrl"
-                }
-              },
-              "required": [
-                "href"
-              ],
-              "additionalProperties": true
-            }
-          ]
-        },
-        "rawTextWithHref": {
-          "description": "A literal text chunk that must include href",
-          "type": "object",
-          "properties": {
-            "raw": {
-              "type": "string"
-            },
-            "href": {
-              "$ref": "file:///InfoBar.schema.json#/$defs/linkUrl"
-            }
-          },
-          "required": [
-            "raw",
-            "href"
-          ],
-          "additionalProperties": false
         }
       }
     },
@@ -806,29 +714,9 @@
               "type": "string",
               "description": "URL for image to use with the content."
             },
-            "imageWidth": {
+            "imageVerticalOffset": {
               "type": "number",
-              "description": "The image width in pixels. Default is 120px."
-            },
-            "imageVerticalTopOffset": {
-              "type": "number",
-              "description": "The margin-block-start value to apply to the image in pixels, used in 'column' layouts."
-            },
-            "imageVerticalBottomOffset": {
-              "type": "number",
-              "description": "The margin-block-end value to apply to the image in pixels, used in 'row' layouts."
-            },
-            "containerVerticalBottomOffset": {
-              "type": "number",
-              "description": "The container's margin-block-end value in pixels. Used to visually offset the image in 'row' layouts when 'imageVerticalBottomOffset' is applied."
-            },
-            "layout": {
-              "type": "string",
-              "description": "The layout of the message content and illustration. Row displays the image to the inline to the right of the text, column displays the image above the text.",
-              "enum": [
-                "row",
-                "column"
-              ]
+              "description": "The margin-block-start value to apply to the image in pixels."
             }
           }
         },
