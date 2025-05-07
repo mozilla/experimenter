@@ -163,10 +163,10 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 	echo "All containers removed!"
 
 lint: build_test  ## Running linting on source code
+	-docker rm experimenter_test;
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
 
 check: lint
-	docker rm experimenter_test
 
 check_and_report: lint
 	docker cp experimenter_test:/experimenter/experimenter_coverage.json workspace/test-results
@@ -177,7 +177,6 @@ check_and_report: lint
 	cp workspace/test-results/experimenter_tests.xml $(UNIT_JUNIT_XML)
 	cp workspace/test-results/coverage_report/coverage-final.json $(UI_COVERAGE_JSON)
 	cp workspace/test-results/junit.xml $(UI_JUNIT_XML)
-	docker rm experimenter_test
 
 test: build_test  ## Run tests
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
@@ -239,6 +238,9 @@ dependabot_approve:
 integration_shell:
 	$(COMPOSE_INTEGRATION_RUN) firefox bash
 
+integration_clean:
+	-docker rm experimenter_integration
+
 integration_sdk_shell: build_prod build_integration_test
 	$(COMPOSE_INTEGRATION_RUN) rust-sdk bash
 
@@ -246,10 +248,10 @@ integration_vnc_shell: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox 
 	docker exec -it $$(docker ps -qf "name=experimenter-firefox-1") bash
 
-integration_test_legacy: build_prod
+integration_test_legacy: build_prod integration_clean
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "./experimenter/tests/experimenter_legacy_tests.sh"
 
-integration_test_nimbus_desktop: build_prod
+integration_test_nimbus_desktop: build_prod integration_clean
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "FIREFOX_CHANNEL=$(FIREFOX_CHANNEL) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
 
 integration_test_nimbus_sdk: build_integration_test build_prod
@@ -263,7 +265,6 @@ integration_test_nimbus_fenix:
 make integration_test_and_report:
 	docker cp experimenter_integration:/code/experimenter/tests/integration/test-reports/experimenter_integration_tests.xml workspace/test-results
 	cp workspace/test-results/experimenter_integration_tests.xml $(INTEGRATION_JUNIT_XML)
-	docker rm experimenter_integration
 
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&
@@ -299,7 +300,7 @@ cirrus_test: cirrus_build_test
 cirrus_check: cirrus_lint
 	docker rm experimenter_test
 
-cirrus_lint: cirrus_build_test
+cirrus_lint: cirrus_build_test integration_clean
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_check_and_report: cirrus_lint
@@ -307,7 +308,6 @@ cirrus_check_and_report: cirrus_lint
 	docker cp experimenter_test:/cirrus/cirrus_coverage.json workspace/test-results
 	cp workspace/test-results/cirrus_pytest.xml $(CIRRUS_JUNIT_XML)
 	cp workspace/test-results/cirrus_coverage.json $(CIRRUS_COVERAGE_JSON)
-	docker rm experimenter_test
 
 cirrus_code_format: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
