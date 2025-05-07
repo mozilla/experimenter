@@ -85,6 +85,14 @@ general-app-features:
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
+hnt-content-feed-cleanup-feature:
+  description: "Controls updates for the content feed\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not the feature is enabled\n"
 hnt-top-sites-visual-refresh-feature:
   description: This feature manages the top sites visual refresh.
   hasExposure: true
