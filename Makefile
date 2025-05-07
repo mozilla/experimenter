@@ -258,7 +258,7 @@ integration_test_nimbus_sdk: build_integration_test build_prod
 integration_test_nimbus_fenix:
 	poetry -C experimenter/tests/integration/ -vvv install --no-root
 	poetry -C experimenter/tests/integration/ -vvv run pytest --html=workspace/test-results/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android --junitxml=workspace/test-results/experimenter_fenix_integration_tests.xml -vvv
-	cp experimenter_fenix_integration_tests.xml $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)fenix__integration__results.xml
+	cp workspace/test-results/experimenter_fenix_integration_tests.xml $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)fenix__integration__results.xml
 
 make integration_test_and_report:
 	docker cp experimenter_integration:/code/experimenter/tests/integration/test-reports/experimenter_integration_tests.xml workspace/test-results
