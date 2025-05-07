@@ -87,6 +87,13 @@ features:
         type: GeneralFeature
         default:
           status: false
+  hnt-content-feed-cleanup-feature:
+    description: "Controls updates for the content feed\n"
+    variables:
+      enabled:
+        description: "Whether or not the feature is enabled\n"
+        type: Boolean
+        default: false
   hnt-top-sites-visual-refresh-feature:
     description: This feature manages the top sites visual refresh.
     variables:
