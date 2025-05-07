@@ -601,6 +601,7 @@ class NimbusConstants:
         FIREFOX_138_B3 = "138.0b3"
         FIREFOX_138_1_0 = "138.1.0"
         FIREFOX_138_2_0 = "138.2.0"
+        FIREFOX_138_0_3 = "138.0.3"
         FIREFOX_139 = "139.!"
         FIREFOX_140 = "140.!"
 
