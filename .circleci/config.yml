@@ -403,9 +403,10 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
+            curl -sSL https://install.python-poetry.org | python3 - --version 2.1.1
             echo 'export PATH=/Users/distiller/.local/bin:$PATH' >> "$BASH_ENV"
             source $BASH_ENV
+            EPOCH=$(date +"%s")
             cd firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests
             git cherry-pick dfd0b8a556f5990d0b5d9351df8acf571895e6dc -X theirs || true
             export SIMULATOR_UDID=$(python get_specific_device_udid.py)
@@ -414,7 +415,7 @@ jobs:
             poetry add pydantic==2.10.3
             poetry install
             poetry run pytest --junitxml=/Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml -k test_ios_integration.py --feature ios_enrollment
-            cp experimenter_ios_integration_tests.xml dashboard/test-results/$(CIRCLE_BUILD_NUM)__$(EPOCH_TIME)__$(CIRCLE_PROJECT_REPONAME)__$(CIRCLE_WORKFLOW_ID)__)ios__integration__results.xml
+            cp /Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml /Users/distiller/project/dashboard/test-results/${CIRCLE_BUILD_NUM}__$(date +"%s")__${CIRCLE_PROJECT_REPONAME}__${CIRCLE_WORKFLOW_ID}__ios__integration__results.xml
       - run:
           name: Collect XCTest Results
           command: |
