@@ -10,6 +10,13 @@ select_expression = "COALESCE(LOGICAL_OR(sidebar), FALSE)"
 data_source = "sidebar_toggle"
 statistics = { binomial = {} }
 
+[metrics.sidebar_frequency]
+friendly_name = "Sidebar Frequency"
+description = "Average number of times clients open any panel in the sidebar"
+select_expression = "COALESCE(COUNT(1), 0)"
+data_source = "sidebar_toggle"
+statistics = { bootstrap_mean = {} }
+
 [metrics.chatbot_engagement]
 friendly_name = "Chatbot Engagement"
 description = "Percentage of clients who opened the chatbot panel in the sidebar after provider is selected"
@@ -17,11 +24,25 @@ select_expression = "COALESCE(LOGICAL_OR(chatbot), FALSE)"
 data_source = "sidebar_toggle"
 statistics = { binomial = {} }
 
+[metrics.chatbot_frequency]
+friendly_name = "Chatbot Frequency"
+description = "Average number of times clients open chatbot panel in the sidebar after provider is selected"
+select_expression = "COALESCE(COUNTIF(chatbot), 0)"
+data_source = "sidebar_toggle"
+statistics = { bootstrap_mean = {} }
+
+[metrics.vertical_tabs]
+friendly_name = "Vertical Tabs"
+description = "Percentage of clients using Vertical Tabs"
+select_expression = "COALESCE(MAX_BY(tabs_orientation = 'vertical', submission_date), FALSE)"
+data_source = "sidebar_metrics"
+statistics = { binomial = {} }
+
 [metrics.sidebar_disable]
 friendly_name = "Sidebar Hard Disable"
 description = "Percentage of clients who remove sidebar button from toolbar"
 select_expression = "COALESCE(MAX_BY(sidebar_button, submission_date), FALSE)"
-data_source = "sidebar_disable"
+data_source = "sidebar_metrics"
 statistics = { binomial = {} }
 
 [data_sources.sidebar_toggle]
@@ -43,11 +64,12 @@ experiments_column_type = "none"
 friendly_name = "Sidebar Open"
 description = "Clients who open any sidebar panel"
 
-[data_sources.sidebar_disable]
+[data_sources.sidebar_metrics]
 from_expression = """(
   SELECT DISTINCT
     DATE(submission_timestamp) as submission_date,
     metrics.uuid.legacy_telemetry_client_id as client_id,
+    COALESCE(ARRAY_AGG(metrics.string.sidebar_tabs_layout IGNORE NULLS)[SAFE_OFFSET(0)], 'horizontal')  as tabs_orientation,
     COALESCE(LOGICAL_OR(w.key LIKE 'sidebar-button_pinned%'), FALSE) as sidebar_button
   FROM
     `mozdata.firefox_desktop.metrics`
@@ -56,5 +78,5 @@ from_expression = """(
   GROUP BY 1, 2
 )"""
 experiments_column_type = "none"
-friendly_name = "No Sidebar Button"
-description = "Clients who don't have the sidebar button in the toolbar"
+friendly_name = "Metrics related to Sidebar and Vertical Tabs"
+description = "Returns if the user has vertical tabs or the sidebar button when the metrics ping is sent"
