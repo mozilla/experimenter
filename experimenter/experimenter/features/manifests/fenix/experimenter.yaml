@@ -1,18 +1,4 @@
 ---
-SetupChecklist:
-  description: A feature on the home page that allows the user to track onboarding setup progress.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If true, the setup checklist will be enabled."
-    setup-checklist-type:
-      type: string
-      description: The collection used for the setup checklist.
-      enum:
-        - collection-1
-        - collection-2
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
@@ -467,6 +453,20 @@ sent-from-firefox:
     template-message:
       type: string
       description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
+setup-checklist:
+  description: A feature on the home page that allows the user to track onboarding setup progress.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the setup checklist will be enabled."
+    setup-checklist-type:
+      type: string
+      description: The collection used for the setup checklist.
+      enum:
+        - collection-1
+        - collection-2
 ship:
   description: The feature that controls Session History in Parent (SHIP) in Gecko.
   hasExposure: true
