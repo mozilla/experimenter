@@ -687,6 +687,15 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    def get_version_choices():
+        return [
+            (
+                NimbusExperiment.Version.NO_VERSION.value,
+                NimbusExperiment.Version.NO_VERSION.label,
+            ),
+            *NimbusExperiment.Version.choices[1:][::-1],
+        ]
+
     def get_experiment_branch_choices():
         return sorted(
             [
@@ -702,6 +711,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 (targeting.slug, f"{targeting.name} - {targeting.description}")
                 for targeting in NimbusTargetingConfig.targeting_configs
             ],
+            key=lambda choice: choice[1].lower(),
         )
 
     channel = forms.ChoiceField(
@@ -717,7 +727,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     firefox_min_version = forms.ChoiceField(
         required=False,
         label="",
-        choices=NimbusExperiment.Version.choices,
+        choices=get_version_choices,
         widget=forms.widgets.Select(
             attrs={
                 "class": "form-select",
@@ -727,7 +737,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     firefox_max_version = forms.ChoiceField(
         required=False,
         label="",
-        choices=NimbusExperiment.Version.choices,
+        choices=get_version_choices,
         widget=forms.widgets.Select(
             attrs={
                 "class": "form-select",
@@ -806,6 +816,11 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.setup_initial_experiments_branches("required_experiments_branches")
         self.setup_initial_experiments_branches("excluded_experiments_branches")
+        self.fields["channel"].choices = [
+            (channel.value, channel.label)
+            for channel in NimbusExperiment.Channel
+            if channel in self.instance.application_config.channel_app_id
+        ]
 
     def setup_initial_experiments_branches(self, field_name):
         self.initial[field_name] = [
