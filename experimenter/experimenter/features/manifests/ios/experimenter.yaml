@@ -336,6 +336,9 @@ toolbar-refactor-feature:
     swiping_tabs:
       type: boolean
       description: "Enables swipe gestures to switch between browser tabs.\n"
+    translucency:
+      type: boolean
+      description: "Enables translucency for toolbars.\n"
     unified_search:
       type: boolean
       description: "Enables the unified search feature.\n"
