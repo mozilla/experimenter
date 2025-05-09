@@ -203,7 +203,7 @@ features:
             ordering: 0
             prerequisites:
               - ALWAYS
-            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label
+            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label_2
             secondary-button-label: ""
             title: onboarding_welcome_to_firefox
           default-browser:
