@@ -99,6 +99,7 @@ def test_check_mobile_targeting(
             "is_phone": True,
             "is_review_checker_enabled": True,
             "is_default_browser": True,
+            "is_bottom_toolbar_user": True,
             "install_referrer_response_utm_source": "test",
             "number_of_app_launches": 1,
         }
