@@ -1953,7 +1953,7 @@ IOS_BOTTOM_TOOLBAR_USER = NimbusTargetingConfig(
     name="Existing Bottom Toolbar Users",
     slug="ios_bottom_toolbar_user",
     description="Users that already have a preference set to bottom for the toolbar",
-    targeting="ios_bottom_toolbar_user == true",
+    targeting="is_bottom_toolbar_user == true",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
