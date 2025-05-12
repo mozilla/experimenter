@@ -78,7 +78,7 @@ commands:
                   echo "No << parameters.extension >> files found in << parameters.source >>/"
                   exit 1
                 fi
-                gsutil cp $FILES << parameters.destination >>
+                gsutil cp -n $FILES << parameters.destination >>
               else
                 echo "Skipping artifact upload, not on 'main' branch."
               fi
@@ -109,11 +109,6 @@ jobs:
           source: dashboard/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
-          extension: json
-
 
   check_experimenter_aarch64:
     machine:
@@ -139,10 +134,6 @@ jobs:
           source: dashboard/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
-          extension: json
 
   check_cirrus_x86_64:
     machine:
