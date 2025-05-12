@@ -754,7 +754,7 @@ features:
       enabled:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
-        default: true
+        default: false
   tab-strip:
     description: Enables tab strip.
     variables:
