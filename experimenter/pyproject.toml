@@ -67,7 +67,7 @@ redis = "4.6.0"
 requests = { version = "2.32.2", extras = ["security"] }
 responses = "0.25.0"
 ruff = "^0.11.0"
-sentry-sdk = "^2.27.0"
+sentry-sdk = "^2.28.0"
 sqlparse = "0.5.0"
 tblib = "1.7.0"
 toml = "^0.10.2"
