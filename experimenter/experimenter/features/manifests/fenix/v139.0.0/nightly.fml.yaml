@@ -5,17 +5,6 @@ about:
 channels:
   - nightly
 features:
-  SetupChecklist:
-    description: A feature on the home page that allows the user to track onboarding setup progress.
-    variables:
-      enabled:
-        description: "If true, the setup checklist will be enabled."
-        type: Boolean
-        default: false
-      setup-checklist-type:
-        description: The collection used for the setup checklist.
-        type: SetupChecklistType
-        default: collection-1
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -770,6 +759,17 @@ features:
         description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
         type: Text
         default: ""
+  setup-checklist:
+    description: A feature on the home page that allows the user to track onboarding setup progress.
+    variables:
+      enabled:
+        description: "If true, the setup checklist will be enabled."
+        type: Boolean
+        default: false
+      setup-checklist-type:
+        description: The collection used for the setup checklist.
+        type: SetupChecklistType
+        default: collection-1
   ship:
     description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:

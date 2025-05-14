@@ -70,6 +70,7 @@ prefFlips:
   description: Flip arbitrary prefs. Controlled by release management.
   owner: beth@mozilla.com
   hasExposure: false
+  allowCoenrollment: true
   variables:
     prefs:
       type: json
@@ -1298,13 +1299,6 @@ newTabSectionsExperiment:
         pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.enabled
       description: >-
         Enable the inferred personalization for topics
-    personalizationInferredPosition:
-      type: string
-      setPref:
-        branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.position
-      description: >-
-        Inferred personalization card position.
     localeSectionstConfig:
       type: string
       setPref:
@@ -1359,6 +1353,32 @@ newtabTrainhop:
     payload:
       type: json
       description: The experiment configuration.
+
+newtabMerinoOhttp:
+  description: Sending request to merino over OHTTP in newtab
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystrean.merino-provider.ohttp.enabled
+      description: >-
+        Enables using OHTTP for merino content requests
+
+newtabMarsOhttp:
+  description: Sending request to MARS over OHTTP in newtab
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.ohttp.enabled
+      description: >-
+        Enables using OHTTP for unified ads API requests
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -3732,12 +3752,6 @@ shopping2023:
       description: True if the experiment is enabled but experience is disabled (experimental control group)
       type: boolean
       fallbackPref: browser.shopping.experience2023.control
-    integratedSidebar:
-      description: True if the integrated sidebar is enabled.
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.integratedSidebar
     adsEnabled:
       description: True if showing recommended products is enabled
       type: boolean
