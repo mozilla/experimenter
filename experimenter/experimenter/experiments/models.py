@@ -370,7 +370,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         verbose_name="Subscribers",
     )
-    use_group_id = models.BooleanField(default=False)
+    use_group_id = models.BooleanField(default=True)
     objects = NimbusExperimentManager()
     is_firefox_labs_opt_in = models.BooleanField(
         "Is Experiment a Firefox Labs Opt-In?", default=False
@@ -405,6 +405,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ),
         default=False,
     )
+    equal_branch_ratio = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -473,6 +474,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def get_update_overview_url(self):
         return reverse("nimbus-new-update-overview", kwargs={"slug": self.slug})
+
+    def get_update_branches_url(self):
+        return reverse("nimbus-new-update-branches", kwargs={"slug": self.slug})
 
     def get_update_metrics_url(self):
         return reverse("nimbus-new-update-metrics", kwargs={"slug": self.slug})
@@ -689,7 +693,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.status == self.Status.PREVIEW
 
     @property
-    def is_enrollment(self):
+    def is_enrolling(self):
         return self.status == self.Status.LIVE and not self.is_paused_published
 
     @property
@@ -726,9 +730,51 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.PublishStatus.WAITING,
         ) and self.can_review(reviewer)
 
+    def review_messages(self):
+        if self.status_next == self.Status.COMPLETE:
+            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"]
+        elif self.is_paused:
+            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"]
+        else:
+            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"]
+
+    @property
+    def remote_settings_pending_message(self):
+        if self.publish_status in (
+            self.PublishStatus.APPROVED,
+            self.PublishStatus.WAITING,
+        ):
+            return self.review_messages()
+
     @property
     def should_show_timeout_message(self):
         return self.changes.latest_timeout()
+
+    @property
+    def should_show_end_enrollment(self):
+        return self.is_enrolling
+
+    @property
+    def should_show_end_experiment(self):
+        return (
+            self.status == self.Status.LIVE
+            and self.publish_status != self.PublishStatus.REVIEW
+            and not self.should_end
+        )
+
+    @property
+    def is_end_experiment_requested(self):
+        return (
+            self.status == self.Status.LIVE
+            and self.status_next == self.Status.COMPLETE
+            and self.publish_status == self.PublishStatus.REVIEW
+        )
+
+    @property
+    def latest_review_requested_by(self):
+        review_request = self.changes.latest_review_request()
+        if review_request:
+            return review_request.changed_by.email
 
     @property
     def draft_date(self):
@@ -953,7 +999,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             {
                 "label": NimbusConstants.ENROLLMENT,
                 "date": self.start_date,
-                "is_active": self.is_enrollment,
+                "is_active": self.is_enrolling,
                 "days": self.computed_enrollment_days,
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Enrollment"],
             },
@@ -996,6 +1042,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def is_enrollment_pause_pending(self):
         return self.is_paused and not self.is_paused_published
+
+    @property
+    def is_enrollment_pause_requested(self):
+        return (
+            self.status == self.Status.LIVE
+            and self.status_next == self.Status.LIVE
+            and self.is_enrollment_pause_pending
+        )
 
     @property
     def monitoring_dashboard_url(self):
@@ -1132,7 +1186,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 keys.append(self.targeting_config_slug)
             keys.append("rollout")
 
-        if self.use_group_id:
+        if self.is_desktop and self.use_group_id:
             keys.append(BucketRandomizationUnit.GROUP_ID)
 
         return "-".join(keys)
@@ -1435,6 +1489,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.takeaways_metric_gain = False
         cloned.takeaways_gain_amount = None
         cloned.takeaways_qbr_learning = False
+        cloned.use_group_id = True
         cloned._start_date = None
         cloned._end_date = None
         cloned._enrollment_end_date = None
@@ -1791,7 +1846,10 @@ class NimbusIsolationGroup(models.Model):
 
     @property
     def randomization_unit(self):
-        if self.bucket_ranges.filter(experiment__use_group_id=True).exists():
+        if self.bucket_ranges.filter(
+            experiment__use_group_id=True,
+            experiment__application=NimbusExperiment.Application.DESKTOP,
+        ).exists():
             return BucketRandomizationUnit.GROUP_ID
         return NimbusExperiment.APPLICATION_CONFIGS[self.application].randomization_unit
 
@@ -2112,6 +2170,7 @@ class NimbusVersionedSchema(models.Model):
     # Desktop-only
     set_pref_vars = models.JSONField[dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
+    has_remote_schema = models.BooleanField(null=False, default=False)
 
     class Meta:
         verbose_name = "Nimbus Versioned Schema"

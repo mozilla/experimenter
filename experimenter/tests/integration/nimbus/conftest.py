@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 import uuid
@@ -8,6 +9,8 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
 
 from nimbus.kinto.client import (
     KINTO_COLLECTION_DESKTOP,
@@ -126,6 +129,14 @@ def selenium(selenium, experiment_slug, kinto_client):
             pass
 
 
+@pytest.fixture
+def driver(firefox_options):
+    firefox_service = Service("/usr/bin/geckodriver")
+    driver = webdriver.Firefox(service=firefox_service, options=firefox_options)
+    yield driver
+    driver.quit()
+
+
 @pytest.fixture(
     # Use all applications as available parameters in circle config
     params=list(BaseExperimentApplications),
@@ -159,13 +170,6 @@ def kinto_client(default_data):
     return KintoClient(
         APPLICATION_KINTO_COLLECTION[default_data.application], server_url=kinto_url
     )
-
-
-@pytest.fixture(name="ping_server")
-def fixture_ping_server():
-    if os.environ.get("NIMBUS_LOCAL_DEV"):
-        return "http://localhost:5000"
-    return "http://ping-server:5000"
 
 
 @pytest.fixture
@@ -415,44 +419,30 @@ def default_data_api(application, application_feature_ids):
     }
 
 
-@pytest.fixture(name="check_ping_for_experiment")
-def fixture_check_ping_for_experiment(trigger_experiment_loader, ping_server):
-    def _check_ping_for_experiment(experiment=None):
-        control = True
-        timeout = time.time() + 60 * 5
-        while control and time.time() < timeout:
-            data = requests.get(f"{ping_server}/pings").json()
-            experiments_data = [
-                item["environment"]["experiments"]
-                for item in data
-                if "experiments" in item["environment"]
-            ]
-            for item in experiments_data:
-                if experiment in item:
-                    return True
-            time.sleep(5)
-            trigger_experiment_loader()
-        return False
-
-    return _check_ping_for_experiment
-
-
 @pytest.fixture(name="telemetry_event_check")
-def fixture_telemetry_event_check(trigger_experiment_loader, ping_server):
+def fixture_telemetry_event_check(trigger_experiment_loader, selenium):
     def _telemetry_event_check(experiment=None, event=None):
-        telemetry = requests.get(f"{ping_server}/pings").json()
-        events = [
-            event["payload"]["events"]["parent"]
-            for event in telemetry
-            if "events" in event["payload"] and "parent" in event["payload"]["events"]
-        ]
-
+        nimbus_events = None
         try:
-            for _event in events:
-                for item in _event:
-                    if (experiment and event) in item:
-                        return True
-            raise AssertionError
+            with selenium.context(selenium.CONTEXT_CHROME):
+                if event == "enrollment":
+                    nimbus_events = selenium.execute_script(
+                        """
+                            return Glean.nimbusEvents.enrollment.testGetValue("events")
+                        """
+                    )
+                elif event == "unenrollment":
+                    nimbus_events = selenium.execute_script(
+                        """
+                            return Glean.nimbusEvents.unenrollment.testGetValue("events")
+                        """
+                    )
+            logging.info(f"nimbus events: {nimbus_events}")
+            assert event in next(event["name"] for event in nimbus_events)
+            assert experiment in next(
+                event["extra"]["experiment"] for event in nimbus_events
+            )
+            return True
         except (AssertionError, TypeError):
             trigger_experiment_loader()
             return False

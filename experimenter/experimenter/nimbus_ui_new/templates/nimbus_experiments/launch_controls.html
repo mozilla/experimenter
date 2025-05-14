@@ -119,65 +119,48 @@
         {% endif %}
       </div>
       <!-- Review Mode Controls -->
-    {% elif experiment.is_review %}
-      {% if experiment.should_show_timeout_message %}
-        <div class="alert alert-danger" role="alert">
-          <p>
-            <span role="img" aria-label="red X emoji">❌</span>
-            Remote Settings request has timed out, please go through the approval flow to launch this experiment again.
-          </p>
-        </div>
-      {% endif %}
-      <div id="review-controls" class="alert alert-primary">
-        <p>
-          <strong>{{ experiment.changes.latest_review_request.changed_by.email }}</strong> requested to Launch this experiment.
-        </p>
-        <button type="button"
-                class="btn btn-success"
-                hx-post="{% url 'nimbus-new-review-to-approve' slug=experiment.slug %}"
-                hx-select="#content"
-                hx-target="#content"
-                hx-swap="outerHTML">Approve and Launch Experiment</button>
-        <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
-      </div>
-      <!-- Rejection Form -->
-      <div id="reject-form-container" class="d-none alert alert-warning">
-        <label for="changelog_message">
-          <strong>You are rejecting the request to launch this experiment.</strong> Please add some comments:
-        </label>
-        <textarea id="changelog_message"
-                  name="changelog_message"
-                  class="form-control"
-                  rows="4"
-                  required></textarea>
-        <button type="submit"
-                class="btn btn-danger mt-2"
-                hx-post="{% url 'nimbus-new-review-to-reject' slug=experiment.slug %}"
-                hx-select="#content"
-                hx-target="#content"
-                hx-swap="outerHTML"
-                hx-include="#changelog_message">Submit</button>
-        <button type="button" class="btn btn-secondary mt-2" id="cancel-reject">Cancel</button>
-      </div>
-      <div class="alert alert-warning">
-        <p>The experiment is currently under review. If you wish to cancel the review, click the button below:</p>
-        <button type="button"
-                class="btn btn-primary"
-                hx-post="{% url 'nimbus-new-review-to-draft' slug=experiment.slug %}"
-                hx-select="#content"
-                hx-target="#content"
-                hx-swap="outerHTML">Cancel Review</button>
-      </div>
     {% elif experiment|should_show_remote_settings_pending:user %}
-      <div class="alert alert-primary">
+      <div class="alert alert-danger" role="alert">
         <p>
-          <strong>Action required:</strong> Please review this change in Remote Settings to launch this experiment.
+          <strong>Action required:</strong>
+          Please review this change in Remote Settings to {{ experiment.remote_settings_pending_message }}.
         </p>
         <a href="{{ experiment.review_url }}"
            class="btn btn-primary"
            target="_blank"
            rel="noopener noreferrer">Open Remote Settings</a>
       </div>
+    {% elif experiment.is_review %}
+      {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Launch Experiment" approval_url="nimbus-new-review-to-approve" cancel_reject_url="nimbus-new-review-to-draft" experiment=experiment %}
+
+    {% elif experiment.is_enrolling or experiment.is_observation %}
+      {% if experiment.is_enrollment_pause_requested %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Enrollment" approval_url="nimbus-new-approve-end-enrollment" cancel_reject_url="nimbus-new-cancel-end-enrollment" experiment=experiment %}
+
+      {% elif experiment.is_end_experiment_requested %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-new-approve-end-experiment" cancel_reject_url="nimbus-new-cancel-end-experiment" experiment=experiment %}
+
+      {% elif experiment.should_show_end_enrollment or experiment.should_show_end_experiment %}
+        <div id="default-controls" class="alert alert-primary mt-3">
+          <h5 class="mb-3 ms-2">Actions</h5>
+          {% if experiment.should_show_end_enrollment %}
+            <button type="button"
+                    hx-post="{% url 'nimbus-new-live-to-end-enrollment' slug=experiment.slug %}"
+                    hx-select="#content"
+                    hx-target="#content"
+                    hx-swap="outerHTML"
+                    class="btn btn-primary m-2">End Enrollment</button>
+          {% endif %}
+          {% if experiment.should_show_end_experiment %}
+            <button type="button"
+                    hx-post="{% url 'nimbus-new-live-to-complete' slug=experiment.slug %}"
+                    hx-select="#content"
+                    hx-target="#content"
+                    hx-swap="outerHTML"
+                    class="btn btn-primary">End Experiment</button>
+          {% endif %}
+        </div>
+      {% endif %}
     {% endif %}
   </form>
 </div>

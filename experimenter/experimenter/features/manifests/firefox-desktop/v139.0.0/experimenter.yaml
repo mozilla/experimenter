@@ -13,6 +13,7 @@
     - firefox-desktop
     - firefox-desktop-background-task
   hasExposure: false
+  allowCoenrollment: true
   variables: {}
 
 testFeature:
@@ -386,29 +387,35 @@ urlbar:
     quickSuggestDataCollectionEnabled:
       type: boolean
       description: Whether data collection should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) data collection, if the user has already toggled that preference.
+    quickSuggestDynamicSuggestionTypes:
+      type: string
+      setPref:
+        pref: browser.urlbar.quicksuggest.dynamicSuggestionTypes
+        branch: user
+      description: >-
+        Comma-separated list of Suggest dynamic suggestion types to enable. Set
+        this variable to the `suggestion_type` defined in the remote settings
+        record that contains your suggestions. If you want to enable multiple
+        suggestion types, separate them with commas. One particular intended use
+        of this variable is to deliver hidden-exposure suggestions for testing
+        potential exposures. Hidden-exposure suggestions trigger exposure
+        telemetry based on a set of keywords you provide but they are never
+        visible. If you are testing multiple types of hidden-exposure
+        suggestions, consider using one experiment branch per type, especially
+        if you are also enabling keyword exposures. Exposure suggestions are
+        recorded in telemetry with the "rust_exposure" result type. It's not
+        necessary to include "rust_exposure" in `exposureResults`. Unless you
+        are testing other results in the same experiment branch, it's also not
+        necessary to set `showExposureResults: false`. To also record keyword
+        exposures, include "rust_exposure" in `keywordExposureResults`.
     quickSuggestEnabled:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.enabled
-      description: Gate for the Firefox Suggest feature as a whole. If false, the Firefox Suggest preferences UI and Suggest suggestions will not be shown. If true, the preferences UI will be shown, and the user can turn suggestions on or off.
-    quickSuggestExposureSuggestionTypes:
-      type: string
-      setPref:
-        pref: browser.urlbar.quicksuggest.exposureSuggestionTypes
-        branch: user
       description: >-
-        Comma-separated list of Suggest exposure suggestion types to enable.
-        Exposure suggestions are used to test potential exposures. They trigger
-        exposure telemetry based on a set of keywords you provide but they are
-        never visible. Set this variable to the `suggestion_type` defined in the
-        remote settings record(s) that contains your keywords. If you want to
-        test multiple suggestion types, separate them with commas, but also
-        consider using one experiment branch per type, especially if you are
-        also enabling keyword exposures. Exposure suggestions are recorded in
-        telemetry with the "rust_exposure" result type. It's not necessary to
-        include "rust_exposure" in `exposureResults`. Unless you are testing
-        other results in the same experiment branch, it's also not necessary to
-        set `showExposureResults: false`. To also record keyword exposures,
-        include "rust_exposure" in `keywordExposureResults`.
+        Gate for the Firefox Suggest feature as a whole. If false, the Firefox
+        Suggest preferences UI and Suggest suggestions will not be shown. If
+        true, the preferences UI will be shown, and the user can turn
+        suggestions on or off.
     quickSuggestImpressionCapsSponsoredEnabled:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.impressionCaps.sponsoredEnabled
@@ -762,17 +769,6 @@ preonboarding:
       fallbackPref: datareporting.policy.firstRunURL
       description: >-
         URL of browser tab to be opened on first run instead of infobar.
-    onTrainRolloutEnabled:
-      type: boolean
-      fallbackPref: browser.preonboarding.onTrainRolloutEnabled
-      description: >-
-        If an on-train limited rollout is enabled for Mac, Linux, and Windows MSIX
-    onTrainRolloutPopulation:
-      type: int
-      fallbackPref: browser.preonboarding.onTrainRolloutPopulation
-      description: >-
-        If an on-train limited rollout is enabled, the percentage of the population to enroll
-
 
 moreFromMozilla:
   description: "New page on about:preferences to suggest more Mozilla products"
@@ -859,6 +855,39 @@ newtab:
       type: boolean
       description: Allow Contile to use additonal sponsored top sites
 
+newtabMobileDownloadPromotion:
+  description: Cross-sell promotion to download Firefox for mobile
+  owner: mcrawford@mozilla.com
+  hasExposure: false
+  variables:
+    showModal:
+      type: boolean
+      description: Display mobile download modal to users until dismissed
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.mobileDownloadModal.enabled
+    variantA:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.mobileDownloadModal.variant-a
+      description: >-
+        Variant A modal message and QR code.
+    variantB:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.mobileDownloadModal.variant-b
+      description: >-
+        Variant B modal message and QR code.
+    variantC:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.mobileDownloadModal.variant-c
+      description: >-
+        Variant C modal message and QR code.
+
 newtabUnifiedAds:
   description: Mozilla Ad Routing Service (MARS) unified ads service
   owner: mcrawford@mozilla.com, sdowne@mozilla.com
@@ -898,7 +927,6 @@ newtabUnifiedAds:
       setPref:
         branch: user
         pref: browser.newtabpage.activity-stream.unifiedAds.adsFeed.tiles.enabled
-
 
 newtabSpocsCache:
   description: The about:newtab sponsored content cache.
@@ -990,7 +1018,6 @@ newtabInlineTopicSelection:
       description: >-
         Enables inline topic selection
 
-
 newtabLayoutExperiment:
   description: >-
     Change the default layout of new tab by adjusting sizes and spacing of elements.
@@ -1036,14 +1063,14 @@ newtabCustomWallpaper:
       type: boolean
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.fileSize.enabled
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize.enabled
       description: >-
         Turns on and off maximum file size for uploaded images
     maxFileSize:
       type: int
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.fileSize
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize
       description: >-
         Maximum file size (in MB) a user can upload
 
@@ -1190,6 +1217,19 @@ newtabContextualContent:
       description: >-
         currently selected feed to display in the Contextual Content component
 
+newtabAdsReporting:
+  description: about:newtab reporting ads feature
+  owner: rhamoui@mozilla.com
+  hasExposure: false
+  variables:
+    reportAdsEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref:  browser.newtabpage.activity-stream.discoverystream.reportAds.enabled
+      description: >-
+        Enable reporting for ads
+
 newTabSectionsExperiment:
   description: about:newtab section UI update
   owner: nbarrett@mozilla.com, mcrawford@mozilla.com
@@ -1217,6 +1257,20 @@ newTabSectionsExperiment:
         pref:  browser.newtabpage.activity-stream.discoverystream.sections.cards.enabled
       description: >-
         Enable the revised pocket story card UI in recommended stories on newtab
+    regionPersonalizationInferredConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.region-config
+      description: >-
+        A comma-separated list of regions that use inferred personalization.
+    localePersonalizationInferredConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.locale-config
+      description: >-
+        A comma-separated list of locales that use inferred personalization.
     personalizationInferredEnabled:
       type: boolean
       setPref:
@@ -1224,13 +1278,13 @@ newTabSectionsExperiment:
         pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.enabled
       description: >-
         Enable the inferred personalization for topics
-    reportContentEnabled:
-      type: boolean
+    personalizationInferredPosition:
+      type: string
       setPref:
         branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.reportContent.enabled
+        pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.position
       description: >-
-        Enable reporting for ads and content
+        Inferred personalization card position.
     localeSectionstConfig:
       type: string
       setPref:
@@ -1259,6 +1313,32 @@ newTabSectionsExperiment:
         pref: browser.newtabpage.activity-stream.discoverystream.sections.customizeMenuPanel.enabled
       description: >-
         Enable personalized sections menu panel. Allow users to follow/unfollow topic sections.
+
+newtabPrivatePing:
+  description: The newtab-content ping, sent through OHTTP
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    privatePingEnabled:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.enabled
+      description: >-
+        Enables the private newtab-content ping sent through OHTTP
+
+newtabTrainhop:
+  description: Experiment feature for the train-hopping newtab extension.
+  owner: mconley@mozilla.com
+  hasExposure: false
+  allowCoenrollment: true
+  variables:
+    type:
+      type: string
+      description: A discriminant to tell different kinds of trainhop experiments apart.
+    payload:
+      type: json
+      description: The experiment configuration.
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -1696,7 +1776,8 @@ email-autocomplete-relay:
 address-autofill-feature:
   description: Enabling address autofill feature
   owner: issozi@mozilla.com
-  hasExposure: false
+  hasExposure: true
+  exposureDescription: "Exposure is sent when an address is autofilled."
   variables:
     status:
       type: boolean
@@ -2464,18 +2545,6 @@ networking:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
-    chipsEnabled:
-      description: Whether CHIPS is enabled or not
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.CHIPS.enabled"
-    chipsMigrationTarget:
-      description: What CHIPS migration count target the browser should reach.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.cookie.CHIPS.migrateDatabaseTarget"
     chipsPartitionLimitEnabled:
       description: Whether we enforce CHIPS partition limit
       type: boolean
@@ -2880,6 +2949,25 @@ networkingDenyIpAddrAny:
         branch: default
         pref: "network.socket.ip_addr_any.disabled"
 
+cookieStore:
+  description: Enablement of cookieStore API
+  owner: edgul@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: dom.cookieStore.enabled
+      description: >-
+        Enablement of the cookie store API to CRUD and monitor cookies from window JS.
+    managerEnabled:
+      description: Enablement of ServiceWorker access to cookie-change events.
+      type: boolean
+      setPref:
+        branch: default
+        pref: dom.cookieStore.manager.enabled
+
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
   owner: nalexander@mozilla.com
@@ -3046,22 +3134,6 @@ fxaButtonVisibility:
           - fox-circle
       type: string
 
-syncSetupFlow:
-  description: Prefs to control the updated Mozilla account panel flow for users without sync enabled.
-  owner: skhamis@mozilla.com
-  hasExposure: true
-  exposureDescription: >-
-    Exposure is recorded when the user is enrolled in an experiment using this
-    feature and the avatar menu or app (hamburger) menu -> account on Firefox Desktop is opened
-  variables:
-    enabled:
-      description: True if we should show the user the updated sync set-up UI
-      type: boolean
-      setPref:
-        branch: user
-        pref: identity.fxaccounts.toolbar.syncSetup.enabled
-
-
 fxaClientAssociation:
   description: Prefs to control the client association ping.
   owner: mconley@mozilla.com
@@ -3224,6 +3296,20 @@ fingerprintingProtection:
         pref: privacy.resistFingerprinting.randomization.canvas.use_siphash
       description: >-
         Uses the SipHash function for canvas randomization.
+    enabledBaseline:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.baselineFingerprintingProtection
+      description: Enables / disables baseline fingerprinting protection.
+    overridesBaseline:
+      type: string
+      setPref:
+        branch: default
+        pref: privacy.baselineFingerprintingProtection.overrides
+      description: >-
+        The protection overrides to add or remove fingerprinting protection
+        targets. Please check RFPTargets.inc for all supported targets.
 
 userCharacteristics:
   description: Control user characteristic data collection
@@ -3615,7 +3701,9 @@ shopping2023:
     enabled:
       description: True if the shopping sidebar is enabled (experimental treatment group)
       type: boolean
-      fallbackPref: browser.shopping.experience2023.enabled
+      setPref:
+        branch: default
+        pref: browser.shopping.experience2023.enabled
     control:
       description: True if the experiment is enabled but experience is disabled (experimental control group)
       type: boolean
@@ -3623,7 +3711,9 @@ shopping2023:
     integratedSidebar:
       description: True if the integrated sidebar is enabled.
       type: boolean
-      fallbackPref: browser.shopping.experience2023.integratedSidebar
+      setPref:
+        branch: default
+        pref: browser.shopping.experience2023.integratedSidebar
     adsEnabled:
       description: True if showing recommended products is enabled
       type: boolean
@@ -4340,6 +4430,12 @@ sidebar:
   owner: elee@mozilla.com
   hasExposure: false
   variables:
+    defaultLauncherVisible:
+      type: boolean
+      setPref:
+        branch: user
+        pref: sidebar.revamp.defaultLauncherVisible
+      description: Change the initial visibleness of the sidebar launcher with horizontal tabs; true to make the launcher visible by default
     minVersion:
       type: string
       description: Minimum Firefox version to apply prefs
@@ -4428,6 +4524,30 @@ smartTabGroups:
         branch: user
         pref: browser.tabs.groups.smart.enabled
       description: Controls whether users can use ml features for suggesting tab group names or similar tabs
+    suggestOtherTabsMethod:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.tabs.groups.smart.suggestOtherTabsMethod
+      description: Controls clustering method used to suggest similar tabs feature
+    topicModelRevision:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.tabs.groups.smart.topicModelRevision
+      description: Controls topic model version used by the feature
+    embeddingModelRevision:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.tabs.groups.smart.embeddingModelRevision
+      description: Controls embedding model version used by the feature
+    nearestNeighborThresholdInt:
+      type: int
+      setPref:
+        branch: user
+        pref: browser.tabs.groups.smart.nearestNeighborThresholdInt
+      description: Controls the threshold, less than or equal to 1000, for the nearest neighbor cluster method
 
 smartblockEmbeds:
   description: Pref to control Smartblock Embeds
@@ -4497,6 +4617,25 @@ storageAccessHeuristics:
       description: >-
         Do we grant cookie access to a tracker third party when it has been interacted with in the
         recent past and redirects itself to another top level site?
+
+partitioned-cookie-attribute:
+  description: Control the enablment and migration of cookies to the Partitioned attribute, rather than TCP
+  owner: bvandersloot@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: network.cookie.CHIPS.enabled
+      description: >-
+        Do we respect the Partitioned attribute?
+    chipsMigrationTarget:
+      description: What CHIPS migration count target the browser should reach.
+      type: int
+      setPref:
+        branch: default
+        pref: network.cookie.CHIPS.migrateDatabaseTarget
 
 auto-pip:
   description: "Automatic Picture-in-Picture"
@@ -4581,3 +4720,31 @@ h1-in-section-styles:
       setPref:
         branch: user
         pref: layout.css.h1-in-section-ua-styles.enabled
+
+windowsUIAutomation:
+  description: Support for the Windows UI Automation API
+  owner: jteh@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: int
+      description: 0 to disable UIA, 2 to enable UIA.
+      enum:
+        - 0
+        - 2
+      setPref:
+        branch: user
+        pref: "accessibility.uia.enable"
+
+expandSignInButton:
+  description: "Add text next to the FxA avatar toolbar icon"
+  owner: skhamis@mozilla.com
+  hasExposure: false
+  variables:
+    ctaCopyVariant:
+      description: >-
+        One of the following values:
+          - fxa-avatar-sign-in
+          - fxa-avatar-sign-up
+        empty will be assumed default experience
+      type: string

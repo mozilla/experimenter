@@ -66,7 +66,8 @@ def mocks_for_discover_tagged_releases(
     # Mocking plist files is more annoying.
     assert app_config.release_discovery is not None
     assert (
-        app_config.release_discovery.version_file.root.type == VersionFileType.PLAIN_TEXT
+        app_config.release_discovery.version_file[0].root.type
+        == VersionFileType.PLAIN_TEXT
     )
 
     # Ensure tags are defined if app specifies a tag regex.
@@ -84,7 +85,7 @@ def mocks_for_discover_tagged_releases(
     ):
         assert repo == app_config.repo.name
         assert download_path is None
-        assert path == app_config.release_discovery.version_file.root.path
+        assert path == app_config.release_discovery.version_file[0].root.path
         assert ref in ref_versions
 
         return str(ref_versions[ref])

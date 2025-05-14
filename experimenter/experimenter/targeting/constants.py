@@ -1949,6 +1949,17 @@ IOS_DEFAULT_BROWSER_FIRST_RUN_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_BOTTOM_TOOLBAR_USER = NimbusTargetingConfig(
+    name="Existing Bottom Toolbar Users",
+    slug="ios_bottom_toolbar_user",
+    description="Users that already have a preference set to bottom for the toolbar",
+    targeting="is_bottom_toolbar_user == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
     name="iPhone users only",
     slug="ios_iphone_users_only",
@@ -2461,6 +2472,7 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
     slug="non_sidebar_users",
     description="Target users who have never used the new or old sidebar",
     targeting=(
+        "!('sidebar.old-sidebar.has-used'|preferenceValue) && "
         "!('sidebar.revamp'|preferenceValue) && "
         "!('browser.engagement.sidebar-button.has-used'|preferenceValue) && "
         "primaryResolution.width > 1366 && "
@@ -2498,6 +2510,28 @@ NEW_SIDEBAR_USERS = NimbusTargetingConfig(
     slug="new_sidebar_users",
     description="Target users who use the new sidebar",
     targeting="'sidebar.revamp'|preferenceValue",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_EARLY_DAY_USER = NimbusTargetingConfig(
+    name="Signed-out early day user",
+    slug="signed_out_early_day_user",
+    description="Early day users who are NOT signed into FxA",
+    targeting=f"{PROFILELESSTHAN28DAYS} && !isFxASignedIn",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
+    name="Signed-out existing user",
+    slug="signed_out_existing_user",
+    description="Existing users who are NOT signed into FxA",
+    targeting=f"{PROFILE28DAYS} && !isFxASignedIn",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

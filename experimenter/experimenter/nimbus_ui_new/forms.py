@@ -2,15 +2,19 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
 from django.http import HttpRequest
+from django.urls import reverse
 from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.models import (
+    NimbusBranch,
+    NimbusBranchFeatureValue,
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
+    NimbusFeatureConfig,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -104,6 +108,94 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
         if "name" in cleaned_data:
             cleaned_data["slug"] = slugify(cleaned_data["name"])
         return cleaned_data
+
+
+class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    owner = forms.ModelChoiceField(
+        User.objects.all(),
+        widget=forms.widgets.HiddenInput(),
+    )
+    name = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    slug = forms.CharField(
+        required=False,
+        widget=forms.widgets.HiddenInput(),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["owner", "name", "slug"]
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if NimbusExperiment.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG
+            )
+        return name
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if "name" in cleaned_data:
+            cleaned_data["slug"] = slugify(cleaned_data["name"])
+        return cleaned_data
+
+    def get_changelog_message(self):
+        return f"{self.request.user} cloned this experiment from {self.instance.name}"
+
+    def save(self):
+        return self.instance.clone(self.cleaned_data["name"], self.cleaned_data["owner"])
+
+
+class NimbusExperimentPromoteToRolloutForm(
+    NimbusExperimentSidebarCloneForm, NimbusChangeLogFormMixin, forms.ModelForm
+):
+    owner = forms.ModelChoiceField(
+        User.objects.all(),
+        widget=forms.widgets.HiddenInput(),
+    )
+    name = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    slug = forms.CharField(
+        required=False,
+        widget=forms.widgets.HiddenInput(),
+    )
+    branch_slug = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False,
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["owner", "name", "slug"]
+
+    def save(self):
+        return self.instance.clone(
+            self.cleaned_data["name"],
+            self.cleaned_data["owner"],
+            self.cleaned_data["branch_slug"],
+        )
+
+
+class ToggleArchiveForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def save(self):
+        self.instance.is_archived = not self.instance.is_archived
+        super().save()
+        return self.instance
+
+    def get_changelog_message(self):
+        return (
+            f"{self.request.user} set the Is Archived Flag to {self.instance.is_archived}"
+        )
 
 
 class QAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -301,6 +393,259 @@ class DocumentationLinkDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} removed a documentation link"
 
 
+class NimbusBranchFeatureValueForm(forms.ModelForm):
+    value = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 5})
+    )
+
+    class Meta:
+        model = NimbusBranchFeatureValue
+        fields = ("value",)
+
+
+class NimbusBranchForm(forms.ModelForm):
+    name = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    slug = forms.CharField(
+        required=False,
+        widget=forms.widgets.HiddenInput(),
+    )
+    description = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    ratio = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+
+    class Meta:
+        model = NimbusBranch
+        fields = ("name", "description", "ratio", "slug")
+
+    def __init__(self, *args, prefix=None, **kwargs):
+        super().__init__(*args, prefix=prefix, **kwargs)
+
+        self.NimbusNimbusBranchFeatureValueFormSet = inlineformset_factory(
+            NimbusBranch,
+            NimbusBranchFeatureValue,
+            form=NimbusBranchFeatureValueForm,
+            extra=0,
+        )
+        self.branch_feature_values = self.NimbusNimbusBranchFeatureValueFormSet(
+            data=self.data or None,
+            instance=self.instance,
+            prefix=f"{prefix}-feature-value",
+        )
+
+    @property
+    def errors(self):
+        errors = super().errors
+        if any(self.branch_feature_values.errors):
+            errors["branch_feature_values"] = self.branch_feature_values.errors
+        return errors
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if "name" in cleaned_data:
+            cleaned_data["slug"] = slugify(cleaned_data["name"])
+        return cleaned_data
+
+    def save(self, *args, **kwargs):
+        branch = super().save(*args, **kwargs)
+        self.branch_feature_values.save()
+        return branch
+
+
+class FeatureConfigMultiSelectWidget(MultiSelectWidget):
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        option = super().create_option(
+            name, value, label, selected, index, subindex=subindex, attrs=attrs
+        )
+        option["attrs"]["data-subtext"] = value.instance.description
+        return option
+
+
+class FeatureConfigModelChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+
+class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    feature_configs = FeatureConfigModelChoiceField(
+        required=False,
+        queryset=NimbusFeatureConfig.objects.all(),
+        widget=FeatureConfigMultiSelectWidget(attrs={}),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = (
+            "equal_branch_ratio",
+            "feature_configs",
+            "is_localized",
+            "is_rollout",
+            "localizations",
+            "prevent_pref_conflicts",
+            "warn_feature_schema",
+        )
+        widgets = {
+            "is_rollout": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "warn_feature_schema": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+            "equal_branch_ratio": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+            "prevent_pref_conflicts": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+            "is_localized": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "localizations": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.NimbusNimbusBranchFormSet = inlineformset_factory(
+            NimbusExperiment,
+            NimbusBranch,
+            form=NimbusBranchForm,
+            extra=0,
+        )
+        self.branches = self.NimbusNimbusBranchFormSet(
+            data=self.data or None,
+            instance=self.instance,
+        )
+
+        self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
+            application=self.instance.application
+        ).order_by("slug")
+
+        update_on_change_attrs = {
+            "hx-post": reverse(
+                "nimbus-new-partial-update-branches", kwargs={"slug": self.instance.slug}
+            ),
+            "hx-trigger": "change",
+            "hx-select": "#branches",
+            "hx-target": "#branches",
+        }
+        self.fields["is_rollout"].widget.attrs.update(update_on_change_attrs)
+        self.fields["feature_configs"].widget.attrs.update(update_on_change_attrs)
+        self.fields["equal_branch_ratio"].widget.attrs.update(update_on_change_attrs)
+        self.fields["is_localized"].widget.attrs.update(
+            {
+                **update_on_change_attrs,
+                "hx-select": "#localization",
+                "hx-target": "#localization",
+            }
+        )
+
+    @property
+    def errors(self):
+        errors = super().errors
+        if any(self.branches.errors):
+            errors["branches"] = self.branches.errors
+        return errors
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        self.branches.save()
+
+        if experiment.is_rollout:
+            branches = experiment.branches.all()
+
+            if experiment.reference_branch:
+                branches = branches.exclude(id=experiment.reference_branch.id)
+
+            branches.delete()
+
+        saved_experiment_feature_configs = set(experiment.feature_configs.all())
+        saved_branch_feature_configs = {
+            feature_value.feature_config
+            for feature_value in NimbusBranchFeatureValue.objects.filter(
+                branch__experiment=experiment
+            )
+        }
+        new_feature_configs = (
+            saved_experiment_feature_configs - saved_branch_feature_configs
+        )
+        deleted_feature_configs = (
+            saved_branch_feature_configs - saved_experiment_feature_configs
+        )
+
+        for branch in experiment.branches.all():
+            branch.feature_values.filter(
+                feature_config__in=deleted_feature_configs
+            ).delete()
+
+            for feature_config in new_feature_configs:
+                branch.feature_values.create(feature_config=feature_config)
+
+        if experiment.equal_branch_ratio:
+            experiment.branches.all().update(ratio=1)
+
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated branches"
+
+
+class NimbusBranchCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        if not experiment.reference_branch:
+            name = "Control"
+        else:
+            branch_names_all = [f"Treatment {chr(i)}" for i in range(65, 91)]
+            branch_names_used = experiment.branches.values_list("name", flat=True)
+            branch_names_free = sorted(set(branch_names_all) - set(branch_names_used))
+            name = branch_names_free[0]
+
+        slug = slugify(name)
+        branch = experiment.branches.create(name=name, slug=slug)
+
+        if not experiment.reference_branch:
+            experiment.reference_branch = branch
+            experiment.save()
+
+        for feature_config in experiment.feature_configs.all():
+            branch.feature_values.create(feature_config=feature_config)
+
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} added a branch"
+
+
+class NimbusBranchDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    branch_id = forms.ModelChoiceField(queryset=NimbusBranch.objects.all())
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["branch_id"]
+
+    def clean_branch_id(self):
+        branch = self.cleaned_data["branch_id"]
+        if branch == self.instance.reference_branch:
+            raise forms.ValidationError("You cannot delete the reference branch.")
+        return branch
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        branch = self.cleaned_data["branch_id"]
+        branch.delete()
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} removed a branch"
+
+
 class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
     primary_outcomes = forms.MultipleChoiceField(
         required=False, widget=MultiSelectWidget(attrs={"data-max-options": 2})
@@ -342,6 +687,15 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    def get_version_choices():
+        return [
+            (
+                NimbusExperiment.Version.NO_VERSION.value,
+                NimbusExperiment.Version.NO_VERSION.label,
+            ),
+            *NimbusExperiment.Version.choices[1:][::-1],
+        ]
+
     def get_experiment_branch_choices():
         return sorted(
             [
@@ -357,6 +711,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 (targeting.slug, f"{targeting.name} - {targeting.description}")
                 for targeting in NimbusTargetingConfig.targeting_configs
             ],
+            key=lambda choice: choice[1].lower(),
         )
 
     channel = forms.ChoiceField(
@@ -372,7 +727,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     firefox_min_version = forms.ChoiceField(
         required=False,
         label="",
-        choices=NimbusExperiment.Version.choices,
+        choices=get_version_choices,
         widget=forms.widgets.Select(
             attrs={
                 "class": "form-select",
@@ -382,7 +737,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     firefox_max_version = forms.ChoiceField(
         required=False,
         label="",
-        choices=NimbusExperiment.Version.choices,
+        choices=get_version_choices,
         widget=forms.widgets.Select(
             attrs={
                 "class": "form-select",
@@ -461,6 +816,11 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.setup_initial_experiments_branches("required_experiments_branches")
         self.setup_initial_experiments_branches("excluded_experiments_branches")
+        self.fields["channel"].choices = [
+            (channel.value, channel.label)
+            for channel in NimbusExperiment.Channel
+            if channel in self.instance.application_config.channel_app_id
+        ]
 
     def setup_initial_experiments_branches(self, field_name):
         self.initial[field_name] = [
@@ -528,18 +888,20 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     status = None
     status_next = None
     publish_status = None
+    is_paused = None
 
     class Meta:
         model = NimbusExperiment
         fields = []
 
     def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.status = self.status
-        experiment.status_next = self.status_next
-        experiment.publish_status = self.publish_status
-        experiment.save()
-        return experiment
+        self.instance.status = self.status
+        self.instance.status_next = self.status_next
+        self.instance.publish_status = self.publish_status
+
+        if self.is_paused is not None:
+            self.instance.is_paused = self.is_paused
+        return super().save(commit=commit)
 
 
 class DraftToPreviewForm(UpdateStatusForm):
@@ -615,14 +977,105 @@ class ReviewToApproveForm(UpdateStatusForm):
         return experiment
 
 
-class ReviewToRejectForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.DRAFT
+class LiveToEndEnrollmentForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = True
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested review to end enrollment"
+
+
+class ApproveEndEnrollmentForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = True
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the end enrollment request"
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        return experiment
+
+
+class LiveToCompleteForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.COMPLETE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = True
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested review to end experiment"
+
+
+class ApproveEndExperimentForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.COMPLETE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = True
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the end experiment request"
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        return experiment
+
+
+class CancelEndEnrollmentForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
     changelog_message = forms.CharField(
-        required=True, label="Reason for Rejection", max_length=1000
+        required=False, label="Changelog Message", max_length=1000
     )
 
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_paused = False
+
     def get_changelog_message(self):
-        changelog_message = self.cleaned_data.get("changelog_message", "")
-        return f"{self.request.user} rejected the review with reason: {changelog_message}"
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
+
+
+class CancelEndExperimentForm(UpdateStatusForm):
+    status = NimbusExperiment.Status.LIVE
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+    changelog_message = forms.CharField(
+        required=False, label="Changelog Message", max_length=1000
+    )
+
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_paused = self.instance.is_paused if self.instance else False
+
+    def get_changelog_message(self):
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"

@@ -78,8 +78,14 @@ class Feature:
 
         return json.dumps(schema, indent=2)
 
+    @property
+    def has_remote_schema(self):
+        return (
+            isinstance(self.model, DesktopFeature) and self.model.json_schema is not None
+        )
+
     def get_jsonschema(self):
-        if isinstance(self.model, DesktopFeature) and self.model.json_schema is not None:
+        if self.has_remote_schema:
             return self.load_remote_jsonschema(self.application_slug, self.model)
 
         return self.generate_jsonschema()

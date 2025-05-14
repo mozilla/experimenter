@@ -44,23 +44,36 @@ commands:
       - run: |
           echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
 
+  create_test_result_workspace:
+    steps:
+      - run:
+          name: Create Workspace
+          command: |
+            mkdir -p workspace/test-results
+            mkdir -p dashboard/test-results
 
 jobs:
   check_experimenter_x86_64:
     machine:
       image: ubuntu-2004:2023.10.1
       docker_layer_caching: true
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/experimenter
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run tests and linting
           command: |
             cp .env.sample .env
-            make check
+            make check_and_report
+      - store_test_results:
+          path: workspace/test-results/experimenter_tests.xml
+      - store_test_results:
+          path: workspace/test-results/junit.xml
+
 
   check_experimenter_aarch64:
     machine:
@@ -72,11 +85,16 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run tests and linting
           command: |
             cp .env.sample .env
-            make check
+            make check_and_report
+      - store_test_results:
+          path: workspace/test-results/experimenter_tests.xml
+      - store_test_results:
+          path: workspace/test-results/junit.xml
 
   check_cirrus_x86_64:
     machine:
@@ -88,10 +106,13 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "cirrus/"
+      - create_test_result_workspace
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check
+            make cirrus_check_and_report
+      - store_test_results:
+          path: workspace/test-results/cirrus_pytest.xml
 
   check_cirrus_aarch64:
     machine:
@@ -103,10 +124,13 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "cirrus/"
+      - create_test_result_workspace
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check
+            make cirrus_check_and_report
+      - store_test_results:
+          path: workspace/test-results/cirrus_pytest.xml
 
   check_schemas:
     machine:
@@ -123,156 +147,174 @@ jobs:
 
   integration_nimbus_desktop_ui:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -m nimbus_ui -n 2 --reruns 1
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_remote_settings_launch:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -m remote_settings_launch --reruns 1
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_remote_settings_all:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings_all --reruns 1
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_desktop_enrollment:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: nightly
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1
-      UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
           no_output_timeout: 30m
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_desktop_release_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_desktop_beta_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-beta
+      FIREFOX_CHANNEL: beta
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
-      FIREFOX_BETA: 1
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: nightly
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1
-      UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_fenix_enrollment:
     executor:
@@ -285,6 +327,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env"
+      - create_test_result_workspace
       - attach_workspace:
           at: /tmp/experimenter
       - android/accept-licenses
@@ -309,7 +352,9 @@ jobs:
       - android/save-gradle-cache:
           cache-prefix: v1a
       - store_artifacts:
-          path: /home/circleci/project/test-reports/report.htm
+          path: workspace/test-results/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_fenix_integration_tests.xml
 
   integration_nimbus_ios_enrollment:
     macos:
@@ -328,6 +373,7 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|<< parameters.file_path >>"
+      - create_test_result_workspace
       - macos/preboot-simulator:
           version: << parameters.ios_version >>
           platform: "iOS"
@@ -357,9 +403,10 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
+            curl -sSL https://install.python-poetry.org | python3 - --version 2.1.1
             echo 'export PATH=/Users/distiller/.local/bin:$PATH' >> "$BASH_ENV"
             source $BASH_ENV
+            EPOCH=$(date +"%s")
             cd firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests
             git cherry-pick dfd0b8a556f5990d0b5d9351df8acf571895e6dc -X theirs || true
             export SIMULATOR_UDID=$(python get_specific_device_udid.py)
@@ -367,7 +414,8 @@ jobs:
             cp -f ~/project/experimenter/tests/integration/nimbus/ios/xcodebuild.py ./
             poetry add pydantic==2.10.3
             poetry install
-            poetry run pytest -k test_ios_integration.py --feature ios_enrollment
+            poetry run pytest --junitxml=/Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml -k test_ios_integration.py --feature ios_enrollment
+            cp /Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml /Users/distiller/project/dashboard/test-results/${CIRCLE_BUILD_NUM}__$(date +"%s")__${CIRCLE_PROJECT_REPONAME}__${CIRCLE_WORKFLOW_ID}__ios__integration__results.xml
       - run:
           name: Collect XCTest Results
           command: |
@@ -384,10 +432,12 @@ jobs:
           path: ~/project/xcodebuild.log
       - store_artifacts:
           path: ~/project/results.zip
+      - store_test_results:
+          path: /Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml
 
   integration_nimbus_sdk_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
@@ -395,40 +445,46 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|application-services/"
+      - create_test_result_workspace
       - run:
           name: Run rust integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_sdk
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_sdk integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   integration_nimbus_cirrus:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
+      FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k DEMO_APP -m cirrus_enrollment --reruns 1
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/experiments/|cirrus/|application-services/"
+      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
             export CIRRUS=1
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
+      - store_test_results:
+          path: workspace/test-results/experimenter_integration_tests.xml
 
   create_mobile_recipes:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -536,7 +592,7 @@ jobs:
   update_external_configs:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - add_ssh_keys:
@@ -580,7 +636,7 @@ jobs:
 
   update_application_services:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - add_ssh_keys:
@@ -617,7 +673,7 @@ jobs:
 
   update_firefox_versions:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     working_directory: ~/experimenter
     steps:
@@ -638,42 +694,16 @@ jobs:
           command: |
             ./scripts/external_integration_updater_script.sh
 
-  build_firefox_versions:
-    working_directory: ~/experimenter
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    steps:
-      - checkout
-      - docker_login:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-      - run:
-          name: Build and upload images
-          command: |
-            # Clone last working version to ensure compatibility with aarch64 apple silicon machines
-            git clone --branch selenium-grid-0.27.0 --depth 1 git@github.com:SeleniumHQ/docker-selenium.git
-            cd docker-selenium
-            BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
-            BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
-            docker tag selenium/standalone-firefox:firefox-release ${DOCKERHUB_REPO}:nimbus-firefox-release
-            docker tag selenium/standalone-firefox:firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker push ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker push ${DOCKERHUB_REPO}:nimbus-firefox-release
-
   build_firefox_fenix:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: xlarge
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env"
-      - docker_login:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Build and upload images
           command: |
@@ -690,17 +720,6 @@ jobs:
             - tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
 
 workflows:
-  build_firefox:
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - build_firefox_versions
-
   update_configs:
     triggers:
       - schedule:

@@ -1115,6 +1115,20 @@ description = """
 Count of impressions of Sponsored Pocket content.
 """
 
+[metrics.sponsored_pocket_ctr]
+depends_on=['sponsored_pocket_clicks', 'sponsored_pocket_impressions']
+friendly_name = "Sponsored Pocket Click Through Rate"
+description = """
+Rate of Clicks per impression for Sponsored Pocket Content
+"""
+
+[metrics.organic_pocket_ctr]
+depends_on=['organic_pocket_clicks', 'organic_pocket_impressions']
+friendly_name = "Organic Pocket Click Through Rate"
+description = """
+Rate of Clicks per impression for Organic Pocket Content
+"""
+
 [metrics.all_tile_impressions_pos1_2]
 data_source = "newtab_visits_topsite_tile_interactions"
 select_expression = """COALESCE(
@@ -1261,6 +1275,20 @@ friendly_name = "Sponsored Tiles Clicks Count (Position 3 or greater)"
 type = "scalar"
 description = """
 Count of Clicks of Sponsored Tiles in the third and greater positions.
+"""
+
+[metrics.sponsored_tile_ctr]
+depends_on=['sponsored_tile_clicks', 'sponsored_tile_impressions']
+friendly_name = "Sponsored Tile Click Through Rate"
+description = """
+Rate of Clicks per Impression Sponsored Tiles (aka Sponsored Topsites on New Tab) across all positions.
+"""
+
+[metrics.newtab_organic_topsite_ctr]
+depends_on=['newtab_organic_topsite_clicks', 'newtab_organic_topsite_impressions']
+friendly_name = "Organic Tile Click Through Rate"
+description = """
+Rate of Clicks per Impression Organic Tiles (aka Sponsored Topsites on New Tab) across all positions.
 """
 
 [metrics.newtab_newtab_enabled]
@@ -1818,6 +1846,21 @@ select_expression = "LOGICAL_OR(COALESCE(sync_count_mobile_mean > 0, FALSE))"
 type = "scalar"
 description = "Did a desktop user sync to mobile"
 
+[metrics.site_breakage_impressions]
+select_expression = "COALESCE(COUNTIF(event_name = 'opened'), 0)"
+data_source = "site_breakage_events"
+friendly_name = "Webcompat Reporting Panel Impressions"
+
+[metrics.site_breakage_uses]
+select_expression = "COALESCE(COUNTIF(event_name = 'send' OR event_name = 'send_more_info'), 0)"
+data_source = "site_breakage_events"
+friendly_name = "Webcompat Reporting Panel Uses"
+
+[metrics.etp_disablement]
+select_expression = "COALESCE(COUNTIF(event_name  = 'click_etp_toggle_off'), 0)"
+data_source = "protections_popup_events"
+friendly_name = "ETP Disablement"
+
 
 [dimensions]
 
@@ -2171,6 +2214,38 @@ client_id_column = "client_id"
 experiments_column_type = "none"
 deprecated = false
 
+[data_sources.site_breakage_events]
+from_expression = """(
+    SELECT
+        metrics.uuid.legacy_telemetry_client_id AS client_id,
+        DATE(submission_timestamp) AS submission_date,
+        ping_info.experiments AS experiments,
+        event.name AS event_name,
+    FROM `mozdata.firefox_desktop.events`
+    CROSS JOIN UNNEST(events) AS event
+    WHERE
+        event.category = 'webcompatreporting'
+)"""
+experiments_column_type = "native"
+friendly_name = "Webcompat reporting tool events"
+description = "Webcompat 'Report Broken Site' pings"
+
+[data_sources.protections_popup_events]
+from_expression = """(
+    SELECT
+        metrics.uuid.legacy_telemetry_client_id AS client_id,
+        DATE(submission_timestamp) AS submission_date,
+        ping_info.experiments AS experiments,
+        event.name AS event_name,
+    FROM `mozdata.firefox_desktop.events`
+    CROSS JOIN UNNEST(events) AS event
+    WHERE
+        event.category = 'security.ui.protectionspopup'
+)"""
+experiments_column_type = "native"
+friendly_name = "Protections popup events"
+description = "Sheild icon 'Protections Popup' pings"
+
 
 [segments]
 
@@ -2209,7 +2284,7 @@ description = """
 
 [segments.new_unique_profiles]
 data_source = "clients_last_seen"
-select_expression = "COALESCE(ANY_VALUE(first_seen_date) >= submission_date, TRUE)"
+select_expression = "COALESCE(LOGICAL_OR(first_seen_date = submission_date), FALSE)"
 friendly_name = "New unique profiles"
 description = """
     Clients that enrolled the first date their client_id ever appeared

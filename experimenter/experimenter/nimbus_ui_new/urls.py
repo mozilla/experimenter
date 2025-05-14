@@ -1,27 +1,40 @@
 from django.urls import re_path
 
 from experimenter.nimbus_ui_new.views import (
+    ApproveEndEnrollmentView,
+    ApproveEndExperimentView,
     AudienceUpdateView,
+    BranchCreateView,
+    BranchDeleteView,
+    BranchesPartialUpdateView,
+    BranchesUpdateView,
+    CancelEndEnrollmentView,
+    CancelEndExperimentView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
     DraftToPreviewView,
     DraftToReviewView,
+    LiveToCompleteView,
+    LiveToEndEnrollmentView,
     MetricsUpdateView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
     NimbusExperimentsListTableView,
+    NimbusExperimentsPromoteToRolloutView,
+    NimbusExperimentsSidebarCloneView,
     OverviewUpdateView,
     PreviewToDraftView,
     PreviewToReviewView,
     QAStatusUpdateView,
     ReviewToApproveView,
     ReviewToDraftView,
-    ReviewToRejectView,
     SignoffUpdateView,
     SubscribeView,
     TakeawaysUpdateView,
+    ToggleArchiveView,
     UnsubscribeView,
+    UpdateCloneSlugView,
 )
 
 urlpatterns = [
@@ -71,6 +84,26 @@ urlpatterns = [
         name="nimbus-new-delete-documentation-link",
     ),
     re_path(
+        r"^(?P<slug>[\w-]+)/update_branches/$",
+        BranchesPartialUpdateView.as_view(),
+        name="nimbus-new-partial-update-branches",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/save_branches/$",
+        BranchesUpdateView.as_view(),
+        name="nimbus-new-update-branches",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/create_branch/$",
+        BranchCreateView.as_view(),
+        name="nimbus-new-create-branch",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/delete_branch/$",
+        BranchDeleteView.as_view(),
+        name="nimbus-new-delete-branch",
+    ),
+    re_path(
         r"^(?P<slug>[\w-]+)/update_metrics/$",
         MetricsUpdateView.as_view(),
         name="nimbus-new-update-metrics",
@@ -84,6 +117,26 @@ urlpatterns = [
         r"^create/",
         NimbusExperimentsCreateView.as_view(),
         name="nimbus-new-create",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/clone/$",
+        NimbusExperimentsSidebarCloneView.as_view(),
+        name="nimbus-new-clone",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/promote_to_rollout/(?:(?P<branch>[\w-]+)/)?$",
+        NimbusExperimentsPromoteToRolloutView.as_view(),
+        name="nimbus-new-promote-to-rollout",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/update_clone_slug/$",
+        UpdateCloneSlugView.as_view(),
+        name="nimbus-new-update-clone-slug",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/toggle-archive/$",
+        ToggleArchiveView.as_view(),
+        name="nimbus-new-toggle-archive",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/subscribe/",
@@ -126,8 +179,33 @@ urlpatterns = [
         name="nimbus-new-review-to-approve",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/review-to-reject/$",
-        ReviewToRejectView.as_view(),
-        name="nimbus-new-review-to-reject",
+        r"^(?P<slug>[\w-]+)/live-to-end-enrollment/$",
+        LiveToEndEnrollmentView.as_view(),
+        name="nimbus-new-live-to-end-enrollment",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/live-to-complete/$",
+        LiveToCompleteView.as_view(),
+        name="nimbus-new-live-to-complete",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/approve-end-enrollment/$",
+        ApproveEndEnrollmentView.as_view(),
+        name="nimbus-new-approve-end-enrollment",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/approve-end-experiment/$",
+        ApproveEndExperimentView.as_view(),
+        name="nimbus-new-approve-end-experiment",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/reject-end-enrollment/$",
+        CancelEndEnrollmentView.as_view(),
+        name="nimbus-new-cancel-end-enrollment",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/reject-end-experiment/$",
+        CancelEndExperimentView.as_view(),
+        name="nimbus-new-cancel-end-experiment",
     ),
 ]

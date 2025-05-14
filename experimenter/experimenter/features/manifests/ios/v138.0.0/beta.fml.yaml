@@ -19,11 +19,11 @@ features:
         description: "If true, we will allow user to edit the address"
         type: Boolean
         default: false
-  app-icon-selection-feature:
-    description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
+  appearance-menu-feature:
+    description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
     variables:
-      enabled:
-        description: "Controls whether users see the setting to customize their app icon in Settings.\n"
+      status:
+        description: "If true, we will show the new appearance menu entry"
         type: Boolean
         default: false
   bookmark-refactor-feature:
@@ -184,6 +184,7 @@ features:
           OPEN_SETTINGS_PRIVACY: "://deep-link?url=settings/clear-private-data"
           OPEN_SETTINGS_FXA: "://deep-link?url=settings/fxa"
           OPEN_SETTINGS_THEME: "://deep-link?url=settings/theme"
+          OPEN_SETTINGS_APP_ICON: "://deep-link?url=settings/app-icon"
           OPEN_URL: "://open-url"
           VIEW_BOOKMARKS: "://deep-link?url=homepanel/bookmarks"
           VIEW_TOP_SITES: "://deep-link?url=homepanel/top-sites"
@@ -344,9 +345,6 @@ features:
             title: Onboarding/Onboarding.Welcome.Title.TreatementA.v120
             body: Onboarding/Onboarding.Welcome.Description.TreatementA.v120
             image: welcome-globe
-            link:
-              title: Onboarding/Onboarding.Welcome.Link.Action.v114
-              url: "https://www.mozilla.org/privacy/firefox/"
             buttons:
               primary:
                 title: Onboarding/Onboarding.Welcome.ActionTreatementA.v114
@@ -481,20 +479,13 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
-  password-generator-feature:
-    description: Password Generator Feature
-    variables:
-      enabled:
-        description: "If true, the password generator feature is enabled"
-        type: Boolean
-        default: false
   pdf-refactor-feature:
     description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
     variables:
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
-        default: false
+        default: true
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
@@ -618,6 +609,10 @@ features:
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
+      animation-feature:
+        description: "If true, enables the tab tray animation feature, that occurs when the tab tray opens and closes.\n"
+        type: Boolean
+        default: false
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
@@ -663,14 +658,14 @@ features:
       status:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   tracking-protection-refactor:
     description: "The Enhanced Tracking Protection refactor\n"
     variables:
       enabled:
         description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
         type: Boolean
-        default: false
+        default: true
   unified-ads:
     description: "This property is for managing the roll out of the unified ads API\n"
     variables:
@@ -678,6 +673,13 @@ features:
         description: "If true, we will enable user to use the unified ads API\n"
         type: Boolean
         default: true
+  updated-password-manager-feature:
+    description: "This property determines if we use the updated password manager or the legacy one.\n"
+    variables:
+      status:
+        description: "If true, firefox will use the  the updated password manager."
+        type: Boolean
+        default: false
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:

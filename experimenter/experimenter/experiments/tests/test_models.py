@@ -1246,7 +1246,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.launch_month, experiment.release_date.strftime("%B"))
 
     @parameterized.expand(
-        [[NimbusExperiment.Status.LIVE], [NimbusExperiment.Status.COMPLETE]]
+        [
+            [NimbusExperiment.Status.LIVE],
+            [NimbusExperiment.Status.COMPLETE],
+        ]
     )
     def test_start_date_uses_most_recent_start_change_without_cache(self, status):
         experiment = NimbusExperimentFactory.create(status=status)
@@ -1265,7 +1268,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
     @parameterized.expand(
-        [[NimbusExperiment.Status.LIVE], [NimbusExperiment.Status.COMPLETE]]
+        [
+            [NimbusExperiment.Status.LIVE],
+            [NimbusExperiment.Status.COMPLETE],
+        ]
     )
     def test_start_date_uses_cached_start_date(self, status):
         cached_date = datetime.date(2022, 1, 1)
@@ -2205,7 +2211,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
             experiment.bucket_range.isolation_group.name,
-            "firefox-desktop-feature-release",
+            "firefox-desktop-feature-release-group_id",
         )
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
@@ -2235,7 +2241,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
             experiment.bucket_range.isolation_group.name,
-            "firefox-desktop-feature-release-mac_only-rollout",
+            "firefox-desktop-feature-release-mac_only-rollout-group_id",
         )
 
     def test_allocate_buckets_deletes_buckets_and_empty_isolation_group(self):
@@ -2318,7 +2324,7 @@ class TestNimbusExperiment(TestCase):
         self.assertNotEqual(original_namespace, experiment.bucket_namespace)
         self.assertEqual(
             experiment.bucket_namespace,
-            "firefox-desktop-feature-release-mac_only-rollout",
+            "firefox-desktop-feature-release-mac_only-rollout-group_id",
         )
 
     def test_required_experiments_branches(self):
@@ -2745,6 +2751,76 @@ class TestNimbusExperiment(TestCase):
             experiment.changes.latest_timeout(), experiment.changes.latest_change()
         )
 
+    def test_should_show_remote_settings_pending_true_for_reviewer(self):
+        reviewer = UserFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+        )
+
+        generate_nimbus_changelog(experiment, experiment.owner, "requested review")
+
+        self.assertTrue(experiment.can_review(reviewer))
+        self.assertTrue(experiment.should_show_remote_settings_pending(reviewer))
+
+    def test_should_show_remote_settings_pending_false_for_requesting_user(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+        )
+
+        generate_nimbus_changelog(experiment, experiment.owner, "requested review")
+
+        # Owner tries to review their own request
+        self.assertFalse(experiment.can_review(experiment.owner))
+        self.assertFalse(experiment.should_show_remote_settings_pending(experiment.owner))
+
+    def test_should_show_timeout_message_true_with_real_timeout_changelog(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE
+        )
+
+        experiment.apply_lifecycle_state(
+            NimbusExperimentFactory.LifecycleStates.DRAFT_WAITING
+        )
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "Waiting for review")
+
+        self.assertFalse(experiment.should_show_timeout_message)
+
+        experiment.apply_lifecycle_state(
+            NimbusExperimentFactory.LifecycleStates.DRAFT_REVIEW
+        )
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "Timed out")
+
+        self.assertTrue(experiment.should_show_timeout_message)
+
+    def test_should_show_timeout_message_false_if_no_timeout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE
+        )
+
+        generate_nimbus_changelog(experiment, experiment.owner, "normal change")
+
+        self.assertFalse(experiment.should_show_timeout_message)
+
+    def test_can_preview_to_draft_true_when_status_is_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW
+        )
+        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
+        self.assertTrue(experiment.is_preview)
+        self.assertTrue(experiment.can_preview_to_draft)
+        self.assertTrue(experiment.can_preview_to_review)
+
+    def test_can_preview_to_draft_false_when_status_is_not_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        self.assertNotEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
+        self.assertFalse(experiment.is_preview)
+        self.assertFalse(experiment.can_preview_to_draft)
+        self.assertFalse(experiment.can_preview_to_review)
+
     def test_has_state_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
@@ -2935,6 +3011,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
             is_rollout=True,
             is_rollout_dirty=True,
+            use_group_id=False,
         )
         rollout_branch = parent.branches.first()
         child = self._clone_experiment_and_assert_common_expectations(
@@ -2967,6 +3044,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.takeaways_metric_gain, False)
         self.assertEqual(child.takeaways_qbr_learning, False)
         self.assertEqual(child.takeaways_summary, None)
+        self.assertEqual(child.use_group_id, True)
         self.assertEqual(child.conclusion_recommendations, [])
         self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(child.qa_comment, None)
@@ -3638,6 +3716,48 @@ class TestNimbusExperiment(TestCase):
             errors["required_experiments_branches"],
         )
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
+            ),
+        ]
+    )
+    def test_remote_settings_pending_message_with_lifecycless(
+        self, lifecycle, expected_message
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        self.assertEqual(experiment.remote_settings_pending_message, expected_message)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
+            ),
+        ]
+    )
+    def test_review_messages_and_action_type(self, lifecycle, expected_message):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        self.assertEqual(experiment.review_messages(), expected_message)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
@@ -3672,10 +3792,16 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.isolation_group.name, experiment.slug)
         self.assertEqual(bucket.isolation_group.instance, 1)
         self.assertEqual(bucket.isolation_group.total, NimbusExperiment.BUCKET_TOTAL)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_existing_isolation_group_adds_bucket_range(self):
         """
@@ -3694,10 +3820,16 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.end, 99)
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group, isolation_group)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_existing_isolation_group_with_buckets_adds_next_bucket_range(self):
         """
@@ -3719,10 +3851,16 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.end, 199)
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group, isolation_group)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_full_isolation_group_creates_next_isolation_group_adds_bucket_range(
         self,
@@ -3749,10 +3887,17 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group.name, isolation_group.name)
         self.assertEqual(bucket.isolation_group.instance, isolation_group.instance + 1)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_isolation_group_with_group_id(
         self,
@@ -3810,6 +3955,17 @@ class TestNimbusChangeLogManager(TestCase):
         change = generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertEqual(experiment.changes.latest_review_request(), change)
+
+    def test_latest_review_request_returns_email_change_for_idle_to_review(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
+        self.assertEqual(experiment.latest_review_requested_by, experiment.owner.email)
 
     def test_latest_review_request_returns_change_for_dirty_to_review(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

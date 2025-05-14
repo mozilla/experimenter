@@ -1,18 +1,4 @@
 ---
-SetupChecklist:
-  description: A feature on the home page that allows the user to track onboarding setup progress.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If true, the setup checklist will be enabled."
-    setup-checklist-type:
-      type: string
-      description: The collection used for the setup checklist.
-      enum:
-        - collection-1
-        - collection-2
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
@@ -40,6 +26,14 @@ bookmarks:
     new-compose-ui:
       type: boolean
       description: "if true, enable new compose based UI"
+composable-toolbar:
+  description: Use a composable toolbar instead of the View based one.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
 compose-homepage:
   description: Turns on compose homepage.
   hasExposure: true
@@ -134,6 +128,14 @@ growth-data:
     enabled:
       type: boolean
       description: "If true, the feature is active"
+homepage-hide-frecent-top-sites:
+  description: Hides frecent top sites on the homepage.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to hide frecent top sites on the homepage.\n"
 homepage-search-bar:
   description: Enables the homepage search bar.
   hasExposure: true
@@ -385,6 +387,14 @@ recent-searches:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
+remote-search-configuration:
+  description: Feature to use search configurations from remote servers.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Uses search configuration from remote servers .\n"
 remote-tab-management:
   description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
   hasExposure: true
@@ -443,6 +453,20 @@ sent-from-firefox:
     template-message:
       type: string
       description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
+setup-checklist:
+  description: A feature on the home page that allows the user to track onboarding setup progress.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, the setup checklist will be enabled."
+    setup-checklist-type:
+      type: string
+      description: The collection used for the setup checklist.
+      enum:
+        - collection-1
+        - collection-2
 ship:
   description: The feature that controls Session History in Parent (SHIP) in Gecko.
   hasExposure: true

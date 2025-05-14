@@ -595,7 +595,13 @@ class NimbusConstants:
         FIREFOX_136 = "136.!"
         FIREFOX_136_0_2 = "136.0.2"
         FIREFOX_137 = "137.!"
+        FIREFOX_137_1_0 = "137.1.0"
+        FIREFOX_137_2_0 = "137.2.0"
         FIREFOX_138 = "138.!"
+        FIREFOX_138_B3 = "138.0b3"
+        FIREFOX_138_1_0 = "138.1.0"
+        FIREFOX_138_2_0 = "138.2.0"
+        FIREFOX_138_0_3 = "138.0.3"
         FIREFOX_139 = "139.!"
         FIREFOX_140 = "140.!"
 
@@ -827,6 +833,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_DESKTOP_PREFFLIPS_128_ESR_ONLY = (
         "The prefFlips feature is only available on Firefox 128 on the ESR branch."
+    )
+    ERROR_FEATURE_VALUE_DIFFERENT_VARIABLES = (
+        "The same variables must be used in all branches for a feature. "
+        "This branch is missing: {variables}"
     )
 
     WARNING_PREF_FLIPS_PREF_CONTROLLED_BY_FEATURE = (

@@ -74,7 +74,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   )
     return null;
 
-  const sortedBranchNames = getSortedBranchNames(analysis);
+  const sortedBranchNames = getSortedBranchNames(analysis, experiment);
   const controlBranchSlug =
     sortedBranchNames.length > 0
       ? sortedBranchNames[0]

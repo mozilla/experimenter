@@ -1109,13 +1109,13 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
 
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = """\
-            {"DDirectMigrateSingleProfile": true}
+            {"DDirectMigrateSingleProfile": true, "directMigrateSingleProfile": true}
         """.strip()
         reference_feature_value.save()
 
         treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
         treatment_feature_value.value = """\
-            {"directMigrateSingleProfile": true}
+            {"DDirectMigrateSingleProfile": true, "directMigrateSingleProfile": true}
         """.strip()
         treatment_feature_value.save()
 
@@ -1134,7 +1134,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             ].startswith("Additional properties are not allowed"),
             serializer.warnings,
         )
-        self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
+        self.assertEqual(len(serializer.warnings), 2, serializer.warnings)
 
     def test_serializer_feature_config_validation_treatment_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1210,13 +1210,13 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = """\
-            {"directMigrateSingleProfile": true}
+            {"directMigrateSingleProfile": true, "DDirectMigrateSingleProfile": true}
         """.strip()
         reference_feature_value.save()
 
         treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
         treatment_feature_value.value = """\
-            {"DDirectMigrateSingleProfile": true}
+            {"directMigrateSingleProfile": true, "DDirectMigrateSingleProfile": true}
         """.strip()
         treatment_feature_value.save()
 
@@ -1230,7 +1230,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
+        self.assertEqual(len(serializer.warnings), 2, serializer.warnings)
         self.assertTrue(
             serializer.warnings["treatment_branches"][0]["feature_values"][0]["value"][
                 0
@@ -1264,21 +1264,15 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = """\
-            {"directMigrateSingleProfile": true}
+            {"directMigrateSingleProfile": true, "DDirectMigrateSingleProfile": true}
         """.strip()
         reference_feature_value.save()
 
         treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
         treatment_feature_value.value = """\
-            {"DDirectMigrateSingleProfile": true}
+            {"directMigrateSingleProfile": true, "DDirectMigrateSingleProfile": true}
         """.strip()
         treatment_feature_value.save()
-
-        treatment_branch = NimbusBranchFactory.create(
-            experiment=experiment, description="dgdgd"
-        )
-        experiment.branches.add(treatment_branch)
-        experiment.save()
 
         serializer = NimbusReviewSerializer(
             experiment,
@@ -1290,15 +1284,13 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
 
         self.assertTrue(serializer.is_valid())
-        self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
+        self.assertEqual(len(serializer.warnings), 2, serializer.warnings)
         self.assertTrue(
             serializer.warnings["treatment_branches"][0]["feature_values"][0]["value"][
                 0
             ].startswith("Additional properties are not allowed"),
             serializer.warnings,
         )
-
-        self.assertTrue(serializer.warnings["treatment_branches"][1], {})
 
     def test_serializer_feature_config_validation_supports_ref_json_schema(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1331,6 +1323,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             }
         """.strip()
         reference_feature_value.save()
+
+        experiment.branches.exclude(id=experiment.reference_branch.id).delete()
 
         serializer = NimbusReviewSerializer(
             experiment,
@@ -1398,6 +1392,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
 
         reference_feature_value.save()
 
+        experiment.branches.exclude(id=experiment.reference_branch.id).delete()
+
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(
@@ -1446,6 +1442,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = json.dumps({"bar": {"baz": "baz", "qux": 123}})
         reference_feature_value.save()
+
+        experiment.branches.exclude(id=experiment.reference_branch.id).delete()
 
         serializer = NimbusReviewSerializer(
             experiment,
@@ -1544,6 +1542,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             {"bang": {"bong": "boom", "bing": "blang"}}
         )
         reference_feature_value.save()
+
+        experiment.branches.exclude(id=experiment.reference_branch.id).delete()
 
         serializer = NimbusReviewSerializer(
             experiment,
@@ -4555,7 +4555,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
-    def test_feature_configs_reference_value_schema_warn(self):
+    def test_feature_configs_value_schema_warn(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             status=NimbusExperiment.Status.DRAFT,
@@ -4574,7 +4574,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             feature_config=self.feature_with_schema
         )
         reference_feature_value.value = """\
-            {"DDirectMigrateSingleProfile": true}
+            {"directMigrateSingleProfile": true, "DDirectMigrateSingleProfile": true}
         """.strip()
         reference_feature_value.save()
 
@@ -4582,7 +4582,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             feature_config=self.feature_with_schema
         )
         treatment_feature_value.value = """\
-            {"directMigrateSingleProfile": true}
+            {"directMigrateSingleProfile": true, "DDirectMigrateSingleProfile": true}
         """.strip()
         treatment_feature_value.save()
 
@@ -4602,47 +4602,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             ].startswith("Additional properties are not allowed"),
             serializer.warnings,
         )
-
-    def test_feature_configs_treatment_value_schema_warn(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
-            application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            warn_feature_schema=True,
-            feature_configs=[
-                self.feature_without_schema,
-                self.feature_with_schema,
-            ],
-            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
-        )
-        reference_feature_value = experiment.reference_branch.feature_values.get(
-            feature_config=self.feature_with_schema
-        )
-        reference_feature_value.value = """\
-            {"directMigrateSingleProfile": true}
-        """.strip()
-        reference_feature_value.save()
-
-        treatment_feature_value = experiment.treatment_branches[0].feature_values.get(
-            feature_config=self.feature_with_schema
-        )
-        treatment_feature_value.value = """\
-            {"DDirectMigrateSingleProfile": true}
-        """.strip()
-        treatment_feature_value.save()
-
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-
-        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertTrue(
             serializer.warnings["treatment_branches"][0]["feature_values"][1]["value"][
                 0
@@ -5019,3 +4978,119 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
                     ]
                 },
             )
+
+    def test_feature_values_with_different_variables_is_invalid(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature = NimbusFeatureConfigFactory.create(
+            application=application,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            warn_feature_schema=False,
+        )
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps({"a": "x", "b": "y"})
+        feature_value.save()
+
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
+        treatment_feature_value.value = json.dumps({"b": "y", "c": "z"})
+        treatment_feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            NimbusConstants.ERROR_FEATURE_VALUE_DIFFERENT_VARIABLES.format(variables="c"),
+            serializer.errors["reference_branch"]["feature_values"][0]["value"],
+        )
+        self.assertIn(
+            NimbusConstants.ERROR_FEATURE_VALUE_DIFFERENT_VARIABLES.format(variables="a"),
+            serializer.errors["treatment_branches"][0]["feature_values"][0]["value"],
+        )
+
+    def test_feature_values_with_different_variables_external_schema_is_valid(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature = NimbusFeatureConfigFactory.create(
+            application=application,
+        )
+        feature.schemas.update(has_remote_schema=True)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            warn_feature_schema=False,
+        )
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps({"a": "x", "b": "y"})
+        feature_value.save()
+
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
+        treatment_feature_value.value = json.dumps({"b": "y", "c": "z"})
+        treatment_feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+    def test_feature_values_with_different_variables_warns(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature = NimbusFeatureConfigFactory.create(
+            application=application,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            warn_feature_schema=True,
+        )
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = json.dumps({"a": "x", "b": "y"})
+        feature_value.save()
+
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
+        treatment_feature_value.value = json.dumps({"b": "y", "c": "z"})
+        treatment_feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+
+        self.assertTrue(serializer.is_valid())
+        self.assertIn(
+            NimbusConstants.ERROR_FEATURE_VALUE_DIFFERENT_VARIABLES.format(variables="c"),
+            serializer.warnings["reference_branch"]["feature_values"][0]["value"],
+        )
+        self.assertIn(
+            NimbusConstants.ERROR_FEATURE_VALUE_DIFFERENT_VARIABLES.format(variables="a"),
+            serializer.warnings["treatment_branches"][0]["feature_values"][0]["value"],
+        )

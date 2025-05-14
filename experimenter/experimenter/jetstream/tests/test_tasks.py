@@ -2115,14 +2115,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.CREATED,),
-            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.CREATED, 1),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE, 1),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE, 2),
         ]
     )
-    def test_results_data_null(self, lifecycle):
+    def test_results_data_null(self, lifecycle, offset):
         primary_outcome = "default-browser"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle, primary_outcomes=[primary_outcome]
+            lifecycle,
+            primary_outcomes=[primary_outcome],
+            end_date=datetime.date.today() - datetime.timedelta(days=offset),
         )
 
         now = timezone.now()
@@ -2190,7 +2193,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     + "Z",
                 },
             ]
-            if lifecycle == NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE:
+            if (
+                lifecycle == NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+                and offset > 1
+            ):
                 experiment_errors.append(
                     {
                         "analysis_basis": None,

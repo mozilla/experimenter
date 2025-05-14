@@ -2,21 +2,22 @@ version: "3"
 
 services:
   firefox:
-    image: mozilla/experimenter:${FIREFOX_VERSION:-nimbus-firefox-release}
+    image: selenium/standalone-firefox
     env_file: .env
+    platform: linux/amd64
     environment:
       - MOZ_HEADLESS
-      - FIREFOX_VERSION
+      - FIREFOX_CHANNEL
       - PYTEST_ARGS
       - INTEGRATION_TEST_KINTO_URL
       - INTEGRATION_TEST_NGINX_URL
+      - MOZ_REMOTE_SETTINGS_DEVTOOLS=1
     volumes:
       - .:/code
       - /code/experimenter/tests/integration/.tox
     depends_on:
       - nginx
       - kinto
-      - ping-server
       - demo-app-frontend
     expose:
       - "4444"
@@ -35,10 +36,6 @@ services:
     depends_on:
       - nginx
       - kinto
-  ping-server:
-    build: experimenter/tests/integration/nimbus/utils/ping_server
-    ports:
-      - "5050:5050"
   demo-app-frontend:
     build:
       context: ./demo-app/frontend
