@@ -328,6 +328,9 @@ toolbar-refactor-feature:
     swiping_tabs:
       type: boolean
       description: "Enables swipe gestures to switch between browser tabs.\n"
+    toolbar_update_hint:
+      type: boolean
+      description: "If true, enables the toolbar update contextual hint.\n"
     translucency:
       type: boolean
       description: "Enables translucency for toolbars.\n"

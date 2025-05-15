@@ -564,6 +564,10 @@ features:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
         default: false
+      toolbar_update_hint:
+        description: "If true, enables the toolbar update contextual hint.\n"
+        type: Boolean
+        default: false
       translucency:
         description: "Enables translucency for toolbars.\n"
         type: Boolean
