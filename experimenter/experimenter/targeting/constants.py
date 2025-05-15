@@ -1960,6 +1960,17 @@ IOS_BOTTOM_TOOLBAR_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_TIPS_NOTIFICATIONS_ENABLED_USER = NimbusTargetingConfig(
+    name="Users With Tips Notifications Enabled",
+    slug="ios_tips_notifications_enabled_user",
+    description="Users that already have enabled notifications for tips and features",
+    targeting="has_enabled_tips_notifications == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
     name="iPhone users only",
     slug="ios_iphone_users_only",
