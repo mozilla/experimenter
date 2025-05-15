@@ -10,7 +10,8 @@ from experimenter.openidc.middleware import OpenIDCAuthMiddleware
 
 class OpenIDCAuthMiddlewareTests(TestCase):
     def setUp(self):
-        self.response = "Response"
+        self.response = mock.Mock()
+        self.response.headers = {}
         self.middleware = OpenIDCAuthMiddleware(lambda request: self.response)
 
         mock_resolve_patcher = mock.patch("experimenter.openidc.middleware.resolve")
@@ -61,6 +62,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
             response = self.middleware(request)
 
         self.assertEqual(response, self.response)
+        self.assertEqual(response.headers["Cross-Origin-Opener-Policy"], "same-origin")
         self.assertEqual(User.objects.all().count(), 1)
 
         self.assertEqual(request.user.email, user_email)
