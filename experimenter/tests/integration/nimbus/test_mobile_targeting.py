@@ -103,6 +103,7 @@ def test_check_mobile_targeting(
             "has_enabled_tips_notifications": True,
             "install_referrer_response_utm_source": "test",
             "number_of_app_launches": 1,
+            "is_large_device": True,
         }
     )
     client = sdk_client(load_app_context(context))
