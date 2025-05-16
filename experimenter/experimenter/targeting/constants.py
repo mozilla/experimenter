@@ -2561,6 +2561,48 @@ SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TOU_NOT_ACCEPTED_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
+    name="TOU not accepted yet, ads enabled, Mac or Win",
+    slug="tou_not_accepted_ads_enabled_mac_win",
+    description=(
+        "Users who have not accepted the terms of use yet, "
+        "have not disabled ads, "
+        "and are on Mac or Windows"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows || os.isMac
+        )
+        &&
+        !(
+            (
+                'browser.preonboarding.enrolledInOnTrainRollout'|preferenceValue
+                &&
+                'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue >= 2
+            )
+            ||
+            'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue == 3
+            ||
+            'termsofuse.acceptedVersion'|preferenceValue >= 1
+        )
+        &&
+        (
+            'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+            &&
+            'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue
+            &&
+            'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
+            &&
+            'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue
+        )
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
