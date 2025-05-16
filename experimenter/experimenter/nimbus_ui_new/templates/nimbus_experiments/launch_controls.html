@@ -1,8 +1,21 @@
 {% load nimbus_extras %}
 
 <div id="launch-controls">
-  rejection reason
-  {{experiment.changes.latest_rejection}}
+  {% with rejection=experiment.rejection_block %}
+    {% if rejection %}
+      <div class="alert alert-warning"
+           id="rejection-reason"
+           data-testid="rejection-notice">
+        <div class="text-body">
+          <p class="mb-2">
+            The request to {{ rejection.action }} was <strong>Rejected</strong> due to:
+          </p>
+          <p class="mb-2">{{ rejection.email }} on {{ rejection.date|date:"F j, Y" }}:</p>
+          <p class="bg-white rounded border p-2 mb-0">{{ rejection.message }}</p>
+        </div>
+      </div>
+    {% endif %}
+  {% endwith %}
   <form>
     {% csrf_token %}
     <!-- Draft Mode Controls -->
