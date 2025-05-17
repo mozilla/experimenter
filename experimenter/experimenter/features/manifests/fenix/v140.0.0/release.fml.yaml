@@ -143,6 +143,13 @@ features:
         description: "If true, the feature is active"
         type: Boolean
         default: true
+  homepage-as-new-tab:
+    description: Enables homepage as a a new tab.
+    variables:
+      enabled:
+        description: "Whether or not to enable homepage as a new tab\n"
+        type: Boolean
+        default: false
   homepage-hide-frecent-top-sites:
     description: Hides frecent top sites on the homepage.
     variables:
@@ -617,8 +624,8 @@ features:
     variables:
       postQuantumKeyExchangeEnabled:
         description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
-        type: Boolean
-        default: false
+        type: Option<Boolean>
+        default: ~
   print:
     description: A feature for printing from the share or browser menu.
     variables:
