@@ -5,6 +5,17 @@ about:
 channels:
   - developer
 features:
+  SetupChecklist:
+    description: A feature on the home page that allows the user to track onboarding setup progress.
+    variables:
+      enabled:
+        description: "If true, the setup checklist will be enabled."
+        type: Boolean
+        default: false
+      setup-checklist-type:
+        description: The collection used for the setup checklist.
+        type: SetupChecklistType
+        default: collection-1
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -31,13 +42,6 @@ features:
     variables:
       new-compose-ui:
         description: "if true, enable new compose based UI"
-        type: Boolean
-        default: false
-  composable-toolbar:
-    description: Use a composable toolbar instead of the View based one.
-    variables:
-      enabled:
-        description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
         type: Boolean
         default: false
   compose-homepage:
@@ -143,20 +147,6 @@ features:
         description: "If true, the feature is active"
         type: Boolean
         default: false
-  homepage-as-new-tab:
-    description: Enables homepage as a a new tab.
-    variables:
-      enabled:
-        description: "Whether or not to enable homepage as a new tab\n"
-        type: Boolean
-        default: false
-  homepage-hide-frecent-top-sites:
-    description: Hides frecent top sites on the homepage.
-    variables:
-      enabled:
-        description: "Whether or not to hide frecent top sites on the homepage.\n"
-        type: Boolean
-        default: false
   homepage-search-bar:
     description: Enables the homepage search bar.
     variables:
@@ -200,9 +190,9 @@ features:
             enabled: false
             extra-data:
               term-of-service-data:
-                line-one-text: onboarding_term_of_service_line_one_2
-                line-one-link-text: onboarding_term_of_service_line_one_link_text_2
-                line-two-text: onboarding_term_of_service_line_two_2
+                line-one-text: onboarding_term_of_service_line_one
+                line-one-link-text: onboarding_term_of_service_line_one_link_text
+                line-two-text: onboarding_term_of_service_line_two
                 line-two-link-text: onboarding_term_of_service_line_two_link_text
                 line-three-text: onboarding_term_of_service_line_three
                 line-three-link-text: onboarding_term_of_service_line_three_link_text
@@ -210,7 +200,7 @@ features:
             ordering: 0
             prerequisites:
               - ALWAYS
-            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label_2
+            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label
             secondary-button-label: ""
             title: onboarding_welcome_to_firefox
           default-browser:
@@ -663,8 +653,8 @@ features:
     variables:
       postQuantumKeyExchangeEnabled:
         description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
-        type: Option<Boolean>
-        default: ~
+        type: Boolean
+        default: false
   print:
     description: A feature for printing from the share or browser menu.
     variables:
@@ -716,13 +706,6 @@ features:
         description: The number of maximum suggestions.
         type: Int
         default: 4
-  remote-search-configuration:
-    description: Feature to use search configurations from remote servers.
-    variables:
-      enabled:
-        description: "Uses search configuration from remote servers .\n"
-        type: Boolean
-        default: false
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:
@@ -782,17 +765,6 @@ features:
         description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
         type: Text
         default: sent_from_firefox_template
-  setup-checklist:
-    description: A feature on the home page that allows the user to track onboarding setup progress.
-    variables:
-      enabled:
-        description: "If true, the setup checklist will be enabled."
-        type: Boolean
-        default: false
-      setup-checklist-type:
-        description: The collection used for the setup checklist.
-        type: SetupChecklistType
-        default: collection-1
   ship:
     description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:
@@ -828,7 +800,7 @@ features:
       enabled:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
-        default: true
+        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
