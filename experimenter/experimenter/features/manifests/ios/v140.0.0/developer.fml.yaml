@@ -126,6 +126,10 @@ features:
         description: "If true, enables the menu contextual hint.\n"
         type: Boolean
         default: true
+      menu-redesign:
+        description: "If true, enables the menu redesign.\n"
+        type: Boolean
+        default: false
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -599,7 +603,7 @@ features:
       translucency:
         description: "Enables translucency for toolbars.\n"
         type: Boolean
-        default: false
+        default: true
       unified_search:
         description: "Enables the unified search feature.\n"
         type: Boolean
