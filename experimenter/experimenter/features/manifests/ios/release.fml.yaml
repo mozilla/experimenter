@@ -126,6 +126,10 @@ features:
         description: "If true, enables the menu contextual hint.\n"
         type: Boolean
         default: false
+      menu-redesign:
+        description: "If true, enables the menu redesign.\n"
+        type: Boolean
+        default: false
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -589,7 +593,7 @@ features:
       enabled:
         description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
         type: Boolean
-        default: false
+        default: true
   unified-ads:
     description: "This property is for managing the roll out of the unified ads API\n"
     variables:
