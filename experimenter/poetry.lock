@@ -794,14 +794,14 @@ unicodecsv = "*"
 
 [[package]]
 name = "djangorestframework-dataclasses"
-version = "1.3.0"
+version = "1.4.0"
 description = "A dataclasses serializer for Django REST Framework"
 optional = false
 python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "djangorestframework-dataclasses-1.3.0.tar.gz", hash = "sha256:b061ef12f23394e91107f9b915dec38fb0a69d97a0ac9e62207aa90908375211"},
-    {file = "djangorestframework_dataclasses-1.3.0-py3-none-any.whl", hash = "sha256:802300f812a96715079209f8dabecbab0b9716ae34a770db61f51a6897916abf"},
+    {file = "djangorestframework_dataclasses-1.4.0-py3-none-any.whl", hash = "sha256:eb599f2dbaf8bdb158ac1ff7bc690ab865c2302407b4e93758bff0689a66ad0f"},
+    {file = "djangorestframework_dataclasses-1.4.0.tar.gz", hash = "sha256:fffa19b6f650b2c4c346b3cadf42dd9aa5a265a34f0827608953910d01919039"},
 ]
 
 [package.dependencies]
@@ -809,7 +809,7 @@ django = ">=2.0"
 djangorestframework = ">=3.9"
 
 [package.extras]
-dev = ["django-stubs", "djangorestframework-stubs", "mypy (>=1.5.1,<1.6.0)"]
+dev = ["django-stubs", "djangorestframework-stubs", "mypy (>=1.15.0,<1.16.0)"]
 test = ["coverage[toml]", "tox"]
 
 [[package]]
@@ -3433,4 +3433,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "831b9e445e38f66fc02bda2db8fe6ebc6bef74d9291836eeb8c4ffa0b3e7bf16"
+content-hash = "1de2654209ee3d7e4c93a8b6a879f91667537c289fdfb59faf9c59a1ac6e7d07"
