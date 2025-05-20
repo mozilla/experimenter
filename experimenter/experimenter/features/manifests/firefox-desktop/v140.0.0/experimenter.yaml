@@ -275,9 +275,7 @@ urlbar:
         ping's description for more.
     mdnFeatureGate:
       type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.mdn.featureGate
+      fallbackPref: browser.urlbar.mdn.featureGate
       description: >-
         Feature gate that controls whether all aspects of the mdn suggestion
         feature are exposed to the user.
@@ -513,12 +511,14 @@ urlbar:
         branch: user
         pref: places.semanticHistory.featureGate
       description: use semanticHistory Search feature.
-    suggestSemanticHistory:
-      type: boolean
+    semanticHistoryCompletionThreshold:
+      type: string
       setPref:
         branch: user
-        pref: browser.urlbar.suggest.semanticHistory
-      description: Whether semanticHistory Search will be enabled.
+        pref: places.semanticHistory.completionThreshold
+      description: >-
+        Fraction (0.0 – 1.0) of top Places rows that must have embeddings
+        before semantic-history search is enabled. 0.5 = 50 %.
     suggestSemanticHistoryMinLength:
       type: int
       setPref:
@@ -975,20 +975,6 @@ newtabAdSizingExperiment:
   owner: achurchwell@mozilla.com, sdowne@mozilla.com, mcrawford@mozilla.com
   hasExposure: false
   variables:
-    variantA:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabAdSize.variant-a
-      description: >-
-        Variant A ad size and UI.
-    variantB:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabAdSize.variant-b
-      description: >-
-        Variant B ad size and UI.
     leaderboard:
       type: boolean
       setPref:
@@ -1327,6 +1313,27 @@ newTabSectionsExperiment:
         pref: browser.newtabpage.activity-stream.discoverystream.sections.customizeMenuPanel.enabled
       description: >-
         Enable personalized sections menu panel. Allow users to follow/unfollow topic sections.
+    sectionsContextualAdsEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.enabled
+      description: >-
+        Enable contextual ads in sections.
+    regionSectionsContextualAdsConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.region-config
+      description: >-
+        A comma-separated list of regions that get contextual ads by default.
+    localeSectionsContextualAdsConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.locale-config
+      description: >-
+        A comma-separated list of locales that get contextual ads by default.
 
 newtabPrivatePing:
   description: The newtab-content ping, sent through OHTTP
@@ -1379,6 +1386,19 @@ newtabMarsOhttp:
         pref: browser.newtabpage.activity-stream.unifiedAds.ohttp.enabled
       description: >-
         Enables using OHTTP for unified ads API requests
+
+newtabRefinedCardsLayout:
+  description: Enable layout and styling refinements for content and ad cards across different card sizes
+  owner: rhamoui@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.refinedCardsLayout.enabled
+      description: Enables the refined cards layout for newtab
+
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -4797,3 +4817,31 @@ expandSignInButton:
           - fxa-avatar-sign-up
         empty will be assumed default experience
       type: string
+
+contextID:
+  description: >-
+    Controls the behaviour of the context ID, which is a unique identifier used
+    by Contextual Services.
+  owner: mconley@mozilla.com
+  hasExposure: false
+  variables:
+    rotationPeriodInDays:
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.contextual-services.contextId.rotation-in-days"
+      description: >-
+        The number of days since the creation of the context ID after which the
+        context ID should be regenerated. Set to 0 to disable rotation. This
+        value only takes effect if rustBackendEnabled is also true, otherwise
+        no rotation will occur regardless of the value.
+
+        This setting will only be applied after the next restart.
+    rustBackendEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: "browser.contextual-services.contextId.rust-component.enabled"
+      description: >-
+        Enables the Rust component backend for ContextId.sys.mjs, which is
+        a prerequisite for doing rotations.
