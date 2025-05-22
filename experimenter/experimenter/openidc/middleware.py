@@ -51,9 +51,7 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
         request.user = user
 
         if self.get_response:
-            response = self.get_response(request)
-            response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
-            return response
+            return self.get_response(request)
 
 
 class OpenIDCRestFrameworkAuthenticator(SessionAuthentication):
