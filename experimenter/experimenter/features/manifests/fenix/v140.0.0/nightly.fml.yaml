@@ -60,6 +60,17 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
+  doh:
+    description: Feature controlling DNS over HTTPS (DoH).
+    variables:
+      autoselect-enabled:
+        description: "Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.\n"
+        type: Boolean
+        default: false
+      show-ui:
+        description: "When `true`, include DoH settings in the settings UI.\n"
+        type: Boolean
+        default: false
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
