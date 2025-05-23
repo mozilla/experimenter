@@ -3799,14 +3799,15 @@ class TestNimbusExperiment(TestCase):
             generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         block = experiment.rejection_block
-        assert block is not None
-        assert (
-            block["action"]
-            == NimbusUIConstants.REVIEW_REQUEST_MESSAGES[expected_flow_key]
+        self.assertIsNotNone(block)
+        self.assertEqual(
+            block["action"], NimbusUIConstants.REVIEW_REQUEST_MESSAGES[expected_flow_key]
         )
-        assert block["email"] == experiment.changes.latest_rejection().changed_by.email
-        assert block["date"] == experiment.changes.latest_rejection().changed_on
-        assert block["message"] == "test message"
+        self.assertEqual(
+            block["email"], experiment.changes.latest_rejection().changed_by.email
+        )
+        self.assertEqual(block["date"], experiment.changes.latest_rejection().changed_on)
+        self.assertEqual(block["message"], "test message")
 
 
 class TestNimbusBranch(TestCase):
