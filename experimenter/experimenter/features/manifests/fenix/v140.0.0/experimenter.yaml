@@ -50,6 +50,17 @@ cookie-banners:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
+doh:
+  description: Feature controlling DNS over HTTPS (DoH).
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    autoselect-enabled:
+      type: boolean
+      description: "Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.\n"
+    show-ui:
+      type: boolean
+      description: "When `true`, include DoH settings in the settings UI.\n"
 encourage-search-cfr:
   description: A feature that shows a CFR on first launch to encourage users to make a search
   hasExposure: true
