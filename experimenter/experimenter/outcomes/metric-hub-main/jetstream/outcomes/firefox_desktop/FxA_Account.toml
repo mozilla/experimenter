@@ -1,0 +1,16 @@
+friendly_name = "FxA Account Metrics"
+description = "Metrics for FxA and Multi Device"
+
+[metrics.fxa_signed_in.statistics.binomial]
+
+[metrics.fxa_configured]
+data_source = 'clients_daily'
+select_expression = 'CAST(COALESCE(LOGICAL_OR(fxa_configured), FALSE) AS INT)'
+
+[metrics.fxa_configured.statistics.binomial]
+
+[metrics.multi_device_signin]
+data_source = 'clients_daily'
+select_expression = 'CAST(COALESCE(LOGICAL_OR((sync_count_desktop_mean)>1), FALSE) AS int)'
+
+[metrics.multi_device_signin.statistics.binomial]
