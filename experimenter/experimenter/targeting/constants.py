@@ -2036,6 +2036,28 @@ IOS_DEFAULT_BROWSER_FIRST_RUN_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_BOTTOM_TOOLBAR_USER = NimbusTargetingConfig(
+    name="Existing Bottom Toolbar Users",
+    slug="ios_bottom_toolbar_user",
+    description="Users that already have a preference set to bottom for the toolbar",
+    targeting="is_bottom_toolbar_user == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+IOS_TIPS_NOTIFICATIONS_ENABLED_USER = NimbusTargetingConfig(
+    name="Users With Tips Notifications Enabled",
+    slug="ios_tips_notifications_enabled_user",
+    description="Users that already have enabled notifications for tips and features",
+    targeting="has_enabled_tips_notifications == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
     name="iPhone users only",
     slug="ios_iphone_users_only",
@@ -2151,6 +2173,18 @@ ANDROID_DMA_USERS_ONLY = NimbusTargetingConfig(
     slug="android_dma_users_only",
     description="Targeting users who installed Firefox Android through DMA choice screen",
     targeting="install_referrer_response_utm_source == 'eea-browser-choice'",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+
+ANDROID_LARGE_SCREEN_USERS_ONLY = NimbusTargetingConfig(
+    name="Large screen device users only",
+    slug="large_screen_device_users_only",
+    description="Targeting users who have large screen devices",
+    targeting="is_large_device",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

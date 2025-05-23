@@ -5,17 +5,6 @@ about:
 channels:
   - beta
 features:
-  SetupChecklist:
-    description: A feature on the home page that allows the user to track onboarding setup progress.
-    variables:
-      enabled:
-        description: "If true, the setup checklist will be enabled."
-        type: Boolean
-        default: false
-      setup-checklist-type:
-        description: The collection used for the setup checklist.
-        type: SetupChecklistType
-        default: collection-1
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -71,6 +60,17 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
+  doh:
+    description: Feature controlling DNS over HTTPS (DoH).
+    variables:
+      autoselect-enabled:
+        description: "Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.\n"
+        type: Boolean
+        default: false
+      show-ui:
+        description: "When `true`, include DoH settings in the settings UI.\n"
+        type: Boolean
+        default: false
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
@@ -154,6 +154,13 @@ features:
         description: "If true, the feature is active"
         type: Boolean
         default: false
+  homepage-as-new-tab:
+    description: Enables homepage as a a new tab.
+    variables:
+      enabled:
+        description: "Whether or not to enable homepage as a new tab\n"
+        type: Boolean
+        default: false
   homepage-hide-frecent-top-sites:
     description: Hides frecent top sites on the homepage.
     variables:
@@ -214,7 +221,7 @@ features:
             ordering: 1
             prerequisites:
               - ALWAYS
-            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label
+            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label_2
             secondary-button-label: ""
             title: onboarding_welcome_to_firefox
           default-browser:
@@ -628,8 +635,8 @@ features:
     variables:
       postQuantumKeyExchangeEnabled:
         description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
-        type: Boolean
-        default: false
+        type: Option<Boolean>
+        default: ~
   print:
     description: A feature for printing from the share or browser menu.
     variables:
@@ -695,6 +702,17 @@ features:
         description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
         type: Boolean
         default: true
+  same-document-navigation-overrides-load-type:
+    description: Control whether the same document navigation overrides the load type.
+    variables:
+      enabled:
+        description: "Overrides the loadType when it is a same document navigation\n"
+        type: Boolean
+        default: true
+      force-disable-uri:
+        description: "Disable overriding the loadType during same document navigation on the domain specified by this URI.\n"
+        type: String
+        default: ""
   search-extra-params:
     description: A feature that provides additional args for search.
     variables:
@@ -747,13 +765,24 @@ features:
         description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
         type: Text
         default: ""
+  setup-checklist:
+    description: A feature on the home page that allows the user to track onboarding setup progress.
+    variables:
+      enabled:
+        description: "If true, the setup checklist will be enabled."
+        type: Boolean
+        default: false
+      setup-checklist-type:
+        description: The collection used for the setup checklist.
+        type: SetupChecklistType
+        default: collection-1
   ship:
     description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:
       disabled:
         description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
@@ -775,7 +804,7 @@ features:
       enabled:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
-        default: true
+        default: false
   tab-strip:
     description: Enables tab strip.
     variables:

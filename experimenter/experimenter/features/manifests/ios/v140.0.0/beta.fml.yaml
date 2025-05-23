@@ -87,6 +87,13 @@ features:
         type: GeneralFeature
         default:
           status: true
+  hnt-content-feed-cleanup-feature:
+    description: "Controls updates for the content feed\n"
+    variables:
+      enabled:
+        description: "Whether or not the feature is enabled\n"
+        type: Boolean
+        default: false
   hnt-top-sites-visual-refresh-feature:
     description: This feature manages the top sites visual refresh.
     variables:
@@ -101,14 +108,6 @@ features:
         description: "If true, enables the feature\n"
         type: Boolean
         default: true
-  homescreenFeature:
-    description: The homescreen that the user goes to when they press home or new tab.
-    variables:
-      sections-enabled:
-        description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
-        type: "Map<HomeScreenSection, Boolean>"
-        default:
-          recent-explorations: false
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
@@ -125,6 +124,10 @@ features:
         default: false
       menu-hint:
         description: "If true, enables the menu contextual hint.\n"
+        type: Boolean
+        default: false
+      menu-redesign:
+        description: "If true, enables the menu redesign.\n"
         type: Boolean
         default: false
   messaging:
@@ -582,6 +585,14 @@ features:
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
+        default: false
+      toolbar_update_hint:
+        description: "If true, enables the toolbar update contextual hint.\n"
+        type: Boolean
+        default: false
+      translucency:
+        description: "Enables translucency for toolbars.\n"
+        type: Boolean
         default: true
       unified_search:
         description: "Enables the unified search feature.\n"
@@ -623,11 +634,6 @@ enums:
         description: The next eligible message should be shown.
       show-none:
         description: The surface should show no message.
-  HomeScreenSection:
-    description: The identifiers for the sections of the homescreen.
-    variants:
-      recent-explorations:
-        description: The tab groups
   IconType:
     description: "The icon that will be added to the item in the device's search engine."
     variants:

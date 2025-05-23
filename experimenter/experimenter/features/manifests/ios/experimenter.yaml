@@ -85,6 +85,14 @@ general-app-features:
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
+hnt-content-feed-cleanup-feature:
+  description: "Controls updates for the content feed\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not the feature is enabled\n"
 hnt-top-sites-visual-refresh-feature:
   description: This feature manages the top sites visual refresh.
   hasExposure: true
@@ -101,14 +109,6 @@ homepage-rebuild-feature:
     enabled:
       type: boolean
       description: "If true, enables the feature\n"
-homescreenFeature:
-  description: The homescreen that the user goes to when they press home or new tab.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    sections-enabled:
-      type: json
-      description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
 logins-verification:
   description: "Feature that enables the logins verification logic.\n"
   hasExposure: true
@@ -128,6 +128,9 @@ menu-refactor-feature:
     menu-hint:
       type: boolean
       description: "If true, enables the menu contextual hint.\n"
+    menu-redesign:
+      type: boolean
+      description: "If true, enables the menu redesign.\n"
 messaging:
   description: "The in-app messaging system\n"
   hasExposure: true
@@ -328,6 +331,12 @@ toolbar-refactor-feature:
     swiping_tabs:
       type: boolean
       description: "Enables swipe gestures to switch between browser tabs.\n"
+    toolbar_update_hint:
+      type: boolean
+      description: "If true, enables the toolbar update contextual hint.\n"
+    translucency:
+      type: boolean
+      description: "Enables translucency for toolbars.\n"
     unified_search:
       type: boolean
       description: "Enables the unified search feature.\n"

@@ -70,6 +70,7 @@ prefFlips:
   description: Flip arbitrary prefs. Controlled by release management.
   owner: beth@mozilla.com
   hasExposure: false
+  allowCoenrollment: true
   variables:
     prefs:
       type: json
@@ -274,9 +275,7 @@ urlbar:
         ping's description for more.
     mdnFeatureGate:
       type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.mdn.featureGate
+      fallbackPref: browser.urlbar.mdn.featureGate
       description: >-
         Feature gate that controls whether all aspects of the mdn suggestion
         feature are exposed to the user.
@@ -512,12 +511,22 @@ urlbar:
         branch: user
         pref: places.semanticHistory.featureGate
       description: use semanticHistory Search feature.
-    suggestSemanticHistory:
-      type: boolean
+    semanticHistoryCompletionThreshold:
+      type: string
       setPref:
         branch: user
-        pref: browser.urlbar.suggest.semanticHistory
-      description: Whether semanticHistory Search will be enabled.
+        pref: places.semanticHistory.completionThreshold
+      description: >-
+        Fraction (0.0 – 1.0) of top Places rows that must have embeddings
+        before semantic-history search is enabled. 0.5 = 50 %.
+    semanticHistoryDistanceThreshold:
+      type: string
+      setPref:
+        branch: user
+        pref: places.semanticHistory.distanceThreshold
+      description: >-
+        semantic similarity distance threshold (0.0 - 1.0)
+        defaulted at 0.75.
     suggestSemanticHistoryMinLength:
       type: int
       setPref:
@@ -581,6 +590,12 @@ urlbar:
       description: >-
         Feature gate that controls whether all aspects of the Yelp suggestion
         feature are exposed to the user.
+    yelpServiceResultDistinction:
+      type: boolean
+      fallbackPref: browser.urlbar.yelp.serviceResultDistinction
+      description: >-
+        Whether to distinguish service type subjects. If true, we show special
+        titile for the suggestion.
     yelpShowLessFrequentlyCap:
       type: int
       fallbackPref: browser.urlbar.yelp.showLessFrequentlyCap
@@ -974,20 +989,6 @@ newtabAdSizingExperiment:
   owner: achurchwell@mozilla.com, sdowne@mozilla.com, mcrawford@mozilla.com
   hasExposure: false
   variables:
-    variantA:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabAdSize.variant-a
-      description: >-
-        Variant A ad size and UI.
-    variantB:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabAdSize.variant-b
-      description: >-
-        Variant B ad size and UI.
     leaderboard:
       type: boolean
       setPref:
@@ -1298,13 +1299,6 @@ newTabSectionsExperiment:
         pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.enabled
       description: >-
         Enable the inferred personalization for topics
-    personalizationInferredPosition:
-      type: string
-      setPref:
-        branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.position
-      description: >-
-        Inferred personalization card position.
     localeSectionstConfig:
       type: string
       setPref:
@@ -1333,6 +1327,39 @@ newTabSectionsExperiment:
         pref: browser.newtabpage.activity-stream.discoverystream.sections.customizeMenuPanel.enabled
       description: >-
         Enable personalized sections menu panel. Allow users to follow/unfollow topic sections.
+    sectionsContextualAdsEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.enabled
+      description: >-
+        Enable contextual ads in sections.
+    regionSectionsContextualAdsConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.region-config
+      description: >-
+        A comma-separated list of regions that get contextual ads by default.
+    localeSectionsContextualAdsConfig:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.locale-config
+      description: >-
+        A comma-separated list of locales that get contextual ads by default.
+    contextualSpocPlacements:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs
+      description: CSV string of spoc placement ids on newtab Pocket grid. A placement id tells our ad server where the ads are intended to be displayed.
+    contextualSpocCounts:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs.counts
+      description: CSV string of spoc placement counts on newtab Pocket grid. The count tells the ad server how many ads to return for this position and placement.
 
 newtabPrivatePing:
   description: The newtab-content ping, sent through OHTTP
@@ -1340,12 +1367,27 @@ newtabPrivatePing:
   hasExposure: false
   variables:
     privatePingEnabled:
-      type: string
+      type: boolean
       setPref:
         branch: user
         pref: browser.newtabpage.activity-stream.telemetry.privatePing.enabled
       description: >-
         Enables the private newtab-content ping sent through OHTTP
+    redactNewtabPing:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.redactNewtabPing.enabled
+      description: >-
+        Provides an option to redact content ids of users from click, impression and related events in the NewTab ping. Should be enabled when data colection has shefted to the more private NewTab_content ping.
+    includeInferredInterests:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.inferred.enabled
+      description: >-
+        Includes a differentially private intrest vector of general topical interests based on New Tab clicks. Only sent when user has enabled personalization.
+
 
 newtabTrainhop:
   description: Experiment feature for the train-hopping newtab extension.
@@ -1359,6 +1401,45 @@ newtabTrainhop:
     payload:
       type: json
       description: The experiment configuration.
+
+newtabMerinoOhttp:
+  description: Sending request to merino over OHTTP in newtab
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystrean.merino-provider.ohttp.enabled
+      description: >-
+        Enables using OHTTP for merino content requests
+
+newtabMarsOhttp:
+  description: Sending request to MARS over OHTTP in newtab
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.ohttp.enabled
+      description: >-
+        Enables using OHTTP for unified ads API requests
+
+newtabRefinedCardsLayout:
+  description: Enable layout and styling refinements for content and ad cards across different card sizes
+  owner: rhamoui@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.refinedCardsLayout.enabled
+      description: Enables the refined cards layout for newtab
+
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -1526,13 +1607,6 @@ pocketNewtab:
         pref: browser.newtabpage.activity-stream.newtabWallpapers.enabled
       description: >-
         Turns on and off wallpaper support.
-    wallpapersV2:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.v2.enabled
-      description: >-
-        Turns on and off updated wallpaper experience.
     wallpapersHighlightEnabled:
       type: boolean
       setPref:
@@ -3634,6 +3708,12 @@ gc:
       setPref:
         branch: user
         pref: "javascript.options.mem.nursery_eager_collection_timeout_ms"
+    nursery_max_time_goal_ms:
+      description: Set the nursery's maximum time goal, in ms.
+      type: int
+      setPref:
+        branch: user
+        pref: "javascript.options.mem.nursery_max_time_goal_ms"
 
 jsParallelParsing:
   description: Pref to toggle JS parallel parsing.
@@ -3712,72 +3792,6 @@ raceCacheWithNetwork:
       setPref:
         branch: default
         pref: "network.http.rcwn.enabled"
-
-shopping2023:
-  description: Prefs to control the 2023 shopping experiment.
-  owner: jhirsch@mozilla.com
-  hasExposure: true
-  exposureDescription: >-
-    The timing of the exposure event depends on the experiment, but generally
-    the event is recorded when the user first encounters onboarding UI for
-    the shopping feature.
-  variables:
-    enabled:
-      description: True if the shopping sidebar is enabled (experimental treatment group)
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.enabled
-    control:
-      description: True if the experiment is enabled but experience is disabled (experimental control group)
-      type: boolean
-      fallbackPref: browser.shopping.experience2023.control
-    integratedSidebar:
-      description: True if the integrated sidebar is enabled.
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.integratedSidebar
-    adsEnabled:
-      description: True if showing recommended products is enabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.ads.enabled
-    adsExposure:
-      description: True if we want to record ad inventory for opted-in users, even if ads are disabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.ads.exposure
-    surveyEnabled:
-      description: True if showing survey is enabled
-      type: boolean
-      fallbackPref: browser.shopping.experience2023.survey.enabled
-    autoOpenEnabled:
-      description: True if auto-open behavior for the sidebar is enabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.autoOpen.enabled
-
-shoppingOHTTP:
-  description: Prefs to control the OHTTP URLs used for shopping.
-  owner: gijs@mozilla.com
-  hasExposure: false
-  variables:
-    ohttpRelayURL:
-      description: What OHTTP relay URL to use
-      type: string
-      setPref:
-        branch: default
-        pref: toolkit.shopping.ohttpRelayURL
-    ohttpConfigURL:
-      description: URL for the OHTTP config to use
-      type: string
-      setPref:
-        branch: default
-        pref: toolkit.shopping.ohttpConfigURL
 
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
@@ -4790,3 +4804,31 @@ expandSignInButton:
           - fxa-avatar-sign-up
         empty will be assumed default experience
       type: string
+
+contextID:
+  description: >-
+    Controls the behaviour of the context ID, which is a unique identifier used
+    by Contextual Services.
+  owner: mconley@mozilla.com
+  hasExposure: false
+  variables:
+    rotationPeriodInDays:
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.contextual-services.contextId.rotation-in-days"
+      description: >-
+        The number of days since the creation of the context ID after which the
+        context ID should be regenerated. Set to 0 to disable rotation. This
+        value only takes effect if rustBackendEnabled is also true, otherwise
+        no rotation will occur regardless of the value.
+
+        This setting will only be applied after the next restart.
+    rustBackendEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: "browser.contextual-services.contextId.rust-component.enabled"
+      description: >-
+        Enables the Rust component backend for ContextId.sys.mjs, which is
+        a prerequisite for doing rotations.

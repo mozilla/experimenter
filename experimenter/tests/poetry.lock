@@ -338,22 +338,23 @@ testing = ["hatch", "pre-commit", "pytest", "tox"]
 
 [[package]]
 name = "flask"
-version = "3.1.0"
+version = "3.1.1"
 description = "A simple framework for building complex web applications."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "flask-3.1.0-py3-none-any.whl", hash = "sha256:d667207822eb83f1c4b50949b1623c8fc8d51f2341d65f72e1a1815397551136"},
-    {file = "flask-3.1.0.tar.gz", hash = "sha256:5f873c5184c897c8d9d1b05df1e3d01b14910ce69607a117bd3277098a5836ac"},
+    {file = "flask-3.1.1-py3-none-any.whl", hash = "sha256:07aae2bb5eaf77993ef57e357491839f5fd9f4dc281593a81a9e4d79a24f295c"},
+    {file = "flask-3.1.1.tar.gz", hash = "sha256:284c7b8f2f58cb737f0cf1c30fd7eaf0ccfcde196099d24ecede3fc2005aa59e"},
 ]
 
 [package.dependencies]
-blinker = ">=1.9"
+blinker = ">=1.9.0"
 click = ">=8.1.3"
-itsdangerous = ">=2.2"
-Jinja2 = ">=3.1.2"
-Werkzeug = ">=3.1"
+itsdangerous = ">=2.2.0"
+jinja2 = ">=3.1.2"
+markupsafe = ">=2.1.1"
+werkzeug = ">=3.1.0"
 
 [package.extras]
 async = ["asgiref (>=3.2)"]
@@ -653,19 +654,19 @@ regex = ">=2022.3.15"
 
 [[package]]
 name = "pluggy"
-version = "1.5.0"
+version = "1.6.0"
 description = "plugin and hook calling mechanisms for python"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "pluggy-1.5.0-py3-none-any.whl", hash = "sha256:44e1ad92c8ca002de6377e165f3e0f1be63266ab4d554740532335b9d75ea669"},
-    {file = "pluggy-1.5.0.tar.gz", hash = "sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1"},
+    {file = "pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"},
+    {file = "pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3"},
 ]
 
 [package.extras]
 dev = ["pre-commit", "tox"]
-testing = ["pytest", "pytest-benchmark"]
+testing = ["coverage", "pytest", "pytest-benchmark"]
 
 [[package]]
 name = "py"
@@ -1192,14 +1193,14 @@ websocket-client = ">=1.8,<2.0"
 
 [[package]]
 name = "sentry-sdk"
-version = "2.27.0"
+version = "2.29.1"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "sentry_sdk-2.27.0-py2.py3-none-any.whl", hash = "sha256:c58935bfff8af6a0856d37e8adebdbc7b3281c2b632ec823ef03cd108d216ff0"},
-    {file = "sentry_sdk-2.27.0.tar.gz", hash = "sha256:90f4f883f9eff294aff59af3d58c2d1b64e3927b28d5ada2b9b41f5aeda47daf"},
+    {file = "sentry_sdk-2.29.1-py2.py3-none-any.whl", hash = "sha256:90862fe0616ded4572da6c9dadb363121a1ae49a49e21c418f0634e9d10b4c19"},
+    {file = "sentry_sdk-2.29.1.tar.gz", hash = "sha256:8d4a0206b95fa5fe85e5e7517ed662e3888374bdc342c00e435e10e6d831aa6d"},
 ]
 
 [package.dependencies]
@@ -1833,4 +1834,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "c7671dadbfd8ec9e5e3ae9393a51266bf050d09a6d666e04440ad30c51cfe855"
+content-hash = "6d58f50aa2464f0b89c0db9a3e5ed79d0f7c3e89268461ef2c0a0f18e1a0d4e2"
