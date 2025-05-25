@@ -603,6 +603,13 @@ features:
         description: "Enables or disables network.fetchpriority.enabled preference.\n"
         type: Boolean
         default: true
+  networkingBannedPorts:
+    description: Networking (Necko) Banned Ports
+    variables:
+      bannedPortList:
+        description: A comma-separated list of ports that Firefox will refuse to connect to. These ports will be appended to nsIOService gBadPortList
+        type: Text
+        default: ""
   nimbus-is-ready:
     description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
     variables:
@@ -984,8 +991,6 @@ enums:
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
-      add-ons:
-        description: Allows user to install add-ons from onboarding.
       add-search-widget:
         description: Allows user to add search widget to homescreen.
       default-browser:
@@ -1059,37 +1064,6 @@ enums:
       toolbar-top:
         description: Sets the toolbar placement on the top.
 objects:
-  AddOnData:
-    description: An object to describe an add-on to be installed from the onboarding card.
-    fields:
-      average-rating:
-        description: The average rating of the add-on.
-        type: String
-        default: "0.0"
-      description:
-        description: A small description of the add-on to be displayed to the user.
-        type: Text
-        default: ""
-      icon-res:
-        description: The resource id of the icon of the add-on to be displayed.
-        type: Image
-        default: ic_onboarding_welcome
-      id:
-        description: The identifier for this add-on.
-        type: Text
-        default: ""
-      install-url:
-        description: The url from where the add-on can be installed.
-        type: Text
-        default: ""
-      name:
-        description: The name of the add-on to be displayed to the user.
-        type: Text
-        default: ""
-      review-count:
-        description: The amount of reviews the add-on has.
-        type: String
-        default: "0.0"
   CustomizationThemeData:
     description: Defines an option for theme selection.
     fields:
@@ -1121,12 +1095,8 @@ objects:
         type: ToolbarType
         default: toolbar-top
   ExtraCardData:
-    description: "Holds data for cards that require additional data, e.g. add-ons, toolbar placement cards."
+    description: "Holds data for cards that require additional data, e.g. toolbar placement cards."
     fields:
-      add-ons-data:
-        description: "An optional list of add-ons which will be shown in add-on onboarding card.\n"
-        type: List<AddOnData>
-        default: []
       customization-theme-data:
         description: An optional list of theme choices for the theme selection card.
         type: List<CustomizationThemeData>
