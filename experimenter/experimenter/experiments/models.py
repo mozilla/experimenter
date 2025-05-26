@@ -664,6 +664,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.application == self.Application.DESKTOP
 
     @property
+    def is_mobile(self):
+        return self.Application.is_mobile(self.application)
+
+    @property
     def is_draft(self):
         return (
             self.status == self.Status.DRAFT
@@ -921,8 +925,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_end_date(self):
+        if self.status == self.Status.DRAFT:
+            return None
+
         if self._computed_end_date:
             return self._computed_end_date
+
         end_date = self._get_computed_end_date()
         self.update_computed_end_date(end_date)
         return end_date
