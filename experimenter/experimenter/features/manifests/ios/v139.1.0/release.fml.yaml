@@ -33,6 +33,21 @@ features:
         description: "Enables the bookmark refactor feature\n"
         type: Boolean
         default: true
+  cleanup-history-reenabled:
+    description: "This feature flag will help us slowly re-enable the cleanupHistoryIfNeeded functionnality at startup of the app\n"
+    variables:
+      enabled:
+        description: "When true the cleanupHistoryIfNeeded will be run\n"
+        type: Boolean
+        default: true
+  contextual-hint-feature:
+    description: This set holds all features pertaining to contextual hints.
+    variables:
+      features-enabled:
+        description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+        type: "Map<ContextualHint, Boolean>"
+        default:
+          toolbar-hint: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
@@ -80,20 +95,6 @@ features:
         type: GeneralFeature
         default:
           status: false
-  hnt-content-feed-cleanup-feature:
-    description: "Controls updates for the content feed\n"
-    variables:
-      enabled:
-        description: "Whether or not the feature is enabled\n"
-        type: Boolean
-        default: false
-  hnt-top-sites-visual-refresh-feature:
-    description: This feature manages the top sites visual refresh.
-    variables:
-      enabled:
-        description: Determines whether the top sites visual refresh is shown.
-        type: Boolean
-        default: false
   homepage-rebuild-feature:
     description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
     variables:
@@ -101,6 +102,21 @@ features:
         description: "If true, enables the feature\n"
         type: Boolean
         default: false
+  homescreenFeature:
+    description: The homescreen that the user goes to when they press home or new tab.
+    variables:
+      sections-enabled:
+        description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
+        type: "Map<HomeScreenSection, Boolean>"
+        default:
+          recent-explorations: false
+  login-autofill:
+    description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+    variables:
+      login-autofill-status:
+        description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+        type: Boolean
+        default: true
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
@@ -117,10 +133,6 @@ features:
         default: false
       menu-hint:
         description: "If true, enables the menu contextual hint.\n"
-        type: Boolean
-        default: false
-      menu-redesign:
-        description: "If true, enables the menu redesign.\n"
         type: Boolean
         default: false
   messaging:
@@ -565,10 +577,6 @@ features:
         description: "If true, enables the toolbar update contextual hint.\n"
         type: Boolean
         default: false
-      translucency:
-        description: "Enables translucency for toolbars.\n"
-        type: Boolean
-        default: false
       unified_search:
         description: "Enables the unified search feature.\n"
         type: Boolean
@@ -586,7 +594,7 @@ features:
       enabled:
         description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
         type: Boolean
-        default: true
+        default: false
   unified-ads:
     description: "This property is for managing the roll out of the unified ads API\n"
     variables:
@@ -602,6 +610,11 @@ features:
         type: Boolean
         default: false
 enums:
+  ContextualHint:
+    description: The identifiers for a individual contextual hints.
+    variants:
+      toolbar-hint:
+        description: The contextual hint bubble that appears to provide a hint about the toolbar.
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
     variants:
@@ -609,6 +622,11 @@ enums:
         description: The next eligible message should be shown.
       show-none:
         description: The surface should show no message.
+  HomeScreenSection:
+    description: The identifiers for the sections of the homescreen.
+    variants:
+      recent-explorations:
+        description: The tab groups
   IconType:
     description: "The icon that will be added to the item in the device's search engine."
     variants:
