@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - release
+  - developer
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -11,7 +11,7 @@ features:
       status:
         description: "If true, we will allow user to edit the address"
         type: Boolean
-        default: false
+        default: true
   address-bar-menu-feature:
     description: "This property determines if we show the new address bar menu entry or the toolbar menu in settings\n"
     variables:
@@ -33,31 +33,46 @@ features:
         description: "Enables the bookmark refactor feature\n"
         type: Boolean
         default: true
+  cleanup-history-reenabled:
+    description: "This feature flag will help us slowly re-enable the cleanupHistoryIfNeeded functionnality at startup of the app\n"
+    variables:
+      enabled:
+        description: "When true the cleanupHistoryIfNeeded will be run\n"
+        type: Boolean
+        default: true
+  contextual-hint-feature:
+    description: This set holds all features pertaining to contextual hints.
+    variables:
+      features-enabled:
+        description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+        type: "Map<ContextualHint, Boolean>"
+        default:
+          toolbar-hint: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
       enabled:
         description: "Variable description\n"
         type: Boolean
-        default: false
+        default: true
   download-live-activities-feature:
     description: "Download Live Activities Feature\n"
     variables:
       enabled:
         description: "If true, the download live activities feature is enabled\n"
         type: Boolean
-        default: false
+        default: true
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
       felt-deletion-enabled:
         description: "If true, enable Felt Deletion part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -71,7 +86,7 @@ features:
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: false
+        default: true
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -79,50 +94,47 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: false
-  hnt-content-feed-cleanup-feature:
-    description: "Controls updates for the content feed\n"
-    variables:
-      enabled:
-        description: "Whether or not the feature is enabled\n"
-        type: Boolean
-        default: false
-  hnt-top-sites-visual-refresh-feature:
-    description: This feature manages the top sites visual refresh.
-    variables:
-      enabled:
-        description: Determines whether the top sites visual refresh is shown.
-        type: Boolean
-        default: false
+          status: true
   homepage-rebuild-feature:
     description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
     variables:
       enabled:
         description: "If true, enables the feature\n"
         type: Boolean
-        default: false
+        default: true
+  homescreenFeature:
+    description: The homescreen that the user goes to when they press home or new tab.
+    variables:
+      sections-enabled:
+        description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
+        type: "Map<HomeScreenSection, Boolean>"
+        default:
+          recent-explorations: false
+  login-autofill:
+    description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+    variables:
+      login-autofill-status:
+        description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+        type: Boolean
+        default: true
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
       logins-verification-enabled:
         description: "Whether the logins verification logic is enabled. When enabled, an attempt will be made to decrypt all stored logins when sync is enabled. If a login cannot be decrypted, it will be locally deleted to unblock syncing.\n"
         type: Boolean
-        default: false
+        default: true
   menu-refactor-feature:
     description: "Controls the menu refactor feature\n"
     variables:
       enabled:
         description: "Controls which menu users will see\n"
         type: Boolean
-        default: false
+        default: true
       menu-hint:
         description: "If true, enables the menu contextual hint.\n"
         type: Boolean
-        default: false
-      menu-redesign:
-        description: "If true, enables the menu redesign.\n"
-        type: Boolean
-        default: false
+        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -186,6 +198,34 @@ features:
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
             action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
+          homepage-microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+              - SECOND_HOMEPAGE_VIEW
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with your Firefox homepage?
+            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            microsurveyConfig:
+              utm-content: homepage
+              icon: homeLarge
+              options:
+                - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
+                - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+              - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            action: OPEN_URL
+            action-params:
+              url: "https://www.macrumors.com"
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -264,7 +304,7 @@ features:
       enabled:
         description: "If true, the feature is active.\n"
         type: Boolean
-        default: false
+        default: true
   native-error-page-feature:
     description: "This feature is for managing the roll out of the native error page feature\n"
     variables:
@@ -429,28 +469,28 @@ features:
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
-        default: false
+        default: true
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
       enabled:
         description: "Enables the rating prompt\n"
         type: Boolean
-        default: false
+        default: true
   revert-unsafe-continuations-refactor:
     description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
     variables:
       enabled:
         description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
         type: Boolean
-        default: false
+        default: true
   rust-keychain-refactor:
     description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
     variables:
       rust-keychain-enabled:
         description: "Whether the use of the rust keychain logic is enabled for rust components. When enabled, the rust keychain is used to store and retrieve encryption key data for rust components. Otherwise, the pre-existing MZKeychainWrapper logic is used.\n"
         type: Boolean
-        default: false
+        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -477,7 +517,7 @@ features:
       enabled:
         description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
         type: Boolean
-        default: false
+        default: true
       isTreatmentA:
         description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
         type: Boolean
@@ -492,18 +532,18 @@ features:
       maximum_duration_ms:
         description: "The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.\n"
         type: Int
-        default: 0
+        default: 6000
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: "If this is true, then on each page load adds a new item to Spotlight."
         type: Boolean
-        default: false
+        default: true
       icon-type:
         description: "The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.\n"
         type: Option<IconType>
-        default: letter
+        default: screenshot
       keep-for-days:
         description: "Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.\n"
         type: Option<Int>
@@ -544,7 +584,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
       layout:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
@@ -552,7 +592,7 @@ features:
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
-        default: false
+        default: true
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
@@ -560,15 +600,11 @@ features:
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
-        default: false
+        default: true
       toolbar_update_hint:
         description: "If true, enables the toolbar update contextual hint.\n"
         type: Boolean
-        default: false
-      translucency:
-        description: "Enables translucency for toolbars.\n"
-        type: Boolean
-        default: false
+        default: true
       unified_search:
         description: "Enables the unified search feature.\n"
         type: Boolean
@@ -579,7 +615,7 @@ features:
       status:
         description: "Enables the feature\n"
         type: Boolean
-        default: true
+        default: false
   tracking-protection-refactor:
     description: "The Enhanced Tracking Protection refactor\n"
     variables:
@@ -593,7 +629,7 @@ features:
       enabled:
         description: "If true, we will enable user to use the unified ads API\n"
         type: Boolean
-        default: false
+        default: true
   updated-password-manager-feature:
     description: "This property determines if we use the updated password manager or the legacy one.\n"
     variables:
@@ -602,6 +638,11 @@ features:
         type: Boolean
         default: false
 enums:
+  ContextualHint:
+    description: The identifiers for a individual contextual hints.
+    variants:
+      toolbar-hint:
+        description: The contextual hint bubble that appears to provide a hint about the toolbar.
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
     variants:
@@ -609,6 +650,11 @@ enums:
         description: The next eligible message should be shown.
       show-none:
         description: The surface should show no message.
+  HomeScreenSection:
+    description: The identifiers for the sections of the homescreen.
+    variants:
+      recent-explorations:
+        description: The tab groups
   IconType:
     description: "The icon that will be added to the item in the device's search engine."
     variants:
