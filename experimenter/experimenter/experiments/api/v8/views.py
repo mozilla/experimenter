@@ -26,9 +26,19 @@ class BaseExperimentFilterSet(FilterSet):
 
 
 class NimbusExperimentFilterSet(BaseExperimentFilterSet):
+    end_date = filters.DateFilter(
+        field_name="_end_date",
+        lookup_expr="gte",
+    )
+
     class Meta:
         model = NimbusExperiment
-        fields = (*BaseExperimentFilterSet.Meta.fields, "is_first_run", "status")
+        fields = (
+            *BaseExperimentFilterSet.Meta.fields,
+            "is_first_run",
+            "status",
+            "end_date",
+        )
 
 
 class NimbusDraftExperimentFilterSet(BaseExperimentFilterSet):
