@@ -955,9 +955,21 @@ class ReviewToDraftForm(UpdateStatusForm):
     status = NimbusExperiment.Status.DRAFT
     status_next = NimbusExperiment.Status.DRAFT
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    changelog_message = forms.CharField(
+        required=False, label="Changelog Message", max_length=1000
+    )
+
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
 
     def get_changelog_message(self):
-        return f"{self.request.user} cancelled the review"
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
 
 
 class ReviewToApproveForm(UpdateStatusForm):
