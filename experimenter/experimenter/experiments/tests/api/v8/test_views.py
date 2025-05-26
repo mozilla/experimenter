@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.core.cache import cache
@@ -30,9 +31,6 @@ class NimbusExperimentFilterMixin:
     LIST_VIEW = "nimbus-experiment-rest-v8-list"
     DETAIL_VIEW = "nimbus-experiment-rest-v8-detail"
 
-    def create_experiment_kwargs(self):
-        return {}
-
     def assert_returned_slugs(self, response, expected_slugs):
         self.assertEqual(response.status_code, 200)
 
@@ -46,7 +44,6 @@ class NimbusExperimentFilterMixin:
         NimbusExperimentFactory.create_with_lifecycle(
             self.LIFECYCLE,
             slug="experiment",
-            **self.create_experiment_kwargs(),
         )
         NimbusExperimentFactory.create_with_lifecycle(
             self.LIFECYCLE,
@@ -58,7 +55,6 @@ class NimbusExperimentFilterMixin:
                     "en-CA": {},
                 }
             ),
-            **self.create_experiment_kwargs(),
         )
 
         response = self.client.get(
@@ -98,7 +94,6 @@ class NimbusExperimentFilterMixin:
                 application=NimbusExperiment.Application.DESKTOP,
                 slug=f"{feature.slug}-exp",
                 feature_configs=[feature],
-                **self.create_experiment_kwargs(),
             )
 
         NimbusExperimentFactory.create_with_lifecycle(
@@ -106,7 +101,6 @@ class NimbusExperimentFilterMixin:
             application=NimbusExperiment.Application.DESKTOP,
             slug="multi-1",
             feature_configs=[features["nimbus-qa-1"], features["testFeature"]],
-            **self.create_experiment_kwargs(),
         )
 
         NimbusExperimentFactory.create_with_lifecycle(
@@ -114,7 +108,6 @@ class NimbusExperimentFilterMixin:
             application=NimbusExperiment.Application.DESKTOP,
             slug="multi-2",
             feature_configs=[features["nimbus-qa-2"], features["testFeature"]],
-            **self.create_experiment_kwargs(),
         )
 
         expected_slugs_by_feature_id = {
@@ -147,7 +140,6 @@ class NimbusExperimentFilterMixin:
                 self.LIFECYCLE,
                 application=application,
                 slug=f"{application}-experiment",
-                **self.create_experiment_kwargs(),
             )
 
         response = self.client.get(
@@ -171,18 +163,43 @@ class NimbusExperimentFilterMixin:
             ],
         )
 
+    def test_filter_by_end_date(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="experiment_a",
+            end_date=datetime.date(2023, 1, 1),
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="experiment_b",
+            end_date=datetime.date(2024, 1, 1),
+        )
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v8-list"), {"end_date": "2023-01-01"}
+        )
+        self.assert_returned_slugs(response, ["experiment_a", "experiment_b"])
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v8-list"), {"end_date": "2024-01-01"}
+        )
+        self.assert_returned_slugs(response, ["experiment_b"])
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v8-list"), {"end_date": "2025-01-01"}
+        )
+        self.assert_returned_slugs(response, [])
+
 
 class NimbusExperimentIsFirstRunFilterMixin:
     def test_filter_by_is_first_run(self):
         first_run_experiment = NimbusExperimentFactory.create_with_lifecycle(
             self.LIFECYCLE,
             is_first_run=True,
-            **self.create_experiment_kwargs(),
         )
         non_first_run_experiment = NimbusExperimentFactory.create_with_lifecycle(
             self.LIFECYCLE,
             is_first_run=False,
-            **self.create_experiment_kwargs(),
         )
 
         response = self.client.get(reverse(self.LIST_VIEW), {"is_first_run": "True"})
