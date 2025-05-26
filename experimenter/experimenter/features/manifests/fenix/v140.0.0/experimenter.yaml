@@ -50,6 +50,17 @@ cookie-banners:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
+doh:
+  description: Feature controlling DNS over HTTPS (DoH).
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    autoselect-enabled:
+      type: boolean
+      description: "Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.\n"
+    show-ui:
+      type: boolean
+      description: "When `true`, include DoH settings in the settings UI.\n"
 encourage-search-cfr:
   description: A feature that shows a CFR on first launch to encourage users to make a search
   hasExposure: true
@@ -273,6 +284,14 @@ networking:
     fetchPriorityEnabled:
       type: boolean
       description: "Enables or disables network.fetchpriority.enabled preference.\n"
+networkingBannedPorts:
+  description: Networking (Necko) Banned Ports
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    bannedPortList:
+      type: string
+      description: A comma-separated list of ports that Firefox will refuse to connect to. These ports will be appended to nsIOService gBadPortList
 nimbus-is-ready:
   description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
   hasExposure: true

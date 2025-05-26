@@ -275,7 +275,9 @@ urlbar:
         ping's description for more.
     mdnFeatureGate:
       type: boolean
-      fallbackPref: browser.urlbar.mdn.featureGate
+      setPref:
+        branch: default
+        pref: browser.urlbar.mdn.featureGate
       description: >-
         Feature gate that controls whether all aspects of the mdn suggestion
         feature are exposed to the user.
@@ -519,6 +521,14 @@ urlbar:
       description: >-
         Fraction (0.0 – 1.0) of top Places rows that must have embeddings
         before semantic-history search is enabled. 0.5 = 50 %.
+    semanticHistoryDistanceThreshold:
+      type: string
+      setPref:
+        branch: user
+        pref: places.semanticHistory.distanceThreshold
+      description: >-
+        semantic similarity distance threshold (0.0 - 1.0)
+        defaulted at 0.75.
     suggestSemanticHistoryMinLength:
       type: int
       setPref:
@@ -582,6 +592,12 @@ urlbar:
       description: >-
         Feature gate that controls whether all aspects of the Yelp suggestion
         feature are exposed to the user.
+    yelpServiceResultDistinction:
+      type: boolean
+      fallbackPref: browser.urlbar.yelp.serviceResultDistinction
+      description: >-
+        Whether to distinguish service type subjects. If true, we show special
+        titile for the suggestion.
     yelpShowLessFrequentlyCap:
       type: int
       fallbackPref: browser.urlbar.yelp.showLessFrequentlyCap
@@ -1334,6 +1350,18 @@ newTabSectionsExperiment:
         pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.locale-config
       description: >-
         A comma-separated list of locales that get contextual ads by default.
+    contextualSpocPlacements:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs
+      description: CSV string of spoc placement ids on newtab Pocket grid. A placement id tells our ad server where the ads are intended to be displayed.
+    contextualSpocCounts:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs.counts
+      description: CSV string of spoc placement counts on newtab Pocket grid. The count tells the ad server how many ads to return for this position and placement.
 
 newtabPrivatePing:
   description: The newtab-content ping, sent through OHTTP
@@ -1341,12 +1369,27 @@ newtabPrivatePing:
   hasExposure: false
   variables:
     privatePingEnabled:
-      type: string
+      type: boolean
       setPref:
         branch: user
         pref: browser.newtabpage.activity-stream.telemetry.privatePing.enabled
       description: >-
         Enables the private newtab-content ping sent through OHTTP
+    redactNewtabPing:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.redactNewtabPing.enabled
+      description: >-
+        Provides an option to redact content ids of users from click, impression and related events in the NewTab ping. Should be enabled when data colection has shefted to the more private NewTab_content ping.
+    includeInferredInterests:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.inferred.enabled
+      description: >-
+        Includes a differentially private intrest vector of general topical interests based on New Tab clicks. Only sent when user has enabled personalization.
+
 
 newtabTrainhop:
   description: Experiment feature for the train-hopping newtab extension.
@@ -1759,12 +1802,26 @@ pocketNewtab:
         pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.searchTopsitesCompact
       description: >-
         Change the layout of the sections to be more compact to account for the added card height with the thumbs up/down enabled.
+    prefsSponsoredCheckboxes:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.sponsoredCheckboxes.group
+      description: >-
+        When true, checkboxes for sponsored results in top sites and recommended stories are grouped separately
+        on about:preferences#home
 
 saveToPocket:
   description: The save to Pocket feature
   owner: sdowne@mozilla.com
   hasExposure: false
   variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: extensions.pocket.enabled
+      description: Enabled save to Pocket feature.
     emailButton:
       type: boolean
       setPref:
@@ -2638,6 +2695,18 @@ networkingSendOnDataFinished:
       setPref:
         branch: default
         pref: "network.send_OnDataFinished.cssLoader"
+
+networkingBannedPorts:
+  description: "Networking (Necko) Banned Ports"
+  owner: vgosu@mozilla.com
+  hasExposure: false
+  variables:
+    bannedPortList:
+      description: A comma-separated list of ports that Firefox will refuse to connect to. These ports will be appended to nsIOService gBadPortList
+      type: string
+      setPref:
+        branch: default
+        pref: "network.security.ports.banned"
 
 essentialFallbackDomains:
   description: "Whether to retry failing system requests with a backup domain"
@@ -3667,6 +3736,12 @@ gc:
       setPref:
         branch: user
         pref: "javascript.options.mem.nursery_eager_collection_timeout_ms"
+    nursery_max_time_goal_ms:
+      description: Set the nursery's maximum time goal, in ms.
+      type: int
+      setPref:
+        branch: user
+        pref: "javascript.options.mem.nursery_max_time_goal_ms"
 
 jsParallelParsing:
   description: Pref to toggle JS parallel parsing.
@@ -3745,66 +3820,6 @@ raceCacheWithNetwork:
       setPref:
         branch: default
         pref: "network.http.rcwn.enabled"
-
-shopping2023:
-  description: Prefs to control the 2023 shopping experiment.
-  owner: jhirsch@mozilla.com
-  hasExposure: true
-  exposureDescription: >-
-    The timing of the exposure event depends on the experiment, but generally
-    the event is recorded when the user first encounters onboarding UI for
-    the shopping feature.
-  variables:
-    enabled:
-      description: True if the shopping sidebar is enabled (experimental treatment group)
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.enabled
-    control:
-      description: True if the experiment is enabled but experience is disabled (experimental control group)
-      type: boolean
-      fallbackPref: browser.shopping.experience2023.control
-    adsEnabled:
-      description: True if showing recommended products is enabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.ads.enabled
-    adsExposure:
-      description: True if we want to record ad inventory for opted-in users, even if ads are disabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.ads.exposure
-    surveyEnabled:
-      description: True if showing survey is enabled
-      type: boolean
-      fallbackPref: browser.shopping.experience2023.survey.enabled
-    autoOpenEnabled:
-      description: True if auto-open behavior for the sidebar is enabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.shopping.experience2023.autoOpen.enabled
-
-shoppingOHTTP:
-  description: Prefs to control the OHTTP URLs used for shopping.
-  owner: gijs@mozilla.com
-  hasExposure: false
-  variables:
-    ohttpRelayURL:
-      description: What OHTTP relay URL to use
-      type: string
-      setPref:
-        branch: default
-        pref: toolkit.shopping.ohttpRelayURL
-    ohttpConfigURL:
-      description: URL for the OHTTP config to use
-      type: string
-      setPref:
-        branch: default
-        pref: toolkit.shopping.ohttpConfigURL
 
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
@@ -4475,6 +4490,12 @@ linkPreviews:
         branch: user
         pref: browser.ml.linkPreview.enabled
       description: If true, will show previews when over link and keyboard shortcut is pressed
+    prefs:
+      type: json
+      description: >-
+        The prefs to set under browser.ml.linkPreview.* with object keys as the
+        sub-pref and values objects indicating the desired branch and value
+        defaulting to clearing the user branch value.
 
 sidebar:
   description: Sidebar feature configuration
