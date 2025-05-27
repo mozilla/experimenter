@@ -49,6 +49,7 @@ statistics = { binomial = {} }
 from_expression = """(
   SELECT 
     legacy_telemetry_client_id as client_id,
+    profile_group_id,
     CAST(submission_timestamp as DATE) as submission_date,
     TRUE as sidebar,
     LOGICAL_OR(event_category = 'genai.chatbot' AND JSON_VALUE(event_extra.provider) <> 'none') as chatbot
@@ -58,7 +59,7 @@ from_expression = """(
     event_category IN ('genai.chatbot', 'history', 'synced_tabs', 'bookmarks', 'extension')
     AND event_name = 'sidebar_toggle'
     AND JSON_VALUE(event_extra.opened) = 'true'
-  GROUP BY 1, 2, 3
+  GROUP BY 1, 2, 3, 4
 )"""
 experiments_column_type = "none"
 friendly_name = "Sidebar Open"
@@ -69,13 +70,14 @@ from_expression = """(
   SELECT DISTINCT
     DATE(submission_timestamp) as submission_date,
     metrics.uuid.legacy_telemetry_client_id as client_id,
+    metrics.uuid.legacy_telemetry_profile_group_id as profile_group_id,
     COALESCE(ARRAY_AGG(metrics.string.sidebar_tabs_layout IGNORE NULLS)[SAFE_OFFSET(0)], 'horizontal')  as tabs_orientation,
     COALESCE(LOGICAL_OR(w.key LIKE 'sidebar-button_pinned%'), FALSE) as sidebar_button
   FROM
     `mozdata.firefox_desktop.metrics`
   CROSS JOIN UNNEST (metrics.labeled_boolean.browser_ui_mirror_for_toolbar_widgets) w
   WHERE submission_timestamp >= '2024-11-26'
-  GROUP BY 1, 2
+  GROUP BY 1, 2, 3
 )"""
 experiments_column_type = "none"
 friendly_name = "Metrics related to Sidebar and Vertical Tabs"
