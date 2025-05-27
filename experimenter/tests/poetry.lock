@@ -973,14 +973,14 @@ test = ["black (>=22.1.0)", "flake8 (>=4.0.1)", "pre-commit (>=2.17.0)", "pytest
 
 [[package]]
 name = "pytest-sentry"
-version = "0.3.0"
+version = "0.3.3"
 description = "A pytest plugin to send testrun information to Sentry.io"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "pytest_sentry-0.3.0-py3-none-any.whl", hash = "sha256:ae182f11c18179533d4d760fd79f1992cc351062e69d253297a4cc7639535db7"},
-    {file = "pytest_sentry-0.3.0.tar.gz", hash = "sha256:d26fb87d306a3b51ed3de40d2ccef2fb856438f04dcb93c8b44a54f9c09f1e20"},
+    {file = "pytest_sentry-0.3.3-py3-none-any.whl", hash = "sha256:acf2b76cf5eb3213371f5d29868dab0e35e0653012d5e87af9da82f043cdfb87"},
+    {file = "pytest_sentry-0.3.3.tar.gz", hash = "sha256:c14ff1b0a00fb62fb83c9523fe03ee00896ac61829a3b20a7a57b1d4524e3336"},
 ]
 
 [package.dependencies]
@@ -1834,4 +1834,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "ccb88ccb858042a74538aeffae48dcbf34e35bc87bb776f56cff68bae63ae990"
+content-hash = "107836a01e4519fa0e7c9a14c5af4c42e440db462db8835b4d521760e1b6efc9"
