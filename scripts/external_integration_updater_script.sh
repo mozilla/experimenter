@@ -45,8 +45,10 @@ fetch_task_info() {
             env_file="firefox_fenix_beta_build.env"
             ;;
         fennec_release)
-            version=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '.[0].name')
-            branch=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '.[0].target_commitish')
+            releases=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '[.[] | select(.prerelease == false) | select(.name | test("^Firefox v[0-9]+\\.[0-9]+$"))][0]')
+            version=$(echo "$releases" | jq -r '.name')
+            branch=$(echo "$releases" | jq -r '.target_commitish')
+
             echo "FIREFOX_FENNEC_RELEASE_VERSION_ID ${version}"
             echo "FIREFOX_FENNEC_RELEASE_VERSION_ID=${version}" > firefox_fennec_release_build.env
             echo "BRANCH=${branch}" >> firefox_fennec_release_build.env
@@ -55,21 +57,13 @@ fetch_task_info() {
             return
             ;;
         fennec_beta)
-            check_branches() {
-                local protected_flag="$1"
-                version=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/branches?protected=${protected_flag}&per_page=100" | jq --argjson major "$major_version" 'map(select(.name=="release/v" + ($major + 1 | tostring)).name)[]')
-                echo $version
-            }
-
-            version=$(check_branches "false")
-
-            if [ -z "$version" ]; then
-                version=$(check_branches "true")
-            fi
+            releases=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '[.[] | select(.prerelease == true) | select(.name | test("^Firefox beta v[0-9]+\\.[0-9]+b[0-9]+$"; "i"))][0]')
+            version=$(echo "$releases" | jq -r '.name')
+            branch=$(echo "$releases" | jq -r '.target_commitish')
 
             echo "FIREFOX_FENNEC_BETA_VERSION_ID ${version}"
             echo "FIREFOX_FENNEC_BETA_VERSION_ID=${version}" > firefox_fennec_beta_build.env
-            echo "BRANCH=${version}" >> firefox_fennec_beta_build.env
+            echo "BRANCH=${branch}" >> firefox_fennec_beta_build.env
             echo "# Firefox version is ${release_version}" >> firefox_fennec_beta_build.env
             mv firefox_fennec_beta_build.env experimenter/tests
             return
