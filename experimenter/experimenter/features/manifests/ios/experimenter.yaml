@@ -39,6 +39,14 @@ deeplink-optimization-refactor-feature:
     enabled:
       type: boolean
       description: "Variable description\n"
+default-zoom-feature:
+  description: "The feature flag to manage the rollout of default zoom feature.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, page zoom settings and default zoom feature is shown\n"
 download-live-activities-feature:
   description: "Download Live Activities Feature\n"
   hasExposure: true

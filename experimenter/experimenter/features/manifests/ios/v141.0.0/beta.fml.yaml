@@ -40,6 +40,13 @@ features:
         description: "Variable description\n"
         type: Boolean
         default: true
+  default-zoom-feature:
+    description: "The feature flag to manage the rollout of default zoom feature.\n"
+    variables:
+      enabled:
+        description: "If true, page zoom settings and default zoom feature is shown\n"
+        type: Boolean
+        default: false
   download-live-activities-feature:
     description: "Download Live Activities Feature\n"
     variables:
