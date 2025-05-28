@@ -11,6 +11,7 @@ git pull origin main
 git checkout -B update_firefox_versions
 firefox_types=("fenix_beta" "fennec_release" "fennec_beta" "desktop_beta" "desktop_release")
 
+
 fetch_task_info() {
     local release_version=$(curl "${CURLFLAGS[@]}" "${WHAT_TRAIN_IS_IT_NOW_API}" | jq 'to_entries | last | .key')
     local major_version="$(echo "$release_version" | cut -d'.' -f1 | tr -d '"')"
@@ -50,8 +51,8 @@ fetch_task_info() {
             branch=$(echo "$releases" | jq -r '.target_commitish')
 
             echo "FIREFOX_FENNEC_RELEASE_VERSION_ID ${version}"
-            echo "FIREFOX_FENNEC_RELEASE_VERSION_ID=${version}" > firefox_fennec_release_build.env
-            echo "BRANCH=${branch}" >> firefox_fennec_release_build.env
+            echo "FIREFOX_FENNEC_RELEASE_VERSION_ID=\"${version}\"" > firefox_fennec_release_build.env
+            echo "BRANCH=\"${branch}\"" >> firefox_fennec_release_build.env
             echo "# Firefox version is ${release_version}" >> firefox_fennec_release_build.env
             mv firefox_fennec_release_build.env experimenter/tests
             return
@@ -62,8 +63,8 @@ fetch_task_info() {
             branch=$(echo "$releases" | jq -r '.target_commitish')
 
             echo "FIREFOX_FENNEC_BETA_VERSION_ID ${version}"
-            echo "FIREFOX_FENNEC_BETA_VERSION_ID=${version}" > firefox_fennec_beta_build.env
-            echo "BRANCH=${branch}" >> firefox_fennec_beta_build.env
+            echo "FIREFOX_FENNEC_BETA_VERSION_ID=\"${version}\"" > firefox_fennec_beta_build.env
+            echo "BRANCH=\"${branch}\"" >> firefox_fennec_beta_build.env
             echo "# Firefox version is ${release_version}" >> firefox_fennec_beta_build.env
             mv firefox_fennec_beta_build.env experimenter/tests
             return
