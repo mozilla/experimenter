@@ -46,7 +46,7 @@ default-zoom-feature:
   variables:
     enabled:
       type: boolean
-      description: "If true, page zoom settings and default zoom feature is shown\n"
+      description: "If true, page zoom settings and default zoom feature are shown\n"
 download-live-activities-feature:
   description: "Download Live Activities Feature\n"
   hasExposure: true
