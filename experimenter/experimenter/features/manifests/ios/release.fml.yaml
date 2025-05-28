@@ -44,7 +44,7 @@ features:
     description: "The feature flag to manage the rollout of default zoom feature.\n"
     variables:
       enabled:
-        description: "If true, page zoom settings and default zoom feature is shown\n"
+        description: "If true, page zoom settings and default zoom feature are shown\n"
         type: Boolean
         default: false
   download-live-activities-feature:
@@ -555,7 +555,7 @@ features:
       layout:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
-        default: baseline
+        default: version1
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
@@ -600,7 +600,7 @@ features:
       enabled:
         description: "If true, we will enable user to use the unified ads API\n"
         type: Boolean
-        default: false
+        default: true
   updated-password-manager-feature:
     description: "This property determines if we use the updated password manager or the legacy one.\n"
     variables:
@@ -772,8 +772,6 @@ enums:
   ToolbarLayoutType:
     description: The type of toolbar layout.
     variants:
-      baseline:
-        description: The default layout of the toolbars.
       version1:
         description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
       version2:
