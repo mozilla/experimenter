@@ -673,13 +673,17 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("moved the experiment back to Draft", changelog.message)
         self.mock_preview_task.assert_called_once_with(countdown=5)
 
-    def test_review_to_draft_form(self):
+    def test_review_to_draft_form_with_changelog_message(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = NimbusExperiment.Status.LIVE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.save()
 
-        form = ReviewToDraftForm(data={}, instance=self.experiment, request=self.request)
+        form = ReviewToDraftForm(
+            data={"changelog_message": "Needs further updates."},
+            instance=self.experiment,
+            request=self.request,
+        )
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -689,7 +693,31 @@ class TestLaunchForms(RequestFormTestCase):
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
-        self.assertIn("cancelled the review", changelog.message)
+        self.assertIn(
+            "rejected the review with reason: Needs further updates.", changelog.message
+        )
+
+    def test_review_to_draft_form_with_cancel_message(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        form = ReviewToDraftForm(
+            data={"cancel_message": "Review was withdrawn by the user."},
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(f"{self.user} Review was withdrawn by the user.", changelog.message)
 
     def test_review_to_approve_form(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT

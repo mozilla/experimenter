@@ -3765,6 +3765,57 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         self.assertEqual(experiment.review_messages(), expected_message)
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                "LAUNCH_EXPERIMENT",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                "END_ENROLLMENT",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                "END_EXPERIMENT",
+            ),
+        ]
+    )
+    def test_rejection_block_from_rejection_changelog(
+        self,
+        status,
+        status_next,
+        expected_flow_key,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        experiment.status = status
+        experiment.status_next = status_next
+
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.IDLE,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            generate_nimbus_changelog(experiment, experiment.owner, "test message")
+
+        block = experiment.rejection_block
+        self.assertIsNotNone(block)
+        self.assertEqual(
+            block["action"], NimbusUIConstants.REVIEW_REQUEST_MESSAGES[expected_flow_key]
+        )
+        self.assertEqual(
+            block["email"], experiment.changes.latest_rejection().changed_by.email
+        )
+        self.assertEqual(block["date"], experiment.changes.latest_rejection().changed_on)
+        self.assertEqual(block["message"], "test message")
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
