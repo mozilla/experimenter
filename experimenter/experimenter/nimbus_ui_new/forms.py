@@ -780,6 +780,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widget=MultiSelectWidget(),
     )
     is_sticky = forms.BooleanField(required=False)
+    is_first_run = forms.BooleanField(required=False)
     population_percent = forms.DecimalField(
         required=False, widget=forms.NumberInput(attrs={"class": "form-control"})
     )
@@ -792,6 +793,10 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     proposed_duration = forms.IntegerField(
         required=False, widget=forms.NumberInput(attrs={"class": "form-control"})
     )
+    proposed_release_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -802,11 +807,13 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "firefox_max_version",
             "firefox_min_version",
             "is_sticky",
+            "is_first_run",
             "languages",
             "locales",
             "population_percent",
             "proposed_duration",
             "proposed_enrollment",
+            "proposed_release_date",
             "required_experiments_branches",
             "targeting_config_slug",
             "total_enrolled_clients",
@@ -821,6 +828,17 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             for channel in NimbusExperiment.Channel
             if channel in self.instance.application_config.channel_app_id
         ]
+
+        self.fields["is_first_run"].widget.attrs.update(
+            {
+                "hx-post": reverse(
+                    "nimbus-new-update-audience", kwargs={"slug": self.instance.slug}
+                ),
+                "hx-trigger": "change",
+                "hx-select": "#first-run-fields",
+                "hx-target": "#first-run-fields",
+            }
+        )
 
     def setup_initial_experiments_branches(self, field_name):
         self.initial[field_name] = [

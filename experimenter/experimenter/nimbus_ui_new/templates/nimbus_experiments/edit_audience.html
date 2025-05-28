@@ -129,6 +129,40 @@
             {% for error in validation_errors.is_sticky %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
           </div>
         </div>
+        {% if experiment.is_mobile %}
+          <div id="first-run-fields">
+            <div class="row mb-4">
+              <div class="col">
+                {{ form.is_first_run|add_error_class:"is-invalid" }}
+                <label for="id_is_first_run">First run experiment</label>
+                {% for error in form.is_first_run.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                {% for error in validation_errors.is_first_run %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="row mb-4">
+              <div class="col">
+                <label class="mb-2" for="id_proposed_release_date">
+                  First Run Release Date
+                  <a href="https://whattrainisitnow.com/" target="_blank">
+                    <i class="fa-regular fa-circle-question"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="top"
+                       data-bs-title="This is the approximate release date of the version that is being targeted. Click here to find your date!"></i>
+                  </a>
+                </label>
+                {% if experiment.is_first_run %}
+                  {{ form.proposed_release_date|add_error_class:"is-invalid" }}
+                {% else %}
+                  {{ form.proposed_release_date|add_error_class:"is-invalid"|attr:"disabled:disabled" }}
+                {% endif %}
+                {% for error in form.proposed_release_date.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                {% for error in validation_errors.proposed_release_date %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
         <div class="card bg-body-tertiary border-0 p-4">
           <p class="text-secondary mb-4">
             Please ask a data scientist to help you determine these values.

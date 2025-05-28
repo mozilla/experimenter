@@ -1600,6 +1600,13 @@ class TestNimbusExperiment(TestCase):
             experiment.proposed_duration,
         )
 
+    def test_computed_end_date_returns_None_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        self.assertIsNone(experiment.computed_end_date)
+
     def test_computed_end_date_returns_proposed(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,

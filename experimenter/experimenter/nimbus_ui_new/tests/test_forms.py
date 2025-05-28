@@ -1,3 +1,4 @@
+import datetime
 import json
 from unittest.mock import patch
 
@@ -1128,6 +1129,54 @@ class TestAudienceForm(RequestFormTestCase):
                 parent_experiment=experiment, child_experiment=required, branch_slug=None
             ).exists()
         )
+
+    def test_mobile_first_run_saves(self):
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            proposed_release_date=None,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            total_enrolled_clients=0,
+            is_sticky=False,
+            is_first_run=False,
+            countries=[],
+            locales=[],
+            languages=[],
+        )
+
+        form = AudienceForm(
+            instance=experiment,
+            data={
+                "changelog_message": "test changelog message",
+                "channel": NimbusExperiment.Channel.BETA,
+                "countries": [],
+                "excluded_experiments_branches": [],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "is_sticky": True,
+                "is_first_run": True,
+                "languages": [],
+                "locales": [],
+                "population_percent": 10,
+                "proposed_duration": 120,
+                "proposed_enrollment": 42,
+                "proposed_release_date": "2023-01-01",
+                "required_experiments_branches": [],
+                "targeting_config_slug": (NimbusExperiment.TargetingConfig.FIRST_RUN),
+                "total_enrolled_clients": 100,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        self.assertTrue(experiment.is_first_run)
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 1, 1))
 
     def test_archived_required_or_excluded_is_invalid(self):
         country = CountryFactory.create()
