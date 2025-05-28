@@ -734,6 +734,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.PublishStatus.WAITING,
         ) and self.can_review(reviewer)
 
+    @property
+    def rejection_block(self):
+        rejection = self.changes.latest_rejection()
+        if not rejection:
+            return None
+
+        flow_key = None
+        if rejection.old_status == self.Status.DRAFT:
+            flow_key = "LAUNCH_EXPERIMENT"
+        elif rejection.old_status == self.Status.LIVE:
+            if rejection.old_status_next == self.Status.LIVE:
+                flow_key = "END_ENROLLMENT"
+            else:
+                flow_key = "END_EXPERIMENT"
+
+        return {
+            "action": NimbusUIConstants.REVIEW_REQUEST_MESSAGES[flow_key],
+            "email": rejection.changed_by.email,
+            "date": rejection.changed_on,
+            "message": rejection.message,
+        }
+
     def review_messages(self):
         if self.status_next == self.Status.COMPLETE:
             return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"]
