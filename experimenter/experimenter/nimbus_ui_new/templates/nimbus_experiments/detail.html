@@ -259,6 +259,14 @@
             <th>Sticky enrollment</th>
             <td colspan="3">{{ experiment.is_sticky }}</td>
           </tr>
+          {% if experiment.is_mobile %}
+            <tr>
+              <th>First Run Experiment</th>
+              <td>{{ experiment.is_first_run }}</td>
+              <th>First Run Release Date</th>
+              <td>{{ experiment.proposed_release_date }}</td>
+            </tr>
+          {% endif %}
           <tr>
             <th>Required experiments</th>
             <td>
