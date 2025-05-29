@@ -662,6 +662,13 @@ features:
         description: "if true, enable felt privacy related UI"
         type: Boolean
         default: false
+  private-browsing-lock:
+    description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
+    variables:
+      enabled:
+        description: "Whether or not to enable private browsing mode lock.\n"
+        type: Boolean
+        default: false
   query-parameter-stripping:
     description: Features for query parameter stripping.
     variables:
