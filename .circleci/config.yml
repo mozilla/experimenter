@@ -209,9 +209,9 @@ jobs:
             make schemas_check
 
   integration_nimbus_desktop_ui:
-    machine:
-      image: ubuntu-2204:2024.11.1
-      docker_layer_caching: true
+    docker:
+      - image: cimg/base:2025.05
+      # docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
     environment:
