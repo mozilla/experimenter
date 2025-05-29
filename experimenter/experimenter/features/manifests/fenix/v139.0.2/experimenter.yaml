@@ -50,17 +50,6 @@ cookie-banners:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
-doh:
-  description: Feature controlling DNS over HTTPS (DoH).
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    autoselect-enabled:
-      type: boolean
-      description: "Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.\n"
-    show-ui:
-      type: boolean
-      description: "When `true`, include DoH settings in the settings UI.\n"
 encourage-search-cfr:
   description: A feature that shows a CFR on first launch to encourage users to make a search
   hasExposure: true
@@ -139,14 +128,6 @@ growth-data:
     enabled:
       type: boolean
       description: "If true, the feature is active"
-homepage-as-new-tab:
-  description: Enables homepage as a a new tab.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable homepage as a new tab\n"
 homepage-hide-frecent-top-sites:
   description: Hides frecent top sites on the homepage.
   hasExposure: true
@@ -284,14 +265,6 @@ networking:
     fetchPriorityEnabled:
       type: boolean
       description: "Enables or disables network.fetchpriority.enabled preference.\n"
-networkingBannedPorts:
-  description: Networking (Necko) Banned Ports
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    bannedPortList:
-      type: string
-      description: A comma-separated list of ports that Firefox will refuse to connect to. These ports will be appended to nsIOService gBadPortList
 nimbus-is-ready:
   description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
   hasExposure: true
@@ -384,14 +357,6 @@ private-browsing:
     felt-privacy-enabled:
       type: boolean
       description: "if true, enable felt privacy related UI"
-private-browsing-lock:
-  description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable private browsing mode lock.\n"
 query-parameter-stripping:
   description: Features for query parameter stripping.
   hasExposure: true
@@ -438,17 +403,6 @@ remote-tab-management:
     close-tabs-enabled:
       type: boolean
       description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
-same-document-navigation-overrides-load-type:
-  description: Control whether the same document navigation overrides the load type.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Overrides the loadType when it is a same document navigation\n"
-    force-disable-uri:
-      type: string
-      description: "Disable overriding the loadType during same document navigation on the domain specified by this URI.\n"
 search-extra-params:
   description: A feature that provides additional args for search.
   hasExposure: true
