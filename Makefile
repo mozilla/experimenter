@@ -30,7 +30,7 @@ RED = \033[0;31m
 GREEN = \033[0;32m
 PAD = -------------------------------------------------\n
 COLOR_CHECK = && echo "${GREEN}${PAD}All Checks Passed\n${PAD}${NOCOLOR}" || (echo "${RED}${PAD}Some Checks Failed\n${PAD}${NOCOLOR}";exit 1)
-PYTHON_TEST = pytest --cov --cov-report json:experimenter_coverage.json --cov-report term-missing --junitxml=experimenter_tests.xml
+PYTHON_TEST = pytest --cov --cov-report json:experimenter_coverage.json --cov-branch --cov-fail-under=99 --cov-report term-missing --junitxml=experimenter_tests.xml
 PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate

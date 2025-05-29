@@ -62,6 +62,9 @@ commands:
         type: enum
         enum: ["xml", "json"]
     steps:
+      - run:
+          name: Change gcloud folder permissions
+          command: sudo chown -R $USER /home/circleci/.config/gcloud/ || true
       - gcp-cli/setup:
           gcloud_service_key: ETE_GCLOUD_SERVICE_KEY
           google_project_id: ETE_GOOGLE_PROJECT_ID
@@ -87,7 +90,7 @@ commands:
 jobs:
   check_experimenter_x86_64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
@@ -116,7 +119,7 @@ jobs:
 
   check_experimenter_aarch64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: arm.large
     working_directory: ~/experimenter
@@ -145,7 +148,7 @@ jobs:
 
   check_cirrus_x86_64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/cirrus
@@ -171,7 +174,7 @@ jobs:
 
   check_cirrus_aarch64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: arm.large
     working_directory: ~/cirrus
@@ -197,7 +200,7 @@ jobs:
 
   check_schemas:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -210,7 +213,7 @@ jobs:
 
   integration_nimbus_desktop_ui:
     machine:
-      image: ubuntu-2404:2024.05.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
