@@ -194,10 +194,12 @@ class VersionTests(TestCase):
                     "105.0",
                     "20.1-rel",
                     "1.0.0RC3",
+                    "firefox-v139.2",
+                    "firefox-v139.0",
                 ],
                 {
-                    Version(119, 2): Ref("v119.2"),
-                    Version(119): Ref("v119.0"),
+                    Version(139, 2): Ref("firefox-v139.2"),
+                    Version(139): Ref("firefox-v139.0"),
                 },
             ),
             (

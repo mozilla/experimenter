@@ -19,6 +19,13 @@ features:
         description: "If true, we will allow user to edit the address"
         type: Boolean
         default: true
+  app-icon-selection-feature:
+    description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
+    variables:
+      enabled:
+        description: "Controls whether users see the setting to customize their app icon in Settings.\n"
+        type: Boolean
+        default: true
   appearance-menu-feature:
     description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
     variables:
@@ -115,7 +122,7 @@ features:
       enabled:
         description: "If true, enables the feature\n"
         type: Boolean
-        default: true
+        default: false
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -492,6 +499,13 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
+  password-generator-feature:
+    description: Password Generator Feature
+    variables:
+      enabled:
+        description: "If true, the password generator feature is enabled"
+        type: Boolean
+        default: true
   pdf-refactor-feature:
     description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
     variables:
@@ -513,13 +527,6 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-  rust-keychain-refactor:
-    description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
-    variables:
-      rust-keychain-enabled:
-        description: "Whether the use of the rust keychain logic is enabled for rust components. When enabled, the rust keychain is used to store and retrieve encryption key data for rust components. Otherwise, the pre-existing MZKeychainWrapper logic is used.\n"
-        type: Boolean
-        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -534,13 +541,6 @@ features:
             is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
-  search-engine-consolidation-feature:
-    description: "This feature is for managing the roll out of Search Engine Consolidation support in iOS\n"
-    variables:
-      enabled:
-        description: "Enables the feature\n"
-        type: Boolean
-        default: false
   sent-from-firefox-feature:
     description: "Adds additional promo text to links shared to WhatsApp.\n"
     variables:
@@ -686,13 +686,6 @@ features:
         description: "If true, we will enable user to use the unified ads API\n"
         type: Boolean
         default: true
-  updated-password-manager-feature:
-    description: "This property determines if we use the updated password manager or the legacy one.\n"
-    variables:
-      status:
-        description: "If true, firefox will use the  the updated password manager."
-        type: Boolean
-        default: false
   zoom-feature:
     description: "The configuration for the status of the zoom feature\n"
     variables:

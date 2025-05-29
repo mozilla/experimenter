@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - developer
+  - release
 features:
   account-settings-redux-feature:
     description: "This feature is for managing the roll out of the Account Settings Redux implementation\n"
@@ -17,6 +17,13 @@ features:
     variables:
       status:
         description: "If true, we will allow user to edit the address"
+        type: Boolean
+        default: false
+  app-icon-selection-feature:
+    description: "Adds the App Icon Selection screen to Settings so users can change their default app icon.\n"
+    variables:
+      enabled:
+        description: "Controls whether users see the setting to customize their app icon in Settings.\n"
         type: Boolean
         default: true
   appearance-menu-feature:
@@ -32,14 +39,14 @@ features:
       enabled:
         description: "Enables the bookmark refactor feature\n"
         type: Boolean
-        default: true
+        default: false
   cleanup-history-reenabled:
     description: "This feature flag will help us slowly re-enable the cleanupHistoryIfNeeded functionnality at startup of the app\n"
     variables:
       enabled:
         description: "When true the cleanupHistoryIfNeeded will be run\n"
         type: Boolean
-        default: true
+        default: false
   contextual-hint-feature:
     description: This set holds all features pertaining to contextual hints.
     variables:
@@ -61,25 +68,25 @@ features:
       enabled:
         description: "Variable description\n"
         type: Boolean
-        default: true
+        default: false
   download-live-activities-feature:
     description: "Download Live Activities Feature\n"
     variables:
       enabled:
         description: "If true, the download live activities feature is enabled\n"
         type: Boolean
-        default: true
+        default: false
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
       felt-deletion-enabled:
         description: "If true, enable Felt Deletion part of Felt Privacy"
         type: Boolean
-        default: true
+        default: false
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: true
+        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -93,7 +100,7 @@ features:
       status:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -101,7 +108,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: true
+          status: false
   glean-server-knobs:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -115,14 +122,14 @@ features:
       enabled:
         description: "If true, enables the feature\n"
         type: Boolean
-        default: true
+        default: false
   homescreenFeature:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
       prefer-switch-to-open-tab:
         description: "Enables the feature to automatically switch to an existing tab with the same content instead of opening a new one.\n"
         type: Boolean
-        default: true
+        default: false
       sections-enabled:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
         type: "Map<HomeScreenSection, Boolean>"
@@ -149,11 +156,11 @@ features:
       enabled:
         description: "Controls which menu users will see\n"
         type: Boolean
-        default: true
+        default: false
       menu-hint:
         description: "If true, enables the menu contextual hint.\n"
         type: Boolean
-        default: true
+        default: false
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -217,34 +224,6 @@ features:
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
             action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
-          homepage-microsurvey-message:
-            surface: microsurvey
-            style: MICROSURVEY
-            trigger-if-all:
-              - SECOND_HOMEPAGE_VIEW
-            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
-            text: How satisfied are you with your Firefox homepage?
-            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
-            microsurveyConfig:
-              utm-content: homepage
-              icon: homeLarge
-              options:
-                - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
-                - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
-                - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
-                - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
-                - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
-                - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
-          survey-surface-message:
-            surface: survey
-            style: SURVEY
-            trigger-if-all:
-              - NEVER
-            text: ResearchSurface/Body.Text.v112
-            button-label: ResearchSurface/PrimaryButton.Label.v112
-            action: OPEN_URL
-            action-params:
-              url: "https://www.macrumors.com"
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -323,7 +302,7 @@ features:
       enabled:
         description: "If true, the feature is active.\n"
         type: Boolean
-        default: true
+        default: false
   native-error-page-feature:
     description: "This feature is for managing the roll out of the native error page feature\n"
     variables:
@@ -492,20 +471,27 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
+  password-generator-feature:
+    description: Password Generator Feature
+    variables:
+      enabled:
+        description: "If true, the password generator feature is enabled"
+        type: Boolean
+        default: false
   pdf-refactor-feature:
     description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
     variables:
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
-        default: true
+        default: false
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
       enabled:
         description: "Enables the rating prompt\n"
         type: Boolean
-        default: true
+        default: false
   redux-search-settings-feature:
     description: "This feature is for managing the roll out of redux on the search settings screen\n"
     variables:
@@ -513,13 +499,6 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-  rust-keychain-refactor:
-    description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
-    variables:
-      rust-keychain-enabled:
-        description: "Whether the use of the rust keychain logic is enabled for rust components. When enabled, the rust keychain is used to store and retrieve encryption key data for rust components. Otherwise, the pre-existing MZKeychainWrapper logic is used.\n"
-        type: Boolean
-        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -534,20 +513,13 @@ features:
             is-toolbar-cfr-on: false
           search-highlights: false
           use-page-content: false
-  search-engine-consolidation-feature:
-    description: "This feature is for managing the roll out of Search Engine Consolidation support in iOS\n"
-    variables:
-      enabled:
-        description: "Enables the feature\n"
-        type: Boolean
-        default: false
   sent-from-firefox-feature:
     description: "Adds additional promo text to links shared to WhatsApp.\n"
     variables:
       enabled:
         description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
         type: Boolean
-        default: true
+        default: false
       isTreatmentA:
         description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
         type: Boolean
@@ -595,22 +567,22 @@ features:
       enabled:
         description: "If true, the feature is active.\n"
         type: Boolean
-        default: true
+        default: false
       maximum_duration_ms:
         description: "The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.\n"
         type: Int
-        default: 6000
+        default: 0
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: "If this is true, then on each page load adds a new item to Spotlight."
         type: Boolean
-        default: true
+        default: false
       icon-type:
         description: "The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.\n"
         type: Option<IconType>
-        default: screenshot
+        default: letter
       keep-for-days:
         description: "Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.\n"
         type: Option<Int>
@@ -644,7 +616,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: true
+        default: false
       layout:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
@@ -652,7 +624,7 @@ features:
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
-        default: true
+        default: false
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
@@ -678,19 +650,12 @@ features:
       enabled:
         description: "Whether the Enhanced Tracking Protection refactor is enabled or not\n"
         type: Boolean
-        default: true
+        default: false
   unified-ads:
     description: "This property is for managing the roll out of the unified ads API\n"
     variables:
       enabled:
         description: "If true, we will enable user to use the unified ads API\n"
-        type: Boolean
-        default: true
-  updated-password-manager-feature:
-    description: "This property determines if we use the updated password manager or the legacy one.\n"
-    variables:
-      status:
-        description: "If true, firefox will use the  the updated password manager."
         type: Boolean
         default: false
   zoom-feature:
