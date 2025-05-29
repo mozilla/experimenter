@@ -701,6 +701,13 @@ features:
         description: "if true, enable felt privacy related UI"
         type: Boolean
         default: false
+  private-browsing-lock:
+    description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
+    variables:
+      enabled:
+        description: "Whether or not to enable private browsing mode lock.\n"
+        type: Boolean
+        default: true
   query-parameter-stripping:
     description: Features for query parameter stripping.
     variables:
@@ -740,7 +747,7 @@ features:
       enabled:
         description: "Uses search configuration from remote servers .\n"
         type: Boolean
-        default: false
+        default: true
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:
