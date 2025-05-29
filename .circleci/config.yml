@@ -109,6 +109,10 @@ jobs:
           source: dashboard/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
+          extension: json
 
   check_experimenter_aarch64:
     machine:
@@ -134,6 +138,10 @@ jobs:
           source: dashboard/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
+          extension: json
 
   check_cirrus_x86_64:
     machine:
