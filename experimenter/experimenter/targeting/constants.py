@@ -2309,6 +2309,16 @@ SHOPPING_ONBOARDING_SHOWN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+IS_4GB_RAM = NimbusTargetingConfig(
+    name="Firefox build running on a computer with at least 4GB of RAM",
+    slug="is_atleast_4gb_ram",
+    description="Target computers with at least 4GB of RAM.",
+    targeting="memoryMB >= 4000",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+
 IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
     name="64bit Firefox build running on a computer with at least 8GB of RAM",
     slug="is_64bit_build_and_8gb_ram",
