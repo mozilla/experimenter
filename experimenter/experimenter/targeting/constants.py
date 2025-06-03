@@ -124,7 +124,8 @@ FIRST_RUN = NimbusTargetingConfig(
 MSIX_FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users with MSIX Firefox",
     slug="msix_first_run",
-    description=("First start-up users (e.g. for about:welcome) with MSIX Firefox"),
+    description=(
+        "First start-up users (e.g. for about:welcome) with MSIX Firefox"),
     targeting="(isFirstStartup && os.isWindows && os.windowsVersion >= 10 && isMSIX)",
     desktop_telemetry="",
     sticky_required=False,
@@ -435,7 +436,8 @@ WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
 WINDOWS_WITH_USERCHOICE_22H2 = NimbusTargetingConfig(
     name="Users on Windows version 22H2 with UserChoice support",
     slug="windows_userchoice_22h2",
-    description=("Windows 22H2 with UserChoice support (version 22H2+/build ID 19045+)"),
+    description=(
+        "Windows 22H2 with UserChoice support (version 22H2+/build ID 19045+)"),
     targeting=f"{WIN22H2}",
     desktop_telemetry="",
     sticky_required=False,
@@ -459,7 +461,8 @@ FX95_DESKTOP_USERS = NimbusTargetingConfig(
 MOBILE_NEW_USER = NimbusTargetingConfig(
     name="New Users on Mobile",
     slug="mobile_new_users",
-    description=("New users on mobile who installed the app less than a week ago"),
+    description=(
+        "New users on mobile who installed the app less than a week ago"),
     targeting="days_since_install < 7",
     desktop_telemetry="",
     sticky_required=True,
@@ -668,7 +671,8 @@ RELAY_USER = NimbusTargetingConfig(
     name="Relay user",
     slug="relay_user",
     description="Include users who have Relay",
-    targeting=('("9ebfe2c2f9ea3c58" in attachedFxAOAuthClients|mapToProperty("id"))'),
+    targeting=(
+        '("9ebfe2c2f9ea3c58" in attachedFxAOAuthClients|mapToProperty("id"))'),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -1271,7 +1275,8 @@ EXISTING_USER_REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
     slug="existing_user_review_checker_sidebar_recommendation",
     description="Exclude existing users who have the Fakespot extension installed, "
     "or who have the CFR pref set to false",
-    targeting=(f"{PROFILE28DAYS} && {REVIEW_CHECKER_SIDEBAR_RECOMMENDATION.targeting}"),
+    targeting=(
+        f"{PROFILE28DAYS} && {REVIEW_CHECKER_SIDEBAR_RECOMMENDATION.targeting}"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -1503,7 +1508,8 @@ ANDROID_CORE_ACTIVE_USER = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name, Application.FOCUS_ANDROID.name),
+    application_choice_names=(Application.FENIX.name,
+                              Application.FOCUS_ANDROID.name),
 )
 
 IOS_CORE_ACTIVE_USER = NimbusTargetingConfig(
@@ -1514,7 +1520,8 @@ IOS_CORE_ACTIVE_USER = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
-    application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
+    application_choice_names=(Application.IOS.name,
+                              Application.FOCUS_IOS.name),
 )
 
 IOS_EXISTING_USERS = NimbusTargetingConfig(
@@ -1532,11 +1539,13 @@ ANDROID_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
     name="Recently Logged In Users",
     slug="android_recently_logged_in_users",
     description="Users who have completed a Sync login within the last 12 weeks",
-    targeting=RECENTLY_LOGGED_IN_USERS_TARGETING.format(event="sync_auth.sign_in"),
+    targeting=RECENTLY_LOGGED_IN_USERS_TARGETING.format(
+        event="sync_auth.sign_in"),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name, Application.FOCUS_ANDROID.name),
+    application_choice_names=(Application.FENIX.name,
+                              Application.FOCUS_ANDROID.name),
 )
 
 IOS_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
@@ -1549,7 +1558,8 @@ IOS_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
-    application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
+    application_choice_names=(Application.IOS.name,
+                              Application.FOCUS_IOS.name),
 )
 
 HAS_GOOGLE_BING_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
@@ -2214,6 +2224,17 @@ SHOPPING_ONBOARDING_SHOWN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+IS_4GB_RAM = NimbusTargetingConfig(
+    name="Firefox build running on a computer with at least 4GB of RAM",
+    slug="is_atleast_4gb_ram",
+    description="Target computers with at least 4GB of RAM.",
+    targeting="memoryMB >= 4000",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
     name="64bit Firefox build running on a computer with at least 8GB of RAM",
     slug="is_64bit_build_and_8gb_ram",
@@ -2317,7 +2338,8 @@ HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_AD_BLOCKERS_INSTALLED = NimbusTargetingCon
     description=(
         "Users with bing as current default search engine and has an adblocker installed."
     ),
-    targeting=(f"searchEngines.current =='bing' && ({AD_BLOCKERS_INSTALLED.targeting})"),
+    targeting=(
+        f"searchEngines.current =='bing' && ({AD_BLOCKERS_INSTALLED.targeting})"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -2330,7 +2352,8 @@ HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_NO_AD_BLOCKERS_INSTALLED = NimbusTargeting
     description=(
         "Users with bing as current default search engine and has no adblocker installed."
     ),
-    targeting=(f"searchEngines.current =='bing' && !({AD_BLOCKERS_INSTALLED.targeting})"),
+    targeting=(
+        f"searchEngines.current =='bing' && !({AD_BLOCKERS_INSTALLED.targeting})"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -2432,7 +2455,8 @@ DEFAULT_WINDOWS_CONTENT_PROCESS_SANDBOX_LEVEL = NimbusTargetingConfig(
     description=(
         "Windows users who have not changed the content process sandbox level pref"
     ),
-    targeting=("os.isWindows && !('security.sandbox.content.level'|preferenceIsUserSet)"),
+    targeting=(
+        "os.isWindows && !('security.sandbox.content.level'|preferenceIsUserSet)"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
