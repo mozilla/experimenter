@@ -603,6 +603,8 @@ class NimbusConstants:
         FIREFOX_138_2_0 = "138.2.0"
         FIREFOX_138_0_3 = "138.0.3"
         FIREFOX_139 = "139.!"
+        FIREFOX_139_1_0 = "139.1.0"
+        FIREFOX_139_2_0 = "139.2.0"
         FIREFOX_140 = "140.!"
 
     class EmailType(models.TextChoices):
