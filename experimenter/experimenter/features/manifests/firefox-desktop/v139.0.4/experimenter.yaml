@@ -70,7 +70,6 @@ prefFlips:
   description: Flip arbitrary prefs. Controlled by release management.
   owner: beth@mozilla.com
   hasExposure: false
-  allowCoenrollment: true
   variables:
     prefs:
       type: json
@@ -322,6 +321,24 @@ urlbar:
         branch: user
       description: >-
         Boolean used to determine if the results defined in `exposureResults` should be shown in search results. Should be false for Control branch of an experiment.
+    pocketFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.pocket.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of the Pocket suggestions
+        feature are exposed to the user.
+    pocketShowLessFrequentlyCap:
+      type: int
+      description: >-
+        If defined and non-zero, this is the maximum number of times the user
+        will be able to click the "Show less frequently" command for Pocket
+        suggestions. If undefined or zero, the user will be able to click the
+        command without any limit.
+    pocketSuggestIndex:
+      type: int
+      description: >-
+        The group-relative suggestedIndex of Pocket suggestions within the Firefox
+        Suggest section.
     quickSuggestAmpTopPickCharThreshold:
       type: int
       fallbackPref: browser.urlbar.quicksuggest.ampTopPickCharThreshold
@@ -489,36 +506,6 @@ urlbar:
         branch: default
         pref: browser.urlbar.recentsearches.maxResults
       description: The maximum number of recent searches to show.
-    semanticHistoryEnable:
-      type: boolean
-      setPref:
-        branch: user
-        pref: places.semanticHistory.featureGate
-      description: use semanticHistory Search feature.
-    semanticHistoryCompletionThreshold:
-      type: string
-      setPref:
-        branch: user
-        pref: places.semanticHistory.completionThreshold
-      description: >-
-        Fraction (0.0 – 1.0) of top Places rows that must have embeddings
-        before semantic-history search is enabled. 0.5 = 50 %.
-    semanticHistoryDistanceThreshold:
-      type: string
-      setPref:
-        branch: user
-        pref: places.semanticHistory.distanceThreshold
-      description: >-
-        semantic similarity distance threshold (0.0 - 1.0)
-        defaulted at 0.75.
-    suggestSemanticHistoryMinLength:
-      type: int
-      setPref:
-        branch: user
-        pref: browser.urlbar.suggest.semanticHistory.minLength
-      description: >-
-        Minimum length of search query when history semantic
-        search will be enabled.
     suggestCalculator:
       type: boolean
       setPref:
@@ -527,14 +514,6 @@ urlbar:
       description: >-
         Whether or not to show calculator results when a user types a valid
         calculation string into the urlbar.
-    unitConversionEnabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.urlbar.unitConversion.enabled
-      description: >-
-        Whether or not to show unit conversion results when a user types a
-        valid unit conversion string into the urlbar.
     weatherFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.weather.featureGate
@@ -582,12 +561,6 @@ urlbar:
       description: >-
         Feature gate that controls whether all aspects of the Yelp suggestion
         feature are exposed to the user.
-    yelpServiceResultDistinction:
-      type: boolean
-      fallbackPref: browser.urlbar.yelp.serviceResultDistinction
-      description: >-
-        Whether to distinguish service type subjects. If true, we show special
-        titile for the suggestion.
     yelpShowLessFrequentlyCap:
       type: int
       fallbackPref: browser.urlbar.yelp.showLessFrequentlyCap
@@ -981,6 +954,20 @@ newtabAdSizingExperiment:
   owner: achurchwell@mozilla.com, sdowne@mozilla.com, mcrawford@mozilla.com
   hasExposure: false
   variables:
+    variantA:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabAdSize.variant-a
+      description: >-
+        Variant A ad size and UI.
+    variantB:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabAdSize.variant-b
+      description: >-
+        Variant B ad size and UI.
     leaderboard:
       type: boolean
       setPref:
@@ -1291,6 +1278,13 @@ newTabSectionsExperiment:
         pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.enabled
       description: >-
         Enable the inferred personalization for topics
+    personalizationInferredPosition:
+      type: string
+      setPref:
+        branch: user
+        pref:  browser.newtabpage.activity-stream.discoverystream.sections.personalization.inferred.position
+      description: >-
+        Inferred personalization card position.
     localeSectionstConfig:
       type: string
       setPref:
@@ -1319,39 +1313,6 @@ newTabSectionsExperiment:
         pref: browser.newtabpage.activity-stream.discoverystream.sections.customizeMenuPanel.enabled
       description: >-
         Enable personalized sections menu panel. Allow users to follow/unfollow topic sections.
-    sectionsContextualAdsEnabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.enabled
-      description: >-
-        Enable contextual ads in sections.
-    regionSectionsContextualAdsConfig:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.region-config
-      description: >-
-        A comma-separated list of regions that get contextual ads by default.
-    localeSectionsContextualAdsConfig:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.sections.contextualAds.locale-config
-      description: >-
-        A comma-separated list of locales that get contextual ads by default.
-    contextualSpocPlacements:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs
-      description: CSV string of spoc placement ids on newtab Pocket grid. A placement id tells our ad server where the ads are intended to be displayed.
-    contextualSpocCounts:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs.counts
-      description: CSV string of spoc placement counts on newtab Pocket grid. The count tells the ad server how many ads to return for this position and placement.
 
 newtabPrivatePing:
   description: The newtab-content ping, sent through OHTTP
@@ -1359,33 +1320,12 @@ newtabPrivatePing:
   hasExposure: false
   variables:
     privatePingEnabled:
-      type: boolean
+      type: string
       setPref:
         branch: user
         pref: browser.newtabpage.activity-stream.telemetry.privatePing.enabled
       description: >-
         Enables the private newtab-content ping sent through OHTTP
-    redactNewtabPing:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.telemetry.privatePing.redactNewtabPing.enabled
-      description: >-
-        Provides an option to redact content ids of users from click, impression and related events in the NewTab ping. Should be enabled when data colection has shefted to the more private NewTab_content ping.
-    includeInferredInterests:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.telemetry.privatePing.inferred.enabled
-      description: >-
-        Includes a differentially private intrest vector of general topical interests based on New Tab clicks. Only sent when user has enabled personalization.
-    maxSubmissionDelayMs:
-      type: int
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.telemetry.privatePing.maxSubmissionDelayMs
-      description: >-
-        The maximum range for the random delay from scheduling the newtab-content ping to actually sending it. The minimum is 1000 by default. This is in milliseconds.
 
 newtabTrainhop:
   description: Experiment feature for the train-hopping newtab extension.
@@ -1399,63 +1339,6 @@ newtabTrainhop:
     payload:
       type: json
       description: The experiment configuration.
-
-newtabMerinoOhttp:
-  description: Sending request to merino over OHTTP in newtab
-  owner: nbarrett@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystrean.merino-provider.ohttp.enabled
-      description: >-
-        Enables using OHTTP for merino content requests
-
-newtabMarsOhttp:
-  description: Sending request to MARS over OHTTP in newtab
-  owner: nbarrett@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.unifiedAds.ohttp.enabled
-      description: >-
-        Enables using OHTTP for unified ads API requests
-
-newtabRefinedCardsLayout:
-  description: Enable layout and styling refinements for content and ad cards across different card sizes
-  owner: rhamoui@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.refinedCardsLayout.enabled
-      description: Enables the refined cards layout for newtab
-
-newtabTrendingSearchWidget:
-  description: >-
-      Adds trending search results widget to new tab
-  owner: nbarrett@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.trendingSearch.enabled
-      description: Enables the refined cards layout for newtab
-    variant:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.trendingSearch.variant
-      description: Determines the layout variant for the trending search widget
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -1623,6 +1506,13 @@ pocketNewtab:
         pref: browser.newtabpage.activity-stream.newtabWallpapers.enabled
       description: >-
         Turns on and off wallpaper support.
+    wallpapersV2:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.v2.enabled
+      description: >-
+        Turns on and off updated wallpaper experience.
     wallpapersHighlightEnabled:
       type: boolean
       setPref:
@@ -1816,26 +1706,12 @@ pocketNewtab:
         pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.searchTopsitesCompact
       description: >-
         Change the layout of the sections to be more compact to account for the added card height with the thumbs up/down enabled.
-    prefsSponsoredCheckboxes:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.sponsoredCheckboxes.group
-      description: >-
-        When true, checkboxes for sponsored results in top sites and recommended stories are grouped separately
-        on about:preferences#home
 
 saveToPocket:
   description: The save to Pocket feature
   owner: sdowne@mozilla.com
   hasExposure: false
   variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: extensions.pocket.enabled
-      description: Enabled save to Pocket feature.
     emailButton:
       type: boolean
       setPref:
@@ -2233,7 +2109,7 @@ fxms-message-11:
   variables: {}
 
 fxms-message-12:
-  description: "Firefox Messaging System message 12 - ONLY for Fx140+ targeting"
+  description: "Firefox Messaging System message 12"
   owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
@@ -2244,7 +2120,7 @@ fxms-message-12:
   variables: {}
 
 fxms-message-13:
-  description: "Firefox Messaging System message 13 - ONLY for Fx140+ targeting"
+  description: "Firefox Messaging System message 13"
   owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
@@ -2255,7 +2131,7 @@ fxms-message-13:
   variables: {}
 
 fxms-message-14:
-  description: "Firefox Messaging System message 14 - ONLY for Fx140+ targeting"
+  description: "Firefox Messaging System message 14"
   owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
@@ -2266,7 +2142,7 @@ fxms-message-14:
   variables: {}
 
 fxms-message-15:
-  description: "Firefox Messaging System message 15 - ONLY for Fx140+ targeting"
+  description: "Firefox Messaging System message 15"
   owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
@@ -2375,8 +2251,11 @@ glean:
   description: "The Glean data-control-plane feature within Firefox Desktop for controlling metric configuration"
   owner: glean-team@mozilla.com
   hasExposure: false
-  allowCoenrollment: true
   variables:
+    newtabPingEnabled:
+      type: "boolean"
+      fallbackPref: "browser.newtabpage.ping.enabled"
+      description: "Whether to submit the 'newtab' ping"
     gleanMetricConfiguration:
       type: json
       description: |
@@ -2570,6 +2449,30 @@ networking:
   owner: vgosu@mozilla.com
   hasExposure: false
   variables:
+    ehPreloadEnabled:
+      description: Whether Early Hints preload is enabled
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.early-hints.enabled"
+    ehPreconnectEnabled:
+      description: Whether Early Hints preconnect is enabled
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.early-hints.preconnect.enabled"
+    dnsMaxPriorityThreads:
+      description: The maximum number of high priority DNS threads that can be created.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dns.max_high_priority_threads"
+    dnsMaxAnyPriorityThreads:
+      description: The maximum number of DNS threads that can be created to handle any priority DNS requests.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dns.max_any_priority_threads"
     preconnect:
       description: Whether the rel=preconnect feature is enabled
       type: boolean
@@ -2588,103 +2491,6 @@ networking:
       setPref:
         branch: default
         pref: "network.http.http3.cc_algorithm"
-    enableOffMainThreadStreamDecompression:
-      description: Whether to enable decompression of network streams off-main-thread
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.decompression_off_mainthread2"
-    offMainThreadStreamDecompressionThreshold:
-      description: Minimum content length for off-main-thread decompression
-      type: int
-      setPref:
-        branch: default
-        pref: "network.decompression_off_mainthread_min_size"
-    dnsGracePeriod:
-      description: The grace period allows the DNS cache to use expired entries, while kicking off a revalidation in the background.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dnsCacheExpirationGracePeriod"
-    http3UseNSPRForIO:
-      description: true by default using legacy UDP IO via NSPR. When set to false, uses new UDP IO via Fast UDP for Firefox project.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.http.http3.use_nspr_for_io"
-
-networkingEarlyHints:
-  description: "Networking (Necko) Early Hints"
-  owner: vgosu@mozilla.com
-  hasExposure: false
-  variables:
-    ehPreloadEnabled:
-      description: Whether Early Hints preload is enabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.early-hints.enabled"
-    ehPreconnectEnabled:
-      description: Whether Early Hints preconnect is enabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.early-hints.preconnect.enabled"
-
-networkingDNS:
-  description: "Networking (Necko) DNS"
-  owner: vgosu@mozilla.com
-  hasExposure: false
-  variables:
-    dnsMaxPriorityThreads:
-      description: The maximum number of high priority DNS threads that can be created.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dns.max_high_priority_threads"
-    dnsMaxAnyPriorityThreads:
-      description: The maximum number of DNS threads that can be created to handle any priority DNS requests.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dns.max_any_priority_threads"
-    maxDnsCacheEntries:
-      description: This is the number of dns cache entries allowed
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dnsCacheEntries"
-
-networkingConnections:
-  description: "Networking (Necko) Connections"
-  owner: vgosu@mozilla.com
-  hasExposure: false
-  variables:
-    httpMaxConnections:
-      description: The maximum number of http connections.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.http.max-connections"
-    httpMaxPersistentConnectionsPerServer:
-      description: The maximum number of persistent connections to a server
-      type: int
-      setPref:
-        branch: default
-        pref: "network.http.max-persistent-connections-per-server"
-    speculativeConnectionLimit:
-      description: The maximum number of half-open sockets allowed for speculative connections
-      type: int
-      setPref:
-        branch: default
-        pref: "network.http.speculative-parallel-limit"
-
-
-networkingSendOnDataFinished:
-  description: "Networking (Necko) OnDataFinished"
-  owner: vgosu@mozilla.com
-  hasExposure: false
-  variables:
     sendOnDataFinished:
       description: Whether we can send OnDataFinished in the content process
       type: boolean
@@ -2709,18 +2515,72 @@ networkingSendOnDataFinished:
       setPref:
         branch: default
         pref: "network.send_OnDataFinished.cssLoader"
-
-networkingBannedPorts:
-  description: "Networking (Necko) Banned Ports"
-  owner: vgosu@mozilla.com
-  hasExposure: false
-  variables:
-    bannedPortList:
-      description: A comma-separated list of ports that Firefox will refuse to connect to. These ports will be appended to nsIOService gBadPortList
-      type: string
+    enableOffMainThreadStreamDecompression:
+      description: Whether to enable decompression of network streams off-main-thread
+      type: boolean
       setPref:
         branch: default
-        pref: "network.security.ports.banned"
+        pref: "network.decompression_off_mainthread2"
+    offMainThreadStreamDecompressionThreshold:
+      description: Minimum content length for off-main-thread decompression
+      type: int
+      setPref:
+        branch: default
+        pref: "network.decompression_off_mainthread_min_size"
+    httpMaxConnections:
+      description: The maximum number of http connections.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.max-connections"
+    httpMaxPersistentConnectionsPerServer:
+      description: The maximum number of persistent connections to a server
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.max-persistent-connections-per-server"
+    speculativeConnectionLimit:
+      description: The maximum number of half-open sockets allowed for speculative connections
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.speculative-parallel-limit"
+    chipsPartitionLimitEnabled:
+      description: Whether we enforce CHIPS partition limit
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.chips.partitionLimitEnabled"
+    chipsPartitionLimitDryRun:
+      description: Whether we actually perform purging/rejection, used to report telemetry without webcompat issues
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.chips.partitionLimitDryRun"
+    chipsPartitionLimitByteCapacity:
+      description: The actual value of the CHIPS partition limit in bytes
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.chips.partitionLimitByteCapacity"
+    dnsGracePeriod:
+      description: The grace period allows the DNS cache to use expired entries, while kicking off a revalidation in the background.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dnsCacheExpirationGracePeriod"
+    maxDnsCacheEntries:
+      description: This is the number of dns cache entries allowed
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dnsCacheEntries"
+    http3UseNSPRForIO:
+      description: true by default using legacy UDP IO via NSPR. When set to false, uses new UDP IO via Fast UDP for Firefox project.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.use_nspr_for_io"
 
 essentialFallbackDomains:
   description: "Whether to retry failing system requests with a backup domain"
@@ -3750,12 +3610,6 @@ gc:
       setPref:
         branch: user
         pref: "javascript.options.mem.nursery_eager_collection_timeout_ms"
-    nursery_max_time_goal_ms:
-      description: Set the nursery's maximum time goal, in ms.
-      type: int
-      setPref:
-        branch: user
-        pref: "javascript.options.mem.nursery_max_time_goal_ms"
 
 jsParallelParsing:
   description: Pref to toggle JS parallel parsing.
@@ -3834,6 +3688,72 @@ raceCacheWithNetwork:
       setPref:
         branch: default
         pref: "network.http.rcwn.enabled"
+
+shopping2023:
+  description: Prefs to control the 2023 shopping experiment.
+  owner: jhirsch@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    The timing of the exposure event depends on the experiment, but generally
+    the event is recorded when the user first encounters onboarding UI for
+    the shopping feature.
+  variables:
+    enabled:
+      description: True if the shopping sidebar is enabled (experimental treatment group)
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.shopping.experience2023.enabled
+    control:
+      description: True if the experiment is enabled but experience is disabled (experimental control group)
+      type: boolean
+      fallbackPref: browser.shopping.experience2023.control
+    integratedSidebar:
+      description: True if the integrated sidebar is enabled.
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.shopping.experience2023.integratedSidebar
+    adsEnabled:
+      description: True if showing recommended products is enabled
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.shopping.experience2023.ads.enabled
+    adsExposure:
+      description: True if we want to record ad inventory for opted-in users, even if ads are disabled
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.shopping.experience2023.ads.exposure
+    surveyEnabled:
+      description: True if showing survey is enabled
+      type: boolean
+      fallbackPref: browser.shopping.experience2023.survey.enabled
+    autoOpenEnabled:
+      description: True if auto-open behavior for the sidebar is enabled
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.shopping.experience2023.autoOpen.enabled
+
+shoppingOHTTP:
+  description: Prefs to control the OHTTP URLs used for shopping.
+  owner: gijs@mozilla.com
+  hasExposure: false
+  variables:
+    ohttpRelayURL:
+      description: What OHTTP relay URL to use
+      type: string
+      setPref:
+        branch: default
+        pref: toolkit.shopping.ohttpRelayURL
+    ohttpConfigURL:
+      description: URL for the OHTTP config to use
+      type: string
+      setPref:
+        branch: default
+        pref: toolkit.shopping.ohttpConfigURL
 
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
@@ -4504,12 +4424,6 @@ linkPreviews:
         branch: user
         pref: browser.ml.linkPreview.enabled
       description: If true, will show previews when over link and keyboard shortcut is pressed
-    prefs:
-      type: json
-      description: >-
-        The prefs to set under browser.ml.linkPreview.* with object keys as the
-        sub-pref and values objects indicating the desired branch and value
-        defaulting to clearing the user branch value.
 
 sidebar:
   description: Sidebar feature configuration
@@ -4722,24 +4636,6 @@ partitioned-cookie-attribute:
       setPref:
         branch: default
         pref: network.cookie.CHIPS.migrateDatabaseTarget
-    chipsPartitionLimitEnabled:
-      description: Whether we enforce CHIPS partition limit
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitEnabled"
-    chipsPartitionLimitDryRun:
-      description: Whether we actually perform purging/rejection, used to report telemetry without webcompat issues
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitDryRun"
-    chipsPartitionLimitByteCapacity:
-      description: The actual value of the CHIPS partition limit in bytes
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.chips.partitionLimitByteCapacity"
 
 auto-pip:
   description: "Automatic Picture-in-Picture"
@@ -4852,31 +4748,3 @@ expandSignInButton:
           - fxa-avatar-sign-up
         empty will be assumed default experience
       type: string
-
-contextID:
-  description: >-
-    Controls the behaviour of the context ID, which is a unique identifier used
-    by Contextual Services.
-  owner: mconley@mozilla.com
-  hasExposure: false
-  variables:
-    rotationPeriodInDays:
-      type: int
-      setPref:
-        branch: user
-        pref: "browser.contextual-services.contextId.rotation-in-days"
-      description: >-
-        The number of days since the creation of the context ID after which the
-        context ID should be regenerated. Set to 0 to disable rotation. This
-        value only takes effect if rustBackendEnabled is also true, otherwise
-        no rotation will occur regardless of the value.
-
-        This setting will only be applied after the next restart.
-    rustBackendEnabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: "browser.contextual-services.contextId.rust-component.enabled"
-      description: >-
-        Enables the Rust component backend for ContextId.sys.mjs, which is
-        a prerequisite for doing rotations.

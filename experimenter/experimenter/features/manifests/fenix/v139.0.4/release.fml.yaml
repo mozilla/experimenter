@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - nightly
+  - release
 features:
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
@@ -26,21 +26,6 @@ features:
           amp: true
           ampMobile: false
           wikipedia: true
-  baseline-fpp:
-    description: Control Baseline Fingerprinting Protection
-    variables:
-      enabled:
-        description: Enables / disables baseline fingerprinting protection.
-        type: Boolean
-        default: true
-      feat-enabled:
-        description: "If true, the feature is active."
-        type: Boolean
-        default: false
-      overrides:
-        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string."
-        type: String
-        default: ""
   bookmarks:
     description: Feature for Bookmarks
     variables:
@@ -61,7 +46,7 @@ features:
       enabled:
         description: "Whether or not to turn on the compose homepage.\n"
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -75,17 +60,6 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
-  doh:
-    description: Feature controlling DNS over HTTPS (DoH).
-    variables:
-      autoselect-enabled:
-        description: "Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.\n"
-        type: Boolean
-        default: false
-      show-ui:
-        description: "When `true`, include DoH settings in the settings UI.\n"
-        type: Boolean
-        default: false
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
@@ -117,7 +91,7 @@ features:
         type: Boolean
         default: false
       overrides:
-        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.\n"
+        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets.\n"
         type: String
         default: ""
   fission:
@@ -137,7 +111,7 @@ features:
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -168,14 +142,7 @@ features:
       enabled:
         description: "If true, the feature is active"
         type: Boolean
-        default: false
-  homepage-as-new-tab:
-    description: Enables homepage as a a new tab.
-    variables:
-      enabled:
-        description: "Whether or not to enable homepage as a new tab\n"
-        type: Boolean
-        default: false
+        default: true
   homepage-hide-frecent-top-sites:
     description: Hides frecent top sites on the homepage.
     variables:
@@ -236,7 +203,7 @@ features:
             ordering: 1
             prerequisites:
               - ALWAYS
-            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label_2
+            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label
             secondary-button-label: ""
             title: onboarding_welcome_to_firefox
           default-browser:
@@ -383,7 +350,14 @@ features:
       report-site-issue:
         description: "If true, report site issue menu item and preview is available."
         type: Boolean
-        default: true
+        default: false
+  merino-recommendations:
+    description: Sets the recommendations provider service to Merino.
+    variables:
+      enabled:
+        description: "Whether or not to enable Merino endpoint to serve recommendations.\n"
+        type: Boolean
+        default: false
   messaging:
     description: "The in-app messaging system.\n"
     variables:
@@ -456,29 +430,6 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example-nightly:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-              - RECENTLY_PRINTED
-            style: MICROSURVEY
-            microsurvey-config:
-              utm-content: homepage
-              icon: ic_print
-              answers:
-                - text: likert_scale_option_1
-                  ordering: 0
-                - text: likert_scale_option_2
-                  ordering: 1
-                - text: likert_scale_option_3
-                  ordering: 2
-                - text: likert_scale_option_4
-                  ordering: 3
-                - text: likert_scale_option_5
-                  ordering: 4
-                - text: likert_scale_option_6
-                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -587,7 +538,7 @@ features:
       enabled:
         description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
         type: Boolean
-        default: true
+        default: false
   networking:
     description: Enables networking features
     variables:
@@ -595,13 +546,6 @@ features:
         description: "Enables or disables network.fetchpriority.enabled preference.\n"
         type: Boolean
         default: true
-  networkingBannedPorts:
-    description: Networking (Necko) Banned Ports
-    variables:
-      bannedPortList:
-        description: A comma-separated list of ports that Firefox will refuse to connect to. These ports will be appended to nsIOService gBadPortList
-        type: Text
-        default: ""
   nimbus-is-ready:
     description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
     variables:
@@ -667,14 +611,14 @@ features:
       certificateTransparencyMode:
         description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
         type: Int
-        default: 2
+        default: 0
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
       postQuantumKeyExchangeEnabled:
         description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
-        type: Option<Boolean>
-        default: ~
+        type: Boolean
+        default: false
   print:
     description: A feature for printing from the share or browser menu.
     variables:
@@ -693,13 +637,6 @@ features:
         description: "if true, enable felt privacy related UI"
         type: Boolean
         default: false
-  private-browsing-lock:
-    description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
-    variables:
-      enabled:
-        description: "Whether or not to enable private browsing mode lock.\n"
-        type: Boolean
-        default: true
   query-parameter-stripping:
     description: Features for query parameter stripping.
     variables:
@@ -739,7 +676,7 @@ features:
       enabled:
         description: "Uses search configuration from remote servers .\n"
         type: Boolean
-        default: true
+        default: false
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:
@@ -747,17 +684,6 @@ features:
         description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
         type: Boolean
         default: true
-  same-document-navigation-overrides-load-type:
-    description: Control whether the same document navigation overrides the load type.
-    variables:
-      enabled:
-        description: "Overrides the loadType when it is a same document navigation\n"
-        type: Boolean
-        default: false
-      force-disable-uri:
-        description: "Disable overriding the loadType during same document navigation on the domain specified by this URI.\n"
-        type: String
-        default: ""
   search-extra-params:
     description: A feature that provides additional args for search.
     variables:
@@ -790,7 +716,7 @@ features:
       enabled:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
-        default: true
+        default: false
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
@@ -827,7 +753,7 @@ features:
       disabled:
         description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
@@ -856,7 +782,7 @@ features:
       enabled:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
-        default: true
+        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -990,6 +916,8 @@ enums:
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
+      add-ons:
+        description: Allows user to install add-ons from onboarding.
       add-search-widget:
         description: Allows user to add search widget to homescreen.
       default-browser:
@@ -1063,6 +991,37 @@ enums:
       toolbar-top:
         description: Sets the toolbar placement on the top.
 objects:
+  AddOnData:
+    description: An object to describe an add-on to be installed from the onboarding card.
+    fields:
+      average-rating:
+        description: The average rating of the add-on.
+        type: String
+        default: "0.0"
+      description:
+        description: A small description of the add-on to be displayed to the user.
+        type: Text
+        default: ""
+      icon-res:
+        description: The resource id of the icon of the add-on to be displayed.
+        type: Image
+        default: ic_onboarding_welcome
+      id:
+        description: The identifier for this add-on.
+        type: Text
+        default: ""
+      install-url:
+        description: The url from where the add-on can be installed.
+        type: Text
+        default: ""
+      name:
+        description: The name of the add-on to be displayed to the user.
+        type: Text
+        default: ""
+      review-count:
+        description: The amount of reviews the add-on has.
+        type: String
+        default: "0.0"
   CustomizationThemeData:
     description: Defines an option for theme selection.
     fields:
@@ -1094,8 +1053,12 @@ objects:
         type: ToolbarType
         default: toolbar-top
   ExtraCardData:
-    description: "Holds data for cards that require additional data, e.g. toolbar placement cards."
+    description: "Holds data for cards that require additional data, e.g. add-ons, toolbar placement cards."
     fields:
+      add-ons-data:
+        description: "An optional list of add-ons which will be shown in add-on onboarding card.\n"
+        type: List<AddOnData>
+        default: []
       customization-theme-data:
         description: An optional list of theme choices for the theme selection card.
         type: List<CustomizationThemeData>
