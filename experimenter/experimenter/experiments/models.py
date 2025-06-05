@@ -732,15 +732,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def review_messages(self):
         if self.status_next == self.Status.COMPLETE and self.is_rollout:
-            return NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT
+            return NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT.value
         elif self.status_next == self.Status.COMPLETE:
-            return NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT
+            return NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value
         elif self.is_paused:
-            return NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT
+            return NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value
         elif self.is_rollout and self.is_rollout_dirty:
-            return NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT
+            return NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT.value
         else:
-            return NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT
+            return NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value
 
     @property
     def remote_settings_pending_message(self):
