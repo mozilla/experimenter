@@ -3825,7 +3825,7 @@ class TestNimbusExperiment(TestCase):
         block = experiment.rejection_block
         self.assertIsNotNone(block)
         self.assertEqual(
-            block["action"], NimbusUIConstants.REVIEW_REQUEST_MESSAGES[expected_flow_key]
+            block["action"], NimbusUIConstants.ReviewRequestMessages[expected_flow_key]
         )
         self.assertEqual(
             block["email"], experiment.changes.latest_rejection().changed_by.email
