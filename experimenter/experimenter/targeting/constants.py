@@ -666,6 +666,24 @@ URLBAR_FIREFOX_SUGGEST_SPONSORED_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+URLBAR_FIREFOX_SUGGEST_SPONSORED_ENABLED_AND_4GB_RAM_MIN = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Sponsored Suggestions Enabled and 4GB+ of RAM",
+    slug="urlbar_firefox_suggest_sponsored_enabled_and_atleast_4GB_ram",
+    description=(
+        "Users with sponsored Firefox Suggest suggestions enabled and at least 4GB of RAM"
+        "(IMPORTANT: You must restrict 'Locales' to one or more Suggest "
+        "locales when using this!)"
+    ),
+    targeting=(
+        "(!('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) || "
+        "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue) && memoryMB >= 4000"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 MAC_ONLY = NimbusTargetingConfig(
     name="Mac OS users only",
     slug="mac_only",
