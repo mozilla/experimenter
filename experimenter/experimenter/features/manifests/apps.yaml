@@ -41,7 +41,7 @@ firefox_ios:
     strategies:
       - type: "tagged"
         branch_re: 'release/v(?P<major>\d+)(?:\.(?P<minor>\d+))?'
-        tag_re: 'v(?P<major>\d+)\.(?P<minor>\d+)'
+        tag_re: 'firefox-v(?P<major>\d+)\.(?P<minor>\d+)'
       - type: "branched"
 
 focus_android:
