@@ -664,6 +664,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.application == self.Application.DESKTOP
 
     @property
+    def is_mobile(self):
+        return self.Application.is_mobile(self.application)
+
+    @property
     def is_draft(self):
         return (
             self.status == self.Status.DRAFT
@@ -729,6 +733,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.PublishStatus.APPROVED,
             self.PublishStatus.WAITING,
         ) and self.can_review(reviewer)
+
+    @property
+    def rejection_block(self):
+        rejection = self.changes.latest_rejection()
+        if not rejection:
+            return None
+
+        flow_key = None
+        if rejection.old_status == self.Status.DRAFT:
+            flow_key = "LAUNCH_EXPERIMENT"
+        elif rejection.old_status == self.Status.LIVE:
+            if rejection.old_status_next == self.Status.LIVE:
+                flow_key = "END_ENROLLMENT"
+            else:
+                flow_key = "END_EXPERIMENT"
+
+        return {
+            "action": NimbusUIConstants.REVIEW_REQUEST_MESSAGES[flow_key],
+            "email": rejection.changed_by.email,
+            "date": rejection.changed_on,
+            "message": rejection.message,
+        }
 
     def review_messages(self):
         if self.status_next == self.Status.COMPLETE and self.is_rollout:
@@ -947,8 +973,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_end_date(self):
+        if self.status == self.Status.DRAFT:
+            return None
+
         if self._computed_end_date:
             return self._computed_end_date
+
         end_date = self._get_computed_end_date()
         self.update_computed_end_date(end_date)
         return end_date

@@ -191,7 +191,6 @@ features:
           OPEN_SETTINGS_PRIVACY: "://deep-link?url=settings/clear-private-data"
           OPEN_SETTINGS_FXA: "://deep-link?url=settings/fxa"
           OPEN_SETTINGS_THEME: "://deep-link?url=settings/theme"
-          OPEN_SETTINGS_APP_ICON: "://deep-link?url=settings/app-icon"
           OPEN_URL: "://open-url"
           VIEW_BOOKMARKS: "://deep-link?url=homepanel/bookmarks"
           VIEW_TOP_SITES: "://deep-link?url=homepanel/top-sites"
@@ -622,14 +621,10 @@ features:
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
-      animation-feature:
-        description: "If true, enables the tab tray animation feature, that occurs when the tab tray opens and closes.\n"
-        type: Boolean
-        default: false
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
-        default: false
+        default: true
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:

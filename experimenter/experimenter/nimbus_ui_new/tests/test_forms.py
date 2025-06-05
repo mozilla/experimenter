@@ -1,3 +1,4 @@
+import datetime
 import json
 from unittest.mock import patch
 
@@ -678,13 +679,17 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("moved the experiment back to Draft", changelog.message)
         self.mock_preview_task.assert_called_once_with(countdown=5)
 
-    def test_review_to_draft_form(self):
+    def test_review_to_draft_form_with_changelog_message(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = NimbusExperiment.Status.LIVE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.save()
 
-        form = ReviewToDraftForm(data={}, instance=self.experiment, request=self.request)
+        form = ReviewToDraftForm(
+            data={"changelog_message": "Needs further updates."},
+            instance=self.experiment,
+            request=self.request,
+        )
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -694,7 +699,31 @@ class TestLaunchForms(RequestFormTestCase):
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
-        self.assertIn("cancelled the review", changelog.message)
+        self.assertIn(
+            "rejected the review with reason: Needs further updates.", changelog.message
+        )
+
+    def test_review_to_draft_form_with_cancel_message(self):
+        self.experiment.status = NimbusExperiment.Status.DRAFT
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.save()
+
+        form = ReviewToDraftForm(
+            data={"cancel_message": "Review was withdrawn by the user."},
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(f"{self.user} Review was withdrawn by the user.", changelog.message)
 
     def test_review_to_approve_form(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -1317,6 +1346,54 @@ class TestAudienceForm(RequestFormTestCase):
                 parent_experiment=experiment, child_experiment=required, branch_slug=None
             ).exists()
         )
+
+    def test_mobile_first_run_saves(self):
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            proposed_release_date=None,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            total_enrolled_clients=0,
+            is_sticky=False,
+            is_first_run=False,
+            countries=[],
+            locales=[],
+            languages=[],
+        )
+
+        form = AudienceForm(
+            instance=experiment,
+            data={
+                "changelog_message": "test changelog message",
+                "channel": NimbusExperiment.Channel.BETA,
+                "countries": [],
+                "excluded_experiments_branches": [],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "is_sticky": True,
+                "is_first_run": True,
+                "languages": [],
+                "locales": [],
+                "population_percent": 10,
+                "proposed_duration": 120,
+                "proposed_enrollment": 42,
+                "proposed_release_date": "2023-01-01",
+                "required_experiments_branches": [],
+                "targeting_config_slug": (NimbusExperiment.TargetingConfig.FIRST_RUN),
+                "total_enrolled_clients": 100,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        self.assertTrue(experiment.is_first_run)
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 1, 1))
 
     def test_archived_required_or_excluded_is_invalid(self):
         country = CountryFactory.create()
