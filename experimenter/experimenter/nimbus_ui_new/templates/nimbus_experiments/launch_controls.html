@@ -144,8 +144,13 @@
            rel="noopener noreferrer">Open Remote Settings</a>
       </div>
     {% elif experiment.is_review %}
-      {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Launch Experiment" approval_url="nimbus-new-review-to-approve" cancel_reject_url="nimbus-new-review-to-draft" experiment=experiment %}
+      {% if experiment.is_rollout %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Launch Rollout" approval_url="nimbus-new-review-to-approve" cancel_reject_url="nimbus-new-review-to-draft" experiment=experiment %}
 
+      {% else %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Launch Experiment" approval_url="nimbus-new-review-to-approve" cancel_reject_url="nimbus-new-review-to-draft" experiment=experiment %}
+
+      {% endif %}
     {% elif experiment.is_enrolling or experiment.is_observation %}
       {% if experiment.is_rollout_update_requested %}
         {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Update Rollout" approval_url="nimbus-new-approve-update-rollout" cancel_reject_url="nimbus-new-cancel-update-rollout" experiment=experiment %}

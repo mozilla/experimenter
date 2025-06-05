@@ -3728,21 +3728,31 @@ class TestNimbusExperiment(TestCase):
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
                 NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value,
+                True,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
                 NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value,
+                False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
                 NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value,
+                False,
             ),
         ]
     )
     def test_remote_settings_pending_message_with_lifecycless(
-        self, lifecycle, expected_message
+        self, lifecycle, expected_message, is_rollout
     ):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=is_rollout
+        )
         self.assertEqual(experiment.remote_settings_pending_message, expected_message)
 
     @parameterized.expand(
@@ -3751,6 +3761,11 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
                 NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
                 False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value,
+                True,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
@@ -3808,7 +3823,7 @@ class TestNimbusExperiment(TestCase):
         expected_flow_key,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
 
         experiment.status = status

@@ -68,6 +68,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         END_EXPERIMENT = "end this experiment"
         END_ENROLLMENT = "end enrollment for this experiment"
         LAUNCH_EXPERIMENT = "launch this experiment"
+        LAUNCH_ROLLOUT = "launch this rollout"
         UPDATE_ROLLOUT = "update this rollout"
         END_ROLLOUT = "end this rollout"
 

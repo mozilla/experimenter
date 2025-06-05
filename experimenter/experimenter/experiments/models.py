@@ -765,6 +765,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value
         elif self.is_rollout and self.is_rollout_dirty:
             return NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT.value
+        elif self.is_rollout:
+            return NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value
         else:
             return NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value
 
