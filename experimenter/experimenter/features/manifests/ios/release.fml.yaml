@@ -87,6 +87,13 @@ features:
         type: GeneralFeature
         default:
           status: false
+  hnt-bookmarks-section-feature:
+    description: This feature manages the visibility of the bookmarks section of the homepage and the respective toggle in the homepage settings
+    variables:
+      enabled:
+        description: "Setting 'enabled' to false will hide the bookmarks section of the homepage and disable the respective toggle in the homepage settings"
+        type: Boolean
+        default: true
   hnt-content-feed-cleanup-feature:
     description: "Controls updates for the content feed\n"
     variables:
@@ -94,6 +101,20 @@ features:
         description: "Whether or not the feature is enabled\n"
         type: Boolean
         default: false
+  hnt-customization-section-feature:
+    description: This feature manages the visibility of the homepage customization section of the homepage
+    variables:
+      enabled:
+        description: "Setting 'enabled' to false will hide the homepage customization section of the homepage"
+        type: Boolean
+        default: true
+  hnt-jump-back-in-section-feature:
+    description: This feature manages the visibility of the jump back in and synced tabs section of the homepage and the respective toggle in the homepage settings
+    variables:
+      enabled:
+        description: "Setting 'enabled' to false will hide the jump back in and synced tabs section of the homepage and disable the respective toggle in the homepage settings"
+        type: Boolean
+        default: true
   hnt-top-sites-visual-refresh-feature:
     description: This feature manages the top sites visual refresh.
     variables:
