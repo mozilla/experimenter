@@ -94,6 +94,8 @@ experimenter/experimenter/reporting/reporting-ui/assets/
 .tmontmp
 experimenter/coverage_html_report/
 experimenter/tests/integration/test-reports/
+junit.xml
+**/coverage_report/
 
 # Dependencies
 node_modules

@@ -487,6 +487,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_detail_preview_recipe_json_url(self):
         return f"{self.get_detail_url()}#preview-recipe-json"
 
+    def get_results_url(self):
+        return reverse("nimbus-new-results", kwargs={"slug": self.slug})
+
     @property
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
@@ -1364,6 +1367,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def show_results_url(self):
         return self.has_displayable_results and self.results_ready and not self.is_rollout
+
+    @property
+    def disable_results_link(self):
+        return not self.show_results_url
 
     @property
     def results_expected_date(self):

@@ -506,3 +506,7 @@ class CancelEndEnrollmentView(StatusUpdateView):
 
 class CancelEndExperimentView(StatusUpdateView):
     form_class = CancelEndExperimentForm
+
+
+class ResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results.html"
