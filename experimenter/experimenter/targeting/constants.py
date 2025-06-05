@@ -65,7 +65,9 @@ ACCEPTED_TOU_IN_PARTIAL_ON_TRAIN_ROLLOUT = """
     'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue == 2
 )
 """
-ACCEPTED_TOU_V1 = "'termsofuse.acceptedVersion'|preferenceValue == 1"
+# After an upcoming pref migration, users who accepted the initial version of
+# the TOU will have termsofuse.acceptedVersion set to 4
+ACCEPTED_TOU_V4 = "'termsofuse.acceptedVersion'|preferenceValue == 4"
 ACCEPTED_TOU = f"""
 (
     {ACCEPTED_TOU_IN_NIMBUS_EXPERIMENT}
@@ -74,7 +76,7 @@ ACCEPTED_TOU = f"""
     ||
     {ACCEPTED_TOU_IN_PARTIAL_ON_TRAIN_ROLLOUT}
     ||
-    {ACCEPTED_TOU_V1}
+    {ACCEPTED_TOU_V4}
 )
 """
 TOU_NOTIFICATION_BYPASS_ENABLED = """
@@ -87,20 +89,14 @@ TOU_NOTIFICATION_BYPASS_ENABLED = """
 
 # The following indicate whether the user has changed prefs suggesting
 # they prefer not to see ads or ad-like features
-NEW_TAB_AND_HOMEPAGE_NOT_DEFAULT = """
+NEW_TAB_NOT_DEFAULT = """
 (
-    (
-        !newtabSettings.isDefault
-        ||
-        !'browser.newtabpage.enabled'|preferenceValue
-    )
-    &&
-    !homePageSettings.isDefault
+    !newtabSettings.isDefault
+    ||
+    !'browser.newtabpage.enabled'|preferenceValue
 )
 """
-SPONSORED_SEARCH_SUGGESTIONS_DISABLED = (
-    "!'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
-)
+HOMEPAGE_NOT_DEFAULT = "!homePageSettings.isDefault"
 TOPSITES_OR_SPONSORED_TOPSITES_DISABLED = """
 (
     !'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue
@@ -108,28 +104,27 @@ TOPSITES_OR_SPONSORED_TOPSITES_DISABLED = """
     !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
 )
 """
-SPONSORED_STORIES_DISABLED = """
+RECOMMENDED_OR_SPONSORED_STORIES_DISABLED = """
 (
     !'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue
     ||
     !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
 )
 """
+SPONSORED_SEARCH_SUGGESTIONS_DISABLED = (
+    "!'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
+)
 ADS_DISABLED = f"""
 (
-    (
-        {NEW_TAB_AND_HOMEPAGE_NOT_DEFAULT}
-        &&
-        {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
-    )
+    {NEW_TAB_NOT_DEFAULT}
     ||
-    (
-        {TOPSITES_OR_SPONSORED_TOPSITES_DISABLED}
-        &&
-        {SPONSORED_STORIES_DISABLED}
-        &&
-        {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
-    )
+    {HOMEPAGE_NOT_DEFAULT}
+    ||
+    {TOPSITES_OR_SPONSORED_TOPSITES_DISABLED}
+    ||
+    {RECOMMENDED_OR_SPONSORED_STORIES_DISABLED}
+    ||
+    {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
 )
 """
 
