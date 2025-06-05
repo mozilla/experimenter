@@ -585,6 +585,13 @@ features:
         description: "Enables or disables network.fetchpriority.enabled preference.\n"
         type: Boolean
         default: true
+  networkingBannedPorts:
+    description: Networking (Necko) Banned Ports
+    variables:
+      bannedPortList:
+        description: A comma-separated list of ports that Firefox will refuse to connect to. These ports will be appended to nsIOService gBadPortList
+        type: String
+        default: ""
   nimbus-is-ready:
     description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
     variables:
