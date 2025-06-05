@@ -1371,7 +1371,13 @@ newtabPrivatePing:
         pref: browser.newtabpage.activity-stream.telemetry.privatePing.inferred.enabled
       description: >-
         Includes a differentially private intrest vector of general topical interests based on New Tab clicks. Only sent when user has enabled personalization.
-
+    maxSubmissionDelayMs:
+      type: int
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.maxSubmissionDelayMs
+      description: >-
+        The maximum range for the random delay from scheduling the newtab-content ping to actually sending it. The minimum is 1000 by default. This is in milliseconds.
 
 newtabTrainhop:
   description: Experiment feature for the train-hopping newtab extension.
@@ -1788,7 +1794,7 @@ pocketNewtab:
       type: boolean
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.sponsoredCheckboxes.group
+        pref: browser.newtabpage.activity-stream.system.sponsoredCheckboxes
       description: >-
         When true, checkboxes for sponsored results in top sites and recommended stories are grouped separately
         on about:preferences#home
