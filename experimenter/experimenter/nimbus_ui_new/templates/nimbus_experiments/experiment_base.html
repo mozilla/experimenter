@@ -16,6 +16,9 @@
       <span class="{{ experiment.qa_status_badge_class }}">
         QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
       </span>
+      {% if experiment.is_rollout_dirty %}
+        <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
+      {% endif %}
       <p class="text-secondary mb-0">{{ experiment.slug }}</p>
       {% if experiment.parent %}
         <p class="text-secondary small">

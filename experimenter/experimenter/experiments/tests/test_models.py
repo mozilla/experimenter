@@ -3720,15 +3720,15 @@ class TestNimbusExperiment(TestCase):
         [
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT,
             ),
         ]
     )
@@ -3742,20 +3742,37 @@ class TestNimbusExperiment(TestCase):
         [
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT,
+                False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT,
+                False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_REVIEW_REQUESTED,
+                NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT,
+                True,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+                NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT,
+                True,
             ),
         ]
     )
-    def test_review_messages_and_action_type(self, lifecycle, expected_message):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+    def test_review_messages_and_action_type(
+        self, lifecycle, expected_message, is_rollout
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=is_rollout
+        )
         self.assertEqual(experiment.review_messages(), expected_message)
 
 
