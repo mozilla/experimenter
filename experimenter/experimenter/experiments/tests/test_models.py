@@ -3727,15 +3727,15 @@ class TestNimbusExperiment(TestCase):
         [
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
-                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
-                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT,
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
-                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT,
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value,
             ),
         ]
     )
@@ -3749,27 +3749,27 @@ class TestNimbusExperiment(TestCase):
         [
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
-                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
                 False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
-                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT,
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value,
                 False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
-                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT,
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value,
                 False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_REVIEW_REQUESTED,
-                NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT,
+                NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT.value,
                 True,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
-                NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT,
+                NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT.value,
                 True,
             ),
         ]
