@@ -14,9 +14,10 @@ COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml $$(
 COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --name experimenter_integration
 DOCKER_BUILD = docker buildx build
 
+WORKFLOW := build
 EPOCH_TIME := $(shell date +"%s")
-TEST_RESULTS_DIR ?= dashboard/test-results
-TEST_FILE_PREFIX := $(if $(CIRCLECI),$(CIRCLE_BUILD_NUM)__$(EPOCH_TIME)__$(CIRCLE_PROJECT_REPONAME)__$(CIRCLE_WORKFLOW_ID)__)
+TEST_RESULTS_DIR ?= $(if $(CIRCLECI),dashboard/test-results,.)
+TEST_FILE_PREFIX := $(if $(CIRCLECI),$(CIRCLE_BUILD_NUM)__$(EPOCH_TIME)__$(CIRCLE_PROJECT_REPONAME)__$(WORKFLOW)__)
 UNIT_JUNIT_XML := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)unit__results.xml
 UNIT_COVERAGE_JSON := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)unit__coverage.json
 UI_COVERAGE_JSON := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)ui__coverage.json
@@ -30,7 +31,7 @@ RED = \033[0;31m
 GREEN = \033[0;32m
 PAD = -------------------------------------------------\n
 COLOR_CHECK = && echo "${GREEN}${PAD}All Checks Passed\n${PAD}${NOCOLOR}" || (echo "${RED}${PAD}Some Checks Failed\n${PAD}${NOCOLOR}";exit 1)
-PYTHON_TEST = pytest --cov --cov-report json:experimenter_coverage.json --cov-report term-missing --junitxml=experimenter_tests.xml
+PYTHON_TEST = pytest --cov --cov-report json:experimenter_coverage.json --cov-branch --cov-report term-missing --junitxml=experimenter_tests.xml
 PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate
@@ -259,8 +260,8 @@ integration_test_nimbus_sdk: build_integration_test build_prod
 
 integration_test_nimbus_fenix:
 	poetry -C experimenter/tests/integration/ -vvv install --no-root
-	poetry -C experimenter/tests/integration/ -vvv run pytest --html=workspace/test-results/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android --junitxml=workspace/test-results/experimenter_fenix_integration_tests.xml -vvv
-	cp workspace/test-results/experimenter_fenix_integration_tests.xml $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)fenix__integration__results.xml
+	poetry -C experimenter/tests/integration/ -vvv run pytest --html=workspace/test-results/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android --junitxml=experimenter/tests/integration/test-reports/experimenter_fenix_integration_tests.xml -vvv
+	cp experimenter/tests/integration/test-reports/experimenter_fenix_integration_tests.xml $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)integration__results.xml
 
 make integration_test_and_report:
 	docker cp experimenter_integration:/code/experimenter/tests/integration/test-reports/experimenter_integration_tests.xml workspace/test-results
@@ -272,12 +273,12 @@ CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
 CIRRUS_BLACK_FIX = black -l 90 .
 CIRRUS_RUFF_CHECK = ruff check .
 CIRRUS_RUFF_FIX = ruff check --fix .
-CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus --cov-report json:cirrus_coverage.json --junitxml=cirrus_pytest.xml -v
+CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus --cov-branch --cov-report json:cirrus_coverage.json --junitxml=cirrus_pytest.xml -v
 CIRRUS_PYTHON_TYPECHECK = pyright -p .
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
-CIRRUS_COVERAGE_JSON := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)cirrus__unit__coverage.json
-CIRRUS_JUNIT_XML := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)cirrus__integration__results.xml
+CIRRUS_COVERAGE_JSON := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)unit__coverage.json
+CIRRUS_JUNIT_XML := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)integration__results.xml
 
 cirrus_build: build_megazords
 	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
