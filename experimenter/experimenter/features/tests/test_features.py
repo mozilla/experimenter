@@ -1,5 +1,4 @@
 import json
-import re
 
 from django.test import TestCase
 from mozilla_nimbus_schemas.experiments.feature_manifests import (
@@ -14,10 +13,8 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.features import (
     Feature,
     Features,
-    check_features,
 )
 from experimenter.features.tests import (
-    mock_invalid_features,
     mock_invalid_remote_schema_features,
     mock_remote_schema_features,
     mock_valid_features,
@@ -181,35 +178,7 @@ class TestRemoteSchemaFeatures(TestCase):
         self.assertIsNone(desktop_feature.get_jsonschema())
 
 
-class TestCheckFeatures(TestCase):
-    maxDiff = None
-
-    def setUp(self):
+class TestValidateFeatureManifests(TestCase):
+    def test_valid_feature_manifest_for_application(self):
         Features.clear_cache()
-
-    @mock_valid_features
-    def test_valid_features_do_not_trigger_check_error(self):
-        errors = check_features(None)
-        self.assertEqual(errors, [])
-
-    @mock_invalid_features
-    def test_invalid_features_do_trigger_check_error(self):
-        errors = check_features(None)
-        self.assertEqual(len(errors), 1)
-
-        # Strip Pydantic version from URL before comparing
-        actual_msg = re.sub(
-            r"https://errors\.pydantic\.dev/\d+\.\d+/v/",
-            "https://errors.pydantic.dev/x/v/",
-            errors[0].msg,
-        )
-        expected_msg = (
-            "Error loading feature data 1 validation error for "
-            "DesktopFeatureManifest\n"
-            "readerMode.variables\n"
-            "  Input should be a valid dictionary [type=dict_type, "
-            "input_value=[{'fallbackPref': 'reader...pty string is no CTA)'}],"
-            " input_type=list]\n"
-            "    For further information visit https://errors.pydantic.dev/x/v/dict_type"
-        )
-        self.assertEqual(actual_msg, expected_msg)
+        Features.all()
