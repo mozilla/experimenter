@@ -27,6 +27,7 @@ from experimenter.nimbus_ui_new.views import (
     PreviewToDraftView,
     PreviewToReviewView,
     QAStatusUpdateView,
+    ResultsView,
     ReviewToApproveView,
     ReviewToDraftView,
     SignoffUpdateView,
@@ -207,5 +208,10 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/reject-end-experiment/$",
         CancelEndExperimentView.as_view(),
         name="nimbus-new-cancel-end-experiment",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/results/.*",
+        ResultsView.as_view(),
+        name="nimbus-new-results",
     ),
 ]
