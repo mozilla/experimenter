@@ -20,15 +20,21 @@ from experimenter.nimbus_ui_new.filtersets import (
 from experimenter.nimbus_ui_new.forms import (
     ApproveEndEnrollmentForm,
     ApproveEndExperimentForm,
+    ApproveEndRolloutForm,
+    ApproveUpdateRolloutForm,
     AudienceForm,
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
+    CancelEndRolloutForm,
+    CancelUpdateRolloutForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
     LiveToCompleteForm,
+    LiveToCompleteRolloutForm,
     LiveToEndEnrollmentForm,
+    LiveToUpdateRolloutForm,
     MetricsForm,
     NimbusBranchCreateForm,
     NimbusBranchDeleteForm,
@@ -506,3 +512,27 @@ class CancelEndEnrollmentView(StatusUpdateView):
 
 class CancelEndExperimentView(StatusUpdateView):
     form_class = CancelEndExperimentForm
+
+
+class LiveToCompleteRolloutView(StatusUpdateView):
+    form_class = LiveToCompleteRolloutForm
+
+
+class CancelEndRolloutView(StatusUpdateView):
+    form_class = CancelEndRolloutForm
+
+
+class ApproveEndRolloutView(StatusUpdateView):
+    form_class = ApproveEndRolloutForm
+
+
+class LiveToUpdateRolloutView(StatusUpdateView):
+    form_class = LiveToUpdateRolloutForm
+
+
+class CancelUpdateRolloutView(StatusUpdateView):
+    form_class = CancelUpdateRolloutForm
+
+
+class ApproveUpdateRolloutView(StatusUpdateView):
+    form_class = ApproveUpdateRolloutForm

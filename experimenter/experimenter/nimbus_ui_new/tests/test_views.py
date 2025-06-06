@@ -2149,6 +2149,209 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("Cancelled end experiment request.", changelog.message)
 
+    def test_live_to_complete_rollout_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.is_paused = False
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-live-to-complete-rollout",
+                kwargs={"slug": self.experiment.slug},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+        self.assertTrue(self.experiment.is_paused)
+
+    def test_cancel_end_rollout_view_with_rejection(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-cancel-end-rollout", kwargs={"slug": self.experiment.slug}
+            ),
+            data={
+                "changelog_message": "Rollout not complete yet.",
+                "action_type": "end_rollout",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertIn("Rollout not complete yet.", changelog.message)
+
+    def test_cancel_end_rollout_view_with_cancel_message(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-cancel-end-rollout", kwargs={"slug": self.experiment.slug}
+            ),
+            data={
+                "cancel_message": "Cancelled end rollout.",
+                "action_type": "end_rollout",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertIn("Cancelled end rollout.", changelog.message)
+
+    def test_approve_end_rollout_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-approve-end-rollout", kwargs={"slug": self.experiment.slug}
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertIn("approved the end rollout request", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[self.experiment.kinto_collection]
+        )
+
+    def test_live_to_update_rollout_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-live-to-update-rollout", kwargs={"slug": self.experiment.slug}
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertIn("requested review to update Audience", changelog.message)
+
+    def test_cancel_update_rollout_view_with_rejection(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-cancel-update-rollout", kwargs={"slug": self.experiment.slug}
+            ),
+            data={
+                "changelog_message": "Update not required.",
+                "action_type": "update_rollout",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertIn("Update not required.", changelog.message)
+
+    def test_cancel_update_rollout_view_with_cancel_message(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-cancel-update-rollout", kwargs={"slug": self.experiment.slug}
+            ),
+            data={
+                "cancel_message": "Cancelled update rollout.",
+                "action_type": "update_rollout",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status_next, None)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertIn("Cancelled update rollout.", changelog.message)
+
+    def test_approve_update_rollout_view(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-new-approve-update-rollout", kwargs={"slug": self.experiment.slug}
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            self.experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+        changelog = self.experiment.changes.latest("changed_on")
+        self.assertIn("approved the update review request", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[self.experiment.kinto_collection]
+        )
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+        self.mock_allocate_bucket_range.assert_called_once()
+
 
 class TestAudienceUpdateView(AuthTestCase):
     def test_get_renders_page(self):
@@ -2334,6 +2537,42 @@ class TestAudienceUpdateView(AuthTestCase):
 
         validation_errors = response.context["validation_errors"]
         self.assertEqual(validation_errors, {})
+
+    def test_post_sets_rollout_dirty_on_population_change(self):
+        experiment = NimbusExperimentFactory(
+            is_rollout=True,
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            is_paused=False,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            population_percent=5,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.BETA,
+        )
+
+        response = self.client.post(
+            reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug}),
+            {
+                "channel": NimbusExperiment.Channel.BETA,
+                "countries": [],
+                "excluded_experiments_branches": [],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "is_sticky": False,
+                "languages": [],
+                "locales": [],
+                "population_percent": 10,
+                "proposed_duration": 1,
+                "proposed_enrollment": 1,
+                "required_experiments_branches": [],
+                "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
+                "total_enrolled_clients": 0,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.is_rollout_dirty)
 
 
 class TestSaveAndContinueMixin(AuthTestCase):
