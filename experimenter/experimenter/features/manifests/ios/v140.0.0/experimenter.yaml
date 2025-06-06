@@ -297,9 +297,6 @@ tab-tray-ui-experiments:
   hasExposure: true
   exposureDescription: ""
   variables:
-    animation-feature:
-      type: boolean
-      description: "If true, enables the tab tray animation feature, that occurs when the tab tray opens and closes.\n"
     enabled:
       type: boolean
       description: "If true, enables the tab tray UI experiments.\n"
