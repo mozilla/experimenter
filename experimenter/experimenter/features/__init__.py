@@ -7,7 +7,6 @@ from typing import Optional
 
 import yaml
 from django.conf import settings
-from django.core.checks import Error, register
 from mozilla_nimbus_schemas.experiments.feature_manifests import (
     DesktopFeature,
     DesktopFeatureManifest,
@@ -170,14 +169,3 @@ class Features:
     @classmethod
     def versioned(cls) -> Iterable[Feature]:
         return (f for f in cls.all() if f.version is not None)
-
-
-@register()
-def check_features(app_configs, **kwargs):
-    errors = []
-
-    try:
-        Features.all()
-    except Exception as e:
-        errors.append(Error(f"Error loading feature data {e}"))
-    return errors
