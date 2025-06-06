@@ -675,8 +675,9 @@ URLBAR_FIREFOX_SUGGEST_SPONSORED_ENABLED_AND_4GB_RAM_MIN = NimbusTargetingConfig
         "locales when using this!)"
     ),
     targeting=(
-        "(!('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) || "
-        "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue) && memoryMB >= 4000"
+        "(!('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) "
+        "|| 'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue) "
+        "&& memoryMB >= 4000"
     ),
     desktop_telemetry="",
     sticky_required=False,
