@@ -94,6 +94,7 @@ exclude = [
     "**/tests",
 ]
 
+reportArgumentType = false
 reportCallInDefaultInitializer = true
 reportConstantRedefinition = false
 reportFunctionMemberAccess = false
