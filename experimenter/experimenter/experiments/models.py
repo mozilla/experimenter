@@ -750,7 +750,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 flow_key = "END_EXPERIMENT"
 
         return {
-            "action": NimbusUIConstants.ReviewRequestMessages[flow_key],
+            "action": NimbusUIConstants.ReviewRequestMessages[flow_key].value,
             "email": rejection.changed_by.email,
             "date": rejection.changed_on,
             "message": rejection.message,
