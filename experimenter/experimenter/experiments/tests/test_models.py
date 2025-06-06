@@ -3840,7 +3840,7 @@ class TestNimbusExperiment(TestCase):
         block = experiment.rejection_block
         self.assertIsNotNone(block)
         self.assertEqual(
-            block["action"].value,
+            block["action"],
             NimbusUIConstants.ReviewRequestMessages[expected_flow_key].value,
         )
         self.assertEqual(
