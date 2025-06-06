@@ -144,16 +144,29 @@
            rel="noopener noreferrer">Open Remote Settings</a>
       </div>
     {% elif experiment.is_review %}
-      {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Launch Experiment" approval_url="nimbus-new-review-to-approve" cancel_reject_url="nimbus-new-review-to-draft" experiment=experiment %}
+      {% if experiment.is_rollout %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Launch Rollout" approval_url="nimbus-new-review-to-approve" cancel_reject_url="nimbus-new-review-to-draft" experiment=experiment %}
 
+      {% else %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Launch Experiment" approval_url="nimbus-new-review-to-approve" cancel_reject_url="nimbus-new-review-to-draft" experiment=experiment %}
+
+      {% endif %}
     {% elif experiment.is_enrolling or experiment.is_observation %}
-      {% if experiment.is_enrollment_pause_requested %}
+      {% if experiment.is_rollout_update_requested %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Update Rollout" approval_url="nimbus-new-approve-update-rollout" cancel_reject_url="nimbus-new-cancel-update-rollout" experiment=experiment %}
+
+      {% elif experiment.is_enrollment_pause_requested %}
         {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Enrollment" approval_url="nimbus-new-approve-end-enrollment" cancel_reject_url="nimbus-new-cancel-end-enrollment" experiment=experiment %}
 
       {% elif experiment.is_end_experiment_requested %}
-        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-new-approve-end-experiment" cancel_reject_url="nimbus-new-cancel-end-experiment" experiment=experiment %}
+        {% if experiment.is_rollout %}
+          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Rollout" approval_url="nimbus-new-approve-end-rollout" cancel_reject_url="nimbus-new-cancel-end-rollout" experiment=experiment %}
 
-      {% elif experiment.should_show_end_enrollment or experiment.should_show_end_experiment %}
+        {% else %}
+          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-new-approve-end-experiment" cancel_reject_url="nimbus-new-cancel-end-experiment" experiment=experiment %}
+
+        {% endif %}
+      {% elif experiment.should_show_end_enrollment or experiment.should_show_end_experiment or experiment.should_show_end_rollout or experiment.should_show_rollout_request_update %}
         <div id="default-controls" class="alert alert-primary mt-3">
           <h5 class="mb-3 ms-2">Actions</h5>
           {% if experiment.should_show_end_enrollment %}
@@ -171,6 +184,23 @@
                     hx-target="#content"
                     hx-swap="outerHTML"
                     class="btn btn-primary">End Experiment</button>
+          {% endif %}
+          {% if experiment.should_show_rollout_request_update %}
+            <button type="button"
+                    hx-post="{% url 'nimbus-new-live-to-update-rollout' slug=experiment.slug %}"
+                    hx-select="#content"
+                    hx-target="#content"
+                    hx-swap="outerHTML"
+                    class="btn btn-primary"
+                    {% if not experiment.is_rollout_dirty %}disabled{% endif %}>Request Update</button>
+          {% endif %}
+          {% if experiment.should_show_end_rollout %}
+            <button type="button"
+                    hx-post="{% url 'nimbus-new-live-to-complete-rollout' slug=experiment.slug %}"
+                    hx-select="#content"
+                    hx-target="#content"
+                    hx-swap="outerHTML"
+                    class="btn btn-primary">End Rollout</button>
           {% endif %}
         </div>
       {% endif %}

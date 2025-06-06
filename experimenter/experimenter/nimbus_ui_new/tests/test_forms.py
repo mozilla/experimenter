@@ -29,15 +29,21 @@ from experimenter.nimbus_ui_new.constants import NimbusUIConstants
 from experimenter.nimbus_ui_new.forms import (
     ApproveEndEnrollmentForm,
     ApproveEndExperimentForm,
+    ApproveEndRolloutForm,
+    ApproveUpdateRolloutForm,
     AudienceForm,
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
+    CancelEndRolloutForm,
+    CancelUpdateRolloutForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
     LiveToCompleteForm,
+    LiveToCompleteRolloutForm,
     LiveToEndEnrollmentForm,
+    LiveToUpdateRolloutForm,
     MetricsForm,
     NimbusBranchCreateForm,
     NimbusBranchDeleteForm,
@@ -951,6 +957,189 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("Cancelled end experiment request.", changelog.message)
 
+    def test_live_to_complete_rollout_form(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.is_paused = False
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        form = LiveToCompleteRolloutForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertTrue(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn("requested review to end rollout", changelog.message)
+
+    def test_cancel_end_rollout_form_with_rejection_reason(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        form = CancelEndRolloutForm(
+            data={"changelog_message": "We are not done yet."},
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn(
+            "rejected the review with reason: We are not done yet.", changelog.message
+        )
+
+    def test_cancel_end_rollout_form_with_cancel_message(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        form = CancelEndRolloutForm(
+            data={"cancel_message": "Cancel end rollout request."},
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn("Cancel end rollout request.", changelog.message)
+
+    def test_approve_end_rollout_form(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_paused = True
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        form = ApproveEndRolloutForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn("approved the end rollout request", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+    def test_live_to_update_rollout_form(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = None
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.is_paused = False
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        form = LiveToUpdateRolloutForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn("requested review to update Audience", changelog.message)
+
+    def test_cancel_update_rollout_form_with_rejection_reason(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        form = CancelUpdateRolloutForm(
+            data={"changelog_message": "Audience update not valid."},
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn(
+            "rejected the update review with reason: Audience update not valid.",
+            changelog.message,
+        )
+
+    def test_cancel_update_rollout_form_with_cancel_message(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        form = CancelUpdateRolloutForm(
+            data={"cancel_message": "Cancelled update rollout."},
+            instance=self.experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn("Cancelled update rollout.", changelog.message)
+
+    def test_approve_update_rollout_form(self):
+        self.experiment.status = NimbusExperiment.Status.LIVE
+        self.experiment.status_next = NimbusExperiment.Status.LIVE
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.is_rollout = True
+        self.experiment.save()
+
+        form = ApproveUpdateRolloutForm(
+            data={}, instance=self.experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn("approved the update review request", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+        self.mock_allocate_bucket_range.assert_called_once()
+
 
 class TestOverviewForm(RequestFormTestCase):
     def test_valid_form_saves(self):
@@ -1263,6 +1452,46 @@ class TestAudienceForm(RequestFormTestCase):
         self.assertFalse(form.is_valid(), form.errors)
         self.assertIn("excluded_experiments_branches", form.errors)
         self.assertIn("required_experiments_branches", form.errors)
+
+    def test_check_rollout_dirty_sets_flag(self):
+        experiment = NimbusExperimentFactory(
+            is_rollout=True,
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            is_paused=False,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            population_percent=5,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.BETA,
+        )
+
+        form = AudienceForm(
+            instance=experiment,
+            data={
+                "changelog_message": "updating population",
+                "channel": NimbusExperiment.Channel.BETA,
+                "countries": [],
+                "excluded_experiments_branches": [],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "is_sticky": False,
+                "languages": [],
+                "locales": [],
+                "population_percent": 10,
+                "proposed_duration": 0,
+                "proposed_enrollment": 0,
+                "required_experiments_branches": [],
+                "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
+                "total_enrolled_clients": 0,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        updated_experiment = form.save()
+        updated_experiment.refresh_from_db()
+
+        self.assertTrue(updated_experiment.is_rollout_dirty)
 
 
 class TestNimbusBranchesForm(RequestFormTestCase):
