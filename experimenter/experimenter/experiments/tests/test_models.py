@@ -3727,42 +3727,74 @@ class TestNimbusExperiment(TestCase):
         [
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value,
+                True,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value,
+                False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value,
+                False,
             ),
         ]
     )
     def test_remote_settings_pending_message_with_lifecycless(
-        self, lifecycle, expected_message
+        self, lifecycle, expected_message, is_rollout
     ):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=is_rollout
+        )
         self.assertEqual(experiment.remote_settings_pending_message, expected_message)
 
     @parameterized.expand(
         [
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value,
+                True,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value,
+                False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_REVIEW_REQUESTED,
+                NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT.value,
+                True,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+                NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT.value,
+                True,
             ),
         ]
     )
-    def test_review_messages_and_action_type(self, lifecycle, expected_message):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+    def test_review_messages_and_action_type(
+        self, lifecycle, expected_message, is_rollout
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=is_rollout
+        )
         self.assertEqual(experiment.review_messages(), expected_message)
 
     @parameterized.expand(
@@ -3791,7 +3823,7 @@ class TestNimbusExperiment(TestCase):
         expected_flow_key,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
 
         experiment.status = status
@@ -3808,7 +3840,8 @@ class TestNimbusExperiment(TestCase):
         block = experiment.rejection_block
         self.assertIsNotNone(block)
         self.assertEqual(
-            block["action"], NimbusUIConstants.REVIEW_REQUEST_MESSAGES[expected_flow_key]
+            block["action"],
+            NimbusUIConstants.ReviewRequestMessages[expected_flow_key].value,
         )
         self.assertEqual(
             block["email"], experiment.changes.latest_rejection().changed_by.email

@@ -750,19 +750,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 flow_key = "END_EXPERIMENT"
 
         return {
-            "action": NimbusUIConstants.REVIEW_REQUEST_MESSAGES[flow_key],
+            "action": NimbusUIConstants.ReviewRequestMessages[flow_key].value,
             "email": rejection.changed_by.email,
             "date": rejection.changed_on,
             "message": rejection.message,
         }
 
     def review_messages(self):
-        if self.status_next == self.Status.COMPLETE:
-            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"]
+        if self.status_next == self.Status.COMPLETE and self.is_rollout:
+            return NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT.value
+        elif self.status_next == self.Status.COMPLETE:
+            return NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value
         elif self.is_paused:
-            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"]
+            return NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value
+        elif self.is_rollout and self.is_rollout_dirty:
+            return NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT.value
+        elif self.is_rollout:
+            return NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value
         else:
-            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"]
+            return NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value
 
     @property
     def remote_settings_pending_message(self):
@@ -778,7 +784,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def should_show_end_enrollment(self):
-        return self.is_enrolling
+        return self.is_enrolling and not self.is_rollout
 
     @property
     def should_show_end_experiment(self):
@@ -786,13 +792,35 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.status == self.Status.LIVE
             and self.publish_status != self.PublishStatus.REVIEW
             and not self.should_end
+            and not self.is_rollout
         )
+
+    @property
+    def should_show_end_rollout(self):
+        return (
+            self.status == self.Status.LIVE
+            and self.publish_status != self.PublishStatus.REVIEW
+            and not self.should_end
+            and self.is_rollout
+        )
+
+    @property
+    def should_show_rollout_request_update(self):
+        return self.status == self.Status.LIVE and self.is_rollout
 
     @property
     def is_end_experiment_requested(self):
         return (
             self.status == self.Status.LIVE
             and self.status_next == self.Status.COMPLETE
+            and self.publish_status == self.PublishStatus.REVIEW
+        )
+
+    @property
+    def is_rollout_update_requested(self):
+        return (
+            self.is_enrolling
+            and self.is_rollout_dirty
             and self.publish_status == self.PublishStatus.REVIEW
         )
 

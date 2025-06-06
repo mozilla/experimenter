@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 class NimbusUIConstants:
     HYPOTHESIS_PLACEHOLDER = """
 Hypothesis: If we <do this/build this/create this change in the experiment> for <these users>, then we will see <this outcome>.
@@ -61,11 +64,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         ),
     }
 
-    REVIEW_REQUEST_MESSAGES = {
-        "END_EXPERIMENT": "end this experiment",
-        "END_ENROLLMENT": "end enrollment for this experiment",
-        "LAUNCH_EXPERIMENT": "launch this experiment",
-    }
+    class ReviewRequestMessages(Enum):
+        END_EXPERIMENT = "end this experiment"
+        END_ENROLLMENT = "end enrollment for this experiment"
+        LAUNCH_EXPERIMENT = "launch this experiment"
+        LAUNCH_ROLLOUT = "launch this rollout"
+        UPDATE_ROLLOUT = "update this rollout"
+        END_ROLLOUT = "end this rollout"
 
     FIELD_PAGE_MAP = {
         "overview": [
