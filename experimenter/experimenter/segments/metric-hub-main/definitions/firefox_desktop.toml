@@ -1861,6 +1861,10 @@ select_expression = "COALESCE(COUNTIF(event_name  = 'click_etp_toggle_off'), 0)"
 data_source = "protections_popup_events"
 friendly_name = "ETP Disablement"
 
+[metrics.urlbar_impressions]
+select_expression = "COALESCE(COUNTIF(is_terminal), 0)"
+data_source = "urlbar_events"
+friendly_name = "URL Bar Impressions"
 
 [dimensions]
 
