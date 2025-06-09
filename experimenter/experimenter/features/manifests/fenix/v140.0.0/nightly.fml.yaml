@@ -731,7 +731,7 @@ features:
       enabled:
         description: "Uses search configuration from remote servers .\n"
         type: Boolean
-        default: false
+        default: true
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:

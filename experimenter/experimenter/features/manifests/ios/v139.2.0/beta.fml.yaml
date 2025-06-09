@@ -18,14 +18,14 @@ features:
       status:
         description: "If true, we will show the new address bar menu entry"
         type: Boolean
-        default: false
+        default: true
   appearance-menu-feature:
     description: "This property determines if we show the new appearance menu entry or the old theme settings\n"
     variables:
       status:
         description: "If true, we will show the new appearance menu entry"
         type: Boolean
-        default: false
+        default: true
   bookmark-refactor-feature:
     description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
     variables:
@@ -552,10 +552,6 @@ features:
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
-      animation-feature:
-        description: "If true, enables the tab tray animation feature, that occurs when the tab tray opens and closes.\n"
-        type: Boolean
-        default: false
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
