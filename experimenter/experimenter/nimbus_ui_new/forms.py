@@ -398,12 +398,26 @@ class DocumentationLinkDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 class NimbusBranchFeatureValueForm(forms.ModelForm):
     value = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 5})
+        required=False,
+        widget=forms.HiddenInput(attrs={"class": "value-editor"}),
     )
 
     class Meta:
         model = NimbusBranchFeatureValue
         fields = ("value",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.id is not None and self.instance.feature_config:
+            if schema := self.instance.feature_config.schemas.filter(
+                version=None
+            ).first():
+                self.fields["value"].widget.attrs.update(
+                    {
+                        "data-schema": schema.schema,
+                    }
+                )
 
 
 class NimbusBranchScreenshotForm(forms.ModelForm):

@@ -248,3 +248,8 @@
     {% endif %}
   </form>
 {% endblock main_content %}
+
+{% block extrascripts %}
+  {{ block.super }}
+  <script src="{% static 'nimbus_ui_new/edit_branches.bundle.js' %}"></script>
+{% endblock extrascripts %}
