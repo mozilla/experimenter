@@ -944,16 +944,6 @@ class JetstreamTestData:
         SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.model_copy()
         SEGMENTED_ROW_CONTROL.segment = "some_segment"
 
-        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.model_copy()
-        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
-        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
-        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
-
-        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.model_copy()
-        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
-        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
-        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.branch = "variant"
-
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.comparison = BranchComparison.DIFFERENCE
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.metric = Metric.SEARCH
@@ -1003,8 +993,6 @@ class JetstreamTestData:
         DAILY_DATA = [
             CONTROL_DATA_ROW.model_dump(exclude_none=True),
             VARIANT_DATA_ROW.model_dump(exclude_none=True),
-            VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.model_dump(exclude_none=True),
-            VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.model_dump(exclude_none=True),
             VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
             CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
@@ -1137,9 +1125,19 @@ class JetstreamTestData:
         del WEEKLY_SEGMENT_DATA["control"]["branch_data"][Group.OTHER]["some_count"]
         del WEEKLY_SEGMENT_DATA["variant"]["branch_data"][Group.OTHER]["some_count"]
 
+        WEEKLY_ENROLLMENTS_DATA = deepcopy(WEEKLY_BASE)
+        del WEEKLY_ENROLLMENTS_DATA["control"]["branch_data"][Group.OTHER][
+            "another_count"
+        ]
+        del WEEKLY_ENROLLMENTS_DATA["variant"]["branch_data"][Group.OTHER][
+            "another_count"
+        ]
+        del WEEKLY_ENROLLMENTS_DATA["control"]["branch_data"][Group.OTHER]["some_count"]
+        del WEEKLY_ENROLLMENTS_DATA["variant"]["branch_data"][Group.OTHER]["some_count"]
+
         WEEKLY_DATA = {
             "enrollments": {
-                "all": WEEKLY_BASE,
+                "all": WEEKLY_ENROLLMENTS_DATA,
                 "some_segment": WEEKLY_SEGMENT_DATA,
             },
             "exposures": {
@@ -1213,9 +1211,19 @@ class JetstreamTestData:
         del OVERALL_SEGMENT_DATA["control"]["branch_data"][Group.OTHER]["some_count"]
         del OVERALL_SEGMENT_DATA["variant"]["branch_data"][Group.OTHER]["some_count"]
 
+        OVERALL_ENROLLMENTS_DATA = deepcopy(OVERALL_BASE)
+        del OVERALL_ENROLLMENTS_DATA["control"]["branch_data"][Group.OTHER][
+            "another_count"
+        ]
+        del OVERALL_ENROLLMENTS_DATA["variant"]["branch_data"][Group.OTHER][
+            "another_count"
+        ]
+        del OVERALL_ENROLLMENTS_DATA["control"]["branch_data"][Group.OTHER]["some_count"]
+        del OVERALL_ENROLLMENTS_DATA["variant"]["branch_data"][Group.OTHER]["some_count"]
+
         OVERALL_DATA = {
             "enrollments": {
-                "all": OVERALL_BASE,
+                "all": OVERALL_ENROLLMENTS_DATA,
                 "some_segment": OVERALL_SEGMENT_DATA,
             },
             "exposures": {
