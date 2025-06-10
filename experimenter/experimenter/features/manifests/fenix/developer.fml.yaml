@@ -591,7 +591,6 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<MR2022Section, Boolean>"
         default:
-          home-onboarding-dialog-existing-users: true
           sync-cfr: true
           wallpapers-selection-tool: true
           jump-back-in-cfr: true
@@ -995,8 +994,6 @@ enums:
   MR2022Section:
     description: The identifiers for the sections of the MR 2022.
     variants:
-      home-onboarding-dialog-existing-users:
-        description: Home onboarding dialog for upgraded users.
       jump-back-in-cfr:
         description: Jump back-in onboarding message.
       sync-cfr:

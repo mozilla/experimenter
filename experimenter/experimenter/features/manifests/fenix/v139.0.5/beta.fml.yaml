@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - release
+  - beta
 features:
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
@@ -26,21 +26,6 @@ features:
           amp: true
           ampMobile: false
           wikipedia: true
-  baseline-fpp:
-    description: Control Baseline Fingerprinting Protection
-    variables:
-      enabled:
-        description: Enables / disables baseline fingerprinting protection.
-        type: Boolean
-        default: true
-      feat-enabled:
-        description: "If true, the feature is active."
-        type: Boolean
-        default: false
-      overrides:
-        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string."
-        type: String
-        default: ""
   bookmarks:
     description: Feature for Bookmarks
     variables:
@@ -75,17 +60,6 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
-  doh:
-    description: Feature controlling DNS over HTTPS (DoH).
-    variables:
-      autoselect-enabled:
-        description: "Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.\n"
-        type: Boolean
-        default: false
-      show-ui:
-        description: "When `true`, include DoH settings in the settings UI.\n"
-        type: Boolean
-        default: false
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
@@ -117,7 +91,7 @@ features:
         type: Boolean
         default: false
       overrides:
-        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.\n"
+        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets.\n"
         type: String
         default: ""
   fission:
@@ -167,13 +141,6 @@ features:
     variables:
       enabled:
         description: "If true, the feature is active"
-        type: Boolean
-        default: true
-  homepage-as-new-tab:
-    description: Enables homepage as a a new tab.
-    variables:
-      enabled:
-        description: "Whether or not to enable homepage as a new tab\n"
         type: Boolean
         default: false
   homepage-hide-frecent-top-sites:
@@ -236,7 +203,7 @@ features:
             ordering: 1
             prerequisites:
               - ALWAYS
-            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label_2
+            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label
             secondary-button-label: ""
             title: onboarding_welcome_to_firefox
           default-browser:
@@ -382,6 +349,13 @@ features:
         default: false
       report-site-issue:
         description: "If true, report site issue menu item and preview is available."
+        type: Boolean
+        default: true
+  merino-recommendations:
+    description: Sets the recommendations provider service to Merino.
+    variables:
+      enabled:
+        description: "Whether or not to enable Merino endpoint to serve recommendations.\n"
         type: Boolean
         default: false
   messaging:
@@ -552,6 +526,7 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<MR2022Section, Boolean>"
         default:
+          home-onboarding-dialog-existing-users: true
           sync-cfr: true
           wallpapers-selection-tool: true
           jump-back-in-cfr: true
@@ -643,14 +618,14 @@ features:
       certificateTransparencyMode:
         description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
         type: Int
-        default: 0
+        default: 2
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
       postQuantumKeyExchangeEnabled:
         description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
-        type: Option<Boolean>
-        default: ~
+        type: Boolean
+        default: false
   print:
     description: A feature for printing from the share or browser menu.
     variables:
@@ -667,13 +642,6 @@ features:
     variables:
       felt-privacy-enabled:
         description: "if true, enable felt privacy related UI"
-        type: Boolean
-        default: false
-  private-browsing-lock:
-    description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
-    variables:
-      enabled:
-        description: "Whether or not to enable private browsing mode lock.\n"
         type: Boolean
         default: false
   query-parameter-stripping:
@@ -715,7 +683,7 @@ features:
       enabled:
         description: "Uses search configuration from remote servers .\n"
         type: Boolean
-        default: true
+        default: false
   remote-tab-management:
     description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
     variables:
@@ -723,17 +691,6 @@ features:
         description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
         type: Boolean
         default: true
-  same-document-navigation-overrides-load-type:
-    description: Control whether the same document navigation overrides the load type.
-    variables:
-      enabled:
-        description: "Overrides the loadType when it is a same document navigation\n"
-        type: Boolean
-        default: true
-      force-disable-uri:
-        description: "Disable overriding the loadType during same document navigation on the domain specified by this URI.\n"
-        type: String
-        default: ""
   search-extra-params:
     description: A feature that provides additional args for search.
     variables:
@@ -803,7 +760,7 @@ features:
       disabled:
         description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
@@ -832,11 +789,7 @@ features:
       enabled:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
-        default: false
-      force-enabled:
-        description: "Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior.\n"
-        type: Boolean
-        default: false
+        default: true
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -955,6 +908,8 @@ enums:
   MR2022Section:
     description: The identifiers for the sections of the MR 2022.
     variants:
+      home-onboarding-dialog-existing-users:
+        description: Home onboarding dialog for upgraded users.
       jump-back-in-cfr:
         description: Jump back-in onboarding message.
       sync-cfr:
@@ -968,6 +923,8 @@ enums:
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
+      add-ons:
+        description: Allows user to install add-ons from onboarding.
       add-search-widget:
         description: Allows user to add search widget to homescreen.
       default-browser:
@@ -1041,6 +998,37 @@ enums:
       toolbar-top:
         description: Sets the toolbar placement on the top.
 objects:
+  AddOnData:
+    description: An object to describe an add-on to be installed from the onboarding card.
+    fields:
+      average-rating:
+        description: The average rating of the add-on.
+        type: String
+        default: "0.0"
+      description:
+        description: A small description of the add-on to be displayed to the user.
+        type: Text
+        default: ""
+      icon-res:
+        description: The resource id of the icon of the add-on to be displayed.
+        type: Image
+        default: ic_onboarding_welcome
+      id:
+        description: The identifier for this add-on.
+        type: Text
+        default: ""
+      install-url:
+        description: The url from where the add-on can be installed.
+        type: Text
+        default: ""
+      name:
+        description: The name of the add-on to be displayed to the user.
+        type: Text
+        default: ""
+      review-count:
+        description: The amount of reviews the add-on has.
+        type: String
+        default: "0.0"
   CustomizationThemeData:
     description: Defines an option for theme selection.
     fields:
@@ -1072,8 +1060,12 @@ objects:
         type: ToolbarType
         default: toolbar-top
   ExtraCardData:
-    description: "Holds data for cards that require additional data, e.g. toolbar placement cards."
+    description: "Holds data for cards that require additional data, e.g. add-ons, toolbar placement cards."
     fields:
+      add-ons-data:
+        description: "An optional list of add-ons which will be shown in add-on onboarding card.\n"
+        type: List<AddOnData>
+        default: []
       customization-theme-data:
         description: An optional list of theme choices for the theme selection card.
         type: List<CustomizationThemeData>
