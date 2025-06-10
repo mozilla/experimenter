@@ -94,6 +94,13 @@ features:
         description: "Whether or not the feature is enabled\n"
         type: Boolean
         default: false
+  hnt-sponsored-shortcuts-feature:
+    description: This feature manages the visibility of sponsored shortcuts on the homepage
+    variables:
+      enabled:
+        description: "Setting 'enabled' to false will hide sponsored shortcuts on the homepage and disable the respective toggle in the homepage settings"
+        type: Boolean
+        default: true
   hnt-top-sites-visual-refresh-feature:
     description: This feature manages the top sites visual refresh.
     variables:
