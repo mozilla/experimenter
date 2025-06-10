@@ -312,6 +312,8 @@ def get_experiment_data(experiment: NimbusExperiment):
                 data = ResultsObjectModel(result_metrics, data, experiment)
                 data.append_conversion_count(primary_metrics_set)
 
+                if segment == Segment.ALL:
+                    experiment_data["other_metrics"].update(other_metrics)
             elif data and window == AnalysisWindow.WEEKLY:
                 ResultsObjectModel = create_results_object_model(data)
 
