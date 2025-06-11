@@ -32,8 +32,16 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     and may reduce the eligible population for your experiment which may result in
     reduced statistical power and precision. Please check that the configured population
     proportion has accounted for this:"""
+    ERROR_ROLLOUT_BUCKET_EXISTS = """WARNING: A rollout already exists for this
+    combination of application, feature, channel, and advanced targeting!
+        If this rollout is launched, a client meeting the advanced
+        targeting criteria will be enrolled in one and not the other and
+        you will not be able to adjust the sizing for this rollout."""
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
+    ROLLOUT_BUCKET_WARNING = (
+        "https://experimenter.info/faq/warnings/#rollout-bucketing-warning"
+    )
     TARGETING_CRITERIA_REQUEST = (
         "https://github.com/mozilla/experimenter/issues/new"
         "?template=targeting_request_template.yml"
