@@ -726,6 +726,13 @@ features:
         description: "If true, firefox will use the  the updated password manager."
         type: Boolean
         default: false
+  web-engine-integration-refactor:
+    description: "The feature flag to manage the roll out of the integration of WebEngine into Firefox.\n"
+    variables:
+      enabled:
+        description: "Enables the feature.\n"
+        type: Boolean
+        default: false
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.

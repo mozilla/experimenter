@@ -2222,32 +2222,32 @@ deprecated = false
 [data_sources.site_breakage_events]
 from_expression = """(
     SELECT
-        metrics.uuid.legacy_telemetry_client_id AS client_id,
+        client_id,
         DATE(submission_timestamp) AS submission_date,
-        ping_info.experiments AS experiments,
-        event.name AS event_name,
-    FROM `mozdata.firefox_desktop.events`
-    CROSS JOIN UNNEST(events) AS event
+        experiments,
+        event_name,
+        event_extra,
+    FROM `mozdata.firefox_desktop.events_stream`
     WHERE
-        event.category = 'webcompatreporting'
+        event_category = 'webcompatreporting'
 )"""
-experiments_column_type = "native"
+experiments_column_type = "events_stream"
 friendly_name = "Webcompat reporting tool events"
 description = "Webcompat 'Report Broken Site' pings"
 
 [data_sources.protections_popup_events]
 from_expression = """(
     SELECT
-        metrics.uuid.legacy_telemetry_client_id AS client_id,
+        client_id,
         DATE(submission_timestamp) AS submission_date,
-        ping_info.experiments AS experiments,
-        event.name AS event_name,
-    FROM `mozdata.firefox_desktop.events`
-    CROSS JOIN UNNEST(events) AS event
+        experiments,
+        event_name,
+        event_extra,
+    FROM `mozdata.firefox_desktop.events_stream`
     WHERE
-        event.category = 'security.ui.protectionspopup'
+        event_category = 'security.ui.protectionspopup'
 )"""
-experiments_column_type = "native"
+experiments_column_type = "events_stream"
 friendly_name = "Protections popup events"
 description = "Sheild icon 'Protections Popup' pings"
 
