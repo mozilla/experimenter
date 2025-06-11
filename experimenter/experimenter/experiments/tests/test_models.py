@@ -2189,6 +2189,65 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(warnings[2]["text"], NimbusUIConstants.LIVE_MULTIFEATURE_WARNING)
         self.assertEqual(warnings[2]["slugs"], ["experiment4"])
 
+    def test_rollout_conflict_warning(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channel=NimbusExperiment.Channel.BETA,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[test_feature],
+        )
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channel=NimbusExperiment.Channel.BETA,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[test_feature],
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        rollout_warning = next(
+            (
+                w
+                for w in warnings
+                if w["text"] == NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS
+            ),
+            None,
+        )
+
+        self.assertIsNotNone(rollout_warning)
+        self.assertEqual(rollout_warning["variant"], "danger")
+        self.assertEqual(rollout_warning["slugs"], [])
+        self.assertEqual(
+            rollout_warning["learn_more_link"], NimbusUIConstants.ROLLOUT_BUCKET_WARNING
+        )
+
+    def test_rollout_conflict_warning_returns_none_when_no_conflict(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channel=NimbusExperiment.Channel.BETA,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[test_feature],
+        )
+
+        self.assertIsNone(experiment.rollout_conflict_warning)
+
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
