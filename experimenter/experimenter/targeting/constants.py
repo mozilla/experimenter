@@ -83,7 +83,7 @@ TOU_NOTIFICATION_BYPASS_ENABLED = """
 (
     'datareporting.policy.dataSubmissionPolicyBypassNotification'|preferenceValue
     ||
-    'termsOfUse.bypassNotification'|preferenceValue
+    'termsofuse.bypassNotification'|preferenceValue
 )
 """
 
@@ -2681,11 +2681,11 @@ SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOU_NOT_ACCEPTED_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
-    name="TOU not accepted yet, ads enabled, Mac or Win",
-    slug="tou_not_accepted_ads_enabled_mac_win",
+TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
+    name="TOU not accepted yet, existing user, ads enabled, Mac or Win",
+    slug="tou_not_accepted_existing_user_ads_enabled_mac_win",
     description=(
-        "Users who have not accepted the terms of use yet, "
+        "Existing users who have not accepted the terms of use yet, "
         "have not disabled ads, "
         "and are on Mac or Windows"
     ),
@@ -2696,6 +2696,8 @@ TOU_NOT_ACCEPTED_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
             ||
             os.isMac
         )
+        &&
+        {PROFILE28DAYS}
         &&
         !{ACCEPTED_TOU}
         &&
