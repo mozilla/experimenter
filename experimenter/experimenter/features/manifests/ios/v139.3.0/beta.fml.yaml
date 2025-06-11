@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - release
+  - beta
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -33,20 +33,28 @@ features:
         description: "Enables the bookmark refactor feature\n"
         type: Boolean
         default: true
+  cleanup-history-reenabled:
+    description: "This feature flag will help us slowly re-enable the cleanupHistoryIfNeeded functionnality at startup of the app\n"
+    variables:
+      enabled:
+        description: "When true the cleanupHistoryIfNeeded will be run\n"
+        type: Boolean
+        default: true
+  contextual-hint-feature:
+    description: This set holds all features pertaining to contextual hints.
+    variables:
+      features-enabled:
+        description: "This property provides a lookup table of whether specific contextual hints are enabled.\n"
+        type: "Map<ContextualHint, Boolean>"
+        default:
+          toolbar-hint: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
       enabled:
         description: "Variable description\n"
         type: Boolean
-        default: false
-  default-zoom-feature:
-    description: "The feature flag to manage the rollout of default zoom feature.\n"
-    variables:
-      enabled:
-        description: "If true, page zoom settings and default zoom feature are shown\n"
-        type: Boolean
-        default: false
+        default: true
   download-live-activities-feature:
     description: "Download Live Activities Feature\n"
     variables:
@@ -60,11 +68,11 @@ features:
       felt-deletion-enabled:
         description: "If true, enable Felt Deletion part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -86,56 +94,29 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: false
-  hnt-bookmarks-section-feature:
-    description: This feature manages the visibility of the bookmarks section of the homepage and the respective toggle in the homepage settings
-    variables:
-      enabled:
-        description: "Setting 'enabled' to false will hide the bookmarks section of the homepage and disable the respective toggle in the homepage settings"
-        type: Boolean
-        default: true
-  hnt-content-feed-cleanup-feature:
-    description: "Controls updates for the content feed\n"
-    variables:
-      enabled:
-        description: "Whether or not the feature is enabled\n"
-        type: Boolean
-        default: false
-  hnt-customization-section-feature:
-    description: This feature manages the visibility of the homepage customization section of the homepage
-    variables:
-      enabled:
-        description: "Setting 'enabled' to false will hide the homepage customization section of the homepage"
-        type: Boolean
-        default: true
-  hnt-jump-back-in-section-feature:
-    description: This feature manages the visibility of the jump back in and synced tabs section of the homepage and the respective toggle in the homepage settings
-    variables:
-      enabled:
-        description: "Setting 'enabled' to false will hide the jump back in and synced tabs section of the homepage and disable the respective toggle in the homepage settings"
-        type: Boolean
-        default: true
-  hnt-sponsored-shortcuts-feature:
-    description: This feature manages the visibility of sponsored shortcuts on the homepage
-    variables:
-      enabled:
-        description: "Setting 'enabled' to false will hide sponsored shortcuts on the homepage and disable the respective toggle in the homepage settings"
-        type: Boolean
-        default: true
-  hnt-top-sites-visual-refresh-feature:
-    description: This feature manages the top sites visual refresh.
-    variables:
-      enabled:
-        description: Determines whether the top sites visual refresh is shown.
-        type: Boolean
-        default: false
+          status: true
   homepage-rebuild-feature:
     description: "This feature is for managing the roll out of the Homepage rebuild feature\n"
     variables:
       enabled:
         description: "If true, enables the feature\n"
         type: Boolean
-        default: false
+        default: true
+  homescreenFeature:
+    description: The homescreen that the user goes to when they press home or new tab.
+    variables:
+      sections-enabled:
+        description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.\n"
+        type: "Map<HomeScreenSection, Boolean>"
+        default:
+          recent-explorations: false
+  login-autofill:
+    description: This property defines the login autofill feature for automatically filling in usernames and passwords.
+    variables:
+      login-autofill-status:
+        description: "If true, allows the user to use the login autofill feature for usernames and passwords."
+        type: Boolean
+        default: true
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
@@ -152,10 +133,6 @@ features:
         default: false
       menu-hint:
         description: "If true, enables the menu contextual hint.\n"
-        type: Boolean
-        default: false
-      menu-redesign:
-        description: "If true, enables the menu redesign.\n"
         type: Boolean
         default: false
   messaging:
@@ -221,6 +198,24 @@ features:
             text: Default Browser/DefaultBrowserCard.Description
             button-label: Default Browser/DefaultBrowserCard.Button.v2
             action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
+          homepage-microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+              - SECOND_HOMEPAGE_VIEW
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with your Firefox homepage?
+            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            microsurveyConfig:
+              utm-content: homepage
+              icon: homeLarge
+              options:
+                - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
+                - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -446,68 +441,6 @@ features:
             onboarding-type: upgrade
             prerequisites:
               - NEVER
-          welcome-modern:
-            card-type: basic
-            order: 10
-            title: Onboarding/Onboarding.Welcome.Title.TreatementA.v120
-            body: Onboarding/Onboarding.Welcome.Description.TreatementA.v120
-            image: welcome-globe
-            buttons:
-              primary:
-                title: Onboarding/Onboarding.Welcome.ActionTreatementA.v114
-                action: open-instructions-popup
-              secondary:
-                title: Onboarding/Onboarding.Welcome.Skip.v114
-                action: forward-one-card
-            instructions-popup:
-              title: Onboarding/DefaultBrowserPopup.Title.v114
-              button-title: Onboarding/DefaultBrowserPopup.ButtonTitle.v114
-              button-action: open-ios-fx-settings
-              instructions:
-                - Onboarding/DefaultBrowserPopup.FirstLabel.v114
-                - Onboarding/DefaultBrowserPopup.SecondLabel.v114
-                - Onboarding/DefaultBrowserPopup.ThirdLabel.v114
-            onboarding-type: fresh-install
-            prerequisites:
-              - ALWAYS
-            uiVariant: modern
-          sign-to-sync-modern:
-            card-type: basic
-            order: 30
-            title: Onboarding/Onboarding.Modern.Sync.Title.v140
-            body: Onboarding/Onboarding.Modern.Sync.Description.v140
-            image: sync-with-icons
-            buttons:
-              primary:
-                title: Onboarding/Onboarding.Modern.Sync.SignIn.Action.v140
-                action: sync-sign-in
-              secondary:
-                title: Onboarding/Onboarding.Modern.Sync.Skip.Action.v140
-                action: forward-one-card
-            onboarding-type: fresh-install
-            prerequisites:
-              - ALWAYS
-            uiVariant: modern
-          customization-toolbar-modern:
-            card-type: multiple-choice
-            order: 20
-            title: Onboarding/Onboarding.Modern.Customization.Toolbar.Title.v140
-            image: toolbar
-            buttons:
-              primary:
-                title: Onboarding/Onboarding.Modern.Customization.Theme.Continue.Action.v123
-                action: forward-one-card
-            multiple-choice-buttons:
-              - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Top.Action.v140
-                image: toolbar-top
-                action: toolbar-top
-              - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Bottom.Action.v140
-                image: toolbar-bottom
-                action: toolbar-bottom
-            onboarding-type: fresh-install
-            prerequisites:
-              - ALWAYS
-            uiVariant: modern
         string-alias: NimbusOnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
@@ -520,31 +453,27 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
-      enableModernUi:
-        description: "Toggle between legacy (false) and modern (true) UI variants.\n"
-        type: Boolean
-        default: false
   pdf-refactor-feature:
     description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
     variables:
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
-        default: false
+        default: true
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
       enabled:
         description: "Enables the rating prompt\n"
         type: Boolean
-        default: false
+        default: true
   revert-unsafe-continuations-refactor:
     description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
     variables:
       enabled:
         description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
         type: Boolean
-        default: false
+        default: true
   rust-keychain-refactor:
     description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
     variables:
@@ -645,7 +574,7 @@ features:
       layout:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
-        default: version1
+        default: baseline
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
@@ -657,15 +586,11 @@ features:
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
-        default: false
+        default: true
       toolbar_update_hint:
         description: "If true, enables the toolbar update contextual hint.\n"
         type: Boolean
-        default: false
-      translucency:
-        description: "Enables translucency for toolbars.\n"
-        type: Boolean
-        default: false
+        default: true
       unified_search:
         description: "Enables the unified search feature.\n"
         type: Boolean
@@ -698,14 +623,12 @@ features:
         description: "If true, firefox will use the  the updated password manager."
         type: Boolean
         default: false
-  web-engine-integration-refactor:
-    description: "The feature flag to manage the roll out of the integration of WebEngine into Firefox.\n"
-    variables:
-      enabled:
-        description: "Enables the feature.\n"
-        type: Boolean
-        default: false
 enums:
+  ContextualHint:
+    description: The identifiers for a individual contextual hints.
+    variants:
+      toolbar-hint:
+        description: The contextual hint bubble that appears to provide a hint about the toolbar.
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
     variants:
@@ -713,6 +636,11 @@ enums:
         description: The next eligible message should be shown.
       show-none:
         description: The surface should show no message.
+  HomeScreenSection:
+    description: The identifiers for the sections of the homescreen.
+    variants:
+      recent-explorations:
+        description: The tab groups
   IconType:
     description: "The icon that will be added to the item in the device's search engine."
     variants:
@@ -754,14 +682,10 @@ enums:
         description: "Corresponding to the sync-devices image\n"
       sync-devices-ctd:
         description: "Corresponding to the sync image for CTD\n"
-      sync-with-icons:
-        description: "Corresponding to the sync-devices image\n"
       themeing:
         description: "Corresponding to the fox world image\n"
       toolbar:
         description: "Corresponding to the fox world image\n"
-      trackers:
-        description: "Corresponding to the trackers image\n"
       welcome-ctd:
         description: "Corresponding to the welcome image for CTD\n"
       welcome-globe:
@@ -838,13 +762,6 @@ enums:
         description: "Corresponding to onboarding cards that are for new users\n"
       upgrade:
         description: "Corresponding to onboarding cards that are for users who have updated\n"
-  OnboardingVariant:
-    description: "Which UI style this onboarding card is designed for.\n"
-    variants:
-      legacy:
-        description: Use the existing (legacy) onboarding UI.
-      modern:
-        description: Use the new (modern) onboarding UI.
   PageContent:
     description: "The page content that will be added as an item in the device's search engine."
     variants:
@@ -880,6 +797,8 @@ enums:
   ToolbarLayoutType:
     description: The type of toolbar layout.
     variants:
+      baseline:
+        description: The default layout of the toolbars.
       version1:
         description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
       version2:
@@ -1059,10 +978,6 @@ objects:
         description: "The title displayed on the card, in prominent, bolded text. This should never be defaulted.\n"
         type: Text
         default: ""
-      uiVariant:
-        description: "If set, this card will only be shown in the specified UI variant. If null, it will appear in both legacy and modern UIs.\n"
-        type: Option<OnboardingVariant>
-        default: ~
   NimbusOnboardingInstructionPopup:
     description: "The object outlining the content of the instruction card.\n"
     fields:
