@@ -2218,7 +2218,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertIsNotNone(rollout_warning)
-        self.assertEqual(rollout_warning["variant"], "warning")
+        self.assertEqual(rollout_warning["variant"], "danger")
         self.assertEqual(rollout_warning["slugs"], [])
         self.assertEqual(
             rollout_warning["learn_more_link"], NimbusUIConstants.ROLLOUT_BUCKET_WARNING
