@@ -406,6 +406,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=False,
     )
     equal_branch_ratio = models.BooleanField(default=True)
+    klaatu_status = models.BooleanField("Automated Validation Status", default=False)
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -1553,6 +1554,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned._enrollment_end_date = None
         cloned.qa_status = NimbusExperiment.QAStatus.NOT_SET
         cloned.qa_comment = None
+        cloned.klaatu_status = False
         cloned.save()
 
         if rollout_branch_slug:
