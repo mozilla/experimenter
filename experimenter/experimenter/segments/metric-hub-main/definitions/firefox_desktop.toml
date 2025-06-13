@@ -2222,7 +2222,7 @@ deprecated = false
 [data_sources.site_breakage_events]
 from_expression = """(
     SELECT
-        client_id,
+        legacy_telemetry_client_id as client_id,
         DATE(submission_timestamp) AS submission_date,
         experiments,
         event_name,
@@ -2238,7 +2238,7 @@ description = "Webcompat 'Report Broken Site' pings"
 [data_sources.protections_popup_events]
 from_expression = """(
     SELECT
-        client_id,
+        legacy_telemetry_client_id as client_id,
         DATE(submission_timestamp) AS submission_date,
         experiments,
         event_name,
