@@ -425,6 +425,68 @@ features:
             onboarding-type: upgrade
             prerequisites:
               - NEVER
+          welcome-modern:
+            card-type: basic
+            order: 10
+            title: Onboarding/Onboarding.Welcome.Title.TreatementA.v120
+            body: Onboarding/Onboarding.Welcome.Description.TreatementA.v120
+            image: welcome-globe
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Welcome.ActionTreatementA.v114
+                action: open-instructions-popup
+              secondary:
+                title: Onboarding/Onboarding.Welcome.Skip.v114
+                action: forward-one-card
+            instructions-popup:
+              title: Onboarding/DefaultBrowserPopup.Title.v114
+              button-title: Onboarding/DefaultBrowserPopup.ButtonTitle.v114
+              button-action: open-ios-fx-settings
+              instructions:
+                - Onboarding/DefaultBrowserPopup.FirstLabel.v114
+                - Onboarding/DefaultBrowserPopup.SecondLabel.v114
+                - Onboarding/DefaultBrowserPopup.ThirdLabel.v114
+            onboarding-type: fresh-install
+            prerequisites:
+              - ALWAYS
+            uiVariant: modern
+          sign-to-sync-modern:
+            card-type: basic
+            order: 30
+            title: Onboarding/Onboarding.Modern.Sync.Title.v140
+            body: Onboarding/Onboarding.Modern.Sync.Description.v140
+            image: sync-with-icons
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Sync.SignIn.Action.v140
+                action: sync-sign-in
+              secondary:
+                title: Onboarding/Onboarding.Modern.Sync.Skip.Action.v140
+                action: forward-one-card
+            onboarding-type: fresh-install
+            prerequisites:
+              - ALWAYS
+            uiVariant: modern
+          customization-toolbar-modern:
+            card-type: multiple-choice
+            order: 20
+            title: Onboarding/Onboarding.Modern.Customization.Toolbar.Title.v140
+            image: toolbar
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Customization.Theme.Continue.Action.v123
+                action: forward-one-card
+            multiple-choice-buttons:
+              - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Top.Action.v140
+                image: toolbar-top
+                action: toolbar-top
+              - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Bottom.Action.v140
+                image: toolbar-bottom
+                action: toolbar-bottom
+            onboarding-type: fresh-install
+            prerequisites:
+              - ALWAYS
+            uiVariant: modern
         string-alias: NimbusOnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
@@ -437,6 +499,10 @@ features:
         description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
         type: Boolean
         default: true
+      enableModernUi:
+        description: "Toggle between legacy (false) and modern (true) UI variants.\n"
+        type: Boolean
+        default: false
   pdf-refactor-feature:
     description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
     variables:
@@ -660,10 +726,14 @@ enums:
         description: "Corresponding to the sync-devices image\n"
       sync-devices-ctd:
         description: "Corresponding to the sync image for CTD\n"
+      sync-with-icons:
+        description: "Corresponding to the sync-devices image\n"
       themeing:
         description: "Corresponding to the fox world image\n"
       toolbar:
         description: "Corresponding to the fox world image\n"
+      trackers:
+        description: "Corresponding to the trackers image\n"
       welcome-ctd:
         description: "Corresponding to the welcome image for CTD\n"
       welcome-globe:
@@ -740,6 +810,13 @@ enums:
         description: "Corresponding to onboarding cards that are for new users\n"
       upgrade:
         description: "Corresponding to onboarding cards that are for users who have updated\n"
+  OnboardingVariant:
+    description: "Which UI style this onboarding card is designed for.\n"
+    variants:
+      legacy:
+        description: Use the existing (legacy) onboarding UI.
+      modern:
+        description: Use the new (modern) onboarding UI.
   PageContent:
     description: "The page content that will be added as an item in the device's search engine."
     variants:
@@ -775,6 +852,8 @@ enums:
   ToolbarLayoutType:
     description: The type of toolbar layout.
     variants:
+      baseline:
+        description: The default layout of the toolbars.
       version1:
         description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
       version2:
@@ -954,6 +1033,10 @@ objects:
         description: "The title displayed on the card, in prominent, bolded text. This should never be defaulted.\n"
         type: Text
         default: ""
+      uiVariant:
+        description: "If set, this card will only be shown in the specified UI variant. If null, it will appear in both legacy and modern UIs.\n"
+        type: Option<OnboardingVariant>
+        default: ~
   NimbusOnboardingInstructionPopup:
     description: "The object outlining the content of the instruction card.\n"
     fields:
