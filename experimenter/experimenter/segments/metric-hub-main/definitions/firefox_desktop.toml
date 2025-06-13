@@ -1847,17 +1847,17 @@ type = "scalar"
 description = "Did a desktop user sync to mobile"
 
 [metrics.site_breakage_impressions]
-select_expression = "COALESCE(COUNTIF(event_name = 'opened'), 0)"
+select_expression = "CAST(COALESCE(LOGICAL_OR(event_name = 'opened'), FALSE) AS INT64)"
 data_source = "site_breakage_events"
 friendly_name = "Webcompat Reporting Panel Impressions"
 
 [metrics.site_breakage_uses]
-select_expression = "COALESCE(COUNTIF(event_name = 'send' OR event_name = 'send_more_info'), 0)"
+select_expression = "CAST(COALESCE(LOGICAL_OR(event_name = 'send' OR event_name = 'send_more_info'), FALSE) AS INT64)"
 data_source = "site_breakage_events"
 friendly_name = "Webcompat Reporting Panel Uses"
 
 [metrics.etp_disablement]
-select_expression = "COALESCE(COUNTIF(event_name  = 'click_etp_toggle_off'), 0)"
+select_expression = "CAST(COALESCE(LOGICAL_OR(event_name  = 'click_etp_toggle_off'), FALSE) AS INT64)"
 data_source = "protections_popup_events"
 friendly_name = "ETP Disablement"
 
