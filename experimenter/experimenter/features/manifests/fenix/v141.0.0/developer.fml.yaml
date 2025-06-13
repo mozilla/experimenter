@@ -591,7 +591,6 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<MR2022Section, Boolean>"
         default:
-          home-onboarding-dialog-existing-users: true
           sync-cfr: true
           wallpapers-selection-tool: true
           jump-back-in-cfr: true
@@ -869,14 +868,14 @@ features:
   tab-strip:
     description: Enables tab strip.
     variables:
+      allow-on-all-devices:
+        description: "Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior. This still requires the feature to be `enabled`.\n"
+        type: Boolean
+        default: false
       enabled:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
         default: true
-      force-enabled:
-        description: "Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior.\n"
-        type: Boolean
-        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -995,8 +994,6 @@ enums:
   MR2022Section:
     description: The identifiers for the sections of the MR 2022.
     variants:
-      home-onboarding-dialog-existing-users:
-        description: Home onboarding dialog for upgraded users.
       jump-back-in-cfr:
         description: Jump back-in onboarding message.
       sync-cfr:

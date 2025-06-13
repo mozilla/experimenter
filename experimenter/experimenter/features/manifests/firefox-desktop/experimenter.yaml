@@ -407,6 +407,12 @@ urlbar:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.impressionCaps.nonSponsoredEnabled
       description: Whether non-sponsored suggestions are subject to impression frequency caps. If false, non-sponsored suggestions can be shown an unlimited number of times over any given period. If true, non-sponsored suggestion impressions will be subject to the caps in the remote settings configuration.
+    quickSuggestMlInitDelaySeconds:
+      type: int
+      fallbackPref: browser.urlbar.quicksuggest.mlInitDelaySeconds
+      description: >-
+        How long to wait in seconds after startup before initializing the
+        Suggest ML backend.
     quickSuggestMlEnabled:
       type: boolean
       fallbackPref: browser.urlbar.quicksuggest.mlEnabled
@@ -1138,6 +1144,21 @@ newtabSponsoredContent:
         pref: browser.newtabpage.activity-stream.discoverystream.placements.tiles.counts
       description: CSV string of tiles placement counts on newtab tiles section. The count tells the ad server how many ads to return for this position and placement.
 
+newtabGroupedSponsoredControls:
+  description: >-
+    Adjust sponsored content controls on newtab.
+  owner: mcrawford@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.system.showSponsoredCheckboxes
+      description: >-
+        When true, checkboxes for sponsored results in top sites and recommended stories are grouped separately
+        on about:preferences#home
+
 newtabTopicSelection:
   description: the about:newtab topic selection experience.
   owner: nbarrett@mozilla.com
@@ -1816,14 +1837,6 @@ pocketNewtab:
         pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.searchTopsitesCompact
       description: >-
         Change the layout of the sections to be more compact to account for the added card height with the thumbs up/down enabled.
-    prefsSponsoredCheckboxes:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.system.sponsoredCheckboxes
-      description: >-
-        When true, checkboxes for sponsored results in top sites and recommended stories are grouped separately
-        on about:preferences#home
 
 saveToPocket:
   description: The save to Pocket feature
@@ -3451,6 +3464,19 @@ fingerprintingProtection:
         The protection overrides to add or remove fingerprinting protection
         targets. Please check RFPTargets.inc for all supported targets.
 
+portlessPartitioning:
+  description: When enabled, Site partition keys include non-standard ports
+  owner: bvandersloot@mozilla.com
+  hasExposure: false
+  variables:
+    no_port:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.dynamic_firstparty.use_site.include_port
+      description: >-
+        Controls the port's use in generation of Site partition keys
+
 userCharacteristics:
   description: Control user characteristic data collection
   owner: tihuang@mozilla.com
@@ -4892,3 +4918,16 @@ deletePrivate:
         branch: default
         pref: browser.download.enableDeletePrivate
       description: Whether the setting for deleting files downloaded in private browsing is available to the user
+
+ipProtection:
+  description: Prefs to control IP Protection feature
+  owner: fchasen@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.ipProtection.enabled
+      description: >-
+        Enables the IP Protection feature.

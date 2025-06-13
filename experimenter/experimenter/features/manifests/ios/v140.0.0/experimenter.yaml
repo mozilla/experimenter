@@ -93,6 +93,14 @@ hnt-content-feed-cleanup-feature:
     enabled:
       type: boolean
       description: "Whether or not the feature is enabled\n"
+hnt-sponsored-shortcuts-feature:
+  description: This feature manages the visibility of sponsored shortcuts on the homepage
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Setting 'enabled' to false will hide sponsored shortcuts on the homepage and disable the respective toggle in the homepage settings"
 hnt-top-sites-visual-refresh-feature:
   description: This feature manages the top sites visual refresh.
   hasExposure: true
@@ -193,6 +201,9 @@ onboarding-framework-feature:
     dismissable:
       type: boolean
       description: "Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.\n"
+    enableModernUi:
+      type: boolean
+      description: "Toggle between legacy (false) and modern (true) UI variants.\n"
 pdf-refactor-feature:
   description: "The feature flag to manage the roll out of the pdf refactor feature.\n"
   hasExposure: true
