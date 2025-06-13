@@ -671,11 +671,11 @@ features:
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
-        default: false
+        default: true
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
-        default: false
+        default: true
       toolbar_update_hint:
         description: "If true, enables the toolbar update contextual hint.\n"
         type: Boolean
@@ -898,6 +898,8 @@ enums:
   ToolbarLayoutType:
     description: The type of toolbar layout.
     variants:
+      baseline:
+        description: The default layout of the toolbars.
       version1:
         description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
       version2:

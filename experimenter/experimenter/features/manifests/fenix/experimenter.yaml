@@ -554,12 +554,12 @@ tab-strip:
   hasExposure: true
   exposureDescription: ""
   variables:
+    allow-on-all-devices:
+      type: boolean
+      description: "Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior. This still requires the feature to be `enabled`.\n"
     enabled:
       type: boolean
       description: "Whether or not to enable tab strip.\n"
-    force-enabled:
-      type: boolean
-      description: "Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior.\n"
 third-party-cookie-blocking:
   description: Control third-party cookie blocking.
   hasExposure: true
