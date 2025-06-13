@@ -868,14 +868,14 @@ features:
   tab-strip:
     description: Enables tab strip.
     variables:
+      allow-on-all-devices:
+        description: "Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior. This still requires the feature to be `enabled`.\n"
+        type: Boolean
+        default: false
       enabled:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
         default: true
-      force-enabled:
-        description: "Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior.\n"
-        type: Boolean
-        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:

@@ -404,3 +404,11 @@ updated-password-manager-feature:
     status:
       type: boolean
       description: "If true, firefox will use the  the updated password manager."
+web-engine-integration-refactor:
+  description: "The feature flag to manage the roll out of the integration of WebEngine into Firefox.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature.\n"

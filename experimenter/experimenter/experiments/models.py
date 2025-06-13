@@ -406,6 +406,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=False,
     )
     equal_branch_ratio = models.BooleanField(default=True)
+    klaatu_status = models.BooleanField("Automated Validation Status", default=False)
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -1426,6 +1427,34 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.publish_status == self.PublishStatus.WAITING and review_expired
 
     @property
+    def rollout_conflict_warning(self):
+        if not self.is_rollout:
+            return None
+
+        duplicate_rollout_count = (
+            NimbusExperiment.objects.filter(
+                status=self.Status.LIVE,
+                channel=self.channel,
+                application=self.application,
+                targeting_config_slug=self.targeting_config_slug,
+                feature_configs__in=self.feature_configs.all(),
+                is_rollout=True,
+            )
+            .exclude(id=self.id)
+            .count()
+        )
+
+        if duplicate_rollout_count > 0:
+            return {
+                "text": NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS,
+                "variant": "danger",
+                "slugs": [],
+                "learn_more_link": NimbusUIConstants.ROLLOUT_BUCKET_WARNING,
+            }
+
+        return None
+
+    @property
     def audience_overlap_warnings(self):
         warnings = []
         excluded_live_deliveries = ""
@@ -1478,6 +1507,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
                     }
                 )
+
+            rollout_warning = self.rollout_conflict_warning
+            if rollout_warning:
+                warnings.append(rollout_warning)
 
         return warnings
 
@@ -1553,6 +1586,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned._enrollment_end_date = None
         cloned.qa_status = NimbusExperiment.QAStatus.NOT_SET
         cloned.qa_comment = None
+        cloned.klaatu_status = False
         cloned.save()
 
         if rollout_branch_slug:

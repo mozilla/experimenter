@@ -681,7 +681,7 @@ features:
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
-        default: false
+        default: true
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
@@ -724,6 +724,13 @@ features:
     variables:
       status:
         description: "If true, firefox will use the  the updated password manager."
+        type: Boolean
+        default: false
+  web-engine-integration-refactor:
+    description: "The feature flag to manage the roll out of the integration of WebEngine into Firefox.\n"
+    variables:
+      enabled:
+        description: "Enables the feature.\n"
         type: Boolean
         default: false
 enums:
@@ -901,6 +908,8 @@ enums:
   ToolbarLayoutType:
     description: The type of toolbar layout.
     variants:
+      baseline:
+        description: The default layout of the toolbars.
       version1:
         description: "Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar."
       version2:
