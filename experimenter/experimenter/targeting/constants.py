@@ -2502,7 +2502,7 @@ SIGNED_OUT_USER = NimbusTargetingConfig(
     description="Users who are NOT signed into FxA",
     targeting="!isFxASignedIn",
     desktop_telemetry="",
-    sticky_required=False,
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -2665,7 +2665,7 @@ SIGNED_OUT_EARLY_DAY_USER = NimbusTargetingConfig(
     description="Early day users who are NOT signed into FxA",
     targeting=f"{PROFILELESSTHAN28DAYS} && !isFxASignedIn",
     desktop_telemetry="",
-    sticky_required=False,
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -2676,7 +2676,7 @@ SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
     description="Existing users who are NOT signed into FxA",
     targeting=f"{PROFILE28DAYS} && !isFxASignedIn",
     desktop_telemetry="",
-    sticky_required=False,
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
