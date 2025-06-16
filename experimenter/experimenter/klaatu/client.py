@@ -71,7 +71,7 @@ class KlaatuClient:
     def run_test(
         self,
         experiment_slug: str,
-        branch_slug: str,
+        branch_slugs: list[str],
         targets: list[Union[KlaatuTargets, str]],
     ) -> None:
         path = KlaatuEndpoints.DISPATCH.format(workflow=self.workflow_name)
@@ -81,7 +81,7 @@ class KlaatuClient:
             "ref": "main",
             "inputs": {
                 "slug": experiment_slug,
-                "branch": json.dumps([branch_slug]),
+                "branch": json.dumps(branch_slugs),
                 "firefox-version": json.dumps(targets),
             },
         }
