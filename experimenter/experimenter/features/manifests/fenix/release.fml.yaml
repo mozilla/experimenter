@@ -675,7 +675,7 @@ features:
       enabled:
         description: "Whether or not to enable private browsing mode lock.\n"
         type: Boolean
-        default: false
+        default: true
   query-parameter-stripping:
     description: Features for query parameter stripping.
     variables:
