@@ -2263,6 +2263,86 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.branches.count(), 0)
         self.assertEqual(experiment.changes.count(), 1)
 
+    @parameterized.expand(
+        [
+            (
+                application,
+                NimbusExperiment.Version.parse(min_version),
+            )
+            for application, min_version in (
+                NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.items()
+            )
+        ]
+    )
+    def test_rollout_version_warning_below_min_supported(self, application, min_version):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+        )
+
+        warning = experiment.rollout_version_warning
+        self.assertIsNotNone(warning)
+        self.assertEqual(warning["variant"], "warning")
+        self.assertIn(str(min_version), warning["text"])
+        self.assertIn(NimbusExperiment.Application(application).label, warning["text"])
+
+    @parameterized.expand(
+        [
+            (
+                application,
+                min_version,
+            )
+            for application, min_version in (
+                NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.items()
+            )
+        ]
+    )
+    def test_rollout_version_warning_meets_min_supported(self, application, min_version):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=application,
+            firefox_min_version=min_version,
+        )
+
+        warning = experiment.rollout_version_warning
+        self.assertIsNone(warning)
+
+    @parameterized.expand(
+        [
+            (
+                application,
+                min_version,
+            )
+            for application, min_version in (
+                NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.items()
+            )
+        ]
+    )
+    def test_audience_overlap_warnings_includes_rollout_version(
+        self, application, min_version
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_12,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        version_warning = next(
+            (
+                w
+                for w in warnings
+                if NimbusExperiment.Application(application).label in w["text"]
+            ),
+            None,
+        )
+        self.assertIsNotNone(version_warning)
+        self.assertEqual(version_warning["variant"], "warning")
+
     def test_allocate_buckets_generates_bucket_range(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
