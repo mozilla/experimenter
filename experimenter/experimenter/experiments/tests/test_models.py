@@ -2640,12 +2640,24 @@ class TestNimbusExperiment(TestCase):
 
         self.assertFalse(experiment.has_displayable_results)
 
-    def test_show_results_url_true(self):
+    @parameterized.expand(
+        [
+            (
+                {"v3": {"overall": {"enrollments": {"all": {}}}}},
+                datetime.date.today(),
+            ),
+            (
+                {"v3": {"weekly": {"exposures": {"all": {}}}}},
+                datetime.date(2020, 1, 1),
+            ),
+        ]
+    )
+    def test_show_results_url_true(self, results_data, start_date):
         lifecycle = NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle, start_date=datetime.date(2020, 1, 1), proposed_enrollment=2
+            lifecycle, start_date=start_date, proposed_enrollment=2
         )
-        experiment.results_data = {"v3": {"overall": {"enrollments": {"all": {}}}}}
+        experiment.results_data = results_data
         experiment.is_rollout = False
         experiment.save()
 
@@ -2655,12 +2667,12 @@ class TestNimbusExperiment(TestCase):
         [
             ({}, datetime.date(2020, 1, 1), False),
             (
-                {"v3": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"weekly": {}}},
                 datetime.date.today(),
                 False,
             ),
             (
-                {"v3": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"overall": {"exposures": {"all": {}}}}},
                 datetime.date(2020, 1, 1),
                 True,
             ),
