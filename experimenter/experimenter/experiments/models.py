@@ -1455,6 +1455,33 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return None
 
     @property
+    def rollout_version_warning(self):
+        if not self.is_rollout or not self.firefox_min_version:
+            return None
+
+        min_required_version = (
+            NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.get(
+                self.application
+            )
+        )
+
+        parsed_required_version = NimbusExperiment.Version.parse(min_required_version)
+        parsed_current_version = NimbusExperiment.Version.parse(self.firefox_min_version)
+
+        if parsed_current_version < parsed_required_version:
+            return {
+                "text": NimbusConstants.ERROR_ROLLOUT_VERSION.format(
+                    application=NimbusExperiment.Application(self.application).label,
+                    version=parsed_required_version,
+                ),
+                "variant": "warning",
+                "slugs": [],
+                "learn_more_link": None,
+            }
+
+        return None
+
+    @property
     def audience_overlap_warnings(self):
         warnings = []
         excluded_live_deliveries = ""
@@ -1511,6 +1538,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             rollout_warning = self.rollout_conflict_warning
             if rollout_warning:
                 warnings.append(rollout_warning)
+
+            rollout_version_warning = self.rollout_version_warning
+            if rollout_version_warning:
+                warnings.append(rollout_version_warning)
 
         return warnings
 

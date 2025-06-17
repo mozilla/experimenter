@@ -50,10 +50,12 @@
         <ul class="mb-1">
           {% for slug in warning.slugs %}<li>{{ slug }}</li>{% endfor %}
         </ul>
-        <a href="{{ warning.learn_more_link }}"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="btn btn-link p-0">Learn more</a>
+        {% if warning.learn_more_link %}
+          <a href="{{ warning.learn_more_link }}"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="btn btn-link p-0">Learn more</a>
+        {% endif %}
       </div>
     {% endfor %}
   {% endif %}
