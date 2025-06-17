@@ -1542,6 +1542,41 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY = NimbusTargetingCon
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY_CFR_ONLY = (
+    NimbusTargetingConfig(
+        name=(
+            "Windows 10+ users w/ background task notification "
+            "and 1hr+ of inactivity (CFR only)"
+        ),
+        slug="windows10_background_task_notification_1hr_inactivity_CFR_only",
+        description=(
+            "Windows 10+ users with 1hr+ of inactivity in the past day "
+            "who are running a background task with CFR enabled"
+        ),
+        targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
+        )
+        &&
+        isBackgroundTaskMode
+        &&
+        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue
+    )
+    """,
+        desktop_telemetry="",
+        sticky_required=True,
+        is_first_run_required=False,
+        application_choice_names=(Application.DESKTOP.name,),
+    )
+)
+
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
