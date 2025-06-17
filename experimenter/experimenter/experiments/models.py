@@ -1384,15 +1384,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             results_data = self.results_data["v3"]
             for window in ["overall", "weekly"]:
                 if results_data.get(window):
-                    enrollments = results_data[window].get("enrollments", {}).get("all")
-                    if enrollments is not None:
-                        return True
+                    for base in ["enrollments", "exposures"]:
+                        base_results = results_data[window].get(base, {}).get("all")
+                        if base_results is not None:
+                            return True
 
         return False
 
     @property
     def show_results_url(self):
-        return self.has_displayable_results and self.results_ready and not self.is_rollout
+        # if there are results, show them! even if the dates are wrong
+        # (the dates may have been overridden in metric-hub)
+        return not self.is_rollout and self.has_displayable_results
 
     @property
     def results_expected_date(self):
