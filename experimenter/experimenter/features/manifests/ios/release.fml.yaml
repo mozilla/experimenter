@@ -136,6 +136,17 @@ features:
         description: "If true, enables the feature\n"
         type: Boolean
         default: false
+  homepage-redesign-feature:
+    description: "This feature is for managing the roll out of the Homepage New Tab Redesign feature.\n"
+    variables:
+      enabled:
+        description: "Enables the feature.\n"
+        type: Boolean
+        default: false
+      search_bar:
+        description: "If true, enables the search bar feature on homepage for users.\n"
+        type: Boolean
+        default: false
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
