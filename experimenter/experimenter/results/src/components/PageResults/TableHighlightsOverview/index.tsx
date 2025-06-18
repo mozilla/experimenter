@@ -18,9 +18,9 @@ const TableHighlightsOverview = ({
   const { primaryOutcomes } = useOutcomes(experiment);
 
   return (
-    <div className="mb-5 border-right border-bottom border-left rounded-bottom">
+    <div className="mb-5">
       <table
-        className="table text-left"
+        className="table border-1 text-left"
         data-testid="table-highlights-overview"
       >
         <tbody>

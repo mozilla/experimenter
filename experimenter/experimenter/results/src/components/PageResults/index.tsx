@@ -110,7 +110,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const ResultsAvailableNav = () => (
     <>
       <li>
-        <ul className="text-dark list-unstyled">
+        <ul className="list-unstyled">
           {Object.keys(primaryMetrics).length > 0 &&
             getNestedSidebarItems(primaryMetrics, "Primary Outcomes")}
           {Object.keys(secondaryMetrics).length > 0 &&

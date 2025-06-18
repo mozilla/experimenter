@@ -84,12 +84,12 @@ const TableResults = ({
 
   return (
     <table
-      className="table-visualization-center mb-0 border-bottom-0"
+      className="table table-visualization-center"
       data-testid="table-results"
     >
       <thead>
         <tr>
-          <th scope="col" className="border-bottom-0 bg-light" />
+          <th scope="col" />
           {resultsMetricsList.map((metric, index) => {
             const badgeClass = `badge ${metric.type?.badge}`;
             const outcomeDescription =
@@ -99,7 +99,7 @@ const TableResults = ({
               <th
                 key={`${metric.type}-${index}`}
                 scope="col"
-                className="border-bottom-0 align-middle bg-light"
+                className="align-middle"
               >
                 <h3 className="h6 mb-0" data-tip data-for={metric.value}>
                   {metric.name}

@@ -73,16 +73,12 @@ const TableMetricConversion = ({
       <h3 className="h6 mb-3" id={outcome.slug!}>
         {outcome.friendlyName}
       </h3>
-      <table className="table-visualization-center border">
+      <table className="table table-visualization-center border">
         <thead>
           <tr>
-            <th scope="col" className="border-bottom-0 bg-light" />
+            <th scope="col" />
             {CONVERSION_METRIC_COLUMNS.map((value) => (
-              <th
-                className="border-bottom-0 bg-light"
-                key={value.name}
-                scope="col"
-              >
+              <th key={value.name} scope="col">
                 <div>{value.name}</div>
               </th>
             ))}

@@ -90,16 +90,12 @@ const TableMetricCount = ({
         metricType={metricType}
       />
 
-      <table className="table-visualization-center border">
+      <table className="table table-visualization-center border">
         <thead>
           <tr>
-            <th scope="col" className="border-bottom-0 bg-light" />
+            <th scope="col" />
             {COUNT_METRIC_COLUMNS.map((value) => (
-              <th
-                key={value.name}
-                className="border-bottom-0 bg-light"
-                scope="col"
-              >
+              <th key={value.name} scope="col">
                 <div>{value.name}</div>
               </th>
             ))}

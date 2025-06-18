@@ -77,17 +77,17 @@ export const METRIC_TYPE = {
   },
   USER_SELECTED_SECONDARY: {
     label: "User-Selected Secondary Metric",
-    badge: "badge-warning",
+    badge: "bg-warning text-dark",
     tooltip: BADGE_TIPS.USER_SELECTED_SECONDARY_METRIC,
   },
   DEFAULT_SECONDARY: {
     label: "Default Secondary Metric",
-    badge: "badge-warning",
+    badge: "bg-warning text-dark",
     tooltip: BADGE_TIPS.DEFAULT_SECONDARY_METRIC,
   },
   GUARDRAIL: {
     label: "Guardrail Metric",
-    badge: "badge-warning",
+    badge: "bg-warning text-dark",
     tooltip: BADGE_TIPS.GUARDRAIL_METRIC,
   },
 };

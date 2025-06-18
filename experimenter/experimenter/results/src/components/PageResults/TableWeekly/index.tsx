@@ -80,16 +80,15 @@ const TableWeekly = ({
   const tableLabel = TABLE_LABEL.RESULTS;
 
   return (
-    <table className="table-visualization-center" data-testid="table-weekly">
+    <table
+      className="table table-visualization-center"
+      data-testid="table-weekly"
+    >
       <thead>
         <tr>
-          <th scope="col" className="border-bottom-0 bg-light" />
+          <th scope="col" />
           {weekIndexList.map((weekIndex) => (
-            <th
-              key={`${weekIndex}`}
-              className="border-bottom-0 bg-light"
-              scope="col"
-            >
+            <th key={`${weekIndex}`} scope="col">
               <div>{`Week ${weekIndex}`}</div>
             </th>
           ))}
