@@ -141,6 +141,17 @@ homepage-rebuild-feature:
     enabled:
       type: boolean
       description: "If true, enables the feature\n"
+homepage-redesign-feature:
+  description: "This feature is for managing the roll out of the Homepage New Tab Redesign feature.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the feature.\n"
+    search_bar:
+      type: boolean
+      description: "If true, enables the search bar feature on homepage for users.\n"
 logins-verification:
   description: "Feature that enables the logins verification logic.\n"
   hasExposure: true
