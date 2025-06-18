@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 class NimbusUIConstants:
     HYPOTHESIS_PLACEHOLDER = """
 Hypothesis: If we <do this/build this/create this change in the experiment> for <these users>, then we will see <this outcome>.
@@ -29,8 +32,16 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     and may reduce the eligible population for your experiment which may result in
     reduced statistical power and precision. Please check that the configured population
     proportion has accounted for this:"""
+    ERROR_ROLLOUT_BUCKET_EXISTS = """WARNING: A rollout already exists for this
+    combination of application, feature, channel, and advanced targeting!
+        If this rollout is launched, a client meeting the advanced
+        targeting criteria will be enrolled in one and not the other and
+        you will not be able to adjust the sizing for this rollout."""
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
+    ROLLOUT_BUCKET_WARNING = (
+        "https://experimenter.info/faq/warnings/#rollout-bucketing-warning"
+    )
     TARGETING_CRITERIA_REQUEST = (
         "https://github.com/mozilla/experimenter/issues/new"
         "?template=targeting_request_template.yml"
@@ -61,11 +72,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         ),
     }
 
-    REVIEW_REQUEST_MESSAGES = {
-        "END_EXPERIMENT": "end this experiment",
-        "END_ENROLLMENT": "end enrollment for this experiment",
-        "LAUNCH_EXPERIMENT": "launch this experiment",
-    }
+    class ReviewRequestMessages(Enum):
+        END_EXPERIMENT = "end this experiment"
+        END_ENROLLMENT = "end enrollment for this experiment"
+        LAUNCH_EXPERIMENT = "launch this experiment"
+        LAUNCH_ROLLOUT = "launch this rollout"
+        UPDATE_ROLLOUT = "update this rollout"
+        END_ROLLOUT = "end this rollout"
 
     FIELD_PAGE_MAP = {
         "overview": [

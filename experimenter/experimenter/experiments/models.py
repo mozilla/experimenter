@@ -406,6 +406,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=False,
     )
     equal_branch_ratio = models.BooleanField(default=True)
+    klaatu_status = models.BooleanField("Automated Validation Status", default=False)
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -750,19 +751,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 flow_key = "END_EXPERIMENT"
 
         return {
-            "action": NimbusUIConstants.REVIEW_REQUEST_MESSAGES[flow_key],
+            "action": NimbusUIConstants.ReviewRequestMessages[flow_key].value,
             "email": rejection.changed_by.email,
             "date": rejection.changed_on,
             "message": rejection.message,
         }
 
     def review_messages(self):
-        if self.status_next == self.Status.COMPLETE:
-            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"]
+        if self.status_next == self.Status.COMPLETE and self.is_rollout:
+            return NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT.value
+        elif self.status_next == self.Status.COMPLETE:
+            return NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value
         elif self.is_paused:
-            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"]
+            return NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value
+        elif self.is_rollout and self.is_rollout_dirty:
+            return NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT.value
+        elif self.is_rollout:
+            return NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value
         else:
-            return NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"]
+            return NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value
 
     @property
     def remote_settings_pending_message(self):
@@ -778,7 +785,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def should_show_end_enrollment(self):
-        return self.is_enrolling
+        return self.is_enrolling and not self.is_rollout
 
     @property
     def should_show_end_experiment(self):
@@ -786,13 +793,35 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.status == self.Status.LIVE
             and self.publish_status != self.PublishStatus.REVIEW
             and not self.should_end
+            and not self.is_rollout
         )
+
+    @property
+    def should_show_end_rollout(self):
+        return (
+            self.status == self.Status.LIVE
+            and self.publish_status != self.PublishStatus.REVIEW
+            and not self.should_end
+            and self.is_rollout
+        )
+
+    @property
+    def should_show_rollout_request_update(self):
+        return self.status == self.Status.LIVE and self.is_rollout
 
     @property
     def is_end_experiment_requested(self):
         return (
             self.status == self.Status.LIVE
             and self.status_next == self.Status.COMPLETE
+            and self.publish_status == self.PublishStatus.REVIEW
+        )
+
+    @property
+    def is_rollout_update_requested(self):
+        return (
+            self.is_enrolling
+            and self.is_rollout_dirty
             and self.publish_status == self.PublishStatus.REVIEW
         )
 
@@ -1355,15 +1384,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             results_data = self.results_data["v3"]
             for window in ["overall", "weekly"]:
                 if results_data.get(window):
-                    enrollments = results_data[window].get("enrollments", {}).get("all")
-                    if enrollments is not None:
-                        return True
+                    for base in ["enrollments", "exposures"]:
+                        base_results = results_data[window].get(base, {}).get("all")
+                        if base_results is not None:
+                            return True
 
         return False
 
     @property
     def show_results_url(self):
-        return self.has_displayable_results and self.results_ready and not self.is_rollout
+        # if there are results, show them! even if the dates are wrong
+        # (the dates may have been overridden in metric-hub)
+        return not self.is_rollout and self.has_displayable_results
 
     @property
     def results_expected_date(self):
@@ -1396,6 +1428,61 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             timezone.now() - self.changes.latest_change().changed_on
         ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
         return self.publish_status == self.PublishStatus.WAITING and review_expired
+
+    @property
+    def rollout_conflict_warning(self):
+        if not self.is_rollout:
+            return None
+
+        duplicate_rollout_count = (
+            NimbusExperiment.objects.filter(
+                status=self.Status.LIVE,
+                channel=self.channel,
+                application=self.application,
+                targeting_config_slug=self.targeting_config_slug,
+                feature_configs__in=self.feature_configs.all(),
+                is_rollout=True,
+            )
+            .exclude(id=self.id)
+            .count()
+        )
+
+        if duplicate_rollout_count > 0:
+            return {
+                "text": NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS,
+                "variant": "danger",
+                "slugs": [],
+                "learn_more_link": NimbusUIConstants.ROLLOUT_BUCKET_WARNING,
+            }
+
+        return None
+
+    @property
+    def rollout_version_warning(self):
+        if not self.is_rollout or not self.firefox_min_version:
+            return None
+
+        min_required_version = (
+            NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.get(
+                self.application
+            )
+        )
+
+        parsed_required_version = NimbusExperiment.Version.parse(min_required_version)
+        parsed_current_version = NimbusExperiment.Version.parse(self.firefox_min_version)
+
+        if parsed_current_version < parsed_required_version:
+            return {
+                "text": NimbusConstants.ERROR_ROLLOUT_VERSION.format(
+                    application=NimbusExperiment.Application(self.application).label,
+                    version=parsed_required_version,
+                ),
+                "variant": "warning",
+                "slugs": [],
+                "learn_more_link": None,
+            }
+
+        return None
 
     @property
     def audience_overlap_warnings(self):
@@ -1450,6 +1537,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
                     }
                 )
+
+            rollout_warning = self.rollout_conflict_warning
+            if rollout_warning:
+                warnings.append(rollout_warning)
+
+            rollout_version_warning = self.rollout_version_warning
+            if rollout_version_warning:
+                warnings.append(rollout_version_warning)
 
         return warnings
 
@@ -1525,6 +1620,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned._enrollment_end_date = None
         cloned.qa_status = NimbusExperiment.QAStatus.NOT_SET
         cloned.qa_comment = None
+        cloned.klaatu_status = False
         cloned.save()
 
         if rollout_branch_slug:

@@ -2189,6 +2189,65 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(warnings[2]["text"], NimbusUIConstants.LIVE_MULTIFEATURE_WARNING)
         self.assertEqual(warnings[2]["slugs"], ["experiment4"])
 
+    def test_rollout_conflict_warning(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channel=NimbusExperiment.Channel.BETA,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[test_feature],
+        )
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channel=NimbusExperiment.Channel.BETA,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[test_feature],
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        rollout_warning = next(
+            (
+                w
+                for w in warnings
+                if w["text"] == NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS
+            ),
+            None,
+        )
+
+        self.assertIsNotNone(rollout_warning)
+        self.assertEqual(rollout_warning["variant"], "danger")
+        self.assertEqual(rollout_warning["slugs"], [])
+        self.assertEqual(
+            rollout_warning["learn_more_link"], NimbusUIConstants.ROLLOUT_BUCKET_WARNING
+        )
+
+    def test_rollout_conflict_warning_returns_none_when_no_conflict(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channel=NimbusExperiment.Channel.BETA,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[test_feature],
+        )
+
+        self.assertIsNone(experiment.rollout_conflict_warning)
+
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2203,6 +2262,86 @@ class TestNimbusExperiment(TestCase):
         self.assertIsNone(experiment.reference_branch)
         self.assertEqual(experiment.branches.count(), 0)
         self.assertEqual(experiment.changes.count(), 1)
+
+    @parameterized.expand(
+        [
+            (
+                application,
+                NimbusExperiment.Version.parse(min_version),
+            )
+            for application, min_version in (
+                NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.items()
+            )
+        ]
+    )
+    def test_rollout_version_warning_below_min_supported(self, application, min_version):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+        )
+
+        warning = experiment.rollout_version_warning
+        self.assertIsNotNone(warning)
+        self.assertEqual(warning["variant"], "warning")
+        self.assertIn(str(min_version), warning["text"])
+        self.assertIn(NimbusExperiment.Application(application).label, warning["text"])
+
+    @parameterized.expand(
+        [
+            (
+                application,
+                min_version,
+            )
+            for application, min_version in (
+                NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.items()
+            )
+        ]
+    )
+    def test_rollout_version_warning_meets_min_supported(self, application, min_version):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=application,
+            firefox_min_version=min_version,
+        )
+
+        warning = experiment.rollout_version_warning
+        self.assertIsNone(warning)
+
+    @parameterized.expand(
+        [
+            (
+                application,
+                min_version,
+            )
+            for application, min_version in (
+                NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.items()
+            )
+        ]
+    )
+    def test_audience_overlap_warnings_includes_rollout_version(
+        self, application, min_version
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_12,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        version_warning = next(
+            (
+                w
+                for w in warnings
+                if NimbusExperiment.Application(application).label in w["text"]
+            ),
+            None,
+        )
+        self.assertIsNotNone(version_warning)
+        self.assertEqual(version_warning["variant"], "warning")
 
     def test_allocate_buckets_generates_bucket_range(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
@@ -2501,12 +2640,24 @@ class TestNimbusExperiment(TestCase):
 
         self.assertFalse(experiment.has_displayable_results)
 
-    def test_show_results_url_true(self):
+    @parameterized.expand(
+        [
+            (
+                {"v3": {"overall": {"enrollments": {"all": {}}}}},
+                datetime.date.today(),
+            ),
+            (
+                {"v3": {"weekly": {"exposures": {"all": {}}}}},
+                datetime.date(2020, 1, 1),
+            ),
+        ]
+    )
+    def test_show_results_url_true(self, results_data, start_date):
         lifecycle = NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle, start_date=datetime.date(2020, 1, 1), proposed_enrollment=2
+            lifecycle, start_date=start_date, proposed_enrollment=2
         )
-        experiment.results_data = {"v3": {"overall": {"enrollments": {"all": {}}}}}
+        experiment.results_data = results_data
         experiment.is_rollout = False
         experiment.save()
 
@@ -2516,12 +2667,12 @@ class TestNimbusExperiment(TestCase):
         [
             ({}, datetime.date(2020, 1, 1), False),
             (
-                {"v3": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"weekly": {}}},
                 datetime.date.today(),
                 False,
             ),
             (
-                {"v3": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"overall": {"exposures": {"all": {}}}}},
                 datetime.date(2020, 1, 1),
                 True,
             ),
@@ -3027,6 +3178,14 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertFalse(child.is_rollout_dirty)
 
+    def test_clone_klaatu_status(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        parent.klaatu_status = True
+        generate_nimbus_changelog(parent, parent.owner, "Archiving experiment")
+        self._clone_experiment_and_assert_common_expectations(parent)
+
     def _clone_experiment_and_assert_common_expectations(
         self, parent, rollout_branch_slug=None
     ):
@@ -3058,6 +3217,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child._start_date, None)
         self.assertEqual(child._end_date, None)
         self.assertEqual(child._enrollment_end_date, None)
+        self.assertEqual(child.klaatu_status, False)
 
         # Cloned fields
         self.assertEqual(child.name, "Child Experiment")
@@ -3727,42 +3887,74 @@ class TestNimbusExperiment(TestCase):
         [
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value,
+                True,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value,
+                False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value,
+                False,
             ),
         ]
     )
     def test_remote_settings_pending_message_with_lifecycless(
-        self, lifecycle, expected_message
+        self, lifecycle, expected_message, is_rollout
     ):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=is_rollout
+        )
         self.assertEqual(experiment.remote_settings_pending_message, expected_message)
 
     @parameterized.expand(
         [
             (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["LAUNCH_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value,
+                True,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_EXPERIMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value,
+                False,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
-                NimbusUIConstants.REVIEW_REQUEST_MESSAGES["END_ENROLLMENT"],
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_REVIEW_REQUESTED,
+                NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT.value,
+                True,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+                NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT.value,
+                True,
             ),
         ]
     )
-    def test_review_messages_and_action_type(self, lifecycle, expected_message):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+    def test_review_messages_and_action_type(
+        self, lifecycle, expected_message, is_rollout
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=is_rollout
+        )
         self.assertEqual(experiment.review_messages(), expected_message)
 
     @parameterized.expand(
@@ -3791,7 +3983,7 @@ class TestNimbusExperiment(TestCase):
         expected_flow_key,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
 
         experiment.status = status
@@ -3808,7 +4000,8 @@ class TestNimbusExperiment(TestCase):
         block = experiment.rejection_block
         self.assertIsNotNone(block)
         self.assertEqual(
-            block["action"], NimbusUIConstants.REVIEW_REQUEST_MESSAGES[expected_flow_key]
+            block["action"],
+            NimbusUIConstants.ReviewRequestMessages[expected_flow_key].value,
         )
         self.assertEqual(
             block["email"], experiment.changes.latest_rejection().changed_by.email

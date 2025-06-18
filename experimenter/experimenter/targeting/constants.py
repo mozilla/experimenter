@@ -65,7 +65,9 @@ ACCEPTED_TOU_IN_PARTIAL_ON_TRAIN_ROLLOUT = """
     'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue == 2
 )
 """
-ACCEPTED_TOU_V1 = "'termsofuse.acceptedVersion'|preferenceValue == 1"
+# After an upcoming pref migration, users who accepted the initial version of
+# the TOU will have termsofuse.acceptedVersion set to 4
+ACCEPTED_TOU_V4 = "'termsofuse.acceptedVersion'|preferenceValue == 4"
 ACCEPTED_TOU = f"""
 (
     {ACCEPTED_TOU_IN_NIMBUS_EXPERIMENT}
@@ -74,33 +76,27 @@ ACCEPTED_TOU = f"""
     ||
     {ACCEPTED_TOU_IN_PARTIAL_ON_TRAIN_ROLLOUT}
     ||
-    {ACCEPTED_TOU_V1}
+    {ACCEPTED_TOU_V4}
 )
 """
 TOU_NOTIFICATION_BYPASS_ENABLED = """
 (
     'datareporting.policy.dataSubmissionPolicyBypassNotification'|preferenceValue
     ||
-    'termsOfUse.bypassNotification'|preferenceValue
+    'termsofuse.bypassNotification'|preferenceValue
 )
 """
 
 # The following indicate whether the user has changed prefs suggesting
 # they prefer not to see ads or ad-like features
-NEW_TAB_AND_HOMEPAGE_NOT_DEFAULT = """
+NEW_TAB_NOT_DEFAULT = """
 (
-    (
-        !newtabSettings.isDefault
-        ||
-        !'browser.newtabpage.enabled'|preferenceValue
-    )
-    &&
-    !homePageSettings.isDefault
+    !newtabSettings.isDefault
+    ||
+    !'browser.newtabpage.enabled'|preferenceValue
 )
 """
-SPONSORED_SEARCH_SUGGESTIONS_DISABLED = (
-    "!'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
-)
+HOMEPAGE_NOT_DEFAULT = "!homePageSettings.isDefault"
 TOPSITES_OR_SPONSORED_TOPSITES_DISABLED = """
 (
     !'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue
@@ -108,28 +104,27 @@ TOPSITES_OR_SPONSORED_TOPSITES_DISABLED = """
     !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
 )
 """
-SPONSORED_STORIES_DISABLED = """
+RECOMMENDED_OR_SPONSORED_STORIES_DISABLED = """
 (
     !'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue
     ||
     !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
 )
 """
+SPONSORED_SEARCH_SUGGESTIONS_DISABLED = (
+    "!'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
+)
 ADS_DISABLED = f"""
 (
-    (
-        {NEW_TAB_AND_HOMEPAGE_NOT_DEFAULT}
-        &&
-        {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
-    )
+    {NEW_TAB_NOT_DEFAULT}
     ||
-    (
-        {TOPSITES_OR_SPONSORED_TOPSITES_DISABLED}
-        &&
-        {SPONSORED_STORIES_DISABLED}
-        &&
-        {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
-    )
+    {HOMEPAGE_NOT_DEFAULT}
+    ||
+    {TOPSITES_OR_SPONSORED_TOPSITES_DISABLED}
+    ||
+    {RECOMMENDED_OR_SPONSORED_STORIES_DISABLED}
+    ||
+    {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
 )
 """
 
@@ -664,6 +659,25 @@ URLBAR_FIREFOX_SUGGEST_SPONSORED_ENABLED = NimbusTargetingConfig(
     targeting=(
         "!('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) || "
         "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+URLBAR_FIREFOX_SUGGEST_SPONSORED_ENABLED_AND_4GB_RAM_MIN = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Sponsored Suggestions Enabled and 4GB+ of RAM",
+    slug="urlbar_firefox_suggest_sponsored_enabled_and_atleast_4GB_ram",
+    description=(
+        "Users with sponsored Firefox Suggest suggestions enabled and at least 4GB of RAM"
+        "(IMPORTANT: You must restrict 'Locales' to one or more Suggest "
+        "locales when using this!)"
+    ),
+    targeting=(
+        "(!('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) "
+        "|| 'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue) "
+        "&& memoryMB >= 4000"
     ),
     desktop_telemetry="",
     sticky_required=False,
@@ -1526,6 +1540,41 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY = NimbusTargetingCon
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY_CFR_ONLY = (
+    NimbusTargetingConfig(
+        name=(
+            "Windows 10+ users w/ background task notification "
+            "and 1hr+ of inactivity (CFR only)"
+        ),
+        slug="windows10_background_task_notification_1hr_inactivity_CFR_only",
+        description=(
+            "Windows 10+ users with 1hr+ of inactivity in the past day "
+            "who are running a background task with CFR enabled"
+        ),
+        targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
+        )
+        &&
+        isBackgroundTaskMode
+        &&
+        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue
+    )
+    """,
+        desktop_telemetry="",
+        sticky_required=True,
+        is_first_run_required=False,
+        application_choice_names=(Application.DESKTOP.name,),
+    )
 )
 
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
@@ -2488,7 +2537,7 @@ SIGNED_OUT_USER = NimbusTargetingConfig(
     description="Users who are NOT signed into FxA",
     targeting="!isFxASignedIn",
     desktop_telemetry="",
-    sticky_required=False,
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -2651,7 +2700,7 @@ SIGNED_OUT_EARLY_DAY_USER = NimbusTargetingConfig(
     description="Early day users who are NOT signed into FxA",
     targeting=f"{PROFILELESSTHAN28DAYS} && !isFxASignedIn",
     desktop_telemetry="",
-    sticky_required=False,
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -2662,16 +2711,16 @@ SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
     description="Existing users who are NOT signed into FxA",
     targeting=f"{PROFILE28DAYS} && !isFxASignedIn",
     desktop_telemetry="",
-    sticky_required=False,
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOU_NOT_ACCEPTED_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
-    name="TOU not accepted yet, ads enabled, Mac or Win",
-    slug="tou_not_accepted_ads_enabled_mac_win",
+TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
+    name="TOU not accepted yet, existing user, ads enabled, Mac or Win",
+    slug="tou_not_accepted_existing_user_ads_enabled_mac_win",
     description=(
-        "Users who have not accepted the terms of use yet, "
+        "Existing users who have not accepted the terms of use yet, "
         "have not disabled ads, "
         "and are on Mac or Windows"
     ),
@@ -2682,6 +2731,8 @@ TOU_NOT_ACCEPTED_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
             ||
             os.isMac
         )
+        &&
+        {PROFILE28DAYS}
         &&
         !{ACCEPTED_TOU}
         &&
