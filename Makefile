@@ -31,7 +31,8 @@ RED = \033[0;31m
 GREEN = \033[0;32m
 PAD = -------------------------------------------------\n
 COLOR_CHECK = && echo "${GREEN}${PAD}All Checks Passed\n${PAD}${NOCOLOR}" || (echo "${RED}${PAD}Some Checks Failed\n${PAD}${NOCOLOR}";exit 1)
-PYTHON_TEST = pytest --cov --cov-report json:experimenter_coverage.json --cov-branch --cov-report term-missing --junitxml=experimenter_tests.xml
+PYTHON_COVERAGE = pytest --cov --cov-report json:experimenter_coverage.json --cov-branch --junitxml=experimenter_tests.xml
+PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate
@@ -165,11 +166,12 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 
 lint: build_test  ## Running linting on source code
 	-docker rm experimenter_test;
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)") ${COLOR_CHECK}'
 
 check: lint
 
-check_and_report: lint
+check_and_report: build_test  ## Only to be used on CI
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_COVERAGE)" "$(JS_TEST_NIMBUS_UI)") ${COLOR_CHECK}'
 	docker cp experimenter_test:/experimenter/experimenter_coverage.json workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter_tests.xml workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter/nimbus-ui/coverage_report workspace/test-results
