@@ -1589,9 +1589,26 @@ WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT = NimbusTargetingConfig(
         "who are running a background task with CFR enabled and "
         "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
     ),
-    targeting=(
-        f"{WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY_CFR_ONLY.targeting} && ((defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs'] == 'treatment-a') == false)"
-    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
+        )
+        &&
+        isBackgroundTaskMode
+        &&
+        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue
+        &&
+        ((defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
+        == 'treatment-a') == false)
+    )
+    """,
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
