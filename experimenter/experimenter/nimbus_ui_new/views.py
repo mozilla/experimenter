@@ -314,9 +314,6 @@ class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, Up
     # TODO: https://github.com/mozilla/experimenter/issues/12432
     def get_context_data(self, **kwargs):
         return super().get_context_data(experiment=self.get_object(), **kwargs)
-        # context = super().get_context_data(**kwargs)
-        # context["experiment"] = self.get_object()
-        # return context
 
     def post(self, *args, **kwargs):
         response = super().post(*args, **kwargs)

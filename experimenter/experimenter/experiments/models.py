@@ -1033,7 +1033,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return None
 
     def sidebar_links(self, current_path):
-        # Determine editability based on status
         is_draft = self.is_draft
         is_live_rollout = self.is_rollout and self.is_enrolling
 
@@ -1059,7 +1058,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             },
             {
                 "title": "Results",
-                "link": "",  # Real URL later
+                "link": "",
                 "icon": "fa-solid fa-chart-column",
                 "active": False,
                 "disabled": True,
