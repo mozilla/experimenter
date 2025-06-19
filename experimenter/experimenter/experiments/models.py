@@ -1033,11 +1033,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return None
 
     def sidebar_links(self, current_path):
-        is_draft = self.is_draft
         is_live_rollout = self.is_rollout and self.is_enrolling
 
         def is_edit_enabled(section):
-            if is_draft:
+            if self.is_draft:
                 return True
             return bool(section == "Audience" and is_live_rollout)
 
