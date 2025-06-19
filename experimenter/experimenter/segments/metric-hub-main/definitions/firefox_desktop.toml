@@ -2223,6 +2223,7 @@ deprecated = false
 from_expression = """(
     SELECT
         legacy_telemetry_client_id as client_id,
+        profile_group_id,
         DATE(submission_timestamp) AS submission_date,
         experiments,
         event_name,
@@ -2239,6 +2240,7 @@ description = "Webcompat 'Report Broken Site' pings"
 from_expression = """(
     SELECT
         legacy_telemetry_client_id as client_id,
+        profile_group_id,
         DATE(submission_timestamp) AS submission_date,
         experiments,
         event_name,
