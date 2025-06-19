@@ -852,6 +852,21 @@ features:
         description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
         type: Boolean
         default: true
+  toolbar-redesign-option:
+    description: Control the visibility of toolbar redesign option in settings.
+    variables:
+      show-expanded-customization:
+        description: "Whether or not the expanded toolbar customization option is visible to the user.\n"
+        type: Boolean
+        default: false
+      show-options:
+        description: "Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.\n"
+        type: Boolean
+        default: false
+      show-simple-customization:
+        description: "Whether or not the simple toolbar customization option is visible to the user.\n"
+        type: Boolean
+        default: false
   top-sites-suggestions:
     description: Enables top sites suggestions.
     variables:
