@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   gh: circleci/github-cli@2.2
-  gcp-cli: circleci/gcp-cli@3.1.1
+  gcp-cli: circleci/gcp-cli@3.3.1
   android: circleci/android@2.5.0
   macos: circleci/macos@2.5.2
 commands:
@@ -52,10 +52,50 @@ commands:
             mkdir -p workspace/test-results
             mkdir -p dashboard/test-results
 
+  upload-to-gcs:
+    parameters:
+      source:
+        type: string
+      destination:
+        type: string
+      extension:
+        type: enum
+        enum: ["xml", "json"]
+    steps:
+      - run:
+          name: Change gcloud folder permissions
+          command: sudo chown -R $USER /home/circleci/.config/gcloud/ || true
+      - gcp-cli/setup:
+          gcloud_service_key: ETE_GCLOUD_SERVICE_KEY
+          google_project_id: ETE_GOOGLE_PROJECT_ID
+      - run:
+          name: Upload << parameters.source >> << parameters.extension >> Files to GCS
+          when: always  # Ensure the step runs even if previous steps, like test runs, fail
+          command: |
+            allowed_branches=("update_firefox_versions" "update-application-services" "fix-12587")
+
+            for branch in "${allowed_branches[@]}"; do
+              if [[ "$CIRCLE_BRANCH" == "$branch" || "$CIRCLE_BRANCH" == gh-readonly-queue/$branch/* ]]; then
+                should_upload=true
+                break
+              fi
+            done
+
+            if [[ "$should_upload" == true ]]; then
+              FILES=$(ls -1 << parameters.source >>/*.<< parameters.extension >> 2>/dev/null)
+              if [ -z "$FILES" ]; then
+                echo "No << parameters.extension >> files found in << parameters.source >>/"
+                exit 1
+              fi
+              gsutil cp -n $FILES << parameters.destination >>
+            else
+              echo "Skipping artifact upload; not on an allowed or merge queue branch."
+            fi
+
 jobs:
   check_experimenter_x86_64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
@@ -63,23 +103,17 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/"
-      - create_test_result_workspace
       - run:
           name: Run tests and linting
           command: |
             cp .env.sample .env
-            make check_and_report
-      - store_test_results:
-          path: workspace/test-results/experimenter_tests.xml
-      - store_test_results:
-          path: workspace/test-results/junit.xml
+            make check
 
-
-  check_experimenter_aarch64:
+  check_experimenter_and_report:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
-    resource_class: arm.large
+    resource_class: large
     working_directory: ~/experimenter
     steps:
       - checkout
@@ -87,18 +121,43 @@ jobs:
           paths: "experimenter/"
       - create_test_result_workspace
       - run:
-          name: Run tests and linting
+          name: Run coverage
+          no_output_timeout: 20m
           command: |
             cp .env.sample .env
-            make check_and_report
+            make check_and_report || true
       - store_test_results:
           path: workspace/test-results/experimenter_tests.xml
       - store_test_results:
           path: workspace/test-results/junit.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
+          extension: json
+
+  check_experimenter_aarch64:
+    machine:
+      image: ubuntu-2204:2024.11.1
+      docker_layer_caching: true
+    resource_class: arm.large
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "experimenter/"
+      - run:
+          name: Run tests and linting
+          command: |
+            cp .env.sample .env
+            make check
 
   check_cirrus_x86_64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/cirrus
@@ -113,10 +172,18 @@ jobs:
             make cirrus_check_and_report
       - store_test_results:
           path: workspace/test-results/cirrus_pytest.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
+          extension: json
 
   check_cirrus_aarch64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: arm.large
     working_directory: ~/cirrus
@@ -131,10 +198,18 @@ jobs:
             make cirrus_check_and_report
       - store_test_results:
           path: workspace/test-results/cirrus_pytest.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
+          extension: json
 
   check_schemas:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -168,6 +243,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_remote_settings_launch:
     machine:
@@ -192,6 +271,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_remote_settings_all:
     machine:
@@ -216,6 +299,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_desktop_enrollment:
     machine:
@@ -241,6 +328,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_desktop_release_targeting:
     machine:
@@ -266,6 +357,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_desktop_beta_targeting:
     machine:
@@ -291,6 +386,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
@@ -315,6 +414,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_fenix_enrollment:
     executor:
@@ -355,6 +458,10 @@ jobs:
           path: workspace/test-results/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_fenix_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_ios_enrollment:
     macos:
@@ -415,7 +522,12 @@ jobs:
             poetry add pydantic==2.10.3
             poetry install
             poetry run pytest --junitxml=/Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml -k test_ios_integration.py --feature ios_enrollment
-            cp /Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml /Users/distiller/project/dashboard/test-results/${CIRCLE_BUILD_NUM}__$(date +"%s")__${CIRCLE_PROJECT_REPONAME}__${CIRCLE_WORKFLOW_ID}__ios__integration__results.xml
+            cp /Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml /Users/distiller/project/dashboard/test-results/${CIRCLE_BUILD_NUM}__$(date +"%s")__${CIRCLE_PROJECT_REPONAME}__build__integration__results.xml
+      - run:
+          name: Change python version for GCP CLI  # circleci/macos with xcode 16.2 has python 3.13 and gcp-cli doesn't support this yet.
+          command: |
+            pyenv install 3.12.5
+            pyenv global 3.12.5
       - run:
           name: Collect XCTest Results
           command: |
@@ -434,6 +546,10 @@ jobs:
           path: ~/project/results.zip
       - store_test_results:
           path: /Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_sdk_targeting:
     machine:
@@ -455,6 +571,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   integration_nimbus_cirrus:
     machine:
@@ -480,6 +600,10 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
           path: workspace/test-results/experimenter_integration_tests.xml
+      - upload-to-gcs:
+          source: dashboard/test-results
+          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
+          extension: xml
 
   create_mobile_recipes:
     working_directory: ~/experimenter
@@ -749,6 +873,8 @@ workflows:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
           name: Check Experimenter aarch64
+      - check_experimenter_and_report:
+          name: Check Experimenter and report
       - check_cirrus_x86_64:
           name: Check Cirrus x86_64
       - check_cirrus_aarch64:
