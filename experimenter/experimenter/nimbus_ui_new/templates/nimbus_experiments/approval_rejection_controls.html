@@ -9,6 +9,30 @@
   </div>
 {% endif %}
 <div id="review-controls">
+  {% can_review_experiment experiment as can_review %}
+{% if  not can_review %}
+<div class="alert alert-success">
+  <p class="mb-1">
+    Please ask someone on your team with 
+    <a href="https://mana.mozilla.org/wiki/display/PM/Nimbus+Experiment+Review+Process" target="_blank">
+      review privileges
+    </a> or a qualified reviewer to {{ experiment.review_messages }}.
+  </p>
+  <p class="mb-1">
+    If you don’t have a team reviewer, paste the experiment URL in 
+    <strong>#ask-experimenter</strong> and ask for a review.
+  </p>
+  <p>
+    <a href="#" onclick="
+  navigator.clipboard.writeText(window.location.href)
+    .then(() => alert('URL copied to clipboard!'));
+  return false;">
+      Click here to copy the URL to send them.
+    </a>
+  </p>
+</div>
+{% else %}
+
   <div class="alert alert-primary">
     <p>
       <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
@@ -21,6 +45,7 @@
             hx-swap="outerHTML">Approve and {{ action_label }}</button>
     <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
   </div>
+  {% endif %}
   <div class="alert alert-primary">
     <button type="button"
             class="btn btn-secondary"
