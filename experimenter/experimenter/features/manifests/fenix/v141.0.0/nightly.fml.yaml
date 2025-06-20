@@ -577,7 +577,6 @@ features:
         default:
           sync-cfr: true
           wallpapers-selection-tool: true
-          jump-back-in-cfr: true
           tcp-cfr: true
           tcp-feature: true
   navigation-toolbar:
@@ -685,13 +684,6 @@ features:
         description: "If true, a print button from the share menu is available."
         type: Boolean
         default: true
-  private-browsing:
-    description: Private Browsing Mode
-    variables:
-      felt-privacy-enabled:
-        description: "if true, enable felt privacy related UI"
-        type: Boolean
-        default: false
   private-browsing-lock:
     description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
     variables:
@@ -993,8 +985,6 @@ enums:
   MR2022Section:
     description: The identifiers for the sections of the MR 2022.
     variants:
-      jump-back-in-cfr:
-        description: Jump back-in onboarding message.
       sync-cfr:
         description: CFR for the first time you see a synced tab on the home screen.
       tcp-cfr:
