@@ -15,25 +15,27 @@
       | Experimenter
     </title>
     <script src="{% static 'nimbus_ui_new/app.bundle.js' %}"></script>
+    {% block extra_head %}
+    {% endblock extra_head %}
+
   </head>
-  <body
-    {# djlint:off #}
-    id="{% block page_id %}{% endblock %}"
-    {# djlint:on #}
-    class="bg-body-tertiary">
-    <div class="container-fluid bg-body border-bottom border-1 mb-4 py-1">
-      {% include "common/header.html" %}
+  <body {# djlint:off #}
+        id="{% block page_id %}{% endblock %}"
+  {# djlint:on #}
+  class="bg-body-tertiary">
+  <div class="container-fluid bg-body border-bottom border-1 mb-4 py-1">
+    {% include "common/header.html" %}
 
-    </div>
-    <div class="container-fluid">
-      {% block content %}
-      {% endblock content %}
+  </div>
+  <div class="container-fluid">
+    {% block content %}
+    {% endblock content %}
 
-      {% include "common/footer.html" %}
+    {% include "common/footer.html" %}
 
-    </div>
-    {% block extrascripts %}
-    {% endblock extrascripts %}
+  </div>
+  {% block extrascripts %}
+  {% endblock extrascripts %}
 
-  </body>
+</body>
 </html>

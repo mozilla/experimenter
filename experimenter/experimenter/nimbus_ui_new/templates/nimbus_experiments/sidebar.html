@@ -1,7 +1,7 @@
 <div class="nav flex-column nav-pills fw-medium w-100">
   {% include "common/sidebar_link.html" with title="Summary" link=experiment.get_detail_url icon="fa-regular fa-paper-plane" %}
   {% include "common/sidebar_link.html" with title="History" link=experiment.get_history_url icon="fa-solid fa-network-wired" active=True %}
-  {% include "common/sidebar_link.html" with title="Results" link="" icon="fa-solid fa-chart-column" disabled=True %}
+  {% include "common/sidebar_link.html" with title="Results" link=experiment.get_results_url icon="fa-solid fa-chart-column" disabled=experiment.disable_results_link %}
 
   <strong class="ms-3">Edit</strong>
   <hr class="my-0 mb-2">

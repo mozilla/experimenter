@@ -2606,3 +2606,17 @@ class TestSaveAndContinueMixin(AuthTestCase):
             response.headers["HX-Redirect"],
             reverse(next_url, kwargs={"slug": experiment.slug}),
         )
+
+
+class TestResultsView(AuthTestCase):
+    def test_render_to_response(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-results", kwargs={"slug": experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["experiment"], experiment)
+        self.assertTemplateUsed(response, "nimbus_experiments/results.html")
