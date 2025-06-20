@@ -1843,6 +1843,105 @@ class TestNimbusExperiment(TestCase):
         )  # Check if the last status "Complete" is active
         self.assertEqual(timeline[-1]["date"], experiment.end_date)
 
+    @parameterized.expand(
+        [
+            (
+                "Draft",
+                {
+                    "status": NimbusExperiment.Status.DRAFT,
+                    "proposed_enrollment": 2,
+                    "_enrollment_end_date": None,
+                },
+                ["Overview", "Branches", "Metrics", "Audience"],
+            ),
+            (
+                "Live Rollout (enrolling)",
+                {
+                    "lifecycle": (
+                        NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
+                    ),
+                    "proposed_enrollment": 2,
+                    "_enrollment_end_date": timezone.now().date()
+                    + datetime.timedelta(days=2),
+                    "is_rollout": True,
+                    "status": NimbusExperiment.Status.LIVE,
+                },
+                ["Audience"],
+            ),
+            (
+                "Preview",
+                {
+                    "status": NimbusExperiment.Status.PREVIEW,
+                    "proposed_enrollment": 2,
+                    "_enrollment_end_date": None,
+                },
+                [],
+            ),
+            (
+                "Complete",
+                {
+                    "lifecycle": (
+                        NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+                    ),
+                    "proposed_enrollment": 2,
+                    "_enrollment_end_date": datetime.date(2023, 12, 1),
+                },
+                [],
+            ),
+        ]
+    )
+    def test_sidebar_links_editable_states(
+        self, label, experiment_kwargs, enabled_titles
+    ):
+        if "lifecycle" in experiment_kwargs:
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                **experiment_kwargs
+            )
+        else:
+            experiment = NimbusExperimentFactory.create(**experiment_kwargs)
+
+        links = experiment.sidebar_links(current_path=experiment.get_detail_url())
+        editable_titles = ["Overview", "Branches", "Metrics", "Audience"]
+
+        for link in links:
+            if link.get("is_header"):
+                continue
+            if link["title"] in editable_titles:
+                if link["title"] in enabled_titles:
+                    self.assertFalse(
+                        link["disabled"], f"{label}: {link['title']} should be enabled"
+                    )
+                else:
+                    self.assertTrue(
+                        link["disabled"], f"{label}: {link['title']} should be disabled"
+                    )
+
+    def test_sidebar_links_sets_active_flag_correctly(self):
+        experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
+        all_paths = {
+            "Summary": experiment.get_detail_url(),
+            "History": experiment.get_history_url(),
+            "Overview": experiment.get_update_overview_url(),
+            "Branches": experiment.get_update_branches_url(),
+            "Metrics": experiment.get_update_metrics_url(),
+            "Audience": experiment.get_update_audience_url(),
+        }
+
+        for title, path in all_paths.items():
+            links = experiment.sidebar_links(current_path=path)
+            for link in links:
+                if link.get("is_header"):
+                    continue
+                if link["title"] == title:
+                    self.assertTrue(
+                        link["active"], f"{title} should be active for path {path}"
+                    )
+                else:
+                    self.assertFalse(
+                        link["active"],
+                        f"{link['title']} should not be active for path {path}",
+                    )
+
     def test_conclusion_recommendation_labels(self):
         recommendations = list(NimbusConstants.ConclusionRecommendation)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
