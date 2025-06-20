@@ -1032,14 +1032,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self.computed_end_date - enrollment_end_date).days
         return None
 
+    def can_edit_overview(self):
+        return self.is_draft
+
+    def can_edit_branches(self):
+        return self.is_draft
+
+    def can_edit_metrics(self):
+        return self.is_draft
+
+    def can_edit_audience(self):
+        return self.is_draft or (self.is_rollout and self.is_enrolling)
+
     def sidebar_links(self, current_path):
-        is_live_rollout = self.is_rollout and self.is_enrolling
-
-        def is_edit_enabled(section):
-            if self.is_draft:
-                return True
-            return bool(section == "Audience" and is_live_rollout)
-
         return [
             {
                 "title": "Summary",
@@ -1068,28 +1073,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "link": self.get_update_overview_url(),
                 "icon": "fa-solid fa-gear",
                 "active": current_path == self.get_update_overview_url(),
-                "disabled": not is_edit_enabled("Overview"),
+                "disabled": not self.can_edit_overview(),
             },
             {
                 "title": "Branches",
                 "link": self.get_update_branches_url(),
                 "icon": "fa-solid fa-layer-group",
                 "active": current_path == self.get_update_branches_url(),
-                "disabled": not is_edit_enabled("Branches"),
+                "disabled": not self.can_edit_branches(),
             },
             {
                 "title": "Metrics",
                 "link": self.get_update_metrics_url(),
                 "icon": "fa-solid fa-arrow-trend-up",
                 "active": current_path == self.get_update_metrics_url(),
-                "disabled": not is_edit_enabled("Metrics"),
+                "disabled": not self.can_edit_metrics(),
             },
             {
                 "title": "Audience",
                 "link": self.get_update_audience_url(),
                 "icon": "fa-solid fa-user-group",
                 "active": current_path == self.get_update_audience_url(),
-                "disabled": not is_edit_enabled("Audience"),
+                "disabled": not self.can_edit_audience(),
             },
         ]
 
