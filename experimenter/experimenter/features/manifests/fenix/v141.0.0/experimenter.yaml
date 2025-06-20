@@ -382,14 +382,6 @@ print:
     share-print-enabled:
       type: boolean
       description: "If true, a print button from the share menu is available."
-private-browsing:
-  description: Private Browsing Mode
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    felt-privacy-enabled:
-      type: boolean
-      description: "if true, enable felt privacy related UI"
 private-browsing-lock:
   description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
   hasExposure: true
