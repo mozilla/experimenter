@@ -595,6 +595,21 @@ friendly_name = "Events"
 description = "Events Ping"
 build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
 
+
+[data_sources.events_stream_awesomebar]
+from_expression = """(
+    SELECT
+        p.*,
+        DATE(p.submission_timestamp) AS submission_date
+    FROM
+        `moz-fx-data-shared-prod.{dataset}.events_stream` p
+    WHERE event_category IN ('urlbar', 'awesomebar')
+)"""
+experiments_column_type = "events_stream"
+default_dataset = "org_mozilla_firefox"
+friendly_name = "Awesomebar Events"
+description = "Glean Awesomebar Events Stream"
+
 [data_sources.metrics]
 from_expression = """(
     SELECT
