@@ -1343,11 +1343,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     def can_review(self, reviewer):
-        # if (
-        #     settings.SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER
-        #     and reviewer.email == settings.DEV_USER_EMAIL
-        # ):
-        #     return True
+        if (
+            settings.SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER
+            and reviewer.email == settings.DEV_USER_EMAIL
+        ):
+            return True
 
         if self.publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
@@ -1357,7 +1357,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             review_request = self.changes.latest_review_request()
             return review_request and review_request.changed_by != reviewer
         return False
-
 
     # Results are available if enrollment is complete and
     # more than a week (DAYS_UNTIL_ANALYSIS) has passed after that.

@@ -87,7 +87,8 @@ def format_json(value):
 def should_show_remote_settings_pending(experiment, reviewer):
     return experiment.should_show_remote_settings_pending(reviewer)
 
+
 @register.simple_tag(takes_context=True)
 def can_review_experiment(context, experiment):
-    user = context['request'].user
+    user = context["request"].user
     return experiment.can_review(user)
