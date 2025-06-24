@@ -147,6 +147,10 @@ features:
         description: "If true, enables the search bar feature on homepage for users.\n"
         type: Boolean
         default: false
+      stories_redesign:
+        description: "If true, enables the stories section redesign on homepage\n"
+        type: Boolean
+        default: false
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
