@@ -9,7 +9,8 @@
   </div>
 {% endif %}
 <div id="review-controls">
-  {% if not can_review_experiment experiment %}
+  {% can_review_experiment experiment as user_can_review %}
+  {% if not user_can_review %}
     <div class="alert alert-success">
       <p class="mb-1">
         Please ask someone on your team with
