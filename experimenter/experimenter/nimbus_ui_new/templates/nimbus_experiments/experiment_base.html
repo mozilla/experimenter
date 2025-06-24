@@ -8,7 +8,7 @@
 {% block main_content_header %}
   <div class="row mb-2">
     <!-- Experiment Details -->
-    <div class="col-md-12 col-xl-6">
+    <div class="col-md-12 col-xl-5">
       <h4 class="mb-0">{{ experiment.name }}</h4>
       {% if experiment.is_archived %}
         <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
@@ -31,7 +31,7 @@
       {% endif %}
     </div>
     <!-- Experiment Timeline -->
-    <div class="col-md-12 col-xl-6" id="experiment-timeline">
+    <div class="col-md-12 col-xl-7" id="experiment-timeline">
       {% include "nimbus_experiments/timeline.html" %}
 
     </div>

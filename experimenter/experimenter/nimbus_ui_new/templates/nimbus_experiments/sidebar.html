@@ -1,15 +1,13 @@
 <div class="nav flex-column nav-pills fw-medium w-100">
-  {% include "common/sidebar_link.html" with title="Summary" link=experiment.get_detail_url icon="fa-regular fa-paper-plane" %}
-  {% include "common/sidebar_link.html" with title="History" link=experiment.get_history_url icon="fa-solid fa-network-wired" active=True %}
-  {% include "common/sidebar_link.html" with title="Results" link="" icon="fa-solid fa-chart-column" disabled=True %}
+  {% for item in sidebar_links %}
+    {% if item.is_header %}
+      <strong class="ms-3">{{ item.title }}</strong>
+      <hr class="my-0 mb-2">
+    {% else %}
+      {% include "common/sidebar_link.html" with title=item.title link=item.link icon=item.icon active=item.active disabled=item.disabled %}
 
-  <strong class="ms-3">Edit</strong>
-  <hr class="my-0 mb-2">
-  {% include "common/sidebar_link.html" with title="Overview" link=experiment.get_update_overview_url icon="fa-regular fa-solid fa-gear" %}
-  {% include "common/sidebar_link.html" with title="Branches" link=experiment.get_update_branches_url icon="fa-solid fa-layer-group" %}
-  {% include "common/sidebar_link.html" with title="Metrics" link=experiment.get_update_metrics_url icon="fa-solid fa-arrow-trend-up" %}
-  {% include "common/sidebar_link.html" with title="Audience" link=experiment.get_update_audience_url icon="fa-solid fa-user-group" %}
-
+    {% endif %}
+  {% endfor %}
   <strong class="ms-3">Actions</strong>
   <hr class="my-0 mb-2">
   {% include "common/sidebar_link.html" with title="Clone" link="" icon="fa-regular fa-copy fa-lg" data_bs_toggle="modal" data_bs_target="#cloneModal" %}

@@ -99,6 +99,17 @@ class NimbusExperimentViewMixin:
     model = NimbusExperiment
     context_object_name = "experiment"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        experiment = getattr(self, "object", None)
+
+        context["sidebar_links"] = (
+            experiment.sidebar_links(self.request.path)
+            if experiment and experiment.slug
+            else []
+        )
+        return context
+
 
 class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
@@ -216,6 +227,7 @@ class NimbusExperimentDetailView(
         context = super().get_context_data(**kwargs)
         experiment_context = build_experiment_context(self.object)
         context.update(experiment_context)
+
         context["promote_to_rollout_forms"] = NimbusExperimentPromoteToRolloutForm(
             instance=self.object
         )
@@ -225,6 +237,7 @@ class NimbusExperimentDetailView(
             context["form"] = QAStatusForm(instance=self.object)
         if context["takeaways_edit_mode"]:
             context["takeaways_form"] = TakeawaysForm(instance=self.object)
+
         return context
 
 
