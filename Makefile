@@ -98,7 +98,7 @@ jetstream_config:
 	rm -Rf experimenter/experimenter/segments/metric-hub-main/.script/
 
 feature_manifests: build_dev
-	$(COMPOSE_RUN) -e GITHUB_BEARER_TOKEN=$(GITHUB_BEARER_TOKEN) experimenter /experimenter/bin/manifest-tool.py fetch $(FETCH_ARGS)
+	$(COMPOSE_RUN) --no-deps -e GITHUB_BEARER_TOKEN=$(GITHUB_BEARER_TOKEN) experimenter /experimenter/bin/manifest-tool.py fetch $(FETCH_ARGS)
 
 install_nimbus_cli:  ## Install Nimbus client
 	mkdir -p $(CLI_DIR)
@@ -283,7 +283,7 @@ CIRRUS_COVERAGE_JSON := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)unit__coverage.js
 CIRRUS_JUNIT_XML := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)integration__results.xml
 
 cirrus_build: build_megazords
-	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
+	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-context=fml=experimenter/experimenter/features/manifests/ cirrus/server/
 
 cirrus_build_test: build_megazords
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
