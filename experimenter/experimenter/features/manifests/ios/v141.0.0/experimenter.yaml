@@ -152,6 +152,9 @@ homepage-redesign-feature:
     search_bar:
       type: boolean
       description: "If true, enables the search bar feature on homepage for users.\n"
+    stories_redesign:
+      type: boolean
+      description: "If true, enables the stories section redesign on homepage\n"
 logins-verification:
   description: "Feature that enables the logins verification logic.\n"
   hasExposure: true
