@@ -49,6 +49,42 @@ friendly_name = "Alternative Revenue"
 description = "Potential Revenue from the other report. Note that this is zero for all revenue coming from CPC since we don't get data for RPM for mobile tiles or instant suggestions."
 
 
+### data_sources.ad_metrics_daily
+[metrics.ad_impressions]
+select_expression = "SUM(impressions)"
+data_source = "ad_metrics_daily"
+type = "scalar"
+friendly_name = "Ad Impressions"
+description = "Ad impressions"
+
+[metrics.ad_clicks]
+select_expression = "SUM(clicks)"
+data_source = "ad_metrics_daily"
+type = "scalar"
+friendly_name = "Ad Clicks"
+description = "Ad clicks"
+
+[metrics.revenue]
+select_expression = "SUM(revenue)"
+data_source = "ad_metrics_daily"
+type = "scalar"
+friendly_name = "Revenue"
+description = "Ad revenue"
+
+[metrics.ecpm]
+select_expression = "SAFE_DIVIDE(COALESCE(SUM(revenue), 0), (COALESCE(SUM(impressions),0)/1000))"
+data_source = "ad_metrics_daily"
+type = "scalar"
+friendly_name = "eCPM"
+description = "effective CPM, calculated as average revenue per thousand impressions"
+
+[metrics.click_through_rate]
+select_expression = "SAFE_DIVIDE(COALESCE(SUM(clicks), 0), COALESCE(SUM(impressions), 0))"
+data_source = "ad_metrics_daily"
+type = "scalar"
+friendly_name = "Click Through Rate"
+description = "Ratio of ad clicks to ad impressions"
+
 [data_sources]
 
 [data_sources.admarketplace]
@@ -57,6 +93,17 @@ client_id_column = "advertiser"
 friendly_name = "AdMarketplace"
 description = "Data source for AdMarketplace metrics. Includes dimensions such as advertiser, device, country, and more."
 submission_date_column = "adm_date"
+
+[data_sources.ad_metrics_daily]
+from_expression = "mozdata.ads.ad_metrics_daily"
+friendly_name = "Ad Metrics Daily"
+descriptions = """
+  Daily ad metrics, at the ad_id level. Joined to ad provider metadata to
+  pull in additional fields (including pricing and total revenue)
+"""
+columns_as_dimensions = true 
+submission_date_column = "submission_date"
+client_id_column = "NULL"
 
 [dimensions]
 
