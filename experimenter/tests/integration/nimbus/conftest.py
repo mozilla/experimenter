@@ -371,15 +371,14 @@ def trigger_experiment_loader(selenium):
         with selenium.context(selenium.CONTEXT_CHROME):
             selenium.execute_script(
                 """
+                    const { ExperimentAPI } = ChromeUtils.importESModule("resource://nimbus/ExperimentAPI.sys.mjs");
                     const { RemoteSettings } = ChromeUtils.importESModule(
                         "resource://services-settings/remote-settings.sys.mjs"
                     );
-                    const { RemoteSettingsExperimentLoader } = ChromeUtils.importESModule(
-                        "resource://nimbus/lib/RemoteSettingsExperimentLoader.sys.mjs"
-                    );
 
                     RemoteSettings.pollChanges();
-                    RemoteSettingsExperimentLoader.updateRecipes();
+                    ExperimentAPI.ready();
+                    ExperimentAPI._rsLoader.updateRecipes("test");
                 """
             )
         time.sleep(5)
