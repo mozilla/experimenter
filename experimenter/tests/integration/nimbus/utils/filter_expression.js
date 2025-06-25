@@ -23,10 +23,11 @@ async function remoteSettings(arguments) {
             throw ex;
         }
     }
-    const ExperimentManager = ChromeUtils.importESModule("resource://nimbus/lib/ExperimentManager.sys.mjs");
+    const { ExperimentAPI } = ChromeUtils.importESModule("resource://nimbus/ExperimentAPI.sys.mjs");
     const TargetingContext = ChromeUtils.importESModule("resource://messaging-system/targeting/Targeting.sys.mjs");
 
     const _experiment = JSON.parse(arguments[1]);
+    ExperimentAPI.ready();
 
     const context = TargetingContext.TargetingContext.combineContexts(
         _experiment,
@@ -37,7 +38,7 @@ async function remoteSettings(arguments) {
             isDefaultHandler: {},
             defaultPDFHandler: {}
         }, // Workaround for supporting background tasks
-        ExperimentManager.ExperimentManager.createTargetingContext(),
+        ExperimentAPI._manager.createTargetingContext(),
         ASRouterTargeting.ASRouterTargeting.Environment
     );
     const targetingContext = new TargetingContext.TargetingContext(context);
