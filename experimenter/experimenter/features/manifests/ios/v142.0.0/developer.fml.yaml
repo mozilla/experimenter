@@ -165,6 +165,10 @@ features:
         description: "Controls which menu users will see\n"
         type: Boolean
         default: true
+      menu-default-browser-banner:
+        description: "If true, enables the menu Make Firefox your default banner, on top of the menu.\n"
+        type: Boolean
+        default: false
       menu-hint:
         description: "If true, enables the menu contextual hint.\n"
         type: Boolean

@@ -50,14 +50,14 @@ description = "Potential Revenue from the other report. Note that this is zero f
 
 
 ### data_sources.ad_metrics_daily
-[metrics.ad_impressions]
+[metrics.ad_metrics_ad_impressions]
 select_expression = "SUM(impressions)"
 data_source = "ad_metrics_daily"
 type = "scalar"
 friendly_name = "Ad Impressions"
 description = "Ad impressions"
 
-[metrics.ad_clicks]
+[metrics.ad_metrics_ad_clicks]
 select_expression = "SUM(clicks)"
 data_source = "ad_metrics_daily"
 type = "scalar"
@@ -72,18 +72,24 @@ friendly_name = "Revenue"
 description = "Ad revenue"
 
 [metrics.ecpm]
-select_expression = "SAFE_DIVIDE(COALESCE(SUM(revenue), 0), (COALESCE(SUM(impressions),0)/1000))"
+depends_on = ['revenue', 'milli_impressions']
 data_source = "ad_metrics_daily"
 type = "scalar"
 friendly_name = "eCPM"
 description = "effective CPM, calculated as average revenue per thousand impressions"
 
 [metrics.click_through_rate]
-select_expression = "SAFE_DIVIDE(COALESCE(SUM(clicks), 0), COALESCE(SUM(impressions), 0))"
+depends_on = ['clicks', 'impressions']
 data_source = "ad_metrics_daily"
 type = "scalar"
 friendly_name = "Click Through Rate"
 description = "Ratio of ad clicks to ad impressions"
+
+[metrics.milli_impressions]
+select_expression = "SUM(impressions)/1000"
+data_source = "ad_metrics_daily"
+friendly_name = "Milli Impressions"
+description = "Impressions in thousands"
 
 [data_sources]
 
