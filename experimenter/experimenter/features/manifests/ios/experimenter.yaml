@@ -171,6 +171,9 @@ menu-refactor-feature:
     enabled:
       type: boolean
       description: "Controls which menu users will see\n"
+    menu-default-browser-banner:
+      type: boolean
+      description: "If true, enables the menu Make Firefox your default banner, on top of the menu.\n"
     menu-hint:
       type: boolean
       description: "If true, enables the menu contextual hint.\n"
