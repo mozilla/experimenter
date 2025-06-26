@@ -2782,6 +2782,39 @@ SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SIGNED_OUT_EARLY_DAY_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Signed-out early day user, FxA enabled, no enterprise policies",
+    slug="signed_out_early_day_user_fxa_enabled_no_enterprise",
+    description=(
+        "Existing users who are NOT signed into FxA, with FxA enabled, "
+        "and no enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILELESSTHAN28DAYS} && {NO_ENTERPRISE.targeting} && "
+        "!isFxASignedIn && isFxAEnabled"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_EXISTING_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Signed-out existing user, FxA enabled, no enterprise policies",
+    slug="signed_out_existing_user_fxa_enabled_no_enterprise",
+    description=(
+        "Existing users who are NOT signed into FxA, with FxA enabled, "
+        "and no enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && {NO_ENTERPRISE.targeting} && !isFxASignedIn && isFxAEnabled"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
     name="TOU not accepted yet, existing user, ads enabled, Mac or Win",
     slug="tou_not_accepted_existing_user_ads_enabled_mac_win",
