@@ -15,10 +15,11 @@ from experimenter.klaatu.client import (
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("klaatu.nimbus_tasks")
+parse = NimbusConstants.Version.parse
 
 
 def get_release_version() -> int:
-    versions = requests.get("https://whattrainisitnow.com/api/firefox/releases/").json()
+    versions = requests.get(NimbusConstants.WHAT_TRAIN_IS_IT_NOW_URL).json()
     version = list(versions.keys())[-1]
     return version
 
@@ -45,10 +46,11 @@ def get_firefox_targets(experiment: NimbusExperiment) -> list[str]:
     latest_per_major = {}
     final_versions = []
     max_version = None
+    exp_max_version = parse(f"{experiment.firefox_max_version}")
 
     # get max version
     try:
-        max_version = int(float(experiment.firefox_max_version.replace("!", "0"))) + 1
+        max_version = int(float(f"{exp_max_version}")) + 1
     except ValueError:
         max_version = release_version
 
@@ -61,8 +63,8 @@ def get_firefox_targets(experiment: NimbusExperiment) -> list[str]:
     # fill versions up to max version
     for _version in NimbusConstants.Version:
         _version = _version.value.replace("!", "0")
-        if version.parse(_version) >= version.parse(
-            experiment.firefox_min_version.replace("!", "0")
+        if version.parse(_version) >= parse(
+            experiment.firefox_min_version
         ) and version.parse(_version) < version.parse(str(max_version)):
             versions.append(_version)
 
