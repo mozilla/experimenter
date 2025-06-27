@@ -8,7 +8,7 @@
 {% block main_content_header %}
   <div class="row mb-2">
     <!-- Experiment Details -->
-    <div class="col-md-12 col-xl-6">
+    <div class="col-md-12 col-xl-5">
       <h4 class="mb-0">{{ experiment.name }}</h4>
       {% if experiment.is_archived %}
         <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
@@ -20,7 +20,15 @@
       {% if experiment.is_rollout_dirty %}
         <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
       {% endif %}
-      <p class="text-secondary mb-0">{{ experiment.slug }}</p>
+      <div class="d-flex align-items-center mb-2">
+        <p class="text-secondary mb-0 me-1" id="experiment-slug">{{ experiment.slug }}</p>
+        <button type="button"
+                class="btn btn-sm"
+                onclick=" navigator.clipboard.writeText(document.getElementById('experiment-slug').textContent); alert('Copied to clipboard!'); "
+                aria-label="Copy slug">
+          <i class="fa-solid fa-copy text-secondary"></i>
+        </button>
+      </div>
       {% if experiment.parent %}
         <p class="text-secondary small">
           Cloned from
@@ -31,7 +39,7 @@
       {% endif %}
     </div>
     <!-- Experiment Timeline -->
-    <div class="col-md-12 col-xl-6" id="experiment-timeline">
+    <div class="col-md-12 col-xl-7" id="experiment-timeline">
       {% include "nimbus_experiments/timeline.html" %}
 
     </div>

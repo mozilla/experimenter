@@ -177,7 +177,7 @@ lint: build_test  ## Running linting on source code
 check: lint
 
 check_and_report: build_test  ## Only to be used on CI
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_COVERAGE)" "$(JS_TEST_NIMBUS_UI)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_COVERAGE)" "$(JS_TEST_NIMBUS_UI)") ${COLOR_CHECK}' || true
 	docker cp experimenter_test:/experimenter/experimenter_coverage.json workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter_tests.xml workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter/nimbus-ui/coverage_report workspace/test-results

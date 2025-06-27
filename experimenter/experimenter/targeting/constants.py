@@ -1602,6 +1602,44 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY_CFR_ONLY = (
     )
 )
 
+WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users with 1hr+ of inactivity in the past day "
+        "who are running a background task with CFR enabled and "
+        "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
+    ),
+    slug="whats_new_notification_sidebar_vertical_tabs_rollout",
+    description=(
+        "Windows 10+ users with 1hr+ of inactivity in the past day "
+        "who are running a background task with CFR enabled and "
+        "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
+        )
+        &&
+        isBackgroundTaskMode
+        &&
+        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue
+        &&
+        ((defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
+        == 'treatment-a') == false)
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
@@ -2735,6 +2773,39 @@ SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
     slug="signed_out_existing_user",
     description="Existing users who are NOT signed into FxA",
     targeting=f"{PROFILE28DAYS} && !isFxASignedIn",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_EARLY_DAY_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Signed-out early day user, FxA enabled, no enterprise policies",
+    slug="signed_out_early_day_user_fxa_enabled_no_enterprise",
+    description=(
+        "Existing users who are NOT signed into FxA, with FxA enabled, "
+        "and no enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILELESSTHAN28DAYS} && {NO_ENTERPRISE.targeting} && "
+        "!isFxASignedIn && isFxAEnabled"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_EXISTING_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Signed-out existing user, FxA enabled, no enterprise policies",
+    slug="signed_out_existing_user_fxa_enabled_no_enterprise",
+    description=(
+        "Existing users who are NOT signed into FxA, with FxA enabled, "
+        "and no enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && {NO_ENTERPRISE.targeting} && !isFxASignedIn && isFxAEnabled"
+    ),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,

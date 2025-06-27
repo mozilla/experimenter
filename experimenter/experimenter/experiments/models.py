@@ -1035,6 +1035,72 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self.computed_end_date - enrollment_end_date).days
         return None
 
+    def can_edit_overview(self):
+        return self.is_draft
+
+    def can_edit_branches(self):
+        return self.is_draft
+
+    def can_edit_metrics(self):
+        return self.is_draft
+
+    def can_edit_audience(self):
+        return self.is_draft or (self.is_rollout and self.is_enrolling)
+
+    def sidebar_links(self, current_path):
+        return [
+            {
+                "title": "Summary",
+                "link": self.get_detail_url(),
+                "icon": "fa-regular fa-paper-plane",
+                "active": current_path == self.get_detail_url(),
+                "disabled": False,
+            },
+            {
+                "title": "History",
+                "link": self.get_history_url(),
+                "icon": "fa-solid fa-network-wired",
+                "active": current_path == self.get_history_url(),
+                "disabled": False,
+            },
+            {
+                "title": "Results",
+                "link": "",
+                "icon": "fa-solid fa-chart-column",
+                "active": False,
+                "disabled": True,
+            },
+            {"title": "Edit", "is_header": True},
+            {
+                "title": "Overview",
+                "link": self.get_update_overview_url(),
+                "icon": "fa-solid fa-gear",
+                "active": current_path == self.get_update_overview_url(),
+                "disabled": not self.can_edit_overview(),
+            },
+            {
+                "title": "Branches",
+                "link": self.get_update_branches_url(),
+                "icon": "fa-solid fa-layer-group",
+                "active": current_path == self.get_update_branches_url(),
+                "disabled": not self.can_edit_branches(),
+            },
+            {
+                "title": "Metrics",
+                "link": self.get_update_metrics_url(),
+                "icon": "fa-solid fa-arrow-trend-up",
+                "active": current_path == self.get_update_metrics_url(),
+                "disabled": not self.can_edit_metrics(),
+            },
+            {
+                "title": "Audience",
+                "link": self.get_update_audience_url(),
+                "icon": "fa-solid fa-user-group",
+                "active": current_path == self.get_update_audience_url(),
+                "disabled": not self.can_edit_audience(),
+            },
+        ]
+
     def timeline(self):
         timeline_entries = [
             {
