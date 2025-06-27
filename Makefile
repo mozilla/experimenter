@@ -218,7 +218,7 @@ generate_docs: build_dev
 	$(COMPOSE_RUN) experimenter sh -c "$(GENERATE_DOCS)"
 
 generate_types: build_dev
-	$(COMPOSE_RUN) experimenter sh -c "$(NIMBUS_TYPES_GENERATE)"
+	$(COMPOSE_RUN) experimenter sh -c "$(NIMBUS_TYPES_GENERATE); $(RESULTS_TYPES_GENERATE)"
 
 format: build_dev  ## Format source tree
 	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI_NEW)"'
