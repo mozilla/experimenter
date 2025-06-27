@@ -19,6 +19,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
+    REVIEW_URL = "https://experimenter.info/access"
 
     EXCLUDING_EXPERIMENTS_WARNING = """The following experiments are being excluded by
     your experiment and may reduce the eligible population for your experiment which
