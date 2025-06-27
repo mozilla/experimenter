@@ -9,18 +9,38 @@
   </div>
 {% endif %}
 <div id="review-controls">
-  <div class="alert alert-primary">
-    <p>
-      <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
-    </p>
-    <button type="button"
-            class="btn btn-success"
-            hx-post="{% url approval_url slug=experiment.slug %}"
-            hx-select="#content"
-            hx-target="#content"
-            hx-swap="outerHTML">Approve and {{ action_label }}</button>
-    <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
-  </div>
+  {% can_review_experiment experiment as user_can_review %}
+  {% if not user_can_review %}
+    <div class="alert alert-success">
+      <p class="mb-1">
+        Please ask someone on your team with
+        <a href="{{ review_url }}" target="_blank">review privileges</a> or a qualified reviewer to {{ experiment.review_messages }}.
+      </p>
+      <p class="mb-1">
+        If you don’t have a team reviewer, paste the experiment URL in
+        <strong>#ask-experimenter</strong> and ask for a review.
+      </p>
+      <p>
+        <a href="#"
+           onclick=" navigator.clipboard.writeText(window.location.href) .then(() => alert('URL copied to clipboard!')); return false;">
+          Click here to copy the URL to send them.
+        </a>
+      </p>
+    </div>
+  {% else %}
+    <div class="alert alert-primary">
+      <p>
+        <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
+      </p>
+      <button type="button"
+              class="btn btn-success"
+              hx-post="{% url approval_url slug=experiment.slug %}"
+              hx-select="#content"
+              hx-target="#content"
+              hx-swap="outerHTML">Approve and {{ action_label }}</button>
+      <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
+    </div>
+  {% endif %}
   <div class="alert alert-primary">
     <button type="button"
             class="btn btn-secondary"
