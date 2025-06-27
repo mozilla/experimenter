@@ -488,6 +488,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_detail_preview_recipe_json_url(self):
         return f"{self.get_detail_url()}#preview-recipe-json"
 
+    def get_results_url(self):
+        return reverse("nimbus-new-results", kwargs={"slug": self.slug})
+
     @property
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
@@ -1062,10 +1065,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             },
             {
                 "title": "Results",
-                "link": "",
+                "link": self.get_results_url(),
                 "icon": "fa-solid fa-chart-column",
-                "active": False,
-                "disabled": True,
+                "active": current_path == self.get_results_url(),
+                "disabled": self.disable_results_link,
             },
             {"title": "Edit", "is_header": True},
             {
@@ -1462,6 +1465,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         # if there are results, show them! even if the dates are wrong
         # (the dates may have been overridden in metric-hub)
         return not self.is_rollout and self.has_displayable_results
+
+    @property
+    def disable_results_link(self):
+        return not self.show_results_url
 
     @property
     def results_expected_date(self):

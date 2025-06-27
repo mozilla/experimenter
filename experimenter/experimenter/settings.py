@@ -235,6 +235,7 @@ STATICFILES_DIRS = [
     ("scripts", BASE_DIR / "legacy" / "legacy-ui" / "scripts"),
     ("imgs", BASE_DIR / "legacy" / "legacy-ui" / "imgs"),
     ("nimbus", BASE_DIR / "nimbus-ui" / "build"),
+    ("results", BASE_DIR / "results" / "build"),
     ("nimbus_ui_new", BASE_DIR / "nimbus_ui_new" / "static" / "dist"),
     BASE_DIR / "static",
 ]
