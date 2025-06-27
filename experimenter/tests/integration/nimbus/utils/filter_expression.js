@@ -1,10 +1,4 @@
 async function remoteSettings(targetingString, recipe) {
-    /*
-    Arguments contains 2 items.
-    arguments[0] - the JEXL targeting string
-    arguments[1] - the experiment recipe
-    */
-
     const { TelemetryEnvironment } = ChromeUtils.importESModule("resource://gre/modules/TelemetryEnvironment.sys.mjs");
     await TelemetryEnvironment.onInitialized();
 
@@ -36,8 +30,13 @@ async function remoteSettings(targetingString, recipe) {
     }
 }
 
-const [targetingString, recipe] = arguments;
-const callback = arguments[arguments.length - 1]
+/*
+Arguments contains 3 items.
+arguments[0] - the JEXL targeting string
+arguments[1] - the experiment recipe
+arguments[3] - the callback from selenium
+*/
+const [targetingString, recipe, callback] = arguments;
 
 remoteSettings(targetingString, recipe)
   .then(result => {
