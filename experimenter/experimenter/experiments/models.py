@@ -1065,10 +1065,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             },
             {
                 "title": "Results",
-                "link": "",
+                "link": self.get_results_url(),
                 "icon": "fa-solid fa-chart-column",
-                "active": False,
-                "disabled": True,
+                "active": current_path == self.get_results_url(),
+                "disabled": self.disable_results_link,
             },
             {"title": "Edit", "is_header": True},
             {
