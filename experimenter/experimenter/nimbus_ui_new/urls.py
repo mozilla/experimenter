@@ -33,6 +33,7 @@ from experimenter.nimbus_ui_new.views import (
     PreviewToDraftView,
     PreviewToReviewView,
     QAStatusUpdateView,
+    ResultsView,
     ReviewToApproveView,
     ReviewToDraftView,
     SignoffUpdateView,
@@ -243,5 +244,10 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/approve-update-rollout/$",
         ApproveUpdateRolloutView.as_view(),
         name="nimbus-new-approve-update-rollout",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/results/.*",
+        ResultsView.as_view(),
+        name="nimbus-new-results",
     ),
 ]

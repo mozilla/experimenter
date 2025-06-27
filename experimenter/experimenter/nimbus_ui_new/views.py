@@ -550,3 +550,7 @@ class CancelUpdateRolloutView(StatusUpdateView):
 
 class ApproveUpdateRolloutView(StatusUpdateView):
     form_class = ApproveUpdateRolloutForm
+
+
+class ResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results.html"
