@@ -122,6 +122,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "warn_feature_schema": False,
                 "published_date": None,
                 "klaatu_status": experiment.klaatu_status,
+                "klaatu_recent_run_id": experiment.klaatu_recent_run_id,
             },
         )
 
@@ -237,6 +238,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "warn_feature_schema": False,
                 "published_date": experiment.published_date,
                 "klaatu_status": experiment.klaatu_status,
+                "klaatu_recent_run_id": experiment.klaatu_recent_run_id,
             },
         )
 

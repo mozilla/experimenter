@@ -19,6 +19,7 @@ class KlaatuWorkflows(str, Enum):
     IOS = "ios_manual.yml"
     LINUX = "linux_manual.yml"
     WINDOWS = "windows_manual.yml"
+    MACOS = "macos_manual.yml"
 
 
 class KlaatuEndpoints(str, Enum):
