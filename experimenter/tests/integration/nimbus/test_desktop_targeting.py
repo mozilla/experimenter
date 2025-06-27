@@ -45,7 +45,7 @@ def test_check_advanced_targeting(
     # Inject filter expression
     selenium.get("about:blank")
     with filter_expression_path.open() as js:
-        result = Browser.execute_script(
+        result = Browser.execute_async_script(
             selenium,
             targeting,
             json.dumps({"experiment": recipe}),
@@ -101,7 +101,7 @@ def test_check_audience_targeting(
     # Inject filter expression
     selenium.get("about:blank")
     with filter_expression_path.open() as js:
-        result = Browser.execute_script(
+        result = Browser.execute_async_script(
             selenium,
             targeting,
             json.dumps({"experiment": recipe}),
