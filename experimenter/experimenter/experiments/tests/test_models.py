@@ -3277,11 +3277,12 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertFalse(child.is_rollout_dirty)
 
-    def test_clone_klaatu_status(self):
+    def test_clone_klaatu_info(self):
         parent = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
         parent.klaatu_status = True
+        parent.klaatu_recent_run_id = 1234
         generate_nimbus_changelog(parent, parent.owner, "Archiving experiment")
         self._clone_experiment_and_assert_common_expectations(parent)
 
@@ -3317,6 +3318,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child._end_date, None)
         self.assertEqual(child._enrollment_end_date, None)
         self.assertEqual(child.klaatu_status, False)
+        self.assertEqual(child.klaatu_recent_run_id, None)
 
         # Cloned fields
         self.assertEqual(child.name, "Child Experiment")
