@@ -21,6 +21,15 @@ description = """
 select_expression = '{{agg_sum("active_hours_sum")}}'
 data_source = "clients_daily"
 
+[metrics.active_hours_glean]
+friendly_name = "Active hours in Glean"
+description = """
+    Measures the amount of time (in 5-second increments) during which
+    Firefox received user input from a keyboard or mouse. The Firefox
+    window does not need to be focused.
+"""
+select_expression = '{{agg_sum("browser_engagement_active_ticks/(3600/5)")}}'
+data_source = "baseline_clients_daily"
 
 [metrics.uri_count]
 data_source = "clients_daily"
@@ -33,11 +42,45 @@ description = """
 category = "performance"
 type = "scalar"
 
+[metrics.uri_count_v2]
+data_source = "clients_daily"
+select_expression = '{{agg_sum("scalar_parent_browser_engagement_total_uri_count_normal_and_private_mode_sum")}}'
+friendly_name = "URIs visited"
+description = """
+    Counts the total number of URIs visited for both normal and private mode.
+    Includes within-page navigation events (e.g. to anchors).
+"""
+category = "performance"
+type = "scalar"
+
+[metrics.uri_count_v2_glean]
+data_source = "baseline_clients_daily"
+select_expression = '{{agg_sum("COALESCE(browser_engagement_uri_count,0)")}}'
+friendly_name = "URIs visited in Glean"
+description = """
+    Counts the total number of URIs visited for both normal and private mode.
+    Includes within-page navigation events (e.g. to anchors).
+"""
+category = "performance"
+type = "scalar"
 
 [metrics.search_count]
 data_source = "search_clients_engines_sources_daily"
 select_expression = '{{agg_sum("sap")}}'
-friendly_name = "SAP searches"
+friendly_name = "SAP searches in Glean"
+description = """
+    Counts the number of searches a user performed through Firefox's
+    Search Access Points.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+type = "scalar"
+
+[metrics.search_count_glean]
+data_source = "glean_sap_events_stream"
+select_expression = 'COUNT(*)'
+friendly_name = "SAP searches in Glean"
 description = """
     Counts the number of searches a user performed through Firefox's
     Search Access Points.
@@ -61,6 +104,19 @@ description = """
 category = "search"
 type = "scalar"
 
+[metrics.tagged_search_count_glean]
+data_source = "serp_events"
+select_expression = 'COUNTIF(is_tagged)'
+friendly_name = "Tagged SAP searches in Glean"
+description = """
+    Counts the number of searches a user performed through Firefox's
+    Search Access Points that were submitted with a partner code
+    and were potentially revenue-generating.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+type = "scalar"
 
 [metrics.tagged_follow_on_search_count]
 data_source = "search_clients_engines_sources_daily"
@@ -76,6 +132,19 @@ description = """
 category = "search"
 type = "scalar"
 
+[metrics.tagged_follow_on_search_count_glean]
+data_source = "serp_events"
+select_expression = 'COUNTIF((is_tagged = TRUE) AND (sap_source = "follow_on_from_refine_on_incontent_search" OR sap_source = "follow_on_from_refine_on_SERP"))'
+friendly_name = "Tagged follow-on searches in Glean"
+description = """
+    Counts the number of follow-on searches with a Mozilla partner tag.
+    These are additional searches that users performed from a search engine
+    results page after executing a tagged search through a SAP.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+type = "scalar"
 
 [metrics.ad_clicks]
 data_source = "search_clients_engines_sources_daily"
@@ -102,6 +171,19 @@ description = """
 category = "search"
 type = "scalar"
 
+[metrics.searches_with_ads_glean]
+data_source = "serp_events"
+select_expression = 'COUNTIF(is_tagged = TRUE AND num_ads_visible > 0)'
+friendly_name = "Search result pages with ads in Glean"
+description = """
+    Counts search result pages served with advertising.
+    Users may not actually see these ads thanks to e.g. ad-blockers.
+    Learn more in the
+    [search analysis documentation](https://mozilla-private.report/search-analysis-docs/book/in_content_searches.html).
+"""
+category = "search"
+type = "scalar"
+
 [metrics.organic_search_count]
 data_source = "search_clients_engines_sources_daily"
 select_expression = '{{agg_sum("organic")}}'
@@ -115,6 +197,18 @@ description = """
 category = "search"
 type = "scalar"
 
+[metrics.organic_search_count_glean]
+data_source = "serp_events"
+select_expression =  "COUNTIF(is_tagged = FALSE)"
+friendly_name = "Organic searches"
+description = """
+    Counts organic searches, which are searches that are _not_ performed
+    through a Firefox SAP and which are not monetizable.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+type = "scalar"
 
 [metrics.search_with_ads_organic]
 data_source = "search_clients_engines_sources_daily"
@@ -266,6 +360,11 @@ select_expression = "COUNT(submission_date)"
 friendly_name = "Days of use"
 description = "The number of days in the interval that each client sent a main ping."
 
+[metrics.days_of_use_glean]
+data_source = "baseline_clients_daily"
+select_expression = "COUNT(submission_date)"
+friendly_name = "Days of use in Glean"
+description = "The number of days in the interval that each client sent a baseline ping."
 
 [metrics.qualified_cumulative_days_of_use]
 data_source = "clients_daily"
@@ -279,6 +378,17 @@ description = """
     given that the client had >0 active hours and >0 URIs loaded.
 """
 
+[metrics.qualified_cumulative_days_of_use_glean]
+data_source = "baseline_clients_daily"
+select_expression = """COUNTIF(
+    COALESCE(browser_engagement_active_ticks, 0) > 0 AND
+    COALESCE(browser_engagement_uri_count,0) > 0
+)"""
+friendly_name = "QCDOU in Glean"
+description = """
+    The number of days in the interval that each client sent a baseline ping,
+    given that the client had >0 active hours and >0 URIs loaded.
+"""
 
 [metrics.daily_active_users]
 data_source = "clients_daily"
@@ -337,6 +447,21 @@ deprecated = true
 [metrics.client_level_daily_active_users_v2]
 friendly_name = "Firefox Desktop Client-Level DAU"
 data_source = "firefox_desktop_active_users_view"
+select_expression = """COUNTIF(is_dau)"""
+type = "scalar"
+description = """
+    Client-level DAU. The logic is
+    [detailed on the Confluence DAU page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric)
+    and is automatically cross-checked, actively monitored, and change controlled.
+    This metric needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`, it is
+    similar to a "days of use" metric, and not DAU.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.client_level_daily_active_users_v2_glean]
+friendly_name = "Firefox Desktop Client-Level DAU in Glean"
+data_source = "firefox_desktop_baseline_active_users_view"
 select_expression = """COUNTIF(is_dau)"""
 type = "scalar"
 description = """
@@ -974,6 +1099,14 @@ description = "Total number of Ad Clicks"
 category = "search"
 type = "scalar"
 
+[metrics.ad_click_glean]
+data_source = "serp_events"
+select_expression = "SUM(IF(is_tagged = TRUE, num_ad_clicks, 0))"
+friendly_name = "Num Ad Clicks in Glean"
+description = "Total number of Ad Clicks From Serp Events in Glean "
+category = "search"
+type = "scalar"
+
 [metrics.sap]
 data_source = "search_clients_engines_sources_daily"
 select_expression = "SUM(sap)"
@@ -992,6 +1125,15 @@ type = "scalar"
 
 [metrics.is_default_browser]
 data_source = "clients_daily"
+select_expression = "COALESCE(LOGICAL_OR(is_default_browser), FALSE)"
+friendly_name = "Is Default Browser"
+type = "scalar"
+description = """
+Was Firefox the default browser at any point during the interval?
+"""
+
+[metrics.is_default_browser_glean]
+data_source = "baseline_clients_daily"
 select_expression = "COALESCE(LOGICAL_OR(is_default_browser), FALSE)"
 friendly_name = "Is Default Browser"
 type = "scalar"
@@ -1731,7 +1873,7 @@ description = "Firefox was launched afresh (i.e., was not already running) to ha
 
 [metrics.pdf_launched_or_invoked_to_handle]
 select_expression = """(
-    (COALESCE(SUM(mozfun.map.get_key(payload.processes.parent.keyed_scalars.os_environment_invoked_to_handle, '.pdf')) > 0, FALSE) OR 
+    (COALESCE(SUM(mozfun.map.get_key(payload.processes.parent.keyed_scalars.os_environment_invoked_to_handle, '.pdf')) > 0, FALSE) OR
     COALESCE(SUM(mozfun.map.get_key(payload.processes.parent.keyed_scalars.os_environment_launched_to_handle, '.pdf')) > 0, FALSE))
 )"""
 data_source = "main"
@@ -1804,8 +1946,8 @@ data_source = "desktop_engagement_view"
 select_expression = "SUM(dau) / SUM(mau)"
 type = "scalar"
 description = """
-    The Engagement Rate is calculated as the ratio between DAU and MAU. For each day, we use the single-day DAU number and divide 
-    it by the MAU corresponding to the 28-day period ending on that day. For OKR reporting, we then calculate a 
+    The Engagement Rate is calculated as the ratio between DAU and MAU. For each day, we use the single-day DAU number and divide
+    it by the MAU corresponding to the 28-day period ending on that day. For OKR reporting, we then calculate a
     28-day moving average of this number. More information is provided on the
     [New Profiles, Retention and Engagement Rate Confluence Page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/814481685/Firefox+New+Profiles+Retention+and+Engagement#Engagement-Rate).
 """
@@ -1831,7 +1973,7 @@ data_source = "desktop_retention_view"
 select_expression = "SUM(retained_week_4_new_profiles) / SUM(new_profiles_metric_date)"
 type = "scalar"
 description = """
-    The New Profile Retention Rate is calculated as the proportion of new profiles that are active on the 4th week after the metric date. 
+    The New Profile Retention Rate is calculated as the proportion of new profiles that are active on the 4th week after the metric date.
     More information is provided on the
     [New Profiles, Retention and Engagement Rate Confluence Page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/814481685/Firefox+New+Profiles+Retention+and+Engagement#New-Profile-Retention).
 """
@@ -2086,6 +2228,8 @@ friendly_name = "SERP Events"
 description = "SERP Events table with 1 row per SERP impression"
 submission_date_column = "submission_date"
 client_id_column = "legacy_telemetry_client_id"
+glean_client_id_column = "client_id"
+legacy_client_id_column = "legacy_telemetry_client_id"
 experiments_column_type = "native"
 
 [data_sources.metrics]
@@ -2206,6 +2350,38 @@ friendly_name = "Glean Events Stream"
 experiments_column_type = "none"
 client_id_column = "legacy_telemetry_client_id"
 
+[data_sources.glean_sap_events_stream]
+from_expression = """(
+    SELECT
+  *,  DATE(submission_timestamp) AS submission_date
+FROM
+  `mozdata.firefox_desktop.events_stream`
+WHERE
+  event_category = 'sap'
+  AND event_name = 'counts'
+)"""
+analysis_units = ["profile_group_id", "client_id"]
+description = "Glean events_stream dataset (events ping unnested to a single row per event) filtered for SAP events"
+friendly_name = "Glean SAP Events Stream"
+experiments_column_type = "none"
+client_id_column = "legacy_telemetry_client_id"
+glean_client_id_column = "client_id"
+legacy_client_id_column = "legacy_telemetry_client_id"
+
+[data_sources.baseline_clients_daily]
+from_expression = """(
+    SELECT
+        p.*,
+    FROM `moz-fx-data-shared-prod.{dataset}.baseline_clients_daily` p
+)"""
+client_id_column = "client_id"
+glean_client_id_column = "client_id"
+legacy_client_id_column = "legacy_telemetry_client_id"
+experiments_column_type = "glean"
+default_dataset = "firefox_desktop"
+friendly_name = "Baseline Clients Daily"
+description = "Daily Aggregate of the Baseline Ping"
+
 [data_sources.firefox_desktop_active_users_view]
 friendly_name = "Firefox Desktop Active Users"
 description = "Client-level table that indicates whether a client meets 'active user' criteria on a given submission_date."
@@ -2216,6 +2392,21 @@ from_expression = """(
 )"""
 submission_date_column = "submission_date"
 client_id_column = "client_id"
+experiments_column_type = "none"
+deprecated = false
+
+[data_sources.firefox_desktop_baseline_active_users_view]
+friendly_name = "Firefox Desktop Baseline Active Users"
+description = "Client-level table that indicates whether a client meets 'active user' criteria on a given submission_date."
+from_expression = """(
+    SELECT *
+     FROM `moz-fx-data-shared-prod.firefox_desktop.baseline_active_users`
+    WHERE is_desktop
+)"""
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+glean_client_id_column = "client_id"
+legacy_client_id_column = "legacy_telemetry_client_id"
 experiments_column_type = "none"
 deprecated = false
 
