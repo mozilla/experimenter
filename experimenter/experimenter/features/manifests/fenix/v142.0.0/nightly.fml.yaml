@@ -575,7 +575,6 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<MR2022Section, Boolean>"
         default:
-          sync-cfr: true
           wallpapers-selection-tool: true
           tcp-cfr: true
           tcp-feature: true
@@ -985,8 +984,6 @@ enums:
   MR2022Section:
     description: The identifiers for the sections of the MR 2022.
     variants:
-      sync-cfr:
-        description: CFR for the first time you see a synced tab on the home screen.
       tcp-cfr:
         description: CFR for the first time you use the browse with Total Cookie Protection on the browser screen.
       tcp-feature:
