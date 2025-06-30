@@ -111,6 +111,18 @@ columns_as_dimensions = true
 submission_date_column = "submission_date"
 client_id_column = "NULL"
 
+[data_sources.countries]
+from_expression = "mozdata.static.country_codes_v1"
+client_id_column = "code"
+friendly_name = "Countries"
+description = "Countries"
+columns_as_dimensions = true
+submission_date_column = "NULL"
+
+[data_sources.ad_metrics_daily.joins.countries]
+relationship = "one_to_many"
+on_expression = "ad_metrics_daily.country = countries.code"
+
 [dimensions]
 
 [dimensions.adm_date]
