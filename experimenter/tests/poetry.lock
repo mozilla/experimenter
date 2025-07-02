@@ -1668,14 +1668,14 @@ test = ["zope.testrunner"]
 
 [[package]]
 name = "zope-event"
-version = "5.0"
+version = "5.1"
 description = "Very basic event publishing system"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "zope.event-5.0-py3-none-any.whl", hash = "sha256:2832e95014f4db26c47a13fdaef84cef2f4df37e66b59d8f1f4a8f319a632c26"},
-    {file = "zope.event-5.0.tar.gz", hash = "sha256:bac440d8d9891b4068e2b5a2c5e2c9765a9df762944bda6955f96bb9b91e67cd"},
+    {file = "zope_event-5.1-py3-none-any.whl", hash = "sha256:53de8f0e9f61dc0598141ac591f49b042b6d74784dab49971b9cc91d0f73a7df"},
+    {file = "zope_event-5.1.tar.gz", hash = "sha256:a153660e0c228124655748e990396b9d8295d6e4f546fa1b34f3319e1c666e7f"},
 ]
 
 [package.dependencies]
@@ -1850,4 +1850,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "edada3398013979607c8626beb24aba35be589b794009728196d7df0e0894f11"
+content-hash = "5a4b24287e8dff6765bccb04bdbf7638a37cb286e9f7976f5bb79f03aad9bc3e"
