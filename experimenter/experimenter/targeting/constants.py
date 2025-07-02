@@ -127,7 +127,7 @@ ADS_DISABLED = f"""
     {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
 )
 """
-# Most sponsored content is off by default in Brazil and Mexico, last updated
+# Most sponsored content is off by default in Brazil and Mexico, as of
 # June 26, 2025.
 ADS_DISABLED_BR_MX_2025_06_26 = TOPSITES_OR_SPONSORED_TOPSITES_DISABLED
 
