@@ -127,6 +127,9 @@ ADS_DISABLED = f"""
     {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
 )
 """
+# Most sponsored content is off by default in Brazil and Mexico, as of
+# June 26, 2025.
+ADS_DISABLED_BR_MX_2025_06_26 = TOPSITES_OR_SPONSORED_TOPSITES_DISABLED
 
 NO_TARGETING = NimbusTargetingConfig(
     name="No Targeting",
@@ -2820,6 +2823,10 @@ TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
         "have not disabled ads, "
         "and are on Mac or Windows"
     ),
+    # For MX/BR users, respect the region-specific ADS_DISABLED_BR_MX_2025_06_26
+    # constant. For all other regions, fall back to the global ADS_DISABLED.
+    # This ensures we never enroll users whose ads have been disabled regionally
+    # due to a mismatch between the two ads disabled constants.
     targeting=f"""
     (
         (
@@ -2834,7 +2841,17 @@ TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
         &&
         !{TOU_NOTIFICATION_BYPASS_ENABLED}
         &&
-        !{ADS_DISABLED}
+        (
+            (
+                (region == "MX" || region == "BR")
+                && !{ADS_DISABLED_BR_MX_2025_06_26}
+            )
+            ||
+            (
+                (region != "MX" && region != "BR")
+                && !{ADS_DISABLED}
+            )
+        )
     )
     """,
     desktop_telemetry="",
