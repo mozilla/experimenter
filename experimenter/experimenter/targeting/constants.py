@@ -2791,7 +2791,7 @@ TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
         "and are on Mac or Windows"
     ),
     # For MX/BR users, respect the region-specific ADS_DISABLED_BR_MX_2025_06_26
-    # constant. Ffor all other regions, fall back to the global ADS_DISABLED.
+    # constant. For all other regions, fall back to the global ADS_DISABLED.
     # This ensures we never enroll users whose ads have been disabled regionally
     # due to a mismatch between the two ads disabled constants.
     targeting=f"""
