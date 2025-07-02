@@ -1269,6 +1269,32 @@ newtabAdsReporting:
       description: >-
         Enable reporting for ads
 
+newtabSmartShortcuts:
+  description: about:newtab personalized shortcuts
+  owner: rhamoui@mozilla.com, sdowne@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: >-
+        Enable personalized shortcuts
+    over_sample_multiplier:
+      type: int
+      description: >-
+        Controls how many multiples of the frecent we sample before reranking
+    positive_prior:
+      type: int
+      description: >-
+        Alpha in shortcut thompson sampling, exploit faster
+    negative_prior:
+      type: int
+      description: >-
+        Beta in shortcut thompson sampling, explore longer
+    thom_weight:
+      type: int
+      description: >-
+        Percentage weight of thompson sampling relative to frecency
+
 newTabSectionsExperiment:
   description: about:newtab section UI update
   owner: nbarrett@mozilla.com, mcrawford@mozilla.com
@@ -1474,7 +1500,7 @@ newtabTrendingSearchWidget:
       type: boolean
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.trendingSearch.enabled
+        pref: browser.newtabpage.activity-stream.system.trendingSearch.enabled
       description: Enables the refined cards layout for newtab
     variant:
       type: string
