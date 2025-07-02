@@ -1209,14 +1209,14 @@ websocket-client = ">=1.8,<2.0"
 
 [[package]]
 name = "sentry-sdk"
-version = "2.30.0"
+version = "2.32.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "sentry_sdk-2.30.0-py2.py3-none-any.whl", hash = "sha256:59391db1550662f746ea09b483806a631c3ae38d6340804a1a4c0605044f6877"},
-    {file = "sentry_sdk-2.30.0.tar.gz", hash = "sha256:436369b02afef7430efb10300a344fb61a11fe6db41c2b11f41ee037d2dd7f45"},
+    {file = "sentry_sdk-2.32.0-py2.py3-none-any.whl", hash = "sha256:6cf51521b099562d7ce3606da928c473643abe99b00ce4cb5626ea735f4ec345"},
+    {file = "sentry_sdk-2.32.0.tar.gz", hash = "sha256:9016c75d9316b0f6921ac14c8cd4fb938f26002430ac5be9945ab280f78bec6b"},
 ]
 
 [package.dependencies]
@@ -1850,4 +1850,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "c846aae7efdb1055c9762b4dc5def224d1dd8870428f238b5b83d3d9c4fcc357"
+content-hash = "edada3398013979607c8626beb24aba35be589b794009728196d7df0e0894f11"
