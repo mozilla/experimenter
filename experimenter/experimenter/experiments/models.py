@@ -1038,6 +1038,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self.computed_end_date - enrollment_end_date).days
         return None
 
+    @property
+    def is_live_rollout(self):
+        return self.is_rollout and self.is_enrolling
+
     def can_edit_overview(self):
         return self.is_draft
 
@@ -1048,7 +1052,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.is_draft
 
     def can_edit_audience(self):
-        return self.is_draft or (self.is_rollout and self.is_enrolling)
+        return self.is_draft or self.is_live_rollout
 
     def sidebar_links(self, current_path):
         return [
