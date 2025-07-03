@@ -1493,6 +1493,26 @@ class TestAudienceForm(RequestFormTestCase):
 
         self.assertTrue(updated_experiment.is_rollout_dirty)
 
+    def test_fields_are_disabled_in_live_rollout(self):
+        experiment = NimbusExperimentFactory(
+            is_rollout=True,
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            is_paused=False,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            population_percent=5,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.BETA,
+        )
+
+        form = AudienceForm(instance=experiment, request=self.request)
+
+        for field_name, field in form.fields.items():
+            if field_name == "population_percent":
+                self.assertFalse(field.disabled, f"{field_name} should be editable")
+            else:
+                self.assertTrue(field.disabled, f"{field_name} should be disabled")
+
 
 class TestNimbusBranchesForm(RequestFormTestCase):
     def test_branches_form_saves_branches(self):
