@@ -220,6 +220,9 @@ menu-redesign:
     enabled:
       type: boolean
       description: "If true, the new menu redesign is available."
+    menu-banner:
+      type: boolean
+      description: "If true, the menu banner is visible."
     report-site-issue:
       type: boolean
       description: "If true, report site issue menu item and preview is available."
@@ -344,6 +347,14 @@ one-click-search:
     enabled:
       type: boolean
       description: "If true, the one click search will be enabled."
+override-user-specified-homepage-sections:
+  description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.\n"
 pdfjs:
   description: PDF.js features
   hasExposure: true
