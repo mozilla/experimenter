@@ -71,20 +71,6 @@ type = "scalar"
 friendly_name = "Revenue"
 description = "Ad revenue"
 
-[metrics.ecpm]
-depends_on = ['revenue', 'milli_impressions']
-data_source = "ad_metrics_daily"
-type = "scalar"
-friendly_name = "eCPM"
-description = "effective CPM, calculated as average revenue per thousand impressions"
-
-[metrics.click_through_rate]
-depends_on = ['clicks', 'impressions']
-data_source = "ad_metrics_daily"
-type = "scalar"
-friendly_name = "Click Through Rate"
-description = "Ratio of ad clicks to ad impressions"
-
 [metrics.milli_impressions]
 select_expression = "SUM(impressions)/1000"
 data_source = "ad_metrics_daily"
