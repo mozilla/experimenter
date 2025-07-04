@@ -204,14 +204,6 @@ juno-onboarding:
     conditions:
       type: json
       description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
-mars:
-  description: Mozilla Ad Routing Service (MARS) unified ads service.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable MARS endpoint to serve sponsored top sites and stories.\n"
 menu-redesign:
   description: Control the new menu redesign.
   hasExposure: true
