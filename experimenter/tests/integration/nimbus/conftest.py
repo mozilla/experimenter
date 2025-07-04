@@ -114,6 +114,7 @@ def firefox_options(firefox_options):
     """Set Firefox Options."""
     firefox_options.log.level = "trace"
     firefox_options.set_preference("remote.system-access-check.enabled", False)
+    firefox_options.add_argument("-remote-allow-system-access")
     return firefox_options
 
 
