@@ -839,6 +839,11 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 "hx-target": "#first-run-fields",
             }
         )
+        # If this is a live rollout, restrict edits to only population_percent
+        if self.instance.is_live_rollout:
+            for field_name in self.fields:
+                if field_name != "population_percent":
+                    self.fields[field_name].disabled = True
 
     def setup_initial_experiments_branches(self, field_name):
         self.initial[field_name] = [
