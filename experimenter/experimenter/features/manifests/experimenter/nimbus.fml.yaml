@@ -1,0 +1,25 @@
+about:
+  description: Nimbus Feature Manifest for Experimenter Web testing
+channels:
+  - dev
+  - staging
+  - production
+features:
+  example-feature:
+    description: An example feature.
+    variables:
+      emoji:
+        description: An emoji to show for this treatment.
+        type: Option<String>
+        default: ❤️
+      enabled:
+        description: If the feature is enabled.
+        type: Boolean
+        default: false
+    defaults:
+      - channel: dev
+        value: { "enabled": false }
+      - channel: staging
+        value: { "enabled": false }
+      - channel: production
+        value: { "enabled": false }

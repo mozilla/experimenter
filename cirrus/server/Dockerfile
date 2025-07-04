@@ -51,6 +51,9 @@ COPY --from=python-builder /usr/local/bin /usr/local/bin
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services
 
+# Copy fml files
+COPY --from=fml . /fml/
+
 # Copy all other files into the container's working directory
 COPY . .
 
