@@ -11,7 +11,7 @@
             The request to {{ rejection.action }} was <strong>Rejected</strong> due to:
           </p>
           <p class="mb-2">{{ rejection.email }} on {{ rejection.date|date:"F j, Y" }}:</p>
-          <p class="bg-white rounded border p-2 mb-0">{{ rejection.message }}</p>
+          <p class="bg-light text-dark rounded border p-2 mb-0">{{ rejection.message }}</p>
         </div>
       </div>
     {% endif %}
