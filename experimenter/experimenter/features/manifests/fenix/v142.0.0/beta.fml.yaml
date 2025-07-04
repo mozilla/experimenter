@@ -367,13 +367,6 @@ features:
           ALWAYS: "true"
           NEVER: "false"
         string-alias: ConditionName
-  mars:
-    description: Mozilla Ad Routing Service (MARS) unified ads service.
-    variables:
-      enabled:
-        description: "Whether or not to enable MARS endpoint to serve sponsored top sites and stories.\n"
-        type: Boolean
-        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
