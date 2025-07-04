@@ -18,7 +18,8 @@
                 <a href="{{ experiment.get_update_overview_url }}?show_errors=true"
                    rel="noopener noreferrer">Overview</a>
               {% elif page == "branches" %}
-                <a href="" rel="noopener noreferrer">Branches</a>
+                <a href="{{ experiment.get_update_branches_url }}?show_errors=true"
+                   rel="noopener noreferrer">Branches</a>
               {% elif page == "metrics" %}
                 <a href="{{ experiment.get_update_metrics_url }}?show_errors=true"
                    rel="noopener noreferrer">Metrics</a>
