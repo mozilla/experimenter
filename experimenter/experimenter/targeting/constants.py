@@ -1643,6 +1643,42 @@ WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT_V2 = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users with 1hr+ of inactivity in the past day "
+        "who are running a background task and are "
+        "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
+    ),
+    slug="whats_new_notification_sidebar_vertical_tabs_rollout_v2",
+    description=(
+        "Windows 10+ users with 1hr+ of inactivity in the past day "
+        "who are running a background task and are "
+        "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
+        )
+        &&
+        isBackgroundTaskMode
+        &&
+        ((defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
+        == 'treatment-a') == false)
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
