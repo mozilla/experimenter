@@ -94,13 +94,6 @@ features:
         description: "Setting 'enabled' to false will hide the bookmarks section of the homepage and disable the respective toggle in the homepage settings"
         type: Boolean
         default: true
-  hnt-content-feed-cleanup-feature:
-    description: "Controls updates for the content feed\n"
-    variables:
-      enabled:
-        description: "Whether or not the feature is enabled\n"
-        type: Boolean
-        default: false
   hnt-customization-section-feature:
     description: This feature manages the visibility of the homepage customization section of the homepage
     variables:
@@ -175,6 +168,10 @@ features:
         default: false
       menu-redesign:
         description: "If true, enables the menu redesign.\n"
+        type: Boolean
+        default: false
+      menu-redesign-hint:
+        description: "If true, enables the menu contextual hint for menu redesign.\n"
         type: Boolean
         default: false
   messaging:
@@ -621,6 +618,13 @@ features:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
         default: afterFourHours
+  summarizer-feature:
+    description: "This feature enables the summarizer feature.\n"
+    variables:
+      enabled:
+        description: "Enables the summarizer feature.\n"
+        type: Boolean
+        default: false
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
@@ -647,6 +651,10 @@ features:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
         default: version1
+      minimal_address_bar:
+        description: "Enables minimal address bar mode on scroll to ensure the url is always visible.\n"
+        type: Boolean
+        default: false
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
