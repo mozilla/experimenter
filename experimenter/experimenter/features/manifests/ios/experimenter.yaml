@@ -93,14 +93,6 @@ hnt-bookmarks-section-feature:
     enabled:
       type: boolean
       description: "Setting 'enabled' to false will hide the bookmarks section of the homepage and disable the respective toggle in the homepage settings"
-hnt-content-feed-cleanup-feature:
-  description: "Controls updates for the content feed\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not the feature is enabled\n"
 hnt-customization-section-feature:
   description: This feature manages the visibility of the homepage customization section of the homepage
   hasExposure: true
@@ -180,6 +172,9 @@ menu-refactor-feature:
     menu-redesign:
       type: boolean
       description: "If true, enables the menu redesign.\n"
+    menu-redesign-hint:
+      type: boolean
+      description: "If true, enables the menu contextual hint for menu redesign.\n"
 messaging:
   description: "The in-app messaging system\n"
   hasExposure: true
@@ -325,6 +320,14 @@ start-at-home-feature:
         - afterFourHours
         - always
         - disabled
+summarizer-feature:
+  description: "This feature enables the summarizer feature.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the summarizer feature.\n"
 tab-tray-ui-experiments:
   description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
   hasExposure: true
@@ -352,6 +355,9 @@ toolbar-refactor-feature:
     layout:
       type: string
       description: "The type of layout of the toolbars.\n"
+    minimal_address_bar:
+      type: boolean
+      description: "Enables minimal address bar mode on scroll to ensure the url is always visible.\n"
     navigation_hint:
       type: boolean
       description: "If true, enables the navigation contextual hint.\n"
