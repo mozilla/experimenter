@@ -705,11 +705,13 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             ]
         )
 
-    def get_targeting_config_choices():
+    def get_targeting_config_choices(self):
+        application_name = NimbusExperiment.Application(self.instance.application).name
         return sorted(
             [
                 (targeting.slug, f"{targeting.name} - {targeting.description}")
                 for targeting in NimbusTargetingConfig.targeting_configs
+                if application_name in targeting.application_choice_names
             ],
             key=lambda choice: choice[1].lower(),
         )
@@ -762,13 +764,11 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     targeting_config_slug = forms.ChoiceField(
         required=False,
         label="",
-        choices=get_targeting_config_choices,
         widget=forms.widgets.Select(
-            attrs={
-                "class": "form-select",
-            },
+            attrs={"class": "form-select"},
         ),
     )
+
     excluded_experiments_branches = forms.MultipleChoiceField(
         required=False,
         choices=get_experiment_branch_choices,
@@ -821,6 +821,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["targeting_config_slug"].choices = self.get_targeting_config_choices()
         self.setup_initial_experiments_branches("required_experiments_branches")
         self.setup_initial_experiments_branches("excluded_experiments_branches")
         self.fields["channel"].choices = [
