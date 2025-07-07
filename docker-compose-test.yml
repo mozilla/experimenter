@@ -22,7 +22,8 @@ services:
   cirrus:
     env_file: .env.test
     build:
+      additional_contexts:
+        - fml=experimenter/experimenter/features/manifests/
       context: cirrus/server/
       dockerfile: Dockerfile
     working_dir: /cirrus
-    

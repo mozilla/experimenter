@@ -1,0 +1,12 @@
+---
+example-feature:
+  description: An example feature.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    emoji:
+      type: string
+      description: An emoji to show for this treatment.
+    enabled:
+      type: boolean
+      description: If the feature is enabled.
