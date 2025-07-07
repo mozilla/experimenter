@@ -1608,13 +1608,13 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY_CFR_ONLY = (
 WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT_V2 = NimbusTargetingConfig(
     name=(
         "Windows 10+ users with 1hr+ of inactivity in the past day "
-        "who are running a background task with CFR enabled and "
+        "who are running a background task and are "
         "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
     ),
     slug="whats_new_notification_sidebar_vertical_tabs_rollout_v2",
     description=(
         "Windows 10+ users with 1hr+ of inactivity in the past day "
-        "who are running a background task with CFR enabled and "
+        "who are running a background task and are "
         "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
     ),
     targeting="""
