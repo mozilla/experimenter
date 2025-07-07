@@ -197,6 +197,7 @@ features:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
         type: "Map<HomeScreenSection, Boolean>"
         default:
+          header: false
           top-sites: true
           jump-back-in: true
           bookmarks: true
@@ -976,6 +977,8 @@ enums:
         description: The sites the user has bookmarked.
       collections:
         description: The collections section of the homepage.
+      header:
+        description: The header of the homescreen.
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
       pocket:
