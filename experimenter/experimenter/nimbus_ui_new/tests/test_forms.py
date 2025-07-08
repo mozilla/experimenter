@@ -69,6 +69,7 @@ from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
 from experimenter.segments.tests.mock_segments import mock_get_segments
+from experimenter.targeting.constants import NimbusTargetingConfig
 
 
 class RequestFormTestCase(TestCase):
@@ -1512,6 +1513,32 @@ class TestAudienceForm(RequestFormTestCase):
                 self.assertFalse(field.disabled, f"{field_name} should be editable")
             else:
                 self.assertTrue(field.disabled, f"{field_name} should be disabled")
+
+    def test_targeting_config_choices_filtered_by_application(self):
+        for application in NimbusExperiment.Application:
+            with self.subTest(application=application.name):
+                experiment = NimbusExperimentFactory(application=application)
+
+                form = AudienceForm(instance=experiment, request=self.request)
+
+                actual_slugs = {
+                    slug for slug, _ in form.fields["targeting_config_slug"].choices
+                }
+
+                expected_slugs = {
+                    targeting.slug
+                    for targeting in NimbusTargetingConfig.targeting_configs
+                    if application.name in targeting.application_choice_names
+                }
+
+                self.assertEqual(
+                    actual_slugs,
+                    expected_slugs,
+                    msg=(
+                        f"Targeting config slugs did not match for application: "
+                        f"{application.name}"
+                    ),
+                )
 
 
 class TestNimbusBranchesForm(RequestFormTestCase):
