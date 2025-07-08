@@ -1221,21 +1221,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 slug=self.slug.replace("-", "_")
             )
 
-    def format_branch_choice(self, branch_slug):
-        branch_name = "All branches"
-        if branch_slug is not None:
-            branch_name = branch_slug.capitalize()
-        return (
-            f"{self.slug}:{branch_slug}",
-            f"{self.name} ({branch_name})",
-        )
-
-    def branch_choices(self):
-        choices = [self.format_branch_choice(None)]
-        for branch in self.branches.all():
-            choices.append(self.format_branch_choice(branch.slug))
-        return choices
-
     @property
     def required_experiments_branches(self):
         return NimbusExperimentBranchThroughRequired.objects.filter(

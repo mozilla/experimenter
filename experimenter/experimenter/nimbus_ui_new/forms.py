@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
@@ -696,15 +698,6 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             *NimbusExperiment.Version.choices[1:][::-1],
         ]
 
-    def get_experiment_branch_choices():
-        return sorted(
-            [
-                branch_choice
-                for experiment in NimbusExperiment.objects.exclude(is_archived=True)
-                for branch_choice in experiment.branch_choices()
-            ]
-        )
-
     def get_targeting_config_choices(self):
         application_name = NimbusExperiment.Application(self.instance.application).name
         return sorted(
@@ -771,12 +764,10 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     excluded_experiments_branches = forms.MultipleChoiceField(
         required=False,
-        choices=get_experiment_branch_choices,
         widget=MultiSelectWidget(),
     )
     required_experiments_branches = forms.MultipleChoiceField(
         required=False,
-        choices=get_experiment_branch_choices,
         widget=MultiSelectWidget(),
     )
     is_sticky = forms.BooleanField(required=False)
@@ -822,8 +813,10 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["targeting_config_slug"].choices = self.get_targeting_config_choices()
+        self.setup_experiment_branch_choices()
         self.setup_initial_experiments_branches("required_experiments_branches")
         self.setup_initial_experiments_branches("excluded_experiments_branches")
+
         self.fields["channel"].choices = [
             (channel.value, channel.label)
             for channel in NimbusExperiment.Channel
@@ -840,11 +833,46 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 "hx-target": "#first-run-fields",
             }
         )
+
         # If this is a live rollout, restrict edits to only population_percent
         if self.instance.is_live_rollout:
             for field_name in self.fields:
                 if field_name != "population_percent":
                     self.fields[field_name].disabled = True
+
+    def setup_experiment_branch_choices(self):
+        experiments_by_slug = dict(
+            NimbusExperiment.objects.filter(
+                application=self.instance.application, is_archived=False
+            ).values_list("slug", "name")
+        )
+
+        branch_slugs = NimbusBranch.objects.filter(
+            experiment__application=self.instance.application,
+            experiment__is_archived=False,
+        ).values_list("experiment__slug", "slug")
+
+        branches_by_experiment_slug = defaultdict(list)
+        for experiment_slug, branch_slug in branch_slugs:
+            branches_by_experiment_slug[experiment_slug].append(branch_slug)
+
+        all_choices = []
+        for experiment_slug, experiment_name in sorted(experiments_by_slug.items()):
+            all_choices.append(
+                (f"{experiment_slug}:None", f"{experiment_name} (All branches)")
+            )
+            for branch_slug in sorted(
+                branches_by_experiment_slug.get(experiment_slug, [])
+            ):
+                all_choices.append(
+                    (
+                        f"{experiment_slug}:{branch_slug}",
+                        f"{experiment_name} ({branch_slug.capitalize()})",
+                    )
+                )
+
+        self.fields["excluded_experiments_branches"].choices = all_choices
+        self.fields["required_experiments_branches"].choices = all_choices
 
     def setup_initial_experiments_branches(self, field_name):
         self.initial[field_name] = [
