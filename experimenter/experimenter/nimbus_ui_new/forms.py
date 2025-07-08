@@ -840,34 +840,41 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 if field_name != "population_percent":
                     self.fields[field_name].disabled = True
 
-    def setup_experiment_branch_choices(self):
-        experiments_by_slug = dict(
-            NimbusExperiment.objects.filter(
-                application=self.instance.application, is_archived=False
-            ).values_list("slug", "name")
+    def format_branch_choice(self, experiment_slug, experiment_name, branch_slug):
+        if branch_slug is None:
+            return f"{experiment_slug}:None", f"{experiment_name} (All branches)"
+        return (
+            f"{experiment_slug}:{branch_slug}",
+            f"{experiment_name} ({branch_slug.capitalize()})",
         )
 
-        branch_slugs = NimbusBranch.objects.filter(
-            experiment__application=self.instance.application,
-            experiment__is_archived=False,
-        ).values_list("experiment__slug", "slug")
+    def setup_experiment_branch_choices(self):
+        branch_slugs = (
+            NimbusBranch.objects.filter(
+                experiment__application=self.instance.application,
+                experiment__is_archived=False,
+            )
+            .exclude(experiment__id=self.instance.id)
+            .values_list("experiment__slug", "experiment__name", "slug")
+        )
 
         branches_by_experiment_slug = defaultdict(list)
-        for experiment_slug, branch_slug in branch_slugs:
-            branches_by_experiment_slug[experiment_slug].append(branch_slug)
+        for experiment_slug, experiment_name, branch_slug in branch_slugs:
+            branches_by_experiment_slug[(experiment_slug, experiment_name)].append(
+                branch_slug
+            )
 
         all_choices = []
-        for experiment_slug, experiment_name in sorted(experiments_by_slug.items()):
+        for (experiment_slug, experiment_name), branch_slugs in sorted(
+            branches_by_experiment_slug.items()
+        ):
             all_choices.append(
-                (f"{experiment_slug}:None", f"{experiment_name} (All branches)")
+                self.format_branch_choice(experiment_slug, experiment_name, None)
             )
-            for branch_slug in sorted(
-                branches_by_experiment_slug.get(experiment_slug, [])
-            ):
+            for branch_slug in sorted(branch_slugs):
                 all_choices.append(
-                    (
-                        f"{experiment_slug}:{branch_slug}",
-                        f"{experiment_name} ({branch_slug.capitalize()})",
+                    self.format_branch_choice(
+                        experiment_slug, experiment_name, branch_slug
                     )
                 )
 
@@ -876,7 +883,11 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def setup_initial_experiments_branches(self, field_name):
         self.initial[field_name] = [
-            branch.child_experiment.format_branch_choice(branch.branch_slug)[0]
+            self.format_branch_choice(
+                branch.child_experiment.slug,
+                branch.child_experiment.name,
+                branch.branch_slug,
+            )[0]
             for branch in getattr(self.instance, field_name)
         ]
 
