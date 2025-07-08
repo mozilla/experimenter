@@ -2355,9 +2355,20 @@ class TestLaunchViews(AuthTestCase):
 
 class TestAudienceUpdateView(AuthTestCase):
     def test_get_renders_page(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
         )
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment.required_experiments.add(required)
+        experiment.excluded_experiments.add(excluded)
 
         response = self.client.get(
             reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug})
