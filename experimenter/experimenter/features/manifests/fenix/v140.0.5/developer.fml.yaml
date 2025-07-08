@@ -26,21 +26,6 @@ features:
           amp: true
           ampMobile: false
           wikipedia: true
-  baseline-fpp:
-    description: Control Baseline Fingerprinting Protection
-    variables:
-      enabled:
-        description: Enables / disables baseline fingerprinting protection.
-        type: Boolean
-        default: true
-      feat-enabled:
-        description: "If true, the feature is active."
-        type: Boolean
-        default: false
-      overrides:
-        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string."
-        type: String
-        default: ""
   bookmarks:
     description: Feature for Bookmarks
     variables:
@@ -117,7 +102,7 @@ features:
         type: Boolean
         default: false
       overrides:
-        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.\n"
+        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets.\n"
         type: String
         default: ""
   fission:
@@ -197,7 +182,6 @@ features:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
         type: "Map<HomeScreenSection, Boolean>"
         default:
-          header: false
           top-sites: true
           jump-back-in: true
           bookmarks: true
@@ -205,7 +189,6 @@ features:
           pocket: true
           pocket-sponsored-stories: true
           synced-tabs: true
-          collections: true
   javascript:
     description: Enables Javascript Engine (Spidermonkey) features
     variables:
@@ -381,6 +364,13 @@ features:
           ALWAYS: "true"
           NEVER: "false"
         string-alias: ConditionName
+  mars:
+    description: Mozilla Ad Routing Service (MARS) unified ads service.
+    variables:
+      enabled:
+        description: "Whether or not to enable MARS endpoint to serve sponsored top sites and stories.\n"
+        type: Boolean
+        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
@@ -388,14 +378,17 @@ features:
         description: "If true, the new menu redesign is available."
         type: Boolean
         default: false
-      menu-banner:
-        description: "If true, the menu banner is visible."
-        type: Boolean
-        default: true
       report-site-issue:
         description: "If true, report site issue menu item and preview is available."
         type: Boolean
         default: true
+  merino-recommendations:
+    description: Sets the recommendations provider service to Merino.
+    variables:
+      enabled:
+        description: "Whether or not to enable Merino endpoint to serve recommendations.\n"
+        type: Boolean
+        default: false
   messaging:
     description: "The in-app messaging system.\n"
     variables:
@@ -590,7 +583,10 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<MR2022Section, Boolean>"
         default:
+          home-onboarding-dialog-existing-users: true
+          sync-cfr: true
           wallpapers-selection-tool: true
+          jump-back-in-cfr: true
           tcp-cfr: true
           tcp-feature: true
   navigation-toolbar:
@@ -662,13 +658,6 @@ features:
         description: "If true, the one click search will be enabled."
         type: Boolean
         default: false
-  override-user-specified-homepage-sections:
-    description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
-    variables:
-      enabled:
-        description: "When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.\n"
-        type: Boolean
-        default: false
   pdfjs:
     description: PDF.js features
     variables:
@@ -705,6 +694,13 @@ features:
         description: "If true, a print button from the share menu is available."
         type: Boolean
         default: true
+  private-browsing:
+    description: Private Browsing Mode
+    variables:
+      felt-privacy-enabled:
+        description: "if true, enable felt privacy related UI"
+        type: Boolean
+        default: false
   private-browsing-lock:
     description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
     variables:
@@ -862,20 +858,9 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
-  tab-management-enhancements:
-    description: Control the visibility of the tab management enhancements.
-    variables:
-      enabled:
-        description: "Whether or not to enable the tab management enhancements.\n"
-        type: Boolean
-        default: false
   tab-strip:
     description: Enables tab strip.
     variables:
-      allow-on-all-devices:
-        description: "Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior. This still requires the feature to be `enabled`.\n"
-        type: Boolean
-        default: false
       enabled:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
@@ -895,21 +880,6 @@ features:
         description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
         type: Boolean
         default: true
-  toolbar-redesign-option:
-    description: Control the visibility of toolbar redesign option in settings.
-    variables:
-      show-expanded-customization:
-        description: "Whether or not the expanded toolbar customization option is visible to the user.\n"
-        type: Boolean
-        default: false
-      show-options:
-        description: "Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.\n"
-        type: Boolean
-        default: false
-      show-simple-customization:
-        description: "Whether or not the simple toolbar customization option is visible to the user.\n"
-        type: Boolean
-        default: false
   top-sites-suggestions:
     description: Enables top sites suggestions.
     variables:
@@ -998,10 +968,6 @@ enums:
     variants:
       bookmarks:
         description: The sites the user has bookmarked.
-      collections:
-        description: The collections section of the homepage.
-      header:
-        description: The header of the homescreen.
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
       pocket:
@@ -1017,6 +983,12 @@ enums:
   MR2022Section:
     description: The identifiers for the sections of the MR 2022.
     variants:
+      home-onboarding-dialog-existing-users:
+        description: Home onboarding dialog for upgraded users.
+      jump-back-in-cfr:
+        description: Jump back-in onboarding message.
+      sync-cfr:
+        description: CFR for the first time you see a synced tab on the home screen.
       tcp-cfr:
         description: CFR for the first time you use the browse with Total Cookie Protection on the browser screen.
       tcp-feature:

@@ -544,6 +544,14 @@ suggest-shipped-domains:
     enabled:
       type: boolean
       description: "Suggest domains from the shipped domain list.\n"
+tab-management-enhancements:
+  description: Control the visibility of the tab management enhancements.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to enable the tab management enhancements.\n"
 tab-strip:
   description: Enables tab strip.
   hasExposure: true

@@ -85,6 +85,14 @@ general-app-features:
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
+hnt-content-feed-cleanup-feature:
+  description: "Controls updates for the content feed\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not the feature is enabled\n"
 hnt-sponsored-shortcuts-feature:
   description: This feature manages the visibility of sponsored shortcuts on the homepage
   hasExposure: true
@@ -109,20 +117,6 @@ homepage-rebuild-feature:
     enabled:
       type: boolean
       description: "If true, enables the feature\n"
-homepage-redesign-feature:
-  description: "This feature is for managing the roll out of the Homepage New Tab Redesign feature.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature.\n"
-    search_bar:
-      type: boolean
-      description: "If true, enables the search bar feature on homepage for users.\n"
-    stories_redesign:
-      type: boolean
-      description: "If true, enables the stories section redesign on homepage\n"
 logins-verification:
   description: "Feature that enables the logins verification logic.\n"
   hasExposure: true
@@ -139,18 +133,12 @@ menu-refactor-feature:
     enabled:
       type: boolean
       description: "Controls which menu users will see\n"
-    menu-default-browser-banner:
-      type: boolean
-      description: "If true, enables the menu Make Firefox your default banner, on top of the menu.\n"
     menu-hint:
       type: boolean
       description: "If true, enables the menu contextual hint.\n"
     menu-redesign:
       type: boolean
       description: "If true, enables the menu redesign.\n"
-    menu-redesign-hint:
-      type: boolean
-      description: "If true, enables the menu contextual hint for menu redesign.\n"
 messaging:
   description: "The in-app messaging system\n"
   hasExposure: true
@@ -240,6 +228,14 @@ revert-unsafe-continuations-refactor:
     enabled:
       type: boolean
       description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
+rust-keychain-refactor:
+  description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    rust-keychain-enabled:
+      type: boolean
+      description: "Whether the use of the rust keychain logic is enabled for rust components. When enabled, the rust keychain is used to store and retrieve encryption key data for rust components. Otherwise, the pre-existing MZKeychainWrapper logic is used.\n"
 search:
   description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
   hasExposure: true
@@ -256,6 +252,17 @@ search-engine-consolidation-feature:
     enabled:
       type: boolean
       description: "Enables the feature\n"
+sent-from-firefox-feature:
+  description: "Adds additional promo text to links shared to WhatsApp.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
+    isTreatmentA:
+      type: boolean
+      description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
 splash-screen:
   description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
   hasExposure: true
@@ -296,14 +303,6 @@ start-at-home-feature:
         - afterFourHours
         - always
         - disabled
-summarizer-feature:
-  description: "This feature enables the summarizer feature.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the summarizer feature.\n"
 tab-tray-ui-experiments:
   description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
   hasExposure: true
@@ -331,9 +330,6 @@ toolbar-refactor-feature:
     layout:
       type: string
       description: "The type of layout of the toolbars.\n"
-    minimal_address_bar:
-      type: boolean
-      description: "Enables minimal address bar mode on scroll to ensure the url is always visible.\n"
     navigation_hint:
       type: boolean
       description: "If true, enables the navigation contextual hint.\n"
@@ -384,11 +380,3 @@ updated-password-manager-feature:
     status:
       type: boolean
       description: "If true, firefox will use the  the updated password manager."
-web-engine-integration-refactor:
-  description: "The feature flag to manage the roll out of the integration of WebEngine into Firefox.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the feature.\n"
