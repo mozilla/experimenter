@@ -1825,6 +1825,18 @@ select_expression = """(
 )"""
 data_source = "metrics"
 
+[metrics.pdf_stamp]
+select_expression = """(
+    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "stamp")) > 0, FALSE)
+)"""
+data_source = "metrics"
+
+[metrics.pdf_signature]
+select_expression = """(
+    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "signature")) > 0, FALSE)
+)"""
+data_source = "metrics"
+
 [metrics.pdf_print]
 select_expression = """(
     COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "print")) > 0, FALSE)
