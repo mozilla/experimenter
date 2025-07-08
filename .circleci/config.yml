@@ -665,19 +665,32 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - run:
+          name: Prepare environment variables for OIDC authentication
+          command: |
+            echo 'export GOOGLE_PROJECT_ID="moz-fx-cirrus-prod"' >> "$BASH_ENV"
+            echo "export OIDC_SERVICE_ACCOUNT_EMAIL=$DEPLOY_CIRRUS_GCP_SERVICE_ACCOUNT_EMAIL" >> "$BASH_ENV"
+      - gcp-cli/setup:
+          use_oidc: true
       - docker_login:
           username: $DOCKERHUB_CIRRUS_USER
           password: $DOCKERHUB_CIRRUS_PASS
       - run:
-          name: Deploy to latest
+          name: Deploy to Google Artifact Registry and Docker Hub
           command: |
             make cirrus_build
-            docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
-            docker push ${DOCKERHUB_CIRRUS_REPO}:latest
+
+            gcloud auth configure-docker us-docker.pkg.dev --quiet
 
             GIT_SHA=$(git rev-parse --short HEAD)
-            docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:sha-${GIT_SHA}
-            docker push ${DOCKERHUB_CIRRUS_REPO}:sha-${GIT_SHA}
+
+            for DOCKER_IMAGE in "us-docker.pkg.dev/moz-fx-cirrus-prod/cirrus-prod/cirrus" "${DOCKERHUB_CIRRUS_REPO}"; do
+              docker tag cirrus:deploy ${DOCKER_IMAGE}:latest
+              docker push "${DOCKER_IMAGE}:latest"
+
+              docker tag cirrus:deploy ${DOCKER_IMAGE}:sha-${GIT_SHA}
+              docker push ${DOCKER_IMAGE}:sha-${GIT_SHA}
+            done
 
   deploy_schemas:
     machine:
@@ -1000,6 +1013,8 @@ workflows:
             - Check Experimenter aarch64
       - deploy_cirrus:
           name: Deploy Cirrus
+          context:
+            - gcpv2-workload-identity
           filters:
             branches:
               only: main
