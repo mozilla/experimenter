@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
@@ -838,19 +840,38 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                     self.fields[field_name].disabled = True
 
     def setup_experiment_branch_choices(self):
-        experiment_branch_choices = sorted(
-            [
-                branch_choice
-                for experiment in NimbusExperiment.objects.filter(
-                    application=self.instance.application
-                )
-                .exclude(is_archived=True)
-                .prefetch_related("branches")
-                for branch_choice in experiment.branch_choices()
-            ]
+        experiments_by_slug = dict(
+            NimbusExperiment.objects.filter(
+                application=self.instance.application, is_archived=False
+            ).values_list("slug", "name")
         )
-        self.fields["excluded_experiments_branches"].choices = experiment_branch_choices
-        self.fields["required_experiments_branches"].choices = experiment_branch_choices
+
+        branch_slugs = NimbusBranch.objects.filter(
+            experiment__application=self.instance.application,
+            experiment__is_archived=False,
+        ).values_list("experiment__slug", "slug")
+
+        branches_by_experiment_slug = defaultdict(list)
+        for experiment_slug, branch_slug in branch_slugs:
+            branches_by_experiment_slug[experiment_slug].append(branch_slug)
+
+        all_choices = []
+        for experiment_slug, experiment_name in sorted(experiments_by_slug.items()):
+            all_choices.append(
+                (f"{experiment_slug}:None", f"{experiment_name} (All branches)")
+            )
+            for branch_slug in sorted(
+                branches_by_experiment_slug.get(experiment_slug, [])
+            ):
+                all_choices.append(
+                    (
+                        f"{experiment_slug}:{branch_slug}",
+                        f"{experiment_name} ({branch_slug.capitalize()})",
+                    )
+                )
+
+        self.fields["excluded_experiments_branches"].choices = all_choices
+        self.fields["required_experiments_branches"].choices = all_choices
 
     def setup_initial_experiments_branches(self, field_name):
         self.initial[field_name] = [
