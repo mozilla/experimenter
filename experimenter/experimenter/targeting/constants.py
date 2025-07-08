@@ -732,6 +732,17 @@ MAC_WINDOWS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+MAC_WINDOWS_11_ONLY = NimbusTargetingConfig(
+    name="Mac and Windows 11+ users only",
+    slug="mac_windows_11_only",
+    description="All users with Mac or Windows 11+",
+    targeting="((os.isWindows && os.windowsBuildNumber >= 22000) || os.isMac)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_DISTRIBUTIONS = NimbusTargetingConfig(
     name="No distribution builds",
     slug="no_distribution_builds",
@@ -759,6 +770,19 @@ NO_ENTERPRISE_MAC_WINDOWS_ONLY = NimbusTargetingConfig(
     slug="no_enterprise_users_mac_windows_only",
     description="Exclude users with active enterpries policies on Mac and Windows only",
     targeting=f"({NO_ENTERPRISE.targeting}) && ({MAC_WINDOWS_ONLY.targeting})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NO_ENTERPRISE_MAC_WINDOWS_11_ONLY = NimbusTargetingConfig(
+    name="No enterprise users (Mac, Windows 11+ only)",
+    slug="no_enterprise_users_mac_windows_11_only",
+    description=(
+        "Exclude users with active enterpries policies on Mac and Windows 11+ only"
+    ),
+    targeting=f"({NO_ENTERPRISE.targeting}) && ({MAC_WINDOWS_11_ONLY.targeting})",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
