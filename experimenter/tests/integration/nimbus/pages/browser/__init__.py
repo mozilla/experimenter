@@ -13,7 +13,7 @@ class Browser:
             with self.context(self.CONTEXT_CHROME):
                 return self.execute_async_script(script, *args)
         else:
-            return self.execute_async_script
+            return self.execute_async_script(script, *args)
 
 
 class AboutConfig(Page):
