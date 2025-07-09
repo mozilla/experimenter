@@ -8,12 +8,12 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class Browser:
-    def execute_script(self, *args, script=None, context=None):
+    def execute_async_script(self, *args, script=None, context=None):
         if "chrome" in context:
             with self.context(self.CONTEXT_CHROME):
-                return self.execute_script(script, *args)
+                return self.execute_async_script(script, *args)
         else:
-            return self.execute_script
+            return self.execute_async_script(script, *args)
 
 
 class AboutConfig(Page):
