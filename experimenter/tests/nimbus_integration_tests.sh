@@ -6,7 +6,7 @@ set +x
 export PATH=$PATH:/home/seluser/.local/bin
 
 PYTEST_ARGS=${PYTEST_ARGS:-"-k FIREFOX_DESKTOP"}
-FIREFOX_CHANNEL="release"
+FIREFOX_CHANNEL=${FIREFOX_CHANNEL:-"release"}
 
 install_firefox() {
     local firefox_version="$1"
@@ -30,7 +30,7 @@ case "$FIREFOX_CHANNEL" in
     source ./experimenter/tests/firefox_desktop_beta_build.env
     FIREFOX_DESKTOP_BETA_TASK_ID=${FIREFOX_DESKTOP_BETA_TASK_ID//\"/}
     echo "Installing firefox beta from taskcluster"
-    install_firefox "https://ftp.mozilla.org/pub/firefox/releases/138.0b1/linux-x86_64/en-US/firefox-138.0b1.tar.xz"
+    install_firefox "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${FIREFOX_DESKTOP_BETA_TASK_ID}/artifacts/public/build/target.tar.xz"
     ;;
   release)
     source ./experimenter/tests/firefox_desktop_release_build.env
