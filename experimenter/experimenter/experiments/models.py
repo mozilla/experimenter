@@ -407,6 +407,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     )
     equal_branch_ratio = models.BooleanField(default=True)
     klaatu_status = models.BooleanField("Automated Validation Status", default=False)
+    klaatu_recent_run_id = models.IntegerField(
+        "Recent Klaatu Run ID", blank=True, null=True, default=None
+    )
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -487,6 +490,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def get_detail_preview_recipe_json_url(self):
         return f"{self.get_detail_url()}#preview-recipe-json"
+
+    def get_results_url(self):
+        return reverse("nimbus-new-results", kwargs={"slug": self.slug})
 
     @property
     def experiment_url(self):
@@ -1032,6 +1038,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self.computed_end_date - enrollment_end_date).days
         return None
 
+    @property
+    def is_live_rollout(self):
+        return self.is_rollout and self.is_enrolling
+
     def can_edit_overview(self):
         return self.is_draft
 
@@ -1042,7 +1052,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.is_draft
 
     def can_edit_audience(self):
-        return self.is_draft or (self.is_rollout and self.is_enrolling)
+        return self.is_draft or self.is_live_rollout
 
     def sidebar_links(self, current_path):
         return [
@@ -1062,10 +1072,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             },
             {
                 "title": "Results",
-                "link": "",
+                "link": self.get_results_url(),
                 "icon": "fa-solid fa-chart-column",
-                "active": False,
-                "disabled": True,
+                "active": current_path == self.get_results_url(),
+                "disabled": self.disable_results_link,
             },
             {"title": "Edit", "is_header": True},
             {
@@ -1210,21 +1220,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return settings.ROLLOUT_MONITORING_URL.format(
                 slug=self.slug.replace("-", "_")
             )
-
-    def format_branch_choice(self, branch_slug):
-        branch_name = "All branches"
-        if branch_slug is not None:
-            branch_name = branch_slug.capitalize()
-        return (
-            f"{self.slug}:{branch_slug}",
-            f"{self.name} ({branch_name})",
-        )
-
-    def branch_choices(self):
-        choices = [self.format_branch_choice(None)]
-        for branch in self.branches.all():
-            choices.append(self.format_branch_choice(branch.slug))
-        return choices
 
     @property
     def required_experiments_branches(self):
@@ -1464,6 +1459,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return not self.is_rollout and self.has_displayable_results
 
     @property
+    def disable_results_link(self):
+        return not self.show_results_url
+
+    @property
     def results_expected_date(self):
         if not self.is_rollout:
             if self._enrollment_end_date:
@@ -1687,6 +1686,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.qa_status = NimbusExperiment.QAStatus.NOT_SET
         cloned.qa_comment = None
         cloned.klaatu_status = False
+        cloned.klaatu_recent_run_id = None
         cloned.save()
 
         if rollout_branch_slug:

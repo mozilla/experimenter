@@ -133,3 +133,10 @@ firefox_desktop:
           - "release"
           - "esr115"
           - "esr128"
+
+experimenter_cirrus:
+  slug: "experimenter"
+  repo:
+    type: "github"
+    name: "mozilla/experimenter"
+  fml_path: "experimenter/experimenter/features/manifests/experimenter/nimbus.fml.yaml"

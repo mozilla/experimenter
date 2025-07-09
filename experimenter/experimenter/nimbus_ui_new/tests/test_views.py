@@ -2355,9 +2355,20 @@ class TestLaunchViews(AuthTestCase):
 
 class TestAudienceUpdateView(AuthTestCase):
     def test_get_renders_page(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
         )
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment.required_experiments.add(required)
+        experiment.excluded_experiments.add(excluded)
 
         response = self.client.get(
             reverse("nimbus-new-update-audience", kwargs={"slug": experiment.slug})
@@ -2397,7 +2408,7 @@ class TestAudienceUpdateView(AuthTestCase):
             {
                 "channel": NimbusExperiment.Channel.BETA,
                 "countries": [country.id],
-                "excluded_experiments_branches": [excluded.branch_choices()[0][0]],
+                "excluded_experiments_branches": [f"{excluded.slug}:None"],
                 "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
                 "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
                 "is_sticky": True,
@@ -2406,7 +2417,7 @@ class TestAudienceUpdateView(AuthTestCase):
                 "population_percent": 10,
                 "proposed_duration": 120,
                 "proposed_enrollment": 42,
-                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "required_experiments_branches": [f"{required.slug}:None"],
                 "targeting_config_slug": (NimbusExperiment.TargetingConfig.FIRST_RUN),
                 "total_enrolled_clients": 100,
             },
@@ -2478,7 +2489,7 @@ class TestAudienceUpdateView(AuthTestCase):
                 "population_percent": 0,
                 "proposed_duration": 0,
                 "proposed_enrollment": 0,
-                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "required_experiments_branches": [f"{required.slug}:None"],
                 "total_enrolled_clients": 0,
             },
         )
@@ -2528,7 +2539,7 @@ class TestAudienceUpdateView(AuthTestCase):
                 "population_percent": 0,
                 "proposed_duration": 0,
                 "proposed_enrollment": 0,
-                "required_experiments_branches": [required.branch_choices()[0][0]],
+                "required_experiments_branches": [f"{required.slug}:None"],
                 "total_enrolled_clients": 0,
             },
         )
@@ -2606,3 +2617,17 @@ class TestSaveAndContinueMixin(AuthTestCase):
             response.headers["HX-Redirect"],
             reverse(next_url, kwargs={"slug": experiment.slug}),
         )
+
+
+class TestResultsView(AuthTestCase):
+    def test_render_to_response(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-results", kwargs={"slug": experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["experiment"], experiment)
+        self.assertTemplateUsed(response, "nimbus_experiments/results.html")

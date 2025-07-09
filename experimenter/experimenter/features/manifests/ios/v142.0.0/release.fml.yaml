@@ -87,34 +87,6 @@ features:
         type: GeneralFeature
         default:
           status: false
-  hnt-bookmarks-section-feature:
-    description: This feature manages the visibility of the bookmarks section of the homepage and the respective toggle in the homepage settings
-    variables:
-      enabled:
-        description: "Setting 'enabled' to false will hide the bookmarks section of the homepage and disable the respective toggle in the homepage settings"
-        type: Boolean
-        default: true
-  hnt-content-feed-cleanup-feature:
-    description: "Controls updates for the content feed\n"
-    variables:
-      enabled:
-        description: "Whether or not the feature is enabled\n"
-        type: Boolean
-        default: false
-  hnt-customization-section-feature:
-    description: This feature manages the visibility of the homepage customization section of the homepage
-    variables:
-      enabled:
-        description: "Setting 'enabled' to false will hide the homepage customization section of the homepage"
-        type: Boolean
-        default: true
-  hnt-jump-back-in-section-feature:
-    description: This feature manages the visibility of the jump back in and synced tabs section of the homepage and the respective toggle in the homepage settings
-    variables:
-      enabled:
-        description: "Setting 'enabled' to false will hide the jump back in and synced tabs section of the homepage and disable the respective toggle in the homepage settings"
-        type: Boolean
-        default: true
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:
@@ -177,6 +149,10 @@ features:
         description: "If true, enables the menu redesign.\n"
         type: Boolean
         default: false
+      menu-redesign-hint:
+        description: "If true, enables the menu contextual hint for menu redesign.\n"
+        type: Boolean
+        default: false
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -227,19 +203,7 @@ features:
       messages:
         description: "A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.\n"
         type: "Map<MessageKey, MessageData>"
-        default:
-          default-browser:
-            surface: new-tab-card
-            style: FALLBACK
-            trigger-if-all:
-              - SUPPORTS_DEFAULT_BROWSER
-              - ON_FOURTH_LAUNCH_THIS_YEAR
-            except-if-any:
-              - I_AM_DEFAULT_BROWSER
-            title: Default Browser/DefaultBrowserCard.Title
-            text: Default Browser/DefaultBrowserCard.Description
-            button-label: Default Browser/DefaultBrowserCard.Button.v2
-            action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
+        default: {}
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -468,15 +432,15 @@ features:
           welcome-modern:
             card-type: basic
             order: 10
-            title: Onboarding/Onboarding.Welcome.Title.TreatementA.v120
-            body: Onboarding/Onboarding.Welcome.Description.TreatementA.v120
+            title: Onboarding/Onboarding.Modern.Welcome.Title.v140
+            body: Onboarding/Onboarding.Modern.Welcome.Description.v140
             image: welcome-globe
             buttons:
               primary:
-                title: Onboarding/Onboarding.Welcome.ActionTreatementA.v114
+                title: Onboarding/Onboarding.Modern.Welcome.ActionTreatementA.v140
                 action: open-instructions-popup
               secondary:
-                title: Onboarding/Onboarding.Welcome.Skip.v114
+                title: Onboarding/Onboarding.Modern.Welcome.Skip.v140
                 action: forward-one-card
             instructions-popup:
               title: Onboarding/DefaultBrowserPopup.Title.v114
@@ -514,7 +478,7 @@ features:
             image: toolbar
             buttons:
               primary:
-                title: Onboarding/Onboarding.Modern.Customization.Theme.Continue.Action.v123
+                title: Onboarding/Onboarding.Modern.Customization.Theme.Continue.Action.v140
                 action: forward-one-card
             multiple-choice-buttons:
               - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Top.Action.v140
@@ -564,13 +528,6 @@ features:
         description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
         type: Boolean
         default: false
-  rust-keychain-refactor:
-    description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
-    variables:
-      rust-keychain-enabled:
-        description: "Whether the use of the rust keychain logic is enabled for rust components. When enabled, the rust keychain is used to store and retrieve encryption key data for rust components. Otherwise, the pre-existing MZKeychainWrapper logic is used.\n"
-        type: Boolean
-        default: false
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -591,17 +548,6 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
-  sent-from-firefox-feature:
-    description: "Adds additional promo text to links shared to WhatsApp.\n"
-    variables:
-      enabled:
-        description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
-        type: Boolean
-        default: false
-      isTreatmentA:
-        description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
-        type: Boolean
-        default: true
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
     variables:
@@ -639,6 +585,13 @@ features:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
         default: afterFourHours
+  summarizer-feature:
+    description: "This feature enables the summarizer feature.\n"
+    variables:
+      enabled:
+        description: "Enables the summarizer feature.\n"
+        type: Boolean
+        default: false
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
@@ -665,6 +618,10 @@ features:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
         default: version1
+      minimal_address_bar:
+        description: "Enables minimal address bar mode on scroll to ensure the url is always visible.\n"
+        type: Boolean
+        default: false
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean

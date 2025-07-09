@@ -6,7 +6,7 @@ authors = ["Mozilla"]
 package-mode = false
 
 [tool.poetry.dependencies]
-asgiref = "3.8.1"
+asgiref = "3.9.1"
 celery = "^5.5.1"
 chardet = "4.0.0"
 click = "8.1.6"
@@ -34,7 +34,7 @@ djlint = "^1.36.1"
 dockerflow = "^2024.4.1"
 factory_boy = "3.3.0"
 fontawesomefree = "6.6.0"
-google-cloud-storage = "^3.1.0"
+google-cloud-storage = "^3.2.0"
 graphene-django = "^3.2.0"
 graphene-file-upload = "^1.3.0"
 gunicorn = "23.0.0"
@@ -48,7 +48,7 @@ mozilla-metric-config-parser = "^2024.11.1"
 mozilla-nimbus-schemas = "2025.1.1"
 packaging = "21.3"
 parameterized = "0.9.0"
-pillow = "^11.2.1"
+pillow = "^11.3.0"
 psycopg2 = "^2.9.10"
 pydantic = "^2"
 pyjexl = "^0.3.0"
@@ -66,8 +66,8 @@ PyYAML = "^6.0"
 redis = "4.6.0"
 requests = { version = "2.32.2", extras = ["security"] }
 responses = "0.25.0"
-ruff = "^0.11.0"
-sentry-sdk = "^2.30.0"
+ruff = "^0.12.2"
+sentry-sdk = "^2.32.0"
 sqlparse = "0.5.0"
 tblib = "1.7.0"
 toml = "^0.10.2"
@@ -190,6 +190,7 @@ ignore = [
     "UP006",
     "UP007",
     "UP038",
+    "UP045",
 ]
 
 [tool.djlint]

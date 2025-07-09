@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
@@ -696,20 +698,13 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             *NimbusExperiment.Version.choices[1:][::-1],
         ]
 
-    def get_experiment_branch_choices():
-        return sorted(
-            [
-                branch_choice
-                for experiment in NimbusExperiment.objects.exclude(is_archived=True)
-                for branch_choice in experiment.branch_choices()
-            ]
-        )
-
-    def get_targeting_config_choices():
+    def get_targeting_config_choices(self):
+        application_name = NimbusExperiment.Application(self.instance.application).name
         return sorted(
             [
                 (targeting.slug, f"{targeting.name} - {targeting.description}")
                 for targeting in NimbusTargetingConfig.targeting_configs
+                if application_name in targeting.application_choice_names
             ],
             key=lambda choice: choice[1].lower(),
         )
@@ -762,21 +757,17 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     targeting_config_slug = forms.ChoiceField(
         required=False,
         label="",
-        choices=get_targeting_config_choices,
         widget=forms.widgets.Select(
-            attrs={
-                "class": "form-select",
-            },
+            attrs={"class": "form-select"},
         ),
     )
+
     excluded_experiments_branches = forms.MultipleChoiceField(
         required=False,
-        choices=get_experiment_branch_choices,
         widget=MultiSelectWidget(),
     )
     required_experiments_branches = forms.MultipleChoiceField(
         required=False,
-        choices=get_experiment_branch_choices,
         widget=MultiSelectWidget(),
     )
     is_sticky = forms.BooleanField(required=False)
@@ -821,8 +812,11 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["targeting_config_slug"].choices = self.get_targeting_config_choices()
+        self.setup_experiment_branch_choices()
         self.setup_initial_experiments_branches("required_experiments_branches")
         self.setup_initial_experiments_branches("excluded_experiments_branches")
+
         self.fields["channel"].choices = [
             (channel.value, channel.label)
             for channel in NimbusExperiment.Channel
@@ -840,9 +834,60 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             }
         )
 
+        # If this is a live rollout, restrict edits to only population_percent
+        if self.instance.is_live_rollout:
+            for field_name in self.fields:
+                if field_name != "population_percent":
+                    self.fields[field_name].disabled = True
+
+    def format_branch_choice(self, experiment_slug, experiment_name, branch_slug):
+        if branch_slug is None:
+            return f"{experiment_slug}:None", f"{experiment_name} (All branches)"
+        return (
+            f"{experiment_slug}:{branch_slug}",
+            f"{experiment_name} ({branch_slug.capitalize()})",
+        )
+
+    def setup_experiment_branch_choices(self):
+        branch_slugs = (
+            NimbusBranch.objects.filter(
+                experiment__application=self.instance.application,
+                experiment__is_archived=False,
+            )
+            .exclude(experiment__id=self.instance.id)
+            .values_list("experiment__slug", "experiment__name", "slug")
+        )
+
+        branches_by_experiment_slug = defaultdict(list)
+        for experiment_slug, experiment_name, branch_slug in branch_slugs:
+            branches_by_experiment_slug[(experiment_slug, experiment_name)].append(
+                branch_slug
+            )
+
+        all_choices = []
+        for (experiment_slug, experiment_name), branch_slugs in sorted(
+            branches_by_experiment_slug.items()
+        ):
+            all_choices.append(
+                self.format_branch_choice(experiment_slug, experiment_name, None)
+            )
+            for branch_slug in sorted(branch_slugs):
+                all_choices.append(
+                    self.format_branch_choice(
+                        experiment_slug, experiment_name, branch_slug
+                    )
+                )
+
+        self.fields["excluded_experiments_branches"].choices = all_choices
+        self.fields["required_experiments_branches"].choices = all_choices
+
     def setup_initial_experiments_branches(self, field_name):
         self.initial[field_name] = [
-            branch.child_experiment.format_branch_choice(branch.branch_slug)[0]
+            self.format_branch_choice(
+                branch.child_experiment.slug,
+                branch.child_experiment.name,
+                branch.branch_slug,
+            )[0]
             for branch in getattr(self.instance, field_name)
         ]
 

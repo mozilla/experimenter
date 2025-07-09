@@ -136,9 +136,9 @@ glean:
     enable-event-timestamps:
       type: boolean
       description: Enables precise event timestamps for Glean events
-    metrics-enabled:
+    gleanMetricConfiguration:
       type: json
-      description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+      description: Configuration for Glean Server Knobs
     ping-lifetime-max-time:
       type: int
       description: After what time to auto-flush
@@ -204,14 +204,6 @@ juno-onboarding:
     conditions:
       type: json
       description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
-mars:
-  description: Mozilla Ad Routing Service (MARS) unified ads service.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable MARS endpoint to serve sponsored top sites and stories.\n"
 menu-redesign:
   description: Control the new menu redesign.
   hasExposure: true
@@ -220,6 +212,9 @@ menu-redesign:
     enabled:
       type: boolean
       description: "If true, the new menu redesign is available."
+    menu-banner:
+      type: boolean
+      description: "If true, the menu banner is visible."
     report-site-issue:
       type: boolean
       description: "If true, report site issue menu item and preview is available."
@@ -344,6 +339,14 @@ one-click-search:
     enabled:
       type: boolean
       description: "If true, the one click search will be enabled."
+override-user-specified-homepage-sections:
+  description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.\n"
 pdfjs:
   description: PDF.js features
   hasExposure: true
@@ -541,6 +544,14 @@ suggest-shipped-domains:
     enabled:
       type: boolean
       description: "Suggest domains from the shipped domain list.\n"
+tab-management-enhancements:
+  description: Control the visibility of the tab management enhancements.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to enable the tab management enhancements.\n"
 tab-strip:
   description: Enables tab strip.
   hasExposure: true
