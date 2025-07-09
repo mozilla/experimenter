@@ -665,11 +665,23 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
         self.assertEqual(experiment.bucket_range.count, 5000)
 
-    def test_cannot_preview_prefflips(self):
-        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+    @parameterized.expand(
+        [
+            NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
+            NimbusExperiment.DESKTOP_NEWTAB_ADDON_SLUG,
+        ]
+    )
+    def test_cannot_preview_secure_features(self, feature_id):
+        feature = NimbusFeatureConfigFactory.create(
+            name=feature_id,
+            slug=feature_id,
+            description=feature_id,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            feature_configs=[prefflips_feature],
+            feature_configs=[feature],
         )
 
         serializer = NimbusExperimentSerializer(

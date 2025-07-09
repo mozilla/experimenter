@@ -104,6 +104,7 @@ class ApplicationConfig:
 
 
 DESKTOP_PREFFLIPS_SLUG = "prefFlips"
+DESKTOP_NEWTAB_ADDON_SLUG = "newtabTrainhopAddon"
 
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     name="Firefox Desktop",
@@ -123,6 +124,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     is_web=False,
     kinto_collections_by_feature_id={
         DESKTOP_PREFFLIPS_SLUG: settings.KINTO_COLLECTION_NIMBUS_SECURE,
+        DESKTOP_NEWTAB_ADDON_SLUG: settings.KINTO_COLLECTION_NIMBUS_SECURE,
     },
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
 )
@@ -406,6 +408,7 @@ class NimbusConstants:
     )
 
     DESKTOP_PREFFLIPS_SLUG = DESKTOP_PREFFLIPS_SLUG
+    DESKTOP_NEWTAB_ADDON_SLUG = DESKTOP_NEWTAB_ADDON_SLUG
 
     Channel = Channel
 
