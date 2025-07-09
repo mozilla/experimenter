@@ -136,9 +136,9 @@ glean:
     enable-event-timestamps:
       type: boolean
       description: Enables precise event timestamps for Glean events
-    metrics-enabled:
+    gleanMetricConfiguration:
       type: json
-      description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+      description: Configuration for Glean Server Knobs
     ping-lifetime-max-time:
       type: int
       description: After what time to auto-flush

@@ -149,10 +149,13 @@ features:
         description: Enables precise event timestamps for Glean events
         type: Boolean
         default: true
-      metrics-enabled:
-        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
-        type: "Map<String, Boolean>"
-        default: {}
+      gleanMetricConfiguration:
+        description: Configuration for Glean Server Knobs
+        type: GleanServerKnobsConfiguration
+        default:
+          event_threshold: ~
+          metrics_enabled: {}
+          pings_enabled: {}
       ping-lifetime-max-time:
         description: After what time to auto-flush
         type: Int
@@ -1109,6 +1112,21 @@ objects:
         description: "An optional terms of service data for the onboarding card.\n"
         type: Option<TermsOfServiceData>
         default: ~
+  GleanServerKnobsConfiguration:
+    description: A configuration object for Glean server knobs.
+    fields:
+      event_threshold:
+        description: The threshold of events that will be buffered before an events ping is collected and submitted.
+        type: Option<Int>
+        default: ~
+      metrics_enabled:
+        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+        type: "Map<String, Boolean>"
+        default: {}
+      pings_enabled:
+        description: "A map of ping names to booleans representing the state of the 'enabled' flag for that ping."
+        type: "Map<String, Boolean>"
+        default: {}
   MarketingData:
     description: An object to describe the marketing data onboarding card.
     fields:
