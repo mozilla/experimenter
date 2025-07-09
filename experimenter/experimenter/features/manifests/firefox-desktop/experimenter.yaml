@@ -1404,6 +1404,18 @@ newTabSectionsExperiment:
         branch: user
         pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs.counts
       description: CSV string of spoc placement counts on newtab Pocket grid. The count tells the ad server how many ads to return for this position and placement.
+    contextualBannerPlacements:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualBanners
+      description: CSV string of the banner placement ids on newtab Pocket grid. This placement id tells us which banner is visible when contexual ads are on.
+    contextualBannerCounts:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualBanners.counts
+      description: CSV string of AdBanner placement counts on newtab Pocket grid. The count tells the ad server how many banners to return for this position and placement.
 
 newtabPrivatePing:
   description: The newtab-content ping, sent through OHTTP
@@ -1451,6 +1463,31 @@ newtabTrainhop:
     payload:
       type: json
       description: The experiment configuration.
+
+newtabTrainhopAddon:
+  description: Enable download updated newtab resources packaged as an xpi
+  owner: mconley@mozilla.com
+  hasExposure: true
+  exposureDescription: |
+    Exposure is sent when the trainhop addon version is in use (starting from the browser startup
+    right after it has been downloaded and installed).
+  variables:
+    xpi_download_path:
+      type: string
+      description: |
+        Provide the path (relative to the base URL set in the `browser.newtabpage.trainhopAddon.xpiBaseURL`
+        about:config pref) from which the xpi should be downloaded.
+    addon_version:
+      type: string
+      description: |
+        Expected addon version (installing the xpi is cancelled if it mismatches the one set here).
+        The trainhop add-on version is also stored in an about:config pref, to be used on early
+        application startup to determine if the trainhop add-on version should be uninstalled
+        (and not be used for the newtab resources mapping to safely uninstall it later in the
+        same application session).
+      setPref:
+        branch: user
+        pref: browser.newtabpage.trainhopAddon.version
 
 newtabMerinoOhttp:
   description: Sending request to merino over OHTTP in newtab
@@ -1860,7 +1897,6 @@ pocketNewtab:
       setPref:
         branch: user
         pref: browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.region-thumbs-config
-      description: Display thumbs up and down buttons on recommended stories
     localeThumbsUpDownConfig:
       description: A comma-separated list of locales that get thumbs up and down buttons by default.
       type: string
@@ -4866,18 +4902,6 @@ contextual-password-manager:
         branch: user
         pref: browser.contextual-password-manager.enabled
       description: If true, we will allow user to add the contextual password manager feature to the sidebar.
-
-h1-in-section-styles:
-  description: "H1 in section user agent styles"
-  owner: zcorpan@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      description: Whether to enable H1 in section UA styles, see https://github.com/whatwg/html/issues/7867.
-      setPref:
-        branch: user
-        pref: layout.css.h1-in-section-ua-styles.enabled
 
 windowsUIAutomation:
   description: Support for the Windows UI Automation API
