@@ -11,7 +11,7 @@
             The request to {{ rejection.action }} was <strong>Rejected</strong> due to:
           </p>
           <p class="mb-2">{{ rejection.email }} on {{ rejection.date|date:"F j, Y" }}:</p>
-          <p class="bg-white rounded border p-2 mb-0">{{ rejection.message }}</p>
+          <p class="bg-light text-dark rounded border p-2 mb-0">{{ rejection.message }}</p>
         </div>
       </div>
     {% endif %}
@@ -130,6 +130,24 @@
                   hx-target="#content"
                   hx-swap="outerHTML">Go back to Draft</button>
         {% endif %}
+      </div>
+      <div class="alert alert-light border my-3">
+        <h5 class="mb-2">Preview URL</h5>
+        <p class="mb-1">
+          <strong> Click the <code>about:studies</code> link below to copy</strong> then paste it in your browser. Ensure you enable <code>nimbus.debug</code> in <code>about:config</code> first.
+        </p>
+        <label for="branch-selector" class="form-label mt-2">Select Branch</label>
+        <select id="branch-selector"
+                class="form-select mb-3"
+                onchange="updatePreviewURL()">
+          {% for branch in experiment.branches.all %}
+            <option value="{{ branch.slug }}"
+                    {% if branch == experiment.reference_branch %}selected{% endif %}>{{ branch.name }}</option>
+          {% endfor %}
+        </select>
+        <code id="preview-url" class="d-block text-danger user-select-all">
+          about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview
+        </code>
       </div>
       <!-- Review Mode Controls -->
     {% elif experiment|should_show_remote_settings_pending:user %}

@@ -13,6 +13,19 @@ window.toggleSubmitButton = function () {
   submitButton.disabled = !(checkbox1.checked && checkbox2.checked);
 };
 
+window.updatePreviewURL = function () {
+  const select = document.getElementById("branch-selector");
+  const previewUrl = document.getElementById("preview-url");
+  const slugElement = document.getElementById("experiment-slug");
+
+  if (select && previewUrl && slugElement) {
+    const selectedSlug = select.value;
+    const experimentSlug = slugElement.textContent.trim();
+    const url = `about:studies?optin_slug=${experimentSlug}&optin_branch=${selectedSlug}&optin_collection=nimbus-preview`;
+    previewUrl.textContent = url;
+  }
+};
+
 function initializeRejectApproveListeners() {
   const rejectButton = document.getElementById("reject-button");
   const reviewControls = document.getElementById("review-controls");

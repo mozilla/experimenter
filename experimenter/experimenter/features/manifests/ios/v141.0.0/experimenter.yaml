@@ -85,14 +85,6 @@ general-app-features:
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
-hnt-bookmarks-section-feature:
-  description: This feature manages the visibility of the bookmarks section of the homepage and the respective toggle in the homepage settings
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Setting 'enabled' to false will hide the bookmarks section of the homepage and disable the respective toggle in the homepage settings"
 hnt-content-feed-cleanup-feature:
   description: "Controls updates for the content feed\n"
   hasExposure: true
@@ -101,22 +93,6 @@ hnt-content-feed-cleanup-feature:
     enabled:
       type: boolean
       description: "Whether or not the feature is enabled\n"
-hnt-customization-section-feature:
-  description: This feature manages the visibility of the homepage customization section of the homepage
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Setting 'enabled' to false will hide the homepage customization section of the homepage"
-hnt-jump-back-in-section-feature:
-  description: This feature manages the visibility of the jump back in and synced tabs section of the homepage and the respective toggle in the homepage settings
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Setting 'enabled' to false will hide the jump back in and synced tabs section of the homepage and disable the respective toggle in the homepage settings"
 hnt-sponsored-shortcuts-feature:
   description: This feature manages the visibility of sponsored shortcuts on the homepage
   hasExposure: true

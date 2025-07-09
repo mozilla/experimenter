@@ -10,3 +10,5 @@ description = "Usage and engagement metrics for PDFs"
 [metrics.pdf_opening.statistics.binomial]
 [metrics.pdf_highlight.statistics.binomial]
 [metrics.pdf_free_highlight.statistics.binomial]
+[metrics.pdf_signature.statistics.binomial]
+[metrics.pdf_stamp.statistics.binomial]

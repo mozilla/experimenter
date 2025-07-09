@@ -127,6 +127,9 @@ ADS_DISABLED = f"""
     {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
 )
 """
+# Most sponsored content is off by default in Brazil and Mexico, as of
+# June 26, 2025.
+ADS_DISABLED_BR_MX_2025_06_26 = TOPSITES_OR_SPONSORED_TOPSITES_DISABLED
 
 NO_TARGETING = NimbusTargetingConfig(
     name="No Targeting",
@@ -729,6 +732,17 @@ MAC_WINDOWS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+MAC_WINDOWS_11_ONLY = NimbusTargetingConfig(
+    name="Mac and Windows 11+ users only",
+    slug="mac_windows_11_only",
+    description="All users with Mac or Windows 11+",
+    targeting="((os.isWindows && os.windowsBuildNumber >= 22000) || os.isMac)",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_DISTRIBUTIONS = NimbusTargetingConfig(
     name="No distribution builds",
     slug="no_distribution_builds",
@@ -756,6 +770,19 @@ NO_ENTERPRISE_MAC_WINDOWS_ONLY = NimbusTargetingConfig(
     slug="no_enterprise_users_mac_windows_only",
     description="Exclude users with active enterpries policies on Mac and Windows only",
     targeting=f"({NO_ENTERPRISE.targeting}) && ({MAC_WINDOWS_ONLY.targeting})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NO_ENTERPRISE_MAC_WINDOWS_11_ONLY = NimbusTargetingConfig(
+    name="No enterprise users (Mac, Windows 11+ only)",
+    slug="no_enterprise_users_mac_windows_11_only",
+    description=(
+        "Exclude users with active enterpries policies on Mac and Windows 11+ only"
+    ),
+    targeting=f"({NO_ENTERPRISE.targeting}) && ({MAC_WINDOWS_11_ONLY.targeting})",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -1629,6 +1656,42 @@ WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT = NimbusTargetingConfig(
         isBackgroundTaskMode
         &&
         'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue
+        &&
+        ((defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
+        == 'treatment-a') == false)
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT_V2 = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users with 1hr+ of inactivity in the past day "
+        "who are running a background task and are "
+        "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
+    ),
+    slug="whats_new_notification_sidebar_vertical_tabs_rollout_v2",
+    description=(
+        "Windows 10+ users with 1hr+ of inactivity in the past day "
+        "who are running a background task and are "
+        "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
+        )
+        &&
+        isBackgroundTaskMode
         &&
         ((defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
         == 'treatment-a') == false)
@@ -2779,6 +2842,39 @@ SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SIGNED_OUT_EARLY_DAY_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Signed-out early day user, FxA enabled, no enterprise policies",
+    slug="signed_out_early_day_user_fxa_enabled_no_enterprise",
+    description=(
+        "Existing users who are NOT signed into FxA, with FxA enabled, "
+        "and no enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILELESSTHAN28DAYS} && {NO_ENTERPRISE.targeting} && "
+        "!isFxASignedIn && isFxAEnabled"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_EXISTING_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Signed-out existing user, FxA enabled, no enterprise policies",
+    slug="signed_out_existing_user_fxa_enabled_no_enterprise",
+    description=(
+        "Existing users who are NOT signed into FxA, with FxA enabled, "
+        "and no enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && {NO_ENTERPRISE.targeting} && !isFxASignedIn && isFxAEnabled"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
     name="TOU not accepted yet, existing user, ads enabled, Mac or Win",
     slug="tou_not_accepted_existing_user_ads_enabled_mac_win",
@@ -2787,6 +2883,10 @@ TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
         "have not disabled ads, "
         "and are on Mac or Windows"
     ),
+    # For MX/BR users, respect the region-specific ADS_DISABLED_BR_MX_2025_06_26
+    # constant. For all other regions, fall back to the global ADS_DISABLED.
+    # This ensures we never enroll users whose ads have been disabled regionally
+    # due to a mismatch between the two ads disabled constants.
     targeting=f"""
     (
         (
@@ -2801,7 +2901,17 @@ TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
         &&
         !{TOU_NOTIFICATION_BYPASS_ENABLED}
         &&
-        !{ADS_DISABLED}
+        (
+            (
+                (region == "MX" || region == "BR")
+                && !{ADS_DISABLED_BR_MX_2025_06_26}
+            )
+            ||
+            (
+                (region != "MX" && region != "BR")
+                && !{ADS_DISABLED}
+            )
+        )
     )
     """,
     desktop_telemetry="",

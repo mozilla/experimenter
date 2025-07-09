@@ -5,9 +5,12 @@
   "workspaces": [
     "experimenter/legacy/legacy-ui/*",
     "experimenter/nimbus-ui",
-    "experimenter/nimbus_ui_new/static"
+    "experimenter/nimbus_ui_new/static",
+    "experimenter/results"
   ],
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/react-select": "^5.0.1"
+  },
   "resolutions": {
     "ansi-regex": "^5.0.1",
     "browserslist": "^4.16.5",

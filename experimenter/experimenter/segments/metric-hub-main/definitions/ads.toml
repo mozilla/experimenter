@@ -64,26 +64,19 @@ type = "scalar"
 friendly_name = "Ad Clicks"
 description = "Ad clicks"
 
+[metrics.ad_metrics_ad_reports]
+select_expression = "SUM(reports)"
+data_source = "ad_metrics_daily"
+type = "scalar"
+friendly_name = "Ads Reported"
+description = "Number of time ad was reported"
+
 [metrics.revenue]
 select_expression = "SUM(revenue)"
 data_source = "ad_metrics_daily"
 type = "scalar"
 friendly_name = "Revenue"
 description = "Ad revenue"
-
-[metrics.ecpm]
-depends_on = ['revenue', 'milli_impressions']
-data_source = "ad_metrics_daily"
-type = "scalar"
-friendly_name = "eCPM"
-description = "effective CPM, calculated as average revenue per thousand impressions"
-
-[metrics.click_through_rate]
-depends_on = ['clicks', 'impressions']
-data_source = "ad_metrics_daily"
-type = "scalar"
-friendly_name = "Click Through Rate"
-description = "Ratio of ad clicks to ad impressions"
 
 [metrics.milli_impressions]
 select_expression = "SUM(impressions)/1000"
@@ -110,6 +103,18 @@ descriptions = """
 columns_as_dimensions = true 
 submission_date_column = "submission_date"
 client_id_column = "NULL"
+
+[data_sources.countries]
+from_expression = "mozdata.static.country_codes_v1"
+client_id_column = "code"
+friendly_name = "Countries"
+description = "Countries"
+columns_as_dimensions = true
+submission_date_column = "NULL"
+
+[data_sources.ad_metrics_daily.joins.countries]
+relationship = "one_to_many"
+on_expression = "ad_metrics_daily.country = countries.code"
 
 [dimensions]
 

@@ -212,6 +212,7 @@ def build_experiment_context(experiment):
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
         "risk_message_url": NimbusUIConstants.RISK_MESSAGE_URL,
+        "review_url": NimbusUIConstants.REVIEW_URL,
     }
     return context
 
@@ -549,3 +550,7 @@ class CancelUpdateRolloutView(StatusUpdateView):
 
 class ApproveUpdateRolloutView(StatusUpdateView):
     form_class = ApproveUpdateRolloutForm
+
+
+class ResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results.html"
