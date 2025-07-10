@@ -1,9 +1,12 @@
 import datetime
+import io
 import json
 from unittest.mock import patch
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from PIL import Image
 
 from experimenter.base.tests.factories import (
     CountryFactory,
@@ -32,6 +35,8 @@ from experimenter.nimbus_ui_new.forms import (
     ApproveEndRolloutForm,
     ApproveUpdateRolloutForm,
     AudienceForm,
+    BranchScreenshotCreateForm,
+    BranchScreenshotDeleteForm,
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
     CancelEndRolloutForm,
@@ -1579,6 +1584,18 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             feature_config=feature_config2
         ).get()
 
+        reference_screenshot = reference_branch.screenshots.first()
+        treatment_screenshot = treatment_branch.screenshots.first()
+
+        # Create a valid in-memory PNG image
+        image_bytes = io.BytesIO()
+        image = Image.new("RGB", (10, 10), color="red")
+        image.save(image_bytes, format="PNG")
+        image_bytes.seek(0)
+        dummy_image = SimpleUploadedFile(
+            "test.png", image_bytes.read(), content_type="image/png"
+        )
+
         form = NimbusBranchesForm(
             instance=experiment,
             data={
@@ -1611,6 +1628,13 @@ class TestNimbusBranchesForm(RequestFormTestCase):
                 "branches-0-feature-value-1-value": json.dumps(
                     {"control-feature-2-key": "control-feature-2-value"}
                 ),
+                "branches-0-screenshots-TOTAL_FORMS": "1",
+                "branches-0-screenshots-INITIAL_FORMS": "1",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-0-screenshots-0-id": reference_screenshot.id,
+                "branches-0-screenshots-0-description": "Updated control screenshot",
+                "branches-0-screenshots-0-image": dummy_image,
                 "branches-1-id": treatment_branch.id,
                 "branches-1-name": "Treatment",
                 "branches-1-description": "Treatment Description",
@@ -1631,8 +1655,19 @@ class TestNimbusBranchesForm(RequestFormTestCase):
                 "branches-1-feature-value-1-value": json.dumps(
                     {"treatment-feature-2-key": "treatment-feature-2-value"}
                 ),
+                "branches-1-screenshots-TOTAL_FORMS": "1",
+                "branches-1-screenshots-INITIAL_FORMS": "1",
+                "branches-1-screenshots-MIN_NUM_FORMS": "0",
+                "branches-1-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-1-screenshots-0-id": treatment_screenshot.id,
+                "branches-1-screenshots-0-description": "Updated treatment screenshot",
+                "branches-1-screenshots-0-image": dummy_image,
                 "is_localized": True,
                 "localizations": json.dumps({"localization-key": "localization-value"}),
+            },
+            files={
+                "branches-0-screenshots-0-image": dummy_image,
+                "branches-1-screenshots-0-image": dummy_image,
             },
             request=self.request,
         )
@@ -1691,6 +1726,19 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             .get()
             .value,
             json.dumps({"treatment-feature-2-key": "treatment-feature-2-value"}),
+        )
+
+        self.assertEqual(
+            experiment.reference_branch.screenshots.get(
+                id=reference_screenshot.id
+            ).description,
+            "Updated control screenshot",
+        )
+        self.assertEqual(
+            experiment.treatment_branches[0]
+            .screenshots.get(id=treatment_screenshot.id)
+            .description,
+            "Updated treatment screenshot",
         )
 
         changelog = experiment.changes.get()
@@ -2035,6 +2083,12 @@ class TestNimbusBranchesForm(RequestFormTestCase):
                 "branches-0-feature-value-INITIAL_FORMS": "1",
                 "branches-0-feature-value-MIN_NUM_FORMS": "0",
                 "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                # Screenshot formset with missing id field to force validation failure
+                "branches-0-screenshots-TOTAL_FORMS": "1",
+                "branches-0-screenshots-INITIAL_FORMS": "1",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                # No id for screenshot 0
                 "is_localized": True,
                 "localizations": json.dumps({"localization-key": "localization-value"}),
             },
@@ -2049,7 +2103,10 @@ class TestNimbusBranchesForm(RequestFormTestCase):
                     {
                         "branch_feature_values": [
                             {"id": ["This field is required."]},
-                        ]
+                        ],
+                        "screenshots": [
+                            {"id": ["This field is required."]},
+                        ],
                     },
                 ]
             },
@@ -2283,3 +2340,37 @@ class TestNimbusBranchDeleteForm(RequestFormTestCase):
         self.assertNotIn(treatment_branch, experiment.treatment_branches)
         self.assertEqual(experiment.changes.count(), 1)
         self.assertIn("removed a branch", experiment.changes.get().message)
+
+
+class TestBranchScreenshotCreateForm(RequestFormTestCase):
+    def test_create_screenshot(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        branch = experiment.reference_branch
+        branch.screenshots.all().delete()
+        form = BranchScreenshotCreateForm(
+            data={"branch_id": branch.id},
+            instance=experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.assertEqual(branch.screenshots.count(), 1)
+
+
+class TestBranchScreenshotDeleteForm(RequestFormTestCase):
+    def test_delete_screenshot(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        branch = experiment.reference_branch
+        screenshot = branch.screenshots.create(description="To be deleted")
+        form = BranchScreenshotDeleteForm(
+            data={"screenshot_id": screenshot.id},
+            instance=experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.assertFalse(branch.screenshots.filter(id=screenshot.id).exists())

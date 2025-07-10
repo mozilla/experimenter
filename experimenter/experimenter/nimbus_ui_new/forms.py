@@ -12,6 +12,7 @@ from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
+    NimbusBranchScreenshot,
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
@@ -405,6 +406,21 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         fields = ("value",)
 
 
+class NimbusBranchScreenshotForm(forms.ModelForm):
+    image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={"class": "form-control"}),
+    )
+    description = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+
+    class Meta:
+        model = NimbusBranchScreenshot
+        fields = ("image", "description")
+
+
 class NimbusBranchForm(forms.ModelForm):
     name = forms.CharField(
         required=False, widget=forms.TextInput(attrs={"class": "form-control"})
@@ -439,12 +455,41 @@ class NimbusBranchForm(forms.ModelForm):
             prefix=f"{prefix}-feature-value",
         )
 
+        self.NimbusBranchScreenshotFormSet = inlineformset_factory(
+            NimbusBranch,
+            NimbusBranchScreenshot,
+            form=NimbusBranchScreenshotForm,
+            extra=0,
+        )
+
+        screenshot_formset_args = {
+            "data": self.data or None,
+            "instance": self.instance,
+            "prefix": f"{prefix}-screenshots" if prefix else None,
+        }
+
+        if self.files:
+            screenshot_formset_args["files"] = self.files
+
+        self.screenshot_formset = self.NimbusBranchScreenshotFormSet(
+            **screenshot_formset_args,
+        )
+
     @property
     def errors(self):
         errors = super().errors
         if any(self.branch_feature_values.errors):
             errors["branch_feature_values"] = self.branch_feature_values.errors
+        if any(self.screenshot_formset.errors):
+            errors["screenshots"] = self.screenshot_formset.errors
         return errors
+
+    def is_valid(self):
+        return (
+            super().is_valid()
+            and self.branch_feature_values.is_valid()
+            and self.screenshot_formset.is_valid()
+        )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -455,6 +500,7 @@ class NimbusBranchForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         branch = super().save(*args, **kwargs)
         self.branch_feature_values.save()
+        self.screenshot_formset.save()
         return branch
 
 
@@ -510,16 +556,21 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.NimbusNimbusBranchFormSet = inlineformset_factory(
+        self.NimbusBranchFormSet = inlineformset_factory(
             NimbusExperiment,
             NimbusBranch,
             form=NimbusBranchForm,
             extra=0,
         )
-        self.branches = self.NimbusNimbusBranchFormSet(
-            data=self.data or None,
-            instance=self.instance,
-        )
+
+        branches_formset_kwargs = {
+            "data": self.data or None,
+            "instance": self.instance,
+        }
+        if self.files:
+            branches_formset_kwargs["files"] = self.files
+
+        self.branches = self.NimbusBranchFormSet(**branches_formset_kwargs)
 
         self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
             application=self.instance.application
@@ -646,6 +697,40 @@ class NimbusBranchDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} removed a branch"
+
+
+class BranchScreenshotCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    branch_id = forms.ModelChoiceField(queryset=NimbusBranch.objects.all())
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["branch_id"]
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(commit=False)
+        branch = self.cleaned_data["branch_id"]
+        branch.screenshots.create()
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} added a branch screenshot"
+
+
+class BranchScreenshotDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    screenshot_id = forms.ModelChoiceField(queryset=NimbusBranchScreenshot.objects.all())
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["screenshot_id"]
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(commit=False)
+        screenshot = self.cleaned_data["screenshot_id"]
+        screenshot.delete()
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} removed a branch screenshot"
 
 
 class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
