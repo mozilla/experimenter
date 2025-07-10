@@ -122,12 +122,12 @@ features:
         description: "Enables the feature.\n"
         type: Boolean
         default: false
-      search_bar:
+      search-bar:
         description: "If true, enables the search bar feature on homepage for users.\n"
         type: Boolean
         default: false
-      stories_redesign:
-        description: "If true, enables the stories section redesign on homepage\n"
+      stories-redesign:
+        description: "If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)\n"
         type: Boolean
         default: false
   logins-verification:
@@ -202,19 +202,7 @@ features:
       messages:
         description: "A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.\n"
         type: "Map<MessageKey, MessageData>"
-        default:
-          default-browser:
-            surface: new-tab-card
-            style: FALLBACK
-            trigger-if-all:
-              - SUPPORTS_DEFAULT_BROWSER
-              - ON_FOURTH_LAUNCH_THIS_YEAR
-            except-if-any:
-              - I_AM_DEFAULT_BROWSER
-            title: Default Browser/DefaultBrowserCard.Title
-            text: Default Browser/DefaultBrowserCard.Description
-            button-label: Default Browser/DefaultBrowserCard.Button.v2
-            action: MAKE_DEFAULT_BROWSER_WITH_TUTORIAL
+        default: {}
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
