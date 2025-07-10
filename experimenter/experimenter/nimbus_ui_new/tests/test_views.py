@@ -1591,6 +1591,9 @@ class TestBranchesUpdateViews(AuthTestCase):
             feature_config=feature_config2
         ).get()
 
+        reference_screenshot = reference_branch.screenshots.first()
+        treatment_screenshot = treatment_branch.screenshots.first()
+
         data = {
             "feature_configs": [feature_config1.id, feature_config2.id],
             "equal_branch_ratio": False,
@@ -1614,6 +1617,13 @@ class TestBranchesUpdateViews(AuthTestCase):
             "branches-0-feature-value-1-value": json.dumps(
                 {"control-feature-2-key": "control-feature-2-value"}
             ),
+            "branches-0-screenshots-TOTAL_FORMS": "1",
+            "branches-0-screenshots-INITIAL_FORMS": "1",
+            "branches-0-screenshots-MIN_NUM_FORMS": "0",
+            "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+            "branches-0-screenshots-0-id": reference_screenshot.id,
+            "branches-0-screenshots-0-description": "Updated control screenshot",
+            "branches-0-screenshots-0-image": "",
             "branches-1-id": treatment_branch.id,
             "branches-1-name": "Treatment",
             "branches-1-description": "Treatment Description",
@@ -1630,6 +1640,13 @@ class TestBranchesUpdateViews(AuthTestCase):
             "branches-1-feature-value-1-value": json.dumps(
                 {"treatment-feature-2-key": "treatment-feature-2-value"}
             ),
+            "branches-1-screenshots-TOTAL_FORMS": "1",
+            "branches-1-screenshots-INITIAL_FORMS": "1",
+            "branches-1-screenshots-MIN_NUM_FORMS": "0",
+            "branches-1-screenshots-MAX_NUM_FORMS": "1000",
+            "branches-1-screenshots-0-id": treatment_screenshot.id,
+            "branches-1-screenshots-0-description": "Updated treatment screenshot",
+            "branches-1-screenshots-0-image": "",
             "is_localized": True,
             "localizations": json.dumps({"localization-key": "localization-value"}),
         }
@@ -1668,7 +1685,13 @@ class TestBranchesUpdateViews(AuthTestCase):
             .value,
             json.dumps({"control-feature-2-key": "control-feature-2-value"}),
         )
-
+        # Assert screenshot descriptions updated
+        self.assertEqual(
+            experiment.reference_branch.screenshots.get(
+                id=reference_screenshot.id
+            ).description,
+            "Updated control screenshot",
+        )
         treatment_branch = experiment.treatment_branches[0]
         self.assertEqual(treatment_branch.name, "Treatment")
         self.assertEqual(treatment_branch.slug, "treatment")
@@ -1686,7 +1709,10 @@ class TestBranchesUpdateViews(AuthTestCase):
             .value,
             json.dumps({"treatment-feature-2-key": "treatment-feature-2-value"}),
         )
-
+        self.assertEqual(
+            treatment_branch.screenshots.get(id=treatment_screenshot.id).description,
+            "Updated treatment screenshot",
+        )
         changelog = experiment.changes.get()
         self.assertIn("updated branches", changelog.message)
 
@@ -2632,3 +2658,39 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["experiment"], experiment)
         self.assertTemplateUsed(response, "nimbus_experiments/results.html")
+
+
+class TestBranchScreenshotCreateView(AuthTestCase):
+    def test_post_creates_screenshot(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        branch = experiment.reference_branch
+        branch.screenshots.all().delete()
+        response = self.client.post(
+            reverse(
+                "nimbus-new-create-branch-screenshot", kwargs={"slug": experiment.slug}
+            ),
+            {"branch_id": branch.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertEqual(branch.screenshots.count(), 1)
+
+
+class TestBranchScreenshotDeleteView(AuthTestCase):
+    def test_post_deletes_screenshot(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        branch = experiment.reference_branch
+        screenshot = branch.screenshots.create(description="To be deleted")
+        response = self.client.post(
+            reverse(
+                "nimbus-new-delete-branch-screenshot", kwargs={"slug": experiment.slug}
+            ),
+            {"screenshot_id": screenshot.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertFalse(branch.screenshots.filter(id=screenshot.id).exists())

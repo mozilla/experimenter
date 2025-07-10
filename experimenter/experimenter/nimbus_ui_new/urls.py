@@ -10,6 +10,8 @@ from experimenter.nimbus_ui_new.views import (
     BranchDeleteView,
     BranchesPartialUpdateView,
     BranchesUpdateView,
+    BranchScreenshotCreateView,
+    BranchScreenshotDeleteView,
     CancelEndEnrollmentView,
     CancelEndExperimentView,
     CancelEndRolloutView,
@@ -249,5 +251,15 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/results/.*",
         ResultsView.as_view(),
         name="nimbus-new-results",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/create_branch_screenshot/$",
+        BranchScreenshotCreateView.as_view(),
+        name="nimbus-new-create-branch-screenshot",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/delete_branch_screenshot/$",
+        BranchScreenshotDeleteView.as_view(),
+        name="nimbus-new-delete-branch-screenshot",
     ),
 ]
