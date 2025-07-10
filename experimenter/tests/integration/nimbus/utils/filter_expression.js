@@ -17,8 +17,8 @@ async function remoteSettings(targetingString, recipe) {
             isMSIX: {},
             isDefaultHandler: {},
             defaultPDFHandler: {}
-        },
-        ExperimentAPI._manager.createTargetingContext(),
+        }, // Workaround for supporting background tasks
+        ExperimentAPI.manager.createTargetingContext(),
         ASRouterTargeting.Environment
     );
     const targetingContext = new TargetingContext(context);
