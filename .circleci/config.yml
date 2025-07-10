@@ -666,6 +666,20 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Skip if no changes to cirrus
+          command: |
+            if test -z "<< pipeline.git.base_revision >>"; then
+                echo "No base revision, continuing"
+            else
+                echo "Changed files:"
+                if git diff --exit-code --name-only "<< pipeline.git.base_revision >>" HEAD -- cirrus/ experimenter/experimenter/features/manifests/ .circleci/ $(find -maxdepth 1 -type f); then
+                    echo "No changes to cirrus or fml or .circleci or files in root directory, skipping"
+                    circleci-agent step halt
+                else
+                    echo "Changes detected in cirrus or fml or .circleci or files in root directory, continuing"
+                fi
+            fi
+      - run:
           name: Prepare environment variables for OIDC authentication
           command: |
             echo 'export GOOGLE_PROJECT_ID="moz-fx-cirrus-prod"' >> "$BASH_ENV"
