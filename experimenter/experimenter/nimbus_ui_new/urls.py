@@ -61,6 +61,11 @@ urlpatterns = [
         name="nimbus-new-detail",
     ),
     re_path(
+        r"^(?P<slug>[\w-]+)/$",
+        NimbusExperimentDetailView.as_view(),
+        name="nimbus-new-detail",
+    ),
+    re_path(
         r"^(?P<slug>[\w-]+)/update_qa_status/$",
         QAStatusUpdateView.as_view(),
         name="update-qa-status",
