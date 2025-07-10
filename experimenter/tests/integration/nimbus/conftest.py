@@ -114,6 +114,7 @@ def firefox_options(firefox_options):
     """Set Firefox Options."""
     firefox_options.log.level = "trace"
     firefox_options.set_preference("remote.system-access-check.enabled", False)
+    firefox_options.add_argument("-remote-allow-system-access")
     return firefox_options
 
 
@@ -369,19 +370,25 @@ def create_experiment(base_url, default_data):
 def trigger_experiment_loader(selenium):
     def _trigger_experiment_loader():
         with selenium.context(selenium.CONTEXT_CHROME):
-            selenium.execute_script(
-                """
-                    const { RemoteSettings } = ChromeUtils.importESModule(
-                        "resource://services-settings/remote-settings.sys.mjs"
-                    );
-                    const { RemoteSettingsExperimentLoader } = ChromeUtils.importESModule(
-                        "resource://nimbus/lib/RemoteSettingsExperimentLoader.sys.mjs"
-                    );
+            script = """
+                const callback = arguments[0];
 
-                    RemoteSettings.pollChanges();
-                    RemoteSettingsExperimentLoader.updateRecipes();
+                (async function () {
+                    try {
+                        const { ExperimentAPI } = ChromeUtils.importESModule("resource://nimbus/ExperimentAPI.sys.mjs");
+                        const { RemoteSettings } = ChromeUtils.importESModule("resource://services-settings/remote-settings.sys.mjs");
+
+                        await RemoteSettings.pollChanges();
+                        await ExperimentAPI.ready();
+                        await ExperimentAPI._rsLoader.updateRecipes("test");
+
+                        callback(true);
+                    } catch (err) {
+                        callback(false);
+                    }
+                })();
                 """
-            )
+            selenium.execute_async_script(script)
         time.sleep(5)
 
     return _trigger_experiment_loader

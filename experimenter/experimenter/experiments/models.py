@@ -807,7 +807,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return (
             self.status == self.Status.LIVE
             and self.publish_status != self.PublishStatus.REVIEW
-            and not self.should_end
             and self.is_rollout
         )
 
