@@ -294,6 +294,18 @@ class NimbusExperimentsCreateView(
         kwargs["data"]["owner"] = self.request.user
         return kwargs
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        experiment = self.object
+        if experiment.branches.count() == 0:
+            control = experiment.branches.create(name="Control", slug="control", ratio=1)
+            experiment.branches.create(name="Treatment A", slug="treatment-a", ratio=1)
+            experiment.reference_branch = control
+            experiment.save(update_fields=["reference_branch"])
+
+        return response
+
     def post(self, *args, **kwargs):
         response = super().post(*args, **kwargs)
 

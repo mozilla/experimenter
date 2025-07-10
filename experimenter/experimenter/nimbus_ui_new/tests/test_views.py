@@ -1218,6 +1218,26 @@ class TestNimbusExperimentsCreateView(AuthTestCase):
         self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
         self.assertEqual(experiment.owner, self.user)
 
+    def test_post_creates_default_branches(self):
+        response = self.client.post(
+            reverse("nimbus-new-create"),
+            {
+                "name": "Branched Experiment",
+                "hypothesis": "test",
+                "application": NimbusExperiment.Application.DESKTOP,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(slug="branched-experiment")
+
+        self.assertEqual(experiment.branches.count(), 2)
+        self.assertIsNotNone(experiment.reference_branch)
+        self.assertEqual(experiment.reference_branch.name, "Control")
+        branch_names = set(experiment.branches.values_list("name", flat=True))
+        self.assertIn("Control", branch_names)
+        self.assertIn("Treatment A", branch_names)
+
 
 class TestNimbusExperimentsSidebarCloneView(AuthTestCase):
     def setUp(self):
