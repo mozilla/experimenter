@@ -2579,6 +2579,7 @@ class TestAudienceUpdateView(AuthTestCase):
             population_percent=5,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.BETA,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
         )
 
         response = self.client.post(
