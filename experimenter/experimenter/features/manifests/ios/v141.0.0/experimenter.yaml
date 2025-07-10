@@ -125,12 +125,12 @@ homepage-redesign-feature:
     enabled:
       type: boolean
       description: "Enables the feature.\n"
-    search_bar:
+    search-bar:
       type: boolean
       description: "If true, enables the search bar feature on homepage for users.\n"
-    stories_redesign:
+    stories-redesign:
       type: boolean
-      description: "If true, enables the stories section redesign on homepage\n"
+      description: "If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)\n"
 logins-verification:
   description: "Feature that enables the logins verification logic.\n"
   hasExposure: true
