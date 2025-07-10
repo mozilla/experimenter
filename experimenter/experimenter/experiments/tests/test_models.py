@@ -3987,6 +3987,42 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
+            ),
+        ]
+    )
+    def test_should_show_end_rollout(self, status, publish_status, is_rollout, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            publish_status=publish_status,
+            is_rollout=is_rollout,
+        )
+        self.assertEqual(experiment.should_show_end_rollout, expected)
+
+    @parameterized.expand(
+        [
+            (
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
                 NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
                 False,
