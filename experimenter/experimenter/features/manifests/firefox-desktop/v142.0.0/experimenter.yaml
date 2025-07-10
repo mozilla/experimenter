@@ -93,6 +93,14 @@ nimbusStore:
       setPref:
         branch: user
         pref: nimbus.profilesdatastoreservice.read.enabled
+    dbSyncEnabled:
+      type: boolean
+      description: >
+        If enabled, the RemoteSettingsExperimentLoader will trigger
+        unenrollments for experiments that are unenrolled in other profiles.
+      setPref:
+        branch: user
+        pref: nimbus.profilesdatastoreservice.sync.enabled
 
 search:
   description: Search service related features.
@@ -313,6 +321,16 @@ urlbar:
       description: >-
         The Merino endpoint URL, not including parameters. An empty string will
         cause Firefox not to fetch from Merino.
+    merinoOhttpConfigURL:
+      type: string
+      fallbackPref: browser.urlbar.merino.ohttpConfigURL
+      description: >-
+        OHTTP config URL for Merino requests.
+    merinoOhttpRelayURL:
+      type: string
+      fallbackPref: browser.urlbar.merino.ohttpRelayURL
+      description: >-
+        OHTTP relay URL for Merino requests.
     merinoProviders:
       type: string
       fallbackPref: browser.urlbar.merino.providers
@@ -2777,7 +2795,7 @@ networkingSendOnDataFinished:
       setPref:
         branch: default
         pref: "network.send_OnDataFinished"
-    sendOnDataFinshedFromInputStreamPump:
+    sendOnDataFinishedFromInputStreamPump:
       description: Whether we can send OnDataFinished to the content process from InputStreamPump
       type: boolean
       setPref:
