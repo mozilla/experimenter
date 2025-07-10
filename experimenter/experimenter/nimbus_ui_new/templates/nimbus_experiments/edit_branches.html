@@ -10,6 +10,7 @@
 {% block main_content %}
   <form id="branches-form"
         {% if form.is_bound %}class="was-validated"{% endif %}
+        hx-encoding="multipart/form-data"
         hx-post="{% url 'nimbus-new-update-branches' experiment.slug %}"
         hx-select="#branches-form"
         hx-target="#branches-form"
@@ -43,7 +44,10 @@
           <div class="col">
             <div class="form-check">
               {{ form.warn_feature_schema }}
-              <label class="form-check-label" for="id_warn_feature_schema">Warn only on feature schema validation failure</label>
+              <label class="form-check-label" for="id_warn_feature_schema">
+                Warn only on feature schema validation
+                failure
+              </label>
             </div>
           </div>
         </div>
@@ -51,7 +55,10 @@
           <div class="col">
             <div class="form-check">
               {{ form.equal_branch_ratio }}
-              <label class="form-check-label" for="id_equal_branch_ratio">Users should be split evenly between all branches</label>
+              <label class="form-check-label" for="id_equal_branch_ratio">
+                Users should be split evenly between all
+                branches
+              </label>
             </div>
           </div>
         </div>
@@ -87,7 +94,7 @@
                       </label>
                       {{ branch_form.description.errors }}
                     </div>
-                    <div class="col-1">
+                    <div class="col-1 d-flex align-items-center justify-content-center">
                       <label class="d-block">
                         Ratio
                         {% if form.instance.equal_branch_ratio %}
@@ -96,21 +103,22 @@
                           {{ branch_form.ratio }}
                         {% endif %}
                       </label>
+                      {% if not forloop.first %}
+                        <button type="button"
+                                class="btn btn-link"
+                                hx-post="{% url 'nimbus-new-delete-branch' slug=experiment.slug %}"
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                hx-params="branch_id"
+                                hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
+                                hx-select="#branches"
+                                hx-target="#branches">
+                          <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+                      {% endif %}
                       {{ branch_form.ratio.errors }}
                     </div>
                   </div>
                 </div>
-                {% if not forloop.first %}
-                  <a class="text-primary position-absolute top-0 end-0 m-2"
-                     hx-post="{% url 'nimbus-new-delete-branch' slug=experiment.slug %}"
-                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                     hx-params="branch_id"
-                     hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
-                     hx-select="#branches"
-                     hx-target="#branches">
-                    <i class="fa-solid fa-circle-xmark"></i>
-                  </a>
-                {% endif %}
                 {{ branch_form.branch_feature_values.management_form }}
                 {% for branch_feature_values_form in branch_form.branch_feature_values %}
                   {{ branch_feature_values_form.id }}
@@ -121,6 +129,55 @@
                     </div>
                   </div>
                 {% endfor %}
+                <div class="mt-3">
+                  <p>Screenshots</p>
+                  {{ branch_form.screenshot_formset.management_form }}
+                  {% for screenshot_form in branch_form.screenshot_formset %}
+                    <div class="mb-3">
+                      {{ screenshot_form.id }}
+                      <div class="row mb-2">
+                        <div class="col-4">
+                          {{ screenshot_form.image }}
+                          {{ screenshot_form.image.errors }}
+                        </div>
+                        <div class="col-8 d-flex align-items-center justify-content-center">
+                          {{ screenshot_form.description }}
+                          {{ screenshot_form.description.errors }}
+                          <button type="button"
+                                  class="btn btn-link"
+                                  hx-post="{% url 'nimbus-new-delete-branch-screenshot' slug=experiment.slug %}"
+                                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                  hx-params="screenshot_id"
+                                  hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
+                                  hx-select="#branches"
+                                  hx-target="#branches">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                          </button>
+                        </div>
+                      </div>
+                      {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
+                        <div class="row">
+                          <div class="col-12">
+                            <div class="mb-2">
+                              <img src="{{ screenshot_form.instance.image.url }}"
+                                   alt="Screenshot"
+                                   style="max-width: 200px;
+                                          max-height: 120px">
+                            </div>
+                          </div>
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                  <button type="button"
+                          class="btn btn-outline-primary btn-sm"
+                          hx-post="{% url 'nimbus-new-create-branch-screenshot' slug=experiment.slug %}"
+                          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                          hx-params="branch_id"
+                          hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
+                          hx-select="#branches"
+                          hx-target="#branches">+ Add Screenshot</button>
+                </div>
               </div>
             </div>
           {% endfor %}

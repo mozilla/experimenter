@@ -23,6 +23,8 @@ from experimenter.nimbus_ui_new.forms import (
     ApproveEndRolloutForm,
     ApproveUpdateRolloutForm,
     AudienceForm,
+    BranchScreenshotCreateForm,
+    BranchScreenshotDeleteForm,
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
     CancelEndRolloutForm,
@@ -418,6 +420,14 @@ class BranchCreateView(RenderParentDBResponseMixin, BranchesBaseView):
 
 class BranchDeleteView(RenderParentDBResponseMixin, BranchesBaseView):
     form_class = NimbusBranchDeleteForm
+
+
+class BranchScreenshotCreateView(RenderParentDBResponseMixin, BranchesBaseView):
+    form_class = BranchScreenshotCreateForm
+
+
+class BranchScreenshotDeleteView(RenderParentDBResponseMixin, BranchesBaseView):
+    form_class = BranchScreenshotDeleteForm
 
 
 class MetricsUpdateView(
