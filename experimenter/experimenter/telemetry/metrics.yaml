@@ -1,0 +1,33 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# For more information on configuring this file:
+# https://mozilla.github.io/glean/book/reference/yaml/metrics.html
+
+---
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+
+page:
+  view:
+    type: event
+    description: |
+      A web page view event distinguishable by the page’s URL.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=XXXXXXX
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=XXXXXXX
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - project-nimbus@mozilla.com
+    expires: never
+    send_in_pings:
+      - events
+    extra_keys:
+      path:
+        description: The path of the page.
+        type: string
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
