@@ -1649,15 +1649,15 @@ WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT_V3 = NimbusTargetingConfig(
     (
         (os.isWindows && (os.windowsVersion >= 10))
         &&
-        (((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1))
+        ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
         &&
         isBackgroundTaskMode
         &&
-        (defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
-        != 'treatment-a')
+        defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
+        != 'treatment-a'
         &&
-        (defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs-rollout-v2']
-        != 'treatment-a')
+        defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs-rollout-v2']
+        != 'treatment-a'
         &&
         defaultProfile.userPrefs.cfrFeatures
         &&
