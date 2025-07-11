@@ -271,6 +271,20 @@ APPLICATION_CONFIG_DEMO_APP = ApplicationConfig(
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
 )
 
+APPLICATION_CONFIG_EXPERIMENTER = ApplicationConfig(
+    name="Experimenter",
+    slug="experimenter",
+    app_name="experimenter",
+    channel_app_id={
+        Channel.STAGING: "experimenter.cirrus",
+        Channel.PRODUCTION: "experimenter.cirrus",
+    },
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+    is_web=True,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
+)
+
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
     "no-feature-klar-ios",
@@ -316,6 +330,10 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_FXA_WEB.name,
     )
     DEMO_APP = (APPLICATION_CONFIG_DEMO_APP.slug, APPLICATION_CONFIG_DEMO_APP.name)
+    EXPERIMENTER = (
+        APPLICATION_CONFIG_EXPERIMENTER.slug,
+        APPLICATION_CONFIG_EXPERIMENTER.name,
+    )
 
     @staticmethod
     def is_sdk(application):
@@ -339,6 +357,7 @@ class Application(models.TextChoices):
             Application.MONITOR,
             Application.VPN,
             Application.FXA,
+            Application.EXPERIMENTER,
         )
 
 
@@ -401,6 +420,7 @@ class NimbusConstants:
         Application.VPN: APPLICATION_CONFIG_VPN_WEB,
         Application.FXA: APPLICATION_CONFIG_FXA_WEB,
         Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
+        Application.EXPERIMENTER: APPLICATION_CONFIG_EXPERIMENTER,
     }
 
     ApplicationNameMap = models.TextChoices(
@@ -822,6 +842,7 @@ class NimbusConstants:
         Application.MONITOR: Version.NO_VERSION,
         Application.VPN: Version.NO_VERSION,
         Application.FXA: Version.NO_VERSION,
+        Application.EXPERIMENTER: Version.NO_VERSION,
     }
 
     COUNTRIES_APPLICATION_SUPPORTED_VERSION = {
@@ -833,6 +854,7 @@ class NimbusConstants:
         Application.MONITOR: Version.NO_VERSION,
         Application.VPN: Version.NO_VERSION,
         Application.FXA: Version.NO_VERSION,
+        Application.EXPERIMENTER: Version.NO_VERSION,
     }
 
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
