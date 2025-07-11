@@ -831,16 +831,20 @@ preonboarding:
       fallbackPref: browser.preonboarding.requireAction
       description: >-
         When showModal is enabled, should action be required to proceed (show as a window modal with dismiss using the ESC key disabled)?
-    currentPolicyVersion:
+    currentVersion:
       type: int
-      fallbackPref: datareporting.policy.currentPolicyVersion
+      fallbackPref: termsofuse.currentVersion
       description: >-
         The current policy version displayed by this preonboarding modal.
-    minimumPolicyVersion:
+    minimumVersion:
       type: int
-      fallbackPref: datareporting.policy.minimumPolicyVersion
+      fallbackPref: termsofuse.minimumVersion
       description: >-
-        The minimum policy version which the user must have accepted to not see the preonboarding modal.
+        The minimum policy version which the user must have accepted to not see
+        the preonboarding modal. In some cases, the minimum version could be
+        lower than the current version if the newer version(s) is not
+        substantially different enough to warrant asking users to accept the TOU
+        again.
     firstRunURL:
       type: string
       fallbackPref: datareporting.policy.firstRunURL
