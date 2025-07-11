@@ -3994,7 +3994,7 @@ class TestNimbusExperiment(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             is_sticky=False,
         )
-        
+
         errors = experiment.get_invalid_fields_errors()
         self.assertIn("is_sticky", errors)
         self.assertTrue(
