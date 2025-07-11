@@ -7,6 +7,7 @@ module.exports = {
     experiment_list: "./js/experiment_list.js",
     review_controls: "./js/review_controls.js",
     edit_audience: "./js/edit_audience.js",
+    edit_branches: "./js/edit_branches.js",
     experiment_detail: "./js/experiment_detail.js",
   },
   output: {
