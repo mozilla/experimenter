@@ -6,6 +6,7 @@ from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
+from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
 from experimenter.experiments.models import (
     NimbusExperiment,
@@ -239,6 +240,11 @@ class NimbusExperimentDetailView(
             context["form"] = QAStatusForm(instance=self.object)
         if context["takeaways_edit_mode"]:
             context["takeaways_form"] = TakeawaysForm(instance=self.object)
+
+        experiment = self.object
+        review_serializer = NimbusReviewSerializer(experiment)
+        serializer = NimbusReviewSerializer(experiment, data=review_serializer.data)
+        context["ready"] = serializer.is_valid()
 
         return context
 
