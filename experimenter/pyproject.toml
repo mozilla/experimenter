@@ -64,7 +64,7 @@ python-decouple = "3.8"
 pyyaml = "^6.0.1"
 PyYAML = "^6.0"
 redis = "4.6.0"
-requests = { version = "2.32.2", extras = ["security"] }
+requests = { version = "2.32.4", extras = ["security"] }
 responses = "0.25.0"
 ruff = "^0.12.2"
 sentry-sdk = "^2.32.0"
