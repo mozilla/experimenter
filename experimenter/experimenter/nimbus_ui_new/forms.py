@@ -112,6 +112,17 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
             cleaned_data["slug"] = slugify(cleaned_data["name"])
         return cleaned_data
 
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+
+        if experiment.branches.count() == 0:
+            control = experiment.branches.create(name="Control", slug="control", ratio=1)
+            experiment.branches.create(name="Treatment A", slug="treatment-a", ratio=1)
+            experiment.reference_branch = control
+            experiment.save(update_fields=["reference_branch"])
+
+        return experiment
+
 
 class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):
     owner = forms.ModelChoiceField(
