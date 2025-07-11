@@ -3984,6 +3984,26 @@ class TestNimbusExperiment(TestCase):
             errors["required_experiments_branches"],
         )
 
+    def test_invalid_pages_for_missing_sticky_requirement(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            channel=NimbusExperiment.Channel.RELEASE,
+            is_sticky=False,
+        )
+        
+        errors = experiment.get_invalid_fields_errors()
+        self.assertIn("is_sticky", errors)
+        self.assertTrue(
+            any("sticky" in msg.lower() for msg in errors["is_sticky"]),
+            msg="Expected sticky-related error message on is_sticky field",
+        )
+        invalid_pages = experiment.get_invalid_pages
+        self.assertIn("audience", invalid_pages)
+
     @parameterized.expand(
         [
             (
