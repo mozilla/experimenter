@@ -10,6 +10,7 @@ services:
       - db
       - redis
       - kinto
+      - cirrus-experimenter
     ports:
       - "7001:7001"
     volumes:
@@ -121,6 +122,24 @@ services:
     image: mozilla/autograph:4.1.1
     ports:
       - "8000:8000"
+
+  cirrus-experimenter:
+    build:
+      additional_contexts:
+        - fml=experimenter/experimenter/features/manifests/
+      context: cirrus/server/
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      CIRRUS_APP_ID: experimenter.cirrus
+      CIRRUS_APP_NAME: experimenter
+      CIRRUS_CHANNEL: developer
+      CIRRUS_FML_PATH: /fml/experimenter/developer.fml.yaml
+    depends_on:
+      - kinto
+    volumes:
+      - ./cirrus/server/:/cirrus
+    working_dir: /cirrus
 
 volumes:
   db_volume:
