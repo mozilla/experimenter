@@ -68,6 +68,10 @@ USE_YARN_DEV = config("USE_YARN_DEV", default=DEBUG, cast=bool)
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+ENABLE_GLEAN = config("ENABLE_GLEAN", default=False, cast=bool)
+
+CIRRUS_URL = config("CIRRUS_URL")
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -118,6 +122,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "dockerflow.django.middleware.DockerflowMiddleware",
     "experimenter.openidc.middleware.OpenIDCAuthMiddleware",
+    "experimenter.cirrus.middleware.CirrusMiddleware",
+    "experimenter.glean.middleware.GleanMiddleware",
 ]
 
 ROOT_URLCONF = "experimenter.urls"
