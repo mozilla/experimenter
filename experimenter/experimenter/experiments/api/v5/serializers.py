@@ -25,7 +25,10 @@ from experimenter.base.models import (
     SiteFlagNameChoices,
 )
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants import (
+    NimbusConstants,
+    TargetingMultipleKintoCollectionsError,
+)
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -1775,7 +1778,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         reference_branch = data.get("reference_branch", {})
 
-        if errors := self._validate_target_kinto_collections(feature_configs):
+        if errors := self._validate_target_kinto_collections(data, feature_configs):
             raise serializers.ValidationError(
                 {
                     "feature_configs": errors,
@@ -1808,30 +1811,32 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
-    def _validate_target_kinto_collections(self, feature_configs):
+    def _validate_target_kinto_collections(self, data, feature_configs):
         errors = []
 
         application_config = self.instance.application_config
-        collections_by_feature_id = application_config.kinto_collections_by_feature_id
 
-        if collections_by_feature_id is not None:
-            target_collections = {
-                feature_config.slug: collections_by_feature_id.get(
-                    feature_config.slug, application_config.default_kinto_collection
-                )
-                for feature_config in feature_configs
-            }
+        try:
+            application_config.get_kinto_collection_for_feature_ids(
+                [fc.slug for fc in feature_configs], data.get("firefox_min_version", "")
+            )
+        except TargetingMultipleKintoCollectionsError as e:
+            errors.append(NimbusConstants.ERROR_INCOMPATIBLE_FEATURES)
 
-            if len(set(target_collections.values())) > 1:
-                errors.append(NimbusConstants.ERROR_INCOMPATIBLE_FEATURES)
+            feature_collection_pairs = [
+                (feature_id, collection)
+                for collection, feature_ids in e.target_collections.items()
+                for feature_id in feature_ids
+            ]
+            feature_collection_pairs.sort()
 
-                for feature_id, collection in sorted(target_collections.items()):
-                    errors.append(
-                        NimbusConstants.ERROR_FEATURE_TARGET_COLLECTION.format(
-                            feature_id=feature_id,
-                            collection=collection,
-                        )
+            for feature_id, collection in feature_collection_pairs:
+                errors.append(
+                    NimbusConstants.ERROR_FEATURE_TARGET_COLLECTION.format(
+                        feature_id=feature_id,
+                        collection=collection,
                     )
+                )
 
         return errors
 
