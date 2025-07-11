@@ -144,6 +144,26 @@ class TestNimbusExperimentCreateForm(RequestFormTestCase):
             form.errors["hypothesis"], [NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER]
         )
 
+    def test_form_creates_default_branches(self):
+        data = {
+            "owner": self.user,
+            "name": "Branched Experiment",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.branches.count(), 2)
+        self.assertIsNotNone(experiment.reference_branch)
+        self.assertEqual(experiment.reference_branch.name, "Control")
+
+        branch_names = set(experiment.branches.values_list("name", flat=True))
+        self.assertIn("Control", branch_names)
+        self.assertIn("Treatment A", branch_names)
+
 
 class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
     def test_valid_clone_form_creates_experiment(self):
