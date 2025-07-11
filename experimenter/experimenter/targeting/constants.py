@@ -1594,79 +1594,6 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY = NimbusTargetingCon
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_1HR_INACTIVITY_CFR_ONLY = (
-    NimbusTargetingConfig(
-        name=(
-            "Windows 10+ users w/ background task notification "
-            "and 1hr+ of inactivity (CFR only)"
-        ),
-        slug="windows10_background_task_notification_1hr_inactivity_CFR_only",
-        description=(
-            "Windows 10+ users with 1hr+ of inactivity in the past day "
-            "who are running a background task with CFR enabled"
-        ),
-        targeting="""
-    (
-        (
-            os.isWindows
-            &&
-            (os.windowsVersion >= 10)
-        )
-        &&
-        (
-            ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
-        )
-        &&
-        isBackgroundTaskMode
-        &&
-        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue
-    )
-    """,
-        desktop_telemetry="",
-        sticky_required=True,
-        is_first_run_required=False,
-        application_choice_names=(Application.DESKTOP.name,),
-    )
-)
-
-WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT = NimbusTargetingConfig(
-    name=(
-        "Windows 10+ users with 1hr+ of inactivity in the past day "
-        "who are running a background task with CFR enabled and "
-        "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
-    ),
-    slug="whats_new_notification_sidebar_vertical_tabs_rollout",
-    description=(
-        "Windows 10+ users with 1hr+ of inactivity in the past day "
-        "who are running a background task with CFR enabled and "
-        "not enrolled in treatment-a of WNN sidebar/vertical tabs experiment"
-    ),
-    targeting="""
-    (
-        (
-            os.isWindows
-            &&
-            (os.windowsVersion >= 10)
-        )
-        &&
-        (
-            ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
-        )
-        &&
-        isBackgroundTaskMode
-        &&
-        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue
-        &&
-        ((defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
-        == 'treatment-a') == false)
-    )
-    """,
-    desktop_telemetry="",
-    sticky_required=True,
-    is_first_run_required=False,
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
 WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT_V2 = NimbusTargetingConfig(
     name=(
         "Windows 10+ users with 1hr+ of inactivity in the past day "
@@ -1695,6 +1622,46 @@ WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT_V2 = NimbusTargetingConfig(
         &&
         ((defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
         == 'treatment-a') == false)
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT_V3 = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users with 1hr+ of inactivity in the past day "
+        "who are running a background task and have CFR pref enabled "
+        "and excludes users with enterprise policies, "
+        "enrolled in treatment-a of WNN sidebar/vertical tabs experiment, "
+        "and enrolled in the previous rollout of WNN sidebar/vertical tabs "
+    ),
+    slug="whats_new_notification_sidebar_vertical_tabs_rollout_v3",
+    description=(
+        "Windows 10+ users with 1hr+ of inactivity in the past day "
+        "who are running a background task and have CFR pref enabled "
+        "and not enrolled in treatment-a of WNN sidebar/vertical tabs "
+        "experiment and rollout"
+    ),
+    targeting="""
+    (
+        (os.isWindows && (os.windowsVersion >= 10))
+        &&
+        ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 1)
+        &&
+        isBackgroundTaskMode
+        &&
+        defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs']
+        != 'treatment-a'
+        &&
+        defaultProfile.enrollmentsMap['whats-new-notification-sidebarvertical-tabs-rollout-v2']
+        != 'treatment-a'
+        &&
+        defaultProfile.userPrefs.cfrFeatures
+        &&
+        !defaultProfile.hasActiveEnterprisePolicies
     )
     """,
     desktop_telemetry="",
