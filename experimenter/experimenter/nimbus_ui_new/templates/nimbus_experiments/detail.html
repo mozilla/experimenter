@@ -6,441 +6,443 @@
 {% block title %}{{ experiment.name }}{% endblock %}
 
 {% block main_content %}
-  {% if experiment.is_draft %}
-    <!-- Invalid Pages Warnings Card -->
-    {% if invalid_pages %}
-      <div class="alert alert-danger" role="alert">
-        <p class="mb-1">
-          Before this experiment can be reviewed or launched, all required fields must be completed. Fields on the
-          <strong>
-            {% for page in invalid_pages %}
-              {% if page == "overview" %}
-                <a href="{{ experiment.get_update_overview_url }}?show_errors=true"
-                   rel="noopener noreferrer">Overview</a>
-              {% elif page == "branches" %}
-                <a href="{{ experiment.get_update_branches_url }}?show_errors=true"
-                   rel="noopener noreferrer">Branches</a>
-              {% elif page == "metrics" %}
-                <a href="{{ experiment.get_update_metrics_url }}?show_errors=true"
-                   rel="noopener noreferrer">Metrics</a>
-              {% elif page == "audience" %}
-                <a href="{{ experiment.get_update_audience_url }}?show_errors=true"
-                   rel="noopener noreferrer">Audience</a>
-              {% else %}
-                {{ page|capfirst }}
-              {% endif %}
-              {% if not forloop.last %},{% endif %}
-            {% endfor %}
-          </strong>
-          {% if invalid_pages|length == 1 %}
-            page
-          {% else %}
-            pages
-          {% endif %}
-          are missing details.
-        </p>
-      </div>
+  <div id="PageSummary">
+    {% if experiment.is_draft %}
+      <!-- Invalid Pages Warnings Card -->
+      {% if invalid_pages %}
+        <div class="alert alert-danger" role="alert">
+          <p class="mb-1">
+            Before this experiment can be reviewed or launched, all required fields must be completed. Fields on the
+            <strong>
+              {% for page in invalid_pages %}
+                {% if page == "overview" %}
+                  <a href="{{ experiment.get_update_overview_url }}?show_errors=true"
+                     rel="noopener noreferrer">Overview</a>
+                {% elif page == "branches" %}
+                  <a href="{{ experiment.get_update_branches_url }}?show_errors=true"
+                     rel="noopener noreferrer">Branches</a>
+                {% elif page == "metrics" %}
+                  <a href="{{ experiment.get_update_metrics_url }}?show_errors=true"
+                     rel="noopener noreferrer">Metrics</a>
+                {% elif page == "audience" %}
+                  <a href="{{ experiment.get_update_audience_url }}?show_errors=true"
+                     rel="noopener noreferrer">Audience</a>
+                {% else %}
+                  {{ page|capfirst }}
+                {% endif %}
+                {% if not forloop.last %},{% endif %}
+              {% endfor %}
+            </strong>
+            {% if invalid_pages|length == 1 %}
+              page
+            {% else %}
+              pages
+            {% endif %}
+            are missing details.
+          </p>
+        </div>
+      {% endif %}
     {% endif %}
-  {% endif %}
-  <!-- Audience Overlap Warnings Card -->
-  {% if experiment.audience_overlap_warnings %}
-    {% for warning in experiment.audience_overlap_warnings %}
-      <div class="alert alert-{{ warning.variant|default:'warning' }}"
-           role="alert">
-        <p class="mb-1">{{ warning.text }}</p>
-        <ul class="mb-1">
-          {% for slug in warning.slugs %}<li>{{ slug }}</li>{% endfor %}
-        </ul>
-        {% if warning.learn_more_link %}
-          <a href="{{ warning.learn_more_link }}"
-             target="_blank"
-             rel="noopener noreferrer"
-             class="btn btn-link p-0">Learn more</a>
-        {% endif %}
-      </div>
-    {% endfor %}
-  {% endif %}
-  <!-- Launch Controls Card-->
-  {% if not experiment.get_invalid_pages or not experiment.is_draft %}
-    {% include "nimbus_experiments/launch_controls.html" %}
-
-  {% endif %}
-  <!-- Takeaways Card -->
-  {% if experiment.is_complete %}
-    {% include "nimbus_experiments/takeaways_card.html" %}
-
-  {% endif %}
-  <!-- Overview Card -->
-  <div class="card mb-3">
-    <div class="card-header">
-      <h4>Overview</h4>
-    </div>
-    <div class="card-body">
-      <table class="table table-striped">
-        <tbody>
-          <tr>
-            <th>Slug</th>
-            <td>{{ experiment.slug }}</td>
-            <th>Experiment owner</th>
-            <td>{{ experiment.owner }}</td>
-          </tr>
-          <tr>
-            <th>Application</th>
-            <td>{{ experiment.get_application_display }}</td>
-            <th>Public description</th>
-            <td>{{ experiment.public_description|format_not_set }}</td>
-          </tr>
-          <tr>
-            <th>Feature config</th>
-            <td>
-              {% for feature in experiment.feature_configs.all %}
-                {{ feature.name }} - {{ feature.description }}
-              {% empty %}
-                <span class="text-danger">Not set</span>
-              {% endfor %}
-            </td>
-            <th>Advanced targeting</th>
-            <td>{{ experiment.targeting_config.name }} - {{ experiment.targeting_config.description }}</td>
-          </tr>
-          <tr>
-            <th>Hypothesis</th>
-            <td colspan="3">{{ experiment.hypothesis }}</td>
-          </tr>
-          <tr>
-            <th>Primary Outcomes</th>
-            <td colspan="3">
-              {% for outcome, url in primary_outcome_links %}
-                <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
-                {% if not forloop.last %},{% endif %}
-              {% empty %}
-                <span class="text-danger">Not set</span>
-              {% endfor %}
-            </td>
-          </tr>
-          <tr>
-            <th>Secondary Outcomes</th>
-            <td colspan="3">
-              {% for outcome, url in secondary_outcome_links %}
-                <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
-                {% if not forloop.last %},{% endif %}
-              {% empty %}
-                <span class="text-danger">Not set</span>
-              {% endfor %}
-            </td>
-          </tr>
-          <tr>
-            <th>Segments</th>
-            <td colspan="3">
-              {% for segment, url in segment_links %}
-                <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ segment.title|remove_underscores }}</a>
-                {% if not forloop.last %},{% endif %}
-              {% empty %}
-                <span class="text-danger">Not set</span>
-              {% endfor %}
-            </td>
-          </tr>
-          <tr>
-            <th>Team projects</th>
-            <td colspan="2">
-              {% for project in experiment.projects.all %}
-                <p>{{ project }}</p>
-              {% empty %}
-                <span class="text-danger">Not set</span>
-              {% endfor %}
-            </td>
-          </tr>
-          {% include 'nimbus_experiments/subscribers_list.html' %}
-
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <!-- Risk Mitigation Questions Card -->
-  <div class="card mb-3">
-    <div class="card-header">
-      <h4>Risk Mitigation Questions</h4>
-    </div>
-    <div class="card-body">
-      <table class="table table-striped">
-        <tbody>
-          <tr>
-            <th colspan="3">{{ RISK_QUESTIONS.BRAND }}</th>
-            <td class="{% if experiment.risk_brand %}text-danger font-weight-bold{% endif %}">
-              {% if experiment.risk_brand != None %}
-                {{ experiment.risk_brand|yesno:"Yes,No" }}
-              {% else %}
-                Not Set
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th colspan="3">
-              {{ RISK_QUESTIONS.MESSAGE }}
-              <a href="{{ risk_message_url }}"
-                 target="_blank"
-                 rel="noopener noreferrer">Message Consult</a>
-            </th>
-            <td class="{% if experiment.risk_message %}text-danger font-weight-bold{% endif %}">
-              {% if experiment.risk_message != None %}
-                {{ experiment.risk_message|yesno:"Yes,No" }}
-              {% else %}
-                Not Set
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th colspan="3">{{ RISK_QUESTIONS.REVENUE }}</th>
-            <td class="{% if experiment.risk_revenue %}text-danger font-weight-bold{% endif %}">
-              {% if experiment.risk_revenue != None %}
-                {{ experiment.risk_revenue|yesno:"Yes,No" }}
-              {% else %}
-                Not Set
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th colspan="3">{{ RISK_QUESTIONS.PARTNER }}</th>
-            <td class="{% if experiment.risk_partner_related %}text-danger font-weight-bold{% endif %}">
-              {% if experiment.risk_partner_related != None %}
-                {{ experiment.risk_partner_related|yesno:"Yes,No" }}
-              {% else %}
-                Not Set
-              {% endif %}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <!-- Audience Card -->
-  <div class="card mb-3">
-    <div class="card-header">
-      <div class="row">
-        <div class="col">
-          <h4>Audience</h4>
-        </div>
-        <div class="col pt-1 text-end">
-          <a href="{{ experiment.audience_url }}"
-             target="_blank"
-             rel="noopener noreferrer"
-             class="text-decoration-none">Explore matching audiences</a>
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <table class="table table-striped">
-        <tbody>
-          <tr>
-            <th>Channel</th>
-            <td>{{ experiment.channel.title|default:"No Channel" }}</td>
-            <th>Advanced Targeting</th>
-            <td>{{ experiment.targeting_config.name }}</td>
-          </tr>
-          <tr>
-            <th>Minimum version</th>
-            <td>{{ experiment.firefox_min_version|parse_version }}</td>
-            <th>Maximum version</th>
-            <td>{{ experiment.firefox_max_version|parse_version }}</td>
-          </tr>
-          <tr>
-            <th>Locales</th>
-            <td>
-              {{ experiment.locales.all|join:"<br>"|default:"All Locales" }}
-            </td>
-            <th>Countries</th>
-            <td>
-              {{ experiment.countries.all|join:"<br>"| default:"All Countries" }}
-            </td>
-          </tr>
-          <tr>
-            <th>Expected enrolled clients</th>
-            <td>{{ experiment.total_enrolled_clients }}</td>
-            <th>Population %</th>
-            <td>{{ experiment.population_percent|floatformat:"-1" }}%</td>
-          </tr>
-          <tr>
-            <th>Sticky enrollment</th>
-            <td colspan="3">{{ experiment.is_sticky }}</td>
-          </tr>
-          {% if experiment.is_mobile %}
-            <tr>
-              <th>First Run Experiment</th>
-              <td>{{ experiment.is_first_run }}</td>
-              <th>First Run Release Date</th>
-              <td>{{ experiment.proposed_release_date }}</td>
-            </tr>
+    <!-- Audience Overlap Warnings Card -->
+    {% if experiment.audience_overlap_warnings %}
+      {% for warning in experiment.audience_overlap_warnings %}
+        <div class="alert alert-{{ warning.variant|default:'warning' }}"
+             role="alert">
+          <p class="mb-1">{{ warning.text }}</p>
+          <ul class="mb-1">
+            {% for slug in warning.slugs %}<li>{{ slug }}</li>{% endfor %}
+          </ul>
+          {% if warning.learn_more_link %}
+            <a href="{{ warning.learn_more_link }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn-link p-0">Learn more</a>
           {% endif %}
-          <tr>
-            <th>Required experiments</th>
-            <td>
-              {% with experiment.required_experiments_branches.all as required_branches %}
-                {% if required_branches %}
-                  {% for branch in required_branches %}
-                    <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                      {{ branch.child_experiment.name }}
-                      ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
-                    </a>
-                    <br>
-                  {% endfor %}
-                {% else %}
-                  None
-                {% endif %}
-              {% endwith %}
-            </td>
-            <th>Excluded experiments</th>
-            <td>
-              {% with experiment.excluded_experiments_branches.all as excluded_branches %}
-                {% if excluded_branches %}
-                  {% for branch in excluded_branches %}
-                    <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                      {{ branch.child_experiment.name }}
-                      ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
-                    </a>
-                    <br>
-                  {% endfor %}
-                {% else %}
-                  None
-                {% endif %}
-              {% endwith %}
-            </td>
-          </tr>
-          <tr>
-            <th>Full targeting expression</th>
-            <td colspan="3">{{ experiment.targeting }}</td>
-          </tr>
-          <tr>
-            <th id="recipe-json">Recipe JSON</th>
-            <td colspan="3" id="preview-recipe-json">
-              <div class="collapse" id="collapse-recipe">
-                <code>
-                  <pre class="text-monospace" style="white-space: pre-wrap; word-wrap: break-word;">
-                      {{ experiment.recipe_json|linebreaks|linebreaksbr }}
-                    </pre>
-                </code>
-              </div>
-              <button class="btn btn-outline-primary btn-sm"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapse-recipe"
-                      aria-expanded="false"
-                      aria-controls="collapse-recipe">
-                <i class="fa-solid fa-plus"></i> Show/Hide Recipe
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <!-- Actions Recommended Before Launch Card -->
-  {% include "nimbus_experiments/signoff_card.html" with edit=False experiment=experiment %}
+        </div>
+      {% endfor %}
+    {% endif %}
+    <!-- Launch Controls Card-->
+    {% if not experiment.get_invalid_pages or not experiment.is_draft %}
+      {% include "nimbus_experiments/launch_controls.html" %}
 
-  <!-- Branches Card -->
-  <div class="card mb-3">
-    <div class="card-header">
-      <h4>Branches ({{ experiment.branches.all.count }})</h4>
-    </div>
-    {% for branch in experiment.branches.all %}
+    {% endif %}
+    <!-- Takeaways Card -->
+    {% if experiment.is_complete %}
+      {% include "nimbus_experiments/takeaways_card.html" %}
+
+    {% endif %}
+    <!-- Overview Card -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <h4>Overview</h4>
+      </div>
       <div class="card-body">
-        <div class="row mb-2">
-          <div class="col-md-8">
-            <h6>
-              <a href="#{{ branch.slug }}">#</a> {{ branch.name|title }}
-            </h6>
-          </div>
-          {% if not experiment.is_rollout %}
-            <div class="col-md-4 text-end">
-              <button class="btn btn-outline-primary btn-sm"
-                      data-bs-toggle="modal"
-                      data-bs-target="#promoteToRolloutModal-{{ branch.slug }}">Promote to Rollout</button>
-            </div>
-          {% endif %}
-        </div>
         <table class="table table-striped">
           <tbody>
             <tr>
               <th>Slug</th>
-              <td>{{ branch.slug|format_not_set }}</td>
-              <th>Ratio</th>
-              <td>{{ branch.ratio|format_not_set }}</td>
+              <td>{{ experiment.slug }}</td>
+              <th>Experiment owner</th>
+              <td>{{ experiment.owner }}</td>
             </tr>
             <tr>
-              <th>Description</th>
-              <td colspan="3">{{ branch.description|format_not_set }}</td>
+              <th>Application</th>
+              <td>{{ experiment.get_application_display }}</td>
+              <th>Public description</th>
+              <td>{{ experiment.public_description|format_not_set }}</td>
             </tr>
-            {% if branch.feature_values.all %}
-              {% for feature_value in branch.feature_values.all %}
-                <tr>
-                  <th>{{ feature_value.feature_config.name|format_not_set }} Value</th>
-                  <td colspan="3">
-                    <code>{{ feature_value.value|format_not_set|format_json }}</code>
-                  </td>
-                </tr>
-              {% endfor %}
-            {% else %}
-              <tr>
-                <td colspan="4">No Feature Values</td>
-              </tr>
-            {% endif %}
-            {% if branch.screenshots.all.exists %}
-              <tr>
-                <th>Screenshots</th>
-                <td colspan="3">
-                  {% for screenshot in branch.screenshots.all %}
-                    <figure class="d-block">
-                      <figcaption>{{ screenshot.description }}</figcaption>
-                      {% if screenshot.image %}
-                        <img src="{{ screenshot.image.url }}"
-                             alt="{{ screenshot.description|default:'' }}"
-                             class="img-fluid">
-                      {% else %}
-                        Not Set
-                      {% endif %}
-                    </figure>
-                  {% endfor %}
-                </td>
-              </tr>
-            {% endif %}
+            <tr>
+              <th>Feature config</th>
+              <td>
+                {% for feature in experiment.feature_configs.all %}
+                  {{ feature.name }} - {{ feature.description }}
+                {% empty %}
+                  <span class="text-danger">Not set</span>
+                {% endfor %}
+              </td>
+              <th>Advanced targeting</th>
+              <td>{{ experiment.targeting_config.name }} - {{ experiment.targeting_config.description }}</td>
+            </tr>
+            <tr>
+              <th>Hypothesis</th>
+              <td colspan="3">{{ experiment.hypothesis }}</td>
+            </tr>
+            <tr>
+              <th>Primary Outcomes</th>
+              <td colspan="3">
+                {% for outcome, url in primary_outcome_links %}
+                  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
+                  {% if not forloop.last %},{% endif %}
+                {% empty %}
+                  <span class="text-danger">Not set</span>
+                {% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <th>Secondary Outcomes</th>
+              <td colspan="3">
+                {% for outcome, url in secondary_outcome_links %}
+                  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
+                  {% if not forloop.last %},{% endif %}
+                {% empty %}
+                  <span class="text-danger">Not set</span>
+                {% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <th>Segments</th>
+              <td colspan="3">
+                {% for segment, url in segment_links %}
+                  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ segment.title|remove_underscores }}</a>
+                  {% if not forloop.last %},{% endif %}
+                {% empty %}
+                  <span class="text-danger">Not set</span>
+                {% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <th>Team projects</th>
+              <td colspan="2">
+                {% for project in experiment.projects.all %}
+                  <p>{{ project }}</p>
+                {% empty %}
+                  <span class="text-danger">Not set</span>
+                {% endfor %}
+              </td>
+            </tr>
+            {% include 'nimbus_experiments/subscribers_list.html' %}
+
           </tbody>
         </table>
       </div>
-      <div class="modal fade"
-           id="promoteToRolloutModal-{{ branch.slug }}"
-           tabindex="-1"
-           aria-labelledby="promoteToRolloutModalLabel-{{ branch.slug }}"
-           aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5">Promote {{ branch.slug }} to Rollout</h1>
-              <button type="button"
-                      class="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"></button>
-            </div>
-            <div class="modal-body bg-body-tertiary">
-              <form id="promoteToRolloutForm-{{ branch.slug }}"
-                    hx-post="{% url 'nimbus-new-promote-to-rollout' experiment.slug %}"
-                    hx-vals='{"branch_slug": "{{ branch.slug }}"}'
-                    hx-target="#promoteToRolloutForm-{{ branch.slug }}">
-                {% with form_id_prefix="promote-"|add:branch.slug %}
-                  {% include "nimbus_experiments/clone.html" with form=promote_to_rollout_forms experiment=experiment form_id_prefix=form_id_prefix branch_slug=branch.slug %}
-
-                {% endwith %}
-              </form>
-            </div>
+    </div>
+    <!-- Risk Mitigation Questions Card -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <h4>Risk Mitigation Questions</h4>
+      </div>
+      <div class="card-body">
+        <table class="table table-striped">
+          <tbody>
+            <tr>
+              <th colspan="3">{{ RISK_QUESTIONS.BRAND }}</th>
+              <td class="{% if experiment.risk_brand %}text-danger font-weight-bold{% endif %}">
+                {% if experiment.risk_brand != None %}
+                  {{ experiment.risk_brand|yesno:"Yes,No" }}
+                {% else %}
+                  Not Set
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th colspan="3">
+                {{ RISK_QUESTIONS.MESSAGE }}
+                <a href="{{ risk_message_url }}"
+                   target="_blank"
+                   rel="noopener noreferrer">Message Consult</a>
+              </th>
+              <td class="{% if experiment.risk_message %}text-danger font-weight-bold{% endif %}">
+                {% if experiment.risk_message != None %}
+                  {{ experiment.risk_message|yesno:"Yes,No" }}
+                {% else %}
+                  Not Set
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th colspan="3">{{ RISK_QUESTIONS.REVENUE }}</th>
+              <td class="{% if experiment.risk_revenue %}text-danger font-weight-bold{% endif %}">
+                {% if experiment.risk_revenue != None %}
+                  {{ experiment.risk_revenue|yesno:"Yes,No" }}
+                {% else %}
+                  Not Set
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th colspan="3">{{ RISK_QUESTIONS.PARTNER }}</th>
+              <td class="{% if experiment.risk_partner_related %}text-danger font-weight-bold{% endif %}">
+                {% if experiment.risk_partner_related != None %}
+                  {{ experiment.risk_partner_related|yesno:"Yes,No" }}
+                {% else %}
+                  Not Set
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Audience Card -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <div class="row">
+          <div class="col">
+            <h4>Audience</h4>
+          </div>
+          <div class="col pt-1 text-end">
+            <a href="{{ experiment.audience_url }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="text-decoration-none">Explore matching audiences</a>
           </div>
         </div>
       </div>
-    {% endfor %}
-  </div>
-  <!-- QA Card -->
-  {% include "nimbus_experiments/qa_card.html" %}
+      <div class="card-body">
+        <table class="table table-striped">
+          <tbody>
+            <tr>
+              <th>Channel</th>
+              <td>{{ experiment.channel.title|default:"No Channel" }}</td>
+              <th>Advanced Targeting</th>
+              <td>{{ experiment.targeting_config.name }}</td>
+            </tr>
+            <tr>
+              <th>Minimum version</th>
+              <td>{{ experiment.firefox_min_version|parse_version }}</td>
+              <th>Maximum version</th>
+              <td>{{ experiment.firefox_max_version|parse_version }}</td>
+            </tr>
+            <tr>
+              <th>Locales</th>
+              <td>
+                {{ experiment.locales.all|join:"<br>"|default:"All Locales" }}
+              </td>
+              <th>Countries</th>
+              <td>
+                {{ experiment.countries.all|join:"<br>"| default:"All Countries" }}
+              </td>
+            </tr>
+            <tr>
+              <th>Expected enrolled clients</th>
+              <td>{{ experiment.total_enrolled_clients }}</td>
+              <th>Population %</th>
+              <td>{{ experiment.population_percent|floatformat:"-1" }}%</td>
+            </tr>
+            <tr>
+              <th>Sticky enrollment</th>
+              <td colspan="3">{{ experiment.is_sticky }}</td>
+            </tr>
+            {% if experiment.is_mobile %}
+              <tr>
+                <th>First Run Experiment</th>
+                <td>{{ experiment.is_first_run }}</td>
+                <th>First Run Release Date</th>
+                <td>{{ experiment.proposed_release_date }}</td>
+              </tr>
+            {% endif %}
+            <tr>
+              <th>Required experiments</th>
+              <td>
+                {% with experiment.required_experiments_branches.all as required_branches %}
+                  {% if required_branches %}
+                    {% for branch in required_branches %}
+                      <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
+                         target="_blank"
+                         rel="noopener noreferrer">
+                        {{ branch.child_experiment.name }}
+                        ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                      </a>
+                      <br>
+                    {% endfor %}
+                  {% else %}
+                    None
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <th>Excluded experiments</th>
+              <td>
+                {% with experiment.excluded_experiments_branches.all as excluded_branches %}
+                  {% if excluded_branches %}
+                    {% for branch in excluded_branches %}
+                      <a href="{% url 'nimbus-new-detail' branch.child_experiment.slug %}"
+                         target="_blank"
+                         rel="noopener noreferrer">
+                        {{ branch.child_experiment.name }}
+                        ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                      </a>
+                      <br>
+                    {% endfor %}
+                  {% else %}
+                    None
+                  {% endif %}
+                {% endwith %}
+              </td>
+            </tr>
+            <tr>
+              <th>Full targeting expression</th>
+              <td colspan="3">{{ experiment.targeting }}</td>
+            </tr>
+            <tr>
+              <th id="recipe-json">Recipe JSON</th>
+              <td colspan="3" id="preview-recipe-json">
+                <div class="collapse" id="collapse-recipe">
+                  <code>
+                    <pre class="text-monospace" style="white-space: pre-wrap; word-wrap: break-word;">
+                        {{ experiment.recipe_json|linebreaks|linebreaksbr }}
+                      </pre>
+                  </code>
+                </div>
+                <button class="btn btn-outline-primary btn-sm"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapse-recipe"
+                        aria-expanded="false"
+                        aria-controls="collapse-recipe">
+                  <i class="fa-solid fa-plus"></i> Show/Hide Recipe
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Actions Recommended Before Launch Card -->
+    {% include "nimbus_experiments/signoff_card.html" with edit=False experiment=experiment %}
 
+    <!-- Branches Card -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <h4>Branches ({{ experiment.branches.all.count }})</h4>
+      </div>
+      {% for branch in experiment.branches.all %}
+        <div class="card-body">
+          <div class="row mb-2">
+            <div class="col-md-8">
+              <h6>
+                <a href="#{{ branch.slug }}">#</a> {{ branch.name|title }}
+              </h6>
+            </div>
+            {% if not experiment.is_rollout %}
+              <div class="col-md-4 text-end">
+                <button class="btn btn-outline-primary btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#promoteToRolloutModal-{{ branch.slug }}">Promote to Rollout</button>
+              </div>
+            {% endif %}
+          </div>
+          <table class="table table-striped">
+            <tbody>
+              <tr>
+                <th>Slug</th>
+                <td>{{ branch.slug|format_not_set }}</td>
+                <th>Ratio</th>
+                <td>{{ branch.ratio|format_not_set }}</td>
+              </tr>
+              <tr>
+                <th>Description</th>
+                <td colspan="3">{{ branch.description|format_not_set }}</td>
+              </tr>
+              {% if branch.feature_values.all %}
+                {% for feature_value in branch.feature_values.all %}
+                  <tr>
+                    <th>{{ feature_value.feature_config.name|format_not_set }} Value</th>
+                    <td colspan="3">
+                      <code>{{ feature_value.value|format_not_set|format_json }}</code>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="4">No Feature Values</td>
+                </tr>
+              {% endif %}
+              {% if branch.screenshots.all.exists %}
+                <tr>
+                  <th>Screenshots</th>
+                  <td colspan="3">
+                    {% for screenshot in branch.screenshots.all %}
+                      <figure class="d-block">
+                        <figcaption>{{ screenshot.description }}</figcaption>
+                        {% if screenshot.image %}
+                          <img src="{{ screenshot.image.url }}"
+                               alt="{{ screenshot.description|default:'' }}"
+                               class="img-fluid">
+                        {% else %}
+                          Not Set
+                        {% endif %}
+                      </figure>
+                    {% endfor %}
+                  </td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal fade"
+             id="promoteToRolloutModal-{{ branch.slug }}"
+             tabindex="-1"
+             aria-labelledby="promoteToRolloutModalLabel-{{ branch.slug }}"
+             aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5">Promote {{ branch.slug }} to Rollout</h1>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+              </div>
+              <div class="modal-body bg-body-tertiary">
+                <form id="promoteToRolloutForm-{{ branch.slug }}"
+                      hx-post="{% url 'nimbus-new-promote-to-rollout' experiment.slug %}"
+                      hx-vals='{"branch_slug": "{{ branch.slug }}"}'
+                      hx-target="#promoteToRolloutForm-{{ branch.slug }}">
+                  {% with form_id_prefix="promote-"|add:branch.slug %}
+                    {% include "nimbus_experiments/clone.html" with form=promote_to_rollout_forms experiment=experiment form_id_prefix=form_id_prefix branch_slug=branch.slug %}
+
+                  {% endwith %}
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <!-- QA Card -->
+    {% include "nimbus_experiments/qa_card.html" %}
+
+  </div>
 {% endblock %}
 
 {% block extrascripts %}
