@@ -1617,6 +1617,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         serializer_data = NimbusReviewSerializer(self).data
         serializer = NimbusReviewSerializer(self, data=serializer_data)
+        self.is_ready_to_launch = serializer.is_valid()
 
         if serializer.is_valid():
             return {}

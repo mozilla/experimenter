@@ -1212,15 +1212,12 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             feature_configs=[],
         )
 
-        response = self.client.get(
-            reverse("nimbus-new-detail", kwargs={"slug": experiment.slug})
-        )
+        self.client.get(reverse("nimbus-new-detail", kwargs={"slug": experiment.slug}))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("ready", response.context)
+        experiment.get_invalid_fields_errors()
         self.assertFalse(
-            response.context["ready"],
-            "`ready` should be False when the review serializer is invalid",
+            experiment.is_ready_to_launch,
+            "Expected experiment.is_ready_to_launch to be False due to validation errors",
         )
 
 
