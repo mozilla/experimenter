@@ -10,22 +10,22 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
 | Link            | Prod                                                  | Staging                                                            | Local Dev (Default)                           |
 | --------------- | ----------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------- |
-| Legacy Home     | [experimenter.services.mozilla.com][legacy_home_prod] | [stage.experimenter.nonprod.dataops.mozgcp.net][legacy_home_stage] | https://localhost                             |
+| Legacy Home     | [experimenter.services.mozilla.com][legacy_home_prod] | [stage.experimenter.nonprod.webservices.mozgcp.net][legacy_home_stage] | https://localhost                             |
 | Nimbus Home     | [/nimbus][nimbus_home_prod]                           | [/nimbus][nimbus_home_stage]                                       | [/nimbus][nimbus_home_local]                  |
 | Nimbus REST API | [/api/v6/experiments/][nimbus_rest_api_prod]          | [/api/v6/experiments/][nimbus_rest_api_stage]                      | [/api/v6/experiments/][nimbus_rest_api_local] |
 | GQL Playground  | [/api/v5/nimbus-api-graphql][gql_prod]                | [/api/v5/nimbus-api-graphql][gql_stage]                            | [/api/v5/nimbus-api-graphql][gql_local]       |
 | Remote Settings | [remote-settings.mozilla.org/v1/admin][rs_prod]       | [remote-settings.allizom.org/v1/admin][rs_stage]                   | http://localhost:8888/v1/admin                |
 
 [legacy_home_prod]: https://experimenter.services.mozilla.com/
-[legacy_home_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/
+[legacy_home_stage]: https://stage.experimenter.nonprod.webservices.mozgcp.net/
 [nimbus_home_prod]: https://experimenter.services.mozilla.com/nimbus
-[nimbus_home_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/nimbus
+[nimbus_home_stage]: https://stage.experimenter.nonprod.webservices.mozgcp.net/nimbus
 [nimbus_home_local]: https://localhost/nimbus
 [nimbus_rest_api_prod]: https://experimenter.services.mozilla.com/api/v6/experiments/
-[nimbus_rest_api_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/api/v6/experiments/
+[nimbus_rest_api_stage]: https://stage.experimenter.nonprod.webservices.mozgcp.net/api/v6/experiments/
 [nimbus_rest_api_local]: https://localhost/api/v6/experiments/
 [gql_prod]: https://experimenter.services.mozilla.com/api/v5/nimbus-api-graphql/
-[gql_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/api/v5/nimbus-api-graphql/
+[gql_stage]: https://stage.experimenter.nonprod.webservices.mozgcp.net/api/v5/nimbus-api-graphql/
 [gql_local]: https://localhost/api/v5/nimbus-api-graphql/
 [rs_prod]: https://remote-settings.mozilla.org/v1/admin/
 [rs_stage]: https://remote-settings.allizom.org/v1/admin/
