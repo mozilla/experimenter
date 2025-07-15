@@ -70,6 +70,7 @@ def fixture_sdk_client():
             str(Path.cwd()),
             None,
             MockMetricsHandler(),
+            None,
         )
 
     return _client_helper
