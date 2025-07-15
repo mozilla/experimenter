@@ -39,6 +39,7 @@
             <div class="rounded border border-1 p-0 {% if form.is_bound %}border-success{% endif %}">
               {{ form.primary_outcomes }}
             </div>
+            {% for error in validation_errors.primary_outcomes %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             <p class="form-text">
               Select the user action or feature that you are measuring with this experiment. You may select up to 2 primary outcomes.
             </p>
@@ -57,6 +58,9 @@
             <div class="rounded border border-1 p-0 {% if form.is_bound %}border-success{% endif %}">
               {{ form.secondary_outcomes }}
             </div>
+            {% for error in validation_errors.secondary_outcomes %}
+              <div class="form-text text-danger">{{ error }}</div>
+            {% endfor %}
             <p class="form-text">Select the user action or feature that you are measuring with this experiment.</p>
           </div>
         </div>
