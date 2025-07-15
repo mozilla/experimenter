@@ -1,7 +1,7 @@
 {% load nimbus_extras %}
 
 <div id="launch-controls">
-  {% if experiment.is_ready_to_launch %}
+  {% if is_ready_to_launch %}
     {% with rejection=experiment.rejection_block %}
       {% if rejection %}
         <div class="alert alert-warning"
@@ -229,7 +229,7 @@
     <div class="alert alert-danger" role="alert">
       <p class="mb-1">This experiment cannot be launched due to the following validation errors:</p>
       <ul class="mb-2">
-        {% for field, errors in experiment.get_invalid_fields_errors.items %}
+        {% for field, errors in validation_errors.items %}
           <li>
             <strong>{{ field|remove_underscores|title }}:</strong>
             <ul class="mb-1">
