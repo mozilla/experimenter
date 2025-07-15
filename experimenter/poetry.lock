@@ -465,14 +465,14 @@ six = ">=1.13.0"
 
 [[package]]
 name = "datadog"
-version = "0.51.0"
+version = "0.52.0"
 description = "The Datadog Python library"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 groups = ["main"]
 files = [
-    {file = "datadog-0.51.0-py2.py3-none-any.whl", hash = "sha256:a9764f091c96af4e0996d4400b168fc5fba380f911d6d672c9dcd4773e29ea3f"},
-    {file = "datadog-0.51.0.tar.gz", hash = "sha256:3279534f831ae0b4ae2d8ce42ef038b4ab38e667d7ed6ff7437982d7a0cf5250"},
+    {file = "datadog-0.52.0-py2.py3-none-any.whl", hash = "sha256:00ea908a2d7bf719218ad40116f4242f8accccfb9d6f2724344a10b2d8e46a9a"},
+    {file = "datadog-0.52.0.tar.gz", hash = "sha256:8b99a508bed4879dc81643418dc89317009c6f04263c417ebbfd31e6f3019ef1"},
 ]
 
 [package.dependencies]
@@ -3469,4 +3469,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "96decbc7ce648b17d20943482ccfb6ef37c30fced32a195014a81d63b4f7599e"
+content-hash = "fe063e0db034549ae9959060e85497be0f4fbf1c73aca6a873f48a838df3cc5f"
