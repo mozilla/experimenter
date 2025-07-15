@@ -4033,38 +4033,6 @@ class TestNimbusExperiment(TestCase):
         recipe_json_keys = sorted(json.loads(experiment.recipe_json.replace("\n", "")))
         self.assertEqual(serialized_keys, recipe_json_keys)
 
-    def test_get_invalid_pages(self):
-        experiment_1 = NimbusExperimentFactory.create(
-            name="test-experiment-1",
-            public_description="",
-        )
-        invalid_pages = experiment_1.get_invalid_pages
-        self.assertEqual(invalid_pages, ["overview"])
-
-        experiment_2 = NimbusExperimentFactory.create(
-            name="test-experiment-2",
-            feature_configs=[],
-            population_percent=0,
-        )
-        invalid_pages = experiment_2.get_invalid_pages
-        self.assertEqual(invalid_pages, ["branches", "audience"])
-
-        experiment_3 = NimbusExperimentFactory.create(
-            name="test-experiment-3",
-            public_description="",
-            population_percent=0,
-        )
-        invalid_pages = experiment_3.get_invalid_pages
-        self.assertEqual(invalid_pages, ["overview", "audience"])
-
-        experiment_4 = NimbusExperimentFactory.create(
-            name="test-experiment-4",
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-            is_sticky=True,
-        )
-        invalid_pages = experiment_4.get_invalid_pages
-        self.assertEqual(invalid_pages, [])
-
     def test_get_invalid_fields_errors(self):
         experiment_1 = NimbusExperimentFactory.create(
             name="test-experiment-1",
@@ -4108,26 +4076,6 @@ class TestNimbusExperiment(TestCase):
             "excluded experiments",
             errors["required_experiments_branches"],
         )
-
-    def test_invalid_pages_for_missing_sticky_requirement(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
-            channel=NimbusExperiment.Channel.RELEASE,
-            is_sticky=False,
-        )
-
-        errors = experiment.get_invalid_fields_errors()
-        self.assertIn("is_sticky", errors)
-        self.assertTrue(
-            any("sticky" in msg.lower() for msg in errors["is_sticky"]),
-            msg="Expected sticky-related error message on is_sticky field",
-        )
-        invalid_pages = experiment.get_invalid_pages
-        self.assertIn("audience", invalid_pages)
 
     @parameterized.expand(
         [

@@ -69,16 +69,38 @@ class ValidationErrorsMixin:
     def get_context_data(self, **kwargs):
         experiment = self.get_object()
         field_errors = experiment.get_invalid_fields_errors()
-        is_ready_to_launch = not field_errors
+
+        fields_by_page = {
+            "overview": {*OverviewForm.Meta.fields},
+            "branches": {
+                *NimbusBranchesForm.Meta.fields,
+                "treatment_branches",
+                "reference_branch",
+            },
+            "metrics": {*MetricsForm.Meta.fields},
+            "audience": {*AudienceForm.Meta.fields},
+        }
+
+        field_errors = self.get_object().get_invalid_fields_errors()
+        field_error_keys = set(field_errors.keys())
+
+        invalid_pages = []
+        for page, fields in fields_by_page.items():
+            if field_error_keys.intersection(fields):
+                invalid_pages.append(page)
 
         show_errors = self.request.GET.get("show_errors") == "true"
         is_summary_view = self.request.resolver_match.view_name == "nimbus-new-detail"
 
-        validation_errors = field_errors if show_errors or is_summary_view else {}
+        validation_errors = {}
+        if show_errors or is_summary_view:
+            validation_errors = field_errors
 
         return super().get_context_data(
             validation_errors=validation_errors,
-            is_ready_to_launch=is_ready_to_launch,
+            is_ready_to_launch=not field_errors,
+            invalid_pages=invalid_pages,
+            non_page_errors=field_errors and not invalid_pages,
             **kwargs,
         )
 
