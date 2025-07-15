@@ -2341,6 +2341,17 @@ ANDROID_LARGE_SCREEN_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+CHATBOT_IS_HUGGINGCHAT = NimbusTargetingConfig(
+    name="Chatbot provider is HuggingChat",
+    slug="chatbot_is_huggingchat",
+    description="Users who selected HuggingChat",
+    targeting="'browser.ml.chat.provider'|preferenceValue == 'https://huggingface.co/chat'",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
     name="Default PDF handler is a different browser",
     slug="default_pdf_is_different_browser",
