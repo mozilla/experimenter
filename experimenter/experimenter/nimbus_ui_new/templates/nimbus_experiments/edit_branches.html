@@ -108,7 +108,6 @@
                                 class="btn btn-link"
                                 hx-post="{% url 'nimbus-new-delete-branch' slug=experiment.slug %}"
                                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                                hx-params="branch_id"
                                 hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
                                 hx-select="#branches"
                                 hx-target="#branches">
@@ -147,7 +146,6 @@
                                   class="btn btn-link"
                                   hx-post="{% url 'nimbus-new-delete-branch-screenshot' slug=experiment.slug %}"
                                   hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                                  hx-params="screenshot_id"
                                   hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
                                   hx-select="#branches"
                                   hx-target="#branches">
@@ -173,10 +171,12 @@
                           class="btn btn-outline-primary btn-sm"
                           hx-post="{% url 'nimbus-new-create-branch-screenshot' slug=experiment.slug %}"
                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                          hx-params="branch_id"
                           hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
                           hx-select="#branches"
-                          hx-target="#branches">+ Add Screenshot</button>
+                          hx-target="#branches">
+                    +
+                    Add Screenshot
+                  </button>
                 </div>
               </div>
             </div>
@@ -189,9 +189,11 @@
                           type="button"
                           hx-post="{% url 'nimbus-new-create-branch' slug=experiment.slug %}"
                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                          hx-params="none"
                           hx-select="#branches"
-                          hx-target="#branches">+ Add Branch</button>
+                          hx-target="#branches">
+                    + Add
+                    Branch
+                  </button>
                 {% else %}
                   <p class="form-text">An experiment may have no more than 20 branches.</p>
                   <button class="btn btn-outline-primary btn-sm disabled" type="button">+ Add Branch</button>

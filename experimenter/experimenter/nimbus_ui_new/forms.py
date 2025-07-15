@@ -670,11 +670,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated branches"
 
 
-class NimbusBranchCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    class Meta:
-        model = NimbusExperiment
-        fields = []
-
+class NimbusBranchCreateForm(NimbusBranchesForm):
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
         if not experiment.reference_branch:
@@ -701,12 +697,15 @@ class NimbusBranchCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} added a branch"
 
 
-class NimbusBranchDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
+class NimbusBranchDeleteForm(NimbusBranchesForm):
     branch_id = forms.ModelChoiceField(queryset=NimbusBranch.objects.all())
 
     class Meta:
         model = NimbusExperiment
-        fields = ["branch_id"]
+        fields = [
+            "branch_id",
+            *NimbusBranchesForm.Meta.fields,
+        ]
 
     def clean_branch_id(self):
         branch = self.cleaned_data["branch_id"]
@@ -724,15 +723,18 @@ class NimbusBranchDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} removed a branch"
 
 
-class BranchScreenshotCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
+class BranchScreenshotCreateForm(NimbusBranchesForm):
     branch_id = forms.ModelChoiceField(queryset=NimbusBranch.objects.all())
 
     class Meta:
         model = NimbusExperiment
-        fields = ["branch_id"]
+        fields = [
+            "branch_id",
+            *NimbusBranchesForm.Meta.fields,
+        ]
 
     def save(self, *args, **kwargs):
-        experiment = super().save(commit=False)
+        experiment = super().save(*args, **kwargs)
         branch = self.cleaned_data["branch_id"]
         branch.screenshots.create()
         return experiment
@@ -741,15 +743,18 @@ class BranchScreenshotCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} added a branch screenshot"
 
 
-class BranchScreenshotDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
+class BranchScreenshotDeleteForm(NimbusBranchesForm):
     screenshot_id = forms.ModelChoiceField(queryset=NimbusBranchScreenshot.objects.all())
 
     class Meta:
         model = NimbusExperiment
-        fields = ["screenshot_id"]
+        fields = [
+            "screenshot_id",
+            *NimbusBranchesForm.Meta.fields,
+        ]
 
     def save(self, *args, **kwargs):
-        experiment = super().save(commit=False)
+        experiment = super().save(*args, **kwargs)
         screenshot = self.cleaned_data["screenshot_id"]
         screenshot.delete()
         return experiment
