@@ -67,14 +67,20 @@ class RequestFormMixin:
 
 class ValidationErrorsMixin:
     def get_context_data(self, **kwargs):
-        show_errors = self.request.GET.get("show_errors", "") == "true"
-        field_errors = self.get_object().get_invalid_fields_errors()
+        experiment = self.get_object()
+        field_errors = experiment.get_invalid_fields_errors()
+        is_ready_to_launch = not field_errors
 
-        validation_errors = {}
-        if show_errors:
-            validation_errors = field_errors
+        show_errors = self.request.GET.get("show_errors") == "true"
+        is_summary_view = self.request.resolver_match.view_name == "nimbus-new-detail"
 
-        return super().get_context_data(validation_errors=validation_errors, **kwargs)
+        validation_errors = field_errors if show_errors or is_summary_view else {}
+
+        return super().get_context_data(
+            validation_errors=validation_errors,
+            is_ready_to_launch=is_ready_to_launch,
+            **kwargs,
+        )
 
 
 class RenderResponseMixin:
@@ -220,7 +226,10 @@ def build_experiment_context(experiment):
 
 
 class NimbusExperimentDetailView(
-    NimbusExperimentViewMixin, CloneExperimentFormMixin, UpdateView
+    ValidationErrorsMixin,
+    NimbusExperimentViewMixin,
+    CloneExperimentFormMixin,
+    UpdateView,
 ):
     template_name = "nimbus_experiments/detail.html"
     fields = []

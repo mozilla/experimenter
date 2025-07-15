@@ -28,18 +28,20 @@
       </p>
     </div>
   {% else %}
-    <div class="alert alert-primary">
-      <p>
-        <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
-      </p>
-      <button type="button"
-              class="btn btn-success"
-              hx-post="{% url approval_url slug=experiment.slug %}"
-              hx-select="#content"
-              hx-target="#content"
-              hx-swap="outerHTML">Approve and {{ action_label }}</button>
-      <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
-    </div>
+    {% if is_ready_to_launch %}
+      <div class="alert alert-primary">
+        <p>
+          <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
+        </p>
+        <button type="button"
+                class="btn btn-success"
+                hx-post="{% url approval_url slug=experiment.slug %}"
+                hx-select="#content"
+                hx-target="#content"
+                hx-swap="outerHTML">Approve and {{ action_label }}</button>
+        <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
+      </div>
+    {% endif %}
   {% endif %}
   <div class="alert alert-primary">
     <button type="button"
