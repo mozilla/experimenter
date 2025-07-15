@@ -1,7 +1,7 @@
 {% load nimbus_extras %}
 
 <div id="launch-controls">
-  {% if not is_ready_to_launch %}
+  {% if non_page_errors %}
     <div class="alert alert-danger" role="alert">
       <p class="mb-1">This experiment cannot be launched due to the following validation errors:</p>
       <ul class="mb-2">
