@@ -797,3 +797,31 @@ from_expression = """(
 submission_date_column = "submission_date"
 client_id_column = "client_id"
 deprecated = false
+
+[segments]
+
+[segments.new_users]
+data_source = "baseline_clients_daily"
+select_expression = 'COALESCE(LOGICAL_OR(first_seen_date = submission_date), FALSE)'
+friendly_name = "New Users"
+description = """
+    Clients who were in the experiment in the first day they were seen.
+"""
+
+[segments.new_and_repeat_users]
+data_source = "baseline_clients_daily"
+select_expression = 'COALESCE(LOGICAL_OR(DATE_DIFF(submission_date, first_seen_date, DAY) < 28), FALSE)'
+friendly_name = "New and Repeat Users"
+description = """
+    Clients who were in the experiment within the first 28 days since they were first seen.
+"""
+
+[segments.data_sources.baseline_clients_daily]
+from_expression = """(
+    SELECT
+        *
+    FROM
+        `moz-fx-data-shared-prod.fenix.baseline_clients_daily`
+)"""
+window_start = 0
+window_end = 0
