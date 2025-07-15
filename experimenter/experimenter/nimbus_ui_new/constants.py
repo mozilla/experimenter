@@ -110,5 +110,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "total_enrolled_clients",
             "required_experiments_branches",
             "excluded_experiments_branches",
+            "is_sticky",
         ],
     }

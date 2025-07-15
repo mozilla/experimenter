@@ -2690,6 +2690,131 @@ class TestNimbusExperiment(TestCase):
 
         self.assertTrue(experiment.can_review(UserFactory.create()))
 
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Status.DRAFT, NimbusExperiment.PublishStatus.IDLE, True),
+            (NimbusExperiment.Status.DRAFT, NimbusExperiment.PublishStatus.REVIEW, False),
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ),
+            (NimbusExperiment.Status.PREVIEW, NimbusExperiment.PublishStatus.IDLE, False),
+            (NimbusExperiment.Status.LIVE, NimbusExperiment.PublishStatus.IDLE, False),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_can_draft_to_preview_flag(self, status, publish_status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status, publish_status=publish_status
+        )
+        self.assertEqual(
+            experiment.can_draft_to_preview,
+            expected,
+            f"Expected can_draft_to_preview={expected} for status={status},\
+            publish_status={publish_status}",
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Status.DRAFT, NimbusExperiment.PublishStatus.IDLE, True),
+            (NimbusExperiment.Status.DRAFT, NimbusExperiment.PublishStatus.REVIEW, False),
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ),
+            (NimbusExperiment.Status.PREVIEW, NimbusExperiment.PublishStatus.IDLE, False),
+            (NimbusExperiment.Status.LIVE, NimbusExperiment.PublishStatus.IDLE, False),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_can_draft_to_review_flag(self, status, publish_status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status, publish_status=publish_status
+        )
+        self.assertEqual(
+            experiment.can_draft_to_review,
+            expected,
+            f"Expected can_draft_to_review={expected} for status={status},\
+            publish_status={publish_status}",
+        )
+
+    @parameterized.expand(
+        [
+            ("live_rollout", NimbusExperiment.Status.LIVE, True, True),
+            ("live_not_rollout", NimbusExperiment.Status.LIVE, False, False),
+            ("draft_rollout", NimbusExperiment.Status.DRAFT, True, False),
+            ("complete_rollout", NimbusExperiment.Status.COMPLETE, True, False),
+        ]
+    )
+    def test_should_show_rollout_request_update(self, _, status, is_rollout, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            is_rollout=is_rollout,
+        )
+        self.assertEqual(
+            experiment.should_show_rollout_request_update,
+            expected,
+            f"Expected should_show_rollout_request_update={expected} "
+            f"for status={status}, is_rollout={is_rollout}",
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "live_to_complete_in_review",
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ),
+            (
+                "live_to_complete_idle",
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                "live_to_draft_in_review",
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+            ),
+            (
+                "complete_to_complete_in_review",
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+            ),
+        ]
+    )
+    def test_is_end_experiment_requested(
+        self, _, status, status_next, publish_status, expected
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+        )
+        self.assertEqual(
+            experiment.is_end_experiment_requested,
+            expected,
+            f"Expected is_end_experiment_requested={expected} for status={status}, "
+            f"status_next={status_next}, publish_status={publish_status}",
+        )
+
     def test_results_ready_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
@@ -3983,6 +4108,26 @@ class TestNimbusExperiment(TestCase):
             "excluded experiments",
             errors["required_experiments_branches"],
         )
+
+    def test_invalid_pages_for_missing_sticky_requirement(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            channel=NimbusExperiment.Channel.RELEASE,
+            is_sticky=False,
+        )
+
+        errors = experiment.get_invalid_fields_errors()
+        self.assertIn("is_sticky", errors)
+        self.assertTrue(
+            any("sticky" in msg.lower() for msg in errors["is_sticky"]),
+            msg="Expected sticky-related error message on is_sticky field",
+        )
+        invalid_pages = experiment.get_invalid_pages
+        self.assertIn("audience", invalid_pages)
 
     @parameterized.expand(
         [
