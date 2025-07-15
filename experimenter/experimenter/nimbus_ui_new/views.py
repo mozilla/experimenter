@@ -467,6 +467,7 @@ class MetricsUpdateView(
     RequestFormMixin,
     RenderResponseMixin,
     CloneExperimentFormMixin,
+    ValidationErrorsMixin,
     UpdateView,
 ):
     form_class = MetricsForm

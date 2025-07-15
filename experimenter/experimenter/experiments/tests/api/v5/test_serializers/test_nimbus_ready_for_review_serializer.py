@@ -5094,3 +5094,33 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             NimbusConstants.ERROR_FEATURE_VALUE_DIFFERENT_VARIABLES.format(variables="a"),
             serializer.warnings["treatment_branches"][0]["feature_values"][0]["value"],
         )
+
+    def test_primary_secondary_outcome_intersection_is_invalid(self):
+        application = NimbusExperiment.Application.DESKTOP
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            primary_outcomes=["outcome"],
+            secondary_outcomes=["outcome"],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            NimbusExperiment.ERROR_PRIMARY_SECONDARY_OUTCOMES_INTERSECTION,
+            serializer.errors["primary_outcomes"],
+        )
+        self.assertIn(
+            NimbusExperiment.ERROR_PRIMARY_SECONDARY_OUTCOMES_INTERSECTION,
+            serializer.errors["secondary_outcomes"],
+        )

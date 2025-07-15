@@ -955,6 +955,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     ERROR_FML_VALIDATION = "Feature Manifest errors occurred during validation"
 
+    ERROR_PRIMARY_SECONDARY_OUTCOMES_INTERSECTION = (
+        "Primary outcomes cannot overlap with secondary outcomes."
+    )
+
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
     # buffer day is added for Jetstream to compute the results.
