@@ -2782,6 +2782,17 @@ NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_PINNED_TABS = NimbusTargetingConfig(
+    name="Users who have no pinned tabs",
+    slug="no_pinned_tabs_desktop",
+    description=("Targets users who have 0 pinned tabs in their open windows."),
+    targeting=("!hasPinnedTabs"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NON_SIDEBAR_USERS = NimbusTargetingConfig(
     name="Users that have never used the sidebar",
     slug="non_sidebar_users",

@@ -63,6 +63,24 @@ commands:
         enum: ["xml", "json"]
     steps:
       - run:
+          name: Check branch and files
+          when: always
+          command: |
+            allowed_branches=("update_firefox_versions" "update-application-services")
+
+            for branch in "${allowed_branches[@]}"; do
+              if [[ "$CIRCLE_BRANCH" == "$branch" || "$CIRCLE_BRANCH" == gh-readonly-queue/$branch/* ]]; then
+                FILES=$(ls -1 << parameters.source >>/*.<< parameters.extension >> 2>/dev/null)
+                if [ -z "$FILES" ]; then
+                  echo "No << parameters.extension >> files found in << parameters.source >>/"
+                  circleci-agent step halt
+                fi
+              else
+                echo "Skipping artifact upload; not on an allowed or merge queue branch."
+                circleci-agent step halt
+              fi
+            done
+      - run:
           name: Change gcloud folder permissions
           command: sudo chown -R $USER /home/circleci/.config/gcloud/ || true
       - gcp-cli/setup:
@@ -70,27 +88,11 @@ commands:
           google_project_id: ETE_GOOGLE_PROJECT_ID
       - run:
           name: Upload << parameters.source >> << parameters.extension >> Files to GCS
-          when: always  # Ensure the step runs even if previous steps, like test runs, fail
+          when: always
           command: |
-            allowed_branches=("update_firefox_versions" "update-application-services")
+            FILES=$(ls -1 << parameters.source >>/*.<< parameters.extension >> 2>/dev/null)
+            gsutil cp -n $FILES << parameters.destination >>
 
-            for branch in "${allowed_branches[@]}"; do
-              if [[ "$CIRCLE_BRANCH" == "$branch" || "$CIRCLE_BRANCH" == gh-readonly-queue/$branch/* ]]; then
-                should_upload=true
-                break
-              fi
-            done
-
-            if [[ "$should_upload" == true ]]; then
-              FILES=$(ls -1 << parameters.source >>/*.<< parameters.extension >> 2>/dev/null)
-              if [ -z "$FILES" ]; then
-                echo "No << parameters.extension >> files found in << parameters.source >>/"
-                exit 1
-              fi
-              gsutil cp -n $FILES << parameters.destination >>
-            else
-              echo "Skipping artifact upload; not on an allowed or merge queue branch."
-            fi
 
 jobs:
   check_experimenter_x86_64:

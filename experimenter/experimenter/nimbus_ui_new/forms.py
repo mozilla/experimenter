@@ -112,6 +112,17 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
             cleaned_data["slug"] = slugify(cleaned_data["name"])
         return cleaned_data
 
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+
+        if experiment.branches.count() == 0:
+            control = experiment.branches.create(name="Control", slug="control", ratio=1)
+            experiment.branches.create(name="Treatment A", slug="treatment-a", ratio=1)
+            experiment.reference_branch = control
+            experiment.save(update_fields=["reference_branch"])
+
+        return experiment
+
 
 class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):
     owner = forms.ModelChoiceField(
@@ -398,12 +409,26 @@ class DocumentationLinkDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 class NimbusBranchFeatureValueForm(forms.ModelForm):
     value = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 5})
+        required=False,
+        widget=forms.HiddenInput(attrs={"class": "value-editor"}),
     )
 
     class Meta:
         model = NimbusBranchFeatureValue
         fields = ("value",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.id is not None and self.instance.feature_config:
+            if schema := self.instance.feature_config.schemas.filter(
+                version=None
+            ).first():
+                self.fields["value"].widget.attrs.update(
+                    {
+                        "data-schema": schema.schema,
+                    }
+                )
 
 
 class NimbusBranchScreenshotForm(forms.ModelForm):
