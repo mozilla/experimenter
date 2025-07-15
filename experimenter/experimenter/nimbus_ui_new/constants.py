@@ -80,36 +80,3 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         LAUNCH_ROLLOUT = "launch this rollout"
         UPDATE_ROLLOUT = "update this rollout"
         END_ROLLOUT = "end this rollout"
-
-    FIELD_PAGE_MAP = {
-        "overview": [
-            "projects",
-            "public_description",
-            "risk_brand",
-            "risk_message",
-            "risk_revenue",
-            "risk_partner_related",
-        ],
-        "branches": [
-            "reference_branch",
-            "treatment_branches",
-            "feature_configs",
-            "is_rollout",
-            "localizations",
-        ],
-        "audience": [
-            "channel",
-            "firefox_min_version",
-            "languages",
-            "locales",
-            "countries",
-            "targeting_config_slug",
-            "proposed_enrollment",
-            "proposed_duration",
-            "population_percent",
-            "total_enrolled_clients",
-            "required_experiments_branches",
-            "excluded_experiments_branches",
-            "is_sticky",
-        ],
-    }

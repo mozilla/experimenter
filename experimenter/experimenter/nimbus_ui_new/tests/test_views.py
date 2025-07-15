@@ -1218,6 +1218,9 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("validation_errors", response.context)
+        self.assertEqual(
+            set(response.context["invalid_pages"]), {"overview", "branches", "audience"}
+        )
         self.assertFalse(
             response.context["is_ready_to_launch"],
             "`is_ready_to_launch` should be False when the review serializer is invalid",
