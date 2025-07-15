@@ -35,7 +35,6 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],

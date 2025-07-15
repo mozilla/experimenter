@@ -30,7 +30,6 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
@@ -106,7 +105,6 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
@@ -153,7 +151,6 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
@@ -295,7 +292,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
         )
@@ -310,7 +306,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["qux", "quux"],
@@ -332,7 +327,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             locales=[locale_en_us, locale_en_ca, locale_fr],
         )
 
@@ -345,7 +339,6 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
         )
 
         serializer = NimbusExperimentSerializer(experiment)
