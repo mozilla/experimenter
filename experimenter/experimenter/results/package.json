@@ -72,7 +72,7 @@
     "vega": "5.22.0",
     "vega-embed": "^6.21.0",
     "vega-lite": "^4.17.0",
-    "zod": "^3.24.1"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@mozilla/nimbus-schemas": "^2024.12.2",
