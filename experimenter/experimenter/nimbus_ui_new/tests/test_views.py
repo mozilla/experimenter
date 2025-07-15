@@ -1758,7 +1758,10 @@ class TestBranchCreateView(AuthTestCase):
         experiment.save()
 
         response = self.client.post(
-            reverse("nimbus-new-create-branch", kwargs={"slug": experiment.slug}), {}
+            reverse("nimbus-new-create-branch", kwargs={"slug": experiment.slug}),
+            {
+                "feature_configs": [feature_config1.id, feature_config2.id],
+            },
         )
 
         self.assertEqual(response.status_code, 200)

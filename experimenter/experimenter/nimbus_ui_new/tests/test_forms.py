@@ -2233,6 +2233,199 @@ class TestNimbusBranchesForm(RequestFormTestCase):
 
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
+    def test_form_saves_branches(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1, feature_config2],
+            equal_branch_ratio=False,
+            is_localized=False,
+            is_rollout=False,
+            localizations=None,
+            prevent_pref_conflicts=False,
+            warn_feature_schema=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        treatment_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        reference_branch_feature_config2_value = reference_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+        treatment_branch_feature_config1_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        treatment_branch_feature_config2_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+
+        reference_screenshot = reference_branch.screenshots.first()
+        treatment_screenshot = treatment_branch.screenshots.first()
+
+        # Create a valid in-memory PNG image
+        image_bytes = io.BytesIO()
+        image = Image.new("RGB", (10, 10), color="red")
+        image.save(image_bytes, format="PNG")
+        image_bytes.seek(0)
+        dummy_image = SimpleUploadedFile(
+            "test.png", image_bytes.read(), content_type="image/png"
+        )
+
+        form = NimbusBranchCreateForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "prevent_pref_conflicts": True,
+                "warn_feature_schema": True,
+                "branches-TOTAL_FORMS": "2",
+                "branches-INITIAL_FORMS": "2",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 2,
+                "branches-0-feature-value-TOTAL_FORMS": "2",
+                "branches-0-feature-value-INITIAL_FORMS": "2",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": json.dumps(
+                    {"control-feature1-key": "control-feature-1-value"}
+                ),
+                "branches-0-feature-value-1-id": (
+                    reference_branch_feature_config2_value.id
+                ),
+                "branches-0-feature-value-1-value": json.dumps(
+                    {"control-feature-2-key": "control-feature-2-value"}
+                ),
+                "branches-0-screenshots-TOTAL_FORMS": "1",
+                "branches-0-screenshots-INITIAL_FORMS": "1",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-0-screenshots-0-id": reference_screenshot.id,
+                "branches-0-screenshots-0-description": "Updated control screenshot",
+                "branches-0-screenshots-0-image": dummy_image,
+                "branches-1-id": treatment_branch.id,
+                "branches-1-name": "Treatment",
+                "branches-1-description": "Treatment Description",
+                "branches-1-ratio": 3,
+                "branches-1-feature-value-TOTAL_FORMS": "2",
+                "branches-1-feature-value-INITIAL_FORMS": "2",
+                "branches-1-feature-value-MIN_NUM_FORMS": "0",
+                "branches-1-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-1-feature-value-0-id": (
+                    treatment_branch_feature_config1_value.id
+                ),
+                "branches-1-feature-value-0-value": json.dumps(
+                    {"treatment-feature-1-key": "treatment-feature-1-value"}
+                ),
+                "branches-1-feature-value-1-id": (
+                    treatment_branch_feature_config2_value.id
+                ),
+                "branches-1-feature-value-1-value": json.dumps(
+                    {"treatment-feature-2-key": "treatment-feature-2-value"}
+                ),
+                "branches-1-screenshots-TOTAL_FORMS": "1",
+                "branches-1-screenshots-INITIAL_FORMS": "1",
+                "branches-1-screenshots-MIN_NUM_FORMS": "0",
+                "branches-1-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-1-screenshots-0-id": treatment_screenshot.id,
+                "branches-1-screenshots-0-description": "Updated treatment screenshot",
+                "branches-1-screenshots-0-image": dummy_image,
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+            },
+            files={
+                "branches-0-screenshots-0-image": dummy_image,
+                "branches-1-screenshots-0-image": dummy_image,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(
+            set(experiment.feature_configs.all()), {feature_config1, feature_config2}
+        )
+        self.assertFalse(experiment.equal_branch_ratio)
+        self.assertFalse(experiment.is_rollout)
+        self.assertTrue(experiment.prevent_pref_conflicts)
+        self.assertTrue(experiment.warn_feature_schema)
+        self.assertTrue(experiment.is_localized)
+        self.assertEqual(
+            experiment.localizations,
+            json.dumps({"localization-key": "localization-value"}),
+        )
+        self.assertEqual(experiment.reference_branch.name, "Control")
+        self.assertEqual(experiment.reference_branch.slug, "control")
+        self.assertEqual(experiment.reference_branch.description, "Control Description")
+        self.assertEqual(experiment.reference_branch.ratio, 2)
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config1
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature1-key": "control-feature-1-value"}),
+        )
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config2
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature-2-key": "control-feature-2-value"}),
+        )
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, "Treatment")
+        self.assertEqual(treatment_branch.slug, "treatment")
+        self.assertEqual(treatment_branch.description, "Treatment Description")
+        self.assertEqual(treatment_branch.ratio, 3)
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config1)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-1-key": "treatment-feature-1-value"}),
+        )
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config2)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-2-key": "treatment-feature-2-value"}),
+        )
+
+        self.assertEqual(
+            experiment.reference_branch.screenshots.get(
+                id=reference_screenshot.id
+            ).description,
+            "Updated control screenshot",
+        )
+        self.assertEqual(
+            experiment.treatment_branches[0]
+            .screenshots.get(id=treatment_screenshot.id)
+            .description,
+            "Updated treatment screenshot",
+        )
+
     def test_form_creates_reference_branch(self):
         feature_config1 = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP
@@ -2250,7 +2443,13 @@ class TestNimbusBranchCreateForm(RequestFormTestCase):
         experiment.reference_branch = None
         experiment.save()
 
-        form = NimbusBranchCreateForm(instance=experiment, data={}, request=self.request)
+        form = NimbusBranchCreateForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+            },
+            request=self.request,
+        )
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
@@ -2285,7 +2484,13 @@ class TestNimbusBranchCreateForm(RequestFormTestCase):
         )
         experiment.branches.all().exclude(id=experiment.reference_branch.id).delete()
 
-        form = NimbusBranchCreateForm(instance=experiment, data={}, request=self.request)
+        form = NimbusBranchCreateForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+            },
+            request=self.request,
+        )
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
@@ -2300,7 +2505,13 @@ class TestNimbusBranchCreateForm(RequestFormTestCase):
             {feature_config1.id, feature_config2.id},
         )
 
-        form = NimbusBranchCreateForm(instance=experiment, data={}, request=self.request)
+        form = NimbusBranchCreateForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+            },
+            request=self.request,
+        )
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
@@ -2317,6 +2528,202 @@ class TestNimbusBranchCreateForm(RequestFormTestCase):
 
 
 class TestNimbusBranchDeleteForm(RequestFormTestCase):
+    def test_form_saves_branches(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1, feature_config2],
+            equal_branch_ratio=False,
+            is_localized=False,
+            is_rollout=False,
+            localizations=None,
+            prevent_pref_conflicts=False,
+            warn_feature_schema=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        treatment_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        deletable_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        reference_branch_feature_config2_value = reference_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+        treatment_branch_feature_config1_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        treatment_branch_feature_config2_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+
+        reference_screenshot = reference_branch.screenshots.first()
+        treatment_screenshot = treatment_branch.screenshots.first()
+
+        # Create a valid in-memory PNG image
+        image_bytes = io.BytesIO()
+        image = Image.new("RGB", (10, 10), color="red")
+        image.save(image_bytes, format="PNG")
+        image_bytes.seek(0)
+        dummy_image = SimpleUploadedFile(
+            "test.png", image_bytes.read(), content_type="image/png"
+        )
+
+        form = NimbusBranchCreateForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "prevent_pref_conflicts": True,
+                "warn_feature_schema": True,
+                "branches-TOTAL_FORMS": "2",
+                "branches-INITIAL_FORMS": "2",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 2,
+                "branches-0-feature-value-TOTAL_FORMS": "2",
+                "branches-0-feature-value-INITIAL_FORMS": "2",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": json.dumps(
+                    {"control-feature1-key": "control-feature-1-value"}
+                ),
+                "branches-0-feature-value-1-id": (
+                    reference_branch_feature_config2_value.id
+                ),
+                "branches-0-feature-value-1-value": json.dumps(
+                    {"control-feature-2-key": "control-feature-2-value"}
+                ),
+                "branches-0-screenshots-TOTAL_FORMS": "1",
+                "branches-0-screenshots-INITIAL_FORMS": "1",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-0-screenshots-0-id": reference_screenshot.id,
+                "branches-0-screenshots-0-description": "Updated control screenshot",
+                "branches-0-screenshots-0-image": dummy_image,
+                "branches-1-id": treatment_branch.id,
+                "branches-1-name": "Treatment",
+                "branches-1-description": "Treatment Description",
+                "branches-1-ratio": 3,
+                "branches-1-feature-value-TOTAL_FORMS": "2",
+                "branches-1-feature-value-INITIAL_FORMS": "2",
+                "branches-1-feature-value-MIN_NUM_FORMS": "0",
+                "branches-1-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-1-feature-value-0-id": (
+                    treatment_branch_feature_config1_value.id
+                ),
+                "branches-1-feature-value-0-value": json.dumps(
+                    {"treatment-feature-1-key": "treatment-feature-1-value"}
+                ),
+                "branches-1-feature-value-1-id": (
+                    treatment_branch_feature_config2_value.id
+                ),
+                "branches-1-feature-value-1-value": json.dumps(
+                    {"treatment-feature-2-key": "treatment-feature-2-value"}
+                ),
+                "branches-1-screenshots-TOTAL_FORMS": "1",
+                "branches-1-screenshots-INITIAL_FORMS": "1",
+                "branches-1-screenshots-MIN_NUM_FORMS": "0",
+                "branches-1-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-1-screenshots-0-id": treatment_screenshot.id,
+                "branches-1-screenshots-0-description": "Updated treatment screenshot",
+                "branches-1-screenshots-0-image": dummy_image,
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+                "branch_id": deletable_branch.id,
+            },
+            files={
+                "branches-0-screenshots-0-image": dummy_image,
+                "branches-1-screenshots-0-image": dummy_image,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(
+            set(experiment.feature_configs.all()), {feature_config1, feature_config2}
+        )
+        self.assertFalse(experiment.equal_branch_ratio)
+        self.assertFalse(experiment.is_rollout)
+        self.assertTrue(experiment.prevent_pref_conflicts)
+        self.assertTrue(experiment.warn_feature_schema)
+        self.assertTrue(experiment.is_localized)
+        self.assertEqual(
+            experiment.localizations,
+            json.dumps({"localization-key": "localization-value"}),
+        )
+        self.assertEqual(experiment.reference_branch.name, "Control")
+        self.assertEqual(experiment.reference_branch.slug, "control")
+        self.assertEqual(experiment.reference_branch.description, "Control Description")
+        self.assertEqual(experiment.reference_branch.ratio, 2)
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config1
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature1-key": "control-feature-1-value"}),
+        )
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config2
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature-2-key": "control-feature-2-value"}),
+        )
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, "Treatment")
+        self.assertEqual(treatment_branch.slug, "treatment")
+        self.assertEqual(treatment_branch.description, "Treatment Description")
+        self.assertEqual(treatment_branch.ratio, 3)
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config1)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-1-key": "treatment-feature-1-value"}),
+        )
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config2)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-2-key": "treatment-feature-2-value"}),
+        )
+
+        self.assertEqual(
+            experiment.reference_branch.screenshots.get(
+                id=reference_screenshot.id
+            ).description,
+            "Updated control screenshot",
+        )
+        self.assertEqual(
+            experiment.treatment_branches[0]
+            .screenshots.get(id=treatment_screenshot.id)
+            .description,
+            "Updated treatment screenshot",
+        )
+
     def test_form_cannot_delete_reference_branch(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2363,6 +2770,200 @@ class TestNimbusBranchDeleteForm(RequestFormTestCase):
 
 
 class TestBranchScreenshotCreateForm(RequestFormTestCase):
+    def test_form_saves_branches(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1, feature_config2],
+            equal_branch_ratio=False,
+            is_localized=False,
+            is_rollout=False,
+            localizations=None,
+            prevent_pref_conflicts=False,
+            warn_feature_schema=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        treatment_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        reference_branch_feature_config2_value = reference_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+        treatment_branch_feature_config1_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        treatment_branch_feature_config2_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+
+        reference_screenshot = reference_branch.screenshots.first()
+        treatment_screenshot = treatment_branch.screenshots.first()
+
+        # Create a valid in-memory PNG image
+        image_bytes = io.BytesIO()
+        image = Image.new("RGB", (10, 10), color="red")
+        image.save(image_bytes, format="PNG")
+        image_bytes.seek(0)
+        dummy_image = SimpleUploadedFile(
+            "test.png", image_bytes.read(), content_type="image/png"
+        )
+
+        form = BranchScreenshotCreateForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "prevent_pref_conflicts": True,
+                "warn_feature_schema": True,
+                "branches-TOTAL_FORMS": "2",
+                "branches-INITIAL_FORMS": "2",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 2,
+                "branches-0-feature-value-TOTAL_FORMS": "2",
+                "branches-0-feature-value-INITIAL_FORMS": "2",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": json.dumps(
+                    {"control-feature1-key": "control-feature-1-value"}
+                ),
+                "branches-0-feature-value-1-id": (
+                    reference_branch_feature_config2_value.id
+                ),
+                "branches-0-feature-value-1-value": json.dumps(
+                    {"control-feature-2-key": "control-feature-2-value"}
+                ),
+                "branches-0-screenshots-TOTAL_FORMS": "1",
+                "branches-0-screenshots-INITIAL_FORMS": "1",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-0-screenshots-0-id": reference_screenshot.id,
+                "branches-0-screenshots-0-description": "Updated control screenshot",
+                "branches-0-screenshots-0-image": dummy_image,
+                "branches-1-id": treatment_branch.id,
+                "branches-1-name": "Treatment",
+                "branches-1-description": "Treatment Description",
+                "branches-1-ratio": 3,
+                "branches-1-feature-value-TOTAL_FORMS": "2",
+                "branches-1-feature-value-INITIAL_FORMS": "2",
+                "branches-1-feature-value-MIN_NUM_FORMS": "0",
+                "branches-1-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-1-feature-value-0-id": (
+                    treatment_branch_feature_config1_value.id
+                ),
+                "branches-1-feature-value-0-value": json.dumps(
+                    {"treatment-feature-1-key": "treatment-feature-1-value"}
+                ),
+                "branches-1-feature-value-1-id": (
+                    treatment_branch_feature_config2_value.id
+                ),
+                "branches-1-feature-value-1-value": json.dumps(
+                    {"treatment-feature-2-key": "treatment-feature-2-value"}
+                ),
+                "branches-1-screenshots-TOTAL_FORMS": "1",
+                "branches-1-screenshots-INITIAL_FORMS": "1",
+                "branches-1-screenshots-MIN_NUM_FORMS": "0",
+                "branches-1-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-1-screenshots-0-id": treatment_screenshot.id,
+                "branches-1-screenshots-0-description": "Updated treatment screenshot",
+                "branches-1-screenshots-0-image": dummy_image,
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+                "branch_id": reference_branch.id,
+            },
+            files={
+                "branches-0-screenshots-0-image": dummy_image,
+                "branches-1-screenshots-0-image": dummy_image,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(
+            set(experiment.feature_configs.all()), {feature_config1, feature_config2}
+        )
+        self.assertFalse(experiment.equal_branch_ratio)
+        self.assertFalse(experiment.is_rollout)
+        self.assertTrue(experiment.prevent_pref_conflicts)
+        self.assertTrue(experiment.warn_feature_schema)
+        self.assertTrue(experiment.is_localized)
+        self.assertEqual(
+            experiment.localizations,
+            json.dumps({"localization-key": "localization-value"}),
+        )
+        self.assertEqual(experiment.reference_branch.name, "Control")
+        self.assertEqual(experiment.reference_branch.slug, "control")
+        self.assertEqual(experiment.reference_branch.description, "Control Description")
+        self.assertEqual(experiment.reference_branch.ratio, 2)
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config1
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature1-key": "control-feature-1-value"}),
+        )
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config2
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature-2-key": "control-feature-2-value"}),
+        )
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, "Treatment")
+        self.assertEqual(treatment_branch.slug, "treatment")
+        self.assertEqual(treatment_branch.description, "Treatment Description")
+        self.assertEqual(treatment_branch.ratio, 3)
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config1)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-1-key": "treatment-feature-1-value"}),
+        )
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config2)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-2-key": "treatment-feature-2-value"}),
+        )
+
+        self.assertEqual(
+            experiment.reference_branch.screenshots.get(
+                id=reference_screenshot.id
+            ).description,
+            "Updated control screenshot",
+        )
+        self.assertEqual(
+            experiment.treatment_branches[0]
+            .screenshots.get(id=treatment_screenshot.id)
+            .description,
+            "Updated treatment screenshot",
+        )
+
     def test_create_screenshot(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2380,6 +2981,201 @@ class TestBranchScreenshotCreateForm(RequestFormTestCase):
 
 
 class TestBranchScreenshotDeleteForm(RequestFormTestCase):
+    def test_branches_form_saves_branches(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1, feature_config2],
+            equal_branch_ratio=False,
+            is_localized=False,
+            is_rollout=False,
+            localizations=None,
+            prevent_pref_conflicts=False,
+            warn_feature_schema=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        treatment_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        reference_branch_feature_config2_value = reference_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+        treatment_branch_feature_config1_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        treatment_branch_feature_config2_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config2
+        ).get()
+
+        reference_screenshot = reference_branch.screenshots.first()
+        treatment_screenshot = treatment_branch.screenshots.first()
+        deleteable_screenshot = reference_branch.screenshots.create()
+
+        # Create a valid in-memory PNG image
+        image_bytes = io.BytesIO()
+        image = Image.new("RGB", (10, 10), color="red")
+        image.save(image_bytes, format="PNG")
+        image_bytes.seek(0)
+        dummy_image = SimpleUploadedFile(
+            "test.png", image_bytes.read(), content_type="image/png"
+        )
+
+        form = BranchScreenshotDeleteForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "prevent_pref_conflicts": True,
+                "warn_feature_schema": True,
+                "branches-TOTAL_FORMS": "2",
+                "branches-INITIAL_FORMS": "2",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 2,
+                "branches-0-feature-value-TOTAL_FORMS": "2",
+                "branches-0-feature-value-INITIAL_FORMS": "2",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": json.dumps(
+                    {"control-feature1-key": "control-feature-1-value"}
+                ),
+                "branches-0-feature-value-1-id": (
+                    reference_branch_feature_config2_value.id
+                ),
+                "branches-0-feature-value-1-value": json.dumps(
+                    {"control-feature-2-key": "control-feature-2-value"}
+                ),
+                "branches-0-screenshots-TOTAL_FORMS": "1",
+                "branches-0-screenshots-INITIAL_FORMS": "1",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-0-screenshots-0-id": reference_screenshot.id,
+                "branches-0-screenshots-0-description": "Updated control screenshot",
+                "branches-0-screenshots-0-image": dummy_image,
+                "branches-1-id": treatment_branch.id,
+                "branches-1-name": "Treatment",
+                "branches-1-description": "Treatment Description",
+                "branches-1-ratio": 3,
+                "branches-1-feature-value-TOTAL_FORMS": "2",
+                "branches-1-feature-value-INITIAL_FORMS": "2",
+                "branches-1-feature-value-MIN_NUM_FORMS": "0",
+                "branches-1-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-1-feature-value-0-id": (
+                    treatment_branch_feature_config1_value.id
+                ),
+                "branches-1-feature-value-0-value": json.dumps(
+                    {"treatment-feature-1-key": "treatment-feature-1-value"}
+                ),
+                "branches-1-feature-value-1-id": (
+                    treatment_branch_feature_config2_value.id
+                ),
+                "branches-1-feature-value-1-value": json.dumps(
+                    {"treatment-feature-2-key": "treatment-feature-2-value"}
+                ),
+                "branches-1-screenshots-TOTAL_FORMS": "1",
+                "branches-1-screenshots-INITIAL_FORMS": "1",
+                "branches-1-screenshots-MIN_NUM_FORMS": "0",
+                "branches-1-screenshots-MAX_NUM_FORMS": "1000",
+                "branches-1-screenshots-0-id": treatment_screenshot.id,
+                "branches-1-screenshots-0-description": "Updated treatment screenshot",
+                "branches-1-screenshots-0-image": dummy_image,
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+                "screenshot_id": deleteable_screenshot.id,
+            },
+            files={
+                "branches-0-screenshots-0-image": dummy_image,
+                "branches-1-screenshots-0-image": dummy_image,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(
+            set(experiment.feature_configs.all()), {feature_config1, feature_config2}
+        )
+        self.assertFalse(experiment.equal_branch_ratio)
+        self.assertFalse(experiment.is_rollout)
+        self.assertTrue(experiment.prevent_pref_conflicts)
+        self.assertTrue(experiment.warn_feature_schema)
+        self.assertTrue(experiment.is_localized)
+        self.assertEqual(
+            experiment.localizations,
+            json.dumps({"localization-key": "localization-value"}),
+        )
+        self.assertEqual(experiment.reference_branch.name, "Control")
+        self.assertEqual(experiment.reference_branch.slug, "control")
+        self.assertEqual(experiment.reference_branch.description, "Control Description")
+        self.assertEqual(experiment.reference_branch.ratio, 2)
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config1
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature1-key": "control-feature-1-value"}),
+        )
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config2
+            )
+            .get()
+            .value,
+            json.dumps({"control-feature-2-key": "control-feature-2-value"}),
+        )
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, "Treatment")
+        self.assertEqual(treatment_branch.slug, "treatment")
+        self.assertEqual(treatment_branch.description, "Treatment Description")
+        self.assertEqual(treatment_branch.ratio, 3)
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config1)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-1-key": "treatment-feature-1-value"}),
+        )
+        self.assertEqual(
+            treatment_branch.feature_values.filter(feature_config=feature_config2)
+            .get()
+            .value,
+            json.dumps({"treatment-feature-2-key": "treatment-feature-2-value"}),
+        )
+
+        self.assertEqual(
+            experiment.reference_branch.screenshots.get(
+                id=reference_screenshot.id
+            ).description,
+            "Updated control screenshot",
+        )
+        self.assertEqual(
+            experiment.treatment_branches[0]
+            .screenshots.get(id=treatment_screenshot.id)
+            .description,
+            "Updated treatment screenshot",
+        )
+
     def test_delete_screenshot(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
