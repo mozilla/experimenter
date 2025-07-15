@@ -1201,6 +1201,28 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertNotIn(self.user, self.experiment.subscribers.all())
         self.assertEqual(response.status_code, 200)
 
+    def test_ready_is_false_if_review_serializer_invalid(self):
+        experiment = NimbusExperimentFactory.create(
+            public_description="",
+            population_percent=0,
+            total_enrolled_clients=0,
+            proposed_enrollment=0,
+            proposed_duration=0,
+            hypothesis=NimbusExperiment.HYPOTHESIS_DEFAULT,
+            feature_configs=[],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("validation_errors", response.context)
+        self.assertFalse(
+            response.context["is_ready_to_launch"],
+            "`is_ready_to_launch` should be False when the review serializer is invalid",
+        )
+
 
 class TestNimbusExperimentsCreateView(AuthTestCase):
     def test_post_creates_experiment(self):
