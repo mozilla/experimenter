@@ -2290,6 +2290,24 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_primary_secondary_outcomes(self, data):
+        primary_outcomes = set(data.get("primary_outcomes", []))
+        secondary_outcomes = set(data.get("secondary_outcomes", []))
+
+        if primary_outcomes.intersection(secondary_outcomes):
+            raise serializers.ValidationError(
+                {
+                    "primary_outcomes": [
+                        NimbusExperiment.ERROR_PRIMARY_SECONDARY_OUTCOMES_INTERSECTION
+                    ],
+                    "secondary_outcomes": [
+                        NimbusExperiment.ERROR_PRIMARY_SECONDARY_OUTCOMES_INTERSECTION
+                    ],
+                }
+            )
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -2307,6 +2325,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_bucket_duplicates(data)
         data = self._validate_proposed_release_date(data)
         data = self._validate_feature_value_variables(data)
+        data = self._validate_primary_secondary_outcomes(data)
         if application == NimbusExperiment.Application.DESKTOP:
             data = self._validate_desktop_pref_rollouts(data)
             data = self._validate_desktop_pref_flips(data)

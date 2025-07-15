@@ -1226,6 +1226,31 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             "`is_ready_to_launch` should be False when the review serializer is invalid",
         )
 
+    def test_ready_is_false_if_review_serializer_invalid_for_metrics(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            primary_outcomes=["outcome"],
+            secondary_outcomes=["outcome"],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-new-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("validation_errors", response.context)
+        self.assertEqual(
+            set(response.context["invalid_pages"]),
+            {"metrics"},
+            response.context["validation_errors"],
+        )
+        self.assertFalse(
+            response.context["is_ready_to_launch"],
+            "`is_ready_to_launch` should be False when the review serializer is invalid",
+        )
+
 
 class TestNimbusExperimentsCreateView(AuthTestCase):
     def test_post_creates_experiment(self):
@@ -1859,6 +1884,42 @@ class TestMetricsUpdateView(AuthTestCase):
         self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
         self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
         self.assertEqual(experiment.segments, [segment1.slug, segment2.slug])
+
+    def test_invalid_metrics_page_with_show_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            primary_outcomes=["outcome"],
+            secondary_outcomes=["outcome"],
+            segments=[],
+        )
+
+        url = reverse("nimbus-new-update-metrics", kwargs={"slug": experiment.slug})
+        response = self.client.get(f"{url}?show_errors=true")
+
+        self.assertEqual(response.status_code, 200)
+        validation_errors = response.context["validation_errors"]
+        self.assertIn("primary_outcomes", validation_errors)
+        self.assertIn("secondary_outcomes", validation_errors)
+
+    def test_invalid_metrics_page_without_show_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            primary_outcomes=["outcome"],
+            secondary_outcomes=["outcome"],
+            segments=[],
+        )
+
+        response = self.client.get(
+            f"{reverse('nimbus-new-update-metrics', kwargs={'slug': experiment.slug})}",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        validation_errors = response.context["validation_errors"]
+        self.assertEqual(validation_errors, {})
 
 
 class TestLaunchViews(AuthTestCase):
