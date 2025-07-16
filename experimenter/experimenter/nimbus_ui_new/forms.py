@@ -438,7 +438,7 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         value = self.cleaned_data.get("value")
 
         if not value or value.strip() == "":
-            return None  # Stay truly empty if user leaves it blank
+            return None
         return value
 
 
