@@ -11,7 +11,7 @@
   <form id="branches-form"
         {% if form.is_bound %}class="was-validated"{% endif %}
         hx-encoding="multipart/form-data"
-        hx-post="{% url 'nimbus-new-update-branches' experiment.slug %}"
+        hx-post="{% url 'nimbus-new-update-branches' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
         hx-select="#branches-form"
         hx-target="#branches-form"
         hx-swap="outerHTML">
