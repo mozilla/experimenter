@@ -505,7 +505,6 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
@@ -536,7 +535,6 @@ class TestNimbusExperiment(TestCase):
             application=application,
             firefox_min_version=version,
             firefox_max_version=version,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
             countries=[],
@@ -567,7 +565,6 @@ class TestNimbusExperiment(TestCase):
             application=application,
             firefox_min_version=version,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
             countries=[],
@@ -585,7 +582,6 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
             countries=[],
@@ -603,7 +599,6 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_100,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
             countries=[],
@@ -637,7 +632,6 @@ class TestNimbusExperiment(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=version,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
             countries=[],
@@ -672,7 +666,6 @@ class TestNimbusExperiment(TestCase):
             application=application,
             firefox_min_version=version,
             firefox_max_version=version,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
             countries=[],
@@ -979,7 +972,6 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.RELEASE,
             languages=[],
             locales=[],
@@ -1003,7 +995,6 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.RELEASE,
             languages=[],
             locales=[],
@@ -1039,7 +1030,6 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.RELEASE,
             languages=[],
             locales=[],
@@ -1129,7 +1119,6 @@ class TestNimbusExperiment(TestCase):
                 application=application,
                 slug=slug,
                 firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             )
             for slug in ("foo", "bar", "baz")
         }
@@ -1139,7 +1128,6 @@ class TestNimbusExperiment(TestCase):
             application=application,
             slug="slug",
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
         for required_slug, required_branch_slug in require:
@@ -1176,9 +1164,7 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_targeting_config_returns_config_with_valid_slug(self):
-        experiment = NimbusExperimentFactory.create(
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING
-        )
+        experiment = NimbusExperimentFactory.create()
         self.assertEqual(
             experiment.targeting_config,
             NimbusExperiment.TARGETING_CONFIGS[
@@ -3844,7 +3830,6 @@ class TestNimbusExperiment(TestCase):
             slug: NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 application=NimbusExperiment.Application.DESKTOP,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             )
             for slug in ("foo", "bar", "baz")
         }
@@ -3853,7 +3838,6 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             slug="slug",
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
 
@@ -3874,14 +3858,12 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 slug=slug,
                 application=NimbusExperiment.Application.DESKTOP,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             slug="slug",
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
 

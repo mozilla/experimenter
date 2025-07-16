@@ -443,9 +443,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     total_enrolled_clients = factory.LazyAttribute(
         lambda o: random.randint(1, 100) * 1000
     )
-    firefox_min_version = factory.LazyAttribute(
-        lambda o: random.choice(list(NimbusExperiment.Version)).value
-    )
+    firefox_min_version = NimbusExperiment.Version.FIREFOX_100
     application = NimbusExperiment.Application.DESKTOP
     channel = factory.LazyAttribute(
         lambda o: random.choice(
@@ -455,9 +453,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         ).value
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
-    targeting_config_slug = factory.LazyAttribute(
-        lambda o: random.choice(list(NimbusExperiment.TargetingConfig)).value
-    )
+    targeting_config_slug = NimbusExperiment.TargetingConfig.NO_TARGETING
     primary_outcomes = factory.LazyAttribute(
         lambda o: random_slice([oc.slug for oc in Outcomes.all()[:2]])
     )

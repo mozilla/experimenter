@@ -1092,7 +1092,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             warn_feature_schema=True,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
                     application=NimbusExperiment.Application.DESKTOP,
@@ -1193,7 +1192,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             warn_feature_schema=True,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
                     application=NimbusExperiment.Application.DESKTOP,
@@ -1247,7 +1245,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             warn_feature_schema=True,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
                     application=NimbusExperiment.Application.DESKTOP,
@@ -1757,7 +1754,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
                     application=NimbusExperiment.Application.DESKTOP,
@@ -2525,7 +2521,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
     def test_targeting_exclude_require_self(self, field):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION,
         )
 
@@ -2559,14 +2554,12 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         other = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=app1,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=app2,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION,
             **{field: [other]},
         )
@@ -2604,14 +2597,12 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         other = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_115,
             **{field: [other]},
         )
@@ -2641,13 +2632,11 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
     def test_targeting_exclude_require_mutally_exclusive(self):
         other = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.EXCLUDED_REQUIRED_MIN_VERSION,
             excluded_experiments=[other],
             required_experiments=[other],
@@ -2680,7 +2669,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         self.maxDiff = None
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.ROLLOUT_SUPPORT_VERSION[
                 NimbusExperiment.Application.DESKTOP
             ],
@@ -2853,7 +2841,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
@@ -2961,7 +2948,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -3004,7 +2990,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_128,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -3054,7 +3039,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -3109,7 +3093,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -3161,7 +3144,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
     def test_empty_segments(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusConstants.MIN_REQUIRED_VERSION,
             segments=[],
@@ -3237,7 +3219,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=min_version,
             firefox_max_version=max_version,
@@ -3327,7 +3308,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=min_version,
             firefox_max_version=max_version,
@@ -3402,7 +3382,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_123,
@@ -3489,7 +3468,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=min_version,
             firefox_max_version=max_version,
@@ -3560,7 +3538,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_110,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_111,
@@ -3658,7 +3635,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=min_version,
             firefox_max_version=max_version,
@@ -3730,7 +3706,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_122,
@@ -3865,7 +3840,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=application,
             firefox_min_version=min_version,
             firefox_max_version=max_version,
@@ -3939,7 +3913,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=application,
             firefox_min_version=min_version,
             firefox_max_version=max_version,
@@ -4005,7 +3978,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_110,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_111,
@@ -4077,7 +4049,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_122,
@@ -4154,7 +4125,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_121,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_121,
@@ -4197,7 +4167,6 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -4329,7 +4298,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 self.feature_without_schema,
                 self.feature_with_schema,
@@ -4376,7 +4344,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 self.feature_without_schema,
                 self.feature_with_schema,
@@ -4423,7 +4390,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 self.feature_without_schema,
                 self.feature_with_schema,
@@ -4472,7 +4438,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 self.feature_without_schema,
                 self.feature_with_schema,
@@ -4520,7 +4485,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             warn_feature_schema=False,
             feature_configs=[
                 self.feature_without_schema,
@@ -4561,7 +4525,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             warn_feature_schema=True,
             feature_configs=[
                 self.feature_without_schema,
@@ -4615,7 +4578,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             warn_feature_schema=True,
             feature_configs=[
                 self.feature_without_schema,
@@ -4741,7 +4703,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             firefox_min_version=firefox_min_version,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
         )
 
         serializer = NimbusReviewSerializer(
@@ -4805,7 +4766,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             application=application,
             feature_configs=[feature],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
         )
         feature_value = experiment.reference_branch.feature_values.get()
         feature_value.value = json.dumps(value)
@@ -4845,7 +4805,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             application=application,
             feature_configs=features,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
         )
 
         for fv in experiment.reference_branch.feature_values.all():
@@ -4899,7 +4858,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.CREATED,
                 firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
                 feature_configs=[
                     NimbusFeatureConfigFactory.create(
                         name="feature-1",
@@ -4939,7 +4897,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.CREATED,
                 firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
                 feature_configs=[
                     NimbusFeatureConfigFactory.create(
                         name=slug,
@@ -4989,7 +4946,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             application=application,
             feature_configs=[feature],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             warn_feature_schema=False,
         )
         feature_value = experiment.reference_branch.feature_values.get()
@@ -5031,7 +4987,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             application=application,
             feature_configs=[feature],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             warn_feature_schema=False,
         )
         feature_value = experiment.reference_branch.feature_values.get()
@@ -5064,7 +5019,6 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             application=application,
             feature_configs=[feature],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             warn_feature_schema=True,
         )
         feature_value = experiment.reference_branch.feature_values.get()
