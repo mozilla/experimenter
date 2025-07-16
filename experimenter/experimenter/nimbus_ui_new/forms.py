@@ -419,6 +419,10 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if self.instance._state.adding and (
+            self.instance.value is None or self.instance.value == {}
+        ):
+            self.fields["value"].initial = ""
 
         if self.instance.id is not None and self.instance.feature_config:
             if schema := self.instance.feature_config.schemas.filter(
@@ -429,6 +433,13 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
                         "data-schema": schema.schema,
                     }
                 )
+
+    def clean_value(self):
+        value = self.cleaned_data.get("value")
+
+        if not value or value.strip() == "":
+            return None  # Stay truly empty if user leaves it blank
+        return value
 
 
 class NimbusBranchScreenshotForm(forms.ModelForm):
