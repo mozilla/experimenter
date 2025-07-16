@@ -611,14 +611,22 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
             application=self.instance.application
         ).order_by("slug")
+        show_errors = ""
+        if (
+            hasattr(self, "request")
+            and self.request
+            and self.request.GET.get("show_errors") == "true"
+        ):
+            show_errors = "?show_errors=true"
 
         update_on_change_attrs = {
             "hx-post": reverse(
                 "nimbus-new-partial-update-branches", kwargs={"slug": self.instance.slug}
-            ),
+            )
+            + show_errors,
             "hx-trigger": "change",
-            "hx-select": "#branches",
-            "hx-target": "#branches",
+            "hx-select": "#branches-form",
+            "hx-target": "#branches-form",
         }
         self.fields["is_rollout"].widget.attrs.update(update_on_change_attrs)
         self.fields["feature_configs"].widget.attrs.update(update_on_change_attrs)
