@@ -4938,11 +4938,11 @@ class ApplicationConfigTests(TestCase):
             for slug in ("feature-1", "feature-2")
         }
 
-    def _create_experiment(self, feature_ids):
+    def _create_experiment(self, feature_ids, firefox_min_version):
         return NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_min_version=firefox_min_version,
             feature_configs=[self.features[feature_id] for feature_id in feature_ids],
         )
 
@@ -4958,7 +4958,9 @@ class ApplicationConfigTests(TestCase):
             "kinto_collections_by_feature_id",
             kinto_collections_by_feature_id,
         ):
-            experiment = self._create_experiment(["feature-1"])
+            experiment = self._create_experiment(
+                ["feature-1"], NimbusExperiment.Version.FIREFOX_100
+            )
             self.assertEqual(
                 experiment.kinto_collection,
                 self.application_config.default_kinto_collection,
@@ -4966,23 +4968,44 @@ class ApplicationConfigTests(TestCase):
 
     @parameterized.expand(
         [
-            ({"feature-1": "collection-1"},),
-            ({"feature-1": "collection-1", "feature-2": "collection-2"},),
+            ({"feature-1": "collection-1"}, NimbusExperiment.Version.FIREFOX_141, None),
+            (
+                {"feature-1": "collection-1"},
+                NimbusExperiment.Version.FIREFOX_142,
+                "collection-1",
+            ),
+            (
+                {"feature-1": "collection-1", "feature-2": "collection-2"},
+                NimbusExperiment.Version.FIREFOX_141,
+                None,
+            ),
+            (
+                {"feature-1": "collection-1", "feature-2": "collection-2"},
+                NimbusExperiment.Version.FIREFOX_142,
+                None,
+            ),
         ]
     )
-    def test_get_kinto_collection_for_multiple(self, kinto_collections_by_feature_id):
+    def test_get_kinto_collection_for_multiple(
+        self, kinto_collections_by_feature_id, firefox_min_version, kinto_collection
+    ):
         with mock.patch.object(
             self.application_config,
             "kinto_collections_by_feature_id",
             kinto_collections_by_feature_id,
         ):
-            experiment = self._create_experiment(["feature-1", "feature-2"])
+            experiment = self._create_experiment(
+                ["feature-1", "feature-2"], firefox_min_version
+            )
 
-            with self.assertRaisesRegex(
-                TargetingMultipleKintoCollectionsError,
-                "Experiment targets multiple collections",
-            ):
-                experiment.kinto_collection  # noqa: B018
+            if kinto_collection is None:
+                with self.assertRaisesRegex(
+                    TargetingMultipleKintoCollectionsError,
+                    "Experiment targets multiple collections",
+                ):
+                    experiment.kinto_collection  # noqa: B018
+            else:
+                self.assertEqual(experiment.kinto_collection, kinto_collection)
 
     @parameterized.expand(
         [

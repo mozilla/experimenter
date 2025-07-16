@@ -1813,7 +1813,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         # Note: this can throw if there are conflicting features targeting
         # different collections.
         if self.application_config:
-            return self.application_config.get_kinto_collection_for(self)
+            return self.application_config.get_kinto_collection_for_experiment(self)
 
     @property
     def conclusion_recommendation_labels(self):

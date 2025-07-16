@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
@@ -59,6 +60,13 @@ class TargetingMultipleKintoCollectionsError(Exception):
     collections.
     """
 
+    # A mapping of collections to features.
+    target_collections: dict[str, str]
+
+    def __init__(self, target_collections):
+        super().__init__("Experiment targets multiple collections")
+        self.target_collections = target_collections
+
 
 @dataclass
 class ApplicationConfig:
@@ -72,25 +80,47 @@ class ApplicationConfig:
     preview_collection: str
     kinto_collections_by_feature_id: Optional[dict[str, str]] = field(default=None)
 
-    def get_kinto_collection_for(self, experiment: NimbusExperiment) -> str:
-        # If the experiment in question contains any features in the feature to
-        # collection map, then *all* features must be present in the map and
-        # they all must point to the same collection.
+    def get_kinto_collection_for_experiment(self, experiment: NimbusExperiment) -> str:
         if self.kinto_collections_by_feature_id is not None:
-            target_collections = {
-                self.kinto_collections_by_feature_id.get(
-                    feature.slug, self.default_kinto_collection
+            return self.get_kinto_collection_for_feature_ids(
+                [fc.slug for fc in experiment.feature_configs.all()],
+                experiment.firefox_min_version,
+            )
+
+        return self.default_kinto_collection
+
+    def get_kinto_collection_for_feature_ids(
+        self, feature_ids: list[str], min_version: str | None
+    ) -> str:
+        if self.kinto_collections_by_feature_id is not None:
+            target_collections = defaultdict(list)
+            for feature_id in feature_ids:
+                collection = self.kinto_collections_by_feature_id.get(
+                    feature_id, self.default_kinto_collection
                 )
-                for feature in experiment.feature_configs.all()
-            }
+                target_collections[collection].append(feature_id)
+
+            if (
+                len(target_collections) == 2
+                and self.default_kinto_collection in target_collections
+                and min_version
+            ):
+                min_required_ride_along_version = (
+                    NimbusConstants
+                    .MIN_ALTERNATE_COLLECTION_RIDE_ALONG_FEATURES_VERSION
+                    .get(self.slug)
+                )  # fmt: skip
+                if (
+                    min_required_ride_along_version is not None
+                    and NimbusConstants.Version.parse(min_version)
+                    >= NimbusConstants.Version.parse(min_required_ride_along_version)
+                ):
+                    del target_collections[self.default_kinto_collection]
 
             if len(target_collections) == 1:
                 return next(iter(target_collections))
-
             elif len(target_collections) > 1:
-                raise TargetingMultipleKintoCollectionsError(
-                    "Experiment targets multiple collections"
-                )
+                raise TargetingMultipleKintoCollectionsError(target_collections)
 
         return self.default_kinto_collection
 
@@ -862,6 +892,14 @@ class NimbusConstants:
         Application.FOCUS_ANDROID: Version.FIREFOX_116,
         Application.IOS: Version.FIREFOX_116,
         Application.FOCUS_IOS: Version.FIREFOX_116,
+    }
+
+    # As of Firefox 142, experiments that publish to alternate collections can
+    # include features that are not exclusive to that collection. i.e., a
+    # rollout can contain a newtabTrainhopAddon feature config and a messaging
+    # feature config.
+    MIN_ALTERNATE_COLLECTION_RIDE_ALONG_FEATURES_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_142,
     }
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
