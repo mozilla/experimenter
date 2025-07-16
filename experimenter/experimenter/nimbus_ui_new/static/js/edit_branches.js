@@ -53,6 +53,13 @@ const setupCodemirrorFeatures = () => {
   });
 };
 
+const setupCodeMirrorLocalizations = () => {
+  const selector = "#id_localizations";
+  const textarea = document.querySelector(selector);
+
+  setupCodemirror(selector, textarea, []);
+};
+
 const setupCodemirrorLabs = () => {
   const selector = "#id_firefox_labs_description_links";
   const textarea = document.querySelector(selector);
@@ -62,10 +69,12 @@ const setupCodemirrorLabs = () => {
 
 $(() => {
   setupCodemirrorFeatures();
+  setupCodeMirrorLocalizations();
   setupCodemirrorLabs();
 
   document.body.addEventListener("htmx:afterSwap", function () {
     setupCodemirrorFeatures();
+    setupCodeMirrorLocalizations();
     setupCodemirrorLabs();
   });
 });
