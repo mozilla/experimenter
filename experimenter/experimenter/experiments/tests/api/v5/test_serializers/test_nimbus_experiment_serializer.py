@@ -486,7 +486,6 @@ class TestNimbusExperimentSerializer(TestCase):
             proposed_duration=0,
             proposed_enrollment=0,
             proposed_release_date=None,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
             is_sticky=False,
         )

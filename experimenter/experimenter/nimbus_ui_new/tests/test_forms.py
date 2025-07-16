@@ -1306,7 +1306,6 @@ class TestAudienceForm(RequestFormTestCase):
             proposed_duration=0,
             proposed_enrollment=0,
             proposed_release_date=None,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
             is_sticky=False,
             countries=[],
@@ -1382,7 +1381,6 @@ class TestAudienceForm(RequestFormTestCase):
             proposed_duration=0,
             proposed_enrollment=0,
             proposed_release_date=None,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
             is_sticky=False,
             is_first_run=False,
@@ -1445,7 +1443,6 @@ class TestAudienceForm(RequestFormTestCase):
             proposed_duration=0,
             proposed_enrollment=0,
             proposed_release_date=None,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
             is_sticky=False,
             countries=[],
@@ -1489,7 +1486,6 @@ class TestAudienceForm(RequestFormTestCase):
             population_percent=5,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.BETA,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
         )
 
         form = AudienceForm(
