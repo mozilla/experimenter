@@ -555,6 +555,13 @@ urlbar:
       description: >-
         semantic similarity distance threshold (0.0 - 1.0)
         defaulted at 0.6.
+    showDebuggingIcons:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.urlbar.showDebuggingIcons
+      description: >-
+        Whether or not to show debugging badges on urlbar results favicons.
     suggestSemanticHistoryMinLength:
       type: int
       setPref:
