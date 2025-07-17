@@ -172,55 +172,81 @@
                   <p>Screenshots</p>
                   {{ branch_form.screenshot_formset.management_form }}
                   {% for screenshot_form in branch_form.screenshot_formset %}
-                    {{ screenshot_form.id }}
-                    <div class="row mb-2">
-                      <div class="col-4">
-                        {{ screenshot_form.image|add_class:"form-control"|add_error_class:"is-invalid" }}
-                        {% for error in screenshot_form.image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                      </div>
-                      <div class="col-8 d-flex align-items-center justify-content-center">
-                        {{ screenshot_form.description|add_class:"form-control"|add_error_class:"is-invalid" }}
-                        {% for error in screenshot_form.description.errors %}
-                          <div class="invalid-feedback d-block">{{ error }}</div>
-                        {% endfor %}
-                        <button type="button"
-                                class="btn btn-link"
-                                hx-post="{% url 'nimbus-new-delete-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                                hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
-                                hx-select="#branches"
-                                hx-target="#branches">
-                          <i class="fa-solid fa-circle-xmark"></i>
-                        </button>
-                      </div>
-                    </div>
-                    {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
-                      <div class="row">
-                        <div class="col-12">
-                          <img src="{{ screenshot_form.instance.image.url }}"
-                               alt="Screenshot"
-                               style="max-width: 200px;
-                                      max-height: 120px">
+                    {% with forloop.counter0 as screenshot_index %}
+                      {{ screenshot_form.id }}
+                      <div class="row mb-2">
+                        <div class="col-4">
+                          {{ screenshot_form.image|add_class:"form-control"|add_error_class:"is-invalid" }}
+                          {% for error in screenshot_form.image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                          {% if forloop.parentloop.first and validation_errors.reference_branch.screenshots %}
+                            {% for ss in validation_errors.reference_branch.screenshots %}
+                              {% if forloop.counter0 == screenshot_index %}
+                                {% for error in ss.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
+                              {% endif %}
+                            {% endfor %}
+                          {% elif not forloop.parentloop.first and validation_errors.treatment_branches %}
+                            {% with branch_index=forloop.parentloop.counter0|add:"-1" %}
+                              {% for t in validation_errors.treatment_branches %}
+                                {% if forloop.counter0 == branch_index and t.screenshots %}
+                                  {% for ss in t.screenshots %}
+                                    {% if forloop.counter0 == screenshot_index %}
+                                      {% for error in ss.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
+                                    {% endif %}
+                                  {% endfor %}
+                                {% endif %}
+                              {% endfor %}
+                            {% endwith %}
+                          {% endif %}
+                        </div>
+                        <div class="col-7">
+                          {{ screenshot_form.description|add_class:"form-control"|add_error_class:"is-invalid" }}
+                          {% for error in screenshot_form.description.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                          {% endfor %}
+                          {% if forloop.parentloop.first and validation_errors.reference_branch.screenshots %}
+                            {% for ss in validation_errors.reference_branch.screenshots %}
+                              {% if forloop.counter0 == screenshot_index %}
+                                {% for error in ss.description %}<div class="invalid-feedback d-block">Description: {{ error }}</div>{% endfor %}
+                              {% endif %}
+                            {% endfor %}
+                          {% elif not forloop.parentloop.first and validation_errors.treatment_branches %}
+                            {% with branch_index=forloop.parentloop.counter0|add:"-1" %}
+                              {% for t in validation_errors.treatment_branches %}
+                                {% if forloop.counter0 == branch_index and t.screenshots %}
+                                  {% for ss in t.screenshots %}
+                                    {% if forloop.counter0 == screenshot_index %}
+                                      {% for error in ss.description %}<div class="invalid-feedback d-block">Description: {{ error }}</div>{% endfor %}
+                                    {% endif %}
+                                  {% endfor %}
+                                {% endif %}
+                              {% endfor %}
+                            {% endwith %}
+                          {% endif %}
+                        </div>
+                        <div class="col-1 d-flex align-items-center">
+                          <button type="button"
+                                  class="btn btn-link"
+                                  hx-post="{% url 'nimbus-new-delete-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
+                                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                  hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
+                                  hx-select="#branches"
+                                  hx-target="#branches">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                          </button>
                         </div>
                       </div>
-                    {% endif %}
-                  {% endfor %}
-                  {% if forloop.first and validation_errors.reference_branch.screenshots %}
-                    {% for ss in validation_errors.reference_branch.screenshots %}
-                      {% for error in ss.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
-                      {% for error in ss.description %}<div class="invalid-feedback d-block">Description: {{ error }}</div>{% endfor %}
-                    {% endfor %}
-                  {% endif %}
-                  {% if not forloop.first and validation_errors.treatment_branches %}
-                    {% for t in validation_errors.treatment_branches %}
-                      {% if forloop.counter0 == forloop.parentloop.counter0|add:"-1" and t.screenshots %}
-                        {% for ss in t.screenshots %}
-                          {% for error in ss.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
-                          {% for error in ss.description %}<div class="invalid-feedback d-block">Description: {{ error }}</div>{% endfor %}
-                        {% endfor %}
+                      {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
+                        <div class="row mb-3">
+                          <div class="col-12">
+                            <img src="{{ screenshot_form.instance.image.url }}"
+                                 alt="Screenshot"
+                                 style="max-width: 200px;
+                                        max-height: 120px">
+                          </div>
+                        </div>
                       {% endif %}
-                    {% endfor %}
-                  {% endif %}
+                    {% endwith %}
+                  {% endfor %}
                   <button type="button"
                           class="btn btn-outline-primary btn-sm"
                           hx-post="{% url 'nimbus-new-create-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"

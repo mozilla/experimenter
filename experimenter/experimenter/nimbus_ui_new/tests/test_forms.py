@@ -2229,6 +2229,42 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         self.assertEqual(experiment.branches.count(), 1)
         self.assertEqual(len(experiment.treatment_branches), 0)
 
+    def test_show_errors_flag_adds_query_param_to_hx_post(self):
+        application = NimbusExperiment.Application.DESKTOP
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+        )
+        experiment.branches.all().delete()
+
+        request = self.request
+        request.GET = {"show_errors": "true"}
+
+        form = NimbusBranchesForm(instance=experiment, request=request)
+
+        hx_post_value = (
+            reverse(
+                "nimbus-new-partial-update-branches", kwargs={"slug": experiment.slug}
+            )
+            + "?show_errors=true"
+        )
+        self.assertEqual(form.fields["is_rollout"].widget.attrs["hx-post"], hx_post_value)
+        self.assertEqual(
+            form.fields["feature_configs"].widget.attrs["hx-post"], hx_post_value
+        )
+        self.assertEqual(
+            form.fields["equal_branch_ratio"].widget.attrs["hx-post"], hx_post_value
+        )
+        self.assertEqual(
+            form.fields["is_localized"].widget.attrs["hx-post"], hx_post_value
+        )
+        self.assertEqual(
+            form.fields["is_localized"].widget.attrs["hx-select"], "#localization"
+        )
+        self.assertEqual(
+            form.fields["is_localized"].widget.attrs["hx-target"], "#localization"
+        )
+
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
     def test_form_saves_branches(self):
