@@ -50,8 +50,16 @@ class SummaryPage(ExperimenterBase):
         if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
         else (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
     )
-    _launch_to_preview_locator = (By.CSS_SELECTOR, "#launch-to-preview-button")
-    _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
+    _launch_to_preview_locator = (
+        (By.CSS_SELECTOR, "#draft-to-preview-button")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, "#launch-to-preview-button")
+    )
+    _launch_without_preview_locator = (
+        (By.CSS_SELECTOR, "#draft-to-review-button")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, "#launch-to-review-button")
+    )
     _rejected_text_alert_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
     _timeout_alert_locator = (
         (By.CSS_SELECTOR, "#rejection-message")
@@ -79,6 +87,11 @@ class SummaryPage(ExperimenterBase):
     )
     _end_experiment_button_locator = (
         (By.CSS_SELECTOR, "#end-experiment")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, ".end-experiment-start-button")
+    )
+    _end_rollout_button_locator = (
+        (By.CSS_SELECTOR, "#end-rollout")
         if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
         else (By.CSS_SELECTOR, ".end-experiment-start-button")
     )
@@ -290,8 +303,12 @@ class SummaryPage(ExperimenterBase):
         self.js_click(el)
         self.approve()
 
-    def end_and_approve(self, action="End"):
-        el = self.wait_for_and_find_element(*self._end_experiment_button_locator)
+    def end_and_approve(self, action="End", exp_type="experiment"):
+        el = None
+        if exp_type == "experiment":
+            el = self.wait_for_and_find_element(*self._end_experiment_button_locator)
+        elif exp_type == "rollout":
+            el = self.wait_for_and_find_element(*self._end_rollout_button_locator)
         el.click()
 
         self.approve()
