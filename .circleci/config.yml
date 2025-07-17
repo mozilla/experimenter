@@ -284,7 +284,7 @@ jobs:
     machine:
       image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
-    resource_class: medium
+    resource_class: large
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
