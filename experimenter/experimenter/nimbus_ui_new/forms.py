@@ -552,6 +552,27 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widget=FeatureConfigMultiSelectWidget(attrs={}),
     )
 
+    is_firefox_labs_opt_in = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
+    firefox_labs_title = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    firefox_labs_description = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 5})
+    )
+    firefox_labs_description_links = forms.CharField(
+        required=False, widget=forms.HiddenInput()
+    )
+    firefox_labs_group = forms.ChoiceField(
+        required=False,
+        choices=NimbusExperiment.FirefoxLabsGroups.choices,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    requires_restart = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
+
     class Meta:
         model = NimbusExperiment
         fields = (
@@ -562,6 +583,12 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "localizations",
             "prevent_pref_conflicts",
             "warn_feature_schema",
+            "is_firefox_labs_opt_in",
+            "firefox_labs_title",
+            "firefox_labs_description",
+            "firefox_labs_description_links",
+            "firefox_labs_group",
+            "requires_restart",
         )
         widgets = {
             "is_rollout": forms.CheckboxInput(attrs={"class": "form-check-input"}),
@@ -575,7 +602,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 attrs={"class": "form-check-input"}
             ),
             "is_localized": forms.CheckboxInput(attrs={"class": "form-check-input"}),
-            "localizations": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+            "localizations": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -606,19 +633,21 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 "nimbus-new-partial-update-branches", kwargs={"slug": self.instance.slug}
             ),
             "hx-trigger": "change",
-            "hx-select": "#branches",
-            "hx-target": "#branches",
+            "hx-select": "#branches-form",
+            "hx-target": "#branches-form",
         }
         self.fields["is_rollout"].widget.attrs.update(update_on_change_attrs)
         self.fields["feature_configs"].widget.attrs.update(update_on_change_attrs)
         self.fields["equal_branch_ratio"].widget.attrs.update(update_on_change_attrs)
         self.fields["is_localized"].widget.attrs.update(
-            {
-                **update_on_change_attrs,
-                "hx-select": "#localization",
-                "hx-target": "#localization",
-            }
+            update_on_change_attrs,
         )
+        self.fields["is_firefox_labs_opt_in"].widget.attrs.update(
+            update_on_change_attrs,
+        )
+
+        self.saved_labs_opt_in = self.instance.is_firefox_labs_opt_in
+        self.saved_is_rollout = self.instance.is_rollout
 
     @property
     def errors(self):
@@ -630,6 +659,14 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
         self.branches.save()
+
+        if not self.saved_labs_opt_in and experiment.is_firefox_labs_opt_in:
+            experiment.is_rollout = True
+            experiment.save(update_fields=["is_rollout"])
+
+        if not experiment.is_rollout:
+            experiment.is_firefox_labs_opt_in = False
+            experiment.save(update_fields=["is_firefox_labs_opt_in"])
 
         if experiment.is_rollout:
             branches = experiment.branches.all()

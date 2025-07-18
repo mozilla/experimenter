@@ -2227,6 +2227,235 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         self.assertEqual(experiment.branches.count(), 1)
         self.assertEqual(len(experiment.treatment_branches), 0)
 
+    def test_branches_form_saves_firefox_labs_fields(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config],
+            equal_branch_ratio=False,
+            is_localized=False,
+            is_rollout=False,
+            localizations=None,
+            prevent_pref_conflicts=False,
+            warn_feature_schema=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        labs_title = "labs-title-id"
+        labs_description = "labs-description-id"
+        labs_description_links = '{"link1": "https://example.com"}'
+        labs_group = NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+        requires_restart = True
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "prevent_pref_conflicts": True,
+                "warn_feature_schema": True,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 2,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch.feature_values.first().id
+                ),
+                "branches-0-feature-value-0-value": "{}",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "is_firefox_labs_opt_in": True,
+                "firefox_labs_title": labs_title,
+                "firefox_labs_description": labs_description,
+                "firefox_labs_description_links": labs_description_links,
+                "firefox_labs_group": labs_group,
+                "requires_restart": requires_restart,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertTrue(experiment.is_firefox_labs_opt_in)
+        self.assertEqual(experiment.firefox_labs_title, labs_title)
+        self.assertEqual(experiment.firefox_labs_description, labs_description)
+        self.assertEqual(
+            experiment.firefox_labs_description_links, labs_description_links
+        )
+        self.assertEqual(experiment.firefox_labs_group, labs_group)
+        self.assertTrue(experiment.requires_restart)
+
+    def test_labs_opt_in_sets_is_rollout(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config],
+            is_rollout=False,
+            is_firefox_labs_opt_in=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "is_firefox_labs_opt_in": True,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 1,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch.feature_values.first().id
+                ),
+                "branches-0-feature-value-0-value": "{}",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+            },
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertTrue(experiment.is_firefox_labs_opt_in)
+        self.assertTrue(experiment.is_rollout)
+
+    def test_unset_is_rollout_unsets_labs_opt_in(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config],
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "is_firefox_labs_opt_in": True,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 1,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch.feature_values.first().id
+                ),
+                "branches-0-feature-value-0-value": "{}",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+            },
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertFalse(experiment.is_rollout)
+        self.assertFalse(experiment.is_firefox_labs_opt_in)
+
+    def test_is_rollout_true_labs_opt_in_false(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config],
+            is_rollout=False,
+            is_firefox_labs_opt_in=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config.id],
+                "equal_branch_ratio": False,
+                "is_rollout": True,
+                "is_firefox_labs_opt_in": False,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 1,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch.feature_values.first().id
+                ),
+                "branches-0-feature-value-0-value": "{}",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+            },
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertTrue(experiment.is_rollout)
+        self.assertFalse(experiment.is_firefox_labs_opt_in)
+
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
     def test_form_saves_branches(self):
