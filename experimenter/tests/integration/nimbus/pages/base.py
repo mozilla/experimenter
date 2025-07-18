@@ -36,12 +36,12 @@ class Base(Page):
 
         self.wait.until(_wait_for_it, message=message)
 
-    def wait_with_refresh_and_assert(self, locator, string, message):
+    def wait_with_refresh_and_assert(self, locator, expected_text , message):
         def _wait_for_it(selenium):
             try:
                 self.wait_for_page_to_load()
                 el = selenium.find_element(*locator)
-                assert el.text == string
+                assert el.text == expected_text
             except (NoSuchElementException, AssertionError):
                 selenium.refresh()
                 sleep_thread = threading.Thread(
