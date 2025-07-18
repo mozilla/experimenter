@@ -6,45 +6,66 @@ import { autocompletion } from "@codemirror/autocomplete";
 import { schemaAutocomplete, schemaLinter } from "./validator.js";
 import $ from "jquery";
 
-const setupCodemirror = () => {
-  const textareas = document.querySelectorAll(".value-editor");
+const setupCodemirror = (selector, textarea, extraExtensions) => {
+  if (!textarea) {
+    console.warn(`No textarea found for selector: ${selector}`);
+    return;
+  }
+
+  const extensions = [
+    basicSetup,
+    EditorView.updateListener.of((v) => {
+      if (v.docChanged) {
+        const value = v.state.doc.toString();
+        const textarea = v.view.dom.parentNode.querySelector(selector);
+        textarea.value = value;
+      }
+    }),
+    json(),
+    linter(jsonParseLinter()),
+    ...extraExtensions,
+  ];
+
+  const view = new EditorView({
+    doc: textarea.value || "{}",
+    extensions,
+    parent: textarea.parentNode,
+  });
+
+  view.dom.style.border = "1px solid #ccc";
+
+  textarea.parentNode.insertBefore(view.dom, textarea);
+
+  return view;
+};
+
+const setupCodemirrorFeatures = () => {
+  const selector = ".value-editor";
+  const textareas = document.querySelectorAll(selector);
 
   textareas.forEach((textarea) => {
     const jsonSchema = JSON.parse(textarea.dataset["schema"]);
 
-    const extensions = [
-      basicSetup,
-      EditorView.updateListener.of((v) => {
-        if (v.docChanged) {
-          const value = v.state.doc.toString();
-          const textarea = v.view.dom.parentNode.querySelector(".value-editor");
-          textarea.value = value;
-        }
-      }),
-      json(),
-      linter(jsonParseLinter()),
+    setupCodemirror(selector, textarea, [
       linter(schemaLinter(jsonSchema)),
       autocompletion({ override: [schemaAutocomplete(jsonSchema)] }),
-    ];
-
-    const view = new EditorView({
-      doc: textarea.value || "{}",
-      extensions,
-      parent: textarea.parentNode,
-    });
-
-    view.dom.style.border = "1px solid #ccc";
-
-    textarea.parentNode.insertBefore(view.dom, textarea);
-
-    return view;
+    ]);
   });
 };
 
+const setupCodemirrorLabs = () => {
+  const selector = "#id_firefox_labs_description_links";
+  const textarea = document.querySelector(selector);
+
+  setupCodemirror(selector, textarea, []);
+};
+
 $(() => {
-  setupCodemirror();
+  setupCodemirrorFeatures();
+  setupCodemirrorLabs();
 
   document.body.addEventListener("htmx:afterSwap", function () {
-    setupCodemirror();
+    setupCodemirrorFeatures();
+    setupCodemirrorLabs();
   });
 });
