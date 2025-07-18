@@ -1,5 +1,6 @@
 <a {% if external %}target="_blank"{% endif %}
    class="nav-link mb-2 {% if request.path == link %}active{% endif %} nav-link-hover {% if disabled %}disabled{% endif %}"
+   data-testid="nav-edit-{{ title|lower }}"
    href="{{ link }}"
    {% if data_bs_toggle %}data-bs-toggle="{{ data_bs_toggle }}"{% endif %}
    {% if data_bs_target %}data-bs-target="{{ data_bs_target }}"{% endif %}>

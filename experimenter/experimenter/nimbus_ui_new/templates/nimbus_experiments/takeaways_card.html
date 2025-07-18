@@ -1,19 +1,22 @@
 {% load nimbus_extras %}
 
-<div class="card mb-3">
+<div id="takeaways-card" class="card mb-3">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h4 class="d-flex align-items-center">
       Takeaways
       <div class="px-2">
         {% for recommendation in experiment.conclusion_recommendation_labels %}
           <span class="badge badge-primary border rounded-pill px-1 bg-white border-primary text-primary font-weight-normal"
+                data-testid="conclusion-recommendation-status"
                 style="font-size: 0.6em;
                        padding: 0.15em">{{ recommendation }}</span>
         {% endfor %}
       </div>
     </h4>
     {% if not takeaways_edit_mode %}
-      <a href="?edit_takeaways=true" class="btn btn-outline-primary btn-sm">Edit</a>
+      <a href="?edit_takeaways=true"
+         class="btn btn-outline-primary btn-sm"
+         data-testid="edit-takeaways">Edit</a>
     {% endif %}
   </div>
   <div class="card-body">
@@ -84,7 +87,9 @@
           </div>
         </div>
         <div class="d-flex justify-content-end mt-3">
-          <button type="submit" class="btn btn-primary me-2">Save</button>
+          <button type="submit"
+                  class="btn btn-primary me-2"
+                  data-testid="takeaways-edit-save">Save</button>
           <a href="{% url 'nimbus-new-detail' experiment.slug %}"
              class="btn btn-secondary">Cancel</a>
         </div>
@@ -100,11 +105,12 @@
           </tr>
           <tr>
             <th>Summary</th>
-            <td colspan="3">{{ experiment.takeaways_summary|format_not_set }}</td>
+            <td colspan="3" id="takeawaysSummaryText">{{ experiment.takeaways_summary|format_not_set }}</td>
           </tr>
           <tr>
             <th>Gain amount</th>
-            <td colspan="3">{{ experiment.takeaways_gain_amount|format_not_set }}</td>
+            <td colspan="3" id="takeawaysGainAmount>{{ experiment.takeaways_gain_amount|format_not_set }}
+            </td>
           </tr>
         </tbody>
       </table>

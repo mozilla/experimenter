@@ -15,7 +15,7 @@ KINTO_SIGN_STATUS = "to-sign"
 
 
 class KintoClient:
-    RETRIES = 60
+    RETRIES = 30
 
     def __init__(self, collection, server_url):
         self.collection = collection
@@ -47,7 +47,7 @@ class KintoClient:
                     pass
                 else:
                     return
-            time.sleep(1)
+            time.sleep(2)
         raise Exception("Unable to approve kinto review")
 
     def reject(self):
