@@ -152,7 +152,7 @@ features:
       menu-redesign-hint:
         description: "If true, enables the menu contextual hint for menu redesign.\n"
         type: Boolean
-        default: false
+        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
