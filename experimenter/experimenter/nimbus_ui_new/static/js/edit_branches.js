@@ -44,12 +44,16 @@ const setupCodemirrorFeatures = () => {
   const textareas = document.querySelectorAll(selector);
 
   textareas.forEach((textarea) => {
+    if (textarea.dataset.cmInitialized === "true") return;
+
     const jsonSchema = JSON.parse(textarea.dataset["schema"]);
 
     setupCodemirror(selector, textarea, [
       linter(schemaLinter(jsonSchema)),
       autocompletion({ override: [schemaAutocomplete(jsonSchema)] }),
     ]);
+
+    textarea.dataset.cmInitialized = "true";
   });
 };
 
@@ -57,12 +61,24 @@ const setupCodemirrorLabs = () => {
   const selector = "#id_firefox_labs_description_links";
   const textarea = document.querySelector(selector);
 
+  if (!textarea || textarea.dataset.cmInitialized === "true") return;
+
   setupCodemirror(selector, textarea, []);
+  textarea.dataset.cmInitialized = "true";
 };
 
 $(() => {
   setupCodemirrorFeatures();
   setupCodemirrorLabs();
+
+  document.body.addEventListener("htmx:beforeSwap", function (event) {
+    if (event.target.id === "branches-form") {
+      document.querySelectorAll(".cm-editor").forEach((cm) => cm.remove());
+      document.querySelectorAll(".value-editor").forEach((ta) => {
+        delete ta.dataset.cmInitialized;
+      });
+    }
+  });
 
   document.body.addEventListener("htmx:afterSwap", function () {
     setupCodemirrorFeatures();
