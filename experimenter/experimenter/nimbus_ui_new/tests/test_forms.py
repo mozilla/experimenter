@@ -2243,11 +2243,10 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         form = NimbusBranchesForm(instance=experiment, request=request)
 
         hx_post_value = (
-            reverse(
-                "nimbus-new-partial-update-branches", kwargs={"slug": experiment.slug}
-            )
-            + "?show_errors=true"
+            f"{reverse('nimbus-new-partial-update-branches', kwargs={'slug': experiment.slug})}"
+            "?show_errors=true"
         )
+
         self.assertEqual(form.fields["is_rollout"].widget.attrs["hx-post"], hx_post_value)
         self.assertEqual(
             form.fields["feature_configs"].widget.attrs["hx-post"], hx_post_value
