@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - beta
+  - release
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -39,7 +39,7 @@ features:
       enabled:
         description: "Variable description\n"
         type: Boolean
-        default: true
+        default: false
   default-zoom-feature:
     description: "The feature flag to manage the rollout of default zoom feature.\n"
     variables:
@@ -64,7 +64,7 @@ features:
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: true
+        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -86,7 +86,14 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: true
+          status: false
+  hnt-content-feed-cleanup-feature:
+    description: "Controls updates for the content feed\n"
+    variables:
+      enabled:
+        description: "Whether or not the feature is enabled\n"
+        type: Boolean
+        default: false
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:
@@ -107,7 +114,7 @@ features:
       enabled:
         description: "If true, enables the feature\n"
         type: Boolean
-        default: true
+        default: false
   homepage-redesign-feature:
     description: "This feature is for managing the roll out of the Homepage New Tab Redesign feature.\n"
     variables:
@@ -137,10 +144,6 @@ features:
         description: "Controls which menu users will see\n"
         type: Boolean
         default: false
-      menu-default-browser-banner:
-        description: "If true, enables the menu Make Firefox your default banner, on top of the menu.\n"
-        type: Boolean
-        default: false
       menu-hint:
         description: "If true, enables the menu contextual hint.\n"
         type: Boolean
@@ -149,10 +152,6 @@ features:
         description: "If true, enables the menu redesign.\n"
         type: Boolean
         default: false
-      menu-redesign-hint:
-        description: "If true, enables the menu contextual hint for menu redesign.\n"
-        type: Boolean
-        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -203,25 +202,7 @@ features:
       messages:
         description: "A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.\n"
         type: "Map<MessageKey, MessageData>"
-        default:
-          homepage-microsurvey-message:
-            surface: microsurvey
-            style: MICROSURVEY
-            trigger-if-all:
-              - SECOND_HOMEPAGE_VIEW
-            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
-            text: How satisfied are you with your Firefox homepage?
-            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
-            microsurveyConfig:
-              utm-content: homepage
-              icon: homeLarge
-              options:
-                - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
-                - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
-                - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
-                - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
-                - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
-                - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+        default: {}
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -531,21 +512,28 @@ features:
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
-        default: true
+        default: false
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
       enabled:
         description: "Enables the rating prompt\n"
         type: Boolean
-        default: true
+        default: false
   revert-unsafe-continuations-refactor:
     description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
     variables:
       enabled:
         description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
         type: Boolean
-        default: true
+        default: false
+  rust-keychain-refactor:
+    description: "Feature that enables use of the rust keychain logic for storing and retrieving rust component encryption key data.\n"
+    variables:
+      rust-keychain-enabled:
+        description: "Whether the use of the rust keychain logic is enabled for rust components. When enabled, the rust keychain is used to store and retrieve encryption key data for rust components. Otherwise, the pre-existing MZKeychainWrapper logic is used.\n"
+        type: Boolean
+        default: false
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -566,6 +554,17 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: false
+  sent-from-firefox-feature:
+    description: "Adds additional promo text to links shared to WhatsApp.\n"
+    variables:
+      enabled:
+        description: "Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.\n"
+        type: Boolean
+        default: false
+      isTreatmentA:
+        description: "If true, shares the treatment A text. If false, shares the treatment B text.\n"
+        type: Boolean
+        default: true
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.\n"
     variables:
@@ -603,20 +602,13 @@ features:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
         default: afterFourHours
-  summarizer-feature:
-    description: "This feature enables the summarizer feature.\n"
-    variables:
-      enabled:
-        description: "Enables the summarizer feature.\n"
-        type: Boolean
-        default: false
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
-        default: true
+        default: false
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -631,27 +623,23 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: true
+        default: false
       layout:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
         default: version1
-      minimal_address_bar:
-        description: "Enables minimal address bar mode on scroll to ensure the url is always visible.\n"
-        type: Boolean
-        default: false
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
-        default: true
+        default: false
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
-        default: true
+        default: false
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
-        default: true
+        default: false
       toolbar_update_hint:
         description: "If true, enables the toolbar update contextual hint.\n"
         type: Boolean
@@ -659,7 +647,7 @@ features:
       translucency:
         description: "Enables translucency for toolbars.\n"
         type: Boolean
-        default: true
+        default: false
       unified_search:
         description: "Enables the unified search feature.\n"
         type: Boolean
