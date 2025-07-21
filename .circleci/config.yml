@@ -230,7 +230,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -m nimbus_ui -n 1 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -m nimbus_ui -n 2 --reruns 1 --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
@@ -347,7 +347,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
@@ -377,7 +377,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: beta
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
@@ -407,7 +407,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: nightly
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 1 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1 --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout

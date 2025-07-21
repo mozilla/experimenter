@@ -15,7 +15,7 @@ KINTO_SIGN_STATUS = "to-sign"
 
 
 class KintoClient:
-    RETRIES = 60
+    RETRIES = 30
 
     def __init__(self, collection, server_url):
         self.collection = collection
