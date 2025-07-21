@@ -122,8 +122,8 @@
                               hx-post="{% url 'nimbus-new-delete-branch' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
                               hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                               hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
-                              hx-select="#branches"
-                              hx-target="#branches">
+                              hx-select="#branches-form"
+                              hx-target="#branches-form">
                         <i class="fa-solid fa-circle-xmark"></i>
                       </button>
                     {% endif %}
@@ -229,8 +229,8 @@
                                   hx-post="{% url 'nimbus-new-delete-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
                                   hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                                   hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
-                                  hx-select="#branches"
-                                  hx-target="#branches">
+                                  hx-select="#branches-form"
+                                  hx-target="#branches-form">
                             <i class="fa-solid fa-circle-xmark"></i>
                           </button>
                         </div>
@@ -252,8 +252,11 @@
                           hx-post="{% url 'nimbus-new-create-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                           hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
-                          hx-select="#branches"
-                          hx-target="#branches">+ Add Screenshot</button>
+                          hx-select="#branches-form"
+                          hx-target="#branches-form">
+                    +
+                    Add Screenshot
+                  </button>
                 </div>
               </div>
             </div>
@@ -266,8 +269,11 @@
                           type="button"
                           hx-post="{% url 'nimbus-new-create-branch' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                          hx-select="#branches"
-                          hx-target="#branches">+ Add Branch</button>
+                          hx-select="#branches-form"
+                          hx-target="#branches-form">
+                    + Add
+                    Branch
+                  </button>
                 {% else %}
                   <p class="form-text">An experiment may have no more than 20 branches.</p>
                   <button class="btn btn-outline-primary btn-sm disabled" type="button">+ Add Branch</button>
@@ -306,6 +312,70 @@
         {% endif %}
       </div>
     </div>
+    {% if experiment.is_desktop %}
+      <div id="labs" class="card mb-3">
+        <div class="card-header">
+          <h4>Firefox Labs</h4>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col">
+              <div class="form-check">
+                {{ form.is_firefox_labs_opt_in }}
+                <label class="form-check-label" for="id_is_firefox_labs_opt_in">Is this a Firefox Labs rollout?</label>
+              </div>
+            </div>
+          </div>
+          {% if experiment.is_firefox_labs_opt_in %}
+            <div class="row mb-3">
+              <div class="col">
+                <label class="d-block">
+                  The title to display in Firefox Labs (Fluent ID)
+                  {{ form.firefox_labs_title }}
+                </label>
+                {{ form.firefox_labs_title.errors }}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label class="d-block">
+                  The description to display in Firefox Labs (Fluent ID)
+                  {{ form.firefox_labs_description }}
+                </label>
+                {{ form.firefox_labs_description.errors }}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label class="d-block">
+                  Description Links (JSON)
+                  {{ form.firefox_labs_description_links }}
+                </label>
+                {{ form.firefox_labs_description_links.errors }}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label class="d-block">
+                  Firefox Labs Group
+                  {{ form.firefox_labs_group }}
+                </label>
+                {{ form.firefox_labs_group.errors }}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <div class="form-check">
+                  {{ form.requires_restart }}
+                  <label class="form-check-label" for="id_requires_restart">Requires restart to take effect?</label>
+                </div>
+                {{ form.requires_restart.errors }}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
     <div class="d-flex justify-content-end">
       <button type="submit" class="btn btn-primary">Save</button>
       <button type="submit"
