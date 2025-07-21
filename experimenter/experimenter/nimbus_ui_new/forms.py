@@ -419,6 +419,10 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if self.instance._state.adding and (
+            self.instance.value is None or self.instance.value == {}
+        ):
+            self.fields["value"].initial = ""
 
         if self.instance.id is not None and self.instance.feature_config:
             if schema := self.instance.feature_config.schemas.filter(
@@ -429,6 +433,13 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
                         "data-schema": schema.schema,
                     }
                 )
+
+    def clean_value(self):
+        value = self.cleaned_data.get("value")
+
+        if not value or value.strip() == "":
+            return None
+        return value
 
 
 class NimbusBranchScreenshotForm(forms.ModelForm):
@@ -600,14 +611,24 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
             application=self.instance.application
         ).order_by("slug")
+        show_errors = ""
+        if (
+            hasattr(self, "request")
+            and self.request
+            and self.request.GET.get("show_errors") == "true"
+        ):
+            show_errors = "?show_errors=true"
+
+        base_url = reverse(
+            "nimbus-new-partial-update-branches",
+            kwargs={"slug": self.instance.slug},
+        )
 
         update_on_change_attrs = {
-            "hx-post": reverse(
-                "nimbus-new-partial-update-branches", kwargs={"slug": self.instance.slug}
-            ),
+            "hx-post": f"{base_url}{show_errors}",
             "hx-trigger": "change",
-            "hx-select": "#branches",
-            "hx-target": "#branches",
+            "hx-select": "#branches-form",
+            "hx-target": "#branches-form",
         }
         self.fields["is_rollout"].widget.attrs.update(update_on_change_attrs)
         self.fields["feature_configs"].widget.attrs.update(update_on_change_attrs)
