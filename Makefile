@@ -254,7 +254,7 @@ integration_sdk_shell: build_prod build_integration_test
 	$(COMPOSE_INTEGRATION_RUN) rust-sdk bash
 
 integration_vnc_shell: build_prod
-	$(COMPOSE_INTEGRATION) up -d firefox 
+	$(COMPOSE_INTEGRATION) up -d firefox
 	docker exec -it $$(docker ps -qf "name=experimenter-firefox-1") bash
 
 integration_test_legacy: build_prod integration_clean

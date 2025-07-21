@@ -1,3 +1,4 @@
+import os
 import random
 import string
 
@@ -18,27 +19,69 @@ class SummaryPage(ExperimenterBase):
     _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
     _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
     _header_slug = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-slug"]')
-    _approve_request_button_locator = (By.CSS_SELECTOR, "#approve-request-button")
-    _reject_request_button_locator = (By.CSS_SELECTOR, "#reject-request-button")
-    _reject_input_text_locator = (
-        By.CSS_SELECTOR,
-        'textarea[data-testid="reject-reason"]',
+    _approve_request_button_locator = (
+        (By.CSS_SELECTOR, "#review-controls .btn-success")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, "#approve-request-button")
     )
-    _reject_input_text_submit_locator = (By.CSS_SELECTOR, '[data-testid="reject-submit"]')
-    _rejection_notice_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
+    _reject_request_button_locator = (
+        (By.CSS_SELECTOR, "#reject-button")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, "#reject-request-button")
+    )
+    _reject_input_text_locator = (
+        (
+            By.CSS_SELECTOR,
+            "#changelog_message",
+        )
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (
+            By.CSS_SELECTOR,
+            'textarea[data-testid="reject-reason"]',
+        )
+    )
+    _reject_input_text_submit_locator = (
+        (By.CSS_SELECTOR, "#submit-rejection-button")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, '[data-testid="reject-submit"]')
+    )
+    _rejection_notice_locator = (
+        (By.CSS_SELECTOR, "#rejection-reason")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
+    )
     _launch_to_preview_locator = (By.CSS_SELECTOR, "#launch-to-preview-button")
     _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
     _rejected_text_alert_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
-    _timeout_alert_locator = (By.CSS_SELECTOR, '[data-testid="timeout-notice"]')
-    _status_live_locator = (By.CSS_SELECTOR, ".status-Live.border-primary")
+    _timeout_alert_locator = (
+        (By.CSS_SELECTOR, "#rejection-message")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, '[data-testid="timeout-notice"]')
+    )
+    _status_live_locator = (
+        (By.CSS_SELECTOR, "#experiment-timeline .bg-primary strong")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, ".status-Live.border-primary")
+    )
     _status_preview_locator = (By.CSS_SELECTOR, ".status-Preview.border-primary")
-    _status_complete_locator = (By.CSS_SELECTOR, ".status-Complete.border-primary")
+    _status_complete_locator = (
+        (
+            By.CSS_SELECTOR,
+            "#experiment-timeline .bg-primary strong",
+        )
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, ".status-Complete.border-primary")
+    )
     _update_request_locator = (By.CSS_SELECTOR, "#request-update-button")
     _experiment_status_icon_locator = (
         By.CSS_SELECTOR,
         ".header-experiment-status .border-primary",
     )
-    _end_experiment_button_locator = (By.CSS_SELECTOR, ".end-experiment-start-button")
+    _end_experiment_button_locator = (
+        (By.CSS_SELECTOR, "#end-experiment")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, ".end-experiment-start-button")
+    )
     _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="action-archive"]')
     _archive_label_locator = (
         By.CSS_SELECTOR,
@@ -59,7 +102,11 @@ class SummaryPage(ExperimenterBase):
         By.CSS_SELECTOR,
         'figure[data-testid="branch-screenshot"] img',
     )
-    _takeaways_edit_button = (By.CSS_SELECTOR, 'button[data-testid="edit-takeaways"]')
+    _takeaways_edit_button = (
+        (By.CSS_SELECTOR, 'a[data-testid="edit-takeaways"]')
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, 'button[data-testid="edit-takeaways"]')
+    )
     _takeaways_save_button = (
         By.CSS_SELECTOR,
         'button[data-testid="takeaways-edit-save"]',
@@ -69,12 +116,26 @@ class SummaryPage(ExperimenterBase):
         'form[data-testid="FormTakeaways"] input[name="conclusionRecommendations"]',
     )
     _takeaways_summary_field = (
-        By.CSS_SELECTOR,
-        'form[data-testid="FormTakeaways"] textarea[name="takeawaysSummary"]',
+        (
+            By.CSS_SELECTOR,
+            "#takeawaysSummary",
+        )
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (
+            By.CSS_SELECTOR,
+            'form[data-testid="FormTakeaways"] textarea[name="takeawaysSummary"]',
+        )
     )
     _takeaways_summary_text = (
-        By.CSS_SELECTOR,
-        'div[data-testid="takeaways-summary-rendered"]',
+        (
+            By.CSS_SELECTOR,
+            "#takeawaysSummaryText",
+        )
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (
+            By.CSS_SELECTOR,
+            'div[data-testid="takeaways-summary-rendered"]',
+        )
     )
     _takeaways_recommendation_badge = (
         By.CSS_SELECTOR,
@@ -114,6 +175,12 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_live_status(self):
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL")):
+            self.wait_with_refresh_and_assert(
+                self._status_live_locator,
+                "Enrollment",
+                "Summary Page: Unable to find live status",
+            )
         self.wait_with_refresh(
             self._status_live_locator, "Summary Page: Unable to find live status"
         )
@@ -124,6 +191,12 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_complete_status(self):
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL")):
+            self.wait_with_refresh_and_assert(
+                self._status_complete_locator,
+                "Complete",
+                "Summary Page: Unable to find complete status",
+            )
         self.wait_with_refresh(
             self._status_complete_locator, "Summary Page: Unable to find complete status"
         )
@@ -157,9 +230,9 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_rejection_notice_visible(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._rejection_notice_locator),
-            message="Summary Page: could not find rejection notice",
+        self.wait_with_refresh(
+            self._rejection_notice_locator,
+            "Summary Page: could not find rejection notice",
         )
 
     def set_rejection_reason(self):
@@ -210,9 +283,11 @@ class SummaryPage(ExperimenterBase):
         self.request_update_action.click()
 
     def launch_and_approve(self):
-        self.launch_without_preview.click()
+        el = self.launch_without_preview
+        self.js_click(el)
         self.request_review.click_launch_checkboxes()
-        self.request_review.request_launch_button.click()
+        el = self.request_review.request_launch_button
+        self.js_click(el)
         self.approve()
 
     def end_and_approve(self, action="End"):
@@ -232,14 +307,28 @@ class SummaryPage(ExperimenterBase):
 
     class RequestReview(Region, Base):
         PAGE_TITLE = "Review Region"
-        _root_locator = (By.CSS_SELECTOR, "#request-launch-alert")
-        _checkbox0_locator = (By.CSS_SELECTOR, "#checkbox-0")
-        _checkbox1_locator = (By.CSS_SELECTOR, "#checkbox-1")
+        _root_locator = (
+            (By.CSS_SELECTOR, "#launch-controls")
+            if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+            else (By.CSS_SELECTOR, "#request-launch-alert")
+        )
+        _checkbox1_locator = (
+            (By.CSS_SELECTOR, "#checkbox-1")
+            if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+            else (By.CSS_SELECTOR, "#checkbox-0")
+        )
+        _checkbox2_locator = (
+            (By.CSS_SELECTOR, "#checkbox-2")
+            if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+            else (By.CSS_SELECTOR, "#checkbox-1")
+        )
         _request_launch_locator = (By.CSS_SELECTOR, "#request-launch-button")
 
         def click_launch_checkboxes(self):
-            self.wait_for_and_find_element(*self._checkbox0_locator).click()
-            self.wait_for_and_find_element(*self._checkbox1_locator).click()
+            checkbox1 = self.wait_for_and_find_element(*self._checkbox1_locator)
+            checkbox2 = self.wait_for_and_find_element(*self._checkbox2_locator)
+            self.js_click(checkbox1)
+            self.js_click(checkbox2)
 
         @property
         def request_launch_button(self):
@@ -301,7 +390,7 @@ class SummaryPage(ExperimenterBase):
     def takeaways_recommendation_checkbox_button(self, value=""):
         selection_locator = (
             By.ID,
-            f"conclusionRecommendations-{value}",
+            f"conclusionRecommendation-{value}",
         )
         return self.wait_for_and_find_element(*selection_locator)
 
@@ -326,8 +415,8 @@ class SummaryPage(ExperimenterBase):
     def set_takeaways(self, takeaways, recommendation):
         self.takeaways_edit_button.click()
         self.takeaways_summary_field = takeaways
-        self.takeaways_recommendation_checkbox_button(recommendation).click()
-        self.takeaways_save_button.click()
+        self.js_click(self.takeaways_recommendation_checkbox_button(recommendation))
+        self.js_click(self.takeaways_save_button)
 
     @property
     def branch_screenshot_description(self):

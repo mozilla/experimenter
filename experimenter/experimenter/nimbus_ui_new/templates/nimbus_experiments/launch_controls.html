@@ -47,6 +47,7 @@
         </p>
         {% if experiment.can_draft_to_preview %}
           <button type="button"
+                  id="launch-to-preview-button"
                   class="btn btn-primary"
                   hx-post="{% url 'nimbus-new-draft-to-preview' slug=experiment.slug %}"
                   hx-select="#content"
@@ -55,13 +56,14 @@
         {% endif %}
         {% if experiment.can_draft_to_review %}
           <button type="button"
+                  id="launch-to-review-button"
                   class="btn btn-secondary"
                   onclick="showRecommendation()">Request Launch without Preview</button>
         {% endif %}
       </div>
       <!-- Recommendation Message -->
       <div id="recommendation-message" class="d-none">
-        <div class="alert alert-warning">
+        <div id="request-launch-alert" class="alert alert-warning">
           <p>
             <strong>We recommend previewing before launch</strong>
             <button type="button"
@@ -211,7 +213,7 @@
                     hx-select="#content"
                     hx-target="#content"
                     hx-swap="outerHTML"
-                    class="btn btn-primary m-2">End Enrollment</button>
+                    class="btn btn-primary m-2 end-enrollment_btn">End Enrollment</button>
           {% endif %}
           {% if experiment.should_show_end_experiment %}
             <button type="button"
@@ -219,7 +221,8 @@
                     hx-select="#content"
                     hx-target="#content"
                     hx-swap="outerHTML"
-                    class="btn btn-primary">End Experiment</button>
+                    id="end-experiment"
+                    class="btn btn-primary end_experiment_btn">End Experiment</button>
           {% endif %}
           {% if experiment.should_show_rollout_request_update %}
             <button type="button"
@@ -228,6 +231,7 @@
                     hx-target="#content"
                     hx-swap="outerHTML"
                     class="btn btn-primary"
+                    id="request-update-button"
                     {% if not experiment.is_rollout_dirty %}disabled{% endif %}>Request Update</button>
           {% endif %}
           {% if experiment.should_show_end_rollout %}
@@ -236,6 +240,7 @@
                     hx-select="#content"
                     hx-target="#content"
                     hx-swap="outerHTML"
+                    id="end-experiment"
                     class="btn btn-primary">End Rollout</button>
           {% endif %}
         </div>
