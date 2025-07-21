@@ -312,68 +312,70 @@
         {% endif %}
       </div>
     </div>
-    <div id="labs" class="card mb-3">
-      <div class="card-header">
-        <h4>Firefox Labs</h4>
-      </div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-check">
-              {{ form.is_firefox_labs_opt_in }}
-              <label class="form-check-label" for="id_is_firefox_labs_opt_in">Is this a Firefox Labs rollout?</label>
-            </div>
-          </div>
+    {% if experiment.is_desktop %}
+      <div id="labs" class="card mb-3">
+        <div class="card-header">
+          <h4>Firefox Labs</h4>
         </div>
-        {% if experiment.is_firefox_labs_opt_in %}
-          <div class="row mb-3">
-            <div class="col">
-              <label class="d-block">
-                The title to display in Firefox Labs (Fluent ID)
-                {{ form.firefox_labs_title }}
-              </label>
-              {{ form.firefox_labs_title.errors }}
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col">
-              <label class="d-block">
-                The description to display in Firefox Labs (Fluent ID)
-                {{ form.firefox_labs_description }}
-              </label>
-              {{ form.firefox_labs_description.errors }}
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col">
-              <label class="d-block">
-                Description Links (JSON)
-                {{ form.firefox_labs_description_links }}
-              </label>
-              {{ form.firefox_labs_description_links.errors }}
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col">
-              <label class="d-block">
-                Firefox Labs Group
-                {{ form.firefox_labs_group }}
-              </label>
-              {{ form.firefox_labs_group.errors }}
-            </div>
-          </div>
+        <div class="card-body">
           <div class="row mb-3">
             <div class="col">
               <div class="form-check">
-                {{ form.requires_restart }}
-                <label class="form-check-label" for="id_requires_restart">Requires restart to take effect?</label>
+                {{ form.is_firefox_labs_opt_in }}
+                <label class="form-check-label" for="id_is_firefox_labs_opt_in">Is this a Firefox Labs rollout?</label>
               </div>
-              {{ form.requires_restart.errors }}
             </div>
           </div>
-        {% endif %}
+          {% if experiment.is_firefox_labs_opt_in %}
+            <div class="row mb-3">
+              <div class="col">
+                <label class="d-block">
+                  The title to display in Firefox Labs (Fluent ID)
+                  {{ form.firefox_labs_title }}
+                </label>
+                {{ form.firefox_labs_title.errors }}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label class="d-block">
+                  The description to display in Firefox Labs (Fluent ID)
+                  {{ form.firefox_labs_description }}
+                </label>
+                {{ form.firefox_labs_description.errors }}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label class="d-block">
+                  Description Links (JSON)
+                  {{ form.firefox_labs_description_links }}
+                </label>
+                {{ form.firefox_labs_description_links.errors }}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label class="d-block">
+                  Firefox Labs Group
+                  {{ form.firefox_labs_group }}
+                </label>
+                {{ form.firefox_labs_group.errors }}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <div class="form-check">
+                  {{ form.requires_restart }}
+                  <label class="form-check-label" for="id_requires_restart">Requires restart to take effect?</label>
+                </div>
+                {{ form.requires_restart.errors }}
+              </div>
+            </div>
+          {% endif %}
+        </div>
       </div>
-    </div>
+    {% endif %}
     <div class="d-flex justify-content-end">
       <button type="submit" class="btn btn-primary">Save</button>
       <button type="submit"
