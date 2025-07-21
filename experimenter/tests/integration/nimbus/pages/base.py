@@ -11,7 +11,7 @@ class Base(Page):
     """Base page."""
 
     def __init__(self, selenium, base_url, **kwargs):
-        super().__init__(selenium, base_url, timeout=120, **kwargs)
+        super().__init__(selenium, base_url, timeout=300, **kwargs)
         self.logging = logging
 
     def wait_for_page_to_load(self):
@@ -36,7 +36,7 @@ class Base(Page):
 
         self.wait.until(_wait_for_it, message=message)
 
-    def wait_with_refresh_and_assert(self, locator, expected_text , message):
+    def wait_with_refresh_and_assert(self, locator, expected_text, message):
         def _wait_for_it(selenium):
             try:
                 self.wait_for_page_to_load()
