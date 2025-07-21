@@ -619,11 +619,13 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         ):
             show_errors = "?show_errors=true"
 
+        base_url = reverse(
+            "nimbus-new-partial-update-branches",
+            kwargs={"slug": self.instance.slug},
+        )
+
         update_on_change_attrs = {
-            "hx-post": (
-                f"{reverse('nimbus-new-partial-update-branches', kwargs={'slug': self.instance.slug})}"
-                f"{show_errors}"
-            ),
+            "hx-post": f"{base_url}{show_errors}",
             "hx-trigger": "change",
             "hx-select": "#branches-form",
             "hx-target": "#branches-form",
