@@ -62,5 +62,5 @@ class KintoClient:
                     bucket=KINTO_BUCKET_WORKSPACE,
                 )
                 return
-            time.sleep(1)
+            time.sleep(2)
         raise Exception("Unable to reject kinto review")
