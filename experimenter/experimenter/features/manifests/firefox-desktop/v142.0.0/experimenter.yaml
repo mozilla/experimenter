@@ -555,6 +555,13 @@ urlbar:
       description: >-
         semantic similarity distance threshold (0.0 - 1.0)
         defaulted at 0.6.
+    showDebuggingIcons:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.urlbar.showDebuggingIcons
+      description: >-
+        Whether or not to show debugging badges on urlbar results favicons.
     suggestSemanticHistoryMinLength:
       type: int
       setPref:
@@ -936,99 +943,6 @@ newtab:
       type: boolean
       description: Allow Contile to use additonal sponsored top sites
 
-newtabMobileDownloadPromotion:
-  description: Cross-sell promotion to download Firefox for mobile
-  owner: mcrawford@mozilla.com
-  hasExposure: false
-  variables:
-    showModal:
-      type: boolean
-      description: Display mobile download modal to users until dismissed
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.mobileDownloadModal.enabled
-    variantA:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.mobileDownloadModal.variant-a
-      description: >-
-        Variant A modal message and QR code.
-    variantB:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.mobileDownloadModal.variant-b
-      description: >-
-        Variant B modal message and QR code.
-    variantC:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.mobileDownloadModal.variant-c
-      description: >-
-        Variant C modal message and QR code.
-
-newtabUnifiedAds:
-  description: Mozilla Ad Routing Service (MARS) unified ads service
-  owner: mcrawford@mozilla.com, sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    unifiedAdsEndpoint:
-      description: The URL for the MARS API endpoint.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.unifiedAds.endpoint
-    unifiedAdsSpocsEnabled:
-      type: boolean
-      description: >-
-          Enable MARS endpoint to serve ads for recommended stories
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.unifiedAds.spocs.enabled
-    unifiedAdsTilesEnabled:
-      type: boolean
-      description: >-
-          Enable MARS endpoint to serve content for top sites tiles
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.unifiedAds.tiles.enabled
-    unifiedAdsFeedEnabled:
-      type: boolean
-      description: >-
-          Enable AdsFeed to manage all ads request/serving logic
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.unifiedAds.adsFeed.enabled
-    unifiedAdsFeedTilesEnabled:
-      type: boolean
-      description: >-
-          Enable AdsFeed to query MARS server to fetch/serve top sites tiles
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.unifiedAds.adsFeed.tiles.enabled
-
-newtabSpocsCache:
-  description: The about:newtab sponsored content cache.
-  owner: sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    spocsCacheTimeout:
-      type: int
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.spocs.cacheTimeout
-      description: >-
-        Set sponsored content cache timeout in minutes.
-    spocsStartupCache:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.spocs.startupCache.enabled
-      description: >-
-        Controls if spocs should be included in startup cache.
-
 newtabAdSizingExperiment:
   description: >-
     Change the default ad size and UI for certain ad formats.
@@ -1071,171 +985,18 @@ newtabAdSizingExperiment:
       description: >-
         Medium rectangle (MREC) ad size and UI.
 
-newtabInlineTopicSelection:
-  description: >-
-      Adds Inline topic selection to sections layout
-  owner: nbarrett@mozilla.com
+newtabAdsReporting:
+  description: about:newtab reporting ads feature
+  owner: rhamoui@mozilla.com
   hasExposure: false
   variables:
-    TopicSelectionEnabled:
+    reportAdsEnabled:
       type: boolean
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.sections.interestPicker.enabled
+        pref:  browser.newtabpage.activity-stream.discoverystream.reportAds.enabled
       description: >-
-        Enables inline topic selection
-
-newtabCustomWallpaper:
-  description: >-
-    Modify the wallpaper selection feature to support user-uploaded custom wallpaper images
-  owner: mcrawford@mozilla.com
-  hasExposure: false
-  variables:
-    uploadWallpaper:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.enabled
-      description: >-
-        Turns on and off ability to upload a custom wallpaper.
-    colorPicker:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.customColor.enabled
-      description: >-
-        Turns on and off background color picker.
-    maxFileSizeEnabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize.enabled
-      description: >-
-        Turns on and off maximum file size for uploaded images
-    maxFileSize:
-      type: int
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize
-      description: >-
-        Maximum file size (in MB) a user can upload
-
-newtabShortcutsExperiment:
-  description: >-
-    Adjusting sizes and spacing of new tab shortcuts.
-  owner: sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    refresh:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabShortcuts.refresh
-      description: >-
-        Adjusting sizes and spacing of new tab shortcuts.
-
-newtabSponsoredContent:
-  description: >-
-    Change and control the sponsored content on newtab.
-  owner: sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    spocPositions:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.spoc-positions
-      description: CSV string of spoc position indexes on newtab Pocket grid
-    spocPlacements:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.placements.spocs
-      description: CSV string of spoc placement ids on newtab Pocket grid. A placement id tells our ad server where the ads are intended to be displayed.
-    spocCounts:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.placements.spocs.counts
-      description: CSV string of spoc placement counts on newtab Pocket grid. The count tells the ad server how many ads to return for this position and placement.
-    tilesPlacements:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.placements.tiles
-      description: CSV string of tiles placement ids on newtab tiles section. A placement id tells our ad server where the ads are intended to be displayed.
-    tilesCounts:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.placements.tiles.counts
-      description: CSV string of tiles placement counts on newtab tiles section. The count tells the ad server how many ads to return for this position and placement.
-
-newtabGroupedSponsoredControls:
-  description: >-
-    Adjust sponsored content controls on newtab.
-  owner: mcrawford@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.system.showSponsoredCheckboxes
-      description: >-
-        When true, checkboxes for sponsored results in top sites and recommended stories are grouped separately
-        on about:preferences#home
-
-newtabTopicSelection:
-  description: the about:newtab topic selection experience.
-  owner: nbarrett@mozilla.com
-  hasExposure: false
-  variables:
-    availableTopics:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.topics
-      description: >-
-        List of available topics to select for topic selection
-    suggestedTopics:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.suggestedTopics
-      description: >-
-        List of pre-selected topics to display on first run of topic selection modal
-    topicSelectionOnboarding:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.onboarding.enabled
-      description: >-
-        Turns on and off topic selection onbaording
-    regionTopicsConfig:
-      description: A comma-separated list of regions that get topics selection by default.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.region-topics-config
-    localeTopicsConfig:
-      description: A comma-separated list of locales that get topics selection by default.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.locale-topics-config
-    regionTopicLabelConfig:
-      description: A comma-separated list of regions that get topic labels by default.
-      type: string
-      setPref:
-        branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.topicLabels.region-topic-label-config
-    localeTopicLabelConfig:
-      description: A comma-separated list of locales that get topic Labels by default.
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.topicLabels.locale-topic-label-config
+        Enable reporting for ads
 
 newtabContextualContent:
   description: about:newtab contextual content feed
@@ -1278,44 +1039,186 @@ newtabContextualContent:
       description: >-
         currently selected feed to display in the Contextual Content component
 
-newtabAdsReporting:
-  description: about:newtab reporting ads feature
-  owner: rhamoui@mozilla.com
+newtabCustomWallpaper:
+  description: >-
+    Modify the wallpaper selection feature to support user-uploaded custom wallpaper images
+  owner: mcrawford@mozilla.com
   hasExposure: false
   variables:
-    reportAdsEnabled:
+    uploadWallpaper:
       type: boolean
       setPref:
         branch: user
-        pref:  browser.newtabpage.activity-stream.discoverystream.reportAds.enabled
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.enabled
       description: >-
-        Enable reporting for ads
+        Turns on and off ability to upload a custom wallpaper.
+    colorPicker:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customColor.enabled
+      description: >-
+        Turns on and off background color picker.
+    maxFileSizeEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize.enabled
+      description: >-
+        Turns on and off maximum file size for uploaded images
+    maxFileSize:
+      type: int
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.newtabWallpapers.customWallpaper.fileSize
+      description: >-
+        Maximum file size (in MB) a user can upload
 
-newtabSmartShortcuts:
-  description: about:newtab personalized shortcuts
-  owner: rhamoui@mozilla.com, sdowne@mozilla.com
+newtabGroupedSponsoredControls:
+  description: >-
+    Adjust sponsored content controls on newtab.
+  owner: mcrawford@mozilla.com
   hasExposure: false
   variables:
     enabled:
       type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.system.showSponsoredCheckboxes
       description: >-
-        Enable personalized shortcuts
-    over_sample_multiplier:
+        When true, checkboxes for sponsored results in top sites and recommended stories are grouped separately
+        on about:preferences#home
+
+newtabInlineTopicSelection:
+  description: >-
+      Adds Inline topic selection to sections layout
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    TopicSelectionEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.sections.interestPicker.enabled
+      description: >-
+        Enables inline topic selection
+
+newtabMarsOhttp:
+  description: Sending request to MARS over OHTTP in newtab
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.ohttp.enabled
+      description: >-
+        Enables using OHTTP for unified ads API requests
+
+newtabMerinoOhttp:
+  description: Sending request to merino over OHTTP in newtab
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.merino-provider.ohttp.enabled
+      description: >-
+        Enables using OHTTP for merino content requests
+
+newtabMobileDownloadPromotion:
+  description: Cross-sell promotion to download Firefox for mobile
+  owner: mcrawford@mozilla.com
+  hasExposure: false
+  variables:
+    showModal:
+      type: boolean
+      description: Display mobile download modal to users until dismissed
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.mobileDownloadModal.enabled
+    variantA:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.mobileDownloadModal.variant-a
+      description: >-
+        Variant A modal message and QR code.
+    variantB:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.mobileDownloadModal.variant-b
+      description: >-
+        Variant B modal message and QR code.
+    variantC:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.mobileDownloadModal.variant-c
+      description: >-
+        Variant C modal message and QR code.
+
+newtabPrivatePing:
+  description: The newtab-content ping, sent through OHTTP
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    privatePingEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.enabled
+      description: >-
+        Enables the private newtab-content ping sent through OHTTP
+    redactNewtabPing:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.redactNewtabPing.enabled
+      description: >-
+        Provides an option to redact content ids of users from click, impression and related events in the NewTab ping. Should be enabled when data colection has shefted to the more private NewTab_content ping.
+    includeInferredInterests:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.inferredInterests.enabled
+      description: >-
+        Includes a differentially private intrest vector of general topical interests based on New Tab clicks. Only sent when user has enabled personalization.
+    maxSubmissionDelayMs:
       type: int
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.maxSubmissionDelayMs
       description: >-
-        Controls how many multiples of the frecent we sample before reranking
-    positive_prior:
-      type: int
-      description: >-
-        Alpha in shortcut thompson sampling, exploit faster
-    negative_prior:
-      type: int
-      description: >-
-        Beta in shortcut thompson sampling, explore longer
-    thom_weight:
-      type: int
-      description: >-
-        Percentage weight of thompson sampling relative to frecency
+        The maximum range for the random delay from scheduling the newtab-content ping to actually sending it. The minimum is 1000 by default. This is in milliseconds.
+
+newtabPublisherFavicons:
+  description: Enabled publihser favicons on cards in newtab
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.publisherFavicon.enabled
+      description: Enables publisher favicons on cards in newtab
+
+newtabRefinedCardsLayout:
+  description: Enable layout and styling refinements for content and ad cards across different card sizes
+  owner: rhamoui@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.refinedCardsLayout.enabled
+      description: Enables the refined cards layout for newtab
 
 newTabSectionsExperiment:
   description: about:newtab section UI update
@@ -1439,39 +1342,102 @@ newTabSectionsExperiment:
         pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualBanners.counts
       description: CSV string of AdBanner placement counts on newtab Pocket grid. The count tells the ad server how many banners to return for this position and placement.
 
-newtabPrivatePing:
-  description: The newtab-content ping, sent through OHTTP
-  owner: nbarrett@mozilla.com
+newtabShortcutsExperiment:
+  description: >-
+    Adjusting sizes and spacing of new tab shortcuts.
+  owner: sdowne@mozilla.com
   hasExposure: false
   variables:
-    privatePingEnabled:
+    refresh:
       type: boolean
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.telemetry.privatePing.enabled
+        pref: browser.newtabpage.activity-stream.newtabShortcuts.refresh
       description: >-
-        Enables the private newtab-content ping sent through OHTTP
-    redactNewtabPing:
+        Adjusting sizes and spacing of new tab shortcuts.
+
+newtabSmartShortcuts:
+  description: about:newtab personalized shortcuts
+  owner: rhamoui@mozilla.com, sdowne@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
       type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.telemetry.privatePing.redactNewtabPing.enabled
       description: >-
-        Provides an option to redact content ids of users from click, impression and related events in the NewTab ping. Should be enabled when data colection has shefted to the more private NewTab_content ping.
-    includeInferredInterests:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.telemetry.privatePing.inferredInterests.enabled
+        Enable personalized shortcuts
+    over_sample_multiplier:
+      type: int
       description: >-
-        Includes a differentially private intrest vector of general topical interests based on New Tab clicks. Only sent when user has enabled personalization.
-    maxSubmissionDelayMs:
+        Controls how many multiples of the frecent we sample before reranking
+    positive_prior:
+      type: int
+      description: >-
+        Alpha in shortcut thompson sampling, exploit faster
+    negative_prior:
+      type: int
+      description: >-
+        Beta in shortcut thompson sampling, explore longer
+    thom_weight:
+      type: int
+      description: >-
+        Percentage weight of thompson sampling relative to frecency
+
+newtabSpocsCache:
+  description: The about:newtab sponsored content cache.
+  owner: sdowne@mozilla.com
+  hasExposure: false
+  variables:
+    spocsCacheTimeout:
       type: int
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.telemetry.privatePing.maxSubmissionDelayMs
+        pref: browser.newtabpage.activity-stream.discoverystream.spocs.cacheTimeout
       description: >-
-        The maximum range for the random delay from scheduling the newtab-content ping to actually sending it. The minimum is 1000 by default. This is in milliseconds.
+        Set sponsored content cache timeout in minutes.
+    spocsStartupCache:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.spocs.startupCache.enabled
+      description: >-
+        Controls if spocs should be included in startup cache.
+
+newtabSponsoredContent:
+  description: >-
+    Change and control the sponsored content on newtab.
+  owner: sdowne@mozilla.com
+  hasExposure: false
+  variables:
+    spocPositions:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.spoc-positions
+      description: CSV string of spoc position indexes on newtab Pocket grid
+    spocPlacements:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.spocs
+      description: CSV string of spoc placement ids on newtab Pocket grid. A placement id tells our ad server where the ads are intended to be displayed.
+    spocCounts:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.spocs.counts
+      description: CSV string of spoc placement counts on newtab Pocket grid. The count tells the ad server how many ads to return for this position and placement.
+    tilesPlacements:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.tiles
+      description: CSV string of tiles placement ids on newtab tiles section. A placement id tells our ad server where the ads are intended to be displayed.
+    tilesCounts:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.placements.tiles.counts
+      description: CSV string of tiles placement counts on newtab tiles section. The count tells the ad server how many ads to return for this position and placement.
 
 newtabTrainhop:
   description: Experiment feature for the train-hopping newtab extension.
@@ -1511,44 +1477,6 @@ newtabTrainhopAddon:
         branch: user
         pref: browser.newtabpage.trainhopAddon.version
 
-newtabMerinoOhttp:
-  description: Sending request to merino over OHTTP in newtab
-  owner: nbarrett@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.merino-provider.ohttp.enabled
-      description: >-
-        Enables using OHTTP for merino content requests
-
-newtabMarsOhttp:
-  description: Sending request to MARS over OHTTP in newtab
-  owner: nbarrett@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.unifiedAds.ohttp.enabled
-      description: >-
-        Enables using OHTTP for unified ads API requests
-
-newtabRefinedCardsLayout:
-  description: Enable layout and styling refinements for content and ad cards across different card sizes
-  owner: rhamoui@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.refinedCardsLayout.enabled
-      description: Enables the refined cards layout for newtab
-
 newtabTrendingSearchWidget:
   description: >-
       Adds trending search results widget to new tab
@@ -1568,17 +1496,110 @@ newtabTrendingSearchWidget:
         pref: browser.newtabpage.activity-stream.trendingSearch.variant
       description: Determines the layout variant for the trending search widget
 
-newtabPublisherFavicons:
-  description: Enabled publihser favicons on cards in newtab
+newtabTopicSelection:
+  description: the about:newtab topic selection experience.
   owner: nbarrett@mozilla.com
   hasExposure: false
   variables:
-    enabled:
+    availableTopics:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.topics
+      description: >-
+        List of available topics to select for topic selection
+    suggestedTopics:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.suggestedTopics
+      description: >-
+        List of pre-selected topics to display on first run of topic selection modal
+    topicSelectionOnboarding:
       type: boolean
       setPref:
         branch: user
-        pref: browser.newtabpage.activity-stream.discoverystream.publisherFavicon.enabled
-      description: Enables publisher favicons on cards in newtab
+        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.onboarding.enabled
+      description: >-
+        Turns on and off topic selection onbaording
+    regionTopicsConfig:
+      description: A comma-separated list of regions that get topics selection by default.
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.region-topics-config
+    localeTopicsConfig:
+      description: A comma-separated list of locales that get topics selection by default.
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.topicSelection.locale-topics-config
+    regionTopicLabelConfig:
+      description: A comma-separated list of regions that get topic labels by default.
+      type: string
+      setPref:
+        branch: user
+        pref:  browser.newtabpage.activity-stream.discoverystream.topicLabels.region-topic-label-config
+    localeTopicLabelConfig:
+      description: A comma-separated list of locales that get topic Labels by default.
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.topicLabels.locale-topic-label-config
+
+newtabUnifiedAds:
+  description: Mozilla Ad Routing Service (MARS) unified ads service
+  owner: mcrawford@mozilla.com, sdowne@mozilla.com
+  hasExposure: false
+  variables:
+    unifiedAdsEndpoint:
+      description: The URL for the MARS API endpoint.
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.endpoint
+    unifiedAdsSpocsEnabled:
+      type: boolean
+      description: >-
+          Enable MARS endpoint to serve ads for recommended stories
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.spocs.enabled
+    unifiedAdsTilesEnabled:
+      type: boolean
+      description: >-
+          Enable MARS endpoint to serve content for top sites tiles
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.tiles.enabled
+    unifiedAdsFeedEnabled:
+      type: boolean
+      description: >-
+          Enable AdsFeed to manage all ads request/serving logic
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.adsFeed.enabled
+    unifiedAdsFeedTilesEnabled:
+      type: boolean
+      description: >-
+          Enable AdsFeed to query MARS server to fetch/serve top sites tiles
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.unifiedAds.adsFeed.tiles.enabled
+
+newtabWidgets:
+  description: about:newtab widgets feature
+  owner: mcrawford@mozilla.com
+  hasExposure: false
+  variables:
+    listsEnabled:
+      type: boolean
+      description: >-
+        Enable Lists widget
+    timerEnabled:
+      type: boolean
+      description: >-
+        Enable Focus Timer widget
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -2482,6 +2503,9 @@ pictureinpicture:
 glean:
   description: "The Glean data-control-plane feature within Firefox Desktop for controlling metric configuration"
   owner: glean-team@mozilla.com
+  applications:
+    - firefox-desktop
+    - firefox-desktop-background-task
   hasExposure: false
   allowCoenrollment: true
   variables:
@@ -2495,6 +2519,9 @@ glean:
 gleanInternalSdk:
   description: "The Glean internal SDK feature intended only for internal Glean Team use"
   owner: glean-team@mozilla.com
+  applications:
+    - firefox-desktop
+    - firefox-desktop-background-task
   hasExposure: false
   variables:
     finalInactive:
@@ -4294,6 +4321,7 @@ nimbusTelemetry:
   hasExposure: false
   applications:
     - firefox-desktop
+    - firefox-desktop-background-task
   variables:
     gleanMetricConfiguration:
       description: >
@@ -4746,6 +4774,12 @@ smartTabGroups:
         branch: user
         pref: browser.tabs.groups.smart.nearestNeighborThresholdInt
       description: Controls the threshold, less than or equal to 1000, for the nearest neighbor cluster method
+    searchTopicEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.tabs.groups.smart.searchTopicEnabled
+      description: For single tab groupings, use the search query as the topic rather than use ML
 
 smartblockEmbeds:
   description: Pref to control Smartblock Embeds
