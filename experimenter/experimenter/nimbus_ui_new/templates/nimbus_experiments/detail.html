@@ -61,7 +61,7 @@
     {% endfor %}
   {% endif %}
   <!-- Launch Controls Card-->
-  {% if not experiment.get_invalid_pages or not experiment.is_draft %}
+  {% if not invalid_pages or not experiment.is_draft %}
     {% include "nimbus_experiments/launch_controls.html" %}
 
   {% endif %}

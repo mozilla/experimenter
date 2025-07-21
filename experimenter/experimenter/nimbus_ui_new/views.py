@@ -432,7 +432,9 @@ class DocumentationLinkDeleteView(RenderParentDBResponseMixin, OverviewUpdateVie
     form_class = DocumentationLinkDeleteForm
 
 
-class BranchesBaseView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class BranchesBaseView(
+    NimbusExperimentViewMixin, RequestFormMixin, ValidationErrorsMixin, UpdateView
+):
     form_class = NimbusBranchesForm
     template_name = "nimbus_experiments/edit_branches.html"
 
