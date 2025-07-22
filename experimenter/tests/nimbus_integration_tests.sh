@@ -61,7 +61,6 @@ poetry -C experimenter/tests/integration \
     --reruns-delay 30 \
     --driver Firefox \
     --verify-base-url \
-    --base-url https://nginx/nimbus/ \
     experimenter/tests/integration/nimbus \
     -vvv \
     $PYTEST_ARGS

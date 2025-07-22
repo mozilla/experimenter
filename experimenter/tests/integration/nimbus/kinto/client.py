@@ -47,7 +47,7 @@ class KintoClient:
                     pass
                 else:
                     return
-            time.sleep(1)
+            time.sleep(2)
         raise Exception("Unable to approve kinto review")
 
     def reject(self):
@@ -62,5 +62,5 @@ class KintoClient:
                     bucket=KINTO_BUCKET_WORKSPACE,
                 )
                 return
-            time.sleep(1)
+            time.sleep(2)
         raise Exception("Unable to reject kinto review")

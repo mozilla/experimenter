@@ -9,7 +9,7 @@ from nimbus.models.base_dataclass import (
     BaseExperimentApplications,
 )
 
-LOAD_DATA_RETRIES = 30
+LOAD_DATA_RETRIES = 60
 LOAD_DATA_RETRY_DELAY = 1.0
 
 

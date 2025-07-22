@@ -1,3 +1,5 @@
+import os
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,13 +14,24 @@ class AudiencePage(ExperimenterBase):
 
     PAGE_TITLE = "Audience Page"
 
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
+    _page_wait_locator = (
+        (By.CSS_SELECTOR, "#audience-form")
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (By.CSS_SELECTOR, "#PageEditAudience")
+    )
     _channel_select_locator = (By.CSS_SELECTOR, "#channel")
     _min_version_select_locator = (By.CSS_SELECTOR, "#minVersion")
     _targeting_select_locator = (By.CSS_SELECTOR, "#targeting")
     _population_fill_locator = (
-        By.CSS_SELECTOR,
-        '[data-testid="population-percent-text"]',
+        (
+            By.CSS_SELECTOR,
+            "#id_population_percent",
+        )
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        else (
+            By.CSS_SELECTOR,
+            '[data-testid="population-percent-text"]',
+        )
     )
     _expected_clients_locator = (By.CSS_SELECTOR, "#totalEnrolledClients")
     _enrollment_period_locator = (By.CSS_SELECTOR, "#proposedEnrollment")
@@ -90,8 +103,15 @@ class AudiencePage(ExperimenterBase):
     @percentage.setter
     def percentage(self, text) -> None:
         name = self.wait_for_and_find_element(*self._population_fill_locator)
-        name.clear()
-        name.send_keys(f"{text}")
+        self.execute_script("arguments[0].scrollIntoView({block: 'center'});", name)
+        self.execute_script("arguments[0].click();", name)
+        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL")):
+            self.execute_script(
+                "arguments[0].setAttribute('value', arguments[1]);", name, text
+            )
+        else:
+            name.clear()
+            name.send_keys(f"{text}")
 
     @property
     def expected_clients(self):
