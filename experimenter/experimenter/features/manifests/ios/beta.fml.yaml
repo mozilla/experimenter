@@ -26,13 +26,6 @@ features:
         description: "If true, we will show the new appearance menu entry"
         type: Boolean
         default: true
-  bookmark-refactor-feature:
-    description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
-    variables:
-      enabled:
-        description: "Enables the bookmark refactor feature\n"
-        type: Boolean
-        default: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
