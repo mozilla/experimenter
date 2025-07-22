@@ -1996,6 +1996,23 @@ saveToPocket:
         pref: extensions.pocket.oAuthConsumerKeyBff
       description: BFF Proxy Service OAuth Consumer Key
 
+sessionRestore:
+  description: Session restore feature
+  owner: sfoster@mozilla.com
+  hasExposure: false
+  variables:
+    startupBehavior:
+      type: int
+      setPref:
+        branch: user
+        pref: browser.startup.page
+      description: |
+        Should we resume the previous session? Startup behavior is a choice of 4 possible values:
+        0 = open a blank tab,
+        1 = open the configured homepage in a tab (default, session restore disabled),
+        2 = open last visited page in a tab,
+        3 = re-open previous windows and tabs (session restore enabled)
+
 password-autocomplete:
   description: A special autocomplete UI for password fields.
   owner: sgalich@mozilla.com
