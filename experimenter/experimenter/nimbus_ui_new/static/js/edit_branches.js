@@ -72,9 +72,11 @@ $(() => {
   setupCodemirrorLabs();
   setupCodeMirrorLocalizations();
 
-  document.body.addEventListener("htmx:afterSwap", function () {
-    setupCodemirrorFeatures();
-    setupCodemirrorLabs();
-    setupCodeMirrorLocalizations();
+  document.body.addEventListener("htmx:afterSwap", function (event) {
+    if (event.detail.target.id === "branches-form") {
+      setupCodemirrorFeatures();
+      setupCodemirrorLabs();
+      setupCodeMirrorLocalizations();
+    }
   });
 });
