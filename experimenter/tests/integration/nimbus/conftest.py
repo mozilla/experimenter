@@ -120,6 +120,10 @@ def firefox_options(firefox_options):
 
 @pytest.fixture
 def selenium(selenium, experiment_slug, kinto_client):
+    script = """Services.fog.testResetFOG();"""
+    with selenium.context(selenium.CONTEXT_CHROME):
+        selenium.execute_script(script)
+
     yield selenium
 
     if os.getenv("CIRCLECI") is None:
@@ -195,7 +199,12 @@ def experiment_slug(experiment_name):
 
 @pytest.fixture
 def experiment_url(base_url, experiment_slug):
-    return urljoin(base_url, experiment_slug)
+    return f"{urljoin(base_url, experiment_slug)}/summary/"
+
+
+@pytest.fixture
+def old_base_url():
+    return f"{os.getenv('INTEGRATION_TEST_NGINX_URL', 'https://nginx')}/nimbus"
 
 
 @pytest.fixture(name="load_experiment_outcomes")
@@ -445,9 +454,10 @@ def fixture_telemetry_event_check(trigger_experiment_loader, selenium):
                         """
                     )
             logging.info(f"nimbus events: {nimbus_events}")
-            assert event in next(event["name"] for event in nimbus_events)
-            assert experiment in next(
-                event["extra"]["experiment"] for event in nimbus_events
+            assert any(events.get("name", {}) == event for events in nimbus_events)
+            assert any(
+                events.get("extra", {}).get("experiment") == experiment
+                for events in nimbus_events
             )
             return True
         except (AssertionError, TypeError):
