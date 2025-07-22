@@ -60,12 +60,21 @@ const setupCodemirrorLabs = () => {
   setupCodemirror(selector, textarea, []);
 };
 
+const setupCodeMirrorLocalizations = () => {
+  const selector = "#id_localizations";
+  const textarea = document.querySelector(selector);
+
+  setupCodemirror(selector, textarea, []);
+};
+
 $(() => {
   setupCodemirrorFeatures();
   setupCodemirrorLabs();
+  setupCodeMirrorLocalizations();
 
   document.body.addEventListener("htmx:afterSwap", function () {
     setupCodemirrorFeatures();
     setupCodemirrorLabs();
+    setupCodeMirrorLocalizations();
   });
 });
