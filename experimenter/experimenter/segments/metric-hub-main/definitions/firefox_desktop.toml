@@ -2016,8 +2016,8 @@ data_source = "protections_popup_events"
 friendly_name = "ETP Disablement"
 
 [metrics.urlbar_impressions]
-select_expression = "COALESCE(COUNTIF(is_terminal), 0)"
-data_source = "urlbar_events"
+select_expression = "SUM(urlbar_impressions)"
+data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 friendly_name = "URL Bar Impressions"
 
 [dimensions]
@@ -2216,6 +2216,16 @@ friendly_name = "Urlbar Events"
 description = "Urlbar Events"
 submission_date_column = "submission_date"
 client_id_column = "legacy_telemetry_client_id"
+experiments_column_type = "native"
+
+[data_sources.urlbar_events_daily_engagement_by_product_result_type_v1]
+from_expression = """(
+    SELECT * FROM `mozdata.firefox_desktop.urlbar_events_daily_engagement_by_product_result_type`
+)"""
+analysis_units = ["profile_group_id", "client_id"]
+friendly_name = "Urlbar Events Clients Daily"
+description = "Urlbar Events Clients Daily"
+submission_date_column = "submission_date"
 experiments_column_type = "native"
 
 [data_sources.urlbar_events_unnested_results]
