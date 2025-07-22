@@ -23,14 +23,6 @@ appearance-menu-feature:
     status:
       type: boolean
       description: "If true, we will show the new appearance menu entry"
-bookmark-refactor-feature:
-  description: "The Feature for managing the roll out of the Bookmark refactor feature\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the bookmark refactor feature\n"
 deeplink-optimization-refactor-feature:
   description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
   hasExposure: true
