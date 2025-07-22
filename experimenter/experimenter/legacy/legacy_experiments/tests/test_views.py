@@ -800,5 +800,5 @@ class Test404View(TestCase):
             "/invalid/",
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertTemplateUsed(response, "nimbus/404.html")
+        self.assertTemplateUsed(response, "404.html")
         self.assertEqual(response.status_code, 404)

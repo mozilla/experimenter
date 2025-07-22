@@ -103,7 +103,7 @@ INSTALLED_APPS = [
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
-    "experimenter.nimbus_ui_new",
+    "experimenter.nimbus_ui",
 ]
 
 
@@ -127,8 +127,7 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             BASE_DIR / "legacy" / "legacy-ui" / "templates",
-            BASE_DIR / "nimbus-ui" / "templates",
-            BASE_DIR / "nimbus_ui_new" / "templates",
+            BASE_DIR / "nimbus_ui" / "templates",
             BASE_DIR / "docs",
         ],
         "OPTIONS": {
@@ -234,9 +233,8 @@ STATICFILES_DIRS = [
     ("assets", BASE_DIR / "legacy" / "legacy-ui" / "assets"),
     ("scripts", BASE_DIR / "legacy" / "legacy-ui" / "scripts"),
     ("imgs", BASE_DIR / "legacy" / "legacy-ui" / "imgs"),
-    ("nimbus", BASE_DIR / "nimbus-ui" / "build"),
     ("results", BASE_DIR / "results" / "build"),
-    ("nimbus_ui_new", BASE_DIR / "nimbus_ui_new" / "static" / "dist"),
+    ("nimbus_ui", BASE_DIR / "nimbus_ui" / "static" / "dist"),
     BASE_DIR / "static",
 ]
 

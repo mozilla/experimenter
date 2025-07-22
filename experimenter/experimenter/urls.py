@@ -6,10 +6,9 @@ from django.views.generic.base import RedirectView
 
 from experimenter.legacy.legacy_experiments.views import (
     ExperimentListView,
-    NimbusUIView,
     PageNotFoundView,
 )
-from experimenter.nimbus_ui_new.views import NimbusExperimentsListView
+from experimenter.nimbus_ui.views import NimbusExperimentsListView
 
 urlpatterns = [
     re_path(
@@ -27,13 +26,8 @@ urlpatterns = [
     re_path(r"^api/v8/", include("experimenter.experiments.api.v8.urls")),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^experiments/", include("experimenter.legacy.legacy_experiments.urls")),
-    re_path(r"^nimbus_new/", include("experimenter.nimbus_ui_new.urls")),
-    re_path(r"^nimbus/new/", NimbusUIView.as_view(), name="nimbus-create"),
+    re_path(r"^nimbus_new/", include("experimenter.nimbus_ui.urls")),
     re_path(r"^nimbus/$", NimbusExperimentsListView.as_view(), name="nimbus-list"),
-    re_path(r"^nimbus/(?P<slug>[\w-]+)/", NimbusUIView.as_view(), name="nimbus-detail"),
-    re_path(
-        r"^nimbus/(?P<slug>[\w-]+)/results", NimbusUIView.as_view(), name="nimbus-results"
-    ),
     re_path(r"^legacy/$", ExperimentListView.as_view(), name="home"),
     re_path(
         r"^$",
