@@ -621,7 +621,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 attrs={"class": "form-check-input"}
             ),
             "is_localized": forms.CheckboxInput(attrs={"class": "form-check-input"}),
-            "localizations": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+            "localizations": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
