@@ -939,8 +939,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - /.*/
-                # - main
+                - main
       - integration_nimbus_remote_settings_launch:
           name: Test Remote Settings Launch (All Applications)
           filters:
@@ -1022,12 +1021,10 @@ workflows:
                 - main
       - integration_nimbus_cirrus:
           name: Test Demo app with Cirrus
-          run_tests: false
           filters:
             branches:
               ignore:
-                - /.*/
-                # - main
+                - main
       - deploy_experimenter:
           name: Deploy Experimenter
           context:
