@@ -934,12 +934,12 @@ workflows:
             branches:
               only:
                 - update_firefox_versions
-      - integration_nimbus_desktop_ui:
-          name: Test Desktop Nimbus UI (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
+      # - integration_nimbus_desktop_ui:
+      #     name: Test Desktop Nimbus UI (Release Firefox)
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
       - integration_nimbus_remote_settings_launch:
           name: Test Remote Settings Launch (All Applications)
           filters:
@@ -1019,12 +1019,12 @@ workflows:
             branches:
               ignore:
                 - main
-      - integration_nimbus_cirrus:
-          name: Test Demo app with Cirrus
-          filters:
-            branches:
-              ignore:
-                - main
+      # - integration_nimbus_cirrus:
+      #     name: Test Demo app with Cirrus
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
       - deploy_experimenter:
           name: Deploy Experimenter
           context:
