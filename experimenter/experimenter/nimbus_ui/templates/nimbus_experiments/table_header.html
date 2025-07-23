@@ -1,0 +1,23 @@
+<th scope="col">
+  <form id="sort-form"
+        hx-get="{% url "nimbus-ui-table" %}"
+        hx-trigger="submit"
+        hx-target="#experiment-list"
+        hx-push-url="true">
+    <input type="hidden"
+           name="sort"
+           value="{% if filter.form.sort.value == up %}{{ down }}{% else %}{{ up }}{% endif %}">
+    {% for field in filter.form %}
+      {% if field.name != "sort" %}
+        {% if field.value %}{{ field.as_hidden }}{% endif %}
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="nav-link">
+      <div class="d-flex align-items-center">
+        {{ field }}
+        {% if filter.form.sort.value == up %}<i class="ps-2 fa-solid fa-chevron-up"></i>{% endif %}
+        {% if filter.form.sort.value == down %}<i class="ps-2 fa-solid fa-chevron-down"></i>{% endif %}
+      </div>
+    </button>
+  </form>
+</th>

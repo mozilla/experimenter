@@ -38,22 +38,16 @@ PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --no
 PYTHON_MIGRATE = python manage.py migrate
 ESLINT_LEGACY = yarn workspace @experimenter/core lint
 ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
-ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint
 ESLINT_RESULTS = yarn workspace @experimenter/results lint
-ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint-fix
 ESLINT_FIX_RESULTS = yarn workspace @experimenter/results lint-fix
-ESLINT_NIMBUS_UI_NEW = yarn workspace @experimenter/nimbus_ui_new lint
-ESLINT_FIX_NIMBUS_UI_NEW = yarn workspace @experimenter/nimbus_ui_new format
-TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
+ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui lint
+ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui format
 TYPECHECK_RESULTS = yarn workspace @experimenter/results lint:tsc
-DJLINT_CHECK = djlint --check experimenter/nimbus_ui_new/
-DJLINT_FIX = djlint --reformat experimenter/nimbus_ui_new/
+DJLINT_CHECK = djlint --check experimenter/nimbus_ui/
+DJLINT_FIX = djlint --reformat experimenter/nimbus_ui/
 JS_TEST_LEGACY = yarn workspace @experimenter/core test
-JS_TEST_NIMBUS_UI = DEBUG_PRINT_LIMIT=999999 CI=yes yarn workspace @experimenter/nimbus-ui test:cov
 JS_TEST_RESULTS = DEBUG_PRINT_LIMIT=999999 CI=yes yarn workspace @experimenter/results test:cov
-NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 RESULTS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/results/test_schema.graphql&&diff experimenter/results/test_schema.graphql experimenter/results/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
-NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
 RESULTS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/results/schema.graphql&&yarn workspace @experimenter/results generate-types
 RUFF_CHECK = ruff check experimenter/ tests/
 RUFF_FIX = ruff check --fix experimenter/ tests/
@@ -172,12 +166,12 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 
 lint: build_test  ## Running linting on source code
 	-docker rm experimenter_test;
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'
 
 check: lint
 
 check_and_report: build_test  ## Only to be used on CI
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_COVERAGE)" "$(JS_TEST_NIMBUS_UI)") ${COLOR_CHECK}' || true
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_COVERAGE)") ${COLOR_CHECK}' || true
 	docker cp experimenter_test:/experimenter/experimenter_coverage.json workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter_tests.xml workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter/nimbus-ui/coverage_report workspace/test-results
@@ -218,10 +212,10 @@ generate_docs: build_dev
 	$(COMPOSE_RUN) experimenter sh -c "$(GENERATE_DOCS)"
 
 generate_types: build_dev
-	$(COMPOSE_RUN) experimenter sh -c "$(NIMBUS_TYPES_GENERATE); $(RESULTS_TYPES_GENERATE)"
+	$(COMPOSE_RUN) experimenter sh -c "$(RESULTS_TYPES_GENERATE)"
 
 format: build_dev  ## Format source tree
-	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI_NEW)"'
+	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI)"'
 code_format: format
 
 makemigrations: build_dev

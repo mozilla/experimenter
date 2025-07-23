@@ -1,0 +1,84 @@
+{% load nimbus_extras %}
+
+<form id="signoff" class="card mb-3">
+  {% csrf_token %}
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4>Sign-Offs</h4>
+    {{ errors }}
+    {% if edit %}
+      <div>
+        <a class="btn btn-primary btn-sm me-2"
+           hx-post="{% url 'nimbus-ui-update-signoff' experiment.slug %}"
+           hx-select="#signoff"
+           hx-target="#signoff"
+           hx-swap="outerHTML">Save</a>
+        <a class="btn btn-secondary btn-sm"
+           hx-get="{% url 'nimbus-ui-detail' experiment.slug %}"
+           hx-select="#signoff"
+           hx-target="#signoff"
+           hx-swap="outerHTML">Cancel</a>
+      </div>
+    {% else %}
+      <a class="btn btn-outline-primary btn-sm"
+         hx-get="{% url 'nimbus-ui-update-signoff' experiment.slug %}"
+         hx-target="#signoff"
+         hx-swap="outerHTML">Edit</a>
+    {% endif %}
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-striped mb-0">
+      <tbody>
+        <tr>
+          <th scope="row">QA Signoff</th>
+          <td class="d-flex align-items-center">
+            {% if edit %}
+              {{ form.qa_signoff }}
+            {% else %}
+              {% if experiment.qa_signoff %}
+                <i class="fa fa-check-circle text-success"></i>
+              {% else %}
+                <i class="fa fa-times-circle text-danger"></i>
+              {% endif %}
+            {% endif %}
+            {% if experiment.signoff_recommendations.qa_signoff %}<span class="text-success ms-1">Recommended:</span>{% endif %}
+            <span class="ms-1">Please file a QA request. <a href="https://experimenter.info/qa-sign-off">Learn More</a></span>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">VP Signoff</th>
+          <td class="d-flex align-items-center">
+            {% if edit %}
+              {{ form.vp_signoff }}
+            {% else %}
+              {% if experiment.vp_signoff %}
+                <i class="fa fa-check-circle text-success"></i>
+              {% else %}
+                <i class="fa fa-times-circle text-danger"></i>
+              {% endif %}
+            {% endif %}
+            {% if experiment.signoff_recommendations.vp_signoff %}<span class="text-success ms-1">Recommended:</span>{% endif %}
+            <span class="ms-1">Please email your VP. <a href="https://experimenter.info/vp-sign-off">Learn More</a></span>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Legal Signoff</th>
+          <td class="d-flex align-items-center">
+            {% if edit %}
+              {{ form.legal_signoff }}
+            {% else %}
+              {% if experiment.legal_signoff %}
+                <i class="fa fa-check-circle text-success"></i>
+              {% else %}
+                <i class="fa fa-times-circle text-danger"></i>
+              {% endif %}
+            {% endif %}
+            {% if experiment.signoff_recommendations.legal_signoff %}
+              <span class="text-success ms-1">Recommended:</span>
+            {% endif %}
+            <span class="ms-1">Please email legal. <a href="https://experimenter.info/legal-sign-off">Learn More</a></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</form>

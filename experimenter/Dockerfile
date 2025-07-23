@@ -51,15 +51,13 @@ WORKDIR /experimenter
 COPY ./package.json /experimenter/package.json
 COPY ./yarn.lock /experimenter/yarn.lock
 COPY ./experimenter/legacy/legacy-ui/core/package.json /experimenter/experimenter/legacy/legacy-ui/core/package.json
-COPY ./experimenter/nimbus-ui/package.json /experimenter/experimenter/nimbus-ui/package.json
 COPY ./experimenter/results/package.json /experimenter/experimenter/results/package.json
-COPY ./experimenter/nimbus_ui_new/static/package.json /experimenter/experimenter/nimbus_ui_new/static/package.json
+COPY ./experimenter/nimbus_ui/static/package.json /experimenter/experimenter/nimbus_ui/static/package.json
 RUN python3 -m pip install setuptools
 RUN yarn install --frozen-lockfile
 COPY ./experimenter/legacy/legacy-ui/core/ /experimenter/experimenter/legacy/legacy-ui/core/
-COPY ./experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
 COPY ./experimenter/results/ /experimenter/experimenter/results/
-COPY ./experimenter/nimbus_ui_new/ /experimenter/experimenter/nimbus_ui_new/
+COPY ./experimenter/nimbus_ui/ /experimenter/experimenter/nimbus_ui/
 
 
 # Dev image
@@ -77,9 +75,8 @@ COPY --from=python-builder /usr/local/lib/python3.13/site-packages/ /usr/local/l
 
 # Node packages
 COPY --from=node-builder /experimenter/experimenter/legacy/legacy-ui/core/node_modules/ /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
-COPY --from=node-builder /experimenter/experimenter/nimbus-ui/node_modules/ /experimenter/experimenter/nimbus-ui/node_modules/
 COPY --from=node-builder /experimenter/experimenter/results/node_modules/ /experimenter/experimenter/results/node_modules/
-COPY --from=node-builder /experimenter/experimenter/nimbus_ui_new/static/node_modules/ /experimenter/experimenter/nimbus_ui_new/static/node_modules/
+COPY --from=node-builder /experimenter/experimenter/nimbus_ui/static/node_modules/ /experimenter/experimenter/nimbus_ui/static/node_modules/
 COPY --from=node-builder /experimenter/node_modules/ /experimenter/node_modules/
 
 # Rust packages
@@ -106,17 +103,13 @@ FROM test AS ui
 COPY ./experimenter/legacy/legacy-ui/* /experimenter/experimenter/legacy/legacy-ui/
 RUN yarn workspace @experimenter/core build
 
-# Build nimbus ui assets
-COPY ./experimenter/nimbus-ui/ /experimenter/experimenter/nimbus-ui/
-RUN yarn workspace @experimenter/nimbus-ui build
-
 # Build results assets
 COPY ./experimenter/results/ /experimenter/experimenter/results/
 RUN yarn workspace @experimenter/results build
 
-# Build nimbus_ui_new assets
-COPY ./experimenter/nimbus_ui_new/ /experimenter/experimenter/nimbus_ui_new/
-RUN yarn workspace @experimenter/nimbus_ui_new build
+# Build nimbus_ui assets
+COPY ./experimenter/nimbus_ui/ /experimenter/experimenter/nimbus_ui/
+RUN yarn workspace @experimenter/nimbus_ui build
 
 
 # Deploy image
@@ -146,9 +139,8 @@ COPY ./manage.py /experimenter/manage.py
 COPY ./experimenter/ /experimenter/experimenter/
 COPY ./manifesttool/ /experimenter/manifesttool/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
-COPY --from=ui /experimenter/experimenter/nimbus-ui/build/ /experimenter/experimenter/nimbus-ui/build/
 COPY --from=ui /experimenter/experimenter/results/build/ /experimenter/experimenter/results/build/
-COPY --from=ui /experimenter/experimenter/nimbus_ui_new/static/dist/ /experimenter/experimenter/nimbus_ui_new/static/dist/
+COPY --from=ui /experimenter/experimenter/nimbus_ui/static/dist/ /experimenter/experimenter/nimbus_ui/static/dist/
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
 

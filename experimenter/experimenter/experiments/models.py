@@ -31,7 +31,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
-from experimenter.nimbus_ui_new.constants import NimbusUIConstants
+from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
@@ -468,31 +468,31 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             setattr(self, name, value)
 
     def get_absolute_url(self):
-        return reverse("nimbus-detail", kwargs={"slug": self.slug})
+        return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})
 
     def get_detail_url(self):
-        return reverse("nimbus-new-detail", kwargs={"slug": self.slug})
+        return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})
 
     def get_history_url(self):
-        return reverse("nimbus-new-history", kwargs={"slug": self.slug})
+        return reverse("nimbus-ui-history", kwargs={"slug": self.slug})
 
     def get_update_overview_url(self):
-        return reverse("nimbus-new-update-overview", kwargs={"slug": self.slug})
+        return reverse("nimbus-ui-update-overview", kwargs={"slug": self.slug})
 
     def get_update_branches_url(self):
-        return reverse("nimbus-new-update-branches", kwargs={"slug": self.slug})
+        return reverse("nimbus-ui-update-branches", kwargs={"slug": self.slug})
 
     def get_update_metrics_url(self):
-        return reverse("nimbus-new-update-metrics", kwargs={"slug": self.slug})
+        return reverse("nimbus-ui-update-metrics", kwargs={"slug": self.slug})
 
     def get_update_audience_url(self):
-        return reverse("nimbus-new-update-audience", kwargs={"slug": self.slug})
+        return reverse("nimbus-ui-update-audience", kwargs={"slug": self.slug})
 
     def get_detail_preview_recipe_json_url(self):
         return f"{self.get_detail_url()}#preview-recipe-json"
 
     def get_results_url(self):
-        return reverse("nimbus-new-results", kwargs={"slug": self.slug})
+        return reverse("nimbus-ui-results", kwargs={"slug": self.slug})
 
     @property
     def experiment_url(self):
