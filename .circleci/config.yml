@@ -936,11 +936,11 @@ workflows:
                 - update_firefox_versions
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
-          run_tests: false
           filters:
             branches:
               ignore:
-                - main
+                - /.*/
+                # - main
       - integration_nimbus_remote_settings_launch:
           name: Test Remote Settings Launch (All Applications)
           filters:
@@ -1026,7 +1026,8 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
+                - /.*/
+                # - main
       - deploy_experimenter:
           name: Deploy Experimenter
           context:
