@@ -955,7 +955,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         you will not be able to adjust the sizing for this rollout."
 
     ERROR_ROLLOUT_VERSION = (
-        "WARNING: Adjusting the population size while the"
+        "WARNING: Adjusting the population size while the "
         "rollout is live is not supported for {application} versions under {version}."
     )
 
