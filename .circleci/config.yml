@@ -288,8 +288,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings_all --reruns 1 --base-url https://nginx/nimbus_new/
-      PYTEST_BASE_URL: https://nginx/nimbus_new/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings_all --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
@@ -317,8 +317,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: nightly
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --base-url https://nginx/nimbus_new/
-      PYTEST_BASE_URL: https://nginx/nimbus_new/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
