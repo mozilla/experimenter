@@ -164,7 +164,7 @@
           </td>
           <td>
             {% if experiment.show_results_url %}
-              <a href="{% url "nimbus-results" slug=experiment.slug %}">View Results</a>
+              <a href="{% url "nimbus-ui-results" slug=experiment.slug %}">View Results</a>
             {% else %}
               <a>N/A</a>
             {% endif %}
