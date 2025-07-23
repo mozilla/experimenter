@@ -8,7 +8,7 @@ import {
   NimbusExperimentQAStatusEnum,
 } from "src/types/globalTypes";
 
-export const BASE_PATH = "/nimbus_new";
+export const BASE_PATH = "/nimbus";
 
 export const UNKNOWN_ERROR =
   "Sorry, an error occurred but we don't know why. We're looking into it.";

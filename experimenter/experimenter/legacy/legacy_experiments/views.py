@@ -233,7 +233,7 @@ class NimbusUIView(TemplateView):
 
 
 class PageNotFoundView(TemplateView):
-    template_name = "nimbus/404.html"
+    template_name = "404.html"
 
     @classmethod
     def as_404_view(cls):
