@@ -55,7 +55,7 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
-from experimenter.nimbus_ui_new.constants import NimbusUIConstants
+from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 

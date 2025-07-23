@@ -16,7 +16,7 @@ class AudiencePage(ExperimenterBase):
 
     _page_wait_locator = (
         (By.CSS_SELECTOR, "#audience-form")
-        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
         else (By.CSS_SELECTOR, "#PageEditAudience")
     )
     _channel_select_locator = (By.CSS_SELECTOR, "#channel")
@@ -27,7 +27,7 @@ class AudiencePage(ExperimenterBase):
             By.CSS_SELECTOR,
             "#id_population_percent",
         )
-        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL"))
+        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
         else (
             By.CSS_SELECTOR,
             '[data-testid="population-percent-text"]',
@@ -105,7 +105,7 @@ class AudiencePage(ExperimenterBase):
         name = self.wait_for_and_find_element(*self._population_fill_locator)
         self.execute_script("arguments[0].scrollIntoView({block: 'center'});", name)
         self.execute_script("arguments[0].click();", name)
-        if "nimbus_new" in str(os.environ.get("PYTEST_BASE_URL")):
+        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL")):
             self.execute_script(
                 "arguments[0].setAttribute('value', arguments[1]);", name, text
             )

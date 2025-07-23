@@ -4,8 +4,7 @@
   "private": true,
   "workspaces": [
     "experimenter/legacy/legacy-ui/*",
-    "experimenter/nimbus-ui",
-    "experimenter/nimbus_ui_new/static",
+    "experimenter/nimbus_ui/static",
     "experimenter/results"
   ],
   "devDependencies": {

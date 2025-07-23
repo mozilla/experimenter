@@ -8,7 +8,7 @@ from experimenter.experiments.models import NimbusEmail, NimbusExperiment
 def nimbus_send_experiment_ending_email(experiment):
     nimbus_format_and_send_html_email(
         experiment,
-        "nimbus/emails/experiment_ending_email.html",
+        "emails/experiment_ending_email.html",
         {
             "experiment": experiment,
         },
@@ -20,7 +20,7 @@ def nimbus_send_experiment_ending_email(experiment):
 def nimbus_send_enrollment_ending_email(experiment):
     nimbus_format_and_send_html_email(
         experiment,
-        "nimbus/emails/enrollment_ending_email.html",
+        "emails/enrollment_ending_email.html",
         {
             "experiment": experiment,
         },
