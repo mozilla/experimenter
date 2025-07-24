@@ -1570,6 +1570,19 @@ class TestDocumentationLinkCreateView(AuthTestCase):
             reverse(
                 "nimbus-ui-create-documentation-link", kwargs={"slug": experiment.slug}
             ),
+            {
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "risk_brand": True,
+                "risk_message": True,
+                "projects": [],
+                "public_description": "new description",
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                # Management form data for the inline formset
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
         )
 
         self.assertEqual(response.status_code, 200)
@@ -1589,6 +1602,22 @@ class TestDocumentationLinkDeleteView(AuthTestCase):
                 "nimbus-ui-delete-documentation-link", kwargs={"slug": experiment.slug}
             ),
             {
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "risk_brand": True,
+                "risk_message": True,
+                "projects": [],
+                "public_description": "new description",
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                # Management form data for the inline formset
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "https://www.example.com",
                 "link_id": documentation_link.id,
             },
         )
