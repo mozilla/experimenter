@@ -133,6 +133,7 @@ firefox_desktop:
           - "release"
           - "esr115"
           - "esr128"
+          - "esr140"
 
 experimenter_cirrus:
   slug: "experimenter"
