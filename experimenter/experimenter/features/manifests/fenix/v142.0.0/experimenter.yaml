@@ -1,4 +1,12 @@
 ---
+address-sync:
+  description: Turns on address sync.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to turn on address sync.\n"
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
@@ -48,14 +56,6 @@ composable-toolbar:
     enabled:
       type: boolean
       description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
-compose-homepage:
-  description: Turns on compose homepage.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to turn on the compose homepage.\n"
 cookie-banners:
   description: Features for cookie banner handling.
   hasExposure: true

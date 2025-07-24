@@ -3,15 +3,8 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - release
+  - nightly
 features:
-  address-sync:
-    description: Turns on address sync.
-    variables:
-      enabled:
-        description: "Whether or not to turn on address sync.\n"
-        type: Boolean
-        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -62,6 +55,13 @@ features:
         description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
         type: Boolean
         default: false
+  compose-homepage:
+    description: Turns on compose homepage.
+    variables:
+      enabled:
+        description: "Whether or not to turn on the compose homepage.\n"
+        type: Boolean
+        default: true
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -137,7 +137,7 @@ features:
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: false
+        default: true
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -149,13 +149,10 @@ features:
         description: Enables precise event timestamps for Glean events
         type: Boolean
         default: true
-      gleanMetricConfiguration:
-        description: Configuration for Glean Server Knobs
-        type: GleanServerKnobsConfiguration
-        default:
-          event_threshold: ~
-          metrics_enabled: {}
-          pings_enabled: {}
+      metrics-enabled:
+        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+        type: "Map<String, Boolean>"
+        default: {}
       ping-lifetime-max-time:
         description: After what time to auto-flush
         type: Int
@@ -171,7 +168,7 @@ features:
       enabled:
         description: "If true, the feature is active"
         type: Boolean
-        default: true
+        default: false
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -200,7 +197,6 @@ features:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
         type: "Map<HomeScreenSection, Boolean>"
         default:
-          header: false
           top-sites: true
           jump-back-in: true
           bookmarks: true
@@ -208,7 +204,6 @@ features:
           pocket: true
           pocket-sponsored-stories: true
           synced-tabs: true
-          collections: true
   javascript:
     description: Enables Javascript Engine (Spidermonkey) features
     variables:
@@ -371,13 +366,20 @@ features:
           ALWAYS: "true"
           NEVER: "false"
         string-alias: ConditionName
+  mars:
+    description: Mozilla Ad Routing Service (MARS) unified ads service.
+    variables:
+      enabled:
+        description: "Whether or not to enable MARS endpoint to serve sponsored top sites and stories.\n"
+        type: Boolean
+        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
       enabled:
         description: "If true, the new menu redesign is available."
         type: Boolean
-        default: false
+        default: true
       menu-banner:
         description: "If true, the menu banner is visible."
         type: Boolean
@@ -385,7 +387,7 @@ features:
       report-site-issue:
         description: "If true, report site issue menu item and preview is available."
         type: Boolean
-        default: false
+        default: true
   messaging:
     description: "The in-app messaging system.\n"
     variables:
@@ -458,6 +460,29 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          microsurvey-printing-example-nightly:
+            title: microsurvey_prompt_printing_title
+            text: microsurvey_survey_printing_title
+            surface: microsurvey
+            trigger-if-all:
+              - RECENTLY_PRINTED
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: homepage
+              icon: ic_print
+              answers:
+                - text: likert_scale_option_1
+                  ordering: 0
+                - text: likert_scale_option_2
+                  ordering: 1
+                - text: likert_scale_option_3
+                  ordering: 2
+                - text: likert_scale_option_4
+                  ordering: 3
+                - text: likert_scale_option_5
+                  ordering: 4
+                - text: likert_scale_option_6
+                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -554,6 +579,7 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<MR2022Section, Boolean>"
         default:
+          sync-cfr: true
           wallpapers-selection-tool: true
           tcp-cfr: true
           tcp-feature: true
@@ -563,7 +589,7 @@ features:
       enabled:
         description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
         type: Boolean
-        default: false
+        default: true
   networking:
     description: Enables networking features
     variables:
@@ -626,13 +652,6 @@ features:
         description: "If true, the one click search will be enabled."
         type: Boolean
         default: false
-  override-user-specified-homepage-sections:
-    description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
-    variables:
-      enabled:
-        description: "When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.\n"
-        type: Boolean
-        default: false
   pdfjs:
     description: PDF.js features
     variables:
@@ -650,7 +669,7 @@ features:
       certificateTransparencyMode:
         description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
         type: Int
-        default: 0
+        default: 2
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
@@ -729,7 +748,7 @@ features:
       enabled:
         description: "Overrides the loadType when it is a same document navigation\n"
         type: Boolean
-        default: true
+        default: false
       force-disable-uri:
         description: "Disable overriding the loadType during same document navigation on the domain specified by this URI.\n"
         type: String
@@ -766,7 +785,7 @@ features:
       enabled:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
-        default: false
+        default: true
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
@@ -803,7 +822,7 @@ features:
       disabled:
         description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
@@ -826,13 +845,6 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
-  tab-management-enhancements:
-    description: Control the visibility of the tab management enhancements.
-    variables:
-      enabled:
-        description: "Whether or not to enable the tab management enhancements.\n"
-        type: Boolean
-        default: false
   tab-strip:
     description: Enables tab strip.
     variables:
@@ -843,7 +855,7 @@ features:
       enabled:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
-        default: false
+        default: true
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -962,10 +974,6 @@ enums:
     variants:
       bookmarks:
         description: The sites the user has bookmarked.
-      collections:
-        description: The collections section of the homepage.
-      header:
-        description: The header of the homescreen.
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
       pocket:
@@ -981,6 +989,8 @@ enums:
   MR2022Section:
     description: The identifiers for the sections of the MR 2022.
     variants:
+      sync-cfr:
+        description: CFR for the first time you see a synced tab on the home screen.
       tcp-cfr:
         description: CFR for the first time you use the browse with Total Cookie Protection on the browser screen.
       tcp-feature:
@@ -1112,21 +1122,6 @@ objects:
         description: "An optional terms of service data for the onboarding card.\n"
         type: Option<TermsOfServiceData>
         default: ~
-  GleanServerKnobsConfiguration:
-    description: A configuration object for Glean server knobs.
-    fields:
-      event_threshold:
-        description: The threshold of events that will be buffered before an events ping is collected and submitted.
-        type: Option<Int>
-        default: ~
-      metrics_enabled:
-        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
-        type: "Map<String, Boolean>"
-        default: {}
-      pings_enabled:
-        description: "A map of ping names to booleans representing the state of the 'enabled' flag for that ping."
-        type: "Map<String, Boolean>"
-        default: {}
   MarketingData:
     description: An object to describe the marketing data onboarding card.
     fields:
