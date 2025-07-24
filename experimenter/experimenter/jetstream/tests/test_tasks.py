@@ -1105,6 +1105,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             lifecycle,
             primary_outcomes=primary_outcomes,
             secondary_outcomes=secondary_outcomes,
+            results_data=None,
         )
         experiment.reference_branch.slug = "control"
         experiment.reference_branch.save()
@@ -1170,6 +1171,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             lifecycle,
             primary_outcomes=primary_outcomes,
             secondary_outcomes=secondary_outcomes,
+            results_data=None,
         )
         experiment.reference_branch.slug = "control"
         experiment.reference_branch.save()
@@ -2239,7 +2241,9 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_data_fetch_in_loop(self, mock_delay):
         lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, results_data=None
+        )
         tasks.fetch_jetstream_data()
         mock_delay.assert_called_once_with(experiment.id)
 
@@ -2302,7 +2306,9 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         offset = NimbusExperiment.DAYS_ANALYSIS_BUFFER + 1
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=offset)
+            lifecycle,
+            end_date=datetime.date.today() - datetime.timedelta(days=offset),
+            results_data=None,
         )
 
         tasks.fetch_jetstream_data()
@@ -2318,7 +2324,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_exception_for_fetch_jetstream_data(self, mock_delay):
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE, results_data=None
         )
         mock_delay.side_effect = Exception
         with self.assertRaises(Exception):
