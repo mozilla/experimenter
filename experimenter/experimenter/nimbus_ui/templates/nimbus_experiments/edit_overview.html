@@ -8,11 +8,11 @@
 {% block title %}{{ experiment.name }} - Overview{% endblock %}
 
 {% block main_content %}
-  <form id="metrics-form"
+  <form id="overview-form"
         {% if form.is_bound and form.is_valid %}class="was-validated"{% endif %}
         hx-post="{% url 'nimbus-ui-update-overview' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-        hx-select="#metrics-form"
-        hx-target="#metrics-form"
+        hx-select="#overview-form"
+        hx-target="#overview-form"
         hx-swap="outerHTML">
     {% csrf_token %}
     <div class="card mb-3">
@@ -162,15 +162,15 @@
                     {{ link_form.link|add_class:"form-control"|add_error_class:"is-invalid" }}
                     {% for error in link_form.link.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
                   </div>
-                  <a class="text-primary"
-                     hx-post="{% url 'nimbus-ui-delete-documentation-link' slug=experiment.slug %}"
-                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                     hx-params="link_id"
-                     hx-vals='{"link_id": {{ link_form.instance.id }} }'
-                     hx-select="#documentation-links"
-                     hx-target="#documentation-links">
+                  <button type="button"
+                          class="btn btn-link p-0 mt-1"
+                          hx-post="{% url 'nimbus-ui-delete-documentation-link' slug=experiment.slug %}"
+                          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                          hx-vals='{"link_id": {{ link_form.instance.id }} }'
+                          hx-select="#overview-form"
+                          hx-target="#overview-form">
                     <i class="fa-solid fa-circle-xmark"></i>
-                  </a>
+                  </button>
                 </div>
               </div>
               <div class="row mb-3">
@@ -185,9 +185,8 @@
                     type="button"
                     hx-post="{% url 'nimbus-ui-create-documentation-link' slug=experiment.slug %}"
                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                    hx-params="none"
-                    hx-select="#documentation-links"
-                    hx-target="#documentation-links">+ Add Link</button>
+                    hx-select="#overview-form"
+                    hx-target="#overview-form">+ Add Link</button>
           </div>
         </div>
       </div>
