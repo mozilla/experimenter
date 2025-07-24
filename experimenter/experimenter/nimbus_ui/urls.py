@@ -28,6 +28,7 @@ from experimenter.nimbus_ui.views import (
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
+    NimbusExperimentsHomeView,
     NimbusExperimentsListTableView,
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
@@ -261,5 +262,10 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/delete_branch_screenshot/$",
         BranchScreenshotDeleteView.as_view(),
         name="nimbus-ui-delete-branch-screenshot",
+    ),
+    re_path(
+        r"^home/",
+        NimbusExperimentsHomeView.as_view(),
+        name="nimbus-ui-home",
     ),
 ]
