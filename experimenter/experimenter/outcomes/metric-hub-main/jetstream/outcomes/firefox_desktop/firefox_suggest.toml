@@ -18,7 +18,6 @@ select_expression = "SUM(urlbar_clicks)"
 data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 description = "Count of clicks on any result shown in the urlbar dropdown menu"
 friendly_name = "Urlbar engagements"
-analysis_units = ['profile_group_id', 'client_id']
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 
@@ -27,7 +26,6 @@ select_expression = "SUM(urlbar_impressions)"
 data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 description = "The number of times a user exits the urlbar dropdown menu, either by abandoning the urlbar, engaging with a urlbar result, or selecting an annoyance signal that closes the urlbar dropdown menu"
 friendly_name = "Urlbar search sessions"
-analysis_units = ['profile_group_id', 'client_id']
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 
@@ -39,14 +37,12 @@ depends_on = ["urlbar_clicks", "urlbar_impressions_suggest"]
 [metrics.urlbar_ctr.statistics.population_ratio]
 numerator = "urlbar_clicks"
 denominator = "urlbar_impressions_suggest"
-analysis_units = ['profile_group_id', 'client_id']
 
 [metrics.urlbar_annoyances]
 select_expression = "SUM(urlbar_annoyances)"
 data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 description = "Count of clicks on annoyance signals across all results shown in the urlbar dropdown menu"
 friendly_name = "Urlbar annoyances"
-analysis_units = ['profile_group_id', 'client_id']
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 
@@ -60,7 +56,6 @@ select_expression = """SUM(
 data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 description = "Count of clicks on a result shown in the urlbar dropdown menu leading to a SERP"
 friendly_name = "Urlbar sessions ending on a SERP"
-analysis_units = ['profile_group_id', 'client_id']
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 
