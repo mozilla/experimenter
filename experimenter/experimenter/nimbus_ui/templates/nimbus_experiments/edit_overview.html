@@ -183,6 +183,7 @@
           <div class="col-12 text-end">
             <button class="btn btn-outline-primary btn-sm"
                     type="button"
+                    id="add-additional-links-button"
                     hx-post="{% url 'nimbus-ui-create-documentation-link' slug=experiment.slug %}"
                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                     hx-params="none"
@@ -193,10 +194,11 @@
       </div>
     </div>
     <div class="d-flex justify-content-end">
-      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="submit" id="save-button" class="btn btn-primary">Save</button>
       <button type="submit"
               name="save_action"
               value="continue"
+              id="save-and-continue-button"
               class="btn btn-secondary ms-2">Save and Continue</button>
     </div>
     {% if form.is_bound %}

@@ -11,7 +11,7 @@ class Base(Page):
     """Base page."""
 
     def __init__(self, selenium, base_url, **kwargs):
-        super().__init__(selenium, base_url, timeout=300, **kwargs)
+        super().__init__(selenium, base_url, timeout=120, **kwargs)
         self.logging = logging
 
     def wait_for_page_to_load(self):
@@ -71,11 +71,15 @@ class Base(Page):
     def wait_for_and_find_element(
         self, strategy, locator, description=None, refresh=False
     ):
-        self.wait_for_locator((strategy, locator), description, refresh=refresh)
+        self.wait_for_locator((strategy, locator), description)
+        element = self.find_element(strategy, locator)
+        self._scroll_into_view(element)
         return self.find_element(strategy, locator)
 
     def wait_for_and_find_elements(self, strategy, locator, description=None):
         self.wait_for_locator((strategy, locator), description)
+        elements = self.find_elements(strategy, locator)
+        self._scroll_into_view(elements[0])
         return self.find_elements(strategy, locator)
 
     def non_blocking_sleep(self, seconds):
@@ -83,8 +87,12 @@ class Base(Page):
 
     def execute_script(self, script, *args):
         self.selenium.execute_script(script, *args)
-        time.sleep(2)
+        time.sleep(1)
 
     def js_click(self, elem):
         self.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
         self.execute_script("arguments[0].click();", elem)
+
+    def _scroll_into_view(self, element):
+        self.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        time.sleep(0.5)

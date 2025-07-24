@@ -248,6 +248,7 @@
                     {% endwith %}
                   {% endfor %}
                   <button type="button"
+                          id="add-screenshot-button"
                           class="btn btn-outline-primary btn-sm"
                           hx-post="{% url 'nimbus-ui-create-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
@@ -377,10 +378,11 @@
       </div>
     {% endif %}
     <div class="d-flex justify-content-end">
-      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="submit" id="save-button" class="btn btn-primary">Save</button>
       <button type="submit"
               name="save_action"
               value="continue"
+              id="save-and-continue-button"
               class="btn btn-secondary ms-2">Save and Continue</button>
     </div>
     {% if form.is_bound %}
