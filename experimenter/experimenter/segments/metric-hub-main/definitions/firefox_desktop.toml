@@ -1,5 +1,6 @@
 [metrics]
 
+
 [metrics.ad_click_rate]
 friendly_name = "Ad Click Rate"
 description = """
