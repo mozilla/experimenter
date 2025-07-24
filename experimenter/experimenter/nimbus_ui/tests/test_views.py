@@ -2773,3 +2773,21 @@ class TestBranchScreenshotDeleteView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertFalse(branch.screenshots.filter(id=screenshot.id).exists())
+
+class TestNimbusExperimentsHomeView(AuthTestCase):
+    def test_home_view_shows_only_owned_experiments(self):
+        my_experiment = NimbusExperimentFactory.create(owner=self.user, slug="mine")
+        NimbusExperimentFactory.create(slug="not-mine")
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            list(response.context["experiments"]),
+            [my_experiment],
+        )
+
+    def test_home_view_renders_template(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        response = self.client.get(reverse("nimbus-ui-home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/home.html")
