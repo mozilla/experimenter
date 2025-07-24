@@ -5,6 +5,13 @@ about:
 channels:
   - nightly
 features:
+  address-sync:
+    description: Turns on address sync.
+    variables:
+      enabled:
+        description: "Whether or not to turn on address sync.\n"
+        type: Boolean
+        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -55,13 +62,6 @@ features:
         description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
         type: Boolean
         default: false
-  compose-homepage:
-    description: Turns on compose homepage.
-    variables:
-      enabled:
-        description: "Whether or not to turn on the compose homepage.\n"
-        type: Boolean
-        default: true
   cookie-banners:
     description: Features for cookie banner handling.
     variables:

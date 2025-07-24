@@ -6,8 +6,7 @@ fenix:
   slug: "fenix"
   repo:
     type: "github"
-    name: "mozilla/gecko-dev"
-    default_branch: "master"
+    name: "mozilla-firefox/firefox"
   fml_path: "mobile/android/fenix/app/nimbus.fml.yaml"
   release_discovery:
     version_file:
@@ -16,7 +15,7 @@ fenix:
     strategies:
       - type: "branched"
         branches:
-          - "master"
+          - "main"
           - "beta"
           - "release"
 
