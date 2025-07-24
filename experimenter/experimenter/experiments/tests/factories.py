@@ -490,6 +490,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     requires_restart = factory.LazyAttribute(
         lambda o: (random.choice([True, False]) if o.is_firefox_labs_opt_in else False)
     )
+    results_data = {"v3": {"overall": {"enrollments": {"all": [1]}}}}
 
     class Meta:
         model = NimbusExperiment
