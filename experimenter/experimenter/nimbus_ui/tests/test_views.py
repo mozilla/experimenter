@@ -2774,6 +2774,7 @@ class TestBranchScreenshotDeleteView(AuthTestCase):
         experiment.refresh_from_db()
         self.assertFalse(branch.screenshots.filter(id=screenshot.id).exists())
 
+
 class TestNimbusExperimentsHomeView(AuthTestCase):
     def test_home_view_shows_only_owned_experiments(self):
         my_experiment = NimbusExperimentFactory.create(owner=self.user, slug="mine")
