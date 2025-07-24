@@ -215,7 +215,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "qa_status": experiment.qa_status,
                 "required_experiments": [],
                 "requires_restart": False,
-                "results_data": None,
+                "results_data": experiment.results_data,
                 "risk_brand": experiment.risk_brand,
                 "risk_message": experiment.risk_message,
                 "risk_mitigation_link": experiment.risk_mitigation_link,
