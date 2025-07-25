@@ -10,6 +10,7 @@
 export enum NimbusExperimentApplicationEnum {
   DEMO_APP = "DEMO_APP",
   DESKTOP = "DESKTOP",
+  EXPERIMENTER = "EXPERIMENTER",
   FENIX = "FENIX",
   FOCUS_ANDROID = "FOCUS_ANDROID",
   FOCUS_IOS = "FOCUS_IOS",
