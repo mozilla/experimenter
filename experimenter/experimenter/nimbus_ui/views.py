@@ -152,6 +152,15 @@ class UpdateRedirectViewMixin:
             )
         return super().get(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.can_edit():
+            response = HttpResponse()
+            base_url = reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
+            return response
+        return super().post(request, *args, **kwargs)
+
 
 class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
@@ -282,6 +291,9 @@ class NimbusExperimentDetailView(
             context["form"] = QAStatusForm(instance=self.object)
         if context["takeaways_edit_mode"]:
             context["takeaways_form"] = TakeawaysForm(instance=self.object)
+
+        if "save_failed" in self.request.GET:
+            context["save_failed"] = True
 
         return context
 

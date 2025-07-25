@@ -394,8 +394,9 @@
             Branches saved!
           </div>
         </div>
-      {% elif validation_errors %}
-        <div class="toast text-bg-danger position-fixed top-0 end-0 m-3 w-auto"
+      {% endif %}
+      {% if not form.is_valid or validation_errors %}
+        <div class="toast text-bg-danger position-fixed top-1 end-0 m-3 w-auto"
              role="alert"
              aria-live="assertive"
              aria-atomic="true">
