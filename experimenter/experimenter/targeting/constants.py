@@ -589,9 +589,7 @@ MOBILE_14_DAY_USER = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
-    application_choice_names=(
-        Application.FENIX.name,
-    ),
+    application_choice_names=(Application.FENIX.name,),
 )
 
 MOBILE_RECENTLY_UPDATED = NimbusTargetingConfig(
