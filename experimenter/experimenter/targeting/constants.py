@@ -581,6 +581,19 @@ MOBILE_FIRST_RUN_USER = NimbusTargetingConfig(
     ),
 )
 
+MOBILE_14_DAY_USER = NimbusTargetingConfig(
+    name="Users who installed the app in the last 14 days",
+    slug="mobile_14_day_users",
+    description=("New users on mobile who installed the app in the last 2 weeks"),
+    targeting="days_since_install < 15",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(
+        Application.FENIX.name,
+    ),
+)
+
 MOBILE_RECENTLY_UPDATED = NimbusTargetingConfig(
     name="Recently Updated Users",
     slug="mobile_recently_updated_users",
