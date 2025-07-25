@@ -987,6 +987,14 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertEqual(response.context["experiment"], self.experiment)
         self.assertIn("RISK_QUESTIONS", response.context)
 
+    def test_save_failed_query_arg_passed_in_context(self):
+        response = self.client.get(
+            reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug}),
+            {"save_failed": "true"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["save_failed"])
+
     def test_outcome_and_segment_links(self):
         response = self.client.get(
             reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug}),
@@ -1429,6 +1437,27 @@ class TestOverviewUpdateView(AuthTestCase):
             response.url, reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
         )
 
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_post_non_draft_hx_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.client.post(
+            reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug}), {}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers.get("HX-Redirect"),
+            (
+                f"{reverse('nimbus-ui-detail', kwargs={'slug': experiment.slug})}"
+                "?save_failed=true"
+            ),
+        )
+
     def test_post_updates_overview(self):
         project = ProjectFactory.create()
         documentation_link = NimbusDocumentationLinkFactory.create()
@@ -1648,6 +1677,27 @@ class TestBranchesUpdateViews(AuthTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url, reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_post_non_draft_hx_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.client.post(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug}), {}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers.get("HX-Redirect"),
+            (
+                f"{reverse('nimbus-ui-detail', kwargs={'slug': experiment.slug})}"
+                "?save_failed=true"
+            ),
         )
 
     @parameterized.expand(
@@ -1915,6 +1965,27 @@ class TestMetricsUpdateView(AuthTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url, reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_post_non_draft_hx_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.client.post(
+            reverse("nimbus-ui-update-metrics", kwargs={"slug": experiment.slug}), {}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers.get("HX-Redirect"),
+            (
+                f"{reverse('nimbus-ui-detail', kwargs={'slug': experiment.slug})}"
+                "?save_failed=true"
+            ),
         )
 
     def test_post_updates_metrics_and_segments(self):
@@ -2593,6 +2664,29 @@ class TestAudienceUpdateView(AuthTestCase):
             response.url, reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
         )
 
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_post_non_draft_hx_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=False
+        )
+        response = self.client.post(
+            reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug}), {}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers.get("HX-Redirect"),
+            (
+                f"{reverse('nimbus-ui-detail', kwargs={'slug': experiment.slug})}"
+                "?save_failed=true"
+            ),
+        )
+
     def test_post_updates_overview(self):
         country = CountryFactory.create()
         locale = LocaleFactory.create()
@@ -2883,6 +2977,7 @@ class TestBranchScreenshotDeleteView(AuthTestCase):
         experiment.refresh_from_db()
         self.assertFalse(branch.screenshots.filter(id=screenshot.id).exists())
 
+        
 
 class TestNimbusExperimentsHomeView(AuthTestCase):
     def test_home_view_shows_only_owned_experiments(self):
@@ -2901,3 +2996,34 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         response = self.client.get(reverse("nimbus-ui-home"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/home.html")
+        
+        
+
+class TestSlugRedirectToSummary(AuthTestCase):
+    def test_slug_with_trailing_slash_redirects_to_summary(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        url = reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}).replace(
+            "summary/", ""
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_slug_without_trailing_slash_redirects_to_summary(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        url = reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}).replace(
+            "/summary/", ""
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
