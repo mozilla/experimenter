@@ -1422,15 +1422,31 @@ class TestToggleArchiveView(AuthTestCase):
 
 
 class TestOverviewUpdateView(AuthTestCase):
-    def test_get_renders_page(self):
+    def test_get_renders_for_draft_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
         )
-
         response = self.client.get(
             reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_get_non_draft_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.client.get(
+            reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url, reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
+        )
 
     def test_post_updates_overview(self):
         project = ProjectFactory.create()
@@ -1486,9 +1502,9 @@ class TestOverviewUpdateView(AuthTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             documentation_links=[documentation_link],
         )
+        base_url = reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug})
         response = self.client.post(
-            reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug})
-            + "?show_errors=true",
+            f"{base_url}?show_errors=true",
             {
                 "name": "test-experiment",
                 "hypothesis": "",
@@ -1627,6 +1643,32 @@ class TestDocumentationLinkDeleteView(AuthTestCase):
 
 
 class TestBranchesUpdateViews(AuthTestCase):
+    def test_get_renders_for_draft_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_get_non_draft_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.client.get(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url, reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
+        )
+
     @parameterized.expand(
         [
             ("nimbus-ui-partial-update-branches",),
@@ -1868,15 +1910,31 @@ class TestMetricsUpdateView(AuthTestCase):
         super().setUpClass()
         Outcomes.clear_cache()
 
-    def test_get_renders_page(self):
+    def test_get_renders_for_draft_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
         )
-
         response = self.client.get(
             reverse("nimbus-ui-update-metrics", kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_get_non_draft_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.client.get(
+            reverse("nimbus-ui-update-metrics", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url, reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
+        )
 
     def test_post_updates_metrics_and_segments(self):
         application = NimbusExperiment.Application.DESKTOP
@@ -2492,7 +2550,7 @@ class TestLaunchViews(AuthTestCase):
 
 
 class TestAudienceUpdateView(AuthTestCase):
-    def test_get_renders_page(self):
+    def test_get_draft_renders_page(self):
         required = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -2512,6 +2570,47 @@ class TestAudienceUpdateView(AuthTestCase):
             reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_get_live_rollout_renders_page(self):
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+        experiment.required_experiments.add(required)
+        experiment.excluded_experiments.add(excluded)
+
+        response = self.client.get(
+            reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_get_non_draft_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=False
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url, reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
+        )
 
     def test_post_updates_overview(self):
         country = CountryFactory.create()
@@ -2615,9 +2714,9 @@ class TestAudienceUpdateView(AuthTestCase):
             locales=[],
             languages=[],
         )
+        base_url = reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
         response = self.client.post(
-            reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
-            + "?show_errors=true",
+            f"{base_url}?show_errors=true",
             {
                 "firefox_max_version": NimbusExperiment.Version.FIREFOX_97,
                 "firefox_min_version": NimbusExperiment.Version.FIREFOX_96,

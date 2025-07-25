@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.text import slugify
 from django.views.generic import CreateView, DetailView
@@ -139,6 +139,19 @@ class NimbusExperimentViewMixin:
             else []
         )
         return context
+
+
+class UpdateRedirectViewMixin:
+    def can_edit(self):
+        raise NotImplementedError
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.can_edit():
+            return HttpResponseRedirect(
+                reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            )
+        return super().get(request, *args, **kwargs)
 
 
 class CloneExperimentFormMixin:
@@ -417,11 +430,15 @@ class OverviewUpdateView(
     RenderResponseMixin,
     ValidationErrorsMixin,
     CloneExperimentFormMixin,
+    UpdateRedirectViewMixin,
     UpdateView,
 ):
     form_class = OverviewForm
     template_name = "nimbus_experiments/edit_overview.html"
     continue_url_name = "nimbus-ui-update-branches"
+
+    def can_edit(self):
+        return self.object.can_edit_overview()
 
 
 class DocumentationLinkCreateView(RenderParentDBResponseMixin, OverviewUpdateView):
@@ -433,10 +450,17 @@ class DocumentationLinkDeleteView(RenderParentDBResponseMixin, OverviewUpdateVie
 
 
 class BranchesBaseView(
-    NimbusExperimentViewMixin, RequestFormMixin, ValidationErrorsMixin, UpdateView
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    ValidationErrorsMixin,
+    UpdateRedirectViewMixin,
+    UpdateView,
 ):
     form_class = NimbusBranchesForm
     template_name = "nimbus_experiments/edit_branches.html"
+
+    def can_edit(self):
+        return self.object.can_edit_branches()
 
 
 class BranchesPartialUpdateView(RenderDBResponseMixin, BranchesBaseView):
@@ -470,11 +494,15 @@ class MetricsUpdateView(
     RenderResponseMixin,
     CloneExperimentFormMixin,
     ValidationErrorsMixin,
+    UpdateRedirectViewMixin,
     UpdateView,
 ):
     form_class = MetricsForm
     template_name = "nimbus_experiments/edit_metrics.html"
     continue_url_name = "nimbus-ui-update-audience"
+
+    def can_edit(self):
+        return self.object.can_edit_metrics()
 
 
 class AudienceUpdateView(
@@ -484,11 +512,15 @@ class AudienceUpdateView(
     RenderResponseMixin,
     CloneExperimentFormMixin,
     ValidationErrorsMixin,
+    UpdateRedirectViewMixin,
     UpdateView,
 ):
     form_class = AudienceForm
     template_name = "nimbus_experiments/edit_audience.html"
     continue_url_name = "nimbus-ui-detail"
+
+    def can_edit(self):
+        return self.object.can_edit_audience()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
