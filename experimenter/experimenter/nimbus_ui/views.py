@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
-from django.utils.text import slugify
 from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
@@ -367,15 +366,6 @@ class NimbusExperimentsSidebarCloneView(NimbusExperimentsCloneView):
 class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneView):
     form_class = NimbusExperimentPromoteToRolloutForm
     template_name = "nimbus_experiments/clone.html"
-
-
-class UpdateCloneSlugView(UpdateView):
-    template_name = "nimbus_experiments/clone_slug_field.html"
-
-    def post(self, request, *args, **kwargs):
-        name = self.request.POST.get("name", "")
-        slug = slugify(name)
-        return self.render_to_response({"slug": slug})
 
 
 class ToggleArchiveView(

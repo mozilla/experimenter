@@ -1362,25 +1362,6 @@ class TestNimbusExperimentPromoteToRolloutView(AuthTestCase):
         self.assertEqual(response.context["experiment"], self.experiment)
 
 
-class TestUpdateCloneSlugView(AuthTestCase):
-    def setUp(self):
-        super().setUp()
-        self.experiment = NimbusExperimentFactory.create(
-            slug="test-experiment",
-            name="Test Experiment",
-        )
-
-    def test_post_updates_slug(self):
-        response = self.client.post(
-            reverse("nimbus-ui-update-clone-slug", kwargs={"slug": self.experiment.slug}),
-            {"name": "Test Experiment Clone"},
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(response.context["slug"], "test-experiment-clone")
-
-
 class TestToggleArchiveView(AuthTestCase):
     def setUp(self):
         super().setUp()
