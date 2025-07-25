@@ -208,18 +208,19 @@
             <i class="fa-regular fa-circle-check"></i>
             Overview saved!
           </div>
-        {% endif %}
-        {% if not form.is_valid or validation_errors %}
-          <div class="toast text-bg-danger position-fixed top-1 end-0 m-3 w-auto"
-               role="alert"
-               aria-live="assertive"
-               aria-atomic="true">
-            <div class="toast-body">
-              <i class="fa-regular fa-circle-check"></i>
-              Please fix the errors
-            </div>
-          {% endif %}
         </div>
       {% endif %}
-    </form>
-  {% endblock main_content %}
+      {% if not form.is_valid or validation_errors %}
+        <div class="toast text-bg-danger position-fixed top-1 end-0 m-3 w-auto"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
+          <div class="toast-body">
+            <i class="fa-regular fa-circle-xmark"></i>
+            Please fix the errors
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+  </form>
+{% endblock main_content %}
