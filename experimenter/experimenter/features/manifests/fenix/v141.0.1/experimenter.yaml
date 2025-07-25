@@ -1,12 +1,4 @@
 ---
-address-sync:
-  description: Turns on address sync.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to turn on address sync.\n"
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
@@ -56,6 +48,14 @@ composable-toolbar:
     enabled:
       type: boolean
       description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
+compose-homepage:
+  description: Turns on compose homepage.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to turn on the compose homepage.\n"
 cookie-banners:
   description: Features for cookie banner handling.
   hasExposure: true
@@ -136,9 +136,9 @@ glean:
     enable-event-timestamps:
       type: boolean
       description: Enables precise event timestamps for Glean events
-    gleanMetricConfiguration:
+    metrics-enabled:
       type: json
-      description: Configuration for Glean Server Knobs
+      description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
     ping-lifetime-max-time:
       type: int
       description: After what time to auto-flush
@@ -204,6 +204,14 @@ juno-onboarding:
     conditions:
       type: json
       description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
+mars:
+  description: Mozilla Ad Routing Service (MARS) unified ads service.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to enable MARS endpoint to serve sponsored top sites and stories.\n"
 menu-redesign:
   description: Control the new menu redesign.
   hasExposure: true
@@ -339,14 +347,6 @@ one-click-search:
     enabled:
       type: boolean
       description: "If true, the one click search will be enabled."
-override-user-specified-homepage-sections:
-  description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.\n"
 pdfjs:
   description: PDF.js features
   hasExposure: true
@@ -544,14 +544,6 @@ suggest-shipped-domains:
     enabled:
       type: boolean
       description: "Suggest domains from the shipped domain list.\n"
-tab-management-enhancements:
-  description: Control the visibility of the tab management enhancements.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Whether or not to enable the tab management enhancements.\n"
 tab-strip:
   description: Enables tab strip.
   hasExposure: true

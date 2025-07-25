@@ -376,13 +376,9 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated overview"
 
 
-class DocumentationLinkCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    class Meta:
-        model = NimbusExperiment
-        fields = []
-
-    def save(self):
-        super().save(commit=False)
+class DocumentationLinkCreateForm(OverviewForm):
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         self.instance.documentation_links.create()
         return self.instance
 
@@ -390,15 +386,15 @@ class DocumentationLinkCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} added a documentation link"
 
 
-class DocumentationLinkDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
+class DocumentationLinkDeleteForm(OverviewForm):
     link_id = forms.ModelChoiceField(queryset=NimbusDocumentationLink.objects.all())
 
     class Meta:
         model = NimbusExperiment
-        fields = ["link_id"]
+        fields = [*OverviewForm.Meta.fields, "link_id"]
 
-    def save(self):
-        super().save(commit=False)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         documentation_link = self.cleaned_data["link_id"]
         documentation_link.delete()
         return self.instance
@@ -1213,7 +1209,12 @@ class PreviewToDraftForm(UpdateStatusForm):
         return f"{self.request.user} moved the experiment back to Draft"
 
     def save(self, commit=True):
-        experiment = super().save(commit=commit)
+        experiment = super().save(commit=False)
+        experiment.published_dto = None
+
+        if commit:  # pragma: nocover
+            experiment.save()
+
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
         return experiment
 

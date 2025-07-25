@@ -1362,25 +1362,6 @@ class TestNimbusExperimentPromoteToRolloutView(AuthTestCase):
         self.assertEqual(response.context["experiment"], self.experiment)
 
 
-class TestUpdateCloneSlugView(AuthTestCase):
-    def setUp(self):
-        super().setUp()
-        self.experiment = NimbusExperimentFactory.create(
-            slug="test-experiment",
-            name="Test Experiment",
-        )
-
-    def test_post_updates_slug(self):
-        response = self.client.post(
-            reverse("nimbus-ui-update-clone-slug", kwargs={"slug": self.experiment.slug}),
-            {"name": "Test Experiment Clone"},
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(response.context["slug"], "test-experiment-clone")
-
-
 class TestToggleArchiveView(AuthTestCase):
     def setUp(self):
         super().setUp()
@@ -1570,6 +1551,19 @@ class TestDocumentationLinkCreateView(AuthTestCase):
             reverse(
                 "nimbus-ui-create-documentation-link", kwargs={"slug": experiment.slug}
             ),
+            {
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "risk_brand": True,
+                "risk_message": True,
+                "projects": [],
+                "public_description": "new description",
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                # Management form data for the inline formset
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
         )
 
         self.assertEqual(response.status_code, 200)
@@ -1589,6 +1583,22 @@ class TestDocumentationLinkDeleteView(AuthTestCase):
                 "nimbus-ui-delete-documentation-link", kwargs={"slug": experiment.slug}
             ),
             {
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "risk_brand": True,
+                "risk_message": True,
+                "projects": [],
+                "public_description": "new description",
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                # Management form data for the inline formset
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "https://www.example.com",
                 "link_id": documentation_link.id,
             },
         )

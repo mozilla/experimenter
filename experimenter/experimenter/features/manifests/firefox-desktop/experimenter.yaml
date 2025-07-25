@@ -4541,6 +4541,13 @@ certCompression:
         pref: security.tls.enable_certificate_compression_zlib
       description: >-
         Whether to enable Zlib for TLS certificate compression.
+    h3EnableZlib:
+      type: boolean
+      setPref:
+        branch: default
+        pref: network.http.http3.enable_certificate_compression_zlib
+      description: >-
+        Whether to enable Zlib for H3/QUIC certificate compression.
     tlsEnableBrotli:
       type: boolean
       setPref:

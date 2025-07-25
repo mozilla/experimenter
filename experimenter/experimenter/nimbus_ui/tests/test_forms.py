@@ -13,6 +13,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import (
     NimbusBranchFeatureValue,
     NimbusExperiment,
@@ -692,7 +693,6 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
         self.experiment.status_next = NimbusExperiment.Status.PREVIEW
         self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        self.experiment.save()
 
         form = PreviewToDraftForm(data={}, instance=self.experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
@@ -706,6 +706,41 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("moved the experiment back to Draft", changelog.message)
         self.mock_preview_task.assert_called_once_with(countdown=5)
+
+    def test_preview_to_draft_form_resets_published_dto_and_targeting(self):
+        self.experiment.status = NimbusExperiment.Status.PREVIEW
+        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
+        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.firefox_min_version = NimbusExperiment.Version.FIREFOX_116
+        self.experiment.channel = NimbusExperiment.Channel.NIGHTLY
+
+        # Publishing to the preview collection would set the published_dto field
+        # to the value in Remote Settings. However, since we're not actually
+        # publishing to Remote Settings, we need to fake it.
+        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
+        self.experiment.save()
+
+        self.assertEqual(
+            self.experiment.targeting,
+            """(browserSettings.update.channel == "nightly") && """
+            """(version|versionCompare('116.!') >= 0)""",
+        )
+
+        form = PreviewToDraftForm(data={}, instance=self.experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        self.experiment = form.save()
+        self.assertEqual(self.experiment.published_dto, None)
+
+        self.experiment.firefox_min_version = NimbusExperiment.Version.FIREFOX_117
+        self.experiment.channel = NimbusExperiment.Channel.BETA
+        self.experiment.save()
+
+        self.assertEqual(
+            self.experiment.targeting,
+            """(browserSettings.update.channel == "beta") && """
+            """(version|versionCompare('117.!') >= 0)""",
+        )
 
     def test_review_to_draft_form_with_changelog_message(self):
         self.experiment.status = NimbusExperiment.Status.DRAFT
@@ -1256,7 +1291,21 @@ class TestDocumentationLinkCreateForm(RequestFormTestCase):
         )
 
         form = DocumentationLinkCreateForm(
-            instance=experiment, data={}, request=self.request
+            instance=experiment,
+            data={
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "risk_brand": True,
+                "risk_message": True,
+                "projects": [],
+                "public_description": "new description",
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                # Management form data for the inline formset
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
+            request=self.request,
         )
 
         self.assertTrue(form.is_valid())
@@ -1276,7 +1325,25 @@ class TestDocumentationLinkDeleteForm(RequestFormTestCase):
 
         form = DocumentationLinkDeleteForm(
             instance=experiment,
-            data={"link_id": documentation_link.id},
+            data={
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "risk_brand": True,
+                "risk_message": True,
+                "projects": [],
+                "public_description": "new description",
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                # Management form data for the inline formset
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "https://www.example.com",
+                "link_id": documentation_link.id,
+            },
             request=self.request,
         )
 

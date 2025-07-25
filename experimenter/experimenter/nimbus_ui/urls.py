@@ -44,7 +44,6 @@ from experimenter.nimbus_ui.views import (
     TakeawaysUpdateView,
     ToggleArchiveView,
     UnsubscribeView,
-    UpdateCloneSlugView,
 )
 
 urlpatterns = [
@@ -94,12 +93,12 @@ urlpatterns = [
         name="nimbus-ui-delete-documentation-link",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/update_branches/$",
+        r"^(?P<slug>[\w-]+)/save_branches/$",
         BranchesPartialUpdateView.as_view(),
         name="nimbus-ui-partial-update-branches",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/save_branches/$",
+        r"^(?P<slug>[\w-]+)/update_branches/$",
         BranchesUpdateView.as_view(),
         name="nimbus-ui-update-branches",
     ),
@@ -137,11 +136,6 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/promote_to_rollout/(?:(?P<branch>[\w-]+)/)?$",
         NimbusExperimentsPromoteToRolloutView.as_view(),
         name="nimbus-ui-promote-to-rollout",
-    ),
-    re_path(
-        r"^(?P<slug>[\w-]+)/update_clone_slug/$",
-        UpdateCloneSlugView.as_view(),
-        name="nimbus-ui-update-clone-slug",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/toggle-archive/$",
