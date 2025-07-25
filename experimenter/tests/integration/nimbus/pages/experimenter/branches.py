@@ -1,5 +1,6 @@
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.metrics import MetricsPage
@@ -8,37 +9,28 @@ from nimbus.pages.experimenter.metrics import MetricsPage
 class BranchesPage(ExperimenterBase):
     """Experiment Branches Page."""
 
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageEditBranches")
+    _page_wait_locator = (By.CSS_SELECTOR, "#branches-form")
     _reference_branch_name_locator = (By.CSS_SELECTOR, "#referenceBranch-name")
     _reference_branch_description_locator = (
         By.CSS_SELECTOR,
-        "#referenceBranch-description",
+        "#id_branches-0-description",
     )
-    _reference_branch_value_locator = (
+    _branch_value_locator = (
         By.CSS_SELECTOR,
-        "#referenceBranch\\.featureValues\\[0\\]\\.value",
+        "#branches-form #branches .cm-activeLine",
     )
-    _treatment_branch_name_locator = (By.CSS_SELECTOR, "#treatmentBranches\\[0\\]-name")
+    _treatment_branch_name_locator = (By.CSS_SELECTOR, "#id_branches-0-name")
     _treatment_branch_description_locator = (
         By.CSS_SELECTOR,
-        "#treatmentBranches\\[0\\]-description",
-    )
-    _treatment_branch_value_locator = (
-        By.CSS_SELECTOR,
-        "#treatmentBranches\\[0\\]\\.featureValues\\[0\\]\\.value",
+        "#id_branches-1-description",
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
-    _feature_select_locator = (By.CSS_SELECTOR, '[aria-label="Features"]')
-    _add_screenshot_buttons_locator = (By.CSS_SELECTOR, '[data-testid="add-screenshot"]')
+    _feature_select_locator = (By.CSS_SELECTOR, "#branches-form .dropdown")
+    _add_screenshot_buttons_locator = (By.CSS_SELECTOR, "#add-screenshot-button")
     _rollout_checkbox_locator = (By.CSS_SELECTOR, '[data-testid="is-rollout-checkbox"]')
+    _feature_config_id_locator = (By.CSS_SELECTOR, "#id_feature_configs > option")
     NEXT_PAGE = MetricsPage
     PAGE_TITLE = "Edit Branches Page"
-
-    def _feature_config_id_locator(self, feature_config_id: int):
-        return (
-            By.CSS_SELECTOR,
-            f'.react-select__option[data-feature-config-id="{feature_config_id}"]',
-        )
 
     @property
     def reference_branch_name(self):
@@ -74,10 +66,12 @@ class BranchesPage(ExperimenterBase):
 
     @reference_branch_value.setter
     def reference_branch_value(self, text):
+        element = self.wait_for_and_find_elements(
+            *self._branch_value_locator, "reference branch value"
+        )
+
         self._set_feature_value(
-            self.wait_for_and_find_element(
-                *self._reference_branch_value_locator, "reference branch value"
-            ),
+            element[0],
             text,
         )
 
@@ -115,10 +109,12 @@ class BranchesPage(ExperimenterBase):
 
     @treatment_branch_value.setter
     def treatment_branch_value(self, text):
+        element = self.wait_for_and_find_elements(
+            *self._branch_value_locator, "treatment branch value"
+        )
+
         self._set_feature_value(
-            self.wait_for_and_find_element(
-                *self._treatment_branch_value_locator, "treatment branch value"
-            ),
+            element[-1],
             text,
         )
 
@@ -140,11 +136,12 @@ class BranchesPage(ExperimenterBase):
         )
 
         el.click()  # Open the drop-down
-
-        self.wait_for_and_find_element(
-            *self._feature_config_id_locator(feature_config_id),
-            f"feature config {feature_config_id}",
-        ).click()
+        search_box = self.wait_for_and_find_element(
+            By.CSS_SELECTOR, ".bs-searchbox > input:nth-child(1)"
+        )
+        search_box.click()
+        search_box.send_keys(feature_config_id)
+        search_box.send_keys(Keys.ENTER)
 
     @property
     def is_rollout(self):
@@ -171,35 +168,30 @@ class BranchesPage(ExperimenterBase):
         )
 
     def _set_feature_value(self, editor_element, text):
-        line = editor_element.find_elements(By.CSS_SELECTOR, ".cm-line")[-1]
-        line.click()
-
+        editor_element.click()
         actions = ActionChains(self.driver)
+        actions.double_click(editor_element)
         actions.send_keys(text)
         actions.perform()
 
         # Click outside the editor, which causes the form data to update.
-        self.find_element(By.CSS_SELECTOR, "#PageEditBranches").click()
+        self.find_element(*self._page_wait_locator).click()
 
     def screenshot_description_field(self, branch="referenceBranch", screenshot_idx=0):
         selector = (
-            f'[data-testid="FormScreenshot"] '
-            f'textarea[data-testid="{branch}.screenshots[{screenshot_idx}].description"]'
+            f"#id_branches-{screenshot_idx}-screenshots-{screenshot_idx}-description"
         )
         return self.wait_for_and_find_element(
             By.CSS_SELECTOR,
             selector,
-            f"screenshot description field for {branch} screenshot {screenshot_idx}",
+            f"screenshot description field for \
+            {screenshot_idx} screenshot {screenshot_idx}",
         )
 
     def screenshot_image_field(self, branch="referenceBranch", screenshot_idx=0):
-        selector = (
-            f'[data-testid="FormScreenshot"] '
-            f'input[type="file"]'
-            f'[data-testid="{branch}.screenshots[{screenshot_idx}].image"]'
-        )
+        selector = f"#id_branches-{screenshot_idx}-screenshots-{screenshot_idx}-image"
         return self.wait_for_and_find_element(
             By.CSS_SELECTOR,
             selector,
-            f"screenshot image field for {branch} screenshot {screenshot_idx}",
+            f"screenshot image field for {screenshot_idx} screenshot {screenshot_idx}",
         )

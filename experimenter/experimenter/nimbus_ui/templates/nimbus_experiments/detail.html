@@ -266,9 +266,9 @@
             {% if experiment.is_mobile %}
               <tr>
                 <th>First Run Experiment</th>
-                <td>{{ experiment.is_first_run }}</td>
+                <td data-testid="experiment-is-first-run">{{ experiment.is_first_run }}</td>
                 <th>First Run Release Date</th>
-                <td>{{ experiment.proposed_release_date }}</td>
+                <td data-testid="experiment-release-date">{{ experiment.proposed_release_date }}</td>
               </tr>
             {% endif %}
             <tr>
@@ -356,6 +356,7 @@
             {% if not experiment.is_rollout %}
               <div class="col-md-4 text-end">
                 <button class="btn btn-outline-primary btn-sm"
+                        data-testid="promote-rollout"
                         data-bs-toggle="modal"
                         data-bs-target="#promoteToRolloutModal-{{ branch.slug }}">Promote to Rollout</button>
               </div>
@@ -392,7 +393,7 @@
                   <th>Screenshots</th>
                   <td colspan="3">
                     {% for screenshot in branch.screenshots.all %}
-                      <figure class="d-block">
+                      <figure data-testid="branch-screenshot" class="d-block">
                         <figcaption>{{ screenshot.description }}</figcaption>
                         {% if screenshot.image %}
                           <img src="{{ screenshot.image.url }}"
