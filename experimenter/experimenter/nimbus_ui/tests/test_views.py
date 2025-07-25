@@ -2882,3 +2882,33 @@ class TestBranchScreenshotDeleteView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertFalse(branch.screenshots.filter(id=screenshot.id).exists())
+
+
+class TestSlugRedirectToSummary(AuthTestCase):
+    def test_slug_with_trailing_slash_redirects_to_summary(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        url = reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}).replace(
+            "summary/", ""
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_slug_without_trailing_slash_redirects_to_summary(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        url = reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}).replace(
+            "/summary/", ""
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
