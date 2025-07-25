@@ -15,6 +15,10 @@ Ex. monitor
 
 Ex. https://github.com/mozilla/blurts-server/blob/main/config/nimbus.yaml
 
+**Is Cirrus being added to the backend or the frontend?**
+
+This determines whether the cirrus URL will be public or limited to an internal GCP load balancer, Ex. backend-only
+
 **Additional context**
 
 Add any other context here.
