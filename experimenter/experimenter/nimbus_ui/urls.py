@@ -93,12 +93,12 @@ urlpatterns = [
         name="nimbus-ui-delete-documentation-link",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/update_branches/$",
+        r"^(?P<slug>[\w-]+)/save_branches/$",
         BranchesPartialUpdateView.as_view(),
         name="nimbus-ui-partial-update-branches",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/save_branches/$",
+        r"^(?P<slug>[\w-]+)/update_branches/$",
         BranchesUpdateView.as_view(),
         name="nimbus-ui-update-branches",
     ),
