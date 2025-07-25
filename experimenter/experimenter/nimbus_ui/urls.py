@@ -1,4 +1,5 @@
 from django.urls import re_path
+from django.views.generic import RedirectView
 
 from experimenter.nimbus_ui.views import (
     ApproveEndEnrollmentView,
@@ -47,14 +48,24 @@ from experimenter.nimbus_ui.views import (
 
 urlpatterns = [
     re_path(
-        r"^(?P<slug>[\w-]+)/history/$",
-        NimbusChangeLogsView.as_view(),
-        name="nimbus-ui-history",
-    ),
-    re_path(
         r"^table/",
         NimbusExperimentsListTableView.as_view(),
         name="nimbus-ui-table",
+    ),
+    re_path(
+        r"^create/",
+        NimbusExperimentsCreateView.as_view(),
+        name="nimbus-ui-create",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)[/]?$",
+        RedirectView.as_view(pattern_name="nimbus-ui-detail", permanent=False),
+        name="nimbus-ui-redirect-to-summary",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/history/$",
+        NimbusChangeLogsView.as_view(),
+        name="nimbus-ui-history",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/summary/$",
@@ -120,11 +131,6 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/update_audience/$",
         AudienceUpdateView.as_view(),
         name="nimbus-ui-update-audience",
-    ),
-    re_path(
-        r"^create/",
-        NimbusExperimentsCreateView.as_view(),
-        name="nimbus-ui-create",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/clone/$",
