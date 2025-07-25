@@ -2978,7 +2978,6 @@ class TestBranchScreenshotDeleteView(AuthTestCase):
         self.assertFalse(branch.screenshots.filter(id=screenshot.id).exists())
 
         
-
 class TestNimbusExperimentsHomeView(AuthTestCase):
     def test_home_view_shows_only_owned_experiments(self):
         my_experiment = NimbusExperimentFactory.create(owner=self.user, slug="mine")
@@ -2998,7 +2997,6 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertTemplateUsed(response, "nimbus_experiments/home.html")
         
         
-
 class TestSlugRedirectToSummary(AuthTestCase):
     def test_slug_with_trailing_slash_redirects_to_summary(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
