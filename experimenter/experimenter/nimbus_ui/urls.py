@@ -29,6 +29,7 @@ from experimenter.nimbus_ui.views import (
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
+    NimbusExperimentsHomeView,
     NimbusExperimentsListTableView,
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
@@ -47,6 +48,11 @@ from experimenter.nimbus_ui.views import (
 )
 
 urlpatterns = [
+    re_path(
+        r"^home/",
+        NimbusExperimentsHomeView.as_view(),
+        name="nimbus-ui-home",
+    ),
     re_path(
         r"^table/",
         NimbusExperimentsListTableView.as_view(),
