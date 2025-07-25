@@ -632,3 +632,14 @@ class ApproveUpdateRolloutView(StatusUpdateView):
 
 class ResultsView(NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/results.html"
+
+
+class NimbusExperimentsHomeView(FilterView):
+    template_name = "nimbus_experiments/home.html"
+    filterset_class = NimbusExperimentFilter
+    context_object_name = "experiments"
+
+    def get_queryset(self):
+        return NimbusExperiment.objects.filter(owner=self.request.user).order_by(
+            "-_updated_date_time"
+        )
