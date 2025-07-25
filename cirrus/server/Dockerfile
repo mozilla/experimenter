@@ -67,4 +67,4 @@ RUN mkdir -p /var/glean && chown -R $USERNAME:$USERNAME /var/glean
 USER $USERNAME
 
 # Start application with Uvicorn server
-CMD ["uvicorn", "cirrus.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "cirrus.main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "1"]
