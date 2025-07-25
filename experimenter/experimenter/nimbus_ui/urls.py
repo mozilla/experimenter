@@ -49,6 +49,11 @@ from experimenter.nimbus_ui.views import (
 
 urlpatterns = [
     re_path(
+        r"^home/",
+        NimbusExperimentsHomeView.as_view(),
+        name="nimbus-ui-home",
+    ),
+    re_path(
         r"^table/",
         NimbusExperimentsListTableView.as_view(),
         name="nimbus-ui-table",
@@ -262,10 +267,5 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/delete_branch_screenshot/$",
         BranchScreenshotDeleteView.as_view(),
         name="nimbus-ui-delete-branch-screenshot",
-    ),
-    re_path(
-        r"^home/",
-        NimbusExperimentsHomeView.as_view(),
-        name="nimbus-ui-home",
     ),
 ]
