@@ -8,13 +8,16 @@ assignees: ''
 ---
 
 **What is the name of the app that will be using Cirrus? This will be used as a prefix in your Cirrus request path, ex. `/monitor/v2/features/`**
+
 Ex. monitor
 
 **Where is the nimbus feature manifest?**
+
 Ex. https://github.com/mozilla/blurts-server/blob/main/config/nimbus.yaml
 
 **Additional context**
-Add any other context or screenshots about the feature request here.
+
+Add any other context here.
 
 **Instructions for Nimbus Team**
 - add new application support to the experimenter and notify the Nimbus team in #ask-experimenter on Slack.
