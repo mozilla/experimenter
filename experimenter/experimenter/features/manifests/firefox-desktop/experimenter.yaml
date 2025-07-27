@@ -1342,20 +1342,6 @@ newTabSectionsExperiment:
         pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualBanners.counts
       description: CSV string of AdBanner placement counts on newtab Pocket grid. The count tells the ad server how many banners to return for this position and placement.
 
-newtabShortcutsExperiment:
-  description: >-
-    Adjusting sizes and spacing of new tab shortcuts.
-  owner: sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    refresh:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.newtabShortcuts.refresh
-      description: >-
-        Adjusting sizes and spacing of new tab shortcuts.
-
 newtabSmartShortcuts:
   description: about:newtab personalized shortcuts
   owner: rhamoui@mozilla.com, sdowne@mozilla.com
@@ -3689,24 +3675,6 @@ mixedContentUpgrading:
       setPref:
         branch: default
         pref: security.mixed_content.upgrade_display_content
-    image:
-      description: True if the mixed content upgrading is enabled for images
-      type: boolean
-      setPref:
-        branch: default
-        pref: security.mixed_content.upgrade_display_content.image
-    audio:
-      description: True if the mixed content upgrading is enabled for audio
-      type: boolean
-      setPref:
-        branch: default
-        pref: security.mixed_content.upgrade_display_content.audio
-    video:
-      description: True if the mixed content upgrading is enabled for videos
-      type: boolean
-      setPref:
-        branch: default
-        pref: security.mixed_content.upgrade_display_content.video
 
 gc:
   description: Prefs that control gc heuristics.

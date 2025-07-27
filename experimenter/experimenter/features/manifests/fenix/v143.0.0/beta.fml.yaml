@@ -355,7 +355,7 @@ features:
               marketing-data:
                 body-line-one-text: onboarding_marketing_learn_more
                 body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_in_checkbox
+                body-line-two-text: onboarding_marketing_opt_out_checkbox
             image-res: ic_onboarding_welcome
             ordering: 40
             prerequisites:
