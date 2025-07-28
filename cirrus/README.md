@@ -1,7 +1,11 @@
 # Cirrus
 
 Cirrus is a feature configuration server that allows clients to obtain a set of features based on their provided `client_id` and `context` information.
-This document provides information on setting up the Cirrus environment, including required environment variables and commands for running and testing Cirrus.
+There are two ways in which you can use Cirrus
+
+- Sidecar deployment
+- Nimbus cirrus shared service
+  This document provides information on setting up the Cirrus environment, including required environment variables and commands for running and testing Cirrus.
 
 ## Environment Setup
 
@@ -34,18 +38,19 @@ To set up the Cirrus environment, follow these steps:
    Here's what each variable represents:
 
    - `CIRRUS_REMOTE_SETTING_URL`: The URL of the remote settings where the experiments data is stored. In this case, it points to the collection of nimbus web experiments.
-  - `CIRRUS_REMOTE_SETTING_PREVIEW_URL`: The URL of the remote settings where the preview experiments data is stored. In this case, it points to the collection of nimbus web preview experiments.
-   - `CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS`: The refresh rate in seconds for fetching the experiments recipes from the remote settings. Set it to `10` to retrieve the latest data every 10 seconds.
-   - `CIRRUS_APP_ID`: Replace `test_app_id` with the actual ID of your application for example `firefox-desktop`.
-   - `CIRRUS_APP_NAME`: Replace `test_app_name` with the desired name for your application for example `firefox_desktop`.
-   - `CIRRUS_CHANNEL`: Replace `developer` with the channel like `beta`, `release` etc.
-   - `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.fml.yaml` or specify the correct path to your feature manifest file.
-   - `CIRRUS_SENTRY_DSN`: Replace `dsn_url` with the appropriate DSN value.
-   - `CIRRUS_INSTANCE_NAME`: Replace with the instance name.
-   - `CIRRUS_ENV_NAME:` Replace with the concatenation of project and environment name
-   - `CIRRUS_GLEAN_MAX_EVENTS_BUFFER`: This value represents the max events buffer size for glean. You can set the value from range 1 to 500, by default Cirrus sets it to 10.
 
-   Adjust the values of these variables according to your specific configuration requirements.
+- `CIRRUS_REMOTE_SETTING_PREVIEW_URL`: The URL of the remote settings where the preview experiments data is stored. In this case, it points to the collection of nimbus web preview experiments.
+- `CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS`: The refresh rate in seconds for fetching the experiments recipes from the remote settings. Set it to `10` to retrieve the latest data every 10 seconds.
+- `CIRRUS_APP_ID`: Replace `test_app_id` with the actual ID of your application for example `firefox-desktop`.
+- `CIRRUS_APP_NAME`: Replace `test_app_name` with the desired name for your application for example `firefox_desktop`.
+- `CIRRUS_CHANNEL`: Replace `developer` with the channel like `beta`, `release` etc.
+- `CIRRUS_FML_PATH`: The file path to the feature manifest file. Set it to `./feature_manifest/sample.fml.yaml` or specify the correct path to your feature manifest file.
+- `CIRRUS_SENTRY_DSN`: Replace `dsn_url` with the appropriate DSN value.
+- `CIRRUS_INSTANCE_NAME`: Replace with the instance name.
+- `CIRRUS_ENV_NAME:` Replace with the concatenation of project and environment name
+- `CIRRUS_GLEAN_MAX_EVENTS_BUFFER`: This value represents the max events buffer size for glean. You can set the value from range 1 to 500, by default Cirrus sets it to 10.
+
+Adjust the values of these variables according to your specific configuration requirements.
 
 By following these steps, you will create the `.env` file and configure the necessary environment variables for the Cirrus application.
 
@@ -114,6 +119,7 @@ The following are the available commands for working with Cirrus:
             "Content-Type": "application/json",
       }
   ```
+
 # Endpoint: `POST /v2/features/`
 
 The v2 endpoint extends the functionality of v1 by also returning enrollments data alongside features.
@@ -122,7 +128,7 @@ The v2 endpoint extends the functionality of v1 by also returning enrollments da
     headers: {
             "Content-Type": "application/json",
       }
-  ```
+```
 
 ## Input
 
@@ -135,9 +141,11 @@ The input should be a JSON object with the following properties:
   - `region` (string): Optional field
 
 Note: Make sure to provide a key-value pair when making a call, setting the `context` value as `{}` will be considered as `False` value. For testing you can set value such as
+
 ```json
- context: { key: "example-key" }
+ context: {"key": "example-key" }
 ```
+
 Example input:
 
 ```json
@@ -152,9 +160,11 @@ Example input:
   }
 }
 ```
+
 - To target clients based on `languages` you can use key as `language` and it supports [list of languages](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes)
 
 Example input:
+
 ```json
 {
   "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
@@ -163,9 +173,11 @@ Example input:
   }
 }
 ```
+
 - To target clients based on `country` you can use key as `region` and it supports [list of countries](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes)
 
 Example input:
+
 ```json
 {
   "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
@@ -174,9 +186,11 @@ Example input:
   }
 }
 ```
+
 - To target client based on both `language` and `country`
 
 Example input:
+
 ```json
 {
   "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
@@ -186,16 +200,19 @@ Example input:
   }
 }
 ```
+
 - You can make your custom field to target too. Prepare what fields you want to be be able to target on, and then work backwards to construct it and populate a targeting context that will satisfy that.
-Example input:
+  Example input:
+
 ```json
 {
   "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
   "context": {
-    "random_key": "random_value",
+    "random_key": "random_value"
   }
 }
 ```
+
 ## Optional Query Parameter
 
 `nimbus_preview (boolean)`: Pass this as a query parameter to enable preview mode. When set to true, the endpoint will use the preview experiments to compute enrollments.
@@ -211,6 +228,7 @@ curl -X POST "http://localhost:8001/v1/features/?nimbus_preview=true" -H 'Conten
   }
 }'
 ```
+
 ### Output
 
 The output will be a JSON object with the following properties:
@@ -245,6 +263,7 @@ curl -X POST "http://localhost:8001/v2/features/?nimbus_preview=true" -H 'Conten
   }
 }'
 ```
+
 ### Output
 
 The output will be a JSON object with the following properties:
@@ -257,8 +276,8 @@ Example output:
 ```json
 {
   "Features": {
-    "Feature1": {"Variable1.1": "valueA", "Variable1.2": "valueB"},
-    "Feature2": {"Variable2.1": "valueC", "Variable2.2": "valueD"}
+    "Feature1": { "Variable1.1": "valueA", "Variable1.2": "valueB" },
+    "Feature2": { "Variable2.1": "valueC", "Variable2.2": "valueD" }
   },
   "Enrollments": [
     {
@@ -271,9 +290,7 @@ Example output:
     }
   ]
 }
-
 ```
-
 
 ## Notes
 
@@ -281,3 +298,67 @@ Example output:
 - All parameters should be supplied in the body as JSON.
 - `v2 Endpoint`: Returns both features and enrollments. Use this if you need detailed enrollment data.
 - Query Parameter: Use nimbus_preview=true to compute enrollments based on preview experiments.
+
+## Cirrus as a Service
+
+Cirrus as a service allows your web application to integrate with Cirrus without managing its own infrastructure. The Nimbus team owns and operates the Cirrus service; client teams only need to define configuration and call the API.
+
+You don't need to set Cirrus environment variables manually in `.env` files or application code. Instead, all required Cirrus values (such as `CIRRUS_APP_ID`, `CIRRUS_URL`, `CIRRUS_CHANNEL`, etc.) will be injected via your **[Helm chart configuration](https://github.com/mozilla/webservices-infra/blob/605d520030d4e76da6978ad612de3702f57bb002/cirrus/k8s/cirrus/values.yaml)**.
+
+These values are maintained by the Nimbus team as part of shared infrastructure.
+
+See [configuration](https://github.com/mozilla/webservices-infra/blob/605d520030d4e76da6978ad612de3702f57bb002/cirrus/k8s/cirrus/values-stage.yaml) for an example of Helm values.
+
+### What the Helm Chart Configures
+
+When you onboard your app with Cirrus, the Nimbus team will define the following for you in Helm:
+
+- `CIRRUS_APP_ID`: Unique identifier for your app (e.g. `experimenter.cirrus`)
+- `CIRRUS_APP_NAME`: Human-readable name for your app
+- `CIRRUS_CHANNEL`: Release channel (e.g. `developer`, `staging`, `production`)
+- `CIRRUS_URL`: Endpoint that your app will call to get features
+- `CIRRUS_FML_PATH`: Path to your Feature Manifest Language (FML) file
+- `CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS`: How frequently Cirrus fetches updates from Remote Settings  
+  _(e.g. `100` for stage, `180` for prod)_
+- `CIRRUS_GLEAN_MAX_EVENTS_BUFFER`: Glean event buffer size  
+  _(set to `1` for stage to help with QA, `100` for prod)_
+- Autoscaling configuration based on your app’s request load  
+  _(calculated as 10 req/s per container, targeting ~50% container utilization)_
+
+### 🌐 Cirrus API Behavior
+
+Your app will call:
+
+POST https://internal-<env>.cirrus.<domain>/<app_name>/v2/features/
+
+Examples:
+
+- **Stage**:  
+  `https://internal-stage.cirrus.nonprod.webservices.mozgcp.net/<app_name>/v2/features/`
+
+- **Prod**:  
+  `https://internal-prod.cirrus.prod.webservices.mozgcp.net/<app_name>/v2/features/`
+
+- To enable preview mode, append the query param:  
+  `?nimbus_preview=true`
+
+#### Example Request Payload
+
+```json
+{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "language": "en",
+    "region": "US"
+  }
+}
+```
+
+Cirrus responds with both Features and Enrollments. You can append ?nimbus_preview=true to opt into preview experiments.
+
+Example Integration
+
+See this pull request for a complete example:
+[mozilla/experimenter#12972](https://github.com/mozilla/experimenter/pull/12972)
+
+This shows how Cirrus was integrated into the Experimenter app.
