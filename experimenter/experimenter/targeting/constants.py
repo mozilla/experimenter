@@ -2243,7 +2243,7 @@ IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     name="Apple Intelligence Available Users",
     slug="ios_apple_intelligence_available_user",
     description="Users that have apple intelligence available",
-    targeting="is_apple_intelligence_available == true",
+    targeting="is_apple_intelligence_available",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
