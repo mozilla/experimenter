@@ -346,7 +346,7 @@ Examples:
 
 ```json
 {
-  "client_id": "abc-123",
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
   "context": {
     "language": "en",
     "region": "US"
