@@ -10,7 +10,7 @@ def test_create_new_experiment_approve_remote_settings(
     selenium,
     experiment_url,
     kinto_client,
-    old_base_url,
+    base_url,
     application,
     default_data_api,
     experiment_slug,
@@ -24,7 +24,7 @@ def test_create_new_experiment_approve_remote_settings(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    HomePage(selenium, old_base_url).open().find_in_table(experiment_slug)
+    HomePage(selenium, base_url).open().find_in_table(experiment_slug)
 
 
 @pytest.mark.remote_settings_all
@@ -33,7 +33,6 @@ def test_create_new_rollout_approve_remote_settings(
     experiment_url,
     kinto_client,
     base_url,
-    old_base_url,
     application,
     default_data_api,
     experiment_slug,
@@ -49,7 +48,7 @@ def test_create_new_rollout_approve_remote_settings(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    HomePage(selenium, old_base_url).open().find_in_table(experiment_slug)
+    HomePage(selenium, base_url).open().find_in_table(experiment_slug)
 
 
 @pytest.mark.remote_settings_all
