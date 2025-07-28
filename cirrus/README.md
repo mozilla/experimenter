@@ -323,7 +323,7 @@ When you onboard your app with Cirrus, the Nimbus team will define the following
 - `CIRRUS_GLEAN_MAX_EVENTS_BUFFER`: Glean event buffer size  
   _(set to `1` for stage to help with QA, `100` for prod)_
 - Autoscaling configuration based on your app’s request load  
-  _(calculated as 100 req/s per container, targeting ~50% container utilization)_
+  _(calculated as 10 req/s per container, targeting ~50% container utilization)_
 
 ### 🌐 Cirrus API Behavior
 
