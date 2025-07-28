@@ -1,7 +1,6 @@
 import logging
 import sys
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import Any, List, NamedTuple, TypedDict
 
 import sentry_sdk
@@ -140,8 +139,6 @@ def initialize_glean():
     pings = load_pings(pings_path)
     metrics = load_metrics(metrics_path)
 
-    data_dir_path = Path(metrics_config.data_dir)
-
     config = Configuration(
         channel=metrics_config.channel,
         max_events=metrics_config.max_events_buffer,
@@ -153,7 +150,7 @@ def initialize_glean():
         application_id=metrics_config.app_id,
         application_version=metrics_config.version,
         configuration=config,
-        data_dir=data_dir_path,
+        data_dir=metrics_config.data_dir,
         log_level=int(metrics_config.log_level),
         upload_enabled=metrics_config.upload_enabled,
     )
