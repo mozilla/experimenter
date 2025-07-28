@@ -236,11 +236,6 @@ async def compute_features_enrollments(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Client ID value is missing or empty",
         )
-    if not request_data.context:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Context value is missing or empty",
-        )
     if nimbus_preview and not remote_setting_preview_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
