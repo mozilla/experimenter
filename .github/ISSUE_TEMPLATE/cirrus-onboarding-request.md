@@ -44,8 +44,7 @@ Add any other context here.
    - File a DO (Data org) ticket
    - File a bug following the Glean docs
    - Make sure app_name ends with `_cirrus`
-   - Call out that this is for a Nimbus / Cirrus Sidecar
    - Have the Glean app depend on "glean-core" and "nimbus-cirrus" (to be noted in the dependencies section when filing a bug).
-   - Don't add any metrics or ping files, as this is not required for the sidecar (the right dependencies are already included)
+   - Don't add any metrics or ping files, as this is not required for the this service (the right dependencies are already included)
 - add cirrus glean application name like in https://github.com/mozilla/bigquery-etl/pulls/7268 
 - sync FML to the experimenter and notify the Nimbus team in #ask-experimenter on Slack.
