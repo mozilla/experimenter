@@ -1,6 +1,8 @@
 import json
 import logging
+import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional, Union, cast
 
 from decouple import config  # type: ignore
@@ -43,7 +45,7 @@ class MetricsConfiguration:
     app_id: str = app_id
     build: Optional[str] = None
     channel: str = channel
-    data_dir: str = "/var/glean"
+    data_dir: Path = Path("/var/glean") / str(os.getpid())
     log_level: Union[str, int] = logging.WARNING
     max_events_buffer: int = glean_max_events_buffer
     server_endpoint: Optional[str] = None
