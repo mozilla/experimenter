@@ -41,7 +41,8 @@ Add any other context here.
 - if necessary, increase tenant resource limits for **stage** https://github.com/mozilla/global-platform-admin/blob/9fea42667d1ed1126284795df9f5f5b330cdffac/tenants/cirrus.yaml#L35-L36
 - if necessary, increase tenant resource limits for **prod** https://github.com/mozilla/global-platform-admin/blob/9fea42667d1ed1126284795df9f5f5b330cdffac/tenants/cirrus.yaml#L47-L48
 - add cirrus application to probe scraper like in: https://github.com/mozilla/probe-scraper/pulls/617
-   - File a DO (Data org) ticket following the Glean docs
+   - File a DO (Data org) ticket
+   - File a bug following the Glean docs
    - Make sure app_name ends with `_cirrus`
    - Call out that this is for a Nimbus / Cirrus Sidecar
    - Have the Glean app depend on "glean-core" and "nimbus-cirrus" (to be noted in the dependencies section when filing a bug).
