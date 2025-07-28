@@ -2239,6 +2239,17 @@ IOS_TIPS_NOTIFICATIONS_ENABLED_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_TEST_USER = NimbusTargetingConfig(
+    name="TEST Users",
+    slug="ios_test_user",
+    description="Users that are being tested",
+    targeting="ios_test",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
     name="iPhone users only",
     slug="ios_iphone_users_only",
