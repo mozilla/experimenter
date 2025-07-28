@@ -590,6 +590,9 @@ jobs:
     machine:
       image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
+    environment:
+      PYTEST_ARGS: -k test_create_mobile_experiment_for_integration_test --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - run:
