@@ -45,7 +45,7 @@
           </div>
         </div>
         <div class="row mb-3">
-          <div class="col-6">
+          <div data-testid="locales" class="col-6">
             {% if experiment.is_desktop %}
               <label for="id_locales" class="form-label">Locales</label>
               {{ form.locales|add_class:"form-control"|add_error_class:"is-invalid" }}
@@ -58,7 +58,7 @@
               {% for error in validation_errors.languages %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             {% endif %}
           </div>
-          <div class="col-6">
+          <div data-testid="countries" class="col-6">
             <label for="id_countries" class="form-label">Countries</label>
             {{ form.countries|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.countries.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
