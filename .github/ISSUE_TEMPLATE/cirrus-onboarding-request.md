@@ -35,7 +35,7 @@ Add any other context here.
 - add new application support to the experimenter and notify the Nimbus team in #ask-experimenter on Slack.
 - add new clientApplication to cirrus helm chart for **stage** https://github.com/mozilla/webservices-infra/blob/605d520030d4e76da6978ad612de3702f57bb002/cirrus/k8s/cirrus/values-stage.yaml#L10
 - add new clientApplication to cirrus helm chart for **prod** https://github.com/mozilla/webservices-infra/blob/605d520030d4e76da6978ad612de3702f57bb002/cirrus/k8s/cirrus/values-prod.yaml#L15
-   - based on the given weekly average req/s, configure the minimum autoscaling for the client application in prod based on 100req/s per container for weekly avg req/s (Note: containers handle ~200req/s, so this puts our min at 50% capacity)
+   - based on the given weekly average req/s, configure the minimum autoscaling for the client application in prod based on 10req/s per container for weekly avg req/s (Note: containers handle ~20req/s, so this puts our min at 50% capacity)
    - Ensure that `CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS` is appropriately configured at `.clientApplications.<app>.env.refreshRate`. The stage default is 100 and the prod default is 180.
    - Ensure that `CIRRUS_GLEAN_MAX_EVENTS_BUFFER` is appropriately configured at `.clientApplications.<app>.env.gleanMaxEventsBuffer`. This value represents the max events buffer size for glean. The default for stage is 1 so that QA can test it easily, for the prod the default is 100.
 - if necessary, increase tenant resource limits for **stage** https://github.com/mozilla/global-platform-admin/blob/9fea42667d1ed1126284795df9f5f5b330cdffac/tenants/cirrus.yaml#L35-L36
