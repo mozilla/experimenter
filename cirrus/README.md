@@ -359,6 +359,6 @@ Cirrus responds with both Features and Enrollments. You can append ?nimbus_previ
 Example Integration
 
 See this pull request for a complete example:
-mozilla/experimenter#12972
+[mozilla/experimenter#12972](https://github.com/mozilla/experimenter/pull/12972)
 
 This shows how Cirrus was integrated into the Experimenter app.
