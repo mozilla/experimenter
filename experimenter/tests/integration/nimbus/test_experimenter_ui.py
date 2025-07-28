@@ -2,18 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from nimbus.models.base_dataclass import (
-    BaseExperimentApplications,
-)
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
-
-MOBILE_APPS = [
-    BaseExperimentApplications.FIREFOX_FENIX.value,
-    BaseExperimentApplications.FIREFOX_IOS.value,
-    BaseExperimentApplications.FOCUS_ANDROID.value,
-    BaseExperimentApplications.FOCUS_IOS.value,
-]
 
 
 @pytest.fixture
@@ -113,8 +103,9 @@ def test_first_run_release_date_visible_for_mobile(
     application,
     create_experiment,
     experiment_url,
+    mobile_apps,
 ):
-    if application not in MOBILE_APPS:
+    if application not in mobile_apps:
         pytest.skip(f"Skipping for {application}")
 
     summary = create_experiment(selenium)
@@ -128,7 +119,7 @@ def test_first_run_release_date_visible_for_mobile(
 
     summary = audience.save_and_continue()
 
-    assert summary.proposed_release_date == "2023-12-12"
+    assert summary.proposed_release_date == "Dec. 12, 2023"
 
     summary.launch_and_approve()
 
@@ -138,35 +129,30 @@ def test_first_run_release_date_visible_for_mobile(
     summary.wait_for_live_status()
 
     assert summary.first_run
-    assert summary.proposed_release_date == "2023-12-12"
+    assert summary.proposed_release_date == "Dec. 12, 2023"
 
 
+@pytest.mark.skip(reason="Duplicate test")
 @pytest.mark.nimbus_ui
 def test_first_run_release_date_not_visible_for_non_mobile(
     selenium,
     kinto_client,
+    mobile_apps,
     application,
     create_experiment,
     experiment_url,
 ):
-    if application in MOBILE_APPS:
+    if application in mobile_apps:
         pytest.skip(f"Skipping for {application}")
-
     summary = create_experiment(selenium)
-
     audience = summary.navigate_to_audience()
-
     audience.wait_until_release_date_not_found()
     audience.wait_until_first_run_not_found()
-
     summary = audience.navigate_to_summary()
     summary.launch_and_approve()
-
     kinto_client.approve()
-
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
-
     summary.wait_for_timeline_visible()
     summary.wait_until_timeline_release_date_not_found()
     summary.wait_until_audience_release_date_not_found()
