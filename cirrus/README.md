@@ -143,7 +143,7 @@ The input should be a JSON object with the following properties:
 Note: Make sure to provide a key-value pair when making a call, setting the `context` value as `{}` will be considered as `False` value. For testing you can set value such as
 
 ```json
- context: { key: "example-key" }
+ context: {"key": "example-key" }
 ```
 
 Example input:
