@@ -716,7 +716,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             ).delete()
 
             for feature_config in new_feature_configs:
-                branch.feature_values.create(feature_config=feature_config)
+                branch.feature_values.create(feature_config=feature_config, value="{}")
 
         if experiment.equal_branch_ratio:
             experiment.branches.all().update(ratio=1)

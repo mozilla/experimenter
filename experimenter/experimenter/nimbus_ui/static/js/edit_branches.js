@@ -27,7 +27,7 @@ const setupCodemirror = (selector, textarea, extraExtensions) => {
   ];
 
   const view = new EditorView({
-    doc: textarea.value || "{}",
+    doc: textarea.value,
     extensions,
     parent: textarea.parentNode,
   });
