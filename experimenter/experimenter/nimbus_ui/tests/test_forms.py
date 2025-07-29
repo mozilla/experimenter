@@ -1910,7 +1910,7 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         )
         self.assertTrue(
             experiment.reference_branch.feature_values.filter(
-                feature_config=feature_config2
+                feature_config=feature_config2, value="{}"
             ).exists()
         )
 
@@ -1921,7 +1921,7 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         )
         self.assertTrue(
             treatment_branch.feature_values.filter(
-                feature_config=feature_config2
+                feature_config=feature_config2, value="{}"
             ).exists(),
         )
 
