@@ -11,7 +11,7 @@ class OverviewPage(ExperimenterBase):
 
     PAGE_TITLE = "Overview Page"
 
-    _page_wait_locator = (By.CSS_SELECTOR, "#metrics-form")
+    _page_wait_locator = (By.CSS_SELECTOR, "#overview-form")
     _additional_link_root_locator = (By.CSS_SELECTOR, "#documentation-links .form-group")
     _additional_link_input_locator = (
         By.CSS_SELECTOR,
@@ -23,7 +23,7 @@ class OverviewPage(ExperimenterBase):
     )
     _additional_links_button_locator = (
         By.CSS_SELECTOR,
-        "#metrics-form button.btn.btn-outline-primary",
+        "#overview-form button.btn.btn-outline-primary",
     )
     _public_description_locator = (By.CSS_SELECTOR, "#id_public_description")
     _risk_brand_locator = (By.CSS_SELECTOR, "#id_risk_brand_1")
@@ -35,7 +35,7 @@ class OverviewPage(ExperimenterBase):
         By.CSS_SELECTOR,
         "div[class*='multiValue'] > div:nth-child(1)",
     )
-    _project_dropdown_locator = (By.CSS_SELECTOR, "#metrics-form .dropdown")
+    _project_dropdown_locator = (By.CSS_SELECTOR, "#overview-form .dropdown")
     NEXT_PAGE = BranchesPage
 
     @property
