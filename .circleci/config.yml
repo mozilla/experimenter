@@ -75,6 +75,8 @@ commands:
                   echo "No << parameters.extension >> files found in << parameters.source >>/"
                   circleci-agent step halt
                 fi
+                echo "Uploading..."
+                break
               else
                 echo "Skipping artifact upload; not on an allowed or merge queue branch."
                 circleci-agent step halt
@@ -133,11 +135,11 @@ jobs:
       - store_test_results:
           path: workspace/test-results/junit.xml
       - upload-to-gcs:
-          source: dashboard/test-results
+          source: workspace/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
       - upload-to-gcs:
-          source: dashboard/test-results
+          source: workspace/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
           extension: json
 
@@ -590,6 +592,9 @@ jobs:
     machine:
       image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
+    environment:
+      PYTEST_ARGS: -k test_create_mobile_experiment_for_integration_test --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - run:

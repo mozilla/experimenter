@@ -12,7 +12,7 @@ body:
     id: criteria
     attributes:
       label: What is the criteria you need to target based on?
-      description: Be specific. Ex: preference name and expected value, OS and version, etc.
+      description: "Be specific. Ex: preference name and expected value, OS and version, etc."
       placeholder: ex. Preference `browser.tabs.firefox-view` is set to `true`
     validations:
       required: true
