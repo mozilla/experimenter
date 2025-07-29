@@ -138,6 +138,13 @@ search:
         Recorded in SERP telemetry, this is the slug of the experiment someone
         is requesting enrollment and branch information for. (Note that the
         featureId needs to be set to "search".)
+    visualSearchEnabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.search.visualSearch.featureGate
+      description: >-
+        Feature gate for visual search.
 
 searchConfiguration:
   description: >-
@@ -1998,6 +2005,15 @@ sessionRestore:
         1 = open the configured homepage in a tab (default, session restore disabled),
         2 = open last visited page in a tab,
         3 = re-open previous windows and tabs (session restore enabled)
+
+screenshots:
+  description: The built-in Screenshots feature
+  owner: sfoster@mozilla.com
+  hasExposure: false
+  variables:
+    buttonOnToolbarByDefault:
+      type: boolean
+      description: The screenshots button will be placed on the toolbar by default.
 
 password-autocomplete:
   description: A special autocomplete UI for password fields.
