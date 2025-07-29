@@ -643,3 +643,8 @@ class NimbusExperimentsHomeView(FilterView):
         return NimbusExperiment.objects.filter(owner=self.request.user).order_by(
             "-_updated_date_time"
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
+        return context
