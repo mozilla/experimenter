@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 
 from django import forms
@@ -420,15 +421,22 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         ):
             self.fields["value"].initial = ""
 
-        if self.instance.id is not None and self.instance.feature_config:
-            if schema := self.instance.feature_config.schemas.filter(
-                version=None
-            ).first():
-                self.fields["value"].widget.attrs.update(
-                    {
-                        "data-schema": schema.schema,
-                    }
-                )
+        if (
+            self.instance.id is not None
+            and self.instance.feature_config
+            and (
+                schema := self.instance.feature_config.schemas.filter(
+                    version=None
+                ).first()
+            )
+            and schema is not None
+            and schema.schema is not None
+        ):
+            self.fields["value"].widget.attrs.update(
+                {
+                    "data-schema": json.dumps(schema.schema),
+                }
+            )
 
     def clean_value(self):
         value = self.cleaned_data.get("value")

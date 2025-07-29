@@ -44,12 +44,18 @@ const setupCodemirrorFeatures = () => {
   const textareas = document.querySelectorAll(selector);
 
   textareas.forEach((textarea) => {
-    const jsonSchema = JSON.parse(textarea.dataset["schema"]);
+    const extensions = [];
 
-    setupCodemirror(selector, textarea, [
-      linter(schemaLinter(jsonSchema)),
-      autocompletion({ override: [schemaAutocomplete(jsonSchema)] }),
-    ]);
+    if (textarea.dataset.schema) {
+      const jsonSchema = JSON.parse(textarea.dataset.schema);
+
+      extensions.push(
+        linter(schemaLinter(jsonSchema)),
+        autocompletion({ override: [schemaAutocomplete(jsonSchema)] }),
+      );
+    }
+
+    setupCodemirror(selector, textarea, extensions);
   });
 };
 
