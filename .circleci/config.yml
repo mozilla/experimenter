@@ -75,6 +75,8 @@ commands:
                   echo "No << parameters.extension >> files found in << parameters.source >>/"
                   circleci-agent step halt
                 fi
+                echo "Uploading..."
+                break
               else
                 echo "Skipping artifact upload; not on an allowed or merge queue branch."
                 circleci-agent step halt
@@ -133,11 +135,11 @@ jobs:
       - store_test_results:
           path: workspace/test-results/junit.xml
       - upload-to-gcs:
-          source: dashboard/test-results
+          source: workspace/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
       - upload-to-gcs:
-          source: dashboard/test-results
+          source: workspace/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
           extension: json
 
@@ -230,7 +232,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -m nimbus_ui -n 1 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -m nimbus_ui -n 4 --reruns 1 --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
@@ -585,41 +587,14 @@ jobs:
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
 
-  integration_nimbus_cirrus:
-    machine:
-      image: ubuntu-2204:2024.11.1
-      docker_layer_caching: true
-    resource_class: xlarge
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -k DEMO_APP -m cirrus_enrollment --base-url https://nginx/nimbus/
-      PYTEST_BASE_URL: https://nginx/nimbus/
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/experimenter/experiments/|cirrus/|application-services/"
-      - create_test_result_workspace
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.integration-tests .env
-            export CIRRUS=1
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
-      - store_artifacts:
-          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
-
   create_mobile_recipes:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
+    environment:
+      PYTEST_ARGS: -k test_create_mobile_experiment_for_integration_test --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - run:
@@ -1015,12 +990,6 @@ workflows:
                 - update_firefox_versions
       - integration_nimbus_sdk_targeting:
           name: Test SDK Targeting (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_cirrus:
-          name: Test Demo app with Cirrus
           filters:
             branches:
               ignore:

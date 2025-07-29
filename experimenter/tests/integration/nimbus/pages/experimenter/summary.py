@@ -1,4 +1,3 @@
-import os
 import random
 import string
 
@@ -18,95 +17,44 @@ class SummaryPage(ExperimenterBase):
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
     _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
-    _header_slug = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-slug"]')
-    _approve_request_button_locator = (
-        (By.CSS_SELECTOR, "#review-controls .btn-success")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, "#approve-request-button")
-    )
-    _reject_request_button_locator = (
-        (By.CSS_SELECTOR, "#reject-button")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, "#reject-request-button")
-    )
+    _header_slug = (By.CSS_SELECTOR, "#experiment-slug")
+    _approve_request_button_locator = (By.CSS_SELECTOR, "#review-controls .btn-success")
+    _reject_request_button_locator = (By.CSS_SELECTOR, "#reject-button")
     _reject_input_text_locator = (
-        (
-            By.CSS_SELECTOR,
-            "#changelog_message",
-        )
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (
-            By.CSS_SELECTOR,
-            'textarea[data-testid="reject-reason"]',
-        )
+        By.CSS_SELECTOR,
+        "#changelog_message",
     )
-    _reject_input_text_submit_locator = (
-        (By.CSS_SELECTOR, "#submit-rejection-button")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, '[data-testid="reject-submit"]')
-    )
-    _rejection_notice_locator = (
-        (By.CSS_SELECTOR, "#rejection-reason")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
-    )
-    _launch_to_preview_locator = (
-        (By.CSS_SELECTOR, "#draft-to-preview-button")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, "#launch-to-preview-button")
-    )
-    _launch_without_preview_locator = (
-        (By.CSS_SELECTOR, "#draft-to-review-button")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, "#launch-to-review-button")
-    )
+    _reject_input_text_submit_locator = (By.CSS_SELECTOR, "#submit-rejection-button")
+    _rejection_notice_locator = (By.CSS_SELECTOR, "#rejection-reason")
+    _launch_to_preview_locator = (By.CSS_SELECTOR, "#draft-to-preview-button")
+    _launch_without_preview_locator = (By.CSS_SELECTOR, "#draft-to-review-button")
     _rejected_text_alert_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
-    _timeout_alert_locator = (
-        (By.CSS_SELECTOR, "#rejection-message")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, '[data-testid="timeout-notice"]')
-    )
-    _status_live_locator = (
-        (By.CSS_SELECTOR, "#experiment-timeline .bg-primary strong")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, ".status-Live.border-primary")
-    )
+    _timeout_alert_locator = (By.CSS_SELECTOR, "#rejection-message")
+    _status_live_locator = (By.CSS_SELECTOR, "#experiment-timeline .bg-primary strong")
     _status_preview_locator = (By.CSS_SELECTOR, ".status-Preview.border-primary")
     _status_complete_locator = (
-        (
-            By.CSS_SELECTOR,
-            "#experiment-timeline .bg-primary strong",
-        )
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, ".status-Complete.border-primary")
+        By.CSS_SELECTOR,
+        "#experiment-timeline .bg-primary strong",
     )
     _update_request_locator = (By.CSS_SELECTOR, "#request-update-button")
     _experiment_status_icon_locator = (
         By.CSS_SELECTOR,
         ".header-experiment-status .border-primary",
     )
-    _end_experiment_button_locator = (
-        (By.CSS_SELECTOR, "#end-experiment")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, ".end-experiment-start-button")
-    )
-    _end_rollout_button_locator = (
-        (By.CSS_SELECTOR, "#end-rollout")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, ".end-experiment-start-button")
-    )
-    _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="action-archive"]')
+    _end_experiment_button_locator = (By.CSS_SELECTOR, "#end-experiment")
+    _end_rollout_button_locator = (By.CSS_SELECTOR, "#end-rollout")
+    _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="nav-edit-archive"]')
     _archive_label_locator = (
         By.CSS_SELECTOR,
-        'span[data-testid="header-experiment-status-archived"]',
+        "#archive-badge",
     )
-    _clone_action_locator = (By.CSS_SELECTOR, 'button[data-testid="action-clone"]')
+    _clone_action_locator = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-clone"]')
     _clone_name_field_locator = (
         By.CSS_SELECTOR,
-        'form[data-testid="FormClone"] input[name="name"]',
+        "#clone-name",
     )
-    _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
-    _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
+    _clone_save_locator = (By.CSS_SELECTOR, "#cloneForm .btn-primary")
+    _clone_parent_locator = (By.CSS_SELECTOR, 'a[data-testid="experiment-parent"]')
     _branch_screenshot_description_locator = (
         By.CSS_SELECTOR,
         'figure[data-testid="branch-screenshot"] figcaption',
@@ -115,11 +63,7 @@ class SummaryPage(ExperimenterBase):
         By.CSS_SELECTOR,
         'figure[data-testid="branch-screenshot"] img',
     )
-    _takeaways_edit_button = (
-        (By.CSS_SELECTOR, 'a[data-testid="edit-takeaways"]')
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, 'button[data-testid="edit-takeaways"]')
-    )
+    _takeaways_edit_button = (By.CSS_SELECTOR, 'a[data-testid="edit-takeaways"]')
     _takeaways_save_button = (
         By.CSS_SELECTOR,
         'button[data-testid="takeaways-edit-save"]',
@@ -129,26 +73,12 @@ class SummaryPage(ExperimenterBase):
         'form[data-testid="FormTakeaways"] input[name="conclusionRecommendations"]',
     )
     _takeaways_summary_field = (
-        (
-            By.CSS_SELECTOR,
-            "#takeawaysSummary",
-        )
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (
-            By.CSS_SELECTOR,
-            'form[data-testid="FormTakeaways"] textarea[name="takeawaysSummary"]',
-        )
+        By.CSS_SELECTOR,
+        "#takeawaysSummary",
     )
     _takeaways_summary_text = (
-        (
-            By.CSS_SELECTOR,
-            "#takeawaysSummaryText",
-        )
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (
-            By.CSS_SELECTOR,
-            'div[data-testid="takeaways-summary-rendered"]',
-        )
+        By.CSS_SELECTOR,
+        "#takeawaysSummaryText",
     )
     _takeaways_recommendation_badge = (
         By.CSS_SELECTOR,
@@ -168,11 +98,17 @@ class SummaryPage(ExperimenterBase):
     )
     _timeline_locator = (
         By.CSS_SELECTOR,
-        '[data-testid="summary-timeline"]',
+        "#experiment-timeline",
     )
     _timeline_proposed_release_date_locator = (
         By.CSS_SELECTOR,
         '[data-testid="label-release-date"]',
+    )
+    _promote_to_rollout_form_locator = (By.CSS_SELECTOR, "#promoteToRolloutForm-control")
+    _promote_to_rollout_name_locator = (By.CSS_SELECTOR, "#promote-control-name")
+    _promote_to_rollout_save_locator = (
+        By.CSS_SELECTOR,
+        "#promoteToRolloutForm-control .btn-primary",
     )
 
     def wait_for_archive_label_visible(self):
@@ -188,14 +124,10 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_live_status(self):
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL")):
-            self.wait_with_refresh_and_assert(
-                self._status_live_locator,
-                "Enrollment",
-                "Summary Page: Unable to find live status",
-            )
-        self.wait_with_refresh(
-            self._status_live_locator, "Summary Page: Unable to find live status"
+        self.wait_with_refresh_and_assert(
+            self._status_live_locator,
+            "Enrollment",
+            "Summary Page: Unable to find live status",
         )
 
     def wait_for_preview_status(self):
@@ -204,14 +136,10 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_complete_status(self):
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL")):
-            self.wait_with_refresh_and_assert(
-                self._status_complete_locator,
-                "Complete",
-                "Summary Page: Unable to find complete status",
-            )
-        self.wait_with_refresh(
-            self._status_complete_locator, "Summary Page: Unable to find complete status"
+        self.wait_with_refresh_and_assert(
+            self._status_complete_locator,
+            "Complete",
+            "Summary Page: Unable to find complete status",
         )
 
     def wait_for_rejected_alert(self):
@@ -324,21 +252,9 @@ class SummaryPage(ExperimenterBase):
 
     class RequestReview(Region, Base):
         PAGE_TITLE = "Review Region"
-        _root_locator = (
-            (By.CSS_SELECTOR, "#launch-controls")
-            if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-            else (By.CSS_SELECTOR, "#request-launch-alert")
-        )
-        _checkbox1_locator = (
-            (By.CSS_SELECTOR, "#checkbox-1")
-            if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-            else (By.CSS_SELECTOR, "#checkbox-0")
-        )
-        _checkbox2_locator = (
-            (By.CSS_SELECTOR, "#checkbox-2")
-            if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-            else (By.CSS_SELECTOR, "#checkbox-1")
-        )
+        _root_locator = (By.CSS_SELECTOR, "#launch-controls")
+        _checkbox1_locator = (By.CSS_SELECTOR, "#checkbox-1")
+        _checkbox2_locator = (By.CSS_SELECTOR, "#checkbox-2")
         _request_launch_locator = (By.CSS_SELECTOR, "#request-launch-button")
 
         def click_launch_checkboxes(self):
@@ -377,6 +293,19 @@ class SummaryPage(ExperimenterBase):
         self.clone_name_field.send_keys(f"{text}")
 
     @property
+    def promote_to_rollout_name(self):
+        return self.wait_for_and_find_element(*self._promote_to_rollout_name_locator).text
+
+    @promote_to_rollout_name.setter
+    def promote_to_rollout_name(self, text=None):
+        el = self.wait_for_and_find_element(*self._promote_to_rollout_name_locator)
+        el.send_keys(f"{Keys.CONTROL}a", f"{text}")
+
+    @property
+    def promote_to_rollout_save(self):
+        return self.wait_for_and_find_element(*self._promote_to_rollout_save_locator)
+
+    @property
     def clone_save(self):
         return self.wait_for_and_find_element(*self._clone_save_locator)
 
@@ -393,8 +322,8 @@ class SummaryPage(ExperimenterBase):
         random_chars = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=6)
         )
-        self.clone_name = f"Rollout {random_chars}"
-        self.clone_save.click()
+        self.promote_to_rollout_name = f"Rollout {random_chars}"
+        self.promote_to_rollout_save.click()
 
     @property
     def takeaways_edit_button(self):
