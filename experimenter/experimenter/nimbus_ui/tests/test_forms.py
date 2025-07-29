@@ -25,6 +25,7 @@ from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -1910,7 +1911,7 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         )
         self.assertTrue(
             experiment.reference_branch.feature_values.filter(
-                feature_config=feature_config2
+                feature_config=feature_config2, value="{}"
             ).exists()
         )
 
@@ -1921,7 +1922,7 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         )
         self.assertTrue(
             treatment_branch.feature_values.filter(
-                feature_config=feature_config2
+                feature_config=feature_config2, value="{}"
             ).exists(),
         )
 
@@ -3513,3 +3514,36 @@ class TestBranchScreenshotDeleteForm(RequestFormTestCase):
         instance = NimbusBranchFeatureValue(value={"foo": "bar"})
         form = NimbusBranchFeatureValueForm(instance=instance)
         self.assertIsNone(form.fields["value"].initial)
+
+
+class TestBranchFeatureValueForm(RequestFormTestCase):
+    def test_schemas(self):
+        feature_with_schema = NimbusFeatureConfigFactory.create(
+            name="with-schema",
+            application=NimbusExperiment.Application.IOS,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None)],
+        )
+
+        feature_without_schema = NimbusFeatureConfigFactory.create(
+            name="without-schema",
+            application=NimbusExperiment.Application.IOS,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+            ],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.IOS,
+            feature_configs=[feature_with_schema, feature_without_schema],
+        )
+
+        forms = {
+            fv.feature_config.slug: NimbusBranchFeatureValueForm(instance=fv)
+            for fv in experiment.reference_branch.feature_values.all()
+        }
+
+        self.assertIn("data-schema", forms["with-schema"].fields["value"].widget.attrs)
+        self.assertNotIn(
+            "data-schema", forms["without-schema"].fields["value"].widget.attrs
+        )
