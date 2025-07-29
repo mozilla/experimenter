@@ -1,5 +1,3 @@
-import os
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -14,45 +12,42 @@ class AudiencePage(ExperimenterBase):
 
     PAGE_TITLE = "Audience Page"
 
-    _page_wait_locator = (
-        (By.CSS_SELECTOR, "#audience-form")
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (By.CSS_SELECTOR, "#PageEditAudience")
-    )
-    _channel_select_locator = (By.CSS_SELECTOR, "#channel")
-    _min_version_select_locator = (By.CSS_SELECTOR, "#minVersion")
-    _targeting_select_locator = (By.CSS_SELECTOR, "#targeting")
+    _page_wait_locator = (By.CSS_SELECTOR, "#audience-form")
+    _channel_select_locator = (By.CSS_SELECTOR, "#id_channel")
+    _min_version_select_locator = (By.CSS_SELECTOR, "#id_firefox_min_version")
+    _targeting_select_locator = (By.CSS_SELECTOR, "#id_targeting_config_slug")
     _population_fill_locator = (
-        (
-            By.CSS_SELECTOR,
-            "#id_population_percent",
-        )
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL"))
-        else (
-            By.CSS_SELECTOR,
-            '[data-testid="population-percent-text"]',
-        )
+        By.CSS_SELECTOR,
+        "#id_population_percent",
     )
-    _expected_clients_locator = (By.CSS_SELECTOR, "#totalEnrolledClients")
+    _expected_clients_locator = (By.CSS_SELECTOR, "#id_total_enrolled_clients")
     _enrollment_period_locator = (By.CSS_SELECTOR, "#proposedEnrollment")
     _duration_locator = (By.CSS_SELECTOR, "#proposedDuration")
     _locales_input_locator = (By.CSS_SELECTOR, "div[data-testid='locales'] input")
     _locales_value_locator = (
         By.CSS_SELECTOR,
-        "div[data-testid='locales'] > div:nth-child(1)",
+        "div[data-testid='locales'] > div",
+    )
+    _countries_dropdown_button_loator = (
+        By.CSS_SELECTOR,
+        "div[data-testid='countries'] button",
     )
     _countries_input_locator = (By.CSS_SELECTOR, "div[data-testid='countries'] input")
     _countries_value_locator = (
         By.CSS_SELECTOR,
-        "div[data-testid='countries'] > div:nth-child(1)",
+        "div[data-testid='countries'] > div)",
     )
     _languages_input_locator = (By.CSS_SELECTOR, "div[data-testid='languages'] input")
     _languages_value_locator = (
         By.CSS_SELECTOR,
-        "div[data-testid='languages'] > div:nth-child(1)",
+        "div[data-testid='localses'] > div",
     )
-    _first_run_checkbox_locator = (By.CSS_SELECTOR, '[data-testid="isFirstRun"]')
-    _release_date_locator = (By.CSS_SELECTOR, '[data-testid="proposedReleaseDate"]')
+    _dropdown_input_locator = (
+        By.CSS_SELECTOR,
+        "#audience-form .bs-searchbox input.form-control",
+    )
+    _first_run_checkbox_locator = (By.CSS_SELECTOR, "#id_is_first_run")
+    _release_date_locator = (By.CSS_SELECTOR, "#id_proposed_release_date")
     _saved_locator = (By.CSS_SELECTOR, "form.was-validated")
 
     NEXT_PAGE = SummaryPage
@@ -83,8 +78,9 @@ class AudiencePage(ExperimenterBase):
     @min_version.setter
     def min_version(self, version=80):
         el = self.wait_for_and_find_element(*self._min_version_select_locator)
+        el.click()
         select = Select(el)
-        select.select_by_value(f"FIREFOX_{version}")
+        select.select_by_value(f"{version}")
 
     @property
     def targeting(self):
@@ -105,13 +101,9 @@ class AudiencePage(ExperimenterBase):
         name = self.wait_for_and_find_element(*self._population_fill_locator)
         self.execute_script("arguments[0].scrollIntoView({block: 'center'});", name)
         self.execute_script("arguments[0].click();", name)
-        if "nimbus" in str(os.environ.get("PYTEST_BASE_URL")):
-            self.execute_script(
-                "arguments[0].setAttribute('value', arguments[1]);", name, text
-            )
-        else:
-            name.clear()
-            name.send_keys(f"{text}")
+        self.execute_script(
+            "arguments[0].setAttribute('value', arguments[1]);", name, text
+        )
 
     @property
     def expected_clients(self):
@@ -146,10 +138,10 @@ class AudiencePage(ExperimenterBase):
 
     @countries.setter
     def countries(self, text=None):
+        self.wait_for_and_find_element(*self._countries_dropdown_button_loator).click()
         el = self.wait_for_and_find_element(*self._countries_input_locator)
-        for _ in text:
-            el.send_keys(f"{_}")
-            el.send_keys(Keys.ENTER)
+        el.click()
+        el.send_keys(text, Keys.ENTER)
 
     @property
     def languages(self):

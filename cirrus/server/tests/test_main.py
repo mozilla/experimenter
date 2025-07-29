@@ -89,7 +89,7 @@ def test_get_features_v2_with_required_field(client):
 @pytest.mark.parametrize(
     "request_data, expected_status, expected_message",
     [
-        (
+        pytest.param(
             {
                 "client_id": "",
                 "context": {
@@ -99,8 +99,9 @@ def test_get_features_v2_with_required_field(client):
             },
             status.HTTP_400_BAD_REQUEST,
             "Client ID value is missing or empty",
+            id="empty_client_id",
         ),
-        (
+        pytest.param(
             {
                 "context": {
                     "key1": "value1",
@@ -121,13 +122,9 @@ def test_get_features_v2_with_required_field(client):
                     },
                 }
             ],
+            id="missing_client_id",
         ),
-        (
-            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449", "context": {}},
-            status.HTTP_400_BAD_REQUEST,
-            "Context value is missing or empty",
-        ),
-        (
+        pytest.param(
             {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
@@ -138,8 +135,9 @@ def test_get_features_v2_with_required_field(client):
                     "input": {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
                 }
             ],
+            id="missing_client_id_and_context",
         ),
-        (
+        pytest.param(
             {},
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
@@ -156,6 +154,7 @@ def test_get_features_v2_with_required_field(client):
                     "input": {},
                 },
             ],
+            id="missing_context",
         ),
     ],
 )
@@ -170,7 +169,7 @@ def test_get_features_v1_missing_required_field(
 @pytest.mark.parametrize(
     "request_data, expected_status, expected_message",
     [
-        (
+        pytest.param(
             {
                 "client_id": "",
                 "context": {
@@ -180,8 +179,9 @@ def test_get_features_v1_missing_required_field(
             },
             status.HTTP_400_BAD_REQUEST,
             "Client ID value is missing or empty",
+            id="empty_client_id",
         ),
-        (
+        pytest.param(
             {
                 "context": {
                     "key1": "value1",
@@ -202,13 +202,9 @@ def test_get_features_v1_missing_required_field(
                     },
                 }
             ],
+            id="missing_client_id",
         ),
-        (
-            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449", "context": {}},
-            status.HTTP_400_BAD_REQUEST,
-            "Context value is missing or empty",
-        ),
-        (
+        pytest.param(
             {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
@@ -219,8 +215,9 @@ def test_get_features_v1_missing_required_field(
                     "input": {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
                 }
             ],
+            id="missing_context",
         ),
-        (
+        pytest.param(
             {},
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
@@ -237,6 +234,7 @@ def test_get_features_v1_missing_required_field(
                     "input": {},
                 },
             ],
+            id="missing_client_id_and_context",
         ),
     ],
 )
@@ -427,13 +425,23 @@ def test_heartbeat_endpoint(client):
     assert response.json() == {"status": "ok"}
 
 
-def test_get_features_v1_with_nimbus_preview_flag(client):
+@pytest.mark.parametrize(
+    "context",
+    [
+        pytest.param({}, id="empty_context"),
+        pytest.param(
+            {
+                "key1": "value1",
+                "key2": {"key2.1": "value2", "key2.2": "value3"},
+            },
+            id="nonempty_context",
+        ),
+    ],
+)
+def test_get_features_v1_with_nimbus_preview_flag(client, context):
     request_data = {
         "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-        "context": {
-            "key1": "value1",
-            "key2": {"key2.1": "value2", "key2.2": "value3"},
-        },
+        "context": context,
     }
 
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
@@ -443,13 +451,23 @@ def test_get_features_v1_with_nimbus_preview_flag(client):
     }
 
 
-def test_get_features_v2_with_nimbus_preview(client):
+@pytest.mark.parametrize(
+    "context",
+    [
+        pytest.param({}, id="empty_context"),
+        pytest.param(
+            {
+                "key1": "value1",
+                "key2": {"key2.1": "value2", "key2.2": "value3"},
+            },
+            id="nonempty_context",
+        ),
+    ],
+)
+def test_get_features_v2_with_nimbus_preview(client, context):
     request_data = {
         "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-        "context": {
-            "key1": "value1",
-            "key2": {"key2.1": "value2", "key2.2": "value3"},
-        },
+        "context": context,
     }
 
     response = client.post("/v2/features/?nimbus_preview=true", json=request_data)
@@ -466,7 +484,7 @@ def test_get_features_v2_with_nimbus_preview(client):
 @pytest.mark.parametrize(
     "request_data, expected_status, expected_message",
     [
-        (
+        pytest.param(
             {
                 "client_id": "",
                 "context": {
@@ -476,8 +494,9 @@ def test_get_features_v2_with_nimbus_preview(client):
             },
             status.HTTP_400_BAD_REQUEST,
             "Client ID value is missing or empty",
+            id="empty_client_id",
         ),
-        (
+        pytest.param(
             {
                 "context": {
                     "key1": "value1",
@@ -498,13 +517,9 @@ def test_get_features_v2_with_nimbus_preview(client):
                     },
                 }
             ],
+            id="missing_client_id",
         ),
-        (
-            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449", "context": {}},
-            status.HTTP_400_BAD_REQUEST,
-            "Context value is missing or empty",
-        ),
-        (
+        pytest.param(
             {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
@@ -515,8 +530,9 @@ def test_get_features_v2_with_nimbus_preview(client):
                     "input": {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
                 }
             ],
+            id="missing_context",
         ),
-        (
+        pytest.param(
             {},
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
@@ -533,6 +549,7 @@ def test_get_features_v2_with_nimbus_preview(client):
                     "input": {},
                 },
             ],
+            id="missing_client_id_and_context",
         ),
     ],
 )
@@ -547,7 +564,7 @@ def test_get_features_v1_missing_required_field_nimbus_preview(
 @pytest.mark.parametrize(
     "request_data, expected_status, expected_message",
     [
-        (
+        pytest.param(
             {
                 "client_id": "",
                 "context": {
@@ -557,8 +574,9 @@ def test_get_features_v1_missing_required_field_nimbus_preview(
             },
             status.HTTP_400_BAD_REQUEST,
             "Client ID value is missing or empty",
+            id="empty_client_id",
         ),
-        (
+        pytest.param(
             {
                 "context": {
                     "key1": "value1",
@@ -579,13 +597,9 @@ def test_get_features_v1_missing_required_field_nimbus_preview(
                     },
                 }
             ],
+            id="missing_client_id",
         ),
-        (
-            {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449", "context": {}},
-            status.HTTP_400_BAD_REQUEST,
-            "Context value is missing or empty",
-        ),
-        (
+        pytest.param(
             {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
@@ -596,8 +610,9 @@ def test_get_features_v1_missing_required_field_nimbus_preview(
                     "input": {"client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449"},
                 }
             ],
+            id="missing_context",
         ),
-        (
+        pytest.param(
             {},
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             [
@@ -614,6 +629,7 @@ def test_get_features_v1_missing_required_field_nimbus_preview(
                     "input": {},
                 },
             ],
+            id="missing_client_id_and_context",
         ),
     ],
 )
@@ -625,13 +641,23 @@ def test_get_features_v2_missing_required_field_nimbus_preview(
     assert response.json()["detail"] == expected_message
 
 
-def test_get_features_v1_without_nimbus_preview(client):
+@pytest.mark.parametrize(
+    "context",
+    [
+        pytest.param({}, id="empty_context"),
+        pytest.param(
+            {
+                "key1": "value1",
+                "key2": {"key2.1": "value2", "key2.2": "value3"},
+            },
+            id="nonempty_context",
+        ),
+    ],
+)
+def test_get_features_v1_without_nimbus_preview(client, context):
     request_data = {
         "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-        "context": {
-            "key1": "value1",
-            "key2": {"key2.1": "value2", "key2.2": "value3"},
-        },
+        "context": context,
     }
 
     with patch(
@@ -681,13 +707,23 @@ def test_get_features_v1_without_nimbus_preview(client):
         }
 
 
-def test_get_features_v1_with_nimbus_preview(client):
+@pytest.mark.parametrize(
+    "context",
+    [
+        pytest.param({}, id="empty_context"),
+        pytest.param(
+            {
+                "key1": "value1",
+                "key2": {"key2.1": "value2", "key2.2": "value3"},
+            },
+            id="nonempty_context",
+        ),
+    ],
+)
+def test_get_features_v1_with_nimbus_preview(client, context):
     request_data = {
         "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-        "context": {
-            "key1": "value1",
-            "key2": {"key2.1": "value2", "key2.2": "value3"},
-        },
+        "context": context,
     }
 
     with patch(

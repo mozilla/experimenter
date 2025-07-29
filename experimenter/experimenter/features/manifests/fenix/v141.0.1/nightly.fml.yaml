@@ -204,6 +204,7 @@ features:
           pocket: true
           pocket-sponsored-stories: true
           synced-tabs: true
+          collections: true
   javascript:
     description: Enables Javascript Engine (Spidermonkey) features
     variables:
@@ -652,6 +653,13 @@ features:
         description: "If true, the one click search will be enabled."
         type: Boolean
         default: false
+  override-user-specified-homepage-sections:
+    description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
+    variables:
+      enabled:
+        description: "When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.\n"
+        type: Boolean
+        default: false
   pdfjs:
     description: PDF.js features
     variables:
@@ -974,6 +982,8 @@ enums:
     variants:
       bookmarks:
         description: The sites the user has bookmarked.
+      collections:
+        description: The collections section of the homepage.
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
       pocket:

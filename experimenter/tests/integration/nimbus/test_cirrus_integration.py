@@ -15,7 +15,7 @@ def test_create_new_rollout_approve_remote_settings_cirrus(
     experiment_url,
     create_experiment,
     kinto_client,
-    old_base_url,
+    base_url,
     experiment_name,
     demo_app,
 ):
@@ -30,7 +30,7 @@ def test_create_new_rollout_approve_remote_settings_cirrus(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    HomePage(selenium, old_base_url).open().find_in_table(experiment_name)
+    HomePage(selenium, base_url).open().find_in_table(experiment_name)
 
     # Demo app frontend, default displays "Not Enrolled"
     navigate_to(selenium)
@@ -76,7 +76,7 @@ def test_create_new_experiment_approve_remote_settings_cirrus(
     experiment_url,
     create_experiment,
     kinto_client,
-    old_base_url,
+    base_url,
     experiment_name,
     demo_app,
 ):
@@ -91,7 +91,7 @@ def test_create_new_experiment_approve_remote_settings_cirrus(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    HomePage(selenium, old_base_url).open().find_in_table(experiment_name)
+    HomePage(selenium, base_url).open().find_in_table(experiment_name)
 
     # Demo app frontend, by default, returns "Not Enrolled" message
     navigate_to(selenium)
@@ -166,7 +166,7 @@ def test_check_cirrus_targeting(
     experiment_url,
     create_experiment,
     kinto_client,
-    old_base_url,
+    base_url,
     experiment_name,
     demo_app,
 ):
@@ -183,7 +183,7 @@ def test_check_cirrus_targeting(
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
-    HomePage(selenium, old_base_url).open()
+    HomePage(selenium, base_url).open()
 
     # Demo app frontend, by default, returns "Not Enrolled" message
     navigate_to(selenium)
