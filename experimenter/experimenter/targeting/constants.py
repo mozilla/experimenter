@@ -2349,17 +2349,6 @@ IOS_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-ANDROID_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
-    name="Review checker enabled users only",
-    slug="android_review_checker_enabled_users_only",
-    description="Targeting users who have opted in review checker",
-    targeting="is_review_checker_enabled",
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
-
 ANDROID_DMA_USERS_ONLY = NimbusTargetingConfig(
     name="DMA users only",
     slug="android_dma_users_only",
