@@ -1636,6 +1636,30 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
+    def test_computed_end_date_with_past_cached_date_recomputes(self):
+        start_date = datetime.date(2022, 1, 1)
+        enrollment_end_date = datetime.date(2022, 1, 5)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            start_date=start_date,
+            proposed_enrollment=2,
+            _enrollment_end_date=enrollment_end_date,
+            _computed_end_date=(start_date - datetime.timedelta(days=1)),
+        )
+
+        self.assertEqual(experiment.actual_enrollment_end_date, enrollment_end_date)
+        additional_enrollment_days = (
+            experiment.actual_enrollment_end_date - experiment.start_date
+        ).days - experiment.proposed_enrollment
+
+        self.assertEqual(
+            experiment.computed_end_date,
+            experiment.start_date
+            + datetime.timedelta(
+                days=(experiment.proposed_duration + additional_enrollment_days)
+            ),
+        )
+
     def test_draft_date_uses_first_changelog_if_no_start_date(self):
         experiment = NimbusExperimentFactory.create(_start_date=None)
         first_changelog = NimbusChangeLogFactory.create(
@@ -3428,6 +3452,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child._start_date, None)
         self.assertEqual(child._end_date, None)
         self.assertEqual(child._enrollment_end_date, None)
+        self.assertEqual(child._computed_end_date, None)
         self.assertEqual(child.klaatu_status, False)
         self.assertEqual(child.klaatu_recent_run_id, None)
 
