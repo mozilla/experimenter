@@ -3015,6 +3015,19 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertIn(owned_exp.slug, page_slugs)
         self.assertIn(subscribed_exp.slug, page_slugs)
 
+    def test_home_view_filter_archived_experiments(self):
+        non_archived_exp = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
+        )
+        archived_exp = NimbusExperimentFactory.create(is_archived=True, owner=self.user)
+        response = self.client.get(reverse("nimbus-ui-home"))
+        self.assertEqual(response.status_code, 200)
+
+        experiments = list(response.context["experiments"])
+        slugs = {e.slug for e in experiments}
+        self.assertIn(non_archived_exp.slug, slugs)
+        self.assertNotIn(archived_exp.slug, slugs)
+
     def test_home_view_renders_template(self):
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user
