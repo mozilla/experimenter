@@ -544,6 +544,14 @@ suggest-shipped-domains:
     enabled:
       type: boolean
       description: "Suggest domains from the shipped domain list.\n"
+suppress-sponsored-top-sites:
+  description: Suppress sponsored top sites for new users for 14 days.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, new users won’t see sponsored tiles for 14 days."
 tab-management-enhancements:
   description: Control the visibility of the tab management enhancements.
   hasExposure: true
