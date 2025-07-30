@@ -1102,7 +1102,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         if (
             population_changed
-            and not instance.is_paused
+            and instance.is_rollout
             and instance.status == NimbusExperiment.Status.LIVE
             and instance.status_next is None
             and instance.publish_status == NimbusExperiment.PublishStatus.IDLE
@@ -1279,7 +1279,6 @@ class ApproveEndEnrollmentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
-    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the end enrollment request"
@@ -1296,7 +1295,6 @@ class LiveToCompleteForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
-    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} requested review to end experiment"
@@ -1306,7 +1304,6 @@ class ApproveEndExperimentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
-    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the end experiment request"
@@ -1323,6 +1320,7 @@ class CancelEndEnrollmentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    is_paused = False
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
     )
@@ -1330,10 +1328,6 @@ class CancelEndEnrollmentForm(UpdateStatusForm):
     cancel_message = forms.CharField(
         required=False, label="Cancel Message", max_length=1000
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.is_paused = False
 
     def get_changelog_message(self):
         if self.cleaned_data.get("changelog_message"):
@@ -1367,57 +1361,6 @@ class CancelEndExperimentForm(UpdateStatusForm):
                 f"{self.cleaned_data['changelog_message']}"
             )
         return f"{self.request.user} {self.cleaned_data['cancel_message']}"
-
-
-class LiveToCompleteRolloutForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.LIVE
-    status_next = NimbusExperiment.Status.COMPLETE
-    publish_status = NimbusExperiment.PublishStatus.REVIEW
-    is_paused = True
-
-    def get_changelog_message(self):
-        return f"{self.request.user} requested review to end rollout"
-
-
-class CancelEndRolloutForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.LIVE
-    status_next = None
-    publish_status = NimbusExperiment.PublishStatus.IDLE
-    changelog_message = forms.CharField(
-        required=False, label="Changelog Message", max_length=1000
-    )
-
-    cancel_message = forms.CharField(
-        required=False, label="Cancel Message", max_length=1000
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.is_paused = self.instance.is_paused if self.instance else False
-
-    def get_changelog_message(self):
-        if self.cleaned_data.get("changelog_message"):
-            return (
-                f"{self.request.user} rejected the review with reason: "
-                f"{self.cleaned_data['changelog_message']}"
-            )
-        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
-
-
-class ApproveEndRolloutForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.LIVE
-    status_next = NimbusExperiment.Status.COMPLETE
-    publish_status = NimbusExperiment.PublishStatus.APPROVED
-
-    def get_changelog_message(self):
-        return f"{self.request.user} approved the end rollout request"
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        nimbus_check_kinto_push_queue_by_collection.apply_async(
-            countdown=5, args=[experiment.kinto_collection]
-        )
-        return experiment
 
 
 class LiveToUpdateRolloutForm(UpdateStatusForm):

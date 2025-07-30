@@ -4087,10 +4087,34 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                True,
+            ),
+            (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.PublishStatus.IDLE,
                 True,
-                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
             ),
             (
                 NimbusExperiment.Status.COMPLETE,
@@ -4098,27 +4122,84 @@ class TestNimbusExperiment(TestCase):
                 True,
                 False,
             ),
+        ]
+    )
+    def test_should_show_end_enrollment_experiment(
+        self, status, publish_status, is_paused, expected
+    ):
+        published_dto = None
+        if is_paused:
+            published_dto = {"isEnrollmentPaused": True}
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            publish_status=publish_status,
+            is_rollout=False,
+            published_dto=published_dto,
+        )
+        self.assertEqual(experiment.should_show_end_enrollment, expected)
+
+    @parameterized.expand(
+        [
             (
-                NimbusExperiment.Status.LIVE,
-                NimbusExperiment.PublishStatus.REVIEW,
-                True,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
                 False,
             ),
             (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.PublishStatus.IDLE,
                 False,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
                 False,
             ),
         ]
     )
-    def test_should_show_end_rollout(self, status, publish_status, is_rollout, expected):
+    def test_should_show_end_enrollment_rollout(self, status, publish_status, expected):
         experiment = NimbusExperimentFactory.create(
             status=status,
             publish_status=publish_status,
-            is_rollout=is_rollout,
+            is_rollout=True,
         )
-        self.assertEqual(experiment.should_show_end_rollout, expected)
+        self.assertEqual(experiment.should_show_end_enrollment, expected)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_should_show_end_experiment(self, status, publish_status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            publish_status=publish_status,
+        )
+        self.assertEqual(experiment.should_show_end_experiment, expected)
 
     @parameterized.expand(
         [
