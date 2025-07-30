@@ -849,6 +849,13 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
+  suppress-sponsored-top-sites:
+    description: Suppress sponsored top sites for new users for 14 days.
+    variables:
+      enabled:
+        description: "If true, new users won’t see sponsored tiles for 14 days."
+        type: Boolean
+        default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
