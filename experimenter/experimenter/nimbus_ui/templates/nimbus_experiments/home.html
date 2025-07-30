@@ -27,6 +27,13 @@
           </div>
         </div>
       </div>
+      <!-- Draft/Preview Card -->
+      <div class="row g-4 align-items-stretch">
+        <div id="draft-preview" class="col-md-6">
+          {% include "nimbus_experiments/home_experiments_layout.html" with title="Draft or Preview" experiments=draft_or_preview_page.object_list page_obj=draft_or_preview_page pagination_param="draft_page" empty_message="No draft or preview experiments." empty_image_path="assets/empty-draft.svg" %}
+
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

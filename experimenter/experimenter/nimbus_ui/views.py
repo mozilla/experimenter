@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView
@@ -640,11 +642,25 @@ class NimbusExperimentsHomeView(FilterView):
     context_object_name = "experiments"
 
     def get_queryset(self):
-        return NimbusExperiment.objects.filter(owner=self.request.user).order_by(
-            "-_updated_date_time"
+        return (
+            NimbusExperiment.objects.filter(
+                Q(owner=self.request.user) | Q(subscribers=self.request.user)
+            )
+            .distinct()
+            .order_by("-_updated_date_time")
+            .prefetch_related("subscribers")
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        all_experiments = list(context["experiments"])
+
+        draft_or_preview_experiments = [
+            exp for exp in all_experiments if exp.is_draft or exp.is_preview
+        ]
+        draft_page = self.request.GET.get("draft_page", 1)
+        context["draft_or_preview_page"] = Paginator(
+            draft_or_preview_experiments, 4
+        ).get_page(draft_page)
         context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
         return context

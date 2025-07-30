@@ -2979,22 +2979,87 @@ class TestBranchScreenshotDeleteView(AuthTestCase):
 
 
 class TestNimbusExperimentsHomeView(AuthTestCase):
-    def test_home_view_shows_only_owned_experiments(self):
-        my_experiment = NimbusExperimentFactory.create(owner=self.user, slug="mine")
-        NimbusExperimentFactory.create(slug="not-mine")
+    def test_home_view_shows_owned_and_subscribed_experiments(self):
+        # Owned by current user
+        owned_exp = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
+        )
+
+        # Subscribed experiment
+        other_user = UserFactory.create()
+        subscribed_exp = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            owner=other_user,
+            slug="subscribed-exp",
+        )
+        subscribed_exp.subscribers.add(self.user)
+
+        # Irrelevant
+        unrelated_exp = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, slug="unrelated-exp"
+        )
 
         response = self.client.get(reverse("nimbus-ui-home"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            list(response.context["experiments"]),
-            [my_experiment],
-        )
+
+        experiments = list(response.context["experiments"])
+        slugs = {e.slug for e in experiments}
+
+        self.assertIn(owned_exp.slug, slugs)
+        self.assertIn(subscribed_exp.slug, slugs)
+        self.assertNotIn(unrelated_exp.slug, slugs)
+
+        page_slugs = {
+            e.slug for e in response.context["draft_or_preview_page"].object_list
+        }
+        self.assertIn(owned_exp.slug, page_slugs)
+        self.assertIn(subscribed_exp.slug, page_slugs)
 
     def test_home_view_renders_template(self):
-        NimbusExperimentFactory.create(owner=self.user)
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user
+        )
         response = self.client.get(reverse("nimbus-ui-home"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/home.html")
+
+    def test_draft_or_preview_context_pagination(self):
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user
+        )
+        preview = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW, owner=self.user
+        )
+        live = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, owner=self.user
+        )
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+        self.assertEqual(response.status_code, 200)
+
+        page_slugs = {
+            e.slug for e in response.context["draft_or_preview_page"].object_list
+        }
+        self.assertIn(draft.slug, page_slugs)
+        self.assertIn(preview.slug, page_slugs)
+        self.assertNotIn(live.slug, page_slugs)
+
+    def test_draft_or_preview_pagination_respects_page_size(self):
+        for _ in range(6):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user
+            )
+
+        response = self.client.get(reverse("nimbus-ui-home") + "?draft_page=1")
+        page = response.context["draft_or_preview_page"]
+        self.assertEqual(page.number, 1)
+        self.assertEqual(page.paginator.per_page, 4)
+        self.assertEqual(len(page.object_list), 4)
+
+        response = self.client.get(reverse("nimbus-ui-home") + "?draft_page=2")
+        page2 = response.context["draft_or_preview_page"]
+        self.assertEqual(page2.number, 2)
+        self.assertEqual(len(page2.object_list), 2)
 
 
 class TestSlugRedirectToSummary(AuthTestCase):
