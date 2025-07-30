@@ -23,6 +23,17 @@ appearance-menu-feature:
     status:
       type: boolean
       description: "If true, we will show the new appearance menu entry"
+apple-summarizer-feature:
+  description: "This feature enables the apple summarizer feature.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the apple summarizer feature.\n"
+    toolbarEntrypoint:
+      type: boolean
+      description: "Enables the toolbar entrypoint for the summarizer feature.\n"
 deeplink-optimization-refactor-feature:
   description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
   hasExposure: true
@@ -115,6 +126,17 @@ homepage-redesign-feature:
     stories-redesign:
       type: boolean
       description: "If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)\n"
+hosted-summarizer-feature:
+  description: "This feature enables the hosted summarizer feature.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Enables the hosted summarizer feature.\n"
+    toolbarEntrypoint:
+      type: boolean
+      description: "Enables the toolbar entrypoint for the summarizer feature.\n"
 logins-verification:
   description: "Feature that enables the logins verification logic.\n"
   hasExposure: true
@@ -288,14 +310,6 @@ start-at-home-feature:
         - afterFourHours
         - always
         - disabled
-summarizer-feature:
-  description: "This feature enables the summarizer feature.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "Enables the summarizer feature.\n"
 tab-tray-ui-experiments:
   description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
   hasExposure: true
@@ -346,6 +360,14 @@ toolbar-refactor-feature:
       description: "Enables the unified search feature.\n"
 tos-feature:
   description: "This feature is for managing the roll out of the ToS (Term of Service) implementation\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "Enables the feature\n"
+tou-feature:
+  description: "This feature is for managing the rollout of the Terms of Use (ToU) implementation.\n"
   hasExposure: true
   exposureDescription: ""
   variables:

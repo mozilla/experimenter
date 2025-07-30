@@ -2470,6 +2470,46 @@ description = "Sheild icon 'Protections Popup' pings"
 
 [segments]
 
+[segments.activity_core]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "core_user"), FALSE)'
+friendly_name = "Core Users"
+description = """
+    Clients that browsed at least 1 URI in at least 21 of the past 28 days.
+"""
+
+[segments.activity_regular]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "regular_user"), FALSE)'
+friendly_name = "Regular Users"
+description = """
+    Clients that browsed at least 1 URI in at least 14 and up to 20 days in the past 28 days. 
+"""
+
+[segments.activity_casual]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "casual_user"), FALSE)'
+friendly_name = "Casual Users"
+description = """
+    Clients that browsed at least 1 URI in at least 7 and up to 13 days in the past 28 days. 
+"""
+
+[segments.activity_infrequent]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "infrequent_user"), FALSE)'
+friendly_name = "Infrequent Users"
+description = """
+    Clients that browsed at least 1 URI in at least 1 and up to 6 days in the past 28 days. 
+"""
+
+[segments.activity_infrequent_or_casual]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "infrequent_user" OR activity_segments_v1 = "casual_user"), FALSE)'
+friendly_name = "Infrequent or Casual Users"
+description = """
+    Clients that browsed at least 1 URI in at least 1 and up to 13 days in the past 28 days. 
+"""
+
 [segments.regular_users_v3]
 data_source = "clients_last_seen"
 select_expression = '{{agg_any("is_regular_user_v3")}}'

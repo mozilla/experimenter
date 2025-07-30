@@ -26,6 +26,17 @@ features:
         description: "If true, we will show the new appearance menu entry"
         type: Boolean
         default: true
+  apple-summarizer-feature:
+    description: "This feature enables the apple summarizer feature.\n"
+    variables:
+      enabled:
+        description: "Enables the apple summarizer feature.\n"
+        type: Boolean
+        default: true
+      toolbarEntrypoint:
+        description: "Enables the toolbar entrypoint for the summarizer feature.\n"
+        type: Boolean
+        default: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
@@ -116,6 +127,17 @@ features:
         description: "If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)\n"
         type: Boolean
         default: false
+  hosted-summarizer-feature:
+    description: "This feature enables the hosted summarizer feature.\n"
+    variables:
+      enabled:
+        description: "Enables the hosted summarizer feature.\n"
+        type: Boolean
+        default: true
+      toolbarEntrypoint:
+        description: "Enables the toolbar entrypoint for the summarizer feature.\n"
+        type: Boolean
+        default: true
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
@@ -502,6 +524,30 @@ features:
             prerequisites:
               - ALWAYS
             uiVariant: modern
+          customization-theme-modern:
+            card-type: multiple-choice
+            order: 19
+            title: Onboarding/Onboarding.Customization.Theme.Title.v123
+            body: Onboarding/Onboarding.Customization.Theme.Description.v123
+            image: themeing
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Customization.Theme.Continue.Action.v140
+                action: forward-one-card
+            multiple-choice-buttons:
+              - title: Onboarding/Onboarding.Customization.Theme.System.Action.v123
+                image: theme-system
+                action: theme-system-default
+              - title: Onboarding/Onboarding.Customization.Theme.Light.Action.v123
+                image: theme-light
+                action: theme-light
+              - title: Onboarding/Onboarding.Customization.Theme.Dark.Action.v123
+                image: theme-dark
+                action: theme-dark
+            onboarding-type: fresh-install
+            prerequisites:
+              - ALWAYS
+            uiVariant: modern
         string-alias: NimbusOnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
@@ -596,13 +642,6 @@ features:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
         default: afterFourHours
-  summarizer-feature:
-    description: "This feature enables the summarizer feature.\n"
-    variables:
-      enabled:
-        description: "Enables the summarizer feature.\n"
-        type: Boolean
-        default: false
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
@@ -664,6 +703,13 @@ features:
         description: "Enables the feature\n"
         type: Boolean
         default: true
+  tou-feature:
+    description: "This feature is for managing the rollout of the Terms of Use (ToU) implementation.\n"
+    variables:
+      status:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
   tracking-protection-refactor:
     description: "The Enhanced Tracking Protection refactor\n"
     variables:

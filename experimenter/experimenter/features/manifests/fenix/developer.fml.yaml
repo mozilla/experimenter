@@ -23,6 +23,13 @@ features:
         description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
         type: Boolean
         default: false
+  app-icon-selection:
+    description: Allows the user to set an alternative app launcher icon.
+    variables:
+      enabled:
+        description: Whether or not the feature is available for the user.
+        type: Boolean
+        default: true
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -863,6 +870,13 @@ features:
     variables:
       enabled:
         description: "Suggest domains from the shipped domain list.\n"
+        type: Boolean
+        default: false
+  suppress-sponsored-top-sites:
+    description: Suppress sponsored top sites for new users for 14 days.
+    variables:
+      enabled:
+        description: "If true, new users won’t see sponsored tiles for 14 days."
         type: Boolean
         default: false
   tab-management-enhancements:
