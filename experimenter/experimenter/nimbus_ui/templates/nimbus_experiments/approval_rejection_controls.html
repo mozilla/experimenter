@@ -28,7 +28,7 @@
       </p>
     </div>
   {% else %}
-    {% if is_ready_to_launch %}
+    {% if is_ready_to_launch or experiment.is_started %}
       <div class="alert alert-primary">
         <p>
           <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
