@@ -7,7 +7,8 @@
     <span class="badge rounded-pill bg-primary fs-6 px-3 py-1">{{ page_obj.paginator.count }}</span>
   </div>
   {% if experiments %}
-    <ul id="home-section-experiments" class="list-group list-group-flush rounded-3">
+    <ul id="home-section-experiments"
+        class="list-group list-group-flush rounded-3">
       {% for experiment in experiments %}
         <li class="list-group-item px-2 border-0 pb-2">
           <div class="mb-1">
