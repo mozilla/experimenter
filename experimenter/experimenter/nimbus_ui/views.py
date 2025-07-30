@@ -643,9 +643,8 @@ class NimbusExperimentsHomeView(FilterView):
 
     def get_queryset(self):
         return (
-            NimbusExperiment.objects.filter(
-                Q(owner=self.request.user) | Q(subscribers=self.request.user)
-            )
+            NimbusExperiment.objects.filter(is_archived=False)
+            .filter(Q(owner=self.request.user) | Q(subscribers=self.request.user))
             .distinct()
             .order_by("-_updated_date_time")
             .prefetch_related("subscribers")
