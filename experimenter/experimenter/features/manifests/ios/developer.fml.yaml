@@ -512,6 +512,30 @@ features:
             prerequisites:
               - ALWAYS
             uiVariant: modern
+          customization-theme-modern:
+            card-type: multiple-choice
+            order: 19
+            title: Onboarding/Onboarding.Customization.Theme.Title.v123
+            body: Onboarding/Onboarding.Customization.Theme.Description.v123
+            image: themeing
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Customization.Theme.Continue.Action.v140
+                action: forward-one-card
+            multiple-choice-buttons:
+              - title: Onboarding/Onboarding.Customization.Theme.System.Action.v123
+                image: theme-system
+                action: theme-system-default
+              - title: Onboarding/Onboarding.Customization.Theme.Light.Action.v123
+                image: theme-light
+                action: theme-light
+              - title: Onboarding/Onboarding.Customization.Theme.Dark.Action.v123
+                image: theme-dark
+                action: theme-dark
+            onboarding-type: fresh-install
+            prerequisites:
+              - ALWAYS
+            uiVariant: modern
         string-alias: NimbusOnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
@@ -669,6 +693,13 @@ features:
         default: false
   tos-feature:
     description: "This feature is for managing the roll out of the ToS (Term of Service) implementation\n"
+    variables:
+      status:
+        description: "Enables the feature\n"
+        type: Boolean
+        default: false
+  tou-feature:
+    description: "This feature is for managing the rollout of the Terms of Use (ToU) implementation.\n"
     variables:
       status:
         description: "Enables the feature\n"

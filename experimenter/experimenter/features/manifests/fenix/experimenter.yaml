@@ -18,6 +18,14 @@ alternative-app-launcher-icon:
     reset-to-default:
       type: boolean
       description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
+app-icon-selection:
+  description: Allows the user to set an alternative app launcher icon.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not the feature is available for the user.
 awesomebar-suggestion-provider:
   description: Configuration for the Firefox Suggest awesomebar suggestion provider.
   hasExposure: true
