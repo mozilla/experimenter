@@ -352,6 +352,14 @@ tos-feature:
     status:
       type: boolean
       description: "Enables the feature\n"
+tou-feature:
+  description: "This feature is for managing the rollout of the Terms of Use (ToU) implementation.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    status:
+      type: boolean
+      description: "Enables the feature\n"
 tracking-protection-refactor:
   description: "The Enhanced Tracking Protection refactor\n"
   hasExposure: true
