@@ -2013,6 +2013,15 @@ sessionRestore:
         2 = open last visited page in a tab,
         3 = re-open previous windows and tabs (session restore enabled)
 
+screenshots:
+  description: The built-in Screenshots feature
+  owner: sfoster@mozilla.com
+  hasExposure: false
+  variables:
+    buttonOnToolbarByDefault:
+      type: boolean
+      description: The screenshots button will be placed on the toolbar by default.
+
 password-autocomplete:
   description: A special autocomplete UI for password fields.
   owner: sgalich@mozilla.com
