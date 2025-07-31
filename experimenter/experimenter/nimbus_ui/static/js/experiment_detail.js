@@ -1,4 +1,6 @@
-document.addEventListener("DOMContentLoaded", function () {
+import * as bootstrap from "bootstrap";
+
+const setupCollapseRecipe = () => {
   const collapseRecipe = document.getElementById("collapse-recipe");
   if (!collapseRecipe) return;
 
@@ -22,4 +24,26 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(showRecipeJson, 50);
     });
   }
+};
+
+const setupPreviewUrlCopyToast = () => {
+  var previewUrl = document.getElementById("preview-url");
+  var copiedToast = document.getElementById("preview-toast");
+  if (previewUrl && copiedToast) {
+    previewUrl.addEventListener("click", function () {
+      navigator.clipboard.writeText(previewUrl.textContent);
+      var toast = bootstrap.Toast.getOrCreateInstance(copiedToast);
+      toast.show();
+    });
+  }
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+  setupCollapseRecipe();
+  setupPreviewUrlCopyToast();
+
+  document.body.addEventListener("htmx:afterSwap", function () {
+    setupCollapseRecipe();
+    setupPreviewUrlCopyToast();
+  });
 });

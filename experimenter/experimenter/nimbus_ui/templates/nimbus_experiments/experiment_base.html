@@ -21,12 +21,9 @@
         <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
       {% endif %}
       <div class="d-flex align-items-center mb-2">
-        <p class="text-secondary mb-0 me-1" id="experiment-slug">{{ experiment.slug }}</p>
-        <button type="button"
-                class="btn btn-sm"
-                onclick=" navigator.clipboard.writeText(document.getElementById('experiment-slug').textContent); alert('Copied to clipboard!'); "
-                aria-label="Copy slug">
-          <i class="fa-solid fa-copy text-secondary"></i>
+        <button type="button" class="btn text-secondary ps-0" aria-label="Copy slug">
+          <span id="experiment-slug">{{ experiment.slug }}</span>
+          <i class="fa-solid fa-copy"></i>
         </button>
       </div>
       {% if experiment.parent %}
@@ -43,6 +40,16 @@
     <div class="col-md-12 col-xl-7" id="experiment-timeline">
       {% include "nimbus_experiments/timeline.html" %}
 
+    </div>
+  </div>
+  <div id="slug-toast"
+       class="toast hide text-bg-primary position-fixed top-0 end-0 m-3 w-auto"
+       role="alert"
+       aria-live="assertive"
+       aria-atomic="true">
+    <div class="toast-body">
+      <i class="fa-regular fa-circle-check"></i>
+      Slug copied to clipboard!
     </div>
   </div>
 {% endblock %}

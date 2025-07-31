@@ -165,9 +165,11 @@
                     {% if branch == experiment.reference_branch %}selected{% endif %}>{{ branch.name }}</option>
           {% endfor %}
         </select>
-        <code id="preview-url" class="d-block text-danger user-select-all">
-          about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview
-        </code>
+        <button class="btn btn-sm" type="button">
+          <code id="preview-url" class="d-block text-danger user-select-all">
+            about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview
+          </code>
+        </button>
       </div>
       <!-- Review Mode Controls -->
     {% elif experiment|should_show_remote_settings_pending:user %}
@@ -245,4 +247,14 @@
       {% endif %}
     {% endif %}
   </form>
+</div>
+<div id="preview-toast"
+     class="toast hide text-bg-primary position-fixed top-0 end-0 m-3 w-auto"
+     role="alert"
+     aria-live="assertive"
+     aria-atomic="true">
+  <div class="toast-body">
+    <i class="fa-regular fa-circle-check"></i>
+    Preview URL copied to clipboard!
+  </div>
 </div>
