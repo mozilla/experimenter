@@ -276,6 +276,23 @@ class MultiSelectWidget(forms.SelectMultiple):
         super().__init__(*args, attrs=attrs, **kwargs)
 
 
+class SingleSelectWidget(forms.Select):
+    class_attrs = "selectpicker form-control"
+
+    def __init__(self, *args, attrs=None, **kwargs):
+        attrs = attrs or {}
+        attrs.update(
+            {
+                "class": self.class_attrs,
+                "data-live-search": "true",
+                "data-live-search-placeholder": "Search",
+                "data-max-options": 1,
+            }
+        )
+
+        super().__init__(*args, attrs=attrs, **kwargs)
+
+
 class InlineRadioSelect(forms.RadioSelect):
     template_name = "common/widgets/inline_radio.html"
     option_template_name = "common/widgets/inline_radio_option.html"
@@ -937,9 +954,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     targeting_config_slug = forms.ChoiceField(
         required=False,
         label="",
-        widget=forms.widgets.Select(
-            attrs={"class": "form-select"},
-        ),
+        widget=SingleSelectWidget(),
     )
 
     excluded_experiments_branches = forms.MultipleChoiceField(
