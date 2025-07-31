@@ -197,8 +197,13 @@
         {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Enrollment" approval_url="nimbus-ui-approve-end-enrollment" cancel_reject_url="nimbus-ui-cancel-end-enrollment" experiment=experiment %}
 
       {% elif experiment.is_end_experiment_requested %}
-        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment %}
+        {% if experiment.is_rollout %}
+          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Rollout" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment %}
 
+        {% else %}
+          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment %}
+
+        {% endif %}
       {% elif experiment.should_show_end_enrollment or experiment.should_show_end_experiment or experiment.should_show_end_rollout or experiment.should_show_rollout_request_update %}
         <div id="default-controls" class="alert alert-primary mt-3">
           <h5 class="mb-3 ms-2">Actions</h5>

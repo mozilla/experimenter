@@ -2825,6 +2825,67 @@ class TestNimbusExperiment(TestCase):
             f"status_next={status_next}, publish_status={publish_status}",
         )
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                True,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+                True,
+                False,
+            ),
+        ]
+    )
+    def test_is_rollout_update_requested(
+        self, status, status_next, publish_status, is_rollout, is_rollout_dirty, expected
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_rollout=is_rollout,
+            is_rollout_dirty=is_rollout_dirty,
+        )
+        self.assertEqual(
+            experiment.is_rollout_update_requested,
+            expected,
+            f"Expected is_rollout_update_requested={expected} for status={status}, "
+            f"status_next={status_next}, publish_status={publish_status}",
+        )
+
     def test_results_ready_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
