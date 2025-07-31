@@ -1,0 +1,23 @@
+{% if request.user.is_authenticated %}
+  <div id="glean-opt-out" class="ms-1">
+    <form method="post"
+          action="{% url 'glean-opt-out' %}"
+          hx-post="{% url 'glean-opt-out' %}"
+          hx-target="#glean-opt-out"
+          hx-swap="outerHTML">
+      {% csrf_token %}
+      <input type="hidden"
+             name="opt_out"
+             value="{% if not request.user.glean_prefs.opt_out %}true{% endif %}" />
+      <button type="submit"
+              title="Nimbus tracks user interactions with Glean. You {% if request.user.glean_prefs.opt_out %}have opted out of this data collection. You can opt back in{% else %}can opt-out of this data collection{% endif %} by clicking here."
+              class="btn btn-light">
+        {% if request.user.glean_prefs.opt_out %}
+          Glean Opt-In
+        {% else %}
+          Glean Opt-Out
+        {% endif %}
+      </button>
+    </form>
+  </div>
+{% endif %}

@@ -20,7 +20,7 @@ RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Python packages
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 2.1.1
+RUN curl -sSL https://install.python-poetry.org | python3 - --version 2.2.1
 ENV PATH="/root/.local/bin:$PATH"
 RUN poetry config virtualenvs.create false
 
@@ -146,6 +146,7 @@ ENV PYTHONPATH=$PYTHONPATH:/application-services/
 
 # Ensure the non-root user owns the required directories
 RUN chown -R app:app /experimenter /application-services
+RUN mkdir -p /var/glean && chown -R app:app /var/glean
 
 # Switch to the non-root user
 USER app

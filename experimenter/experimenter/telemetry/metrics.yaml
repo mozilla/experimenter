@@ -1,0 +1,94 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# For more information on configuring this file:
+# https://mozilla.github.io/glean/book/reference/yaml/metrics.html
+
+---
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+
+url:
+  path:
+    description: The url path of the page.
+    type: string
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - jlockhart@mozilla.com
+      - project-nimbus@mozilla.com
+    expires: never
+    send_in_pings:
+      - page-view
+nimbus:
+  nimbus_user_id:
+    description: The id of the user sent to Cirrus to determine enrollments.
+    type: string
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - project-nimbus@mozilla.com
+    expires: never
+    send_in_pings:
+      - page-view
+  enrollments:
+    type: object
+    description: The list of enrollments associated with this page view as returned by Cirrus.
+    structure:
+      type: array
+      items:
+        type: object
+        properties:
+          app_id:
+            type: string
+          branch:
+            type: string
+          experiment:
+            type: string
+          experiment_type:
+            type: string
+          is_preview:
+            type: boolean
+          nimbus_user_id:
+            type: string
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - jlockhart@mozilla.com
+      - project-nimbus@mozilla.com
+    expires: never
+    send_in_pings:
+      - page-view
+data_collection:
+  opt_out:
+    type: event
+    description: >
+      Recorded when a user has opted out of data collection.
+    extra_keys:
+      nimbus_user_id:
+        type: string
+        description: A unique identifier for User/Client sending a request to get feature configuration
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - jlockhart@mozilla.com
+      - project-nimbus@mozilla.com
+    expires: never
+    send_in_pings:
+      - events

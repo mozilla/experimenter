@@ -715,6 +715,18 @@ files = [
 ]
 
 [[package]]
+name = "diskcache"
+version = "5.6.3"
+description = "Disk Cache -- Disk and file backed persistent cache."
+optional = false
+python-versions = ">=3"
+groups = ["main"]
+files = [
+    {file = "diskcache-5.6.3-py3-none-any.whl", hash = "sha256:5e31b2d5fbad117cc363ebaf6b689474db18a1f6438bc82358b024abd4c2ca19"},
+    {file = "diskcache-5.6.3.tar.gz", hash = "sha256:2c3a3fa2743d8535d832ec61c2054a1641f41775aa7c556758a109941e33e4fc"},
+]
+
+[[package]]
 name = "dj-inmemorystorage"
 version = "2.1.0"
 description = "A non-persistent in-memory data storage backend for Django."
@@ -1230,6 +1242,48 @@ gitdb = ">=4.0.1,<5"
 [package.extras]
 doc = ["sphinx (==4.3.2)", "sphinx-autodoc-typehints", "sphinx-rtd-theme", "sphinxcontrib-applehelp (>=1.0.2,<=1.0.4)", "sphinxcontrib-devhelp (==1.0.2)", "sphinxcontrib-htmlhelp (>=2.0.0,<=2.0.1)", "sphinxcontrib-qthelp (==1.0.3)", "sphinxcontrib-serializinghtml (==1.1.5)"]
 test = ["coverage[toml]", "ddt (>=1.1.1,!=1.4.3)", "mock ; python_version < \"3.8\"", "mypy", "pre-commit", "pytest (>=7.3.1)", "pytest-cov", "pytest-instafail", "pytest-mock", "pytest-sugar", "typing-extensions ; python_version < \"3.11\""]
+
+[[package]]
+name = "glean-parser"
+version = "17.3.0"
+description = "Parser tools for Mozilla's Glean telemetry"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "glean_parser-17.3.0-py3-none-any.whl", hash = "sha256:84d975d40333e97d9f6e0ce0f22db4e1e3d8e088b2da678e34cc7ab3361f071d"},
+    {file = "glean_parser-17.3.0.tar.gz", hash = "sha256:f70fb4496436068f81ef786029a1b369f61ae2f9327eeb2fa50335dba59ee214"},
+]
+
+[package.dependencies]
+click = ">=7"
+diskcache = ">=4"
+jinja2 = ">=2.10.1"
+jsonschema = ">=3.0.2"
+platformdirs = ">=2.4.0"
+pyyaml = ">=5.3.1"
+
+[[package]]
+name = "glean-sdk"
+version = "64.5.2"
+description = "Mozilla's Glean Telemetry SDK: The Machine that Goes 'Ping!'"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "glean_sdk-64.5.2-py3-none-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:a6cf2d7718c985ca51fc40c835ca2c0489f4b461587764a27d8917b3bb632168"},
+    {file = "glean_sdk-64.5.2-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:e100e8e99bd2e08c036dd1beeed3da8289f53a94940e15b99628b033797a3f4e"},
+    {file = "glean_sdk-64.5.2-py3-none-macosx_11_0_arm64.whl", hash = "sha256:2eede905a254ca7db9bf3c44c096528af3bc85ffc3d72d7f8ad75c220f9710ad"},
+    {file = "glean_sdk-64.5.2-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:cbfc1569a1adb8923325ff4f025abcaa1e9552a4b48320c694a32bcedbc7df6e"},
+    {file = "glean_sdk-64.5.2-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:95dbf5dfad2cf8a8111d90b9bdbc6d8e62e0122ba03c721a165058f1cfd4da1b"},
+    {file = "glean_sdk-64.5.2-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:b8d2c55b0659643a0c6ced5e04f0726485c13a27d0f57d07b48ee622a9eebf7c"},
+    {file = "glean_sdk-64.5.2-py3-none-win_amd64.whl", hash = "sha256:6f5efa04fbbb16bc7357959c153d9ee4a7a2a2fbc4acbfde50cdbccc5bc981d1"},
+    {file = "glean_sdk-64.5.2.tar.gz", hash = "sha256:dd54b34e0eb361880def6fa3bdd4af04dd9487f6fdb396bbc57c5b406adeb495"},
+]
+
+[package.dependencies]
+glean-parser = ">=17.2,<18.0"
+semver = ">=2.13.0"
 
 [[package]]
 name = "google-api-core"
@@ -2230,6 +2284,23 @@ test-arrow = ["pyarrow"]
 tests = ["check-manifest", "coverage (>=7.4.2)", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout", "pytest-xdist", "trove-classifiers (>=2024.10.12)"]
 typing = ["typing-extensions ; python_version < \"3.10\""]
 xmp = ["defusedxml"]
+
+[[package]]
+name = "platformdirs"
+version = "4.5.0"
+description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "platformdirs-4.5.0-py3-none-any.whl", hash = "sha256:e578a81bb873cbb89a41fcc904c7ef523cc18284b7e3b3ccf06aca1403b7ebd3"},
+    {file = "platformdirs-4.5.0.tar.gz", hash = "sha256:70ddccdd7c99fc5942e9fc25636a8b34d04c24b335100223152c2803e4063312"},
+]
+
+[package.extras]
+docs = ["furo (>=2025.9.25)", "proselint (>=0.14)", "sphinx (>=8.2.3)", "sphinx-autodoc-typehints (>=3.2)"]
+test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=8.4.2)", "pytest-cov (>=7)", "pytest-mock (>=3.15.1)"]
+type = ["mypy (>=1.18.2)"]
 
 [[package]]
 name = "pluggy"
@@ -3254,6 +3325,18 @@ files = [
 ]
 
 [[package]]
+name = "semver"
+version = "3.0.4"
+description = "Python helper for Semantic Versioning (https://semver.org)"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "semver-3.0.4-py3-none-any.whl", hash = "sha256:9c824d87ba7f7ab4a1890799cec8596f15c1241cb473404ea1cb0c55e4b04746"},
+    {file = "semver-3.0.4.tar.gz", hash = "sha256:afc7d8c584a5ed0a11033af086e8af226a9c0b206f313e0301f8dd7b6b589602"},
+]
+
+[[package]]
 name = "sentry-sdk"
 version = "2.42.1"
 description = "Python client for Sentry (https://sentry.io)"
@@ -3720,4 +3803,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "f0bed93f22c203948ef0c5831019a59dd1f72394eb8a270d90481ab68091da69"
+content-hash = "63c3b1385db19545d26741a4e498f0ce88633e152197292ecf18d51cc3d5c53e"
