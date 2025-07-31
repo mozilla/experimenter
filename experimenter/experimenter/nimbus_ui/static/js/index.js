@@ -53,22 +53,36 @@ const setupTooltips = () => {
 };
 
 const setupToasts = () => {
-  const toastElList = document.querySelectorAll(".toast");
+  const toastElList = document.querySelectorAll(".toast:not(.hide)");
   [...toastElList].map((toastEl) => {
     const toast = new bootstrap.Toast(toastEl);
     toast.show();
   });
 };
 
+const setupSlugCopyToast = () => {
+  var slug = document.getElementById("experiment-slug");
+  var copiedToast = document.getElementById("slug-toast");
+  if (slug && copiedToast) {
+    slug.addEventListener("click", function () {
+      navigator.clipboard.writeText(slug.textContent);
+      var toast = bootstrap.Toast.getOrCreateInstance(copiedToast);
+      toast.show();
+    });
+  }
+};
+
 $(() => {
   setupThemeSwitcher();
   setupTooltips();
   setupToasts();
+  setupSlugCopyToast();
 
   document.body.addEventListener("htmx:afterSwap", function () {
     $(".selectpicker").selectpicker();
     setupTooltips();
     setupToasts();
+    setupSlugCopyToast();
   });
 
   // To support HTMX onchange updates on selectpicker, we need to
