@@ -3,6 +3,7 @@
   {% csrf_token %}
   <div class="d-flex align-items-center pb-2">
     <button type="submit"
+            data-testid="nav-edit-archive"
             class="nav-link d-flex align-items-center nav-link-hover w-100"
             {% if not experiment.can_archive %}disabled{% endif %}>
       <i class="fa-regular fa-trash-can pe-3"></i>

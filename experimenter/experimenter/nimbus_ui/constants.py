@@ -72,6 +72,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "period ended."
         ),
     }
+    HOME_PAGE_LINKS = {
+        "welcome_learn_more_url": "https://experimenter.info/workflow/overview/"
+    }
 
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"

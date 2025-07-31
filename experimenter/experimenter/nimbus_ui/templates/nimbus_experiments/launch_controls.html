@@ -165,9 +165,11 @@
                     {% if branch == experiment.reference_branch %}selected{% endif %}>{{ branch.name }}</option>
           {% endfor %}
         </select>
-        <code id="preview-url" class="d-block text-danger user-select-all">
-          about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview
-        </code>
+        <button class="btn btn-sm" type="button">
+          <code id="preview-url" class="d-block text-danger user-select-all">
+            about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview
+          </code>
+        </button>
       </div>
       <!-- Review Mode Controls -->
     {% elif experiment|should_show_remote_settings_pending:user %}
@@ -198,7 +200,7 @@
 
       {% elif experiment.is_end_experiment_requested %}
         {% if experiment.is_rollout %}
-          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Rollout" approval_url="nimbus-ui-approve-end-rollout" cancel_reject_url="nimbus-ui-cancel-end-rollout" experiment=experiment %}
+          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Rollout" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment %}
 
         {% else %}
           {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment %}
@@ -222,7 +224,14 @@
                     hx-target="#content"
                     hx-swap="outerHTML"
                     id="end-experiment"
-                    class="btn btn-primary end_experiment_btn">End Experiment</button>
+                    class="btn btn-primary end_experiment_btn">
+              End
+              {% if experiment.is_rollout %}
+                Rollout
+              {% else %}
+                Experiment
+              {% endif %}
+            </button>
           {% endif %}
           {% if experiment.should_show_rollout_request_update %}
             <button type="button"
@@ -234,17 +243,18 @@
                     id="request-update-button"
                     {% if not experiment.is_rollout_dirty %}disabled{% endif %}>Request Update</button>
           {% endif %}
-          {% if experiment.should_show_end_rollout %}
-            <button type="button"
-                    hx-post="{% url 'nimbus-ui-live-to-complete-rollout' slug=experiment.slug %}"
-                    hx-select="#content"
-                    hx-target="#content"
-                    hx-swap="outerHTML"
-                    id="end-rollout"
-                    class="btn btn-primary">End Rollout</button>
-          {% endif %}
         </div>
       {% endif %}
     {% endif %}
   </form>
+</div>
+<div id="preview-toast"
+     class="toast hide text-bg-primary position-fixed top-0 end-0 m-3 w-auto"
+     role="alert"
+     aria-live="assertive"
+     aria-atomic="true">
+  <div class="toast-body">
+    <i class="fa-regular fa-circle-check"></i>
+    Preview URL copied to clipboard!
+  </div>
 </div>

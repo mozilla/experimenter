@@ -27,7 +27,7 @@ class TestVisualizationView(TestCase):
         mock_exists.return_value = False
         primary_outcome = "outcome"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle, primary_outcomes=[primary_outcome]
+            lifecycle, primary_outcomes=[primary_outcome], results_data=None
         )
 
         # test None object/response

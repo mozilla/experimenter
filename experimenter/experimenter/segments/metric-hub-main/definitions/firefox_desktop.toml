@@ -1143,8 +1143,8 @@ Was Firefox the default browser at any point during the interval?
 """
 
 [metrics.is_default_pdf_handler]
-data_source = "main"
-select_expression = "COALESCE(LOGICAL_OR(mozfun.map.get_key(payload.processes.parent.keyed_scalars.os_environment_is_default_handler, '.pdf')), FALSE)"
+data_source = "metrics"
+select_expression = "COALESCE(LOGICAL_OR(mozfun.map.get_key(metrics.labeled_boolean.os_environment_is_default_handler, '.pdf')), FALSE)"
 friendly_name = "Is Default PDF Handler (Windows)"
 type = "scalar"
 description = """
@@ -1870,26 +1870,26 @@ data_source = "metrics"
 
 [metrics.pdf_invoked_to_handle]
 select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(payload.processes.parent.keyed_scalars.os_environment_invoked_to_handle, '.pdf')) > 0, FALSE)
+    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.os_environment_invoked_to_handle, '.pdf')) > 0, FALSE)
 )"""
-data_source = "main"
+data_source = "metrics"
 friendly_name = "PDF Invoked to Handle"
 description = "Firefox was invoked (i.e., was already running and was not launched) to handle a pdf file"
 
 [metrics.pdf_launched_to_handle]
 select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(payload.processes.parent.keyed_scalars.os_environment_launched_to_handle, '.pdf')) > 0, FALSE)
+    COALESCE(SUM(mozfun.map.get_key( metrics.labeled_counter.os_environment_launched_to_handle, '.pdf')) > 0, FALSE)
 )"""
-data_source = "main"
+data_source = "metrics"
 friendly_name = "PDF Launched to Handle"
 description = "Firefox was launched afresh (i.e., was not already running) to handle a pdf file"
 
 [metrics.pdf_launched_or_invoked_to_handle]
 select_expression = """(
-    (COALESCE(SUM(mozfun.map.get_key(payload.processes.parent.keyed_scalars.os_environment_invoked_to_handle, '.pdf')) > 0, FALSE) OR
-    COALESCE(SUM(mozfun.map.get_key(payload.processes.parent.keyed_scalars.os_environment_launched_to_handle, '.pdf')) > 0, FALSE))
+    (COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.os_environment_invoked_to_handle, '.pdf')) > 0, FALSE) OR
+    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.os_environment_launched_to_handle, '.pdf')) > 0, FALSE))
 )"""
-data_source = "main"
+data_source = "metrics"
 friendly_name = "PDF Launched or Invoked"
 description = "Firefox was launched or invoked to handle a pdf file"
 
@@ -2469,6 +2469,46 @@ description = "Sheild icon 'Protections Popup' pings"
 
 
 [segments]
+
+[segments.activity_core]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "core_user"), FALSE)'
+friendly_name = "Core Users"
+description = """
+    Clients that browsed at least 1 URI in at least 21 of the past 28 days.
+"""
+
+[segments.activity_regular]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "regular_user"), FALSE)'
+friendly_name = "Regular Users"
+description = """
+    Clients that browsed at least 1 URI in at least 14 and up to 20 days in the past 28 days. 
+"""
+
+[segments.activity_casual]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "casual_user"), FALSE)'
+friendly_name = "Casual Users"
+description = """
+    Clients that browsed at least 1 URI in at least 7 and up to 13 days in the past 28 days. 
+"""
+
+[segments.activity_infrequent]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "infrequent_user"), FALSE)'
+friendly_name = "Infrequent Users"
+description = """
+    Clients that browsed at least 1 URI in at least 1 and up to 6 days in the past 28 days. 
+"""
+
+[segments.activity_infrequent_or_casual]
+data_source = "clients_last_seen"
+select_expression = 'COALESCE(LOGICAL_OR(activity_segments_v1 = "infrequent_user" OR activity_segments_v1 = "casual_user"), FALSE)'
+friendly_name = "Infrequent or Casual Users"
+description = """
+    Clients that browsed at least 1 URI in at least 1 and up to 13 days in the past 28 days. 
+"""
 
 [segments.regular_users_v3]
 data_source = "clients_last_seen"

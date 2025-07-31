@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 
 from django import forms
@@ -275,6 +276,23 @@ class MultiSelectWidget(forms.SelectMultiple):
         super().__init__(*args, attrs=attrs, **kwargs)
 
 
+class SingleSelectWidget(forms.Select):
+    class_attrs = "selectpicker form-control"
+
+    def __init__(self, *args, attrs=None, **kwargs):
+        attrs = attrs or {}
+        attrs.update(
+            {
+                "class": self.class_attrs,
+                "data-live-search": "true",
+                "data-live-search-placeholder": "Search",
+                "data-max-options": 1,
+            }
+        )
+
+        super().__init__(*args, attrs=attrs, **kwargs)
+
+
 class InlineRadioSelect(forms.RadioSelect):
     template_name = "common/widgets/inline_radio.html"
     option_template_name = "common/widgets/inline_radio_option.html"
@@ -376,13 +394,9 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated overview"
 
 
-class DocumentationLinkCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    class Meta:
-        model = NimbusExperiment
-        fields = []
-
-    def save(self):
-        super().save(commit=False)
+class DocumentationLinkCreateForm(OverviewForm):
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         self.instance.documentation_links.create()
         return self.instance
 
@@ -390,15 +404,15 @@ class DocumentationLinkCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} added a documentation link"
 
 
-class DocumentationLinkDeleteForm(NimbusChangeLogFormMixin, forms.ModelForm):
+class DocumentationLinkDeleteForm(OverviewForm):
     link_id = forms.ModelChoiceField(queryset=NimbusDocumentationLink.objects.all())
 
     class Meta:
         model = NimbusExperiment
-        fields = ["link_id"]
+        fields = [*OverviewForm.Meta.fields, "link_id"]
 
-    def save(self):
-        super().save(commit=False)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         documentation_link = self.cleaned_data["link_id"]
         documentation_link.delete()
         return self.instance
@@ -424,15 +438,22 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         ):
             self.fields["value"].initial = ""
 
-        if self.instance.id is not None and self.instance.feature_config:
-            if schema := self.instance.feature_config.schemas.filter(
-                version=None
-            ).first():
-                self.fields["value"].widget.attrs.update(
-                    {
-                        "data-schema": schema.schema,
-                    }
-                )
+        if (
+            self.instance.id is not None
+            and self.instance.feature_config
+            and (
+                schema := self.instance.feature_config.schemas.filter(
+                    version=None
+                ).first()
+            )
+            and schema is not None
+            and schema.schema is not None
+        ):
+            self.fields["value"].widget.attrs.update(
+                {
+                    "data-schema": json.dumps(schema.schema),
+                }
+            )
 
     def clean_value(self):
         value = self.cleaned_data.get("value")
@@ -720,7 +741,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             ).delete()
 
             for feature_config in new_feature_configs:
-                branch.feature_values.create(feature_config=feature_config)
+                branch.feature_values.create(feature_config=feature_config, value="{}")
 
         if experiment.equal_branch_ratio:
             experiment.branches.all().update(ratio=1)
@@ -933,9 +954,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     targeting_config_slug = forms.ChoiceField(
         required=False,
         label="",
-        widget=forms.widgets.Select(
-            attrs={"class": "form-select"},
-        ),
+        widget=SingleSelectWidget(),
     )
 
     excluded_experiments_branches = forms.MultipleChoiceField(
@@ -1098,7 +1117,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         if (
             population_changed
-            and not instance.is_paused
+            and instance.is_rollout
             and instance.status == NimbusExperiment.Status.LIVE
             and instance.status_next is None
             and instance.publish_status == NimbusExperiment.PublishStatus.IDLE
@@ -1213,7 +1232,12 @@ class PreviewToDraftForm(UpdateStatusForm):
         return f"{self.request.user} moved the experiment back to Draft"
 
     def save(self, commit=True):
-        experiment = super().save(commit=commit)
+        experiment = super().save(commit=False)
+        experiment.published_dto = None
+
+        if commit:  # pragma: nocover
+            experiment.save()
+
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
         return experiment
 
@@ -1270,7 +1294,6 @@ class ApproveEndEnrollmentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
-    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the end enrollment request"
@@ -1287,7 +1310,6 @@ class LiveToCompleteForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
-    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} requested review to end experiment"
@@ -1297,7 +1319,6 @@ class ApproveEndExperimentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
-    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the end experiment request"
@@ -1314,6 +1335,7 @@ class CancelEndEnrollmentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    is_paused = False
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
     )
@@ -1321,10 +1343,6 @@ class CancelEndEnrollmentForm(UpdateStatusForm):
     cancel_message = forms.CharField(
         required=False, label="Cancel Message", max_length=1000
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.is_paused = False
 
     def get_changelog_message(self):
         if self.cleaned_data.get("changelog_message"):
@@ -1358,57 +1376,6 @@ class CancelEndExperimentForm(UpdateStatusForm):
                 f"{self.cleaned_data['changelog_message']}"
             )
         return f"{self.request.user} {self.cleaned_data['cancel_message']}"
-
-
-class LiveToCompleteRolloutForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.LIVE
-    status_next = NimbusExperiment.Status.COMPLETE
-    publish_status = NimbusExperiment.PublishStatus.REVIEW
-    is_paused = True
-
-    def get_changelog_message(self):
-        return f"{self.request.user} requested review to end rollout"
-
-
-class CancelEndRolloutForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.LIVE
-    status_next = None
-    publish_status = NimbusExperiment.PublishStatus.IDLE
-    changelog_message = forms.CharField(
-        required=False, label="Changelog Message", max_length=1000
-    )
-
-    cancel_message = forms.CharField(
-        required=False, label="Cancel Message", max_length=1000
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.is_paused = self.instance.is_paused if self.instance else False
-
-    def get_changelog_message(self):
-        if self.cleaned_data.get("changelog_message"):
-            return (
-                f"{self.request.user} rejected the review with reason: "
-                f"{self.cleaned_data['changelog_message']}"
-            )
-        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
-
-
-class ApproveEndRolloutForm(UpdateStatusForm):
-    status = NimbusExperiment.Status.LIVE
-    status_next = NimbusExperiment.Status.COMPLETE
-    publish_status = NimbusExperiment.PublishStatus.APPROVED
-
-    def get_changelog_message(self):
-        return f"{self.request.user} approved the end rollout request"
-
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        nimbus_check_kinto_push_queue_by_collection.apply_async(
-            countdown=5, args=[experiment.kinto_collection]
-        )
-        return experiment
 
 
 class LiveToUpdateRolloutForm(UpdateStatusForm):

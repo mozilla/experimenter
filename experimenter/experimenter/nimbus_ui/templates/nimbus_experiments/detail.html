@@ -266,9 +266,9 @@
             {% if experiment.is_mobile %}
               <tr>
                 <th>First Run Experiment</th>
-                <td>{{ experiment.is_first_run }}</td>
+                <td data-testid="experiment-is-first-run">{{ experiment.is_first_run }}</td>
                 <th>First Run Release Date</th>
-                <td>{{ experiment.proposed_release_date }}</td>
+                <td data-testid="experiment-release-date">{{ experiment.proposed_release_date }}</td>
               </tr>
             {% endif %}
             <tr>
@@ -345,104 +345,28 @@
       <div class="card-header">
         <h4>Branches ({{ experiment.branches.all.count }})</h4>
       </div>
-      {% for branch in experiment.branches.all %}
-        <div class="card-body">
-          <div class="row mb-2">
-            <div class="col-md-8">
-              <h6>
-                <a href="#{{ branch.slug }}">#</a> {{ branch.name|title }}
-              </h6>
-            </div>
-            {% if not experiment.is_rollout %}
-              <div class="col-md-4 text-end">
-                <button class="btn btn-outline-primary btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#promoteToRolloutModal-{{ branch.slug }}">Promote to Rollout</button>
-              </div>
-            {% endif %}
-          </div>
-          <table class="table table-striped">
-            <tbody>
-              <tr>
-                <th>Slug</th>
-                <td>{{ branch.slug|format_not_set }}</td>
-                <th>Ratio</th>
-                <td>{{ branch.ratio|format_not_set }}</td>
-              </tr>
-              <tr>
-                <th>Description</th>
-                <td colspan="3">{{ branch.description|format_not_set }}</td>
-              </tr>
-              {% if branch.feature_values.all %}
-                {% for feature_value in branch.feature_values.all %}
-                  <tr>
-                    <th>{{ feature_value.feature_config.name|format_not_set }} Value</th>
-                    <td colspan="3">
-                      <code>{{ feature_value.value|format_not_set|format_json }}</code>
-                    </td>
-                  </tr>
-                {% endfor %}
-              {% else %}
-                <tr>
-                  <td colspan="4">No Feature Values</td>
-                </tr>
-              {% endif %}
-              {% if branch.screenshots.all.exists %}
-                <tr>
-                  <th>Screenshots</th>
-                  <td colspan="3">
-                    {% for screenshot in branch.screenshots.all %}
-                      <figure class="d-block">
-                        <figcaption>{{ screenshot.description }}</figcaption>
-                        {% if screenshot.image %}
-                          <img src="{{ screenshot.image.url }}"
-                               alt="{{ screenshot.description|default:'' }}"
-                               class="img-fluid">
-                        {% else %}
-                          Not Set
-                        {% endif %}
-                      </figure>
-                    {% endfor %}
-                  </td>
-                </tr>
-              {% endif %}
-            </tbody>
-          </table>
-        </div>
-        <div class="modal fade"
-             id="promoteToRolloutModal-{{ branch.slug }}"
-             tabindex="-1"
-             aria-labelledby="promoteToRolloutModalLabel-{{ branch.slug }}"
-             aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h1 class="modal-title fs-5">Promote {{ branch.slug }} to Rollout</h1>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-              </div>
-              <div class="modal-body bg-body-tertiary">
-                <form id="promoteToRolloutForm-{{ branch.slug }}"
-                      hx-post="{% url 'nimbus-ui-promote-to-rollout' experiment.slug %}"
-                      hx-vals='{"branch_slug": "{{ branch.slug }}"}'
-                      hx-target="#promoteToRolloutForm-{{ branch.slug }}">
-                  {% with form_id_prefix="promote-"|add:branch.slug %}
-                    {% include "nimbus_experiments/clone.html" with form=promote_to_rollout_forms experiment=experiment form_id_prefix=form_id_prefix branch_slug=branch.slug %}
+      {% include "nimbus_experiments/detail_branch.html" with branch=experiment.reference_branch experiment=experiment %}
 
-                  {% endwith %}
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
+      {% for branch in experiment.treatment_branches %}
+        {% include "nimbus_experiments/detail_branch.html" with branch=branch experiment=experiment %}
+
       {% endfor %}
     </div>
     <!-- QA Card -->
     {% include "nimbus_experiments/qa_card.html" %}
 
   </div>
+  {% if save_failed %}
+    <div class="toast text-bg-danger position-fixed top-0 end-0 m-3 w-auto"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true">
+      <div class="toast-body">
+        <i class="fa-regular fa-circle-check"></i>
+        Save Failed: This experiment is not editable in its current state.
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block extrascripts %}

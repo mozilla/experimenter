@@ -40,13 +40,19 @@ def client():
 
 
 @fixture
-def scheduler_mock():
+def app_state_mock():
+    with mock.patch("cirrus.main.app.state") as app_state_mock:
+        yield app_state_mock
+
+
+@fixture
+def scheduler_mock(app_state_mock):
     with mock.patch("cirrus.main.app.state.scheduler") as scheduler_mock:
         yield scheduler_mock
 
 
 @fixture
-def remote_setting_live_mock():
+def remote_setting_live_mock(app_state_mock):
     with mock.patch(
         "cirrus.main.app.state.remote_setting_live"
     ) as remote_setting_live_mock:
@@ -54,7 +60,7 @@ def remote_setting_live_mock():
 
 
 @fixture
-def remote_setting_preview_mock():
+def remote_setting_preview_mock(app_state_mock):
     with mock.patch(
         "cirrus.main.app.state.remote_setting_preview"
     ) as remote_setting_preview_mock:
@@ -106,11 +112,6 @@ def fml_with_coenrolling_features_path():
 @fixture
 def fml_with_coenrolling_features(fml_with_coenrolling_features_path):
     return FeatureManifestLanguage(fml_with_coenrolling_features_path, channel)
-
-
-@fixture
-def exception():
-    return Exception("some error")
 
 
 @fixture(name="reset_glean", scope="function", autouse=True)

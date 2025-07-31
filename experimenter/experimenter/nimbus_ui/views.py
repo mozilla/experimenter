@@ -1,7 +1,8 @@
 from django.conf import settings
-from django.http import HttpResponse
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-from django.utils.text import slugify
 from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
@@ -20,21 +21,18 @@ from experimenter.nimbus_ui.filtersets import (
 from experimenter.nimbus_ui.forms import (
     ApproveEndEnrollmentForm,
     ApproveEndExperimentForm,
-    ApproveEndRolloutForm,
     ApproveUpdateRolloutForm,
     AudienceForm,
     BranchScreenshotCreateForm,
     BranchScreenshotDeleteForm,
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
-    CancelEndRolloutForm,
     CancelUpdateRolloutForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
     LiveToCompleteForm,
-    LiveToCompleteRolloutForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
     MetricsForm,
@@ -139,6 +137,28 @@ class NimbusExperimentViewMixin:
             else []
         )
         return context
+
+
+class UpdateRedirectViewMixin:
+    def can_edit(self):
+        raise NotImplementedError
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.can_edit():
+            return HttpResponseRedirect(
+                reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            )
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.can_edit():
+            response = HttpResponse()
+            base_url = reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
+            return response
+        return super().post(request, *args, **kwargs)
 
 
 class CloneExperimentFormMixin:
@@ -271,6 +291,9 @@ class NimbusExperimentDetailView(
         if context["takeaways_edit_mode"]:
             context["takeaways_form"] = TakeawaysForm(instance=self.object)
 
+        if "save_failed" in self.request.GET:
+            context["save_failed"] = True
+
         return context
 
 
@@ -369,15 +392,6 @@ class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneView):
     template_name = "nimbus_experiments/clone.html"
 
 
-class UpdateCloneSlugView(UpdateView):
-    template_name = "nimbus_experiments/clone_slug_field.html"
-
-    def post(self, request, *args, **kwargs):
-        name = self.request.POST.get("name", "")
-        slug = slugify(name)
-        return self.render_to_response({"slug": slug})
-
-
 class ToggleArchiveView(
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -417,11 +431,15 @@ class OverviewUpdateView(
     RenderResponseMixin,
     ValidationErrorsMixin,
     CloneExperimentFormMixin,
+    UpdateRedirectViewMixin,
     UpdateView,
 ):
     form_class = OverviewForm
     template_name = "nimbus_experiments/edit_overview.html"
     continue_url_name = "nimbus-ui-update-branches"
+
+    def can_edit(self):
+        return self.object.can_edit_overview()
 
 
 class DocumentationLinkCreateView(RenderParentDBResponseMixin, OverviewUpdateView):
@@ -433,10 +451,17 @@ class DocumentationLinkDeleteView(RenderParentDBResponseMixin, OverviewUpdateVie
 
 
 class BranchesBaseView(
-    NimbusExperimentViewMixin, RequestFormMixin, ValidationErrorsMixin, UpdateView
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    ValidationErrorsMixin,
+    UpdateRedirectViewMixin,
+    UpdateView,
 ):
     form_class = NimbusBranchesForm
     template_name = "nimbus_experiments/edit_branches.html"
+
+    def can_edit(self):
+        return self.object.can_edit_branches()
 
 
 class BranchesPartialUpdateView(RenderDBResponseMixin, BranchesBaseView):
@@ -470,11 +495,15 @@ class MetricsUpdateView(
     RenderResponseMixin,
     CloneExperimentFormMixin,
     ValidationErrorsMixin,
+    UpdateRedirectViewMixin,
     UpdateView,
 ):
     form_class = MetricsForm
     template_name = "nimbus_experiments/edit_metrics.html"
     continue_url_name = "nimbus-ui-update-audience"
+
+    def can_edit(self):
+        return self.object.can_edit_metrics()
 
 
 class AudienceUpdateView(
@@ -484,11 +513,15 @@ class AudienceUpdateView(
     RenderResponseMixin,
     CloneExperimentFormMixin,
     ValidationErrorsMixin,
+    UpdateRedirectViewMixin,
     UpdateView,
 ):
     form_class = AudienceForm
     template_name = "nimbus_experiments/edit_audience.html"
     continue_url_name = "nimbus-ui-detail"
+
+    def can_edit(self):
+        return self.object.can_edit_audience()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -572,18 +605,6 @@ class CancelEndExperimentView(StatusUpdateView):
     form_class = CancelEndExperimentForm
 
 
-class LiveToCompleteRolloutView(StatusUpdateView):
-    form_class = LiveToCompleteRolloutForm
-
-
-class CancelEndRolloutView(StatusUpdateView):
-    form_class = CancelEndRolloutForm
-
-
-class ApproveEndRolloutView(StatusUpdateView):
-    form_class = ApproveEndRolloutForm
-
-
 class LiveToUpdateRolloutView(StatusUpdateView):
     form_class = LiveToUpdateRolloutForm
 
@@ -598,3 +619,32 @@ class ApproveUpdateRolloutView(StatusUpdateView):
 
 class ResultsView(NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/results.html"
+
+
+class NimbusExperimentsHomeView(FilterView):
+    template_name = "nimbus_experiments/home.html"
+    filterset_class = NimbusExperimentFilter
+    context_object_name = "experiments"
+
+    def get_queryset(self):
+        return (
+            NimbusExperiment.objects.filter(is_archived=False)
+            .filter(Q(owner=self.request.user) | Q(subscribers=self.request.user))
+            .distinct()
+            .order_by("-_updated_date_time")
+            .prefetch_related("subscribers")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        all_experiments = list(context["experiments"])
+
+        draft_or_preview_experiments = [
+            exp for exp in all_experiments if exp.is_draft or exp.is_preview
+        ]
+        draft_page = self.request.GET.get("draft_page", 1)
+        context["draft_or_preview_page"] = Paginator(
+            draft_or_preview_experiments, 4
+        ).get_page(draft_page)
+        context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
+        return context

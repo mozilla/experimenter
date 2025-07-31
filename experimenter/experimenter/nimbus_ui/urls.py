@@ -1,9 +1,9 @@
 from django.urls import re_path
+from django.views.generic import RedirectView
 
 from experimenter.nimbus_ui.views import (
     ApproveEndEnrollmentView,
     ApproveEndExperimentView,
-    ApproveEndRolloutView,
     ApproveUpdateRolloutView,
     AudienceUpdateView,
     BranchCreateView,
@@ -14,13 +14,11 @@ from experimenter.nimbus_ui.views import (
     BranchScreenshotDeleteView,
     CancelEndEnrollmentView,
     CancelEndExperimentView,
-    CancelEndRolloutView,
     CancelUpdateRolloutView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
     DraftToPreviewView,
     DraftToReviewView,
-    LiveToCompleteRolloutView,
     LiveToCompleteView,
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
@@ -28,6 +26,7 @@ from experimenter.nimbus_ui.views import (
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
+    NimbusExperimentsHomeView,
     NimbusExperimentsListTableView,
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
@@ -43,19 +42,33 @@ from experimenter.nimbus_ui.views import (
     TakeawaysUpdateView,
     ToggleArchiveView,
     UnsubscribeView,
-    UpdateCloneSlugView,
 )
 
 urlpatterns = [
     re_path(
-        r"^(?P<slug>[\w-]+)/history/$",
-        NimbusChangeLogsView.as_view(),
-        name="nimbus-ui-history",
+        r"^home/",
+        NimbusExperimentsHomeView.as_view(),
+        name="nimbus-ui-home",
     ),
     re_path(
         r"^table/",
         NimbusExperimentsListTableView.as_view(),
         name="nimbus-ui-table",
+    ),
+    re_path(
+        r"^create/",
+        NimbusExperimentsCreateView.as_view(),
+        name="nimbus-ui-create",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)[/]?$",
+        RedirectView.as_view(pattern_name="nimbus-ui-detail", permanent=False),
+        name="nimbus-ui-redirect-to-summary",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/history/$",
+        NimbusChangeLogsView.as_view(),
+        name="nimbus-ui-history",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/summary/$",
@@ -93,12 +106,12 @@ urlpatterns = [
         name="nimbus-ui-delete-documentation-link",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/update_branches/$",
+        r"^(?P<slug>[\w-]+)/save_branches/$",
         BranchesPartialUpdateView.as_view(),
         name="nimbus-ui-partial-update-branches",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/save_branches/$",
+        r"^(?P<slug>[\w-]+)/update_branches/$",
         BranchesUpdateView.as_view(),
         name="nimbus-ui-update-branches",
     ),
@@ -123,11 +136,6 @@ urlpatterns = [
         name="nimbus-ui-update-audience",
     ),
     re_path(
-        r"^create/",
-        NimbusExperimentsCreateView.as_view(),
-        name="nimbus-ui-create",
-    ),
-    re_path(
         r"^(?P<slug>[\w-]+)/clone/$",
         NimbusExperimentsSidebarCloneView.as_view(),
         name="nimbus-ui-clone",
@@ -136,11 +144,6 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/promote_to_rollout/(?:(?P<branch>[\w-]+)/)?$",
         NimbusExperimentsPromoteToRolloutView.as_view(),
         name="nimbus-ui-promote-to-rollout",
-    ),
-    re_path(
-        r"^(?P<slug>[\w-]+)/update_clone_slug/$",
-        UpdateCloneSlugView.as_view(),
-        name="nimbus-ui-update-clone-slug",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/toggle-archive/$",
@@ -216,21 +219,6 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/reject-end-experiment/$",
         CancelEndExperimentView.as_view(),
         name="nimbus-ui-cancel-end-experiment",
-    ),
-    re_path(
-        r"^(?P<slug>[\w-]+)/live-to-complete-rollout/$",
-        LiveToCompleteRolloutView.as_view(),
-        name="nimbus-ui-live-to-complete-rollout",
-    ),
-    re_path(
-        r"^(?P<slug>[\w-]+)/reject-end-rollout/$",
-        CancelEndRolloutView.as_view(),
-        name="nimbus-ui-cancel-end-rollout",
-    ),
-    re_path(
-        r"^(?P<slug>[\w-]+)/approve-end-rollout/$",
-        ApproveEndRolloutView.as_view(),
-        name="nimbus-ui-approve-end-rollout",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/live-to-update-rollout/$",

@@ -102,9 +102,11 @@ def test_check_mobile_targeting(
             "is_default_browser": True,
             "is_bottom_toolbar_user": True,
             "has_enabled_tips_notifications": True,
+            "is_apple_intelligence_available": True,
             "install_referrer_response_utm_source": "test",
             "number_of_app_launches": 1,
             "is_large_device": True,
+            "user_accepted_tou": True,
         }
     )
     client = sdk_client(load_app_context(context))
