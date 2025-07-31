@@ -2825,6 +2825,67 @@ class TestNimbusExperiment(TestCase):
             f"status_next={status_next}, publish_status={publish_status}",
         )
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                True,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+                True,
+                False,
+            ),
+        ]
+    )
+    def test_is_rollout_update_requested(
+        self, status, status_next, publish_status, is_rollout, is_rollout_dirty, expected
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_rollout=is_rollout,
+            is_rollout_dirty=is_rollout_dirty,
+        )
+        self.assertEqual(
+            experiment.is_rollout_update_requested,
+            expected,
+            f"Expected is_rollout_update_requested={expected} for status={status}, "
+            f"status_next={status_next}, publish_status={publish_status}",
+        )
+
     def test_results_ready_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
@@ -4087,10 +4148,34 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                True,
+            ),
+            (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.PublishStatus.IDLE,
                 True,
-                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
             ),
             (
                 NimbusExperiment.Status.COMPLETE,
@@ -4098,27 +4183,84 @@ class TestNimbusExperiment(TestCase):
                 True,
                 False,
             ),
+        ]
+    )
+    def test_should_show_end_enrollment_experiment(
+        self, status, publish_status, is_paused, expected
+    ):
+        published_dto = None
+        if is_paused:
+            published_dto = {"isEnrollmentPaused": True}
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            publish_status=publish_status,
+            is_rollout=False,
+            published_dto=published_dto,
+        )
+        self.assertEqual(experiment.should_show_end_enrollment, expected)
+
+    @parameterized.expand(
+        [
             (
-                NimbusExperiment.Status.LIVE,
-                NimbusExperiment.PublishStatus.REVIEW,
-                True,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
                 False,
             ),
             (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.PublishStatus.IDLE,
                 False,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
                 False,
             ),
         ]
     )
-    def test_should_show_end_rollout(self, status, publish_status, is_rollout, expected):
+    def test_should_show_end_enrollment_rollout(self, status, publish_status, expected):
         experiment = NimbusExperimentFactory.create(
             status=status,
             publish_status=publish_status,
-            is_rollout=is_rollout,
+            is_rollout=True,
         )
-        self.assertEqual(experiment.should_show_end_rollout, expected)
+        self.assertEqual(experiment.should_show_end_enrollment, expected)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_should_show_end_experiment(self, status, publish_status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            publish_status=publish_status,
+        )
+        self.assertEqual(experiment.should_show_end_experiment, expected)
 
     @parameterized.expand(
         [

@@ -800,15 +800,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return (
             self.status == self.Status.LIVE
             and self.publish_status != self.PublishStatus.REVIEW
-            and not self.is_rollout
-        )
-
-    @property
-    def should_show_end_rollout(self):
-        return (
-            self.status == self.Status.LIVE
-            and self.publish_status != self.PublishStatus.REVIEW
-            and self.is_rollout
         )
 
     @property
@@ -826,9 +817,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def is_rollout_update_requested(self):
         return (
-            self.is_enrolling
-            and self.is_rollout_dirty
+            self.status == self.Status.LIVE
+            and self.status_next == self.Status.LIVE
             and self.publish_status == self.PublishStatus.REVIEW
+            and self.is_rollout
+            and self.is_rollout_dirty
         )
 
     @property

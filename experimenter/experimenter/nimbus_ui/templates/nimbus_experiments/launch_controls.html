@@ -198,7 +198,7 @@
 
       {% elif experiment.is_end_experiment_requested %}
         {% if experiment.is_rollout %}
-          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Rollout" approval_url="nimbus-ui-approve-end-rollout" cancel_reject_url="nimbus-ui-cancel-end-rollout" experiment=experiment %}
+          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Rollout" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment %}
 
         {% else %}
           {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment %}
@@ -222,7 +222,14 @@
                     hx-target="#content"
                     hx-swap="outerHTML"
                     id="end-experiment"
-                    class="btn btn-primary end_experiment_btn">End Experiment</button>
+                    class="btn btn-primary end_experiment_btn">
+              End
+              {% if experiment.is_rollout %}
+                Rollout
+              {% else %}
+                Experiment
+              {% endif %}
+            </button>
           {% endif %}
           {% if experiment.should_show_rollout_request_update %}
             <button type="button"
@@ -233,15 +240,6 @@
                     class="btn btn-primary"
                     id="request-update-button"
                     {% if not experiment.is_rollout_dirty %}disabled{% endif %}>Request Update</button>
-          {% endif %}
-          {% if experiment.should_show_end_rollout %}
-            <button type="button"
-                    hx-post="{% url 'nimbus-ui-live-to-complete-rollout' slug=experiment.slug %}"
-                    hx-select="#content"
-                    hx-target="#content"
-                    hx-swap="outerHTML"
-                    id="end-rollout"
-                    class="btn btn-primary">End Rollout</button>
           {% endif %}
         </div>
       {% endif %}

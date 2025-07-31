@@ -4,7 +4,6 @@ from django.views.generic import RedirectView
 from experimenter.nimbus_ui.views import (
     ApproveEndEnrollmentView,
     ApproveEndExperimentView,
-    ApproveEndRolloutView,
     ApproveUpdateRolloutView,
     AudienceUpdateView,
     BranchCreateView,
@@ -15,13 +14,11 @@ from experimenter.nimbus_ui.views import (
     BranchScreenshotDeleteView,
     CancelEndEnrollmentView,
     CancelEndExperimentView,
-    CancelEndRolloutView,
     CancelUpdateRolloutView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
     DraftToPreviewView,
     DraftToReviewView,
-    LiveToCompleteRolloutView,
     LiveToCompleteView,
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
@@ -222,21 +219,6 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/reject-end-experiment/$",
         CancelEndExperimentView.as_view(),
         name="nimbus-ui-cancel-end-experiment",
-    ),
-    re_path(
-        r"^(?P<slug>[\w-]+)/live-to-complete-rollout/$",
-        LiveToCompleteRolloutView.as_view(),
-        name="nimbus-ui-live-to-complete-rollout",
-    ),
-    re_path(
-        r"^(?P<slug>[\w-]+)/reject-end-rollout/$",
-        CancelEndRolloutView.as_view(),
-        name="nimbus-ui-cancel-end-rollout",
-    ),
-    re_path(
-        r"^(?P<slug>[\w-]+)/approve-end-rollout/$",
-        ApproveEndRolloutView.as_view(),
-        name="nimbus-ui-approve-end-rollout",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/live-to-update-rollout/$",
