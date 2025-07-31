@@ -70,6 +70,10 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CIRRUS_URL = config("CIRRUS_URL", default=None)
 
+GLEAN_UPLOAD_ENABLED = config("GLEAN_UPLOAD_ENABLED", default=False, cast=bool)
+
+GLEAN_DATA_DIR = config("GLEAN_DATA_DIR", default="/var/glean")
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -96,6 +100,7 @@ INSTALLED_APPS = [
     "experimenter.changelog",
     "experimenter.experiments",
     "experimenter.features",
+    "experimenter.glean",
     "experimenter.jetstream",
     "experimenter.kinto",
     "experimenter.legacy.legacy_experiments",
@@ -121,6 +126,7 @@ MIDDLEWARE = [
     "dockerflow.django.middleware.DockerflowMiddleware",
     "experimenter.openidc.middleware.OpenIDCAuthMiddleware",
     "experimenter.cirrus.middleware.CirrusMiddleware",
+    "experimenter.glean.middleware.GleanMiddleware",
 ]
 
 ROOT_URLCONF = "experimenter.urls"
