@@ -521,6 +521,7 @@ enum NimbusExperimentApplicationEnum {
   VPN
   FXA
   DEMO_APP
+  EXPERIMENTER
 }
 
 enum NimbusExperimentChannelEnum {
