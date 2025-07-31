@@ -43,8 +43,7 @@ class CirrusMiddleware:
             try:
                 cirrus_response = requests.post(
                     self.cirrus_url,
-                    # NOTE(relud): context must not be empty
-                    json={"client_id": str(request.user.id), "context": {"": ""}},
+                    json={"client_id": str(request.user.id), "context": {}},
                     params=params,
                 )
                 cirrus_response.raise_for_status()

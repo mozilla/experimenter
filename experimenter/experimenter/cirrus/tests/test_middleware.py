@@ -67,7 +67,7 @@ class CirrusMiddlewareTests(TestCase):
             [
                 mock.call(
                     "cirrus",
-                    json={"client_id": "test", "context": {"": ""}},
+                    json={"client_id": "test", "context": {}},
                     params={},
                 ),
                 mock.call().raise_for_status(),
@@ -101,7 +101,7 @@ class CirrusMiddlewareTests(TestCase):
             [
                 mock.call(
                     "cirrus",
-                    json={"client_id": "test", "context": {"": ""}},
+                    json={"client_id": "test", "context": {}},
                     params={"nimbus_preview": "true"},
                 ),
                 mock.call().raise_for_status(),
