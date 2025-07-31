@@ -564,14 +564,36 @@
                 {
                   "allOf": [
                     {
-                      "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText"
-                    },
-                    {
-                      "not": {
-                        "required": [
-                          "href"
-                        ]
-                      }
+                      "allOf": [
+                        {
+                          "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText"
+                        },
+                        {
+                          "not": {
+                            "required": [
+                              "href"
+                            ]
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "description": "Additional arguments, only a `where` override is currently allowed",
+                          "properties": {
+                            "args": {
+                              "type": "object",
+                              "description": "Where to open ('tab', 'tabshifted', 'current', etc.)",
+                              "properties": {
+                                "where": {
+                                  "type": "string",
+                                  "description": "Where to open—e.g. 'tab', 'window', etc."
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "additionalProperties": true
+                        }
+                      ]
                     }
                   ]
                 },
