@@ -1040,6 +1040,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def is_live_rollout(self):
         return self.is_rollout and self.is_enrolling
 
+    @property
+    def is_missing_takeaway_info(self) -> bool:
+        summary_blank = not (self.takeaways_summary and self.takeaways_summary.strip())
+        recommendations_blank = not self.conclusion_recommendations
+        return summary_blank and recommendations_blank
+
     def can_edit_overview(self):
         return self.is_draft
 

@@ -657,9 +657,16 @@ class NimbusExperimentsHomeView(FilterView):
         draft_or_preview_experiments = [
             exp for exp in all_experiments if exp.is_draft or exp.is_preview
         ]
+        ready_for_attention_experiments = [
+            exp for exp in all_experiments if exp.is_review or exp.is_missing_takeaway_info or exp.should_end_enrollment or exp.should_end
+        ]
         draft_page = self.request.GET.get("draft_page", 1)
+        attention_page = self.request.GET.get("attention_page", 1)
         context["draft_or_preview_page"] = Paginator(
-            draft_or_preview_experiments, 4
+            draft_or_preview_experiments, 5
         ).get_page(draft_page)
+        context["ready_for_attention_page"] = Paginator(
+            ready_for_attention_experiments, 5
+        ).get_page(attention_page)
         context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
         return context

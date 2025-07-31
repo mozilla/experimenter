@@ -3058,7 +3058,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertNotIn(live.slug, page_slugs)
 
     def test_draft_or_preview_pagination_respects_page_size(self):
-        for _ in range(6):
+        for _ in range(7):
             NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user
             )
@@ -3066,13 +3066,77 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         response = self.client.get(reverse("nimbus-ui-home") + "?draft_page=1")
         page = response.context["draft_or_preview_page"]
         self.assertEqual(page.number, 1)
-        self.assertEqual(page.paginator.per_page, 4)
-        self.assertEqual(len(page.object_list), 4)
+        self.assertEqual(page.paginator.per_page, 5)
+        self.assertEqual(len(page.object_list), 5)
 
         response = self.client.get(reverse("nimbus-ui-home") + "?draft_page=2")
         page2 = response.context["draft_or_preview_page"]
         self.assertEqual(page2.number, 2)
         self.assertEqual(len(page2.object_list), 2)
+
+    def test_ready_for_attention_context_pagination(self):
+        # Matches: in review
+        in_review = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            slug="review-exp"
+        )
+
+        # Matches: missing takeaways
+        missing_takeaways = NimbusExperimentFactory.create_with_lifecycle(
+           NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            owner=self.user,
+            slug="missing-takeaways-exp",
+            conclusion_recommendations=[],
+            takeaways_summary="",
+        )
+
+        # Matches: should_end_enrollment
+        should_end_enrollment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            owner=self.user,
+            proposed_enrollment=1,
+            start_date=datetime.date.today() - datetime.timedelta(days=2),
+            slug="end-enrollment-exp"
+        )
+
+        # Matches: should_end (complete overdue)
+        overdue_end = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            owner=self.user,
+            proposed_duration=10,
+            start_date=datetime.date.today() - datetime.timedelta(days=10),
+            slug="overdue-exp"
+        )
+
+       # Should NOT match
+        complete_exp = NimbusExperimentFactory.create_with_lifecycle(
+           NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            owner=self.user,
+            slug="complete-exp",
+            conclusion_recommendations=["RERUN", "STOP"],
+            takeaways_summary="",
+        )
+        complete_exp2 = NimbusExperimentFactory.create_with_lifecycle(
+           NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            owner=self.user,
+            slug="complete-exp2",
+            takeaways_summary="takeaway",
+        )
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+        self.assertEqual(response.status_code, 200)
+
+        attention_page = response.context["ready_for_attention_page"]
+        slugs = {exp.slug for exp in attention_page.object_list}
+        print(slugs)
+
+        self.assertIn("review-exp", slugs)
+        self.assertIn("missing-takeaways-exp", slugs)
+        self.assertIn("end-enrollment-exp", slugs)
+        self.assertIn("overdue-exp", slugs)
+        self.assertNotIn("complete-exp", slugs)
 
 
 class TestSlugRedirectToSummary(AuthTestCase):
