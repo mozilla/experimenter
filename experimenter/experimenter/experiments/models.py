@@ -715,7 +715,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_observation(self):
-        return self._enrollment_end_date is not None and not self.is_complete
+        return self.status == self.Status.LIVE and self.is_paused_published
 
     @property
     def is_started(self):
