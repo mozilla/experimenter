@@ -143,7 +143,7 @@ def test_end_rollout_and_approve_end_set_takeaways(
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
-    summary.end_and_approve(exp_type="rollout")
+    summary.end_and_approve()
 
     kinto_client.approve()
 
@@ -202,7 +202,7 @@ def test_end_rollout_and_reject_end(
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
-    summary.end_and_approve(exp_type="rollout")
+    summary.end_and_approve()
 
     kinto_client.reject()
 
