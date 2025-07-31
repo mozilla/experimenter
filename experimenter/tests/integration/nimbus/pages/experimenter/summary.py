@@ -42,7 +42,6 @@ class SummaryPage(ExperimenterBase):
         ".header-experiment-status .border-primary",
     )
     _end_experiment_button_locator = (By.CSS_SELECTOR, "#end-experiment")
-    _end_rollout_button_locator = (By.CSS_SELECTOR, "#end-rollout")
     _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="nav-edit-archive"]')
     _archive_label_locator = (
         By.CSS_SELECTOR,
@@ -231,14 +230,9 @@ class SummaryPage(ExperimenterBase):
         self.js_click(el)
         self.approve()
 
-    def end_and_approve(self, action="End", exp_type="experiment"):
-        el = None
-        if exp_type == "experiment":
-            el = self.wait_for_and_find_element(*self._end_experiment_button_locator)
-        elif exp_type == "rollout":
-            el = self.wait_for_and_find_element(*self._end_rollout_button_locator)
+    def end_and_approve(self):
+        el = self.wait_for_and_find_element(*self._end_experiment_button_locator)
         el.click()
-
         self.approve()
 
     @property
