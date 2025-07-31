@@ -9,6 +9,7 @@
 
 {# djlint:on #}
 {% block title %}
+  {% if cirrus and cirrus.features.is_example_feature_enabled %}{{ cirrus.features.example_feature_emoji }}{% endif %}
   Nimbus Experiments
 {% endblock title %}
 
