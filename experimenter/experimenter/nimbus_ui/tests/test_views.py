@@ -2210,11 +2210,18 @@ class TestLaunchViews(AuthTestCase):
         )
         self.assertTrue(self.experiment.is_paused)
 
-    def test_live_to_complete_view(self):
+    @parameterized.expand(
+        [
+            (False,),
+            (True,),
+        ]
+    )
+    def test_live_to_complete_view(self, is_rollout):
         self.experiment.status = NimbusExperiment.Status.LIVE
         self.experiment.status_next = None
         self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         self.experiment.is_paused = False
+        self.experiment.is_rollout = is_rollout
         self.experiment.save()
 
         response = self.client.post(
@@ -2249,11 +2256,18 @@ class TestLaunchViews(AuthTestCase):
         )
         self.assertTrue(self.experiment.is_paused)
 
-    def test_approve_end_experiment_view(self):
+    @parameterized.expand(
+        [
+            (False,),
+            (True,),
+        ]
+    )
+    def test_approve_end_experiment_view(self, is_rollout):
         self.experiment.status = NimbusExperiment.Status.LIVE
         self.experiment.status_next = NimbusExperiment.Status.COMPLETE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.is_paused = True
+        self.experiment.is_rollout = is_rollout
         self.experiment.save()
 
         response = self.client.post(
@@ -2333,11 +2347,18 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("Cancelled end enrollment request.", changelog.message)
 
-    def test_reject_end_experiment_view(self):
+    @parameterized.expand(
+        [
+            (False,),
+            (True,),
+        ]
+    )
+    def test_reject_end_experiment_view(self, is_rollout):
         self.experiment.status = NimbusExperiment.Status.LIVE
         self.experiment.status_next = NimbusExperiment.Status.COMPLETE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.is_paused = True
+        self.experiment.is_rollout = is_rollout
         self.experiment.save()
 
         response = self.client.post(
@@ -2366,11 +2387,18 @@ class TestLaunchViews(AuthTestCase):
             changelog.message,
         )
 
-    def test_cancel_end_experiment_view(self):
+    @parameterized.expand(
+        [
+            (False,),
+            (True,),
+        ]
+    )
+    def test_cancel_end_experiment_view(self, is_rollout):
         self.experiment.status = NimbusExperiment.Status.LIVE
         self.experiment.status_next = NimbusExperiment.Status.COMPLETE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         self.experiment.is_paused = True
+        self.experiment.is_rollout = is_rollout
         self.experiment.save()
 
         response = self.client.post(
