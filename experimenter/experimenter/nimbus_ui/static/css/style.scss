@@ -21,6 +21,34 @@
   .dropdown-toggle::after {
     content: none;
   }
+
+  .dropdown-menu {
+    .dropdown-item {
+      white-space: normal; // Allow text to wrap
+      word-break: break-word; // Break long words
+      overflow-wrap: anywhere; // Ensure long words wrap
+      max-width: 100%; // Prevent overflow
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus,
+    .dropdown-item.active,
+    .dropdown-item.selected {
+      background-color: var(--bs-primary-bg-subtle, #e7f1ff) !important;
+      color: var(--bs-primary-text-emphasis, #084298) !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      outline: none;
+    }
+  }
+
+  .filter-option-inner-inner {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+    min-height: 1.5em;
+    line-height: 1.3;
+  }
 }
 
 .was-validated .bootstrap-select {
