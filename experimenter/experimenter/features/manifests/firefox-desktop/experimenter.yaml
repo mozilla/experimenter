@@ -308,6 +308,18 @@ urlbar:
         setting the `quickSuggestExposureSuggestionTypes` variable. Keyword
         exposures are recorded in the `urlbar-keyword-exposure` ping. See that
         ping's description for more.
+    marketMinKeywordLength:
+      type: int
+      description: >-
+        The minimum prefix length of a market keyword the user must type to
+        trigger the suggestion.
+    marketShowLessFrequentlyCap:
+      type: int
+      description: >-
+        If defined and non-zero, this is the maximum number of times the user
+        will be able to click the "Show less frequently" command for Market
+        suggestions. If undefined or zero, the user will be able to click the
+        command without any limit.
     mdnFeatureGate:
       type: boolean
       setPref:
@@ -1585,6 +1597,10 @@ newtabWidgets:
   owner: mcrawford@mozilla.com
   hasExposure: false
   variables:
+    enabled:
+      type: boolean
+      description: >-
+        Enable all widgets
     listsEnabled:
       type: boolean
       description: >-
@@ -2496,6 +2512,45 @@ backgroundUpdateAutomaticRestart:
         When true, make the background update task restart when the final update state is `READY_FOR_RESTART`.
         Generally, this will finish applying a staged update, completing the update earlier than it
         otherwise would have been completed.
+
+backgroundUpdateCheckPolicy:
+  description: >-
+    Control when to 'allow' and when to 'throttle' the background update task so
+    that the task runs but does not necessarily check for updates.  The check
+    policy allows to tell the background update task to not check for, download,
+    and apply, updates in certain situations, thereby reducing update-related
+    operational costs.  It also allows to limit the number of actions taken in
+    any given interval, thereby reducing user resource usage and Nimbus-related
+    operational costs.
+  owner: install-update@mozilla.com
+  applications:
+    - firefox-desktop-background-task
+  hasExposure: false
+  variables:
+    throttleEnabled:
+      type: boolean
+      fallbackPref: app.update.background.checkPolicy.throttleEnabled
+      description: >-
+        When true, the background update task will 'throttle' itself and not
+        necessarily check for updates.
+    throttleAfterDays:
+      type: int
+      fallbackPref: app.update.background.checkPolicy.throttleAfterDays
+      description: >-
+        When greater than or equal to 0, the number of consecutive days that the
+        background update task will run and check for updates when the task has
+        not witnessed a Firefox browsing profile running.  N.b.: when 0, this
+        will disable the background update task checking for updates entirely.
+    throttleDebouncePeriodInHours:
+      type: int
+      fallbackPref: app.update.background.checkPolicy.throttleDebouncePeriodInHours
+      description: >-
+        When greater than 0, limit the background update task, when it is
+        throttled, from taking any action at all to at most one (1) time in
+        every "period" hours.  That is, if `throttledDebouncePeriodInHours=24`
+        and the background update task executes at time `t0`, then the
+        background update task will exit without further action every invocation
+        at time `t1 < t0 + 24 hours`.
 
 pictureinpicture:
   description: Message for first time Picture-in-Picture users

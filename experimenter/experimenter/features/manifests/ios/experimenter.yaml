@@ -31,6 +31,9 @@ apple-summarizer-feature:
     enabled:
       type: boolean
       description: "Enables the apple summarizer feature.\n"
+    shakeGesture:
+      type: boolean
+      description: "Enables the shake gesture for the summarizer feature.\n"
     toolbarEntrypoint:
       type: boolean
       description: "Enables the toolbar entrypoint for the summarizer feature.\n"
@@ -134,6 +137,9 @@ hosted-summarizer-feature:
     enabled:
       type: boolean
       description: "Enables the hosted summarizer feature.\n"
+    shakeGesture:
+      type: boolean
+      description: "Enables the shake gesture for the summarizer feature.\n"
     toolbarEntrypoint:
       type: boolean
       description: "Enables the toolbar entrypoint for the summarizer feature.\n"
@@ -156,12 +162,6 @@ menu-refactor-feature:
     menu-default-browser-banner:
       type: boolean
       description: "If true, enables the menu Make Firefox your default banner, on top of the menu.\n"
-    menu-hint:
-      type: boolean
-      description: "If true, enables the menu contextual hint.\n"
-    menu-redesign:
-      type: boolean
-      description: "If true, enables the menu redesign.\n"
     menu-redesign-hint:
       type: boolean
       description: "If true, enables the menu contextual hint for menu redesign.\n"

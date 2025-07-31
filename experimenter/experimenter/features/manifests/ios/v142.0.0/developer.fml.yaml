@@ -33,6 +33,10 @@ features:
         description: "Enables the apple summarizer feature.\n"
         type: Boolean
         default: true
+      shakeGesture:
+        description: "Enables the shake gesture for the summarizer feature.\n"
+        type: Boolean
+        default: true
       toolbarEntrypoint:
         description: "Enables the toolbar entrypoint for the summarizer feature.\n"
         type: Boolean
@@ -134,6 +138,10 @@ features:
         description: "Enables the hosted summarizer feature.\n"
         type: Boolean
         default: true
+      shakeGesture:
+        description: "Enables the shake gesture for the summarizer feature.\n"
+        type: Boolean
+        default: true
       toolbarEntrypoint:
         description: "Enables the toolbar entrypoint for the summarizer feature.\n"
         type: Boolean
@@ -155,15 +163,7 @@ features:
       menu-default-browser-banner:
         description: "If true, enables the menu Make Firefox your default banner, on top of the menu.\n"
         type: Boolean
-        default: false
-      menu-hint:
-        description: "If true, enables the menu contextual hint.\n"
-        type: Boolean
         default: true
-      menu-redesign:
-        description: "If true, enables the menu redesign.\n"
-        type: Boolean
-        default: false
       menu-redesign-hint:
         description: "If true, enables the menu contextual hint for menu redesign.\n"
         type: Boolean
@@ -681,7 +681,7 @@ features:
       minimal_address_bar:
         description: "Enables minimal address bar mode on scroll to ensure the url is always visible.\n"
         type: Boolean
-        default: false
+        default: true
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
