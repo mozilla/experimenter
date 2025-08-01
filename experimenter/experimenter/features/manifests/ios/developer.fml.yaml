@@ -127,6 +127,10 @@ features:
         description: "If true, enables the search bar feature on homepage for users.\n"
         type: Boolean
         default: false
+      shortcuts-library:
+        description: "If true, enables the shortcuts library feature, accessible from the homepage\n"
+        type: Boolean
+        default: false
       stories-redesign:
         description: "If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)\n"
         type: Boolean

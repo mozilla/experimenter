@@ -1004,6 +1004,18 @@ newtabAdSizingExperiment:
       description: >-
         Medium rectangle (MREC) ad size and UI.
 
+newtabPromoCard:
+  description: about:newtab reporting ads feature
+  owner: achurchwell@mozilla.com
+  hasExposure: false
+  variables:
+      enabled:
+        type: boolean
+        description: Turns on and off the promo card.
+        setPref:
+          branch: user
+          pref: browser.newtabpage.activity-stream.discoverystream.promoCard.enabled
+
 newtabAdsReporting:
   description: about:newtab reporting ads feature
   owner: rhamoui@mozilla.com
