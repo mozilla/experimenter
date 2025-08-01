@@ -2394,6 +2394,17 @@ TOU_TARGETING_ANDROID_ACCEPTED = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SHORTCUTS_STORIES_OR_MKT = NimbusTargetingConfig(
+    name="Users that have not accepted the Terms of Use and have not opted out of any sponsored content or Adjust",
+    slug="users_not_accepted_tou_no_shortcuts_stories_mkt",
+    description="Targeting users who have NOT accepted the Terms of Use and have NOT opted out of any sponsored content or Adjust",
+    targeting="user_accepted_tou == false && no_shortcuts_stories_mkt == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 CHATBOT_IS_HUGGINGCHAT = NimbusTargetingConfig(
     name="Chatbot provider is HuggingChat",
     slug="chatbot_is_huggingchat",
