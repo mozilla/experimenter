@@ -21,8 +21,11 @@
         <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
       {% endif %}
       <div class="d-flex align-items-center mb-2">
-        <button type="button" class="btn text-secondary ps-0" aria-label="Copy slug">
-          <span id="experiment-slug">{{ experiment.slug }}</span>
+        <button id="experiment-slug"
+                type="button"
+                class="btn text-secondary ps-0"
+                aria-label="Copy slug">
+          <span>{{ experiment.slug }}</span>
           <i class="fa-solid fa-copy"></i>
         </button>
       </div>
