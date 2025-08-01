@@ -1041,7 +1041,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.is_rollout and self.is_enrolling
 
     @property
-    def is_missing_takeaway_info(self) -> bool:
+    def is_missing_takeaway_info(self):
         return (
             self.is_complete
             and not (self.takeaways_summary and self.takeaways_summary.strip())
