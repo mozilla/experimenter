@@ -3003,17 +3003,14 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
 
         experiments = list(response.context["experiments"])
-        slugs = {e.slug for e in experiments}
 
-        self.assertIn(owned_exp.slug, slugs)
-        self.assertIn(subscribed_exp.slug, slugs)
-        self.assertNotIn(unrelated_exp.slug, slugs)
+        self.assertIn(owned_exp, experiments)
+        self.assertIn(subscribed_exp, experiments)
+        self.assertNotIn(unrelated_exp, experiments)
 
-        page_slugs = {
-            e.slug for e in response.context["draft_or_preview_page"].object_list
-        }
-        self.assertIn(owned_exp.slug, page_slugs)
-        self.assertIn(subscribed_exp.slug, page_slugs)
+        draft_or_preview_page = response.context["draft_or_preview_page"].object_list
+        self.assertIn(owned_exp, draft_or_preview_page)
+        self.assertIn(subscribed_exp, draft_or_preview_page)
 
     def test_home_view_filter_archived_experiments(self):
         non_archived_exp = NimbusExperimentFactory.create_with_lifecycle(
@@ -3024,9 +3021,8 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
 
         experiments = list(response.context["experiments"])
-        slugs = {e.slug for e in experiments}
-        self.assertIn(non_archived_exp.slug, slugs)
-        self.assertNotIn(archived_exp.slug, slugs)
+        self.assertIn(non_archived_exp, experiments)
+        self.assertNotIn(archived_exp, experiments)
 
     def test_home_view_renders_template(self):
         NimbusExperimentFactory.create_with_lifecycle(
@@ -3049,13 +3045,10 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
 
         response = self.client.get(reverse("nimbus-ui-home"))
         self.assertEqual(response.status_code, 200)
-
-        page_slugs = {
-            e.slug for e in response.context["draft_or_preview_page"].object_list
-        }
-        self.assertIn(draft.slug, page_slugs)
-        self.assertIn(preview.slug, page_slugs)
-        self.assertNotIn(live.slug, page_slugs)
+        draft_preview_page = response.context["draft_or_preview_page"].object_list
+        self.assertIn(draft, draft_preview_page)
+        self.assertIn(preview, draft_preview_page)
+        self.assertNotIn(live, draft_preview_page)
 
     def test_draft_or_preview_pagination_respects_page_size(self):
         for _ in range(7):
@@ -3075,68 +3068,64 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertEqual(len(page2.object_list), 2)
 
     def test_ready_for_attention_context_pagination(self):
-        # Matches: in review
         in_review = NimbusExperimentFactory.create(
             owner=self.user,
             status=NimbusExperiment.Status.DRAFT,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            slug="review-exp"
+            slug="review-exp",
         )
-
-        # Matches: missing takeaways
         missing_takeaways = NimbusExperimentFactory.create_with_lifecycle(
-           NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             owner=self.user,
             slug="missing-takeaways-exp",
             conclusion_recommendations=[],
             takeaways_summary="",
         )
-
-        # Matches: should_end_enrollment
         should_end_enrollment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             owner=self.user,
             proposed_enrollment=1,
             start_date=datetime.date.today() - datetime.timedelta(days=2),
-            slug="end-enrollment-exp"
+            slug="end-enrollment-exp",
         )
-
-        # Matches: should_end (complete overdue)
         overdue_end = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             owner=self.user,
             proposed_duration=10,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
-            slug="overdue-exp"
+            slug="overdue-exp",
         )
-
-       # Should NOT match
         complete_exp = NimbusExperimentFactory.create_with_lifecycle(
-           NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             owner=self.user,
             slug="complete-exp",
+            status=NimbusExperiment.Status.COMPLETE,
             conclusion_recommendations=["RERUN", "STOP"],
             takeaways_summary="",
         )
         complete_exp2 = NimbusExperimentFactory.create_with_lifecycle(
-           NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             owner=self.user,
             slug="complete-exp2",
+            status=NimbusExperiment.Status.COMPLETE,
             takeaways_summary="takeaway",
+        )
+        draft_exp = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="draft-exp"
         )
 
         response = self.client.get(reverse("nimbus-ui-home"))
         self.assertEqual(response.status_code, 200)
 
-        attention_page = response.context["ready_for_attention_page"]
-        slugs = {exp.slug for exp in attention_page.object_list}
-        print(slugs)
+        attention_page = response.context["ready_for_attention_page"].object_list
 
-        self.assertIn("review-exp", slugs)
-        self.assertIn("missing-takeaways-exp", slugs)
-        self.assertIn("end-enrollment-exp", slugs)
-        self.assertIn("overdue-exp", slugs)
-        self.assertNotIn("complete-exp", slugs)
+        self.assertIn(in_review, attention_page)
+        self.assertIn(missing_takeaways, attention_page)
+        self.assertIn(should_end_enrollment, attention_page)
+        self.assertIn(overdue_end, attention_page)
+        self.assertNotIn(complete_exp, attention_page)
+        self.assertNotIn(complete_exp2, attention_page)
+        self.assertNotIn(draft_exp, attention_page)
 
 
 class TestSlugRedirectToSummary(AuthTestCase):

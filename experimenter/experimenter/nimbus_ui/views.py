@@ -658,7 +658,7 @@ class NimbusExperimentsHomeView(FilterView):
             exp for exp in all_experiments if exp.is_draft or exp.is_preview
         ]
         ready_for_attention_experiments = [
-            exp for exp in all_experiments if exp.is_review or exp.is_missing_takeaway_info or exp.should_end_enrollment or exp.should_end
+            exp for exp in all_experiments if exp.is_ready_for_attention
         ]
         draft_page = self.request.GET.get("draft_page", 1)
         attention_page = self.request.GET.get("attention_page", 1)
