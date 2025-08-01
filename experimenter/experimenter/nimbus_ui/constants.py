@@ -75,6 +75,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     HOME_PAGE_LINKS = {
         "welcome_learn_more_url": "https://experimenter.info/workflow/overview/"
     }
+    HOME_PAGE_TOOLTIPS = {
+        "draft_or_preview": """This is anything that you own or are subscribed
+        to follow - which are in Draft or Preview states. Go to the link to check the
+        message for the next actions needed."""
+    }
 
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"

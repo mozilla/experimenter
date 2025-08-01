@@ -647,4 +647,5 @@ class NimbusExperimentsHomeView(FilterView):
             draft_or_preview_experiments, 4
         ).get_page(draft_page)
         context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
+        context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
         return context
