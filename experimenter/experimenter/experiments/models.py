@@ -1036,6 +1036,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def is_live_rollout(self):
         return self.is_rollout and self.is_enrolling
 
+    @property
+    def is_missing_takeaway_info(self):
+        return (
+            self.is_complete
+            and not (self.takeaways_summary and self.takeaways_summary.strip())
+            and not self.conclusion_recommendations
+        )
+
     def can_edit_overview(self):
         return self.is_draft
 
@@ -1163,6 +1171,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def should_end_enrollment(self):
         if self.proposed_enrollment_end_date:
             return datetime.date.today() >= self.proposed_enrollment_end_date
+
+    @property
+    def is_ready_for_attention(self):
+        return (
+            self.is_review
+            or self.is_missing_takeaway_info
+            or (not self.is_complete and (self.should_end_enrollment or self.should_end))
+        )
 
     @property
     def is_paused_published(self):
