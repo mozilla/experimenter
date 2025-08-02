@@ -70,6 +70,8 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CIRRUS_URL = config("CIRRUS_URL", default=None)
 
+ENABLE_GLEAN = config("ENABLE_GLEAN", default=False, cast=bool)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -121,6 +123,7 @@ MIDDLEWARE = [
     "dockerflow.django.middleware.DockerflowMiddleware",
     "experimenter.openidc.middleware.OpenIDCAuthMiddleware",
     "experimenter.cirrus.middleware.CirrusMiddleware",
+    "experimenter.glean.middleware.GleanMiddleware",
 ]
 
 ROOT_URLCONF = "experimenter.urls"
