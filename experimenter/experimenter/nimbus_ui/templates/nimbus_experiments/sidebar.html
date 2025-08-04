@@ -8,7 +8,7 @@
 
     {% endif %}
   {% endfor %}
-  {% if invalid_pages %}
+  {% if experiment.is_draft and invalid_pages %}
     <div class="alert alert-primary" role="alert">
       <p class="mb-1">
         Missing details in

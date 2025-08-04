@@ -1,9 +1,15 @@
 {% load static %}
 
 <div class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle"
-     style="min-height: 400px">
+     style="min-height: 450px">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="fw-semibold mb-0">{{ title }}</h5>
+    <h5 class="fw-semibold mb-0">
+      {{ title }}
+      <i class="fa-regular fa-circle-question"
+         data-bs-toggle="tooltip"
+         data-bs-placement="top"
+         data-bs-title="{{ tooltips.draft_or_preview }}"></i>
+    </h5>
     <span class="badge rounded-pill bg-primary fs-6 px-3 py-1">{{ page_obj.paginator.count }}</span>
   </div>
   {% if experiments %}
