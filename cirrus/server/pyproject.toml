@@ -22,7 +22,7 @@ python-decouple = "^3.8"
 glean-sdk = "^53.2.0"
 pytest-mock = "^3.14.0"
 mozilla-nimbus-shared = "^2.5.2"
-sentry-sdk = "^2.32.0"
+sentry-sdk = "^2.34.1"
 
 [tool.pyright]
 typeCheckingMode = "strict"
