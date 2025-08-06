@@ -38,7 +38,7 @@
         </div>
       </div>
       <!-- My Stuff Section -->
-      <div class="mt-5 card shadow-sm border-0 px-3 py-4 h-100 rounded-3 bg-primary-subtle">
+      <div id="my-stuff" class="mt-5 card shadow-sm border-0 px-3 py-4 h-100 rounded-3 bg-primary-subtle">
         <div class="d-flex justify-content-between align-items-center mb-3 ">
           <h5 class="fw-semibold">
             <img src="{% static 'assets/my-stuff.svg' %}"
@@ -50,7 +50,7 @@
         </div>
         {% if all_my_experiments_page.object_list %}
           <div class="table-responsive shadow-sm rounded-3">
-            <table class="table table-hover table-borderless align-middle mb-0">
+            <table id="my-stuff-table" class="table table-hover table-borderless align-middle mb-0">
               <thead class="table-light">
                 <tr>
                   <th>Name</th>
