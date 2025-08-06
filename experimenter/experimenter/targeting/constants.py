@@ -1007,6 +1007,21 @@ WIN10_EOS_SYNC_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_EOS_SYNC_TOAST_ELIGIBLE = NimbusTargetingConfig(
+    name="Users in the Windows 10 EOS Sync treatment branch",
+    slug="win10_eos_sync_toast_eligible",
+    description="Users in the Windows 10 EOS Sync treatment branch",
+    targeting=(
+        "isBackgroundTaskMode "
+        "&& defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging'] "
+        "== 'treatment-a'"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 INFREQUENT_USER_URIS = NimbusTargetingConfig(
     name="Infrequent user (uris)",
     slug="infrequent_user_uris",
