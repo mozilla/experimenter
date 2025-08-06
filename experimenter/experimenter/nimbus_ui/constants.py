@@ -77,8 +77,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     }
     HOME_PAGE_TOOLTIPS = {
         "draft_or_preview": """This is anything that you own or are subscribed
-        to follow - which are in Draft or Preview states. Go to the link to check the
-        message for the next actions needed."""
+            to follow - which are in Draft or Preview states. Go to the link to
+            check the message for the next actions needed.
+        """,
+        "ready_for_attention": """This is anything that you own or are subscribed to
+            follow when they are in a Review state; have a change due for ending
+            enrollment or ending entirely; or have ended and have no information in
+            the take-aways section.
+        """,
     }
 
     class ReviewRequestMessages(Enum):
