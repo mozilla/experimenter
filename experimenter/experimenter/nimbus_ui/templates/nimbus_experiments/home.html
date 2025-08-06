@@ -37,6 +37,126 @@
 
         </div>
       </div>
+      <!-- My Stuff Section -->
+      <div class="mt-5 card shadow-sm border-0 px-3 py-4 h-100 rounded-3 bg-primary-subtle">
+        <div class="d-flex justify-content-between align-items-center mb-3 ">
+          <h5 class="fw-semibold">
+            <img src="{% static 'assets/my-stuff.svg' %}"
+                 alt="Hugging Foxes"
+                 style="width: 60px;
+                        height: auto" />
+            My Stuff
+          </h5>
+        </div>
+        {% if all_my_experiments_page.object_list %}
+          <div class="table-responsive shadow-sm rounded-3">
+            <table class="table table-hover table-borderless align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>QA</th>
+                  <th>Application</th>
+                  <th>Type</th>
+                  <th>Channel</th>
+                  <th>Size</th>
+                  <th>Dates</th>
+                  <th>Versions</th>
+                  <th>Features</th>
+                  <th>Results</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for experiment in all_my_experiments_page.object_list %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+                         class="text-decoration-none fw-medium">{{ experiment.name }}</a>
+                    </td>
+                    <td>{{ experiment.status|capfirst }}</td>
+                    <td>
+                      {% if experiment.qa_status == experiment.QAStatus.NOT_SET %}
+                        <i class="fa-regular fa-circle-question"></i>
+                      {% elif experiment.qa_status == experiment.QAStatus.GREEN or experiment.qa_status == experiment.QAStatus.SELF_GREEN %}
+                        <span class="text-success">
+                          <i class="fa-regular fa-circle-check"></i>
+                        </span>
+                      {% elif experiment.qa_status == experiment.QAStatus.YELLOW or experiment.qa_status == experiment.QAStatus.SELF_YELLOW %}
+                        <span class="text-warning"><i class="fa-regular fa-circle-pause"></i></span>
+                      {% elif experiment.qa_status == experiment.QAStatus.RED or experiment.qa_status == experiment.QAStatus.SELF_RED %}
+                        <span class="text-danger"><i class="fa-regular fa-circle-xmark"></i></span>
+                      {% endif %}
+                    </td>
+                    <td>{{ experiment.get_application_display }}</td>
+                    <td>{{ experiment.is_rollout|yesno:"Rollout,Experiment" }}</td>
+                    <td>{{ experiment.get_channel_display }}</td>
+                    <td>{{ experiment.population_percent|floatformat:2 }}%</td>
+                    <td>
+                      {% if experiment.enrollment_start_date and experiment.computed_end_date %}
+                        {{ experiment.enrollment_start_date|date:"Y-m-d" }} to {{ experiment.computed_end_date|date:"Y-m-d" }}
+                      {% else %}
+                        N/A
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if experiment.firefox_min_version %}
+                        {{ experiment.get_firefox_min_version_display }}
+                        {% if experiment.firefox_max_version %}
+                          – {{ experiment.get_firefox_max_version_display }}
+                        {% else %}
+                          +
+                        {% endif %}
+                      {% else %}
+                        N/A
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% for feature in experiment.feature_configs.all %}
+                        {{ feature.name }}
+                        <br />
+                      {% empty %}
+                        N/A
+                      {% endfor %}
+                    </td>
+                    <td>
+                      {% if experiment.show_results_url %}
+                        <a href="{{ experiment.get_results_url }}">View Results</a>
+                      {% else %}
+                        <a>N/A</a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if all_my_experiments_page.has_other_pages %}
+            <nav class="mt-3">
+              <ul class="pagination pagination-sm justify-content-center">
+                {% if all_my_experiments_page.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link"
+                       href="?my_stuff_page={{ all_my_experiments_page.previous_page_number }}">Previous</a>
+                  </li>
+                {% endif %}
+                <li class="page-item disabled">
+                  <span class="page-link">Page {{ all_my_experiments_page.number }} of {{ all_my_experiments_page.paginator.num_pages }}</span>
+                </li>
+                {% if all_my_experiments_page.has_next %}
+                  <li class="page-item">
+                    <a class="page-link"
+                       href="?my_stuff_page={{ all_my_experiments_page.next_page_number }}">Next</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+          {% endif %}
+        {% else %}
+          <div class="text-center text-muted py-5">
+            <p class="mb-0">No experiments found in your workspace.</p>
+          </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 {% endblock %}
