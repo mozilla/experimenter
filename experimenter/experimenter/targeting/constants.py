@@ -2250,6 +2250,17 @@ IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+CANNOT_USE_APPLE_INTELLIGENCE_USER = NimbusTargetingConfig(
+    name="Cannot Use Apple Intelligence Users",
+    slug="cannot_use_apple_intelligence_user",
+    description="Users who cannot use the Apple Intelligence model",
+    targeting="cannot_use_apple_intelligence",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
     name="iPhone users only",
     slug="ios_iphone_users_only",
