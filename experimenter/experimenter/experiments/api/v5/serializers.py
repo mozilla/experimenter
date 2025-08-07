@@ -1171,6 +1171,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     firefox_min_version = serializers.ChoiceField(
         NimbusExperiment.Version.choices, required=True
     )
+    channels = serializers.MultipleChoiceField(
+        choices=NimbusExperiment.Channel.choices, required=False
+    )
     application = serializers.ChoiceField(
         NimbusExperiment.Application.choices, required=True
     )
