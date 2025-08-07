@@ -5078,3 +5078,27 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             NimbusExperiment.ERROR_PRIMARY_SECONDARY_OUTCOMES_INTERSECTION,
             serializer.errors["secondary_outcomes"],
         )
+
+    @parameterized.expand(
+        [(application,) for application in NimbusExperiment.Application]
+    )
+    def test_allows_empty_channels(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+            channels=[],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)

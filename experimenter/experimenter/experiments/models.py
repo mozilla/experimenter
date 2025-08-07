@@ -239,6 +239,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         max_length=255,
         choices=NimbusConstants.Channel.choices,
     )
+    channels = ArrayField(
+        models.CharField(max_length=255),
+        default=list,
+        verbose_name="Channels",
+    )
     locales = models.ManyToManyField[Locale](
         Locale, blank=True, verbose_name="Supported Locales"
     )
