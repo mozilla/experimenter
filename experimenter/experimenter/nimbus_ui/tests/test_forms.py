@@ -711,6 +711,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         self.experiment.firefox_min_version = NimbusExperiment.Version.FIREFOX_116
         self.experiment.channel = NimbusExperiment.Channel.NIGHTLY
+        self.experiment.channels = []
 
         # Publishing to the preview collection would set the published_dto field
         # to the value in Remote Settings. However, since we're not actually

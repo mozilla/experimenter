@@ -36,6 +36,7 @@ class TestNimbusExperimentSerializer(TestCase):
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
             channel=NimbusExperiment.Channel.NIGHTLY,
+            channels=[],
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
             locales=[locale_en_us],
@@ -52,9 +53,9 @@ class TestNimbusExperimentSerializer(TestCase):
         branches_data = [dict(b) for b in experiment_data.pop("branches")]
         feature_ids_data = experiment_data.pop("featureIds")
 
-        assert experiment.start_date
-        assert experiment.actual_enrollment_end_date
-        assert experiment.end_date
+        self.assertIsNotNone(experiment.start_date)
+        self.assertIsNotNone(experiment.actual_enrollment_end_date)
+        self.assertIsNotNone(experiment.end_date)
 
         min_required_version = NimbusExperiment.MIN_REQUIRED_VERSION
 
