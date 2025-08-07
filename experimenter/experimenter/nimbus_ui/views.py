@@ -647,12 +647,16 @@ class NimbusExperimentsHomeView(FilterView):
         ]
         draft_page = self.request.GET.get("draft_page", 1)
         attention_page = self.request.GET.get("attention_page", 1)
+        my_stuff_page = self.request.GET.get("my_stuff_page", 1)
         context["draft_or_preview_page"] = Paginator(
             draft_or_preview_experiments, 5
         ).get_page(draft_page)
         context["ready_for_attention_page"] = Paginator(
             ready_for_attention_experiments, 5
         ).get_page(attention_page)
+        context["all_my_experiments_page"] = Paginator(all_experiments, 25).get_page(
+            my_stuff_page
+        )
         context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
         context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
         return context
