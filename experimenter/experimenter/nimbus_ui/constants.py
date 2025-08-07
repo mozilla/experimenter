@@ -85,6 +85,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             enrollment or ending entirely; or have ended and have no information in
             the take-aways section.
         """,
+        "my_stuff": """
+            Shows all experiments that you are the owner of, subscribed to, or where
+            you are a collaborator. Learn how to get started.
+        """,
     }
 
     class ReviewRequestMessages(Enum):
