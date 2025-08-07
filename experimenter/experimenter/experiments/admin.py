@@ -279,6 +279,9 @@ class NimbusExperimentAdminForm(forms.ModelForm):
         choices=NimbusExperiment.Version.choices, required=False
     )
     channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices, required=False)
+    channels = forms.MultipleChoiceField(
+        choices=NimbusExperiment.Channel.choices, required=False
+    )
     primary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
     secondary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
     segments = pgforms.SimpleArrayField(forms.CharField(), required=False)
