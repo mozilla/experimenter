@@ -14,7 +14,9 @@
                         height: auto" />
             <div id="welcome-banner">
               <h4 id="welcome-message" class="fw-semibold mb-1">Welcome to Nimbus, {{ request.user }}!</h4>
-              <p class="text-muted mb-2 fs-6">Learn what is possible for experiments, roll-outs, surveys, and more!</p>
+              <p class="text-muted mb-2 fs-6">
+                Learn what is possible for experiments, roll-outs, labs experiences, surveys, and more!
+              </p>
               <a id="welcome-learn-more-link"
                  href="{{ links.welcome_learn_more_url }}"
                  class="btn btn-primary btn-sm"
@@ -33,25 +35,25 @@
         </div>
         <!-- Ready for Attention -->
         <div id="ready-for-attention" class="col-md-6">
-          {% include "nimbus_experiments/home_experiments_layout.html" with title="Ready for Attention" experiments=ready_for_attention_page.object_list page_obj=ready_for_attention_page pagination_param="attention_page" empty_message="No ready for attention experiments." empty_image_path="assets/empty-attention.svg" tooltip=tooltips.ready_for_attention %}
+          {% include "nimbus_experiments/home_experiments_layout.html" with title="Deliveries Ready for Attention" experiments=ready_for_attention_page.object_list page_obj=ready_for_attention_page pagination_param="attention_page" empty_message="No ready for attention experiments." empty_image_path="assets/empty-attention.svg" tooltip=tooltips.ready_for_attention %}
 
         </div>
       </div>
       <!-- My Stuff Section -->
-      <div id="my-stuff"
+      <div id="my-deliveries"
            class="mt-5 card shadow-sm border-0 px-3 py-4 h-100 rounded-3 bg-primary-subtle">
         <div class="d-flex justify-content-between align-items-center mb-3 ">
           <h5 class="fw-semibold">
-            <img src="{% static 'assets/my-stuff.svg' %}"
+            <img src="{% static 'assets/my-deliveries.svg' %}"
                  alt="Hugging Foxes"
                  style="width: 60px;
                         height: auto" />
-            My Stuff
+            My Deliveries
           </h5>
         </div>
         {% if all_my_experiments_page.object_list %}
           <div class="table-responsive shadow-sm rounded-3">
-            <table id="my-stuff-table"
+            <table id="my-deliveries-table"
                    class="table table-hover table-borderless align-middle mb-0">
               <thead class="table-light">
                 <tr>
@@ -138,7 +140,7 @@
                 {% if all_my_experiments_page.has_previous %}
                   <li class="page-item">
                     <a class="page-link"
-                       href="?my_stuff_page={{ all_my_experiments_page.previous_page_number }}">Previous</a>
+                       href="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}">Previous</a>
                   </li>
                 {% endif %}
                 <li class="page-item disabled">
@@ -147,7 +149,7 @@
                 {% if all_my_experiments_page.has_next %}
                   <li class="page-item">
                     <a class="page-link"
-                       href="?my_stuff_page={{ all_my_experiments_page.next_page_number }}">Next</a>
+                       href="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}">Next</a>
                   </li>
                 {% endif %}
               </ul>
