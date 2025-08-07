@@ -85,9 +85,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             enrollment or ending entirely; or have ended and have no information in
             the take-aways section.
         """,
-        "my_stuff": """
-            Shows all experiments that you are the owner of, subscribed to, or where
-            you are a collaborator. Learn how to get started.
+        "my_deliveries": """
+            Shows all deliveries (experiments, rollouts, etc) that you are the owner of,
+            subscribed to or where you are a collaborator.
+            <a href="https://experimenter.info/for-product">Learn</a> how to get started.
         """,
     }
 
