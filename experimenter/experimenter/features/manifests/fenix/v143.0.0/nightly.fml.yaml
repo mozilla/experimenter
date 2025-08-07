@@ -29,7 +29,7 @@ features:
       enabled:
         description: Whether or not the feature is available for the user.
         type: Boolean
-        default: false
+        default: true
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
