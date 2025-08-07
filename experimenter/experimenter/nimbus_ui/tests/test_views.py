@@ -3052,6 +3052,45 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertNotIn(complete_exp2, attention_page)
         self.assertNotIn(draft_exp, attention_page)
 
+    def test_all_my_experiments_context_pagination(self):
+        owned = [
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                owner=self.user,
+                slug=f"owned-{i}",
+            )
+            for i in range(10)
+        ]
+
+        other_user = UserFactory.create()
+        subscribed = [
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.PREVIEW,
+                owner=other_user,
+                slug=f"subscribed-{i}",
+            )
+            for i in range(10)
+        ]
+        for exp in subscribed:
+            exp.subscribers.add(self.user)
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, slug="unrelated-exp"
+        )
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+        self.assertEqual(response.status_code, 200)
+
+        all_my_experiments_page = response.context["all_my_experiments_page"].object_list
+
+        for exp in owned + subscribed:
+            self.assertIn(exp, all_my_experiments_page)
+
+        self.assertFalse(
+            any(exp.slug == "unrelated-exp" for exp in all_my_experiments_page)
+        )
+        self.assertLessEqual(len(all_my_experiments_page), 25)
+
 
 class TestSlugRedirectToSummary(AuthTestCase):
     def test_slug_with_trailing_slash_redirects_to_summary(self):
