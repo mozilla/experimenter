@@ -302,7 +302,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             elif value in NimbusExperiment.ConclusionRecommendation:
                 query |= Q(conclusion_recommendations__contains=[value])
         return queryset.filter(query)
-     
+
     def filter_channel(self, queryset, name, value):
         query = Q(channel__in=value)
         for channel in value:
