@@ -301,3 +301,36 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             elif value in NimbusExperiment.ConclusionRecommendation:
                 query |= Q(conclusion_recommendations__contains=[value])
         return queryset.filter(query)
+
+
+class MyDeliveriesChoices(models.TextChoices):
+    ALL = "AllDeliveries", "All My Deliveries"
+    OWNED = "AllOwned", "All Owned"
+    SUBSCRIBED = "AllSubscribed", "All Subscribed"
+
+
+class NimbusExperimentsHomeFilter(django_filters.FilterSet):
+    my_deliveries_status = django_filters.ChoiceFilter(
+        label="",
+        method="filter_my_deliveries",
+        choices=MyDeliveriesChoices.choices,
+        empty_label=None,
+        widget=forms.Select(attrs={"class": "form-select form-select-sm"}),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["my_deliveries_status"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.data.get("my_deliveries_status"):
+            self.filters["my_deliveries_status"].field.initial = MyDeliveriesChoices.ALL
+
+    def filter_my_deliveries(self, queryset, name, value):
+        user = self.request.user
+        if value == MyDeliveriesChoices.OWNED:
+            return queryset.filter(owner=user)
+        elif value == MyDeliveriesChoices.SUBSCRIBED:
+            return queryset.filter(subscribers=user)
+        return queryset  # Default = AllDeliveries
