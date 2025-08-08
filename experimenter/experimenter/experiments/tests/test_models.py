@@ -4143,6 +4143,36 @@ class TestNimbusExperiment(TestCase):
         matching_experiments = experiment.live_experiments_in_namespace
         self.assertEqual(len(matching_experiments), 0)
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Channel.RELEASE,
+                [],
+                "Release",
+            ),
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Channel.NO_CHANNEL,
+                [NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.BETA],
+                "Beta, Nightly",
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Channel.NIGHTLY,
+                [],
+                "Nightly",
+            ),
+        ]
+    )
+    def test_get_channel_display(self, application, channel, channels, expected):
+        experiment = NimbusExperimentFactory.create(
+            application=application,
+            channel=channel,
+            channels=channels,
+        )
+        self.assertEqual(experiment.get_channel_display, expected)
+
     def test_get_firefox_min_version_display(self):
         experiment = NimbusExperimentFactory.create(
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100
