@@ -233,7 +233,7 @@
           <tbody>
             <tr>
               <th>Channel</th>
-              <td>{{ experiment.channel.title|default:"No Channel" }}</td>
+              <td>{{ experiment.get_channel_display|default:"No Channel" }}</td>
               <th>Advanced Targeting</th>
               <td>{{ experiment.targeting_config.name }}</td>
             </tr>

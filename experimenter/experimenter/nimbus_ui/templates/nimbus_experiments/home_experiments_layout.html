@@ -25,7 +25,9 @@
           <div class="text-muted small">
             {{ experiment.status|capfirst }}
             {% if experiment.application %}• {{ experiment.application }}{% endif %}
-            {% if experiment.channel %}• {{ experiment.channel }}{% endif %}
+            {% with channel=experiment.get_channel_display %}
+              {% if channel %}• {{ channel }}{% endif %}
+            {% endwith %}
           </div>
         </li>
       {% endfor %}
