@@ -455,16 +455,18 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     channels = factory.LazyAttribute(
         lambda o: [
             str(c)
-            for c in random.choices(
-                list(
-                    set(
-                        NimbusExperiment.APPLICATION_CONFIGS[
-                            o.application
-                        ].channel_app_id.keys()
-                    )
-                    - {NimbusExperiment.Channel.NO_CHANNEL}
-                ),
-                k=2,
+            for c in set(
+                random.choices(
+                    list(
+                        set(
+                            NimbusExperiment.APPLICATION_CONFIGS[
+                                o.application
+                            ].channel_app_id.keys()
+                        )
+                        - {NimbusExperiment.Channel.NO_CHANNEL}
+                    ),
+                    k=2,
+                )
             )
         ]
     )

@@ -126,6 +126,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     channel = django_filters.MultipleChoiceFilter(
+        method="filter_channel",
         choices=NimbusExperiment.Channel.choices,
         widget=IconMultiSelectWidget(
             icon="fa-solid fa-road",
@@ -300,4 +301,10 @@ class NimbusExperimentFilter(django_filters.FilterSet):
                 query |= Q(takeaways_metric_gain=True)
             elif value in NimbusExperiment.ConclusionRecommendation:
                 query |= Q(conclusion_recommendations__contains=[value])
+        return queryset.filter(query)
+
+    def filter_channel(self, queryset, name, value):
+        query = Q(channel__in=value)
+        for channel in value:
+            query |= Q(channels__contains=[channel])
         return queryset.filter(query)
