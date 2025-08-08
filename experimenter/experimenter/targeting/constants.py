@@ -2902,6 +2902,28 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NON_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
+    name="Users that have never used the sidebar v2",
+    slug="non_sidebar_users_v2",
+    description="Target users who have never used the new or old sidebar v2",
+    targeting=(
+        "!('sidebar.old-sidebar.has-used'|preferenceValue) && "
+        "!('sidebar.revamp'|preferenceValue) && "
+        "!('browser.engagement.sidebar-button.has-used'|preferenceValue) && "
+        "primaryResolution.width > 1366 && "
+        "primaryResolution.height > 768 && "
+        "addonsInfo.addons['{c3c10168-4186-445c-9c5b-63f12b8e2c87}'] == null && "
+        "addonsInfo.addons['@m3u8link'] == null && "
+        "addonsInfo.addons['{3c078156-979c-498b-8990-85f7987dd929}'] == null && "
+        "addonsInfo.addons['simple-tab-groups@drive4ik'] == null && "
+        "addonsInfo.addons['treestyletab@piro.sakura.ne.jp'] == null"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 OLD_SIDEBAR_USERS = NimbusTargetingConfig(
     name="Users that use the old sidebar",
     slug="old_sidebar_users",
