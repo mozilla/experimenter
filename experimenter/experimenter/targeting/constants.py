@@ -2903,9 +2903,9 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
 )
 
 NON_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
-    name="Users that have never used the sidebar",
+    name="Users that have never used the sidebar v2",
     slug="non_sidebar_users_v2",
-    description="Target users who have never used the new or old sidebar",
+    description="Target users who have never used the new or old sidebar v2",
     targeting=(
         "!('sidebar.old-sidebar.has-used'|preferenceValue) && "
         "!('sidebar.revamp'|preferenceValue) && "
@@ -2916,7 +2916,7 @@ NON_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
         "addonsInfo.addons['@m3u8link'] == null && "
         "addonsInfo.addons['{3c078156-979c-498b-8990-85f7987dd929}'] == null && "
         "addonsInfo.addons['simple-tab-groups@drive4ik'] == null && "
-        "addonsInfo.addons['treestyletab@piro.sakura.ne.jp'] == null && "
+        "addonsInfo.addons['treestyletab@piro.sakura.ne.jp'] == null"
     ),
     desktop_telemetry="",
     sticky_required=True,
