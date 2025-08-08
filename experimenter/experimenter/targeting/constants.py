@@ -2902,6 +2902,28 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NON_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
+    name="Users that have never used the sidebar v2",
+    slug="non_sidebar_users_v2",
+    description="Target users who have never used the new or old sidebar v2",
+    targeting=(
+        "!('sidebar.old-sidebar.has-used'|preferenceValue) && "
+        "!('sidebar.revamp'|preferenceValue) && "
+        "!('browser.engagement.sidebar-button.has-used'|preferenceValue) && "
+        "primaryResolution.width > 1366 && "
+        "primaryResolution.height > 768 && "
+        "addonsInfo.addons['{c3c10168-4186-445c-9c5b-63f12b8e2c87}'] == null && "
+        "addonsInfo.addons['@m3u8link'] == null && "
+        "addonsInfo.addons['{3c078156-979c-498b-8990-85f7987dd929}'] == null && "
+        "addonsInfo.addons['simple-tab-groups@drive4ik'] == null && "
+        "addonsInfo.addons['treestyletab@piro.sakura.ne.jp'] == null"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 OLD_SIDEBAR_USERS = NimbusTargetingConfig(
     name="Users that use the old sidebar",
     slug="old_sidebar_users",
@@ -2972,6 +2994,23 @@ SIGNED_OUT_EXISTING_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
     ),
     targeting=(
         f"{PROFILE28DAYS} && {NO_ENTERPRISE.targeting} && !isFxASignedIn && isFxAEnabled"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+SIGNED_OUT_POST_FIRST_RUN_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Signed-out user, post first run, FxA enabled, no enterprise policies",
+    slug="signed_out_user_post_first_run_fxa_enabled_no_enterprise",
+    description=(
+        "Users with profiles older than 7 days, post first run, "
+        "who are NOT signed into FxA, with FxA enabled, and no enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILEMORETHAN7DAYS} && {NO_ENTERPRISE.targeting} "
+        "&& !isFirstStartup && !isFxASignedIn && isFxAEnabled"
     ),
     desktop_telemetry="",
     sticky_required=True,
