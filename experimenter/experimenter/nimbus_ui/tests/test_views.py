@@ -299,10 +299,20 @@ class NimbusExperimentsListViewTest(AuthTestCase):
     def test_filter_channel(self):
         channel = NimbusExperiment.Channel.NIGHTLY
         experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE, channel=channel
+            application=NimbusExperiment.Application.FENIX,
+            slug=f"channel-{channel}",
+            status=NimbusExperiment.Status.LIVE,
+            channel=channel,
+            channels=[],
         )
         [
-            NimbusExperimentFactory.create(status=NimbusExperiment.Status.LIVE, channel=c)
+            NimbusExperimentFactory.create(
+                application=NimbusExperiment.Application.FENIX,
+                slug=f"channel-{c}",
+                status=NimbusExperiment.Status.LIVE,
+                channel=c,
+                channels=[],
+            )
             for c in {*list(NimbusExperiment.Channel)} - {channel}
         ]
 
@@ -313,6 +323,70 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
         self.assertEqual(
             {e.slug for e in response.context["experiments"]}, {experiment.slug}
+        )
+
+    def test_filter_channels(self):
+        experiment_nightly = NimbusExperimentFactory.create(
+            slug="nightly",
+            status=NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+            channels=[],
+        )
+        experiment_nightly_beta = NimbusExperimentFactory.create(
+            slug="nightly-beta",
+            status=NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.BETA],
+        )
+        experiment_release_beta = NimbusExperimentFactory.create(
+            slug="release-beta",
+            status=NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE, NimbusExperiment.Channel.BETA],
+        )
+        experiment_release_dev = NimbusExperimentFactory.create(
+            slug="release-dev",
+            status=NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[
+                NimbusExperiment.Channel.RELEASE,
+                NimbusExperiment.Channel.DEVELOPER,
+            ],
+        )
+        NimbusExperimentFactory.create(
+            slug="aurora-dev",
+            status=NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[
+                NimbusExperiment.Channel.AURORA,
+                NimbusExperiment.Channel.DEVELOPER,
+            ],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-list"),
+            {
+                "status": NimbusExperiment.Status.LIVE,
+                "channel": [
+                    NimbusExperiment.Channel.NIGHTLY,
+                    NimbusExperiment.Channel.RELEASE,
+                ],
+            },
+        )
+
+        self.assertEqual(
+            {e.slug for e in response.context["experiments"]},
+            {
+                experiment_nightly.slug,
+                experiment_nightly_beta.slug,
+                experiment_release_beta.slug,
+                experiment_release_dev.slug,
+            },
         )
 
     def test_filter_version(self):
