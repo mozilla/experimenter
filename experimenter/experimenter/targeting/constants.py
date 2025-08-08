@@ -1007,6 +1007,21 @@ WIN10_EOS_SYNC_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_EOS_SYNC_TOAST_ELIGIBLE = NimbusTargetingConfig(
+    name="Users in the Windows 10 EOS Sync treatment branch",
+    slug="win10_eos_sync_toast_eligible",
+    description="Users in the Windows 10 EOS Sync treatment branch",
+    targeting=(
+        "isBackgroundTaskMode "
+        "&& defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging'] "
+        "== 'treatment-a'"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 INFREQUENT_USER_URIS = NimbusTargetingConfig(
     name="Infrequent user (uris)",
     slug="infrequent_user_uris",
@@ -2244,6 +2259,17 @@ IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     slug="ios_apple_intelligence_available_user",
     description="Users that have apple intelligence available",
     targeting="is_apple_intelligence_available",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+CANNOT_USE_APPLE_INTELLIGENCE_USER = NimbusTargetingConfig(
+    name="Cannot Use Apple Intelligence Users",
+    slug="cannot_use_apple_intelligence_user",
+    description="Users who cannot use the Apple Intelligence model",
+    targeting="cannot_use_apple_intelligence",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

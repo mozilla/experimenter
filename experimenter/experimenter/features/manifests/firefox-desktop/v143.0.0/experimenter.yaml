@@ -1397,7 +1397,19 @@ newtabSmartShortcuts:
     thom_weight:
       type: int
       description: >-
-        Percentage weight of thompson sampling relative to frecency
+        Percentage weight of thompson sampling
+    frec_weight:
+      type: int
+      description: >-
+        Percentage weight of frecency
+    bias_weight:
+      type: int
+      description: >-
+        Percentage weight for bias for computing final ranking
+    eta:
+      type: int
+      description: >-
+        Learning rate for shortcut ranking weights, will divide by 10000
 
 newtabSpocsCache:
   description: The about:newtab sponsored content cache.

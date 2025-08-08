@@ -452,6 +452,22 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             )
         ).value
     )
+    channels = factory.LazyAttribute(
+        lambda o: [
+            str(c)
+            for c in random.choices(
+                list(
+                    set(
+                        NimbusExperiment.APPLICATION_CONFIGS[
+                            o.application
+                        ].channel_app_id.keys()
+                    )
+                    - {NimbusExperiment.Channel.NO_CHANNEL}
+                ),
+                k=2,
+            )
+        ]
+    )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
     targeting_config_slug = NimbusExperiment.TargetingConfig.NO_TARGETING
     primary_outcomes = factory.LazyAttribute(

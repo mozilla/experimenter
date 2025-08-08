@@ -564,36 +564,14 @@
                 {
                   "allOf": [
                     {
-                      "allOf": [
-                        {
-                          "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText"
-                        },
-                        {
-                          "not": {
-                            "required": [
-                              "href"
-                            ]
-                          }
-                        },
-                        {
-                          "type": "object",
-                          "description": "Additional arguments, only a `where` override is currently allowed",
-                          "properties": {
-                            "args": {
-                              "type": "object",
-                              "description": "Where to open ('tab', 'tabshifted', 'current', etc.)",
-                              "properties": {
-                                "where": {
-                                  "type": "string",
-                                  "description": "Where to open—e.g. 'tab', 'window', etc."
-                                }
-                              },
-                              "additionalProperties": false
-                            }
-                          },
-                          "additionalProperties": true
-                        }
-                      ]
+                      "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText"
+                    },
+                    {
+                      "not": {
+                        "required": [
+                          "href"
+                        ]
+                      }
                     }
                   ]
                 },
@@ -644,26 +622,6 @@
             "dismissable": {
               "description": "Should the infobar include an X dismiss button, defaults to true",
               "type": "boolean"
-            },
-            "impression_action": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "SET_PREF"
-                  ],
-                  "description": "Action dispatched on message impression, currently only 'SET_PREF' is allowed."
-                },
-                "data": {
-                  "type": "object"
-                }
-              },
-              "required": [
-                "type",
-                "data"
-              ],
-              "additionalProperties": true
             },
             "buttons": {
               "type": "array",

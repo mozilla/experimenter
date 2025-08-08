@@ -5,13 +5,6 @@ about:
 channels:
   - developer
 features:
-  address-sync:
-    description: Turns on address sync.
-    variables:
-      enabled:
-        description: "Whether or not to turn on address sync.\n"
-        type: Boolean
-        default: true
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -23,13 +16,6 @@ features:
         description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
         type: Boolean
         default: false
-  app-icon-selection:
-    description: Allows the user to set an alternative app launcher icon.
-    variables:
-      enabled:
-        description: Whether or not the feature is available for the user.
-        type: Boolean
-        default: true
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -67,6 +53,13 @@ features:
     variables:
       enabled:
         description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
+        type: Boolean
+        default: false
+  compose-homepage:
+    description: Turns on compose homepage.
+    variables:
+      enabled:
+        description: "Whether or not to turn on the compose homepage.\n"
         type: Boolean
         default: true
   cookie-banners:
@@ -156,13 +149,10 @@ features:
         description: Enables precise event timestamps for Glean events
         type: Boolean
         default: true
-      gleanMetricConfiguration:
-        description: Configuration for Glean Server Knobs
-        type: GleanServerKnobsConfiguration
-        default:
-          event_threshold: ~
-          metrics_enabled: {}
-          pings_enabled: {}
+      metrics-enabled:
+        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
+        type: "Map<String, Boolean>"
+        default: {}
       ping-lifetime-max-time:
         description: After what time to auto-flush
         type: Int
@@ -207,7 +197,6 @@ features:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
         type: "Map<HomeScreenSection, Boolean>"
         default:
-          header: false
           top-sites: true
           jump-back-in: true
           bookmarks: true
@@ -362,7 +351,7 @@ features:
               marketing-data:
                 body-line-one-text: onboarding_marketing_learn_more
                 body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_out_checkbox
+                body-line-two-text: onboarding_marketing_opt_in_checkbox
             image-res: ic_onboarding_welcome
             ordering: 40
             prerequisites:
@@ -382,7 +371,7 @@ features:
               marketing-data:
                 body-line-one-text: onboarding_marketing_learn_more
                 body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_out_checkbox
+                body-line-two-text: onboarding_marketing_opt_in_checkbox
         string-alias: OnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
@@ -391,6 +380,13 @@ features:
           ALWAYS: "true"
           NEVER: "false"
         string-alias: ConditionName
+  mars:
+    description: Mozilla Ad Routing Service (MARS) unified ads service.
+    variables:
+      enabled:
+        description: "Whether or not to enable MARS endpoint to serve sponsored top sites and stories.\n"
+        type: Boolean
+        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
@@ -600,6 +596,7 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<MR2022Section, Boolean>"
         default:
+          sync-cfr: true
           wallpapers-selection-tool: true
           tcp-cfr: true
           tcp-feature: true
@@ -872,20 +869,6 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
-  suppress-sponsored-top-sites:
-    description: Suppress sponsored top sites for new users for 14 days.
-    variables:
-      enabled:
-        description: "If true, new users won’t see sponsored tiles for 14 days."
-        type: Boolean
-        default: false
-  tab-management-enhancements:
-    description: Control the visibility of the tab management enhancements.
-    variables:
-      enabled:
-        description: "Whether or not to enable the tab management enhancements.\n"
-        type: Boolean
-        default: false
   tab-strip:
     description: Enables tab strip.
     variables:
@@ -1017,8 +1000,6 @@ enums:
         description: The sites the user has bookmarked.
       collections:
         description: The collections section of the homepage.
-      header:
-        description: The header of the homescreen.
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
       pocket:
@@ -1034,6 +1015,8 @@ enums:
   MR2022Section:
     description: The identifiers for the sections of the MR 2022.
     variants:
+      sync-cfr:
+        description: CFR for the first time you see a synced tab on the home screen.
       tcp-cfr:
         description: CFR for the first time you use the browse with Total Cookie Protection on the browser screen.
       tcp-feature:
@@ -1165,21 +1148,6 @@ objects:
         description: "An optional terms of service data for the onboarding card.\n"
         type: Option<TermsOfServiceData>
         default: ~
-  GleanServerKnobsConfiguration:
-    description: A configuration object for Glean server knobs.
-    fields:
-      event_threshold:
-        description: The threshold of events that will be buffered before an events ping is collected and submitted.
-        type: Option<Int>
-        default: ~
-      metrics_enabled:
-        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
-        type: "Map<String, Boolean>"
-        default: {}
-      pings_enabled:
-        description: "A map of ping names to booleans representing the state of the 'enabled' flag for that ping."
-        type: "Map<String, Boolean>"
-        default: {}
   MarketingData:
     description: An object to describe the marketing data onboarding card.
     fields:

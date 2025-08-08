@@ -645,6 +645,26 @@
               "description": "Should the infobar include an X dismiss button, defaults to true",
               "type": "boolean"
             },
+            "impression_action": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "SET_PREF"
+                  ],
+                  "description": "Action dispatched on message impression, currently only 'SET_PREF' is allowed."
+                },
+                "data": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "type",
+                "data"
+              ],
+              "additionalProperties": true
+            },
             "buttons": {
               "type": "array",
               "items": {
