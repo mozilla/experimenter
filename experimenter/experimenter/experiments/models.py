@@ -1822,6 +1822,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return transformed_changelogs
 
     @property
+    def get_channel_display(self):
+        if self.is_desktop and self.channels:
+            return ", ".join(self.Channel(c).label for c in sorted(self.channels))
+        elif self.channel:
+            return self.Channel(self.channel).label
+
+    @property
     def get_firefox_min_version_display(self):
         return self.firefox_min_version.replace("!", "0")
 
