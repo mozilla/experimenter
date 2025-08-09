@@ -106,7 +106,7 @@ commands:
           command: |
             export GH_TOKEN=$(python .circleci/scripts/create_jwt.py)
             if [ -z "$GH_TOKEN" ]; then
-              echo "❌ Failed to generate GH_TOKEN ❌"
+              echo "Failed to generate GH_TOKEN"
               exit 1
             fi
             echo "export GH_TOKEN=\"${GH_TOKEN}\"" >> "$BASH_ENV"
@@ -807,24 +807,6 @@ jobs:
             else
               echo "No config changes, skipping"
             fi
-  test-github-bot:
-    machine:
-      image: ubuntu-2204:2024.11.1
-      docker_layer_caching: true
-    steps:
-      - checkout
-      - setup-github-bot
-      - run:
-          name: Make a PR
-          command: |
-            git checkout main
-            git pull origin main
-            touch test_file.txt
-            git checkout -B test-github-app
-            git add .
-            git commit -m "TESTING GITHUB APP BOT"
-            git push origin test-github-app -f
-            gh pr create -t "TESTING GITHUB APP BOT" -b "" --base main --head test-github-app --repo b4handjr/experimenter
 
   update_firefox_versions:
     machine:
@@ -890,7 +872,6 @@ workflows:
 
   build:
     jobs:
-      - test-github-bot
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
