@@ -646,24 +646,40 @@
               "type": "boolean"
             },
             "impression_action": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "SET_PREF"
-                  ],
-                  "description": "Action dispatched on message impression, currently only 'SET_PREF' is allowed."
+              "oneOf": [
+                {
+                  "$ref": "file:///InfoBar.schema.json#/$defs/impressionActionItem"
                 },
-                "data": {
-                  "type": "object"
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "MULTI_ACTION"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "actions": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "$ref": "file:///InfoBar.schema.json#/$defs/impressionActionItem"
+                          }
+                        }
+                      },
+                      "required": [
+                        "actions"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "data"
+                  ],
+                  "additionalProperties": false
                 }
-              },
-              "required": [
-                "type",
-                "data"
-              ],
-              "additionalProperties": true
+              ]
             },
             "buttons": {
               "type": "array",
@@ -797,6 +813,44 @@
           "required": [
             "raw",
             "href"
+          ],
+          "additionalProperties": false
+        },
+        "impressionActionItem": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "SET_PREF"
+            },
+            "once": {
+              "type": "boolean",
+              "description": "If true, only fire on first impression."
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "pref": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "value": {}
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              },
+              "required": [
+                "pref"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
           ],
           "additionalProperties": false
         }
