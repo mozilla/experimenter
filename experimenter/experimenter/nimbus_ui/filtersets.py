@@ -336,8 +336,11 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
 
     def filter_my_deliveries(self, queryset, name, value):
         user = self.request.user
-        if value == MyDeliveriesChoices.OWNED:
-            return queryset.filter(owner=user)
-        elif value == MyDeliveriesChoices.SUBSCRIBED:
-            return queryset.filter(subscribers=user)
-        return queryset  # Default = AllDeliveries
+
+        match value:
+            case MyDeliveriesChoices.OWNED:
+                return queryset.filter(owner=user)
+            case MyDeliveriesChoices.SUBSCRIBED:
+                return queryset.filter(subscribers=user)
+            case _:
+                return queryset  # Default = All Deliveries

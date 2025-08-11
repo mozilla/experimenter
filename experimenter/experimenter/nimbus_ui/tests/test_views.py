@@ -27,7 +27,11 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
-from experimenter.nimbus_ui.filtersets import SortChoices, TypeChoices
+from experimenter.nimbus_ui.filtersets import (
+    MyDeliveriesChoices,
+    SortChoices,
+    TypeChoices,
+)
 from experimenter.nimbus_ui.forms import (
     QAStatusForm,
     TakeawaysForm,
@@ -3165,11 +3169,51 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         )
         self.assertLessEqual(len(all_my_experiments_page), 25)
 
-    def test_my_deliveries_filter_options(self):
+    def test_my_deliveries_filter_options_all_deliveries_default(self):
         owned = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
         )
+        other_user = UserFactory.create()
+        subscribed = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            owner=other_user,
+            slug="subscribed-exp",
+        )
+        subscribed.subscribers.add(self.user)
+        unrelated = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="unrelated-exp",
+        )
+        response = self.client.get(reverse("nimbus-ui-home"))
+        experiments = list(response.context["all_my_experiments_page"].object_list)
+        self.assertIn(owned, experiments)
+        self.assertIn(subscribed, experiments)
+        self.assertNotIn(unrelated, experiments)
 
+    def test_my_deliveries_filter_options_all_deliveries(self):
+        owned = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
+        )
+        other_user = UserFactory.create()
+        subscribed = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            owner=other_user,
+            slug="subscribed-exp",
+        )
+        subscribed.subscribers.add(self.user)
+        unrelated = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="unrelated-exp",
+        )
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.ALL}"
+        )
+        experiments = list(response.context["all_my_experiments_page"].object_list)
+        self.assertIn(owned, experiments)
+        self.assertIn(subscribed, experiments)
+        self.assertNotIn(unrelated, experiments)
+
+    def test_my_deliveries_filter_options_subscribed(self):
         other_user = UserFactory.create()
         subscribed = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PREVIEW,
@@ -3183,28 +3227,28 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
             slug="unrelated-exp",
         )
 
-        # AllDeliveries (default)
-        response = self.client.get(reverse("nimbus-ui-home"))
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.SUBSCRIBED}"
+        )
         experiments = list(response.context["all_my_experiments_page"].object_list)
-        self.assertIn(owned, experiments)
         self.assertIn(subscribed, experiments)
         self.assertNotIn(unrelated, experiments)
 
-        # Owned only
-        response = self.client.get(
-            reverse("nimbus-ui-home") + "?my_deliveries_status=AllOwned"
+    def test_my_deliveries_filter_options_owned(self):
+        owned = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
+        )
+
+        unrelated = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="unrelated-exp",
+        )
+        response = response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.OWNED}"
         )
         experiments = list(response.context["all_my_experiments_page"].object_list)
         self.assertIn(owned, experiments)
-        self.assertNotIn(subscribed, experiments)
-
-        # Subscribed only
-        response = self.client.get(
-            reverse("nimbus-ui-home") + "?my_deliveries_status=AllSubscribed"
-        )
-        experiments = list(response.context["all_my_experiments_page"].object_list)
-        self.assertIn(subscribed, experiments)
-        self.assertNotIn(owned, experiments)
+        self.assertNotIn(unrelated, experiments)
 
 
 class TestSlugRedirectToSummary(AuthTestCase):

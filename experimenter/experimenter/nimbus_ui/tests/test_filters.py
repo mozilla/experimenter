@@ -78,7 +78,7 @@ class FilterTests(TestCase):
         )
 
 
-class TestHomeFilterBehavior(AuthTestCase):
+class TestHomeFilters(AuthTestCase):
     def test_my_deliveries_status_field_is_set_to_default_initial(self):
         NimbusExperimentFactory.create(owner=self.user)
 
@@ -147,7 +147,7 @@ class TestHomeFilterBehavior(AuthTestCase):
         unrelated = NimbusExperimentFactory.create()
 
         response = self.client.get(
-            reverse("nimbus-ui-home") + f"?my_deliveries_status={MyDeliveriesChoices.ALL}"
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.ALL}"
         )
         self.assertEqual(response.status_code, 200)
 
