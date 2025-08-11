@@ -1317,6 +1317,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             for feature_config in self.feature_configs.all().order_by("slug")
         )
 
+        if self.is_desktop and self.channels:
+            keys.append("-".join(sorted(self.channels)))
+
         if self.channel:
             keys.append(self.channel)
 
