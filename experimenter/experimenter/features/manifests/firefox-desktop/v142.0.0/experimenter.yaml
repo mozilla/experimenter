@@ -1356,6 +1356,16 @@ newtabShortcutsExperiment:
       description: >-
         Adjusting sizes and spacing of new tab shortcuts.
 
+newtabInferredPersonalization:
+  description: about:newtab inferred content personalization settings
+  owner: rrando@mozilla.com
+  hasExposure: false
+  variables:
+    iv_refresh_frequency_hours:
+      type: int
+      description: >-
+        Time to refresh interest vector in hours
+
 newtabSmartShortcuts:
   description: about:newtab personalized shortcuts
   owner: rhamoui@mozilla.com, sdowne@mozilla.com
