@@ -95,9 +95,8 @@ class TestHomeFilters(AuthTestCase):
         owned_exp = NimbusExperimentFactory.create(owner=self.user)
         other_exp = NimbusExperimentFactory.create()
 
-        response = self.client.get(
-            reverse("nimbus-ui-home")
-            + f"?my_deliveries_status={MyDeliveriesChoices.OWNED}"
+        response = response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.OWNED}"
         )
         self.assertEqual(response.status_code, 200)
 
@@ -112,9 +111,8 @@ class TestHomeFilters(AuthTestCase):
 
         not_subscribed = NimbusExperimentFactory.create()
 
-        response = self.client.get(
-            reverse("nimbus-ui-home")
-            + f"?my_deliveries_status={MyDeliveriesChoices.SUBSCRIBED}"
+        response = response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.SUBSCRIBED}"
         )
         self.assertEqual(response.status_code, 200)
 
