@@ -1160,6 +1160,20 @@ newtabMerinoOhttp:
       description: >-
         Enables using OHTTP for merino content requests
 
+newtabOhttpImages:
+  description: Sending request to MARS over OHTTP in newtab
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: >-
+        Enables using OHTTP for images
+    includeTopStoriesSection:
+      type: boolean
+      description: >-
+        Enables using OHTTP for top stories section if enabled for images
+
 newtabMobileDownloadPromotion:
   description: Cross-sell promotion to download Firefox for mobile
   owner: mcrawford@mozilla.com
@@ -1372,6 +1386,16 @@ newTabSectionsExperiment:
         branch: user
         pref: browser.newtabpage.activity-stream.discoverystream.placements.contextualBanners.counts
       description: CSV string of AdBanner placement counts on newtab Pocket grid. The count tells the ad server how many banners to return for this position and placement.
+
+newtabInferredPersonalization:
+  description: about:newtab inferred content personalization settings
+  owner: rrando@mozilla.com
+  hasExposure: false
+  variables:
+    iv_refresh_frequency_hours:
+      type: int
+      description: >-
+        Time to refresh interest vector in hours
 
 newtabSmartShortcuts:
   description: about:newtab personalized shortcuts
@@ -4625,6 +4649,13 @@ certCompression:
         pref: security.tls.enable_certificate_compression_zstd
       description: >-
         Whether to enable Zstd for TLS certificate compression.
+    h3EnableZstd:
+      type: boolean
+      setPref:
+        branch: default
+        pref: network.http.http3.enable_certificate_compression_zstd
+      description: >-
+        Whether to enable Zstd for H3/QUIC certificate compression.
 
 bounceTrackingProtection:
   description: Controls the Bounce Tracking Protection feature.

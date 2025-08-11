@@ -207,7 +207,7 @@ features:
         description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
         type: "Map<HomeScreenSection, Boolean>"
         default:
-          header: false
+          header: true
           top-sites: true
           jump-back-in: true
           bookmarks: true
