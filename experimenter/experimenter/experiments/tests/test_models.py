@@ -2528,6 +2528,7 @@ class TestNimbusExperiment(TestCase):
             is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
@@ -2557,6 +2558,7 @@ class TestNimbusExperiment(TestCase):
             population_percent=Decimal("50.0"),
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             feature_configs=[feature],
             is_rollout=True,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -2575,6 +2577,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
@@ -2584,6 +2587,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             feature_configs=[feature],
             population_percent=Decimal("100.0"),
         )
@@ -2606,6 +2610,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
@@ -2615,6 +2620,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             feature_configs=[feature],
             population_percent=Decimal("25.0"),
         )
@@ -2636,6 +2642,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             feature_configs=[feature],
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             population_percent=Decimal("50.0"),
@@ -2692,6 +2699,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             feature_configs=[feature],
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             population_percent=Decimal("50.0"),
@@ -2701,6 +2709,23 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.bucket_namespace,
             "firefox-desktop-feature-release-group_id",
+        )
+
+    def test_bucket_namespace_includes_channels_for_desktop_experiment(self):
+        feature = NimbusFeatureConfigFactory(slug="feature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.BETA, NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            population_percent=Decimal("50.0"),
+        )
+
+        self.assertEqual(
+            experiment.bucket_namespace,
+            "firefox-desktop-feature-beta-release-group_id",
         )
 
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
@@ -4036,6 +4061,7 @@ class TestNimbusExperiment(TestCase):
                 slug=slug,
                 application=NimbusExperiment.Application.DESKTOP,
                 channel=NimbusExperiment.Channel.RELEASE,
+                channels=[],
                 firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
                 firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
                 targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -4048,6 +4074,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
